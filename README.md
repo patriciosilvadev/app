@@ -28,5 +28,5 @@ lint - Runs the linting for ESLint
 ```
 
 ## Copyrights & credits
-- Primary font is [HKGrotesk](https://hanken.co/hk-grotesk/)
-- Fonts are from Font Awesome Premium - you will need to buy a subscription & update the `.npmrc` file with your token
+- Font used is [HKGrotesk](https://hanken.co/hk-grotesk/)
+- Icons from [Font Awesome Pro](https://fontawesome.com/license)
