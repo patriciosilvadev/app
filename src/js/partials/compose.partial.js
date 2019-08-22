@@ -8,6 +8,7 @@ import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
 import { updateLoading, updateError } from '../actions'
+import UploadService from '../services/upload.service'
 
 const Compose = styled.div`
   width: 100%;
@@ -123,6 +124,7 @@ class ComposePartial extends React.Component {
         attachments: [...this.state.attachments, ...[{ thumbnail: Location, uri: Location, mime: mime.mime }]],
       })
     } catch (e) {
+      console.log(e)
       this.props.updateLoading(false)
       this.props.updateError(e)
     }
