@@ -1,3 +1,5 @@
+import { UPLOAD_HOST } from '../constants'
+
 export default class UploadService {
   constructor(file) {
     const form = new FormData()
@@ -6,7 +8,7 @@ export default class UploadService {
     form.append('file', file)
 
     // Make the request & return it
-    return fetch('http://localhost:8181/api/upload', {
+    return fetch(UPLOAD_HOST, {
       method: 'POST',
       body: form,
     })

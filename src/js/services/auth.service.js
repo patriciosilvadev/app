@@ -1,4 +1,5 @@
 import CookiesService from './cookies.service'
+import { AUTH_HOST } from '../constants'
 
 export default class AuthService {
   static parseJwt(token) {
@@ -38,7 +39,7 @@ export default class AuthService {
   }
 
   static confirm(token) {
-    return fetch('http://localhost:8181/api/confirm', {
+    return fetch(AUTH_HOST + '/confirm', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -53,7 +54,7 @@ export default class AuthService {
   }
 
   static update(email, password, code) {
-    return fetch('http://localhost:8181/api/password/update', {
+    return fetch(AUTH_HOST + '/password/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +68,7 @@ export default class AuthService {
   }
 
   static reset(email) {
-    return fetch(`http://localhost:8181/api/password/reset`, {
+    return fetch(AUTH_HOST + '/password/reset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +78,7 @@ export default class AuthService {
   }
 
   static signup(email, username, password) {
-    return fetch('http://localhost:8181/api/signup', {
+    return fetch(AUTH_HOST + '/signup', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -96,7 +97,7 @@ export default class AuthService {
   }
 
   static signin(username, password) {
-    return fetch('http://localhost:8181/api/signin', {
+    return fetch(AUTH_HOST + '/signin', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
