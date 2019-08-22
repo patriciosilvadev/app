@@ -7,6 +7,7 @@ import PopupComponent from '../components/popup.component'
 import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
+import { updateLoading, updateError } from '../actions'
 
 const Compose = styled.div`
   width: 100%;
@@ -355,7 +356,7 @@ class ComposePartial extends React.Component {
                 className="ml-15 button"
                 onClick={() => this.insertAtCursor("@")}
               />
-            
+
               <IconComponent
                 icon="COMPOSE_SEND"
                 color="#565456"
@@ -384,6 +385,13 @@ ComposePartial.propTypes = {
   members: PropTypes.array,
   attachments: PropTypes.bool,
   compact: PropTypes.bool,
+  updateLoading: PropTypes.func,
+  updateError: PropTypes.func,
+}
+
+const mapDispatchToProps = {
+  updateLoading: loading => updateLoading(loading),
+  updateError: error => updateLoading(error),
 }
 
 const mapStateToProps = state => {
@@ -396,5 +404,5 @@ const mapStateToProps = state => {
 
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(ComposePartial)
