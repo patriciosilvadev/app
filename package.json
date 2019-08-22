@@ -7,7 +7,7 @@
         "build:prod": "webpack --config webpack.config.js",
         "build:dev": "webpack --config webpack.config.dev.js",
         "watch:prod": "webpack -w --config webpack.config.js",
-        "watch:dev": "webpack -w --config webpack.config.dev.js --env.NODE_ENV=local",
+        "watch:dev": "webpack -w --config webpack.config.dev.js",
         "serve:prod": "webpack-dev-server --config webpack.config.js --hot --inline",
         "serve:dev": "webpack-dev-server --config webpack.config.dev.js --hot --inline",
         "dev": "npm run watch:dev | npm run serve:dev",
