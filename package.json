@@ -1,7 +1,7 @@
 {
-    "name": "weekday",
-    "version": "1.0.0",
-    "description": "Weekday, a team messaging platform.",
+    "name": "weekday-client",
+    "version": "0.0.0",
+    "description": "Weekday, a hackable team messaging platform.",
     "main": "index.js",
     "scripts": {
         "build:prod": "webpack --config webpack.config.js",
