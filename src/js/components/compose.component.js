@@ -72,7 +72,7 @@ const MentionContainer = styled.div`
   border-top: 1px solid #ebedef;
 `
 
-class ComposePartial extends React.Component {
+class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -381,7 +381,7 @@ class ComposePartial extends React.Component {
   }
 }
 
-ComposePartial.propTypes = {
+ComposeComponent.propTypes = {
   team: PropTypes.any,
   teams: PropTypes.any,
   common: PropTypes.any,
@@ -409,4 +409,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ComposePartial)
+)(ComposeComponent)

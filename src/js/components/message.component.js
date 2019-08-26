@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import AvatarComponent from './avatar.component'
 import AttachmentComponent from './attachment.component'
 import moment from 'moment'
-import ComposePartial from '../partials/compose.partial'
+import ComposeComponent from '../compose.component'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
 import PopupComponent from '../components/popup.component'
@@ -280,7 +280,7 @@ export default function MessageComponent(props) {
 
             {reply &&
               <Compose>
-                <ComposePartial
+                <ComposeComponent
                   onSend={createRoomMessageReply}
                   compact={true}
                 />

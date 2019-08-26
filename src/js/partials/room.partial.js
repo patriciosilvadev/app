@@ -4,7 +4,7 @@ import AvatarComponent from '../components/avatar.component'
 import UploadService from '../services/upload.service'
 import MessageComponent from '../components/message.component'
 import '../helpers/extensions'
-import ComposePartial from './compose.partial'
+import ComposeComponent from '../components/compose.component'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import EventService from '../services/event.service'
@@ -360,7 +360,7 @@ class RoomPartial extends React.Component {
 
           {/* Only if they are a member */}
           {this.state.open &&
-            <ComposePartial
+            <ComposeComponent
               onSend={this.createRoomMessage}
               members={this.props.room.members}
               compact={false}
