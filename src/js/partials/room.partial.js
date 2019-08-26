@@ -357,7 +357,6 @@ class RoomPartial extends React.Component {
             <ComposePartial
               onSend={this.createRoomMessage}
               members={this.props.room.members}
-              attachments={true}
               compact={false}
             />
           }

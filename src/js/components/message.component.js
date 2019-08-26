@@ -282,7 +282,6 @@ export default function MessageComponent(props) {
               <Compose>
                 <ComposePartial
                   onSend={createRoomMessageReply}
-                  attachments={false}
                   compact={true}
                 />
               </Compose>

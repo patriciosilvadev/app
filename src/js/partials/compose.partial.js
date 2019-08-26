@@ -341,14 +341,12 @@ class ComposePartial extends React.Component {
             />
           </PopupComponent>
 
-          {this.props.attachments &&
-            <IconComponent
-              icon="COMPOSE_ATTACHMENT"
-              color="#565456"
-              className="ml-15 button"
-              onClick={() => this.fileRef.click()}
-            />
-          }
+          <IconComponent
+            icon="COMPOSE_ATTACHMENT"
+            color="#565456"
+            className="ml-15 button"
+            onClick={() => this.fileRef.click()}
+          />
 
           {!this.props.compact &&
             <React.Fragment>
