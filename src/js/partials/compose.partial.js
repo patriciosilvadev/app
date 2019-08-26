@@ -25,9 +25,9 @@ const InputContainer = styled.div`
 
 const Attachments = styled.div`
   width: 100%;
-  padding: 30px;
+  padding: 20px;
   background: #ffffff;
-  border-top: 1px solid #ecf0f2;
+  border-top: 0px solid #ecf0f2;
   position: relative;
 `
 
@@ -251,6 +251,10 @@ class ComposePartial extends React.Component {
     this.composeRef.focus()
   }
 
+  componentDidUpdate() {
+    if (!this.props.compact) this.props.syncHeight()
+  }
+
   // prettier-ignore
   render() {
     return (
@@ -383,9 +387,9 @@ ComposePartial.propTypes = {
   common: PropTypes.any,
   onSend: PropTypes.func,
   members: PropTypes.array,
-  attachments: PropTypes.bool,
   compact: PropTypes.bool,
   updateLoading: PropTypes.func,
+  syncHeight: PropTypes.func,
   updateError: PropTypes.func,
 }
 

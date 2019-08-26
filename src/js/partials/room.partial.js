@@ -53,9 +53,11 @@ const Messages = styled.div`
   border-bottom: 1px solid #f1f3f5;
 `
 
+// Important for the height to be set here
 const MessagesContainer = styled.div`
   width: 100%;
   padding: 25px;
+  height: 1px;
 `
 
 const SmallSolidButton = styled.div`
@@ -126,6 +128,7 @@ class RoomPartial extends React.Component {
     this.updateRoomImage = this.updateRoomImage.bind(this)
     this.joinRoom = this.joinRoom.bind(this)
     this.createRoomMessage = this.createRoomMessage.bind(this)
+    this.syncHeight = this.syncHeight.bind(this)
   }
 
   scrollToBottom() {
@@ -230,13 +233,16 @@ class RoomPartial extends React.Component {
     })
   }
 
-  componentDidUpdate(prevProps) {
-    // If the message panel is shorter than the message-container, then push the panel down
+  // If the message panel is shorter than the message-container, then push the panel down
+  syncHeight() {
     if (this.scrollRef.scrollHeight > this.messagesRef.scrollHeight) this.messagesRef.style.marginTop = this.scrollRef.scrollHeight - this.messagesRef.scrollHeight + 'px'
+  }
+
+  componentDidUpdate(prevProps) {
+    this.syncHeight()
 
     // Scroll to the correct position after fetchRoomMessages
     // if (this.state.scrollHeight != this.scrollRef.scrollHeight) this.scrollRef.scrollTop = this.scrollRef.scrollHeight - this.state.scrollHeight
-
     // If the room ID updates - then refetch all the data
     if (this.props.match.params.roomId != prevProps.match.params.roomId) this.props.fetchRoom(this.props.match.params.roomId)
   }
@@ -358,6 +364,7 @@ class RoomPartial extends React.Component {
               onSend={this.createRoomMessage}
               members={this.props.room.members}
               compact={false}
+              syncHeight={this.syncHeight}
             />
           }
 
