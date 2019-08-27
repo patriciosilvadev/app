@@ -266,7 +266,7 @@ class RoomsPartial extends React.Component {
             <HeaderTitle>
               {this.props.common.user.name}
             </HeaderTitle>
-            {this.props.team.name &&
+            {this.props.team.name && !this.props.starred &&
               <HeaderSubtitle>
                 {this.props.team.name}
               </HeaderSubtitle>
