@@ -239,7 +239,7 @@ class AuthPage extends React.Component {
 
     this.state = {
       view: 'signin',
-      verify: true,
+      verify: false,
       error: null,
       loading: null,
     }
@@ -410,8 +410,8 @@ class AuthPage extends React.Component {
                           {errors.email && touched.email && <Error>{errors.email}</Error>}
 
                           <Footer className="column align-items-center">
-                            <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Send me a verification code</BigSolidButton>
-                            <SmallTextButton onClick={() => this.setState({ view: 'signin' })} className="mt-30">
+                            <BigSolidButton type="submit" disabled={isSubmitting}>Send me a verification code</BigSolidButton>
+                            <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                               Go back to sign in
                             </SmallTextButton>
                           </Footer>
@@ -484,8 +484,8 @@ class AuthPage extends React.Component {
                           {errors.code && touched.code && <Error>{errors.code}</Error>}
 
                           <Footer className="column align-items-center">
-                            <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Update Password</BigSolidButton>
-                            <SmallTextButton onClick={() => this.setState({ verify: false })} className="mt-30">
+                            <BigSolidButton type="submit" disabled={isSubmitting}>Update Password</BigSolidButton>
+                            <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
                               Get another code
                             </SmallTextButton>
                           </Footer>
@@ -579,7 +579,7 @@ class AuthPage extends React.Component {
 
                       <Footer className="column align-items-center">
                         <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Sign up</BigSolidButton>
-                        <SmallTextButton onClick={() => this.setState({ view: 'signin' })} className="mt-30">
+                        <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                           Go back to sign in
                         </SmallTextButton>
                         <SmallTextButton className="mt-10">
