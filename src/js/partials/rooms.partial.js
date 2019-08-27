@@ -151,6 +151,7 @@ class RoomsPartial extends React.Component {
     // If it exists, fetch
     if (this.props.starred && !teamId) this.props.fetchStarredRooms(userId)
     if (!this.props.starred && teamId) this.props.fetchRooms(teamId, userId)
+    if (teamId) this.props.fetchTeam(teamId, userId)
   }
 
   componentDidUpdate(prevProps) {
@@ -159,6 +160,7 @@ class RoomsPartial extends React.Component {
 
     if (!prevProps.starred && this.props.starred) this.props.fetchStarredRooms(userId)
     if (!prevProps.starred && teamId != prevProps.match.params.teamId) this.props.fetchRooms(teamId, userId)
+    if (teamId != prevProps.match.params.teamId) this.props.fetchTeam(teamId, userId)
   }
 
   componentWillUnmount() {
@@ -456,12 +458,14 @@ RoomsPartial.propTypes = {
   createRoom: PropTypes.func,
   fetchRooms: PropTypes.func,
   fetchStarredRooms: PropTypes.func,
+  fetchTeam: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   createRoom: (title, description, team, user) => createRoom(title, description, team, user),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),
+  fetchTeam: teamId => fetchTeam(teamId),
 }
 
 const mapStateToProps = state => {

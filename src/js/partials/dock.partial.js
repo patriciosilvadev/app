@@ -45,20 +45,6 @@ class DockPartial extends React.Component {
     this.props.history.push('/auth')
   }
 
-  componentDidMount() {
-    const { teamId } = this.props.match.params
-    const userId = this.props.common.user.id
-
-    if (teamId) this.props.fetchTeam(teamId, userId)
-  }
-
-  componentDidUpdate(prevProps) {
-    const { teamId } = this.props.match.params
-    const userId = this.props.common.user.id
-
-    if (teamId != prevProps.match.params.teamId) this.props.fetchTeam(teamId, userId)
-  }
-
   // prettier-ignore
   render() {
     return (
@@ -134,12 +120,9 @@ DockPartial.propTypes = {
   rooms: PropTypes.array,
   common: PropTypes.any,
   teams: PropTypes.array,
-  fetchTeam: PropTypes.func,
 }
 
-const mapDispatchToProps = {
-  fetchTeam: teamId => fetchTeam(teamId),
-}
+const mapDispatchToProps = {}
 
 const mapStateToProps = state => {
   return {
