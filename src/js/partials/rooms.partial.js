@@ -345,7 +345,7 @@ class RoomsPartial extends React.Component {
                 const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
                 const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
-                const to = this.props.starred ? `/app/starred/room/${room.id}` : `/app/team/${room.team.id}/room/${room.id}`
+                const to = `/app/team/${room.team.id}/room/${room.id}`
 
                 return (
                   <Link className="w-100" key={index} to={to}>

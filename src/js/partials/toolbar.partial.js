@@ -81,12 +81,7 @@ class ToolbarPartial extends React.Component {
   deleteRoom() {
     this.setState({ confirmModal: false })
     this.props.deleteRoom(this.props.room.id)
-
-    if (this.props.starred) {
-      this.props.history.push(`/teams/starred/`)
-    } else {
-      this.props.history.push(`/teams/${this.props.team.id}/`)
-    }
+    this.props.history.push(`/teams/${this.props.team.id}/`)
   }
 
   // prettier-ignore
@@ -194,7 +189,6 @@ class ToolbarPartial extends React.Component {
 }
 
 ToolbarPartial.propTypes = {
-  starred: PropTypes.bool,
   team: PropTypes.any,
   teams: PropTypes.any,
   room: PropTypes.any,

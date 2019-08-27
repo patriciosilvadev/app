@@ -76,14 +76,13 @@ class AppPage extends React.Component {
         <ErrorComponent message={this.props.common.error} />
 
         <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
-          <Route path="/app" render={props => <DockPartial {...props} />} />
+          <Route path="/app" component={DockPartial} />
 
           {/* Rooms */}
           <Route path="/app/starred" render={props => <RoomsPartial {...props} starred={true} />} />
           <Route path="/app/team/:teamId" render={props => <RoomsPartial {...props} starred={false} />} />
 
           {/* Room */}
-          <Route path="/app/starred/room/:roomId" component={RoomPartial} />
           <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
 
           {/* Members */}
@@ -94,7 +93,6 @@ class AppPage extends React.Component {
 
           {/* Toolbar */}
           <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
-          <Route path="/app/starred/room/:roomId" render={props => <ToolbarPartial {...props} starred={true} />} />
         </div>
       </App>
     );
