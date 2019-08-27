@@ -29,6 +29,7 @@ class DockPartial extends React.Component {
       teamModal: false,
       teamCreateModal: false,
       accountModal: false,
+      pluginId: null,
     }
 
     this.signout = this.signout.bind(this)
@@ -48,6 +49,17 @@ class DockPartial extends React.Component {
   render() {
     return (
       <Dock className="column align-items-center">
+        {this.props.common.plugins.dock.map((plugin, index) => {
+          const { Component, id } = plugin
+
+          if (this.state.pluginId == id) return (
+            <Component 
+              key={index}
+              onClose={() => this.setState({ pluginId: null })}
+            />
+          )          
+        })}
+
         {/* Update an existing team */}
         {this.state.teamModal &&
           <TeamModal
@@ -113,6 +125,20 @@ class DockPartial extends React.Component {
         }
 
         <div className="flexer"></div>
+
+        {this.props.common.plugins.dock.map((plugin, index) => {
+          const { id, icon } = plugin
+
+          return (
+            <IconComponent
+              key={index}
+              color="#475669"
+              className="mt-15 button"
+              onClick={(e) => this.setState({ pluginId: id })}
+              icon={icon}
+            />
+          )
+        })}
 
         <IconComponent
           color="#475669"
