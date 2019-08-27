@@ -81,7 +81,12 @@ class ToolbarPartial extends React.Component {
   deleteRoom() {
     this.setState({ confirmModal: false })
     this.props.deleteRoom(this.props.room.id)
-    this.props.history.push(`/teams/${this.props.team.id}/`)
+
+    if (this.props.starred) {
+      this.props.history.push(`/teams/starred/`)
+    } else {
+      this.props.history.push(`/teams/${this.props.team.id}/`)
+    }
   }
 
   // prettier-ignore
@@ -131,7 +136,9 @@ class ToolbarPartial extends React.Component {
           </PopupComponent>
 
           <TooltipComponent direction="left" text="Messages" delay={1000}>
-            <Button className="row" onClick={() => this.props.history.push(`/app/t/${this.props.room.url}/members`)}>
+            <Button className="row" onClick={() => {
+                this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`) 
+            }}>
               <ButtonIcon className="row justify-content-center">
                 <IconComponent icon="TOOLBAR_MEMBERS" color="#ADB5BD" />
               </ButtonIcon>
@@ -187,6 +194,7 @@ class ToolbarPartial extends React.Component {
 }
 
 ToolbarPartial.propTypes = {
+  starred: PropTypes.bool,
   team: PropTypes.any,
   teams: PropTypes.any,
   room: PropTypes.any,

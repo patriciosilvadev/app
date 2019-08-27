@@ -93,6 +93,7 @@ class AppPage extends React.Component {
           }}/>
 
           <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
+          <Route path="/app/starred/room/:roomId" render={props => <ToolbarPartial {...props} starred={true} />} />
         </div>
       </App>
     );
