@@ -8,6 +8,8 @@ import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { fetchTeams } from '../actions'
 import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
+import TeamModal from '../modals/team.modal'
+import AccountModal from '../modals/account.modal'
 
 const Dock = styled.div`
   padding: 25px;
@@ -46,6 +48,32 @@ class DockPartial extends React.Component {
   render() {
     return (
       <Dock className="column align-items-center">
+        {/* Update an existing team */}
+        {this.state.teamModal &&
+          <TeamModal
+            id={this.props.team.id}
+            history={this.props.history}
+            onClose={() => this.setState({ teamModal: false })}
+          />
+        }
+
+        {/* Create a new team */}
+        {this.state.teamCreateModal &&
+          <TeamModal
+            id={null}
+            history={this.props.history}
+            onClose={() => this.setState({ teamCreateModal: false })}
+          />
+        }
+
+        {/* Update user account */}
+        {this.state.accountModal &&
+          <AccountModal
+            id={this.props.common.user.id}
+            onClose={() => this.setState({ accountModal: false })}
+          />
+        }
+        
         {this.props.teams.map((team, index) => {
           return (
             <Link key={index} to={`/app/team/${team.id}`}>

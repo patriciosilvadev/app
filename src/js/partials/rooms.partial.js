@@ -4,12 +4,9 @@ import RoomComponent from '../components/room.component'
 import AvatarComponent from '../components/avatar.component'
 import GraphqlService from '../services/graphql.service'
 import '../helpers/extensions'
-import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import TeamModal from '../modals/team.modal'
 import RoomModal from '../modals/room.modal'
-import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
@@ -218,33 +215,6 @@ class RoomsPartial extends React.Component {
   render() {
     return (
       <Rooms className="column align-items-stretch">
-        {/* Update an existing team */}
-        {this.state.teamModal &&
-          <TeamModal
-            id={this.props.team.id}
-            history={this.props.history}
-            onClose={() => this.setState({ teamModal: false })}
-          />
-        }
-
-        {/* Create a new team */}
-        {this.state.teamCreateModal &&
-          <TeamModal
-            id={null}
-            history={this.props.history}
-            onClose={() => this.setState({ teamCreateModal: false })}
-          />
-        }
-
-        {/* Update user account */}
-        {this.state.accountModal &&
-          <AccountModal
-            id={this.props.common.user.id}
-            onClose={() => this.setState({ accountModal: false })}
-          />
-        }
-
-        {/* Create a new room */}
         {this.state.roomCreateModal &&
           <RoomModal
             team={this.props.team.id ? this.props.team : null}
