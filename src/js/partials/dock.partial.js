@@ -49,14 +49,14 @@ class DockPartial extends React.Component {
     const { teamId } = this.props.match.params
     const userId = this.props.common.user.id
 
-    if (!this.props.starred && teamId) this.props.fetchTeam(teamId, userId)
+    if (teamId) this.props.fetchTeam(teamId, userId)
   }
 
   componentDidUpdate(prevProps) {
     const { teamId } = this.props.match.params
     const userId = this.props.common.user.id
 
-    if (!prevProps.starred && teamId != prevProps.match.params.teamId) this.props.fetchTeam(teamId, userId)
+    if (teamId != prevProps.match.params.teamId) this.props.fetchTeam(teamId, userId)
   }
 
   // prettier-ignore

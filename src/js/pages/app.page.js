@@ -79,19 +79,21 @@ class AppPage extends React.Component {
         <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
           <Route path="/app" render={props => <DockPartial {...props} />} />
 
-          {/* Starred view */}
+          {/* Rooms */}
           <Route path="/app/starred" render={props => <RoomsPartial {...props} starred={true} />} />
-          <Route path="/app/starred/room/:roomId" component={RoomPartial} />
-
-          {/* Main view */}
           <Route path="/app/team/:teamId" render={props => <RoomsPartial {...props} starred={false} />} />
+
+          {/* Room */}
+          <Route path="/app/starred/room/:roomId" component={RoomPartial} />
           <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
 
+          {/* Members */}
           <Route path="/app/team/:teamId/room/:roomId/members" render={props => {
               const MembersPartial = React.lazy(() => import("../partials/lazy/members.partial"))
               return <React.Suspense fallback={<Loader />}><MembersPartial {...props}/></React.Suspense>
           }}/>
 
+          {/* Toolbar */}
           <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
           <Route path="/app/starred/room/:roomId" render={props => <ToolbarPartial {...props} starred={true} />} />
         </div>
