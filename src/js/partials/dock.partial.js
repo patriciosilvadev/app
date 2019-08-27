@@ -1,19 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import RoomComponent from '../components/room.component'
 import AvatarComponent from '../components/avatar.component'
-import GraphqlService from '../services/graphql.service'
 import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import TeamModal from '../modals/team.modal'
-import RoomModal from '../modals/room.modal'
-import AccountModal from '../modals/account.modal'
-import { Subject } from 'rxjs'
-import { debounceTime } from 'rxjs/operators'
+import { fetchTeams } from '../actions'
 import PropTypes from 'prop-types'
-import { createRoom, fetchRooms, fetchStarredRooms, fetchTeam } from '../actions'
 import IconComponent from '../components/icon.component'
 
 const Dock = styled.div`
@@ -43,6 +36,10 @@ class DockPartial extends React.Component {
     await AuthService.signout()
 
     this.props.history.push('/auth')
+  }
+
+  componentDidMount() {
+    this.props.fetchTeams(this.props.common.user.id)
   }
 
   // prettier-ignore
@@ -120,9 +117,12 @@ DockPartial.propTypes = {
   rooms: PropTypes.array,
   common: PropTypes.any,
   teams: PropTypes.array,
+  fetchTeams: PropTypes.func,
 }
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  fetchTeams: userId => fetchTeams(userId),
+}
 
 const mapStateToProps = state => {
   return {

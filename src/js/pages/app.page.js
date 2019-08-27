@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Route, Link, withRouter, Switch } from 'react-
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { initialize, fetchUser, fetchTeams } from '../actions'
+import { initialize, fetchUser } from '../actions'
 import RoomsPartial from '../partials/rooms.partial'
 import RoomPartial from '../partials/room.partial'
 import DockPartial from '../partials/dock.partial'
@@ -59,7 +59,6 @@ class AppPage extends React.Component {
 
   async fetchData(userId) {
     this.props.fetchUser(userId)
-    this.props.fetchTeams(userId)
 
     const joins = await GraphqlService.getInstance().joins(userId)
     const ids = joins.data.joins.map(join => join.id)
@@ -106,13 +105,11 @@ AppPage.propTypes = {
   common: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
-  fetchTeams: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   initialize: ids => initialize(ids),
   fetchUser: userId => fetchUser(userId),
-  fetchTeams: userId => fetchTeams(userId),
 }
 
 const mapStateToProps = state => {
