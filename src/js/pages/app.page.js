@@ -9,6 +9,7 @@ import PropTypes from 'prop-types'
 import { initialize, fetchUser, fetchTeams } from '../actions'
 import RoomsPartial from '../partials/rooms.partial'
 import RoomPartial from '../partials/room.partial'
+import DockPartial from '../partials/dock.partial'
 import ToolbarPartial from '../partials/toolbar.partial'
 import GraphqlService from '../services/graphql.service'
 
@@ -76,6 +77,8 @@ class AppPage extends React.Component {
         <ErrorComponent message={this.props.common.error} />
 
         <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
+          <Route path="/app" render={props => <DockPartial {...props} />} />
+
           {/* Starred view */}
           <Route path="/app/starred" render={props => <RoomsPartial {...props} starred={true} />} />
           <Route path="/app/starred/room/:roomId" component={RoomPartial} />

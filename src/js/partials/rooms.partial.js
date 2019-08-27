@@ -16,16 +16,6 @@ import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchStarredRooms, fetchTeam } from '../actions'
 import IconComponent from '../components/icon.component'
 
-const Dock = styled.div`
-  padding: 25px;
-  display: flex;
-  height: 100%;
-  position: relative;
-  z-index: 2;
-  background: #08111d;
-  border-right: 1px solid #0c1828;
-`
-
 const Rooms = styled.div`
   width: 300px;
   display: flex;
@@ -111,10 +101,7 @@ class RoomsPartial extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: false,
-      teamCreateModal: false,
       roomCreateModal: false,
-      accountModal: false,
       starred: [],
       public: [],
       private: [],
@@ -124,7 +111,6 @@ class RoomsPartial extends React.Component {
 
     this.createPrivateRoom = this.createPrivateRoom.bind(this)
     this.navigateToRoom = this.navigateToRoom.bind(this)
-    this.signout = this.signout.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
@@ -152,12 +138,6 @@ class RoomsPartial extends React.Component {
     this.setState({ filter: '', showFilter: false }, () => this.props.history.push(`/team/${this.props.team.id}/room/${room.id}`))
   }
 
-  async signout() {
-    await AuthService.signout()
-
-    this.props.history.push('/auth')
-  }
-
   componentDidMount() {
     this.filterRef.addEventListener('keyup', this.handleKeyPress)
 
@@ -170,10 +150,7 @@ class RoomsPartial extends React.Component {
 
     // If it exists, fetch
     if (this.props.starred && !teamId) this.props.fetchStarredRooms(userId)
-    if (!this.props.starred && teamId) {
-      this.props.fetchRooms(teamId, userId)
-      this.props.fetchTeam(teamId, userId)
-    }
+    if (!this.props.starred && teamId) this.props.fetchRooms(teamId, userId)
   }
 
   componentDidUpdate(prevProps) {
@@ -181,10 +158,7 @@ class RoomsPartial extends React.Component {
     const userId = this.props.common.user.id
 
     if (!prevProps.starred && this.props.starred) this.props.fetchStarredRooms(userId)
-    if (!prevProps.starred && teamId != prevProps.match.params.teamId) {
-      this.props.fetchRooms(teamId, userId)
-      this.props.fetchTeam(teamId, userId)
-    }
+    if (!prevProps.starred && teamId != prevProps.match.params.teamId) this.props.fetchRooms(teamId, userId)
   }
 
   componentWillUnmount() {
@@ -241,298 +215,233 @@ class RoomsPartial extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <React.Fragment>
-        <Dock className="column align-items-center">
-          {this.props.teams.map((team, index) => {
-            return (
-              <Link key={index} to={`/app/team/${team.id}`}>
-                <AvatarComponent
-                  dark
-                  size="medium"
-                  image={team.image}
-                  title={team.name}
-                  className="button mb-10"
-                />
-              </Link>
-            )
-          })}
+      <Rooms className="column align-items-stretch">
+        {/* Update an existing team */}
+        {this.state.teamModal &&
+          <TeamModal
+            id={this.props.team.id}
+            history={this.props.history}
+            onClose={() => this.setState({ teamModal: false })}
+          />
+        }
 
-          <Link to={`/app/starred`}>
-            <IconComponent
-              color="#475669"
-              icon="ROOMS_STARRED"
-              className="mt-15 button"
-            />
-          </Link>
+        {/* Create a new team */}
+        {this.state.teamCreateModal &&
+          <TeamModal
+            id={null}
+            history={this.props.history}
+            onClose={() => this.setState({ teamCreateModal: false })}
+          />
+        }
 
-          <IconComponent
-            color="#475669"
-            className="mt-15 button"
-            onClick={(e) => this.setState({ teamCreateModal: true, userMenu: false })}
-            icon="ROOMS_ADD_TEAM"
+        {/* Update user account */}
+        {this.state.accountModal &&
+          <AccountModal
+            id={this.props.common.user.id}
+            onClose={() => this.setState({ accountModal: false })}
+          />
+        }
+
+        {/* Create a new room */}
+        {this.state.roomCreateModal &&
+          <RoomModal
+            team={this.props.team.id ? this.props.team : null}
+            history={this.props.history}
+            onClose={() => this.setState({ roomCreateModal: false })}
+          />
+        }
+
+        <Header className="row">
+          <AvatarComponent
+            dark
+            size="small"
+            image={this.props.common.user.image}
+            title={this.props.common.user.name}
+            className="button"
           />
 
-          {this.props.team.id &&
-            <IconComponent
-              color="#475669"
-              className="mt-15 button"
-              onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
-              icon="ROOMS_UPDATE_TEAM"
-            />
-          }
+          <div className="column pl-10">
+            <HeaderTitle>
+              {this.props.common.user.name}
+            </HeaderTitle>
+            {this.props.team.name &&
+              <HeaderSubtitle>
+                {this.props.team.name}
+              </HeaderSubtitle>
+            }
+          </div>
+        </Header>
 
-          <div className="flexer"></div>
-
+        <SearchContainer className="row">
           <IconComponent
+            icon="ROOMS_SEARCH"
             color="#475669"
-            onClick={(e) => console.log('Help')}
-            className="mt-15 button"
-            icon="ROOMS_HELP"
+            className="mr-5"
           />
 
-          <IconComponent
-            color="#475669"
-            className="mt-15 button"
-            onClick={this.signout}
-            icon="ROOMS_SIGNOUT"
+          <SearchInput
+            ref={(ref) => this.filterRef = ref}
+            visible={this.state.showFilter}
+            value={this.state.filter}
+            onChange={this.onSearch}
+            placeholder="Search by name..."
           />
+        </SearchContainer>
 
-          <IconComponent
-            color="#475669"
-            className="mt-15 button"
-            onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
-            icon="ROOMS_ACCOUNT"
-          />
-        </Dock>
+        <div className="flexer w-100 column align-items-stretch scroll">
+          {this.state.filter != "" &&
+            <React.Fragment>
+              <Heading>Results</Heading>
 
-        <Rooms className="column align-items-stretch">
-          {/* Update an existing team */}
-          {this.state.teamModal &&
-            <TeamModal
-              id={this.props.team.id}
-              history={this.props.history}
-              onClose={() => this.setState({ teamModal: false })}
-            />
-          }
-
-          {/* Create a new team */}
-          {this.state.teamCreateModal &&
-            <TeamModal
-              id={null}
-              history={this.props.history}
-              onClose={() => this.setState({ teamCreateModal: false })}
-            />
-          }
-
-          {/* Update user account */}
-          {this.state.accountModal &&
-            <AccountModal
-              id={this.props.common.user.id}
-              onClose={() => this.setState({ accountModal: false })}
-            />
-          }
-
-          {/* Create a new room */}
-          {this.state.roomCreateModal &&
-            <RoomModal
-              team={this.props.team.id ? this.props.team : null}
-              history={this.props.history}
-              onClose={() => this.setState({ roomCreateModal: false })}
-            />
-          }
-
-          <Header className="row">
-            <AvatarComponent
-              dark
-              size="small"
-              image={this.props.common.user.image}
-              title={this.props.common.user.name}
-              className="button"
-            />
-
-            <div className="column pl-10">
-              <HeaderTitle>
-                {this.props.common.user.name}
-              </HeaderTitle>
-              {this.props.team.name &&
-                <HeaderSubtitle>
-                  {this.props.team.name}
-                </HeaderSubtitle>
-              }
-            </div>
-          </Header>
-
-          <SearchContainer className="row">
-            <IconComponent
-              icon="ROOMS_SEARCH"
-              color="#475669"
-              className="mr-5"
-            />
-
-            <SearchInput
-              ref={(ref) => this.filterRef = ref}
-              visible={this.state.showFilter}
-              value={this.state.filter}
-              onChange={this.onSearch}
-              placeholder="Search by name..."
-            />
-          </SearchContainer>
-
-          <div className="flexer w-100 column align-items-stretch scroll">
-            {this.state.filter != "" &&
-              <React.Fragment>
-                <Heading>Results</Heading>
-
-                {this.state.results.map((result, index) => {
-                  return (
-                    <RoomComponent
-                      dark
-                      className="w-100"
-                      key={index}
-                      active={false}
-                      unread={null}
-                      title={result.title}
-                      image={result.image}
-                      label={result.label}
-                      excerpt={null}
-                      public={null}
-                      private={null}
-                      onClick={() => result.type == "USER"
-                        ? this.createPrivateRoom(result)
-                        : this.navigateToRoom(result)
-                      }
-                    />
-                  )
-                })}
-
-                {this.state.results.length == 0 &&
+              {this.state.results.map((result, index) => {
+                return (
                   <RoomComponent
                     dark
                     className="w-100"
+                    key={index}
                     active={false}
                     unread={null}
-                    title={`Create "${this.state.filter}"`}
-                    image={null}
-                    label="CHANNEL"
+                    title={result.title}
+                    image={result.image}
+                    label={result.label}
                     excerpt={null}
                     public={null}
                     private={null}
-                    onClick={() => this.props.createRoom(this.state.filter, null, this.props.team.id, null)}
+                    onClick={() => result.type == "USER"
+                      ? this.createPrivateRoom(result)
+                      : this.navigateToRoom(result)
+                    }
                   />
-                }
-              </React.Fragment>
-            }
+                )
+              })}
 
-            {this.state.starred.length != 0 &&
-              <React.Fragment>
-                <Heading>Favourites</Heading>
-
-                {this.state.starred.map((room, index) => {
-                  if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                  const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
-                  const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
-                  const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
-                  const to = this.props.starred ? `/app/starred/room/${room.id}` : `/app/team/${room.team.id}/room/${room.id}`
-
-                  return (
-                    <Link className="w-100" key={index} to={to}>
-                      <RoomComponent
-                        dark
-                        active={room.id == this.props.room.id}
-                        unread={unread}
-                        title={title}
-                        image={image}
-                        label={this.props.starred ? room.team.name : null}
-                        excerpt={room.excerpt}
-                        public={room.public}
-                        private={room.private}
-                      />
-                    </Link>
-                  )
-                })}
-              </React.Fragment>
-            }
-
-            {this.state.public.length != 0 &&
-              <React.Fragment>
-                <Heading>Channels</Heading>
-
-                {this.state.public.map((room, index) => {
-                  if (this.props.common.user.starred.indexOf(room.id) != -1) return
-                  if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                  const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
-                  const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
-                  const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
-
-                  return (
-                    <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                      <RoomComponent
-                        dark
-                        active={room.id == this.props.room.id}
-                        unread={unread}
-                        title={room.title}
-                        image={room.image}
-                        label={this.props.starred ? room.team.name : null}
-                        excerpt={room.excerpt}
-                        public={room.public}
-                        private={room.private}
-                      />
-                    </Link>
-                  )
-                })}
-              </React.Fragment>
-            }
-
-            {this.state.private.length != 0 &&
-              <React.Fragment>
-                <Heading>Private Conversations</Heading>
-
-                {this.state.private.map((room, index) => {
-                  if (this.props.common.user.starred.indexOf(room.id) != -1) return
-
-                  const title = room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "")
-                  const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
-                  const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
-
-                  if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                  return (
-                    <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                      <RoomComponent
-                        dark
-                        active={room.id == this.props.room.id}
-                        unread={unread}
-                        title={title}
-                        image={image}
-                        icon={null}
-                        label={null}
-                        excerpt={room.excerpt}
-                        public={room.public}
-                        private={room.private}
-                      />
-                    </Link>
-                  )
-                })}
-              </React.Fragment>
-            }
-          </div>
-
-          {!this.props.starred &&
-            <Button className="row" onClick={() => this.setState({ roomCreateModal: true })}>
-              <IconComponent
-                color="#475669"
-                icon="ROOMS_ADD_ROOM"
-                className="mr-10"
-              />
-              <ButtonText>
-                Create New Channel
-              </ButtonText>
-            </Button>
+              {this.state.results.length == 0 &&
+                <RoomComponent
+                  dark
+                  className="w-100"
+                  active={false}
+                  unread={null}
+                  title={`Create "${this.state.filter}"`}
+                  image={null}
+                  label="CHANNEL"
+                  excerpt={null}
+                  public={null}
+                  private={null}
+                  onClick={() => this.props.createRoom(this.state.filter, null, this.props.team.id, null)}
+                />
+              }
+            </React.Fragment>
           }
-        </Rooms>
-      </React.Fragment>
+
+          {this.state.starred.length != 0 &&
+            <React.Fragment>
+              <Heading>Favourites</Heading>
+
+              {this.state.starred.map((room, index) => {
+                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+                const to = this.props.starred ? `/app/starred/room/${room.id}` : `/app/team/${room.team.id}/room/${room.id}`
+
+                return (
+                  <Link className="w-100" key={index} to={to}>
+                    <RoomComponent
+                      dark
+                      active={room.id == this.props.room.id}
+                      unread={unread}
+                      title={title}
+                      image={image}
+                      label={this.props.starred ? room.team.name : null}
+                      excerpt={room.excerpt}
+                      public={room.public}
+                      private={room.private}
+                    />
+                  </Link>
+                )
+              })}
+            </React.Fragment>
+          }
+
+          {this.state.public.length != 0 &&
+            <React.Fragment>
+              <Heading>Channels</Heading>
+
+              {this.state.public.map((room, index) => {
+                if (this.props.common.user.starred.indexOf(room.id) != -1) return
+                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+
+                return (
+                  <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
+                    <RoomComponent
+                      dark
+                      active={room.id == this.props.room.id}
+                      unread={unread}
+                      title={room.title}
+                      image={room.image}
+                      label={this.props.starred ? room.team.name : null}
+                      excerpt={room.excerpt}
+                      public={room.public}
+                      private={room.private}
+                    />
+                  </Link>
+                )
+              })}
+            </React.Fragment>
+          }
+
+          {this.state.private.length != 0 &&
+            <React.Fragment>
+              <Heading>Private Conversations</Heading>
+
+              {this.state.private.map((room, index) => {
+                if (this.props.common.user.starred.indexOf(room.id) != -1) return
+
+                const title = room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "")
+                const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+
+                if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+                return (
+                  <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
+                    <RoomComponent
+                      dark
+                      active={room.id == this.props.room.id}
+                      unread={unread}
+                      title={title}
+                      image={image}
+                      icon={null}
+                      label={null}
+                      excerpt={room.excerpt}
+                      public={room.public}
+                      private={room.private}
+                    />
+                  </Link>
+                )
+              })}
+            </React.Fragment>
+          }
+        </div>
+
+        {!this.props.starred &&
+          <Button className="row" onClick={() => this.setState({ roomCreateModal: true })}>
+            <IconComponent
+              color="#475669"
+              icon="ROOMS_ADD_ROOM"
+              className="mr-10"
+            />
+            <ButtonText>
+              Create New Channel
+            </ButtonText>
+          </Button>
+        }
+      </Rooms>
     )
   }
 }
@@ -547,14 +456,12 @@ RoomsPartial.propTypes = {
   createRoom: PropTypes.func,
   fetchRooms: PropTypes.func,
   fetchStarredRooms: PropTypes.func,
-  fetchTeam: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   createRoom: (title, description, team, user) => createRoom(title, description, team, user),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),
-  fetchTeam: teamId => fetchTeam(teamId),
 }
 
 const mapStateToProps = state => {

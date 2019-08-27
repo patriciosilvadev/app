@@ -256,7 +256,7 @@ class AuthPage extends React.Component {
       const { sub } = AuthService.parseJwt(token)
 
       this.props.fetchUser(sub)
-      this.props.history.push('/app/t')
+      this.props.history.push('/app')
     } catch (e) {}
   }
 
@@ -301,7 +301,7 @@ class AuthPage extends React.Component {
         AuthService.saveToken(token)
 
         this.props.fetchUser(user)
-        this.props.history.push('/app/t')
+        this.props.history.push('/app')
       }
     } catch (e) {
       this.setState({
