@@ -650,7 +650,7 @@ class AuthPage extends React.Component {
                       <SmallTextButton onClick={() => this.setState({ view: 'password' })} className="mt-30">
                         I've lost my password
                       </SmallTextButton>
-                      <SmallTextButton onClick={() => this.setState({ view: 'signup' })} className="mt-10 hide">
+                      <SmallTextButton onClick={() => this.setState({ view: 'signup' })} className="mt-10">
                         Create an account
                       </SmallTextButton>
                     </Form>
