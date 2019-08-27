@@ -200,6 +200,7 @@ ToolbarPartial.propTypes = {
   room: PropTypes.any,
   common: PropTypes.any,
   updateRoom: PropTypes.func,
+  deleteRoom: PropTypes.func,
   updateUserStarred: PropTypes.func,
 }
 
