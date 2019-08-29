@@ -62,7 +62,7 @@ export default props => {
       setLoading(true)
 
       try {
-        const auth = AuthService.confirm(props.match.params.token)
+        const auth = await AuthService.confirm(props.match.params.token)
 
         setLoading(false)
 
@@ -73,7 +73,7 @@ export default props => {
         setError('Error')
       }
     })()
-  }, null)
+  }, [])
 
   // prettier-ignore
   return (
@@ -83,9 +83,9 @@ export default props => {
       <Container className="column justify-content-center align-content-center">
         <ErrorComponent message={error} />
 
-        {!block && confirmed && <Text>Your account has been confirmed</Text>}
         {!block && !confirmed && <Text>Checking...</Text>}
         {block && <Text>Not found</Text>}
+        {confirmed && <Text>Your account has been confirmed</Text>}
       </Container>
 
       <Logo>

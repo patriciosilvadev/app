@@ -25,9 +25,9 @@ const InputContainer = styled.div`
 
 const Attachments = styled.div`
   width: 100%;
-  padding: 30px;
+  padding: 20px;
   background: #ffffff;
-  border-top: 1px solid #ecf0f2;
+  border-top: 0px solid #ecf0f2;
   position: relative;
 `
 
@@ -72,7 +72,7 @@ const MentionContainer = styled.div`
   border-top: 1px solid #ebedef;
 `
 
-class ComposePartial extends React.Component {
+class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -251,6 +251,10 @@ class ComposePartial extends React.Component {
     this.composeRef.focus()
   }
 
+  componentDidUpdate() {
+    if (!this.props.compact) this.props.syncHeight()
+  }
+
   // prettier-ignore
   render() {
     return (
@@ -341,14 +345,12 @@ class ComposePartial extends React.Component {
             />
           </PopupComponent>
 
-          {this.props.attachments &&
-            <IconComponent
-              icon="COMPOSE_ATTACHMENT"
-              color="#565456"
-              className="ml-15 button"
-              onClick={() => this.fileRef.click()}
-            />
-          }
+          <IconComponent
+            icon="COMPOSE_ATTACHMENT"
+            color="#565456"
+            className="ml-15 button"
+            onClick={() => this.fileRef.click()}
+          />
 
           {!this.props.compact &&
             <React.Fragment>
@@ -379,15 +381,15 @@ class ComposePartial extends React.Component {
   }
 }
 
-ComposePartial.propTypes = {
+ComposeComponent.propTypes = {
   team: PropTypes.any,
   teams: PropTypes.any,
   common: PropTypes.any,
   onSend: PropTypes.func,
   members: PropTypes.array,
-  attachments: PropTypes.bool,
   compact: PropTypes.bool,
   updateLoading: PropTypes.func,
+  syncHeight: PropTypes.func,
   updateError: PropTypes.func,
 }
 
@@ -407,4 +409,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ComposePartial)
+)(ComposeComponent)

@@ -7,6 +7,9 @@ const initialState = {
   user: {
     starred: [],
   },
+  plugins: {
+    dock: [],
+  },
 }
 
 export default (state = initialState, action) =>
@@ -31,8 +34,8 @@ export default (state = initialState, action) =>
         draft.loading = action.payload
         break
 
-      case 'UPDATE_UNREAD':
-        draft.unread = action.payload
+      case 'CREATE_DOCK_PLUGIN':
+        draft.plugins.dock.push(action.payload)
         break
     }
   })

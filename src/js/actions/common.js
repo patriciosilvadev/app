@@ -5,6 +5,13 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 
+export function createDockPlugin(plugin) {
+  return {
+    type: 'CREATE_DOCK_PLUGIN',
+    payload: plugin,
+  }
+}
+
 export function updateUserStarred(userId, roomId, starred) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))

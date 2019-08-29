@@ -32,13 +32,19 @@ const Error = styled.div`
   }
 `
 
+const Text = styled.div`
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+`
+
 export default function ErrorComponent(props) {
   const show = !!props.message
 
   // prettier-ignore
   return (
     <Error className={`loading ${show ? "show" : ""}`}>
-      <div className="white">{typeof(props.message) == "string" ? props.message : "There has been an error"}</div>
+      <Text>{typeof(props.message) == "string" ? props.message : "There has been an error"}</Text>
     </Error>
   )
 }

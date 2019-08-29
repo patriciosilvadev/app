@@ -43,7 +43,8 @@ const Error = styled.div`
   color: red;
   padding: 0px 0px 10px 0px;
   text-align: center;
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 700;
 `
 
 const Text = styled.div`
@@ -239,7 +240,7 @@ class AuthPage extends React.Component {
 
     this.state = {
       view: 'signin',
-      verify: true,
+      verify: false,
       error: null,
       loading: null,
     }
@@ -256,7 +257,7 @@ class AuthPage extends React.Component {
       const { sub } = AuthService.parseJwt(token)
 
       this.props.fetchUser(sub)
-      this.props.history.push('/app/t')
+      this.props.history.push('/app')
     } catch (e) {}
   }
 
@@ -301,7 +302,7 @@ class AuthPage extends React.Component {
         AuthService.saveToken(token)
 
         this.props.fetchUser(user)
-        this.props.history.push('/app/t')
+        this.props.history.push('/app')
       }
     } catch (e) {
       this.setState({
@@ -328,7 +329,7 @@ class AuthPage extends React.Component {
     } catch (e) {
       this.setState({
         loading: false,
-        error: 'User not found',
+        error: 'Not found',
       })
     }
   }
@@ -345,12 +346,12 @@ class AuthPage extends React.Component {
 
       this.setState({ loading: false })
 
-      if (auth.status != 200) return this.setState({ error: 'Email not found' })
+      if (auth.status != 200) return this.setState({ error: 'Not found' })
       if (auth.status == 200) return this.setState({ verify: false, view: 'signin' })
     } catch (e) {
       this.setState({
         loading: false,
-        error: 'User not found',
+        error: 'Not found',
       })
     }
   }
@@ -378,7 +379,10 @@ class AuthPage extends React.Component {
                 <React.Fragment>
                   <Formik
                     initialValues={{ email: '' }}
-                    onSubmit={(values, actions) => this.resetPassword(values.email)}
+                    onSubmit={(values, actions) => {
+                      actions.resetForm()
+                      this.resetPassword(values.email)
+                    }}
                     validationSchema={Yup.object().shape({
                       email: Yup.string().email().required('Required'),
                     })}>
@@ -410,8 +414,8 @@ class AuthPage extends React.Component {
                           {errors.email && touched.email && <Error>{errors.email}</Error>}
 
                           <Footer className="column align-items-center">
-                            <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Send me a verification code</BigSolidButton>
-                            <SmallTextButton onClick={() => this.setState({ view: 'signin' })} className="mt-30">
+                            <BigSolidButton type="submit" disabled={isSubmitting}>Send me a verification code</BigSolidButton>
+                            <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                               Go back to sign in
                             </SmallTextButton>
                           </Footer>
@@ -426,7 +430,10 @@ class AuthPage extends React.Component {
                 <React.Fragment>
                   <Formik
                     initialValues={{ email: '', password: '', code: '' }}
-                    onSubmit={(values, actions) => this.updatePassword(values.email, values.password, values.code)}
+                    onSubmit={(values, actions) => {
+                      actions.resetForm()
+                      this.updatePassword(values.email, values.password, values.code)
+                    }}
                     validationSchema={Yup.object().shape({
                       password: Yup.string().required('Required'),
                       email: Yup.string().email().required('Required'),
@@ -484,8 +491,8 @@ class AuthPage extends React.Component {
                           {errors.code && touched.code && <Error>{errors.code}</Error>}
 
                           <Footer className="column align-items-center">
-                            <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Update Password</BigSolidButton>
-                            <SmallTextButton onClick={() => this.setState({ verify: false })} className="mt-30">
+                            <BigSolidButton type="submit" disabled={isSubmitting}>Update Password</BigSolidButton>
+                            <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
                               Get another code
                             </SmallTextButton>
                           </Footer>
@@ -507,7 +514,10 @@ class AuthPage extends React.Component {
                   password: '',
                   confirm: '',
                 }}
-                onSubmit={(values, actions) => this.signup(values.username, values.email, values.password, values.confirm)}
+                onSubmit={(values, actions) => {
+                  actions.resetForm()
+                  this.signup(values.username, values.email, values.password, values.confirm)
+                }}
                 validationSchema={Yup.object().shape({
                   username: Yup.string().required('Required'),
                   email: Yup.string().email().required('Required'),
@@ -578,8 +588,8 @@ class AuthPage extends React.Component {
                       {errors.confirm && touched.confirm && <Error>{errors.confirm}</Error>}
 
                       <Footer className="column align-items-center">
-                        <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Sign up</BigSolidButton>
-                        <SmallTextButton onClick={() => this.setState({ view: 'signin' })} className="mt-30">
+                        <BigSolidButton type="submit" disabled={isSubmitting}>Sign up</BigSolidButton>
+                        <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                           Go back to sign in
                         </SmallTextButton>
                         <SmallTextButton className="mt-10">
@@ -600,8 +610,11 @@ class AuthPage extends React.Component {
               </SmallTextFaded>
 
               <Formik
-                initialValues={{ username: 'joduplessis', password: 'd' }}
-                onSubmit={(values, actions) => this.signin(values.username, values.password)}
+                initialValues={{ username: '', password: '' }}
+                onSubmit={(values, actions) => {
+                  actions.resetForm()
+                  this.signin(values.username, values.password)
+                }}
                 validationSchema={Yup.object().shape({
                   username: Yup.string().required('Required'),
                   password: Yup.string().required('Required'),
@@ -646,11 +659,11 @@ class AuthPage extends React.Component {
                       {errors.password && touched.password && <Error>{errors.password}</Error>}
 
                       <Spacer />
-                      <BigSolidButton type="submit" disabled={dirty || isSubmitting}>Sign in</BigSolidButton>
+                      <BigSolidButton type="submit" disabled={isSubmitting}>Sign in</BigSolidButton>
                       <SmallTextButton onClick={() => this.setState({ view: 'password' })} className="mt-30">
                         I've lost my password
                       </SmallTextButton>
-                      <SmallTextButton onClick={() => this.setState({ view: 'signup' })} className="mt-10 hide">
+                      <SmallTextButton onClick={() => this.setState({ view: 'signup' })} className="mt-10">
                         Create an account
                       </SmallTextButton>
                     </Form>

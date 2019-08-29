@@ -131,7 +131,9 @@ class ToolbarPartial extends React.Component {
           </PopupComponent>
 
           <TooltipComponent direction="left" text="Messages" delay={1000}>
-            <Button className="row" onClick={() => this.props.history.push(`/app/t/${this.props.room.url}/members`)}>
+            <Button className="row" onClick={() => {
+                this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`) 
+            }}>
               <ButtonIcon className="row justify-content-center">
                 <IconComponent icon="TOOLBAR_MEMBERS" color="#ADB5BD" />
               </ButtonIcon>
@@ -192,6 +194,7 @@ ToolbarPartial.propTypes = {
   room: PropTypes.any,
   common: PropTypes.any,
   updateRoom: PropTypes.func,
+  deleteRoom: PropTypes.func,
   updateUserStarred: PropTypes.func,
 }
 
