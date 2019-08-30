@@ -56,26 +56,26 @@ export function initialize(ids) {
       }
     })
 
-    MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
-      MessagingService.getInstance().leave(roomId)
-      dispatch({ type: 'DELETE_ROOM', payload: roomId })
-    })
-
-    MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
-      MessagingService.getInstance().leave(teamId)
-      dispatch({ type: 'DELETE_TEAM', payload: teamId })
-    })
-
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       MessagingService.getInstance().join(roomId)
       const room = await GraphqlService.getInstance().room(id)
       dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
     })
 
+    MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
+      MessagingService.getInstance().leave(roomId)
+      dispatch({ type: 'DELETE_ROOM', payload: roomId })
+    })
+
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       MessagingService.getInstance().join(teamId)
       const team = await GraphqlService.getInstance().team(id)
-      dispatch({ type: 'CREATE_ROOM', payload: team.data.team })
+      dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
+    })
+
+    MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
+      MessagingService.getInstance().leave(teamId)
+      dispatch({ type: 'DELETE_TEAM', payload: teamId })
     })
 
     DatabaseService.getInstance()
