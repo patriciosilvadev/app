@@ -5,9 +5,9 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 
-export function createDockPlugin(plugin) {
+export function registerDockPlugin(plugin) {
   return {
-    type: 'CREATE_DOCK_PLUGIN',
+    type: 'REGISTER_DOCK_PLUGIN',
     payload: plugin,
   }
 }
