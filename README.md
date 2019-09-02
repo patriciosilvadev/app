@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/getweekday/client.svg?branch=master)](https://travis-ci.org/getweekday/client)
+[![Build Status](https://travis-ci.org/getweekday/app.svg?branch=master)](https://travis-ci.org/getweekday/client)
 
 # Weekday
 ### Weekday is a hackable team messaging platform.
