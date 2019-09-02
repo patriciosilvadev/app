@@ -3,10 +3,9 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
-const envFile = require('dotenv').config({ path: __dirname + '/.env' })
 
 module.exports = env => {
-  const SOCKETIO_HOST = envFile.parsed.ENVIRONMENT == 'dev' ? envFile.parsed.SOCKETIO_HOST : envFile.parsed.SOCKETIO_HOST_PROD
+  const SOCKETIO_HOST = process.env.ENVIRONMENT == 'dev' ? process.env.SOCKETIO_HOST : process.env.SOCKETIO_HOST_PROD
 
   return {
     mode: 'production',
