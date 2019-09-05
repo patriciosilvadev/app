@@ -9,6 +9,7 @@ import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
 import { updateLoading, updateError } from '../actions'
 import UploadService from '../services/upload.service'
+import { MessageMedia } from 'elements'
 
 const Compose = styled.div`
   width: 100%;
@@ -79,10 +80,16 @@ class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
 
+    // Placeholder attachment for testing:
+    // {
+    // thumbnail: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg",
+    // uri: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg",
+    // mime: "image/jpeg"
+    // }
     this.state = {
       emoticonMenu: false,
       scrollHeight: 0,
-      attachments: [{thumbnail: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg", uri: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg", mime: "image/jpeg"}],
+      attachments: [],
       text: '',
       mention: null,
       position: 0,
@@ -257,6 +264,8 @@ class ComposeComponent extends React.Component {
 
   // prettier-ignore
   render() {
+
+
     return (
       <Compose compact={this.props.compact} className="column align-items-stretch">
         {this.state.attachments.length != 0 &&
