@@ -6,9 +6,9 @@ import IconComponent from './icon.component'
 const Delete = styled.div`
   top: -5px;
   right: 5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
   position: absolute;
   background-color: #e23f62;
   cursor: pointer;
@@ -19,7 +19,13 @@ const Delete = styled.div`
   justify-content: center;
   border: 1px solid white;
   z-index: 1;
+  margin: 0px;
   transition: background-color 0.25s;
+
+  & svg {
+    padding: 0px;
+    margin: 0px;
+  }
 
   &:hover {
     background-color: #ce3354;
@@ -30,9 +36,9 @@ const Delete = styled.div`
 const DownloadContainer = styled.div`
   top: -5px;
   right: 5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
   position: absolute;
   background-color: #100d17;
   cursor: pointer;
@@ -43,6 +49,7 @@ const DownloadContainer = styled.div`
   justify-content: center;
   border: 1px solid white;
   z-index: 10;
+  padding: 0px;
   transition: background-color 0.25s;
 
   &:hover {

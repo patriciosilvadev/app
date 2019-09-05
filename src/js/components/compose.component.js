@@ -349,7 +349,7 @@ class ComposeComponent extends React.Component {
             <IconComponent
               icon="COMPOSE_EMOTICON"
               color="#565456"
-              className="button"
+              className="button ml-15"
               size="1x"
               onClick={() => this.setState({ emoticonMenu: true })}
             />
