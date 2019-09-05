@@ -27,8 +27,11 @@ const Attachments = styled.div`
   width: 100%;
   padding: 20px;
   background: #ffffff;
-  border-top: 0px solid #ecf0f2;
-  position: relative;
+  border-top: 1px solid #ecf0f2;
+  position: absolute;
+  top: -1px;
+  left: 0px;
+  transform: translateY(-100%);
 `
 
 const Footer = styled.div`
@@ -79,7 +82,7 @@ class ComposeComponent extends React.Component {
     this.state = {
       emoticonMenu: false,
       scrollHeight: 0,
-      attachments: [],
+      attachments: [{thumbnail: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg", uri: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg", mime: "image/jpeg"}],
       text: '',
       mention: null,
       position: 0,
@@ -124,7 +127,6 @@ class ComposeComponent extends React.Component {
         attachments: [...this.state.attachments, ...[{ thumbnail: Location, uri: Location, mime: mime.mime }]],
       })
     } catch (e) {
-      console.log(e)
       this.props.updateLoading(false)
       this.props.updateError(e)
     }
@@ -251,9 +253,7 @@ class ComposeComponent extends React.Component {
     this.composeRef.focus()
   }
 
-  componentDidUpdate() {
-    if (!this.props.compact) this.props.syncHeight()
-  }
+  componentDidUpdate() {}
 
   // prettier-ignore
   render() {
@@ -389,7 +389,6 @@ ComposeComponent.propTypes = {
   members: PropTypes.array,
   compact: PropTypes.bool,
   updateLoading: PropTypes.func,
-  syncHeight: PropTypes.func,
   updateError: PropTypes.func,
 }
 

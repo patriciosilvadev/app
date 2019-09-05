@@ -128,7 +128,6 @@ class RoomPartial extends React.Component {
     this.updateRoomImage = this.updateRoomImage.bind(this)
     this.joinRoom = this.joinRoom.bind(this)
     this.createRoomMessage = this.createRoomMessage.bind(this)
-    this.syncHeight = this.syncHeight.bind(this)
   }
 
   scrollToBottom() {
@@ -207,7 +206,6 @@ class RoomPartial extends React.Component {
     this.setState({
       page: this.state.page + 1,
       busy: true,
-      scrollHeight: this.scrollRef.scrollHeight,
     })
   }
 
@@ -223,6 +221,7 @@ class RoomPartial extends React.Component {
     this.setState({ manualScrolling: false })
 
     // Keep it scrolled down if they remain at the bottom
+    // and if it's not on manual
     setInterval(() => {
       if (!this.state.manualScrolling && this.scrollRef) this.scrollToBottom()
     }, 500)
@@ -233,14 +232,7 @@ class RoomPartial extends React.Component {
     })
   }
 
-  // If the message panel is shorter than the message-container, then push the panel down
-  syncHeight() {
-    if (this.scrollRef.scrollHeight > this.messagesRef.scrollHeight) this.messagesRef.style.marginTop = this.scrollRef.scrollHeight - this.messagesRef.scrollHeight + 'px'
-  }
-
   componentDidUpdate(prevProps) {
-    this.syncHeight()
-
     // Scroll to the correct position after fetchRoomMessages
     // if (this.state.scrollHeight != this.scrollRef.scrollHeight) this.scrollRef.scrollTop = this.scrollRef.scrollHeight - this.state.scrollHeight
     // If the room ID updates - then refetch all the data
@@ -364,7 +356,6 @@ class RoomPartial extends React.Component {
               onSend={this.createRoomMessage}
               members={this.props.room.members}
               compact={false}
-              syncHeight={this.syncHeight}
             />
           }
 
