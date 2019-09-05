@@ -13,6 +13,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
+import ModalPortal from '../portals/modal.portal'
 
 const InputComponent = styled.input`
   border: none;
@@ -196,111 +197,113 @@ export default function AccountModal(props) {
 
   // prettier-ignore
   return (
-    <ModalComponent
-      title="Account"
-      width={560}
-      height="90%"
-      onClose={props.onClose}
-      footer={(
-        <div className="column w-100 align-items-stretch">
-          <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-            <div className="flexer" />
-            <BigSolidButton onClick={handleSubmit}>
-              Save
-            </BigSolidButton>
+    <ModalPortal>
+      <ModalComponent
+        title="Account"
+        width={560}
+        height="90%"
+        onClose={props.onClose}
+        footer={(
+          <div className="column w-100 align-items-stretch">
+            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
+              <div className="flexer" />
+              <BigSolidButton onClick={handleSubmit}>
+                Save
+              </BigSolidButton>
+            </div>
           </div>
-        </div>
-      )}>
+        )}>
 
-      <TabbedComponent
-        start={0}
-        panels={[
-          {
-            title: 'Profile',
-            show: true,
-            content: (
-              <div className="row align-items-start w-100">
-                <div className="column w-100">
-                  {error && <ErrorComponent message={error} />}
-                  {loading && <SpinnerComponent />}
-                  {notification && <NotificationComponent text={notification} />}
+        <TabbedComponent
+          start={0}
+          panels={[
+            {
+              title: 'Profile',
+              show: true,
+              content: (
+                <div className="row align-items-start w-100">
+                  <div className="column w-100">
+                    {error && <ErrorComponent message={error} />}
+                    {loading && <SpinnerComponent />}
+                    {notification && <NotificationComponent text={notification} />}
 
-                  <div className="row w-100 p-20">
-                    <input
-                      accept="image/png,image/jpg"
-                      type="file"
-                      className="hide"
-                      ref={fileRef}
-                      onChange={handleFileChange}
-                    />
+                    <div className="row w-100 p-20">
+                      <input
+                        accept="image/png,image/jpg"
+                        type="file"
+                        className="hide"
+                        ref={fileRef}
+                        onChange={handleFileChange}
+                      />
 
-                    <AvatarComponent
-                      image={image}
-                      className="mr-20"
-                      size="large"
-                      circle
-                    />
+                      <AvatarComponent
+                        image={image}
+                        className="mr-20"
+                        size="large"
+                        circle
+                      />
 
-                    <Header className="column">
-                      <div className="row pb-5">
-                        <HeaderName>{name}</HeaderName>
-                      </div>
-                      <div className="row">
-                        <HeaderRole>{role}</HeaderRole>
-                        <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
-                      </div>
-                    </Header>
-                  </div>
+                      <Header className="column">
+                        <div className="row pb-5">
+                          <HeaderName>{name}</HeaderName>
+                        </div>
+                        <div className="row">
+                          <HeaderRole>{role}</HeaderRole>
+                          <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
+                        </div>
+                      </Header>
+                    </div>
 
-                  <div className="column p-20 flex-1 scroll w-100">
-                    <Label>Full name</Label>
-                    <InputComponent
-                      label="Full name"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="Enter full name"
-                    />
+                    <div className="column p-20 flex-1 scroll w-100">
+                      <Label>Full name</Label>
+                      <InputComponent
+                        label="Full name"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="Enter full name"
+                      />
 
-                    <Label>Role</Label>
-                    <InputComponent
-                      label="Role"
-                      value={role}
-                      onChange={e => setRole(e.target.value)}
-                      placeholder="Enter your role"
-                    />
+                      <Label>Role</Label>
+                      <InputComponent
+                        label="Role"
+                        value={role}
+                        onChange={e => setRole(e.target.value)}
+                        placeholder="Enter your role"
+                      />
 
-                    <Label>Username</Label>
-                    <InputComponent
-                      label="Username"
-                      value={username}
-                      onChange={e => setUsername(e.target.value)}
-                      placeholder="Username"
-                    />
+                      <Label>Username</Label>
+                      <InputComponent
+                        label="Username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        placeholder="Username"
+                      />
 
-                    <Label>Email</Label>
-                    <InputComponent
-                      label="Email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                    />
+                      <Label>Email</Label>
+                      <InputComponent
+                        label="Email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                      />
 
-                    <Label>Description</Label>
-                    <TextareaComponent
-                      label="Description"
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      placeholder="Enter bio"
-                      rows={2}
-                    />
+                      <Label>Description</Label>
+                      <TextareaComponent
+                        label="Description"
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                        placeholder="Enter bio"
+                        rows={2}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          }
-        ]}
-      />
-    </ModalComponent>
+              )
+            }
+          ]}
+        />
+      </ModalComponent>
+    </ModalPortal>
   )
 }
 

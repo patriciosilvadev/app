@@ -41,7 +41,7 @@ const Meta = styled.div`
 
 const User = styled.div`
   color: #212123;
-  font-weight: 800;
+  font-weight: 600;
   font-style: normal;
   font-size: 14px;
 `

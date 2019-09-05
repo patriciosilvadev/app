@@ -18,6 +18,7 @@ const Modal = styled.div`
   justify-content: center;
   visibility: visible;
   opacity: 1;
+  z-index: 10;
   transition: visibility 0s, opacity 0.1s linear;
 `
 

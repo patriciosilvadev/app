@@ -13,6 +13,7 @@ import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
 import MessagingService from '../services/messaging.service'
+import ModalPortal from '../portals/modal.portal'
 
 const InputComponent = styled.input`
   border: none;
@@ -401,193 +402,195 @@ export default function TeamModal(props) {
 
   // prettier-ignore
   return (
-    <ModalComponent
-      title={props.id ? "Update Team" : "Create New Team"}
-      width={560}
-      height="90%"
-      onClose={props.onClose}
-      footer={(
-        <div className="column w-100 align-items-stretch">
-          <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-            <div className="flexer" />
+    <ModalPortal>
+      <ModalComponent
+        title={props.id ? "Update Team" : "Create New Team"}
+        width={560}
+        height="90%"
+        onClose={props.onClose}
+        footer={(
+          <div className="column w-100 align-items-stretch">
+            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
+              <div className="flexer" />
 
-            {confirmDeleteModal &&
-              <ConfirmModal
-                onOkay={deleteTeam}
-                onCancel={() => setConfirmDeleteModal(false)}
-                text="Are you sure you want to delete this team, it can not be undone?"
-                title="Are you sure?"
-              />
-            }
+              {confirmDeleteModal &&
+                <ConfirmModal
+                  onOkay={deleteTeam}
+                  onCancel={() => setConfirmDeleteModal(false)}
+                  text="Are you sure you want to delete this team, it can not be undone?"
+                  title="Are you sure?"
+                />
+              }
 
-            {props.id &&
-              <React.Fragment>
-                <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
-                  Delete team
-                </SmallTextButton>
-                <BigSolidButton onClick={updateTeam}>
-                  Save
+              {props.id &&
+                <React.Fragment>
+                  <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
+                    Delete team
+                  </SmallTextButton>
+                  <BigSolidButton onClick={updateTeam}>
+                    Save
+                  </BigSolidButton>
+                </React.Fragment>
+              }
+
+              {!props.id &&
+                <BigSolidButton onClick={createTeam}>
+                  Create
                 </BigSolidButton>
-              </React.Fragment>
-            }
-
-            {!props.id &&
-              <BigSolidButton onClick={createTeam}>
-                Create
-              </BigSolidButton>
-            }
+              }
+            </div>
           </div>
-        </div>
-      )}>
-        <TabbedComponent
-          start={0}
-          panels={[
-            {
-              title: 'Profile',
-              show: true,
-              content: (
-                <div className="row align-items-start w-100">
-                  <div className="column w-100">
+        )}>
+          <TabbedComponent
+            start={0}
+            panels={[
+              {
+                title: 'Profile',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+                      {error && <ErrorComponent message={error} />}
+                      {loading && <SpinnerComponent />}
+                      {notification && <NotificationComponent text={notification} />}
+
+                      <div className="row w-100 p-20">
+                        <input
+                          accept="image/png,image/jpg"
+                          type="file"
+                          className="hide"
+                          ref={fileRef}
+                          onChange={handleFileChange}
+                        />
+
+                        <AvatarComponent
+                          image={image}
+                          className="mr-20"
+                          size="large"
+                        />
+
+                        <Header className="column flexer header">
+                          <div className="row pb-5">
+                            <HeaderName>{name}</HeaderName>
+                          </div>
+                          <div className="row">
+                            {props.id &&
+                              <HeaderMembers>{members.length} members</HeaderMembers>
+                            }
+                            <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
+                          </div>
+                        </Header>
+                      </div>
+
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <Label>Name</Label>
+                        <InputComponent
+                          label="Full name"
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          placeholder="Enter full name"
+                        />
+
+                        <Label>Description</Label>
+                        <TextareaComponent
+                          label="Description"
+                          value={description}
+                          onChange={e => setDescription(e.target.value)}
+                          placeholder="Enter bio"
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                title: 'Members',
+                show: !!props.id,
+                content: (
+                  <div className="column flex-1 w-100 h-100">
                     {error && <ErrorComponent message={error} />}
                     {loading && <SpinnerComponent />}
                     {notification && <NotificationComponent text={notification} />}
 
-                    <div className="row w-100 p-20">
-                      <input
-                        accept="image/png,image/jpg"
-                        type="file"
-                        className="hide"
-                        ref={fileRef}
-                        onChange={handleFileChange}
+                    {confirmSelfDeleteModal &&
+                      <ConfirmModal
+                        onOkay={deleteTeamMemberSelf}
+                        onCancel={() => setConfirmSelfDeleteModal(false)}
+                        text="Are you sure you want to leave this team?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    {confirmMemberDeleteModal &&
+                      <ConfirmModal
+                        onOkay={deleteTeamMember}
+                        onCancel={() => setConfirmMemberDeleteModal(false)}
+                        text="Are you sure you want to remove this person, it can not be undone?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    <Usernames className="row">
+                      <UsernamesInput
+                        placeholder="Comma seperated usernames or email addresses"
+                        value={usernames}
+                        onChange={(e) => setUsernames(e.target.value)}
                       />
 
-                      <AvatarComponent
-                        image={image}
-                        className="mr-20"
-                        size="large"
+                      <IconComponent
+                        icon="TEAM_CHECK"
+                        color="#EBEDEF"
+                        className="mr-20 button"
+                        size="1x"
+                        onClick={createTeamMembers}
                       />
+                    </Usernames>
 
-                      <Header className="column flexer header">
-                        <div className="row pb-5">
-                          <HeaderName>{name}</HeaderName>
-                        </div>
-                        <div className="row">
-                          {props.id &&
-                            <HeaderMembers>{members.length} members</HeaderMembers>
-                          }
-                          <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
-                        </div>
-                      </Header>
-                    </div>
+                    {members.map((member, index) => {
+                      return (
+                        <UserComponent
+                          key={index}
+                          image={member.user.image}
+                          color={member.user.color}
+                          name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
+                          label={member.user.email}>
+                          <Button className="row">
+                            <ButtonIcon
+                              className="row justify-content-center"
+                              onClick={() => {
+                                if (member.user.id == common.user.id) {
+                                  setConfirmSelfDeleteModal(true)
+                                } else {
+                                  setConfirmMemberDeleteModal(true)
+                                  setMemberDeleteId(member.user.id)
+                                }
+                              }}>
+                              <IconComponent
+                                icon="TEAM_DELETE"
+                                color="#868E96"
+                                size="1x"
+                              />
+                            </ButtonIcon>
+                          </Button>
 
-                    <div className="column p-20 flex-1 scroll w-100">
-                      <Label>Name</Label>
-                      <InputComponent
-                        label="Full name"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder="Enter full name"
-                      />
-
-                      <Label>Description</Label>
-                      <TextareaComponent
-                        label="Description"
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                        placeholder="Enter bio"
-                        rows={2}
-                      />
-                    </div>
+                          <Button className="row">
+                            <ButtonText
+                              className="row justify-content-center"
+                              onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}>
+                              {member.admin ? 'Remove Admin' : 'Make Admin'}
+                            </ButtonText>
+                          </Button>
+                        </UserComponent>
+                      )
+                    })}
                   </div>
-                </div>
-              )
-            },
-            {
-              title: 'Members',
-              show: !!props.id,
-              content: (
-                <div className="column flex-1 w-100 h-100">
-                  {error && <ErrorComponent message={error} />}
-                  {loading && <SpinnerComponent />}
-                  {notification && <NotificationComponent text={notification} />}
-
-                  {confirmSelfDeleteModal &&
-                    <ConfirmModal
-                      onOkay={deleteTeamMemberSelf}
-                      onCancel={() => setConfirmSelfDeleteModal(false)}
-                      text="Are you sure you want to leave this team?"
-                      title="Are you sure?"
-                    />
-                  }
-
-                  {confirmMemberDeleteModal &&
-                    <ConfirmModal
-                      onOkay={deleteTeamMember}
-                      onCancel={() => setConfirmMemberDeleteModal(false)}
-                      text="Are you sure you want to remove this person, it can not be undone?"
-                      title="Are you sure?"
-                    />
-                  }
-
-                  <Usernames className="row">
-                    <UsernamesInput
-                      placeholder="Comma seperated usernames or email addresses"
-                      value={usernames}
-                      onChange={(e) => setUsernames(e.target.value)}
-                    />
-
-                    <IconComponent
-                      icon="TEAM_CHECK"
-                      color="#EBEDEF"
-                      className="mr-20 button"
-                      size="1x"
-                      onClick={createTeamMembers}
-                    />
-                  </Usernames>
-
-                  {members.map((member, index) => {
-                    return (
-                      <UserComponent
-                        key={index}
-                        image={member.user.image}
-                        color={member.user.color}
-                        name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                        label={member.user.email}>
-                        <Button className="row">
-                          <ButtonIcon
-                            className="row justify-content-center"
-                            onClick={() => {
-                              if (member.user.id == common.user.id) {
-                                setConfirmSelfDeleteModal(true)
-                              } else {
-                                setConfirmMemberDeleteModal(true)
-                                setMemberDeleteId(member.user.id)
-                              }
-                            }}>
-                            <IconComponent
-                              icon="TEAM_DELETE"
-                              color="#868E96"
-                              size="1x"
-                            />
-                          </ButtonIcon>
-                        </Button>
-
-                        <Button className="row">
-                          <ButtonText
-                            className="row justify-content-center"
-                            onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}>
-                            {member.admin ? 'Remove Admin' : 'Make Admin'}
-                          </ButtonText>
-                        </Button>
-                      </UserComponent>
-                    )
-                  })}
-                </div>
-              )
-            }
-          ]}
-        />
-    </ModalComponent>
+                )
+              }
+            ]}
+          />
+      </ModalComponent>
+    </ModalPortal>
   )
 }
 
