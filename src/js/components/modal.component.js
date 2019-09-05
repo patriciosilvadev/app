@@ -55,6 +55,7 @@ export default function ModalComponent({ children, open, title, width, height, o
           <IconComponent
             icon="MODAL_CLOSE"
             color="#524150"
+            size="lg"
             className="button"
             onClick={onClose}
           />

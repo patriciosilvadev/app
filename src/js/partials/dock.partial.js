@@ -53,11 +53,11 @@ class DockPartial extends React.Component {
           const { Component, id } = plugin
 
           if (this.state.pluginId == id) return (
-            <Component 
+            <Component
               key={index}
               onClose={() => this.setState({ pluginId: null })}
             />
-          )          
+          )
         })}
 
         {/* Update an existing team */}
@@ -85,7 +85,7 @@ class DockPartial extends React.Component {
             onClose={() => this.setState({ accountModal: false })}
           />
         }
-        
+
         {this.props.teams.map((team, index) => {
           return (
             <Link key={index} to={`/app/team/${team.id}`}>
@@ -103,16 +103,18 @@ class DockPartial extends React.Component {
         <Link to={`/app/starred`}>
           <IconComponent
             color="#475669"
-            icon="ROOMS_STARRED"
+            icon="DOCK_STARRED"
+            size="lg"
             className="mt-15 button"
           />
         </Link>
 
         <IconComponent
           color="#475669"
+          size="lg"
           className="mt-15 button"
           onClick={(e) => this.setState({ teamCreateModal: true, userMenu: false })}
-          icon="ROOMS_ADD_TEAM"
+          icon="DOCK_ADD_TEAM"
         />
 
         {this.props.team.id &&
@@ -120,7 +122,8 @@ class DockPartial extends React.Component {
             color="#475669"
             className="mt-15 button"
             onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
-            icon="ROOMS_UPDATE_TEAM"
+            icon="DOCK_UPDATE_TEAM"
+            size="lg"
           />
         }
 
@@ -134,6 +137,7 @@ class DockPartial extends React.Component {
               key={index}
               color="#475669"
               className="mt-15 button"
+              size="lg"
               onClick={(e) => this.setState({ pluginId: id })}
               icon={icon}
             />
@@ -144,21 +148,24 @@ class DockPartial extends React.Component {
           color="#475669"
           onClick={(e) => console.log('Help')}
           className="mt-15 button"
-          icon="ROOMS_HELP"
+          icon="DOCK_HELP"
+          size="lg"
         />
 
         <IconComponent
           color="#475669"
           className="mt-15 button"
           onClick={this.signout}
-          icon="ROOMS_SIGNOUT"
+          icon="DOCK_SIGNOUT"
+          size="lg"
         />
 
         <IconComponent
           color="#475669"
           className="mt-15 button"
           onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
-          icon="ROOMS_ACCOUNT"
+          icon="DOCK_ACCOUNT"
+          size="lg"
         />
       </Dock>
     )

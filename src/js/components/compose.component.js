@@ -350,6 +350,7 @@ class ComposeComponent extends React.Component {
               icon="COMPOSE_EMOTICON"
               color="#565456"
               className="button"
+              size="1x"
               onClick={() => this.setState({ emoticonMenu: true })}
             />
           </PopupComponent>
@@ -357,6 +358,7 @@ class ComposeComponent extends React.Component {
           <IconComponent
             icon="COMPOSE_ATTACHMENT"
             color="#565456"
+            size="1x"
             className="ml-15 button"
             onClick={() => this.fileRef.click()}
           />
@@ -366,6 +368,7 @@ class ComposeComponent extends React.Component {
               <IconComponent
                 icon="COMPOSE_AT"
                 color="#565456"
+                size="1x"
                 className="ml-15 button"
                 onClick={() => this.insertAtCursor("@")}
               />
@@ -374,6 +377,7 @@ class ComposeComponent extends React.Component {
                 icon="COMPOSE_SEND"
                 color="#565456"
                 className="ml-15 button"
+                size="1x"
                 onClick={this.onSend}
               />
             </React.Fragment>

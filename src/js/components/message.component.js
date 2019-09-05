@@ -195,6 +195,7 @@ export default function MessageComponent(props) {
                     <IconComponent
                       icon="MESSAGE_EMOTICON"
                       color="#CFD4D9"
+                      size="1x"
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
@@ -203,6 +204,7 @@ export default function MessageComponent(props) {
                   <IconComponent
                     icon="MESSAGE_REPLY"
                     color="#CFD4D9"
+                    size="1x"
                     className="button"
                     onClick={() => setReply(!reply)}
                   />

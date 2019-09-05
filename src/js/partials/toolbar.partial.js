@@ -132,10 +132,14 @@ class ToolbarPartial extends React.Component {
 
           <TooltipComponent direction="left" text="Messages" delay={1000}>
             <Button className="row" onClick={() => {
-                this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`) 
+                this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
             }}>
               <ButtonIcon className="row justify-content-center">
-                <IconComponent icon="TOOLBAR_MEMBERS" color="#ADB5BD" />
+                <IconComponent
+                  icon="TOOLBAR_MEMBERS"
+                  color="#ADB5BD"
+                  size="1x"
+                />
               </ButtonIcon>
             </Button>
           </TooltipComponent>
@@ -149,9 +153,9 @@ class ToolbarPartial extends React.Component {
               <div className="column flexer">
                 <PopupMenuComponent
                   items={[
-                    { icon: <IconComponent icon="TOOLBAR_EYE" color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                    { icon: <IconComponent icon="TOOLBAR_EYE_OFF" color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
-                    
+                    { icon: <IconComponent size="1x" icon="TOOLBAR_EYE" color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                    { icon: <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+
                   ]}
                 />
               </div>
@@ -160,8 +164,8 @@ class ToolbarPartial extends React.Component {
             {!this.props.room.private &&
               <Button className="row" onClick={() => this.setState({ visibilityMenu: true })}>
                 <ButtonIcon className="row justify-content-center">
-                  {this.props.room.public && <IconComponent icon="TOOLBAR_EYE" color="#ADB5BD" />}
-                  {!this.props.room.public && <IconComponent icon="TOOLBAR_EYE_OFF" color="#ADB5BD" />}
+                  {this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE" color="#ADB5BD" />}
+                  {!this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#ADB5BD" />}
                 </ButtonIcon>
               </Button>
             }
@@ -170,7 +174,7 @@ class ToolbarPartial extends React.Component {
           <TooltipComponent direction="left" text="Messages" delay={1000}>
             <Button className="row" onClick={() => this.updateUserStarred(!this.state.starred)}>
               <ButtonIcon className="row justify-content-center">
-              <IconComponent icon="TOOLBAR_STARRED" color={this.state.starred ? "#EBB403" : "#ADB5BD"} width={18} height={18} />
+              <IconComponent size="1x" icon="TOOLBAR_STARRED" color={this.state.starred ? "#EBB403" : "#ADB5BD"} width={18} height={18} />
               </ButtonIcon>
             </Button>
           </TooltipComponent>
@@ -178,7 +182,7 @@ class ToolbarPartial extends React.Component {
           <TooltipComponent direction="left" text="Messages" delay={1000}>
             <Button className="row" onClick={() => this.setState({confirmModal: true})}>
               <ButtonIcon className="row justify-content-center">
-                <IconComponent icon="TOOLBAR_TRASH" color="#ADB5BD" width={18} height={18} />
+                <IconComponent size="1x" icon="TOOLBAR_TRASH" color="#ADB5BD" width={18} height={18} />
               </ButtonIcon>
             </Button>
           </TooltipComponent>

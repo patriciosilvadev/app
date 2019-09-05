@@ -80,7 +80,7 @@ export default function RoomComponent(props) {
               image={props.image}
               title={props.title}
               badge={props.unread}
-            /> 
+            />
           }
 
           <div className="column flexer pl-10">
@@ -94,8 +94,9 @@ export default function RoomComponent(props) {
               {!props.public && !props.private &&
                 <IconComponent
                   color={props.active || props.unread ? "white" : "#475669"}
-                  icon="ROOMS_LOCK"
+                  icon="ROOM_LOCK"
                   className="ml-5"
+                  size="xs"
                 />
               }
 

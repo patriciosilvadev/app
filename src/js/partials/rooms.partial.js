@@ -248,6 +248,7 @@ class RoomsPartial extends React.Component {
           <IconComponent
             icon="ROOMS_SEARCH"
             color="#475669"
+            size="1x"
             className="mr-5"
           />
 
@@ -406,6 +407,7 @@ class RoomsPartial extends React.Component {
             <IconComponent
               color="#475669"
               icon="ROOMS_ADD_ROOM"
+              size="1x"
               className="mr-10"
             />
             <ButtonText>

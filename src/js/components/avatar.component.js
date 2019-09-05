@@ -176,6 +176,7 @@ export default function AvatarComponent(props) {
           <IconComponent
             icon="AVATAR_EDIT"
             color={props.textColor ? props.textColor : "white"}
+            size="xs"
           />
         </Edit>
       }
@@ -185,6 +186,7 @@ export default function AvatarComponent(props) {
           <IconComponent
             icon="AVATAR_DELETE"
             color="white"
+            size="xs"
           />
         </Delete>
       }

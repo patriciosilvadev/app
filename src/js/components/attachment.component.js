@@ -97,6 +97,7 @@ export default function AttachmentComponent({ onDeleteClick, onDownloadClick, si
           <IconComponent
             icon="ATTACHMENT_DOWNLOAD"
             color="white"
+            size="xs"
           />
         </DownloadContainer>
       }
@@ -106,6 +107,7 @@ export default function AttachmentComponent({ onDeleteClick, onDownloadClick, si
           <IconComponent
             icon="ATTACHMENT_DELETE"
             color="white"
+            size="xs"
           />
         </Delete>
       }
@@ -115,6 +117,7 @@ export default function AttachmentComponent({ onDeleteClick, onDownloadClick, si
           <IconComponent
             icon="ATTACHMENT_FILE"
             color="#565456"
+            size="xs"
           />
         }
       </Thumbnail>

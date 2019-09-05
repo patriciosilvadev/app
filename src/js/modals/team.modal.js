@@ -540,6 +540,7 @@ export default function TeamModal(props) {
                       icon="TEAM_CHECK"
                       color="#EBEDEF"
                       className="mr-20 button"
+                      size="1x"
                       onClick={createTeamMembers}
                     />
                   </Usernames>
@@ -566,6 +567,7 @@ export default function TeamModal(props) {
                             <IconComponent
                               icon="TEAM_DELETE"
                               color="#868E96"
+                              size="1x"
                             />
                           </ButtonIcon>
                         </Button>
