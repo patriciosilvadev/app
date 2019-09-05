@@ -28,7 +28,6 @@
         "apollo-link-http": "^1.5.5",
         "chroma-js": "^2.0.3",
         "crypto-js": "^3.1.9-1",
-        "elements": "github:getweekday/elements#master",
         "emoji-mart": "^2.11.1",
         "eslint-plugin-prettier": "^3.1.0",
         "eventemitter3": "^4.0.0",
