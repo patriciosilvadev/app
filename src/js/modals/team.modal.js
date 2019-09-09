@@ -89,26 +89,6 @@ const Label = styled.div`
   padding-bottom: 5px;
 `
 
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
-
 const SmallTextButton = styled.div`
   color: #adb5bd;
   font-size: 14px;
@@ -119,30 +99,6 @@ const SmallTextButton = styled.div`
   &:hover {
     color: #007af5;
   }
-`
-
-const Button = styled.div`
-  padding: 5px;
-  border-radius: 100px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #eff2f7;
-  }
-`
-
-const ButtonIcon = styled.div`
-  width: 30px;
-  height: 30px;
-`
-
-const ButtonText = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  height: 30px;
-  color: #343a40;
-  padding-left: 10px;
-  padding-right: 10px;
 `
 
 const Usernames = styled.div`
@@ -428,16 +384,20 @@ export default function TeamModal(props) {
                   <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
                     Delete team
                   </SmallTextButton>
-                  <BigSolidButton onClick={updateTeam}>
-                    Save
-                  </BigSolidButton>
+                  <Button
+                    jumbo
+                    onClick={updateTeam}
+                    text="Save"
+                  />
                 </React.Fragment>
               }
 
               {!props.id &&
-                <BigSolidButton onClick={createTeam}>
-                  Create
-                </BigSolidButton>
+                <Button
+                  jumbo
+                  onClick={createTeam}
+                  text="Create"
+                />
               }
             </div>
           </div>
@@ -556,32 +516,28 @@ export default function TeamModal(props) {
                           color={member.user.color}
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
                           label={member.user.email}>
-                          <Button className="row">
-                            <ButtonIcon
-                              className="row justify-content-center"
-                              onClick={() => {
-                                if (member.user.id == common.user.id) {
-                                  setConfirmSelfDeleteModal(true)
-                                } else {
-                                  setConfirmMemberDeleteModal(true)
-                                  setMemberDeleteId(member.user.id)
-                                }
-                              }}>
-                              <IconComponent
-                                icon="TEAM_DELETE"
-                                color="#868E96"
-                                size="1x"
-                              />
-                            </ButtonIcon>
-                          </Button>
 
-                          <Button className="row">
-                            <ButtonText
-                              className="row justify-content-center"
-                              onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}>
-                              {member.admin ? 'Remove Admin' : 'Make Admin'}
-                            </ButtonText>
-                          </Button>
+                          <Button
+                            text=""
+                            onClick={() => {
+                              if (member.user.id == common.user.id) {
+                                setConfirmSelfDeleteModal(true)
+                              } else {
+                                setConfirmMemberDeleteModal(true)
+                                setMemberDeleteId(member.user.id)
+                              }
+                            }}
+                            icon={<IconComponent
+                              icon="TEAM_DELETE"
+                              color="#868E96"
+                              size="1x"
+                            />}
+                          />
+
+                          <Button
+                            onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
+                            text={member.admin ? 'Remove Admin' : 'Make Admin'}
+                          />
                         </UserComponent>
                       )
                     })}

@@ -12,26 +12,6 @@ import PropTypes from 'prop-types'
 import { createRoom } from '../actions'
 import { Button } from '@weekday/elements'
 
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
-
 const Row = styled.div`
   background-color: transparent;
   width: 100%;
@@ -108,9 +88,12 @@ export default function RoomModal(props) {
         <div className="column w-100 align-items-stretch">
           <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
             <div className="flexer" />
-            <BigSolidButton onClick={() => dispatch(createRoom(title, description, currentTeam.id, null))}>
-              Create
-            </BigSolidButton>
+
+            <Button
+              jumbo
+              onClick={() => dispatch(createRoom(title, description, currentTeam.id, null))}
+              text="Create"
+            />
           </div>
         </div>
       )}>

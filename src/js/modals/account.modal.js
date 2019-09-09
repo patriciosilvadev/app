@@ -89,26 +89,6 @@ const Label = styled.div`
   padding-bottom: 5px;
 `
 
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
-
 const SmallTextButton = styled.div`
   color: #adb5bd;
   font-size: 14px;
@@ -208,9 +188,11 @@ export default function AccountModal(props) {
           <div className="column w-100 align-items-stretch">
             <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
               <div className="flexer" />
-              <BigSolidButton onClick={handleSubmit}>
-                Save
-              </BigSolidButton>
+              <Button
+                jumbo
+                onClick={handleSubmit}
+                text="Save"
+              />
             </div>
           </div>
         )}>

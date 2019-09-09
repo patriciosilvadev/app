@@ -61,26 +61,6 @@ const MessagesContainer = styled.div`
   height: 1px;
 `
 
-const SmallSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 10px 20px 10px 20px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
-
 const Joinable = styled.div`
   padding: 25px;
   width: 100%;
@@ -342,9 +322,10 @@ class RoomPartial extends React.Component {
           {/* If they are not blocked, but are not members yet */}
           {this.state.unblocked &&
             <Joinable className="row">
-              <SmallSolidButton onClick={this.joinRoom}>
-                Join Conversation
-              </SmallSolidButton>
+              <Button
+                onClick={this.joinRoom}
+                text="Join Conversation"
+              />
               <JoinableText>
                 You are not part of this channel
               </JoinableText>
