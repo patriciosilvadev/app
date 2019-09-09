@@ -9,7 +9,6 @@ import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
 import { updateRoom, deleteRoom, updateUserStarred } from '../actions'
 import IconComponent from '../components/icon.component'
-import { ToolbarButton } from '@weekday/elements'
 
 const Toolbar = styled.div`
   height: 100%;

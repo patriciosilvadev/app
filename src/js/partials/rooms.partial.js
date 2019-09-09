@@ -12,7 +12,6 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchStarredRooms, fetchTeam } from '../actions'
 import IconComponent from '../components/icon.component'
-import { Button } from '@weekday/elements'
 
 const Rooms = styled.div`
   width: 300px;
@@ -72,7 +71,7 @@ const Heading = styled.div`
   color: #475669;
 `
 
-const Button = styled.div`
+const FooterButton = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding: 25px;
   cursor: pointer;
@@ -82,7 +81,7 @@ const Button = styled.div`
   }
 `
 
-const ButtonText = styled.div`
+const FooterButtonText = styled.div`
   color: #475669;
   font-weight: 400;
   font-size: 14px;
@@ -404,17 +403,17 @@ class RoomsPartial extends React.Component {
         </div>
 
         {!this.props.starred &&
-          <Button className="row" onClick={() => this.setState({ roomCreateModal: true })}>
+          <FooterButton className="row" onClick={() => this.setState({ roomCreateModal: true })}>
             <IconComponent
               color="#475669"
               icon="ROOMS_ADD_ROOM"
               size="1x"
               className="mr-10"
             />
-            <ButtonText>
+            <FooterButtonText>
               Create New Channel
-            </ButtonText>
-          </Button>
+            </FooterButtonText>
+          </FooterButton>
         }
       </Rooms>
     )

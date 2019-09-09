@@ -186,27 +186,6 @@ const SmallTextButton = styled.div`
   }
 `
 
-const BigSolidButton = styled.button`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-  text-align: center;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
-
 const Members = styled.div`
   padding: 0px 50px 0px 50px;
   border-top: 1px solid #f1f3f5;
@@ -415,7 +394,12 @@ class AuthPage extends React.Component {
                           {errors.email && touched.email && <Error>{errors.email}</Error>}
 
                           <Footer className="column align-items-center">
-                            <BigSolidButton type="submit" disabled={isSubmitting}>Send me a verification code</BigSolidButton>
+                            <Button
+                              jumbo
+                              type="submit"
+                              disabled={isSubmitting}
+                              text="Send me a verification code"
+                            />
                             <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                               Go back to sign in
                             </SmallTextButton>
@@ -492,7 +476,12 @@ class AuthPage extends React.Component {
                           {errors.code && touched.code && <Error>{errors.code}</Error>}
 
                           <Footer className="column align-items-center">
-                            <BigSolidButton type="submit" disabled={isSubmitting}>Update Password</BigSolidButton>
+                            <Button
+                              jumbo
+                              type="submit"
+                              disabled={isSubmitting}
+                              text="Update Password"
+                            />
                             <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
                               Get another code
                             </SmallTextButton>
@@ -589,7 +578,12 @@ class AuthPage extends React.Component {
                       {errors.confirm && touched.confirm && <Error>{errors.confirm}</Error>}
 
                       <Footer className="column align-items-center">
-                        <BigSolidButton type="submit" disabled={isSubmitting}>Sign up</BigSolidButton>
+                        <Button
+                          jumbo
+                          type="submit"
+                          disabled={isSubmitting}
+                          text="Sign up"
+                        />
                         <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                           Go back to sign in
                         </SmallTextButton>
@@ -660,7 +654,12 @@ class AuthPage extends React.Component {
                       {errors.password && touched.password && <Error>{errors.password}</Error>}
 
                       <Spacer />
-                      <BigSolidButton type="submit" disabled={isSubmitting}>Sign in</BigSolidButton>
+                      <Button
+                        jumbo
+                        type="submit"
+                        disabled={isSubmitting}
+                        text="Sign in"
+                      />
                       <SmallTextButton onClick={() => this.setState({ view: 'password' })} className="mt-30">
                         I've lost my password
                       </SmallTextButton>
