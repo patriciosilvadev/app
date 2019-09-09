@@ -9,6 +9,7 @@ import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
 import { updateRoom, deleteRoom, updateUserStarred } from '../actions'
 import IconComponent from '../components/icon.component'
+import { ToolbarButton } from '@weekday/elements'
 
 const Toolbar = styled.div`
   height: 100%;
@@ -19,7 +20,7 @@ const Toolbar = styled.div`
   z-index: 1;
 `
 
-const Button = styled.div`
+const ToolbarButton = styled.div`
   padding: 10px;
   border-radius: 100px;
   cursor: pointer;
@@ -30,9 +31,9 @@ const Button = styled.div`
   }
 `
 
-const ButtonIcon = styled.div``
+const ToolbarButtonIcon = styled.div``
 
-const ToolbarButtons = styled.div`
+const ToolbarToolbarButtons = styled.div`
   padding: 12px;
   height: 100%;
 `
@@ -88,7 +89,7 @@ class ToolbarPartial extends React.Component {
   render() {
     return (
       <Toolbar className="row">
-        <ToolbarButtons className="column align-items-center">
+        <ToolbarToolbarButtons className="column align-items-center">
           {this.state.confirmModal &&
             <ConfirmModal
               onOkay={this.deleteRoom}
@@ -131,17 +132,17 @@ class ToolbarPartial extends React.Component {
           </PopupComponent>
 
           <TooltipComponent direction="left" text="Messages" delay={1000}>
-            <Button className="row" onClick={() => {
+            <ToolbarButton className="row" onClick={() => {
                 this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
             }}>
-              <ButtonIcon className="row justify-content-center">
+              <ToolbarButtonIcon className="row justify-content-center">
                 <IconComponent
                   icon="TOOLBAR_MEMBERS"
                   color="#ADB5BD"
                   size="1x"
                 />
-              </ButtonIcon>
-            </Button>
+              </ToolbarButtonIcon>
+            </ToolbarButton>
           </TooltipComponent>
 
           <PopupComponent
@@ -162,31 +163,31 @@ class ToolbarPartial extends React.Component {
             }>
 
             {!this.props.room.private &&
-              <Button className="row" onClick={() => this.setState({ visibilityMenu: true })}>
-                <ButtonIcon className="row justify-content-center">
+              <ToolbarButton className="row" onClick={() => this.setState({ visibilityMenu: true })}>
+                <ToolbarButtonIcon className="row justify-content-center">
                   {this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE" color="#ADB5BD" />}
                   {!this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#ADB5BD" />}
-                </ButtonIcon>
-              </Button>
+                </ToolbarButtonIcon>
+              </ToolbarButton>
             }
           </PopupComponent>
 
           <TooltipComponent direction="left" text="Messages" delay={1000}>
-            <Button className="row" onClick={() => this.updateUserStarred(!this.state.starred)}>
-              <ButtonIcon className="row justify-content-center">
+            <ToolbarButton className="row" onClick={() => this.updateUserStarred(!this.state.starred)}>
+              <ToolbarButtonIcon className="row justify-content-center">
               <IconComponent size="1x" icon="TOOLBAR_STARRED" color={this.state.starred ? "#EBB403" : "#ADB5BD"} width={18} height={18} />
-              </ButtonIcon>
-            </Button>
+              </ToolbarButtonIcon>
+            </ToolbarButton>
           </TooltipComponent>
 
           <TooltipComponent direction="left" text="Messages" delay={1000}>
-            <Button className="row" onClick={() => this.setState({confirmModal: true})}>
-              <ButtonIcon className="row justify-content-center">
+            <ToolbarButton className="row" onClick={() => this.setState({confirmModal: true})}>
+              <ToolbarButtonIcon className="row justify-content-center">
                 <IconComponent size="1x" icon="TOOLBAR_TRASH" color="#ADB5BD" width={18} height={18} />
-              </ButtonIcon>
-            </Button>
+              </ToolbarButtonIcon>
+            </ToolbarButton>
           </TooltipComponent>
-        </ToolbarButtons>
+        </ToolbarToolbarButtons>
       </Toolbar>
     )
   }

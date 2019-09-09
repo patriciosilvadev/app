@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import EventService from '../services/event.service'
 import { fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReply, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
+import { Button } from '@weekday/elements'
 
 const Room = styled.div`
   background: white;

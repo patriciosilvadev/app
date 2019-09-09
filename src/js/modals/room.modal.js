@@ -10,6 +10,7 @@ import LoadingComponent from '../components/loading.component'
 import ErrorComponent from '../components/error.component'
 import PropTypes from 'prop-types'
 import { createRoom } from '../actions'
+import { Button } from '@weekday/elements'
 
 const BigSolidButton = styled.div`
   background-color: #007af5;

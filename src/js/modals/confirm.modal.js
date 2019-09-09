@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import ModalComponent from '../components/modal.component'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
+import { Button } from '@weekday/elements'
 
 const BigSolidButton = styled.div`
   background-color: #007af5;

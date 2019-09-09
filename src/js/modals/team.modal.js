@@ -14,6 +14,7 @@ import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
 import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
+import { Button } from '@weekday/elements'
 
 const InputComponent = styled.input`
   border: none;

@@ -14,6 +14,7 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
+import { Button } from '@weekday/elements'
 
 const InputComponent = styled.input`
   border: none;

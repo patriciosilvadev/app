@@ -9,6 +9,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
+import { Button } from '@weekday/elements'
 
 const Auth = styled.div`
   height: 100%;

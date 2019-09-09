@@ -12,6 +12,7 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchStarredRooms, fetchTeam } from '../actions'
 import IconComponent from '../components/icon.component'
+import { Button } from '@weekday/elements'
 
 const Rooms = styled.div`
   width: 300px;
