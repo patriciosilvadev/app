@@ -33,7 +33,7 @@ const ToolbarButton = styled.div`
 
 const ToolbarButtonIcon = styled.div``
 
-const ToolbarToolbarButtons = styled.div`
+const ToolbarButtons = styled.div`
   padding: 12px;
   height: 100%;
 `
@@ -89,7 +89,7 @@ class ToolbarPartial extends React.Component {
   render() {
     return (
       <Toolbar className="row">
-        <ToolbarToolbarButtons className="column align-items-center">
+        <ToolbarButtons className="column align-items-center">
           {this.state.confirmModal &&
             <ConfirmModal
               onOkay={this.deleteRoom}
@@ -187,7 +187,7 @@ class ToolbarPartial extends React.Component {
               </ToolbarButtonIcon>
             </ToolbarButton>
           </TooltipComponent>
-        </ToolbarToolbarButtons>
+        </ToolbarButtons>
       </Toolbar>
     )
   }
