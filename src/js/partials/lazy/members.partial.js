@@ -7,6 +7,7 @@ import AutocompleteComponent from '../../components/autocomplete.component'
 import styled from 'styled-components'
 import { createRoomMember } from '../../actions'
 import PropTypes from 'prop-types'
+import { Button } from '@weekday/elements'
 
 const Container = styled.div`
   width: 250px;
@@ -25,26 +26,6 @@ const Members = styled.div`
   width: 200px;
   margin-top: 20px;
   margin-bottom: 50px;
-`
-
-const SmallSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 10px 20px 10px 20px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
 `
 
 class MembersPartial extends React.Component {
@@ -119,9 +100,11 @@ class MembersPartial extends React.Component {
             direction="right-bottom"
             handleDismiss={() => this.setState({ autocompleteMenu: false })}
             handleEnterPress={(member) => this.createRoomMember(member.user)}>
-            <SmallSolidButton onClick={() => this.setState({ autocompleteMenu:true })}>
-              Add Team Member
-            </SmallSolidButton>
+            <Button
+              disabled={false}
+              text="Add"
+              onClick={() => this.setState({ autocompleteMenu:true })}
+            />
           </AutocompleteComponent>
         }
       </Container>

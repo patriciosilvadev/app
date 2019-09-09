@@ -12,6 +12,11 @@ module.exports = env => {
     entry: {
       index: path.resolve(__dirname, './src/js/index.js'),
     },
+    resolve: {
+      alias: {
+        react: path.resolve('./node_modules/react')
+      }
+    },
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.[name].js',
