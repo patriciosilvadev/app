@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 import IconComponent from '../components/icon.component'
 import { updateLoading, updateError } from '../actions'
 import UploadService from '../services/upload.service'
-import { MessageMedia } from 'elements'
+import { MessageMedia } from '@weekday/elements'
 
 const Compose = styled.div`
   width: 100%;
