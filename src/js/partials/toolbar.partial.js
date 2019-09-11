@@ -86,6 +86,10 @@ class ToolbarPartial extends React.Component {
 
   // prettier-ignore
   render() {
+    const { pathname } = this.props.history.location
+    const pathnameParts = pathname.split('/')
+    const lastPathname = pathnameParts[pathnameParts.length - 1]
+
     return (
       <Toolbar className="row">
         <ToolbarButtons className="column align-items-center">
@@ -134,12 +138,17 @@ class ToolbarPartial extends React.Component {
 
           <Tooltip direction="left" text="Members">
             <ToolbarButton className="row" onClick={() => {
-                this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
+                // If we are on the members page, then navigate bacl
+                if (lastPathname == "members") {
+                  this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}`)
+                } else {
+                  this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
+                }
             }}>
               <ToolbarButtonIcon className="row justify-content-center">
                 <IconComponent
                   icon="TOOLBAR_MEMBERS"
-                  color="#ADB5BD"
+                  color={lastPathname == "members" ? "#007af5" : "#ADB5BD"}
                   size="1x"
                 />
               </ToolbarButtonIcon>

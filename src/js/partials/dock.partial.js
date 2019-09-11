@@ -47,6 +47,10 @@ class DockPartial extends React.Component {
 
   // prettier-ignore
   render() {
+    const { pathname } = this.props.history.location
+    const pathnameParts = pathname.split('/')
+    const lastPathname = pathnameParts[pathnameParts.length - 1]
+
     return (
       <Dock className="column align-items-center">
         {this.props.common.plugins.dock.map((plugin, index) => {
@@ -96,7 +100,7 @@ class DockPartial extends React.Component {
                 title={team.name}
                 className="button mb-10"
                 outlineInnerColor="#08111d"
-                outlineOuterColor={this.props.history.location.pathname != "/app/starred" && this.props.team.id == team.id ? "#007af5" : "transparent"}
+                outlineOuterColor={lastPathname != "starred" && this.props.team.id == team.id ? "#007af5" : "transparent"}
               />
             </Link>
           )
@@ -104,7 +108,7 @@ class DockPartial extends React.Component {
 
         <Link to={`/app/starred`}>
           <IconComponent
-            color={this.props.history.location.pathname == "/app/starred" ? "#007af5" : "#475669"}
+            color={lastPathname == "starred" ? "#007af5" : "#475669"}
             icon="DOCK_STARRED"
             size="lg"
             className="mt-15 button"
