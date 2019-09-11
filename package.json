@@ -23,6 +23,7 @@
         "@fortawesome/pro-light-svg-icons": "^5.10.0",
         "@fortawesome/react-fontawesome": "^0.1.4",
         "@sentry/browser": "^5.5.0",
+        "@weekday/elements": "git+https://github.com/getweekday/elements.git",
         "apollo-cache-inmemory": "^1.2.10",
         "apollo-client": "^2.4.2",
         "apollo-link-http": "^1.5.5",
