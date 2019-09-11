@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalComponent from '../components/modal.component'
 import TabbedComponent from '../components/tabbed.component'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import NotificationComponent from '../components/notification.component'
 import GraphqlService from '../services/graphql.service'
 import SpinnerComponent from '../components/spinner.component'
@@ -424,7 +424,7 @@ export default function TeamModal(props) {
                           onChange={handleFileChange}
                         />
 
-                        <AvatarComponent
+                        <Avatar
                           image={image}
                           className="mr-20"
                           size="large"

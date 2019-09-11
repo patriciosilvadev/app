@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import AvatarComponent from './avatar.component'
+import { Avatar } from '@weekday/elements'
 import AttachmentComponent from './attachment.component'
 import moment from 'moment'
 import ComposeComponent from './compose.component'
@@ -160,7 +160,7 @@ export default function MessageComponent(props) {
   return (
     <Message className="column" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
       <div className="row align-items-start w-100">
-        <AvatarComponent
+        <Avatar
           image={props.user.image}
           title={props.user.name}
           className="mr-15"

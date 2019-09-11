@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalComponent from '../components/modal.component'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
 import PopupComponent from '../components/popup.component'
@@ -102,7 +102,7 @@ export default function RoomModal(props) {
       <ErrorComponent message={error} />
 
       <Row className="row align-items-start">
-        <AvatarComponent
+        <Avatar
           size="x-large"
           image={currentTeam.image}
           title={currentTeam.name}

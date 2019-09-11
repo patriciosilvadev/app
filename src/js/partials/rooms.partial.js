@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import RoomComponent from '../components/room.component'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import '../helpers/extensions'
 import styled from 'styled-components'
@@ -224,7 +224,7 @@ class RoomsPartial extends React.Component {
         }
 
         <Header className="row">
-          <AvatarComponent
+          <Avatar
             dark
             size="small"
             image={this.props.common.user.image}

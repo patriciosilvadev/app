@@ -1,8 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import TooltipComponent from '../components/tooltip.component'
-import AvatarComponent from '../components/avatar.component'
+import { Tooltip } from '@weekday/elements'
+import { Avatar } from '@weekday/elements'
 import ConfirmModal from '../modals/confirm.modal'
 import PopupMenuComponent from '../components/popup-menu.component'
 import PopupComponent from '../components/popup.component'
@@ -121,16 +121,18 @@ class ToolbarPartial extends React.Component {
               </div>
             }>
 
-            <AvatarComponent
-              image={this.props.room.team ? this.props.room.team.image : ""}
-              title={this.props.room.team ? this.props.room.team.name : ""}
-              size="small"
-              className="mb-10 mt-10 button"
-              onClick={() => this.setState({ teamMenu: true })}
-            />
+            <Tooltip direction="left" text="Team">
+              <Avatar
+                image={this.props.room.team ? this.props.room.team.image : ""}
+                title={this.props.room.team ? this.props.room.team.name : ""}
+                size="small"
+                className="mb-10 mt-10 button"
+                onClick={() => this.setState({ teamMenu: true })}
+              />
+            </Tooltip>
           </PopupComponent>
 
-          <TooltipComponent direction="left" text="Messages" delay={1000}>
+          <Tooltip direction="left" text="Members">
             <ToolbarButton className="row" onClick={() => {
                 this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
             }}>
@@ -142,7 +144,7 @@ class ToolbarPartial extends React.Component {
                 />
               </ToolbarButtonIcon>
             </ToolbarButton>
-          </TooltipComponent>
+          </Tooltip>
 
           <PopupComponent
             handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -162,30 +164,32 @@ class ToolbarPartial extends React.Component {
             }>
 
             {!this.props.room.private &&
-              <ToolbarButton className="row" onClick={() => this.setState({ visibilityMenu: true })}>
-                <ToolbarButtonIcon className="row justify-content-center">
-                  {this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE" color="#ADB5BD" />}
-                  {!this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#ADB5BD" />}
-                </ToolbarButtonIcon>
-              </ToolbarButton>
+              <Tooltip direction="left" text="Visibility">
+                <ToolbarButton className="row" onClick={() => this.setState({ visibilityMenu: true })}>
+                  <ToolbarButtonIcon className="row justify-content-center">
+                    {this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE" color="#ADB5BD" />}
+                    {!this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#ADB5BD" />}
+                  </ToolbarButtonIcon>
+                </ToolbarButton>
+              </Tooltip>
             }
           </PopupComponent>
 
-          <TooltipComponent direction="left" text="Messages" delay={1000}>
+          <Tooltip direction="left" text="Favourite">
             <ToolbarButton className="row" onClick={() => this.updateUserStarred(!this.state.starred)}>
               <ToolbarButtonIcon className="row justify-content-center">
               <IconComponent size="1x" icon="TOOLBAR_STARRED" color={this.state.starred ? "#EBB403" : "#ADB5BD"} width={18} height={18} />
               </ToolbarButtonIcon>
             </ToolbarButton>
-          </TooltipComponent>
+          </Tooltip>
 
-          <TooltipComponent direction="left" text="Messages" delay={1000}>
+          <Tooltip direction="left" text="Delete">
             <ToolbarButton className="row" onClick={() => this.setState({confirmModal: true})}>
               <ToolbarButtonIcon className="row justify-content-center">
                 <IconComponent size="1x" icon="TOOLBAR_TRASH" color="#ADB5BD" width={18} height={18} />
               </ToolbarButtonIcon>
             </ToolbarButton>
-          </TooltipComponent>
+          </Tooltip>
         </ToolbarButtons>
       </Toolbar>
     )

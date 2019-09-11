@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import AvatarComponent from './avatar.component'
+import { Avatar } from '@weekday/elements'
 import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
@@ -74,7 +74,7 @@ export default function RoomComponent(props) {
       className={props.active ? "row active" : "row"}>
         <div className="row flexer" style={{ overflow: 'hidden' }}>
           {!props.icon &&
-            <AvatarComponent
+            <Avatar
               dark={props.dark}
               size="small-medium"
               image={props.image}

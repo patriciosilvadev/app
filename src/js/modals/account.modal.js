@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import NotificationComponent from '../components/notification.component'
 import ModalComponent from '../components/modal.component'
@@ -219,7 +219,7 @@ export default function AccountModal(props) {
                         onChange={handleFileChange}
                       />
 
-                      <AvatarComponent
+                      <Avatar
                         image={image}
                         className="mr-20"
                         size="large"

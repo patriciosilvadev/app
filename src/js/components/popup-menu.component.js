@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import PropTypes from 'prop-types'
 
 const Container = styled.div`
@@ -31,7 +31,7 @@ const IconContainer = styled.div`
   margin-left: 5px;
 `
 
-const Avatar = styled.div`
+const AvatarContainer = styled.div`
   margin-right: 7px;
   margin-left: 3px;
 `
@@ -73,13 +73,13 @@ export default function PopupMenuComponent({ items }) {
             {!item.divider &&
               <React.Fragment>
                 {item.image &&
-                  <Avatar>
-                    <AvatarComponent
+                  <AvatarContainer>
+                    <Avatar
                       image={item.image}
                       title={item.text}
                       size="small-medium"
                     />
-                  </Avatar>
+                  </AvatarContainer>
                 }
                 {item.icon &&
                   <IconContainer>

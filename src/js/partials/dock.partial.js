@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
@@ -89,7 +89,7 @@ class DockPartial extends React.Component {
         {this.props.teams.map((team, index) => {
           return (
             <Link key={index} to={`/app/team/${team.id}`}>
-              <AvatarComponent
+              <Avatar
                 dark
                 size="medium"
                 image={team.image}

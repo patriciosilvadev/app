@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import ConfirmModal from '../../modals/confirm.modal'
 import '../../helpers/extensions'
-import AvatarComponent from '../../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import AutocompleteComponent from '../../components/autocomplete.component'
 import styled from 'styled-components'
 import { createRoomMember } from '../../actions'
@@ -76,7 +76,7 @@ class MembersPartial extends React.Component {
         <Members className="row align-items-start wrap">
           {this.props.room.members.map((member, index) => {
             return (
-              <AvatarComponent
+              <Avatar
                 className="mr-5 mb-5"
                 size="medium"
                 circle

@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import UploadService from '../services/upload.service'
 import MessageComponent from '../components/message.component'
 import '../helpers/extensions'
@@ -266,7 +266,7 @@ class RoomPartial extends React.Component {
               onChange={this.handleAvatarChange}
             />
 
-            <AvatarComponent
+            <Avatar
               image={this.state.image}
               title={this.state.title}
               size="medium"
