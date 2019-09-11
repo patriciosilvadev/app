@@ -95,6 +95,8 @@ class DockPartial extends React.Component {
                 image={team.image}
                 title={team.name}
                 className="button mb-10"
+                outlineInnerColor="#08111d"
+                outlineOuterColor={this.props.history.location.pathname != "/app/starred" && this.props.team.id == team.id ? "#007af5" : "transparent"}
               />
             </Link>
           )
@@ -102,7 +104,7 @@ class DockPartial extends React.Component {
 
         <Link to={`/app/starred`}>
           <IconComponent
-            color="#475669"
+            color={this.props.history.location.pathname == "/app/starred" ? "#007af5" : "#475669"}
             icon="DOCK_STARRED"
             size="lg"
             className="mt-15 button"
