@@ -19,7 +19,7 @@ const Filter = styled.input`
   }
 `
 
-class AutocompleteContentComponent extends React.Component {
+class AutocompleteComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -77,55 +77,45 @@ class AutocompleteContentComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <div className="column flexer">
-        <div className="row">
-          <Filter
-            autoFocus
-            ref={ref => this.filterRef = ref}
-            placeholder="Search for users"
-            value={this.state.filter}
-            onChange={(e) => this.setState({ filter: e.target.value })}
-          />
-        </div>
-        <div className="column flexer scroll w-100">
-          {this.state.members.map((member, index) => {
-            return (
-              <UserComponent
-                key={index}
-                className="button"
-                active={index == this.state.position}
-                image={member.user.image}
-                color={member.user.color}
-                name={member.user.name}
-                label={"@"+member.user.username}
-                onClick={() => this.props.handleEnterPress(member)}>
-              </UserComponent>
-            )
-          })}
-        </div>
-      </div>
+      <PopupComponent
+        visible={this.props.visible}
+        handleDismiss={this.props.handleDismiss}
+        width={this.props.width || 250}
+        direction={this.props.direction || "left-bottom"}
+        content={
+          <div className="column flexer">
+            <div className="row">
+              <Filter
+                autoFocus
+                ref={ref => this.filterRef = ref}
+                placeholder="Search for users"
+                value={this.state.filter}
+                onChange={(e) => this.setState({ filter: e.target.value })}
+              />
+            </div>
+            <div className="column flexer scroll w-100">
+              {this.state.members.map((member, index) => {
+                return (
+                  <UserComponent
+                    key={index}
+                    className="button"
+                    active={index == this.state.position}
+                    image={member.user.image}
+                    color={member.user.color}
+                    name={member.user.name}
+                    label={"@"+member.user.username}
+                    onClick={() => this.props.handleEnterPress(member)}>
+                  </UserComponent>
+                )
+              })}
+            </div>
+          </div>
+        }>
+
+        {this.props.children}
+      </PopupComponent>
     )
   }
-}
-
-export default function AutocompleteComponent({ visible, handleDismiss, width, direction, handleEnterPress, members, children }) {
-  // prettier-ignore
-  return (
-    <PopupComponent
-      visible={visible}
-      handleDismiss={handleDismiss}
-      width={width || 250}
-      direction={direction || "left-bottom"}
-      content={
-        <AutocompleteContentComponent
-          handleEnterPress={handleEnterPress}
-          members={members}
-        />
-      }>
-
-      {children}
-    </PopupComponent>
-  )
 }
 
 AutocompleteComponent.propTypes = {

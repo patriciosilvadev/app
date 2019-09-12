@@ -117,7 +117,7 @@ MembersPartial.propTypes = {
   room: PropTypes.any,
   common: PropTypes.any,
   createRoomMember: PropTypes.func,
-  createRoomMember: PropTypes.func,
+  deleteRoomMember: PropTypes.func,
 }
 
 const mapDispatchToProps = {

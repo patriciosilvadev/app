@@ -2,15 +2,104 @@ import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import ContextPortal from '../portals/context.portal'
-import PopupContentComponent from './popup-content.component'
 
-const Popup = styled.div`
+const Content = styled.div`
+  display: flex;
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #ebedef;
+  box-shadow: 0px 0px 50px 0px rgba(0,0,0,0.05);
+  width: ${props => props.width}px;
+  height: max-content;
+
+  &.left-top { top: 0px; left: 0px; }
+  &.right-top { top: 0px; right: 0px; }
+  &.left-bottom { bottom: 0px; left: 0px; }
+  &.right-bottom { bottom: 0px; right : 0px; }
+`
+
+const ContentActiveArea = styled.div`
+  flex: 1;
+  margin-bottom: -3px;
+  margin-right: -3px;
+`
+
+export default class PopupContentComponent extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.wrapperRef = React.createRef()
+    this.handleClickOutside = this.handleClickOutside.bind(this)
+    this.handleKeyPress = this.handleKeyPress.bind(this)
+  }
+
+  handleClickOutside(event) {
+    if (!this.wrapperRef) return
+    if (!this.wrapperRef.contains) return
+    if (this.wrapperRef.contains(event.target)) return
+    if (!this.wrapperRef.contains(event.target)) this.props.hidePopup()
+  }
+
+  handleKeyPress(e) {
+    if (e.keyCode == 27) this.props.hidePopup()
+    if (e.keyCode == 13) this.props.hidePopup()
+  }
+
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside)
+    document.addEventListener('keyup', this.handleKeyPress)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside)
+    document.removeEventListener('keyup', this.handleKeyPress)
+  }
+
+  // prettier-ignore
+  render() {
+    const { top, left, width, height } = this.props
+
+    return (
+      <ContextPortal>
+        {/* This mimicks the wrapper div of the popup target */}
+        <div style={{ top, left, width, height, position: 'absolute' }}>
+          <Content
+            ref={(ref) => this.wrapperRef = ref}
+            width={this.props.contentWidth}
+            className={this.props.direction}>
+            <ContentActiveArea>
+              {this.props.content}
+            </ContentActiveArea>
+          </Content>
+        </div>
+      </ContextPortal>
+    )
+  }
+}
+
+PopupContentComponent.propTypes = {
+  hidePopup: PropTypes.func,
+  top: PropTypes.number,
+  left: PropTypes.number,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  contentWidth: PropTypes.number,
+  direction: PropTypes.string,
+  content: PropTypes.any,
+}
+
+const Container = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   align-content: center;
   justify-content: center;
+  width: max-content;
+  height: max-content;
 `
 
 export default class PopupComponent extends React.Component {
@@ -43,11 +132,12 @@ export default class PopupComponent extends React.Component {
     const left = rectangle ? rectangle.left : 0
     const width = rectangle ? rectangle.width : 0
     const height = rectangle ? rectangle.height : 0
+    const className = this.props.containerClassName ? this.props.containerClassName : ""
 
     // prettier-ignore
     return (
-      <Popup
-        className={this.props.containerClassName ? this.props.containerClassName : null}
+      <Container
+        className={className}
         ref={(ref) => this.rootRef = ref}>
         {this.props.children}
 
@@ -63,7 +153,7 @@ export default class PopupComponent extends React.Component {
             contentWidth={this.props.width}
           />
         }
-      </Popup>
+      </Container>
 
     )
   }
