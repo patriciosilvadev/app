@@ -54,7 +54,7 @@ const Label = styled.div`
   white-space: nowrap;
 `
 
-export default function PopupMenuComponent({ items }) {
+export default function MenuComponent({ items }) {
   // prettier-ignore
   return (
     <Container className="column">
@@ -99,6 +99,6 @@ export default function PopupMenuComponent({ items }) {
   )
 }
 
-PopupMenuComponent.propTypes = {
+MenuComponent.propTypes = {
   items: PropTypes.array,
 }

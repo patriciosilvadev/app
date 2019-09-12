@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Tooltip } from '@weekday/elements'
 import { Avatar } from '@weekday/elements'
 import ConfirmModal from '../modals/confirm.modal'
-import PopupMenuComponent from '../components/popup-menu.component'
+import MenuComponent from '../components/popup-menu.component'
 import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
 import { updateRoom, deleteRoom, updateUserStarred } from '../actions'
@@ -109,7 +109,7 @@ class ToolbarPartial extends React.Component {
             direction="right-bottom"
             content={
               <div className="column flexer">
-                <PopupMenuComponent
+                <MenuComponent
                   items={[
                     ...this.props.teams.map((team, index) => {
                       return {
@@ -162,7 +162,7 @@ class ToolbarPartial extends React.Component {
             direction="right-bottom"
             content={
               <div className="column flexer">
-                <PopupMenuComponent
+                <MenuComponent
                   items={[
                     { icon: <IconComponent size="1x" icon="TOOLBAR_EYE" color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
                     { icon: <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
