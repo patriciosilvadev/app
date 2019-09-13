@@ -157,9 +157,7 @@ class ToolbarPartial extends React.Component {
 
           <PopupComponent
             handleDismiss={() => this.setState({ visibilityMenu: false })}
-            visible={this.state.visibilityMenu}
-            width={275}
-            direction="right-bottom"
+            visible={this.state.visibilityMenu} width={275} direction="right-bottom"
             content={
               <div className="column flexer">
                 <MenuComponent

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import ConfirmModal from '../../modals/confirm.modal'
 import '../../helpers/extensions'
 import { Avatar } from '@weekday/elements'
-import AutocompleteComponent from '../../components/autocomplete.component'
+import QuickUserComponent from '../../components/quick-user.component'
 import styled from 'styled-components'
 import { createRoomMember } from '../../actions'
 import PropTypes from 'prop-types'
@@ -34,7 +34,7 @@ class MembersPartial extends React.Component {
 
     this.state = {
       confirmModal: false,
-      autocompleteMenu: false,
+      userMenu: false,
     }
 
     this.createRoomMember = this.createRoomMember.bind(this)
@@ -42,7 +42,7 @@ class MembersPartial extends React.Component {
   }
 
   createRoomMember(user) {
-    this.setState({ autocompleteMenu: false })
+    this.setState({ userMenu: false })
 
     // Check to see if there are already people
     // Don't re-add people
@@ -92,20 +92,19 @@ class MembersPartial extends React.Component {
         </Members>
 
         {this.props.room.team &&
-          <AutocompleteComponent
-            placeholder="Username"
+          <QuickUserComponent
             members={this.props.team.members}
-            visible={this.state.autocompleteMenu}
+            visible={this.state.userMenu}
             width={250}
             direction="right-bottom"
-            handleDismiss={() => this.setState({ autocompleteMenu: false })}
-            handleEnterPress={(member) => this.createRoomMember(member.user)}>
+            handleDismiss={() => this.setState({ userMenu: false })}
+            handleAccept={({ user }) => this.createRoomMember(user)}>
             <Button
               disabled={false}
               text="Add"
-              onClick={() => this.setState({ autocompleteMenu:true })}
+              onClick={() => this.setState({ userMenu:true })}
             />
-          </AutocompleteComponent>
+          </QuickUserComponent>
         }
       </Container>
     )

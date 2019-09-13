@@ -19,13 +19,13 @@ const Filter = styled.input`
   }
 `
 
-class AutocompleteComponent extends React.Component {
+export default class QuickUserComponent extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
       filter: '',
-      position: 0,
+      index: 0,
       members: [],
     }
 
@@ -34,23 +34,24 @@ class AutocompleteComponent extends React.Component {
   }
 
   handleKeyPress(e) {
-    if (e.keyCode == 38) this.setState({ position: this.state.position - 1 < 0 ? this.state.members.length - 1 : this.state.position - 1 })
-    if (e.keyCode == 40) this.setState({ position: this.state.position + 1 == this.state.members.length ? 0 : this.state.position + 1 })
-    if (e.keyCode == 13) this.props.handleEnterPress(this.state.members[this.state.position])
+    // Move up
+    if (e.keyCode == 38) this.setState({ index: this.state.index - 1 < 0 ? this.state.members.length - 1 : this.state.index - 1 })
+
+    // Move down
+    if (e.keyCode == 40) this.setState({ index: this.state.index + 1 == this.state.members.length ? 0 : this.state.index + 1 })
+
+    // Press enter
+    if (e.keyCode == 13) this.props.handleAccept(this.state.members[this.state.index])
   }
 
-  componentDidMount() {
-    document.addEventListener('keyup', this.handleKeyPress)
+  componentDidMount() {}
 
-    // Add this to back of the event qeueu
-    setTimeout(() => this.filterRef.focus(), 250)
+  componentWillUnmount() {}
+
+  componentDidUpdate() {
+    if (!this.filterRef) return
+    if (this.filterRef.focus) this.filterRef.focus()
   }
-
-  componentWillUnmount() {
-    document.removeEventListener('keyup', this.handleKeyPress)
-  }
-
-  componentDidUpdate() {}
 
   static getDerivedStateFromProps(props, state) {
     // Remove the @ sign
@@ -81,7 +82,9 @@ class AutocompleteComponent extends React.Component {
         visible={this.props.visible}
         handleDismiss={this.props.handleDismiss}
         width={this.props.width || 250}
-        direction={this.props.direction || "left-bottom"}
+        direction={this.props.direction || "right-bottom"}
+        mounted={() => document.addEventListener('keyup', this.handleKeyPress)}
+        unmounted={() => document.removeEventListener('keyup', this.handleKeyPress)}
         content={
           <div className="column flexer">
             <div className="row">
@@ -98,13 +101,13 @@ class AutocompleteComponent extends React.Component {
                 return (
                   <UserComponent
                     key={index}
-                    className="button"
-                    active={index == this.state.position}
+                    active={index == this.state.index}
                     image={member.user.image}
                     color={member.user.color}
                     name={member.user.name}
                     label={"@"+member.user.username}
-                    onClick={() => this.props.handleEnterPress(member)}>
+                    className="button"
+                    onClick={() => this.props.handleAccept(member)}>
                   </UserComponent>
                 )
               })}
@@ -118,12 +121,12 @@ class AutocompleteComponent extends React.Component {
   }
 }
 
-AutocompleteComponent.propTypes = {
+QuickUserComponent.propTypes = {
   visible: PropTypes.bool,
   handleDismiss: PropTypes.func,
   width: PropTypes.number,
   direction: PropTypes.string,
-  handleEnterPress: PropTypes.func,
+  handleAccept: PropTypes.func,
   members: PropTypes.array,
   children: PropTypes.any,
 }
