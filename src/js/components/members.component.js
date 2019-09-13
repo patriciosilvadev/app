@@ -7,20 +7,20 @@ export default class MembersComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = { index: 0 }
+    this.state = { index: 0, members: [] }
     this.handleKeyPress = this.handleKeyPress.bind(this)
   }
 
   handleKeyPress(e) {
     // Move up
-    if (e.keyCode == 38) this.setState({ index: this.state.index - 1 < 0 ? this.props.members.length - 1 : this.state.index - 1 })
+    if (e.keyCode == 38) this.setState({ index: this.state.index - 1 < 0 ? this.state.members.length - 1 : this.state.index - 1 })
 
     // Move down
-    if (e.keyCode == 40) this.setState({ index: this.state.index + 1 == this.props.members.length ? 0 : this.state.index + 1 })
+    if (e.keyCode == 40) this.setState({ index: this.state.index + 1 == this.state.members.length ? 0 : this.state.index + 1 })
 
     // Press enter
     if (e.keyCode == 13) {
-      if (this.props.members.length > 0) this.props.handleAccept(this.props.members[this.state.index])
+      if (this.state.members.length > 0) this.props.handleAccept(this.state.members[this.state.index])
     }
   }
 
@@ -32,10 +32,16 @@ export default class MembersComponent extends React.Component {
     document.removeEventListener('keyup', this.handleKeyPress)
   }
 
+  static getDerivedStateFromProps(props, state) {
+    return {
+      members: props.members.filter((member, index) => index <= 5 ? true : false)
+    }
+  }
+
   render() {
     return (
       <React.Fragment>
-        {this.props.members.map((member, index) => {
+        {this.state.members.map((member, index) => {
           return (
             <UserComponent
               key={index}
