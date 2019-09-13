@@ -19,7 +19,7 @@ export default class MembersComponent extends React.Component {
     if (e.keyCode == 40) this.setState({ index: this.state.index + 1 == this.props.members.length ? 0 : this.state.index + 1 })
 
     // Press enter
-    if (e.keyCode == 13) this.props.handleAccept(this.props.members[this.state.index])
+    if (e.keyCode == 13) this.props.members.length > 0 ? this.props.handleAccept(this.props.members[this.state.index]) : null
   }
 
   componentDidMount() {

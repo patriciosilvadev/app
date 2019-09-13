@@ -117,7 +117,6 @@ export default class PopupComponent extends React.Component {
           </ContextPortal>
         }
       </Container>
-
     )
   }
 }
