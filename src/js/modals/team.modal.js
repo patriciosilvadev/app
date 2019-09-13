@@ -253,7 +253,7 @@ export default function TeamModal(props) {
         sync: teamId,
       })
 
-      props.history.push('/teams')
+      props.history.push('/app')
       props.onClose()
     } catch (e) {
       setLoading(false)

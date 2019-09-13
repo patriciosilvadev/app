@@ -12,8 +12,8 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
     <ModalPortal>
       <ModalComponent
         title={title}
-        width={400}
-        height={250}
+        width={450}
+        height={300}
         onClose={onCancel}>
           <div className="row justify-content-center pt-30">
             <div className="h5 pl-30 pr-30 center w-light color-dark-0">

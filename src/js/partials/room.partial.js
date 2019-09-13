@@ -40,11 +40,20 @@ const HeaderTitle = styled.div`
 `
 
 const HeaderDescription = styled.div`
-  padding-left: 15px;
+  margin-left: 10px;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
   color: #adb5bd;
   font-size: 14px;
   font-weight: 400;
+  display: inline-block;
+  border: 2px solid white;
+
+  &:hover,
+  &:focus {
+    border: 2px solid #EEF2F7;
+  }
 `
 
 const Messages = styled.div`
@@ -285,9 +294,15 @@ class RoomPartial extends React.Component {
             <HeaderDescription
               contentEditable
               suppressContentEditableWarning
-              className="flexer"
               onBlur={this.updateRoomDescription}
-              ref={(ref) => this.descriptionRef = ref}>
+              ref={(ref) => this.descriptionRef = ref}
+              onFocus={() => {
+                var range = document.createRange();
+                range.selectNodeContents(this.descriptionRef);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }}>
               {this.props.room.description == "" ? "Add a description" : this.props.room.description}
             </HeaderDescription>
           </Header>

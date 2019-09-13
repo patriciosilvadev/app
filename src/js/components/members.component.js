@@ -45,8 +45,8 @@ export default class MembersComponent extends React.Component {
               name={member.user.name}
               label={"@"+member.user.username}
               className="button"
-              onClick={() => this.props.handleAccept(member)}>
-            </UserComponent>
+              onClick={() => this.props.handleAccept(member)}
+            />
           )
         })}
       </React.Fragment>
