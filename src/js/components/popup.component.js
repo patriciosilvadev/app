@@ -15,10 +15,10 @@ const Content = styled.div`
   width: ${props => props.width}px;
   height: max-content;
 
-  &.left-top { top: 0px; left: 0px; }
-  &.right-top { top: 0px; right: 0px; }
-  &.left-bottom { bottom: 0px; left: 0px; }
-  &.right-bottom { bottom: 0px; right : 0px; }
+  &.left-top { top: 0px; left: 0px; transform: translateY(-100%);  }
+  &.right-top { top: 0px; right: 0px; transform: translateY(-100%); }
+  &.left-bottom { bottom: 0px; left: 0px; transform: translateY(100%); }
+  &.right-bottom { bottom: 0px; right : 0px; transform: translateY(100%); }
 `
 
 const ContentActiveArea = styled.div`
@@ -27,7 +27,7 @@ const ContentActiveArea = styled.div`
   margin-right: -3px;
 `
 
-export default class PopupContentComponent extends React.Component {
+class PopupContentComponent extends React.Component {
   constructor(props) {
     super(props)
 

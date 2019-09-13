@@ -213,6 +213,8 @@ class RoomsPartial extends React.Component {
 
   // prettier-ignore
   render() {
+    const { pathname } = this.props.history.location
+
     return (
       <Rooms className="column align-items-stretch">
         {this.state.roomCreateModal &&
@@ -322,7 +324,7 @@ class RoomsPartial extends React.Component {
                   <Link className="w-100" key={index} to={to}>
                     <RoomComponent
                       dark
-                      active={room.id == this.props.room.id}
+                      active={pathname.indexOf(room.id) != -1}
                       unread={unread}
                       title={title}
                       image={image}
@@ -353,7 +355,7 @@ class RoomsPartial extends React.Component {
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
                     <RoomComponent
                       dark
-                      active={room.id == this.props.room.id}
+                      active={pathname.indexOf(room.id) != -1}
                       unread={unread}
                       title={room.title}
                       image={room.image}
@@ -385,7 +387,7 @@ class RoomsPartial extends React.Component {
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
                     <RoomComponent
                       dark
-                      active={room.id == this.props.room.id}
+                      active={pathname.indexOf(room.id) != -1}
                       unread={unread}
                       title={title}
                       image={image}

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Tooltip } from '@weekday/elements'
 import { Avatar } from '@weekday/elements'
 import ConfirmModal from '../modals/confirm.modal'
-import MenuComponent from '../components/popup-menu.component'
+import MenuComponent from '../components/menu.component'
 import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
 import { updateRoom, deleteRoom, updateUserStarred } from '../actions'
@@ -104,9 +104,9 @@ class ToolbarPartial extends React.Component {
 
           <PopupComponent
             handleDismiss={() => this.setState({ teamMenu: false })}
-            visible={this.state.teamMenu}
+            visible={true}
             width={250}
-            direction="right-bottom"
+            direction="left-top"
             content={
               <div className="column flexer">
                 <MenuComponent
