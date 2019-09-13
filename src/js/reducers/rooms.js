@@ -9,8 +9,8 @@ export default (state = initialState, action) =>
         return action.payload
 
       case 'UPDATE_ROOM':
-        draft = state.map(room => {
-          if (room.id != action.payload.room) return room
+        return state.map(room => {
+          if (room.id != action.payload.roomId) return room
 
           return {
             ...room,
@@ -19,9 +19,10 @@ export default (state = initialState, action) =>
         })
 
       case 'DELETE_ROOM':
-        draft = state.filter(room => room.id != action.payload.room)
+        return state.filter(room => room.id != action.payload.roomId)
 
       case 'CREATE_ROOM':
         draft.push(action.payload)
+        break
     }
   })

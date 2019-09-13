@@ -7,7 +7,7 @@ import ConfirmModal from '../modals/confirm.modal'
 import MenuComponent from '../components/menu.component'
 import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
-import { updateRoom, deleteRoom, updateUserStarred } from '../actions'
+import { updateRoom, deleteRoom, updateUserStarred, fetchRooms } from '../actions'
 import IconComponent from '../components/icon.component'
 
 const Toolbar = styled.div`
@@ -70,7 +70,8 @@ class ToolbarPartial extends React.Component {
   }
 
   updateRoomTeam(team) {
-    this.props.updateRoom({ team: team ? team.id : null })
+    this.props.updateRoom({ team: team.id })
+    this.props.fetchRooms(this.props.team.id, this.props.common.user.id)
   }
 
   updateRoomVisibility(visibility) {
@@ -210,10 +211,12 @@ ToolbarPartial.propTypes = {
   common: PropTypes.any,
   updateRoom: PropTypes.func,
   deleteRoom: PropTypes.func,
+  fetchRooms: PropTypes.func,
   updateUserStarred: PropTypes.func,
 }
 
 const mapDispatchToProps = {
+  fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   updateRoom: updatedRoom => updateRoom(updatedRoom),
   deleteRoom: roomId => deleteRoom(roomId),
   updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),

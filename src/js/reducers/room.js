@@ -20,8 +20,8 @@ export default (state = initialState, action) =>
     // Only if these are valid
     // We only process messages that are for the current room
     if (!action.payload) return
-    if (!action.payload.room) return
-    if (state.id != action.payload.room) return
+    if (!action.payload.roomId) return
+    if (state.id != action.payload.roomId) return
 
     // These are actions that get dispatched against the laoded room
     // They come from the user or the SocketIO server
@@ -39,7 +39,7 @@ export default (state = initialState, action) =>
 
       case 'CREATE_ROOM_MESSAGE_REPLY':
         draft.messages = state.messages.map((message, _) => {
-          if (message.id == action.payload.id) {
+          if (message.id == action.payload.messageId) {
             return {
               ...message,
               replies: [...message.replies, action.payload.reply],
@@ -52,7 +52,7 @@ export default (state = initialState, action) =>
 
       case 'CREATE_ROOM_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {
-          if (message.id == action.payload.id) {
+          if (message.id == action.payload.messageId) {
             return {
               ...message,
               reactions: [...message.reactions, action.payload.reaction],
@@ -65,7 +65,7 @@ export default (state = initialState, action) =>
 
       case 'DELETE_ROOM_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {
-          if (message.id == action.payload.id) {
+          if (message.id == action.payload.messageId) {
             return {
               ...message,
               reactions: message.reactions.filter(reaction => reaction != action.payload.reaction),
@@ -81,7 +81,7 @@ export default (state = initialState, action) =>
         break
 
       case 'DELETE_ROOM_MEMBER':
-        draft.members = state.members.filter(member => member.user.id != action.payload.user)
+        draft.members = state.members.filter(member => member.user.id != action.payload.userId)
         break
     }
   })

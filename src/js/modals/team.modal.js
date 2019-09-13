@@ -6,6 +6,7 @@ import { Avatar } from '@weekday/elements'
 import NotificationComponent from '../components/notification.component'
 import GraphqlService from '../services/graphql.service'
 import SpinnerComponent from '../components/spinner.component'
+import ErrorComponent from '../components/error.component'
 import UploadService from '../services/upload.service'
 import ConfirmModal from './confirm.modal'
 import styled from 'styled-components'
@@ -228,7 +229,7 @@ export default function TeamModal(props) {
 
       dispatch({
         type: 'UPDATE_TEAM',
-        payload: data.updateTeam,
+        payload: { ...data.updateTeam, teamId },
         sync: teamId,
       })
     } catch (e) {
@@ -249,7 +250,7 @@ export default function TeamModal(props) {
       setLoading(false)
       dispatch({
         type: 'DELETE_TEAM',
-        payload: teamId,
+        payload: { teamId },
         sync: teamId,
       })
 
@@ -327,13 +328,13 @@ export default function TeamModal(props) {
       // Don't sync this one - because its just for us
       dispatch({
         type: 'DELETE_TEAM',
-        payload: teamId,
+        payload: { teamId },
       })
 
       MessagingService.getInstance().leave(teamId)
 
       // Redirect the user back to the landing page
-      props.history.push('/teams')
+      props.history.push('/app')
       props.onClose()
     } catch (e) {
       setLoading(false)

@@ -720,7 +720,19 @@ export default class GraphqlService {
     return this.client.mutate({
       mutation: gql`
         mutation updateRoom($id: String, $payload: String) {
-          updateRoom(id: $id, payload: $payload)
+          updateRoom(id: $id, payload: $payload) {
+            id
+            title
+            description
+            createdAt
+            public
+            private
+            team {
+              id
+              name
+              image
+            }
+          }
         }
       `,
       variables: {

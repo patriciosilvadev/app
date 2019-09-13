@@ -24,7 +24,7 @@ export function createRoomMember(user) {
         type: 'CREATE_ROOM_MEMBER',
         payload: {
           member: { user },
-          room: roomId,
+          roomId,
         },
         sync: roomId,
       })
@@ -54,21 +54,18 @@ export function deleteRoomMember(user) {
       dispatch(updateLoading(false))
       dispatch({
         type: 'DELETE_ROOM_MEMBER',
-        payload: {
-          user: userId,
-          room: roomId,
-        },
+        payload: { userId, roomId },
         sync: roomId,
       })
 
       if (userId == currentUserId) {
         dispatch({
           type: 'DELETE_ROOM',
-          payload: roomId,
+          payload: { roomId },
           sync: roomId,
         })
 
-        browserHistory.push('/teams')
+        browserHistory.push('/app')
       }
 
       MessagingService.getInstance().leaveRoom(userIds, roomId)
@@ -82,6 +79,7 @@ export function deleteRoomMember(user) {
 export function deleteRoom(roomId) {
   return async (dispatch, getState) => {
     const { room } = getState()
+    const roomId = room.id
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
@@ -92,7 +90,7 @@ export function deleteRoom(roomId) {
       dispatch(updateLoading(false))
       dispatch({
         type: 'DELETE_ROOM',
-        payload: roomId,
+        payload: { roomId },
         sync: roomId,
       })
     } catch (e) {
@@ -105,18 +103,19 @@ export function deleteRoom(roomId) {
 export function updateRoom(updatedRoom) {
   return async (dispatch, getState) => {
     const { room } = getState()
+    const roomId = room.id
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      await GraphqlService.getInstance().updateRoom(room.id, updatedRoom)
+      const { data } = await GraphqlService.getInstance().updateRoom(roomId, updatedRoom)
 
       dispatch(updateLoading(false))
       dispatch({
         type: 'UPDATE_ROOM',
-        payload: updatedRoom,
-        sync: room.id,
+        payload: { ...data.updateRoom, roomId },
+        sync: roomId,
       })
     } catch (e) {
       dispatch(updateLoading(false))
@@ -164,7 +163,7 @@ export function createRoomMessage(text, attachments) {
     dispatch(updateError(null))
 
     try {
-      const createRoomMessage = await GraphqlService.getInstance().createRoomMessage(room.id, common.user.id, common.user.name, text, attachments, null)
+      const { data } = await GraphqlService.getInstance().createRoomMessage(room.id, common.user.id, common.user.name, text, attachments, null)
 
       dispatch(updateLoading(false))
 
@@ -172,10 +171,10 @@ export function createRoomMessage(text, attachments) {
       dispatch({
         type: 'CREATE_ROOM_MESSAGE',
         payload: {
-          message: createRoomMessage.data.createRoomMessage,
+          message: data.createRoomMessage,
           excerpt: excerpt,
-          room: room.id,
-          team: room.team.id,
+          roomId: room.id,
+          teamId: room.team.id,
         },
         sync: room.id,
       })
@@ -233,14 +232,14 @@ export function createRoomMessageReply(messageId, userId, text, attachments) {
     const { room } = getState()
 
     try {
-      const createRoomMessageReply = await GraphqlService.getInstance().createRoomMessageReply(messageId, userId, text, attachments)
+      const { data } = await GraphqlService.getInstance().createRoomMessageReply(messageId, userId, text, attachments)
 
       dispatch({
         type: 'CREATE_ROOM_MESSAGE_REPLY',
         payload: {
-          room: room.id,
-          id: messageId,
-          reply: createRoomMessageReply.data.createRoomMessageReply,
+          messageId,
+          roomId: room.id,
+          reply: data.createRoomMessageReply,
         },
         sync: room.id,
       })
@@ -253,14 +252,14 @@ export function createRoomMessageReaction(messageId, reaction) {
     const { room } = getState()
 
     try {
-      const createRoomMessageReaction = await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
+      await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
 
       dispatch({
         type: 'CREATE_ROOM_MESSAGE_REACTION',
         payload: {
-          room: room.id,
-          id: messageId,
-          reaction: reaction,
+          roomId: room.id,
+          messageId,
+          reaction,
         },
         sync: room.id,
       })
@@ -273,14 +272,14 @@ export function deleteRoomMessageReaction(messageId, reaction) {
     const { room } = getState()
 
     try {
-      const deleteRoomMessageReaction = await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
+      await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
 
       dispatch({
         type: 'DELETE_ROOM_MESSAGE_REACTION',
         payload: {
-          room: room.id,
-          id: messageId,
-          reaction: reaction,
+          roomId: room.id,
+          messageId,
+          reaction,
         },
         sync: room.id,
       })

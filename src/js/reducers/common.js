@@ -23,7 +23,9 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_USER_STARRED':
-        draft.user.starred = action.payload.starred ? [...state.user.starred, action.payload.room] : state.user.starred.filter(t => t != action.payload.room)
+        draft.user.starred = action.payload.starred
+          ? [...state.user.starred, action.payload.roomId]
+          : state.user.starred.filter(room => room.id != action.payload.roomId)
         break
 
       case 'UPDATE_ERROR':

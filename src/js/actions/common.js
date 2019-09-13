@@ -23,11 +23,7 @@ export function updateUserStarred(userId, roomId, starred) {
       dispatch(updateLoading(false))
       dispatch({
         type: 'UPDATE_USER_STARRED',
-        payload: {
-          room: roomId,
-          user: userId,
-          starred,
-        },
+        payload: { roomId, starred },
       })
     } catch (e) {
       dispatch(updateLoading(false))
@@ -64,7 +60,7 @@ export function initialize(ids) {
 
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
       MessagingService.getInstance().leave(roomId)
-      dispatch({ type: 'DELETE_ROOM', payload: roomId })
+      dispatch({ type: 'DELETE_ROOM', payload: { roomId }})
     })
 
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
@@ -75,7 +71,7 @@ export function initialize(ids) {
 
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
       MessagingService.getInstance().leave(teamId)
-      dispatch({ type: 'DELETE_TEAM', payload: teamId })
+      dispatch({ type: 'DELETE_TEAM', payload: { teamId }})
     })
 
     DatabaseService.getInstance()

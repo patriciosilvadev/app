@@ -9,7 +9,7 @@ export default (state = initialState, action) =>
         return action.payload
 
       case 'DELETE_TEAM':
-        return state.filter(team => team.id != action.payload)
+        return state.filter(team => team.id != action.payload.teamId)
         break
 
       case 'CREATE_TEAM':
@@ -18,7 +18,7 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_TEAM':
         return state.map(team => {
-          if (team.id != action.payload.id) return team
+          if (team.id != action.payload.teamId) return team
 
           return {
             ...team,
