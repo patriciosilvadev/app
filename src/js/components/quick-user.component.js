@@ -2,6 +2,7 @@ import React from 'react'
 import PopupComponent from '../components/popup.component'
 import styled from 'styled-components'
 import UserComponent from '../components/user.component'
+import MembersComponent from '../components/members.component'
 import PropTypes from 'prop-types'
 
 const Filter = styled.input`
@@ -30,23 +31,7 @@ export default class QuickUserComponent extends React.Component {
     }
 
     this.filterRef = React.createRef()
-    this.handleKeyPress = this.handleKeyPress.bind(this)
   }
-
-  handleKeyPress(e) {
-    // Move up
-    if (e.keyCode == 38) this.setState({ index: this.state.index - 1 < 0 ? this.state.members.length - 1 : this.state.index - 1 })
-
-    // Move down
-    if (e.keyCode == 40) this.setState({ index: this.state.index + 1 == this.state.members.length ? 0 : this.state.index + 1 })
-
-    // Press enter
-    if (e.keyCode == 13) this.props.handleAccept(this.state.members[this.state.index])
-  }
-
-  componentDidMount() {}
-
-  componentWillUnmount() {}
 
   componentDidUpdate() {
     if (!this.filterRef) return
@@ -83,8 +68,6 @@ export default class QuickUserComponent extends React.Component {
         handleDismiss={this.props.handleDismiss}
         width={this.props.width || 250}
         direction={this.props.direction || "right-bottom"}
-        mounted={() => document.addEventListener('keyup', this.handleKeyPress)}
-        unmounted={() => document.removeEventListener('keyup', this.handleKeyPress)}
         content={
           <div className="column flexer">
             <div className="row">
@@ -96,22 +79,10 @@ export default class QuickUserComponent extends React.Component {
                 onChange={(e) => this.setState({ filter: e.target.value })}
               />
             </div>
-            <div className="column flexer scroll w-100">
-              {this.state.members.map((member, index) => {
-                return (
-                  <UserComponent
-                    key={index}
-                    active={index == this.state.index}
-                    image={member.user.image}
-                    color={member.user.color}
-                    name={member.user.name}
-                    label={"@"+member.user.username}
-                    className="button"
-                    onClick={() => this.props.handleAccept(member)}>
-                  </UserComponent>
-                )
-              })}
-            </div>
+            <MembersComponent
+              members={this.state.members}
+              handleAccept={() => this.props.handleAccept(member)}
+            />
           </div>
         }>
 

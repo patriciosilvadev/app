@@ -69,15 +69,11 @@ export default class PopupComponent extends React.Component {
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside)
     document.addEventListener('keyup', this.handleKeyPress)
-
-    if (this.props.mounted) this.props.mounted()
   }
 
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleClickOutside)
     document.removeEventListener('keyup', this.handleKeyPress)
-
-    if (this.props.unmounted) this.props.unmounted()
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -134,7 +130,5 @@ PopupComponent.propTypes = {
   direction: PropTypes.string,
   width: PropTypes.number,
   hidePopup: PropTypes.func,
-  mounted: PropTypes.func,
-  unmounted: PropTypes.func,
   content: PropTypes.any,
 }

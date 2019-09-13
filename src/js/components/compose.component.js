@@ -10,6 +10,7 @@ import IconComponent from '../components/icon.component'
 import { updateLoading, updateError } from '../actions'
 import UploadService from '../services/upload.service'
 import { MessageMedia } from '@weekday/elements'
+import MembersComponent from '../components/members.component'
 
 const Compose = styled.div`
   width: 100%;
@@ -174,23 +175,6 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) {
       this.insertAtCursor('\n')
     }
-
-    // Up/Down
-    if (e.keyCode == 13 && this.state.members.length != 0) {
-      this.replaceWordAtCursor(`@${this.state.members[this.state.position].user.username} `)
-    }
-
-    // Up
-    if (e.keyCode == 38 && this.state.members.length != 0) {
-      e.preventDefault()
-      this.setState({ position: this.state.position - 1 < 0 ? this.state.members.length - 1 : this.state.position - 1 })
-    }
-
-    // Down
-    if (e.keyCode == 40 && this.state.members.length != 0) {
-      e.preventDefault()
-      this.setState({ position: this.state.position + 1 == this.state.members.length ? 0 : this.state.position + 1 })
-    }
   }
 
   handleComposeChange(e) {
@@ -260,12 +244,8 @@ class ComposeComponent extends React.Component {
     this.composeRef.focus()
   }
 
-  componentDidUpdate() {}
-
   // prettier-ignore
   render() {
-
-
     return (
       <Compose compact={this.props.compact} className="column align-items-stretch">
         {this.state.attachments.length != 0 &&
@@ -289,20 +269,10 @@ class ComposeComponent extends React.Component {
 
         {this.state.members.length != 0 &&
           <MentionContainer>
-            {this.state.members.map((member, index) => {
-              return (
-                <UserComponent
-                  key={index}
-                  className="button"
-                  active={index == this.state.position}
-                  image={member.user.image}
-                  color={member.user.color}
-                  name={member.user.name}
-                  label={member.user.username}
-                  onClick={() => this.replaceWordAtCursor(`@${member.user.username} `)}>
-                </UserComponent>
-              )
-            })}
+            <MembersComponent
+              members={this.state.members}
+              handleAccept={() => this.replaceWordAtCursor(`@${member.user.username} `)}
+            />
           </MentionContainer>
         }
 
@@ -333,7 +303,7 @@ class ComposeComponent extends React.Component {
             handleDismiss={() => this.setState({ emoticonMenu: false })}
             visible={this.state.emoticonMenu}
             width={350}
-            direction="left-top"
+            direction="right-top"
             content={
               <Picker
                 style={{ width: 350 }}
@@ -345,7 +315,6 @@ class ComposeComponent extends React.Component {
                 onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
             }>
-
             <IconComponent
               icon="COMPOSE_EMOTICON"
               color="#565456"
