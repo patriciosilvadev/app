@@ -163,18 +163,17 @@ class ComposeComponent extends React.Component {
   }
 
   handleKeyDown(e) {
+    // Enter
     if (e.keyCode == 13) e.preventDefault()
+
+    // Shift
     if (e.keyCode == 16) this.setState({ shift: true })
 
-    // Plain enter
-    if (e.keyCode == 13 && !this.state.shift && this.state.members.length == 0) {
-      this.onSend()
-    }
+    // Enter & Shift & no member popup
+    if (e.keyCode == 13 && !this.state.shift && this.state.members.length == 0) this.onSend()
 
-    // Shift & enter
-    if (e.keyCode == 13 && this.state.shift) {
-      this.insertAtCursor('\n')
-    }
+    // Enter & Shift
+    if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
   }
 
   handleComposeChange(e) {
@@ -271,7 +270,7 @@ class ComposeComponent extends React.Component {
           <MentionContainer>
             <MembersComponent
               members={this.state.members}
-              handleAccept={() => this.replaceWordAtCursor(`@${member.user.username} `)}
+              handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
             />
           </MentionContainer>
         }
@@ -339,7 +338,10 @@ class ComposeComponent extends React.Component {
                 color="#565456"
                 size="1x"
                 className="ml-15 button"
-                onClick={() => this.insertAtCursor("@")}
+                onClick={() => {
+                  this.insertAtCursor("@")
+                  this.filterMembers("")
+                }}
               />
 
               <IconComponent
