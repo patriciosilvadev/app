@@ -28,7 +28,6 @@ const Title = styled.div`
   font-weight: 700;
   font-style: normal;
   color: #040b1c;
-  padding-left: 15px;
 `
 
 const Members = styled.div`

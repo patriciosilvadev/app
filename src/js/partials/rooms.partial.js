@@ -219,6 +219,7 @@ class RoomsPartial extends React.Component {
       <Rooms className="column align-items-stretch">
         {this.state.roomCreateModal &&
           <RoomModal
+            id={null}
             onClose={() => this.setState({ roomCreateModal: false })}
           />
         }

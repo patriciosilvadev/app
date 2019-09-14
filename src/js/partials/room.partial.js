@@ -10,6 +10,7 @@ import PropTypes from 'prop-types'
 import EventService from '../services/event.service'
 import { fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReply, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { Button } from '@weekday/elements'
+import RoomModal from '../modals/room.modal'
 
 const Room = styled.div`
   background: white;
@@ -88,6 +89,45 @@ const Blocked = styled.div`
   padding: 10px;
 `
 
+const Welcome = styled.div`
+  padding: 25px;
+  padding-bottom: 35px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f1f3f5;
+  padding-top: 1000px;
+`
+
+const WelcomeTitle = styled.div`
+  font-weight: 500;
+  font-size: 60px;
+  color: #040b1c;
+  padding-bottom: 10px;
+`
+
+const WelcomeDescription = styled.div`
+  font-weight: 400;
+  font-size: 22px;
+  color: #adb5bd;
+`
+
+const WelcomeUser = styled.div`
+  margin-bottom: 10px;
+`
+
+const WelcomeUserName = styled.div`
+  font-weight: 500;
+  font-size: 12px;
+  color: #adb5bd;
+  padding-left: 10px;
+`
+
+const WelcomeUserNameLink = styled.div`
+  font-weight: 500;
+  font-size: 12px;
+  color: #007af5;
+  padding-left: 10px;
+`
+
 class RoomPartial extends React.Component {
   constructor(props) {
     super(props)
@@ -101,6 +141,7 @@ class RoomPartial extends React.Component {
       open: false,
       title: '',
       image: '',
+      roomUpdateModal: false,
     }
 
     this.messagesRef = React.createRef()
@@ -264,6 +305,13 @@ class RoomPartial extends React.Component {
   render() {
     return (
       <React.Fragment>
+        {this.state.roomUpdateModal &&
+          <RoomModal
+            id={this.props.room.id}
+            onClose={() => this.setState({ roomUpdateModal: false })}
+          />
+        }
+
         <Room className="column flexer align-items-center align-items-stretch">
           <Header className="row">
             <input
@@ -307,6 +355,32 @@ class RoomPartial extends React.Component {
           </Header>
 
           <Messages ref={(ref) => this.scrollRef = ref}>
+            <Welcome>
+              <WelcomeUser className="row">
+                <Avatar
+                  title={this.props.room.user.name}
+                  image={this.props.room.user.image}
+                  size="small"
+                />
+                <WelcomeUserName>
+                  Started by {this.props.room.user.name}
+                </WelcomeUserName>
+                {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
+                  <WelcomeUserNameLink
+                    className="button"
+                    onClick={() => this.setState({ roomUpdateModal: true })}>
+                    Update Room
+                  </WelcomeUserNameLink>
+                }
+              </WelcomeUser>
+              <WelcomeTitle>
+                {this.state.title}
+              </WelcomeTitle>
+              <WelcomeDescription>
+                {this.props.room.description}
+              </WelcomeDescription>
+            </Welcome>
+
             {!this.state.blocked &&
               <MessagesContainer ref={(ref) => this.messagesRef = ref}>
                 {this.props.room.messages.map((message, index) => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const const TextareaComponent = styled.textarea`
+export const TextareaComponent = styled.textarea`
   border: none;
   flex: 1;
   background: transparent;

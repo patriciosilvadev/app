@@ -4,6 +4,7 @@ import ModalComponent from '../components/modal.component'
 import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
+import UploadService from '../services/upload.service'
 import PopupComponent from '../components/popup.component'
 import LoadingComponent from '../components/loading.component'
 import ErrorComponent from '../components/error.component'
@@ -13,6 +14,7 @@ import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
+import { updateRoom } from '../actions'
 
 const Row = styled.div`
   background-color: transparent;
@@ -35,8 +37,8 @@ export default function RoomModal(props) {
   const [description, setDescription] = useState('')
   const common = useSelector(state => state.common)
   const team = useSelector(state => state.team)
-  const dispatch = useDispatch()
   const fileRef = useRef(null)
+  const dispatch = useDispatch()
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -56,12 +58,34 @@ export default function RoomModal(props) {
     }
   }
 
+  // Effect loads current team details
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!props.id) return
+
+        setLoading(true)
+
+        const { data } = await GraphqlService.getInstance().room(props.id)
+        const room = data.room
+
+        setImage(room.image)
+        setTitle(room.title)
+        setDescription(room.description)
+        setLoading(false)
+      } catch (e) {
+        setLoading(false)
+        setError('Error getting data')
+      }
+    })()
+  }, [props.id])
+
   // prettier-ignore
   return (
     <ModalComponent
       title="Create New Channel"
       width={560}
-      height={300}
+      height={350}
       onClose={props.onClose}
       footer={(
         <div className="column w-100 align-items-stretch">
@@ -71,7 +95,13 @@ export default function RoomModal(props) {
             {/* Null here means it's a channel - no user */}
             <Button
               jumbo
-              onClick={() => dispatch(createRoom(title, description, image, team.id, null))}
+              onClick={() => {
+                if (props.id) {
+                  dispatch(updateRoom({ title, image, description }))
+                } else {
+                  dispatch(createRoom(title, description, image, team.id, null))
+                }
+              }}
               text="Create"
             />
           </div>
@@ -91,9 +121,11 @@ export default function RoomModal(props) {
         />
 
         <Avatar
+          title={title}
           image={image}
           className="mr-20"
-          size="large"
+          size="xx-large"
+          onClick={() => fileRef.current.click()}
         />
 
         <Column className="column">

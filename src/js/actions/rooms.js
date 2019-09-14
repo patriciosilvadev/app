@@ -46,20 +46,22 @@ export function fetchStarredRooms(userId) {
   }
 }
 
-export function createRoom(title, description, image, team, user) {
+export function createRoom(title, description, image, teamId, user) {
   return async (dispatch, getState) => {
     const { rooms, common } = getState()
 
     try {
       // 1. Find rooms where there rae only 2 members
       // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
-      const room = rooms
-        .filter(room => room.members.length == 2 && room.private)
-        .filter(room => room.members.filter(member => member.user.id == user.id).length == 1)
-        .flatten()
+      const room = user
+        ? rooms
+          .filter(room => room.members.length == 2 && room.private)
+          .filter(room => room.members.filter(member => member.user.id == user.id).length == 1)
+          .flatten()
+        : null
 
       // 3. If it's found - then go there
-      if (room) return browserHistory.push(`/app/team/${team}/room/${room.id}`)
+      if (room) return browserHistory.push(`/app/team/${teamId}/room/${room.id}`)
 
       // Create the default member array
       // If user isn't null - then it's a private room
@@ -70,19 +72,19 @@ export function createRoom(title, description, image, team, user) {
       // Otherwise create the new room
       // 1) Create the room object based on an open room or private
       // 2) Default public room is always members only
-      const createRoom = await GraphqlService.getInstance().createRoom({
+      const { data } = await GraphqlService.getInstance().createRoom({
         title,
         description,
         image,
         members,
-        team,
+        team: teamId,
         messages: [],
         public: false,
         private: user ? true : false,
         user: common.user.id,
       })
 
-      const roomData = createRoom.data.createRoom
+      const roomData = data.createRoom
       const roomId = roomData.id
 
       dispatch({
@@ -92,8 +94,9 @@ export function createRoom(title, description, image, team, user) {
 
       MessagingService.getInstance().join(roomId)
 
-      browserHistory.push(`/app/team/${team}/room/${roomId}`)
+      browserHistory.push(`/app/team/${teamId}/room/${roomId}`)
     } catch (e) {
+      console.log(e)
       dispatch(updateError(e))
     }
   }
