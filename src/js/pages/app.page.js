@@ -11,6 +11,7 @@ import RoomsPartial from '../partials/rooms.partial'
 import RoomPartial from '../partials/room.partial'
 import DockPartial from '../partials/dock.partial'
 import ToolbarPartial from '../partials/toolbar.partial'
+import MembersPartial from '../partials/members.partial'
 import GraphqlService from '../services/graphql.service'
 
 const App = styled.div`
@@ -77,16 +78,9 @@ class AppPage extends React.Component {
 
         <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
           <Route path="/app" component={DockPartial} />
-          <Route path="/app/team/:teamId" render={props => <RoomsPartial {...props} />} />
+          <Route path="/app/team/:teamId" component={RoomsPartial} />
           <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
-
-          {/* Members */}
-          <Route path="/app/team/:teamId/room/:roomId/members" render={props => {
-              const MembersPartial = React.lazy(() => import("../partials/lazy/members.partial"))
-              return <React.Suspense fallback={<Loader />}><MembersPartial {...props}/></React.Suspense>
-          }}/>
-
-          {/* Toolbar */}
+          <Route path="/app/team/:teamId/room/:roomId/members" component={MembersPartial} />
           <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
         </div>
       </App>

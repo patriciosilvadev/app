@@ -12,6 +12,7 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchStarredRooms, fetchTeam } from '../actions'
 import IconComponent from '../components/icon.component'
+import TeamModal from '../modals/team.modal'
 
 const Rooms = styled.div`
   width: 300px;
@@ -37,10 +38,22 @@ const HeaderTitle = styled.div`
 `
 
 const HeaderSubtitle = styled.div`
+  padding-top: 5px;
+`
+
+const HeaderSubtitleTeam = styled.div`
   font-size: 12px;
   font-weight: 600;
   color: #475669;
 `
+
+const HeaderSubtitleTeamLink = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #007af5;
+  margin-left: 5px;
+`
+
 
 const SearchInput = styled.input`
   font-size: 14px;
@@ -98,7 +111,8 @@ class RoomsPartial extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      roomCreateModal: false,
+      teamModal: false,
+      roomModal: false,
       starred: [],
       public: [],
       private: [],
@@ -147,6 +161,7 @@ class RoomsPartial extends React.Component {
 
     // If it exists, fetch
     this.props.fetchRooms(teamId, userId)
+    this.props.fetchTeam(teamId, userId)
   }
 
   componentDidUpdate(prevProps) {
@@ -216,10 +231,19 @@ class RoomsPartial extends React.Component {
 
     return (
       <Rooms className="column align-items-stretch">
-        {this.state.roomCreateModal &&
+        {/* Update an existing team */}
+        {this.state.teamModal &&
+          <TeamModal
+            id={this.props.team.id}
+            onClose={() => this.setState({ teamModal: false })}
+          />
+        }
+
+        {/* Create a new room */}
+        {this.state.roomModal &&
           <RoomModal
             id={null}
-            onClose={() => this.setState({ roomCreateModal: false })}
+            onClose={() => this.setState({ roomModal: false })}
           />
         }
 
@@ -236,8 +260,15 @@ class RoomsPartial extends React.Component {
             <HeaderTitle>
               {this.props.common.user.name}
             </HeaderTitle>
-            <HeaderSubtitle>
-              {this.props.team.name}
+            <HeaderSubtitle className="row">
+              <HeaderSubtitleTeam>
+                {this.props.team.name}
+              </HeaderSubtitleTeam>
+              <HeaderSubtitleTeamLink
+                className="button"
+                onClick={() => this.setState({ teamModal: true })}>
+                View Team
+              </HeaderSubtitleTeamLink>
             </HeaderSubtitle>
           </div>
         </Header>
@@ -274,7 +305,6 @@ class RoomsPartial extends React.Component {
                     unread={null}
                     title={result.title}
                     image={result.image}
-                    label={result.label}
                     excerpt={null}
                     public={null}
                     private={null}
@@ -294,7 +324,6 @@ class RoomsPartial extends React.Component {
                   unread={null}
                   title={`Create "${this.state.filter}"`}
                   image={null}
-                  label="CHANNEL"
                   excerpt={null}
                   public={null}
                   private={null}
@@ -397,7 +426,7 @@ class RoomsPartial extends React.Component {
           }
         </div>
 
-        <FooterButton className="row" onClick={() => this.setState({ roomCreateModal: true })}>
+        <FooterButton className="row" onClick={() => this.setState({ roomModal: true })}>
           <IconComponent
             color="#475669"
             icon="ROOMS_ADD_ROOM"

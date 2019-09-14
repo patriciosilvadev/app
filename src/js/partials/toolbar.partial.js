@@ -82,7 +82,7 @@ class ToolbarPartial extends React.Component {
   deleteRoom() {
     this.setState({ confirmModal: false })
     this.props.deleteRoom(this.props.room.id)
-    this.props.history.push(`/teams/${this.props.team.id}/`)
+    this.props.history.push(`/app/team/${this.props.team.id}/`)
   }
 
   // prettier-ignore
@@ -136,6 +136,16 @@ class ToolbarPartial extends React.Component {
               />
             </Tooltip>
           </PopupComponent>
+
+          <ToolbarButton className="row" onClick={() => console.log('Load room modal')}>
+            <ToolbarButtonIcon className="row justify-content-center">
+              <IconComponent
+                icon="TOOLBAR_EDIT"
+                color="#ADB5BD"
+                size="1x"
+              />
+            </ToolbarButtonIcon>
+          </ToolbarButton>
 
           <Tooltip direction="left" text="Members">
             <ToolbarButton className="row" onClick={() => {

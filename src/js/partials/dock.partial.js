@@ -27,7 +27,6 @@ class DockPartial extends React.Component {
 
     this.state = {
       teamModal: false,
-      teamCreateModal: false,
       accountModal: false,
       pluginId: null,
     }
@@ -64,19 +63,11 @@ class DockPartial extends React.Component {
           )
         })}
 
-        {/* Update an existing team */}
+        {/* Create a new team */}
         {this.state.teamModal &&
           <TeamModal
-            id={this.props.team.id}
-            onClose={() => this.setState({ teamModal: false })}
-          />
-        }
-
-        {/* Create a new team */}
-        {this.state.teamCreateModal &&
-          <TeamModal
             id={null}
-            onClose={() => this.setState({ teamCreateModal: false })}
+            onClose={() => this.setState({ teamModal: false })}
           />
         }
 
@@ -107,20 +98,10 @@ class DockPartial extends React.Component {
         <IconComponent
           color="#475669"
           size="lg"
-          className="mt-15 button"
-          onClick={(e) => this.setState({ teamCreateModal: true, userMenu: false })}
+          className="mt-5 button"
+          onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
           icon="DOCK_ADD_TEAM"
         />
-
-        {this.props.team.id &&
-          <IconComponent
-            color="#475669"
-            className="mt-15 button"
-            onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
-            icon="DOCK_UPDATE_TEAM"
-            size="lg"
-          />
-        }
 
         <div className="flexer"></div>
 

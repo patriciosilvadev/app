@@ -35,7 +35,7 @@ export function updateUserStarred(userId, roomId, starred) {
 export function initialize(ids) {
   return async (dispatch, getState) => {
     MessagingService.getInstance().initialize([...ids, getState().common.user.id])
-    
+
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
 
     MessagingService.getInstance().client.on('sync', ({ action }) => {
@@ -105,9 +105,7 @@ export function initialize(ids) {
       })
 
     // TODO: Debug
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cae0db41ba84ec5b2377a8c')
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5d054a66af06e24fecbb8022')
+    DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
   }
 }
 

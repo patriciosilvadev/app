@@ -44,7 +44,6 @@ const IconStyles = {
 
 const Icons = {
   DOCK_ADD_TEAM: props => <FontAwesomeIcon icon={faPlusSquare} color={props.color} size={props.size} style={IconStyles} />,
-  DOCK_UPDATE_TEAM: props => <FontAwesomeIcon icon={faSlidersHSquare} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_HELP: props => <FontAwesomeIcon icon={faLifeRing} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_SIGNOUT: props => <FontAwesomeIcon icon={faSignOut} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_ACCOUNT: props => <FontAwesomeIcon icon={faUserCircle} color={props.color} size={props.size} style={IconStyles} />,
@@ -59,6 +58,7 @@ const Icons = {
   TOOLBAR_EYE: props => <FontAwesomeIcon icon={faEye} color={props.color} size={props.size} style={IconStyles} />,
   TOOLBAR_STARRED: props => <FontAwesomeIcon icon={faStar} color={props.color} size={props.size} style={IconStyles} />,
   TOOLBAR_TRASH: props => <FontAwesomeIcon icon={faTrash} color={props.color} size={props.size} style={IconStyles} />,
+  TOOLBAR_EDIT: props => <FontAwesomeIcon icon={faPen} color={props.color} size={props.size} style={IconStyles} />,
 
   MESSAGE_REPLY: props => <FontAwesomeIcon icon={faReply} color={props.color} size={props.size} style={IconStyles} />,
   MESSAGE_EMOTICON: props => <FontAwesomeIcon icon={faSmile} color={props.color} size={props.size} style={IconStyles} />,

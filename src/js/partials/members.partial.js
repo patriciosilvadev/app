@@ -1,13 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import ConfirmModal from '../../modals/confirm.modal'
-import '../../helpers/extensions'
+import ConfirmModal from '../modals/confirm.modal'
+import '../helpers/extensions'
 import { Avatar } from '@weekday/elements'
-import QuickUserComponent from '../../components/quick-user.component'
+import QuickUserComponent from '../components/quick-user.component'
 import styled from 'styled-components'
-import { createRoomMember, deleteRoomMember } from '../../actions'
+import { createRoomMember, deleteRoomMember } from '../actions'
 import PropTypes from 'prop-types'
 import { Button } from '@weekday/elements'
+import IconComponent from '../components/icon.component'
 
 const Container = styled.div`
   width: 250px;
@@ -94,17 +95,22 @@ class MembersPartial extends React.Component {
                 size="medium"
                 circle
                 image={member.user.image}
-                outline={this.props.common.user.id == member.user.id ? "#007AF5" : null}
-                outlineBackground="#FFFFFF"
+                outlineOuterColor={this.props.common.user.id == member.user.id ? "#007AF5" : null}
+                outlineInnerColor="#FFFFFF"
                 title={member.user.name}
                 key={index}
                 onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}
+                deleteIcon={
+                  <IconComponent
+                    icon="AVATAR_DELETE"
+                    color="white"
+                    size="xs"
+                  />
+                }
               />
             )
           })}
-        </Members>
 
-        {this.props.room.team &&
           <QuickUserComponent
             members={this.props.team.members}
             visible={this.state.userMenu}
@@ -112,13 +118,26 @@ class MembersPartial extends React.Component {
             direction="right-bottom"
             handleDismiss={() => this.setState({ userMenu: false })}
             handleAccept={({ user }) => this.createRoomMember(user)}>
-            <Button
-              disabled={false}
-              text="Add"
+
+            <Avatar
+              className="mr-5 mb-5"
+              size="medium"
+              circle
+              image={null}
+              outlineOuterColor="#007AF5"
+              outlineInnerColor="#FFFFFF"
+              title="+"
               onClick={() => this.setState({ userMenu:true })}
             />
           </QuickUserComponent>
-        }
+        </Members>
+
+
+        <Button
+          disabled={false}
+          text="Manage Users"
+          onClick={() => this.setState({ userMenu:true })}
+        />
       </Container>
     )
   }

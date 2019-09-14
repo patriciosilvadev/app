@@ -28,6 +28,10 @@ export default (state = initialState, action) =>
           : state.user.starred.filter(room => room.id != action.payload.roomId)
         break
 
+      case 'UPDATE_UNREAD':
+        draft.unread = action.payload
+        break
+
       case 'UPDATE_ERROR':
         draft.error = action.payload
         break

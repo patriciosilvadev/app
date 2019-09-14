@@ -364,48 +364,6 @@ export default class GraphqlService {
     })
   }
 
-  starredRooms(user) {
-    return this.client.query({
-      query: gql`
-        query starredRooms($user: String!) {
-          starredRooms(user: $user) {
-            id
-            title
-            description
-            url
-            image
-            public
-            excerpt
-            private
-            user {
-              id
-              name
-              username
-              image
-            }
-            members {
-              user {
-                id
-                image
-                name
-              }
-            }
-            team {
-              id
-              name
-              image
-            }
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      variables: {
-        user,
-      },
-    })
-  }
-
   joins(user) {
     return this.client.query({
       query: gql`
