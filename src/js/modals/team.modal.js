@@ -168,7 +168,7 @@ export default function TeamModal(props) {
 
       dispatch({
         type: 'UPDATE_TEAM',
-        payload: { ...data.updateTeam, teamId },
+        payload: { name, description, image, teamId },
         sync: teamId,
       })
     } catch (e) {

@@ -15,6 +15,8 @@ import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom } from '../actions'
+import SpinnerComponent from '../components/spinner.component'
+import NotificationComponent from '../components/notification.component'
 
 const Row = styled.div`
   background-color: transparent;
@@ -33,6 +35,7 @@ export default function RoomModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
+  const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [description, setDescription] = useState('')
   const common = useSelector(state => state.common)
@@ -103,14 +106,15 @@ export default function RoomModal(props) {
                   props.onClose()
                 }
               }}
-              text="Create"
+              text={props.id ? "Update" : "Create"}
             />
           </div>
         </div>
       )}>
 
-      <LoadingComponent show={loading} />
-      <ErrorComponent message={error} />
+      {error && <ErrorComponent message={error} />}
+      {loading && <SpinnerComponent />}
+      {notification && <NotificationComponent text={notification} />}
 
       <Row className="row align-items-start">
         <input
