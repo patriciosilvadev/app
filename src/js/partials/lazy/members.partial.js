@@ -16,10 +16,19 @@ const Container = styled.div`
   height: 100%;
 `
 
-const Title = styled.div`
+const Subtitle = styled.div`
   color: #858e96;
   font-size: 12px;
   font-weight: 400;
+`
+
+const Title = styled.div`
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 700;
+  font-style: normal;
+  color: #040b1c;
+  padding-left: 15px;
 `
 
 const Members = styled.div`
@@ -71,7 +80,12 @@ class MembersPartial extends React.Component {
           />
         }
 
-        <Title>{this.props.room.members.length} members</Title>
+        <Title>
+          Members
+        </Title>
+        <Subtitle>
+          {this.props.room.members.length} members in this conversation
+        </Subtitle>
 
         <Members className="row align-items-start wrap">
           {this.props.room.members.map((member, index) => {

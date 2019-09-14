@@ -63,11 +63,10 @@ const Messages = styled.div`
   border-bottom: 1px solid #f1f3f5;
 `
 
-// Important for the height to be set here
 const MessagesContainer = styled.div`
   width: 100%;
   padding: 25px;
-  height: 1px;
+  height: 1px; /* Important for the height to be set here */
 `
 
 const Joinable = styled.div`
