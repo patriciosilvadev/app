@@ -128,7 +128,7 @@ class RoomsPartial extends React.Component {
   }
 
   createPrivateRoom(user) {
-    this.setState({ filter: '', showFilter: false }, () => this.props.createRoom(null, null, this.props.team.id, user))
+    this.setState({ filter: '', showFilter: false }, () => this.props.createRoom(null, null, null, this.props.team.id, user))
   }
 
   navigateToRoom(room) {
@@ -219,8 +219,6 @@ class RoomsPartial extends React.Component {
       <Rooms className="column align-items-stretch">
         {this.state.roomCreateModal &&
           <RoomModal
-            team={this.props.team.id ? this.props.team : null}
-            history={this.props.history}
             onClose={() => this.setState({ roomCreateModal: false })}
           />
         }
@@ -302,7 +300,7 @@ class RoomsPartial extends React.Component {
                   excerpt={null}
                   public={null}
                   private={null}
-                  onClick={() => this.props.createRoom(this.state.filter, null, this.props.team.id, null)}
+                  onClick={() => this.props.createRoom(this.state.filter, null, null, this.props.team.id, null)}
                 />
               }
             </React.Fragment>
@@ -436,7 +434,7 @@ RoomsPartial.propTypes = {
 }
 
 const mapDispatchToProps = {
-  createRoom: (title, description, team, user) => createRoom(title, description, team, user),
+  createRoom: (title, description, image, team, user) => createRoom(title, description, image, team, user),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),
   fetchTeam: teamId => fetchTeam(teamId),

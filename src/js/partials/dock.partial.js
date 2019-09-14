@@ -68,7 +68,6 @@ class DockPartial extends React.Component {
         {this.state.teamModal &&
           <TeamModal
             id={this.props.team.id}
-            history={this.props.history}
             onClose={() => this.setState({ teamModal: false })}
           />
         }
@@ -77,7 +76,6 @@ class DockPartial extends React.Component {
         {this.state.teamCreateModal &&
           <TeamModal
             id={null}
-            history={this.props.history}
             onClose={() => this.setState({ teamCreateModal: false })}
           />
         }

@@ -18,6 +18,7 @@ import ModalPortal from '../portals/modal.portal'
 import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
+import { browserHistory } from '../services/browser-history.service'
 
 const Header = styled.div`
   flex: 1;
@@ -121,28 +122,6 @@ export default function TeamModal(props) {
     }
   }
 
-  useEffect(() => {
-    ;(async () => {
-      try {
-        if (!props.id) return
-
-        setLoading(true)
-
-        const { data } = await GraphqlService.getInstance().team(props.id)
-        const team = data.team
-
-        setImage(team.image)
-        setName(team.name)
-        setDescription(team.description)
-        setMembers(team.members)
-        setLoading(false)
-      } catch (e) {
-        setLoading(false)
-        setError('Error getting data')
-      }
-    })()
-  }, {})
-
   const createTeam = async () => {
     setLoading(true)
     setError(null)
@@ -214,7 +193,7 @@ export default function TeamModal(props) {
         sync: teamId,
       })
 
-      props.history.push('/app')
+      browserHistory.push('/app')
       props.onClose()
     } catch (e) {
       setLoading(false)
@@ -294,7 +273,7 @@ export default function TeamModal(props) {
       MessagingService.getInstance().leave(teamId)
 
       // Redirect the user back to the landing page
-      props.history.push('/app')
+      browserHistory.push('/app')
       props.onClose()
     } catch (e) {
       setLoading(false)
@@ -317,6 +296,29 @@ export default function TeamModal(props) {
       setError('Error setting admin')
     }
   }
+
+  // Effect loads current team details
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!props.id) return
+
+        setLoading(true)
+
+        const { data } = await GraphqlService.getInstance().team(props.id)
+        const team = data.team
+
+        setImage(team.image)
+        setName(team.name)
+        setDescription(team.description)
+        setMembers(team.members)
+        setLoading(false)
+      } catch (e) {
+        setLoading(false)
+        setError('Error getting data')
+      }
+    })()
+  }, [props.id])
 
   // prettier-ignore
   return (

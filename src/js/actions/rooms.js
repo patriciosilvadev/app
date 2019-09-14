@@ -46,7 +46,7 @@ export function fetchStarredRooms(userId) {
   }
 }
 
-export function createRoom(title, description, team, user) {
+export function createRoom(title, description, image, team, user) {
   return async (dispatch, getState) => {
     const { rooms, common } = getState()
 
@@ -61,7 +61,11 @@ export function createRoom(title, description, team, user) {
       // 3. If it's found - then go there
       if (room) return browserHistory.push(`/app/team/${team}/room/${room.id}`)
 
-      const members = user ? [{ user: user.id }, { user: getState().common.user.id }] : [{ user: getState().common.user.id }]
+      // Create the default member array
+      // If user isn't null - then it's a private room
+      const members = user
+        ? [{ user: user.id }, { user: getState().common.user.id }]
+        : [{ user: getState().common.user.id }]
 
       // Otherwise create the new room
       // 1) Create the room object based on an open room or private
@@ -69,10 +73,10 @@ export function createRoom(title, description, team, user) {
       const createRoom = await GraphqlService.getInstance().createRoom({
         title,
         description,
-        image: null,
-        messages: [],
+        image,
         members,
         team,
+        messages: [],
         public: false,
         private: user ? true : false,
         user: common.user.id,

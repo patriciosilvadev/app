@@ -12,6 +12,7 @@ import { createRoom } from '../actions'
 import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
+import { browserHistory } from '../services/browser-history.service'
 
 const Row = styled.div`
   background-color: transparent;
@@ -30,10 +31,30 @@ export default function RoomModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
+  const [image, setImage] = useState('')
   const [description, setDescription] = useState('')
   const common = useSelector(state => state.common)
   const team = useSelector(state => state.team)
   const dispatch = useDispatch()
+  const fileRef = useRef(null)
+
+  const handleFileChange = async e => {
+    if (e.target.files.length == 0) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const result = await new UploadService(e.target.files[0])
+      const { data, mime } = await result.json()
+
+      setImage(data.Location)
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      setError('Error uploading file')
+    }
+  }
 
   // prettier-ignore
   return (
@@ -47,9 +68,10 @@ export default function RoomModal(props) {
           <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
             <div className="flexer" />
 
+            {/* Null here means it's a channel - no user */}
             <Button
               jumbo
-              onClick={() => dispatch(createRoom(title, description, team.id, null))}
+              onClick={() => dispatch(createRoom(title, description, image, team.id, null))}
               text="Create"
             />
           </div>
@@ -60,11 +82,18 @@ export default function RoomModal(props) {
       <ErrorComponent message={error} />
 
       <Row className="row align-items-start">
+        <input
+          accept="image/png,image/jpg"
+          type="file"
+          className="hide"
+          ref={fileRef}
+          onChange={handleFileChange}
+        />
+
         <Avatar
-          size="x-large"
-          image={team.image}
-          title={team.name}
-          className="button"
+          image={image}
+          className="mr-20"
+          size="large"
         />
 
         <Column className="column">
