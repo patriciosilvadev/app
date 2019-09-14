@@ -11,6 +11,7 @@ import EventService from '../services/event.service'
 import { fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReply, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
+import ReactMarkdown from 'react-markdown'
 
 const Room = styled.div`
   background: white;
@@ -32,36 +33,26 @@ const Header = styled.div`
 `
 
 const HeaderTitle = styled.div`
-  cursor: pointer;
   font-size: 24px;
   font-weight: 700;
   font-style: normal;
   color: #040b1c;
   padding-left: 15px;
   transition: opacity 0.5s;
-
-  &:hover,
-  &:focus {
-    opacity: 0.75;
-  }
+  display: inline-block;
 `
 
 const HeaderDescription = styled.div`
   margin-left: 10px;
   padding: 10px;
   border-radius: 5px;
-  cursor: pointer;
   color: #adb5bd;
   font-size: 14px;
   font-weight: 400;
   display: inline-block;
   border: 2px solid white;
   transition: opacity 0.5s;
-
-  &:hover,
-  &:focus {
-    opacity: 0.75;
-  }
+  display: inline-block;
 `
 
 const Messages = styled.div`
@@ -153,35 +144,13 @@ class RoomPartial extends React.Component {
 
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
-    this.avatarRef = React.createRef()
-    this.titleRef = React.createRef()
-    this.descriptionRef = React.createRef()
-
-    this.handleAvatarChange = this.handleAvatarChange.bind(this)
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
-
-    this.updateRoomDescription = this.updateRoomDescription.bind(this)
-    this.updateRoomTitle = this.updateRoomTitle.bind(this)
-    this.updateRoomImage = this.updateRoomImage.bind(this)
     this.joinRoom = this.joinRoom.bind(this)
     this.createRoomMessage = this.createRoomMessage.bind(this)
   }
 
   scrollToBottom() {
     if (this.scrollRef) this.scrollRef.scrollTop = this.scrollRef.scrollHeight
-  }
-
-  async handleAvatarChange(e) {
-    if (e.target.files.length == 0) return
-
-    try {
-      const result = await new UploadService(e.target.files[0])
-      const { data, mime } = await result.json()
-      const { Location } = data
-
-      // Update the room
-      this.updateRoomImage(Location)
-    } catch (e) {}
   }
 
   handleScrollEvent(e) {
@@ -192,18 +161,6 @@ class RoomPartial extends React.Component {
     } else {
       this.setState({ manualScrolling: true })
     }
-  }
-
-  updateRoomDescription(e) {
-    this.props.updateRoom({ description: e.target.innerText })
-  }
-
-  updateRoomTitle(e) {
-    this.props.updateRoom({ title: e.target.innerText })
-  }
-
-  updateRoomImage(image) {
-    this.props.updateRoom({ image })
   }
 
   joinRoom() {
@@ -321,50 +278,16 @@ class RoomPartial extends React.Component {
 
         <Room className="column flexer align-items-center align-items-stretch">
           <Header className="row">
-            <input
-              accept="image/png,image/jpg"
-              type="file"
-              className="hide"
-              ref={(ref) => this.avatarRef = ref}
-              onChange={this.handleAvatarChange}
-            />
-
             <Avatar
               image={this.state.image}
               title={this.state.title}
               size="medium"
-              className="button"
-              onClick={() => this.avatarRef.click()}
             />
-
-            <HeaderTitle
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={this.updateRoomTitle}
-              ref={(ref) => this.titleRef = ref}
-              onFocus={() => {
-                var range = document.createRange();
-                range.selectNodeContents(this.titleRef);
-                var sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-              }}>
+            <HeaderTitle>
               {this.state.title}
             </HeaderTitle>
-
-            <HeaderDescription
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={this.updateRoomDescription}
-              ref={(ref) => this.descriptionRef = ref}
-              onFocus={() => {
-                var range = document.createRange();
-                range.selectNodeContents(this.descriptionRef);
-                var sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-              }}>
-              {this.props.room.description == "" ? "Add a description" : this.props.room.description}
+            <HeaderDescription>
+              <ReactMarkdown source={this.props.room.description} />
             </HeaderDescription>
           </Header>
 

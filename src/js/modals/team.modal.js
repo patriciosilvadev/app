@@ -407,7 +407,6 @@ export default function TeamModal(props) {
                       </div>
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Label>Name</Label>
                         <InputComponent
                           label="Full name"
                           value={name}
@@ -415,13 +414,12 @@ export default function TeamModal(props) {
                           placeholder="Enter full name"
                         />
 
-                        <Label>Description</Label>
                         <TextareaComponent
                           label="Description"
                           value={description}
                           onChange={e => setDescription(e.target.value)}
-                          placeholder="Enter bio"
-                          rows={2}
+                          placeholder="Add a description"
+                          rows={5}
                         />
                       </div>
                     </div>

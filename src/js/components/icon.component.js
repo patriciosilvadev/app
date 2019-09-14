@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styled from 'styled-components'
 import {
+  faPlus,
   faPlusSquare,
   faPlusCircle,
   faSlidersHSquare,
@@ -29,6 +30,9 @@ import {
   faTimes,
   faFile,
 } from '@fortawesome/pro-regular-svg-icons'
+import {
+  faMarkdown
+} from '@fortawesome/free-brands-svg-icons'
 
 const IconContainer = styled.div`
   padding: 0px;
@@ -43,6 +47,9 @@ const IconStyles = {
 }
 
 const Icons = {
+  MARKDOWN: props => <FontAwesomeIcon icon={faMarkdown} color={props.color} size={props.size} style={IconStyles} />,
+  PLUS: props => <FontAwesomeIcon icon={faPlus} color={props.color} size={props.size} style={IconStyles} />,
+
   DOCK_ADD_TEAM: props => <FontAwesomeIcon icon={faPlusSquare} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_HELP: props => <FontAwesomeIcon icon={faLifeRing} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_SIGNOUT: props => <FontAwesomeIcon icon={faSignOut} color={props.color} size={props.size} style={IconStyles} />,

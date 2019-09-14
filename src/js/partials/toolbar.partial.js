@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Tooltip } from '@weekday/elements'
 import { Avatar } from '@weekday/elements'
 import ConfirmModal from '../modals/confirm.modal'
+import RoomModal from '../modals/room.modal'
 import MenuComponent from '../components/menu.component'
 import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
@@ -46,6 +47,7 @@ class ToolbarPartial extends React.Component {
       starred: false,
       teamMenu: false,
       visibilityMenu: false,
+      roomModal: false,
     }
 
     this.updateRoomVisibility = this.updateRoomVisibility.bind(this)
@@ -103,85 +105,96 @@ class ToolbarPartial extends React.Component {
             />
           }
 
-          <PopupComponent
-            handleDismiss={() => this.setState({ teamMenu: false })}
-            visible={this.state.teamMenu}
-            width={250}
-            direction="right-bottom"
-            content={
-              <div className="column flexer">
-                <MenuComponent
-                  items={[
-                    ...this.props.teams.map((team, index) => {
-                      return {
-                        type: 'avatar',
-                        circle: false,
-                        image: team.image,
-                        text: team.name,
-                        onClick: (e) => this.updateRoomTeam(team)
-                      }
-                    }),
-                  ]}
+          {this.state.roomModal &&
+            <RoomModal
+              id={this.props.room.id}
+              onClose={() => this.setState({ roomModal: false })}
+            />
+          }
+
+          {!this.props.room.private &&
+            <PopupComponent
+              handleDismiss={() => this.setState({ teamMenu: false })}
+              visible={this.state.teamMenu}
+              width={250}
+              direction="right-bottom"
+              content={
+                <div className="column flexer">
+                  <MenuComponent
+                    items={[
+                      ...this.props.teams.map((team, index) => {
+                        return {
+                          type: 'avatar',
+                          circle: false,
+                          image: team.image,
+                          text: team.name,
+                          onClick: (e) => this.updateRoomTeam(team)
+                        }
+                      }),
+                    ]}
+                  />
+                </div>
+              }>
+              <Tooltip direction="left" text="Team">
+                <Avatar
+                  image={this.props.room.team ? this.props.room.team.image : ""}
+                  title={this.props.room.team ? this.props.room.team.name : ""}
+                  size="small"
+                  className="mb-10 mt-10 button"
+                  onClick={() => this.setState({ teamMenu: true })}
                 />
-              </div>
-            }>
+              </Tooltip>
+            </PopupComponent>
+          }
 
-            <Tooltip direction="left" text="Team">
-              <Avatar
-                image={this.props.room.team ? this.props.room.team.image : ""}
-                title={this.props.room.team ? this.props.room.team.name : ""}
-                size="small"
-                className="mb-10 mt-10 button"
-                onClick={() => this.setState({ teamMenu: true })}
-              />
-            </Tooltip>
-          </PopupComponent>
-
-          <ToolbarButton className="row" onClick={() => console.log('Load room modal')}>
-            <ToolbarButtonIcon className="row justify-content-center">
-              <IconComponent
-                icon="TOOLBAR_EDIT"
-                color="#ADB5BD"
-                size="1x"
-              />
-            </ToolbarButtonIcon>
-          </ToolbarButton>
-
-          <Tooltip direction="left" text="Members">
-            <ToolbarButton className="row" onClick={() => {
-                // If we are on the members page, then navigate bacl
-                if (lastPathname == "members") {
-                  this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}`)
-                } else {
-                  this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
-                }
-            }}>
+          {!this.props.room.private &&
+            <ToolbarButton className="row" onClick={() => this.setState({ roomModal: true })}>
               <ToolbarButtonIcon className="row justify-content-center">
                 <IconComponent
-                  icon="TOOLBAR_MEMBERS"
-                  color={lastPathname == "members" ? "#007af5" : "#ADB5BD"}
+                  icon="TOOLBAR_EDIT"
+                  color="#ADB5BD"
                   size="1x"
                 />
               </ToolbarButtonIcon>
             </ToolbarButton>
-          </Tooltip>
+          }
 
-          <PopupComponent
-            handleDismiss={() => this.setState({ visibilityMenu: false })}
-            visible={this.state.visibilityMenu} width={275} direction="right-bottom"
-            content={
-              <div className="column flexer">
-                <MenuComponent
-                  items={[
-                    { icon: <IconComponent size="1x" icon="TOOLBAR_EYE" color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                    { icon: <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+          {!this.props.room.private &&
+            <Tooltip direction="left" text="Members">
+              <ToolbarButton className="row" onClick={() => {
+                  // If we are on the members page, then navigate bacl
+                  if (lastPathname == "members") {
+                    this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}`)
+                  } else {
+                    this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
+                  }
+              }}>
+                <ToolbarButtonIcon className="row justify-content-center">
+                  <IconComponent
+                    icon="TOOLBAR_MEMBERS"
+                    color={lastPathname == "members" ? "#007af5" : "#ADB5BD"}
+                    size="1x"
+                  />
+                </ToolbarButtonIcon>
+              </ToolbarButton>
+            </Tooltip>
+          }
 
-                  ]}
-                />
-              </div>
-            }>
+          {!this.props.room.private &&
+            <PopupComponent
+              handleDismiss={() => this.setState({ visibilityMenu: false })}
+              visible={this.state.visibilityMenu} width={275} direction="right-bottom"
+              content={
+                <div className="column flexer">
+                  <MenuComponent
+                    items={[
+                      { icon: <IconComponent size="1x" icon="TOOLBAR_EYE" color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                      { icon: <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
 
-            {!this.props.room.private &&
+                    ]}
+                  />
+                </div>
+              }>
               <Tooltip direction="left" text="Visibility">
                 <ToolbarButton className="row" onClick={() => this.setState({ visibilityMenu: true })}>
                   <ToolbarButtonIcon className="row justify-content-center">
@@ -190,8 +203,8 @@ class ToolbarPartial extends React.Component {
                   </ToolbarButtonIcon>
                 </ToolbarButton>
               </Tooltip>
-            }
-          </PopupComponent>
+            </PopupComponent>
+          }
 
           <Tooltip direction="left" text="Favourite">
             <ToolbarButton className="row" onClick={() => this.updateUserStarred(!this.state.starred)}>

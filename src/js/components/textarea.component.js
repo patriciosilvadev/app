@@ -1,7 +1,14 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const TextareaComponent = styled.textarea`
+const Label = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
+  padding-bottom: 5px;
+`
+
+const Textarea = styled.textarea`
   border: none;
   flex: 1;
   background: transparent;
@@ -21,3 +28,12 @@ export const TextareaComponent = styled.textarea`
     color: #acb5bd;
   }
 `
+
+export function TextareaComponent (props) {
+  return (
+    <React.Fragment>
+      <Label>{props.label}</Label>
+      <Textarea {...props} />
+    </React.Fragment>
+  )
+}

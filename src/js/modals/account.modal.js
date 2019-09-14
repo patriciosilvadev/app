@@ -42,13 +42,6 @@ const HeaderLink = styled.div`
   cursor: pointer;
 `
 
-const Label = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-  padding-bottom: 5px;
-`
-
 const SmallTextButton = styled.div`
   color: #adb5bd;
   font-size: 14px;
@@ -198,7 +191,6 @@ export default function AccountModal(props) {
                     </div>
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Label>Full name</Label>
                       <InputComponent
                         label="Full name"
                         value={name}
@@ -206,7 +198,6 @@ export default function AccountModal(props) {
                         placeholder="Enter full name"
                       />
 
-                      <Label>Role</Label>
                       <InputComponent
                         label="Role"
                         value={role}
@@ -214,7 +205,6 @@ export default function AccountModal(props) {
                         placeholder="Enter your role"
                       />
 
-                      <Label>Username</Label>
                       <InputComponent
                         label="Username"
                         value={username}
@@ -222,7 +212,6 @@ export default function AccountModal(props) {
                         placeholder="Username"
                       />
 
-                      <Label>Email</Label>
                       <InputComponent
                         label="Email"
                         value={email}
@@ -230,7 +219,6 @@ export default function AccountModal(props) {
                         placeholder="Enter your email"
                       />
 
-                      <Label>Description</Label>
                       <TextareaComponent
                         label="Description"
                         value={description}

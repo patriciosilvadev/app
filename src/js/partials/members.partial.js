@@ -9,6 +9,7 @@ import { createRoomMember, deleteRoomMember } from '../actions'
 import PropTypes from 'prop-types'
 import { Button } from '@weekday/elements'
 import IconComponent from '../components/icon.component'
+import RoomModal from '../modals/room.modal'
 
 const Container = styled.div`
   width: 250px;
@@ -43,6 +44,7 @@ class MembersPartial extends React.Component {
 
     this.state = {
       confirmModal: false,
+      roomModal: false,
       userMenu: false,
     }
 
@@ -77,6 +79,13 @@ class MembersPartial extends React.Component {
             onCancel={() => this.setState({ confirmModal: false })}
             text="Are you sure you want to remove yourself?"
             title="Are you sure?"
+          />
+        }
+
+        {this.state.roomModal &&
+          <RoomModal
+            id={this.props.room.id}
+            onClose={() => this.setState({ roomModal: false })}
           />
         }
 
@@ -118,25 +127,27 @@ class MembersPartial extends React.Component {
             direction="right-bottom"
             handleDismiss={() => this.setState({ userMenu: false })}
             handleAccept={({ user }) => this.createRoomMember(user)}>
-
             <Avatar
               className="mr-5 mb-5"
               size="medium"
               circle
               image={null}
-              outlineOuterColor="#007AF5"
-              outlineInnerColor="#FFFFFF"
-              title="+"
-              onClick={() => this.setState({ userMenu:true })}
-            />
+              color="#007AF5"
+              title=""
+              onClick={() => this.setState({ userMenu:true })}>
+              <IconComponent
+                icon="PLUS"
+                color="#007AF5"
+                size="s"
+              />
+            </Avatar>
           </QuickUserComponent>
         </Members>
-
 
         <Button
           disabled={false}
           text="Manage Users"
-          onClick={() => this.setState({ userMenu:true })}
+          onClick={() => this.setState({ roomModal:true })}
         />
       </Container>
     )

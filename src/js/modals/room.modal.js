@@ -17,6 +17,7 @@ import { browserHistory } from '../services/browser-history.service'
 import { updateRoom } from '../actions'
 import SpinnerComponent from '../components/spinner.component'
 import NotificationComponent from '../components/notification.component'
+import IconComponent from '../components/icon.component'
 
 const Row = styled.div`
   background-color: transparent;
@@ -29,6 +30,13 @@ const Row = styled.div`
 const Column = styled.div`
   flex: 1;
   padding-left: 20px;
+`
+
+const Supported = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #007af5;
+  margin-left: 5px;
 `
 
 export default function RoomModal(props) {
@@ -88,7 +96,7 @@ export default function RoomModal(props) {
     <ModalComponent
       title={props.id ? "Update Channel" : "Create New Channel"}
       width={560}
-      height={350}
+      height={500}
       onClose={props.onClose}
       footer={(
         <div className="column w-100 align-items-stretch">
@@ -135,6 +143,7 @@ export default function RoomModal(props) {
 
         <Column className="column">
           <InputComponent
+            label="Title"
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="New channel title"
@@ -144,9 +153,20 @@ export default function RoomModal(props) {
             label="Description"
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Enter bio"
-            rows={2}
+            placeholder="Add a description"
+            rows={4}
           />
+
+          <div className="row">
+            <IconComponent
+              icon="MARKDOWN"
+              color="#007af5"
+              size="1x"
+            />
+            <Supported>
+              Markdown supported
+            </Supported>
+          </div>
         </Column>
       </Row>
     </ModalComponent>
