@@ -38,6 +38,12 @@ const HeaderTitle = styled.div`
   font-style: normal;
   color: #040b1c;
   padding-left: 15px;
+  transition: opacity 0.5s;
+
+  &:hover,
+  &:focus {
+    opacity: 0.75;
+  }
 `
 
 const HeaderDescription = styled.div`
@@ -50,10 +56,11 @@ const HeaderDescription = styled.div`
   font-weight: 400;
   display: inline-block;
   border: 2px solid white;
+  transition: opacity 0.5s;
 
   &:hover,
   &:focus {
-    border: 2px solid #EEF2F7;
+    opacity: 0.75;
   }
 `
 
@@ -334,7 +341,14 @@ class RoomPartial extends React.Component {
               contentEditable
               suppressContentEditableWarning
               onBlur={this.updateRoomTitle}
-              ref={(ref) => this.titleRef = ref}>
+              ref={(ref) => this.titleRef = ref}
+              onFocus={() => {
+                var range = document.createRange();
+                range.selectNodeContents(this.titleRef);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }}>
               {this.state.title}
             </HeaderTitle>
 

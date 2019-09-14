@@ -83,7 +83,7 @@ export default function RoomModal(props) {
   // prettier-ignore
   return (
     <ModalComponent
-      title="Create New Channel"
+      title={props.id ? "Update Channel" : "Create New Channel"}
       width={560}
       height={350}
       onClose={props.onClose}
@@ -100,6 +100,7 @@ export default function RoomModal(props) {
                   dispatch(updateRoom({ title, image, description }))
                 } else {
                   dispatch(createRoom(title, description, image, team.id, null))
+                  props.onClose()
                 }
               }}
               text="Create"
