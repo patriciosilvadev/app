@@ -430,7 +430,7 @@ export default function TeamModal(props) {
               },
               {
                 title: 'Members',
-                show: !!props.id,
+                show: members.length != 0,
                 content: (
                   <div className="column flex-1 w-100 h-100">
                     {error && <ErrorComponent message={error} />}

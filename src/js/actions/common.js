@@ -35,7 +35,9 @@ export function updateUserStarred(userId, roomId, starred) {
 export function initialize(ids) {
   return async (dispatch, getState) => {
     MessagingService.getInstance().initialize([...ids, getState().common.user.id])
+    
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
+
     MessagingService.getInstance().client.on('sync', ({ action }) => {
       dispatch(action)
 
