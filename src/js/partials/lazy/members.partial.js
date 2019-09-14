@@ -5,7 +5,7 @@ import '../../helpers/extensions'
 import { Avatar } from '@weekday/elements'
 import QuickUserComponent from '../../components/quick-user.component'
 import styled from 'styled-components'
-import { createRoomMember } from '../../actions'
+import { createRoomMember, deleteRoomMember } from '../../actions'
 import PropTypes from 'prop-types'
 import { Button } from '@weekday/elements'
 
