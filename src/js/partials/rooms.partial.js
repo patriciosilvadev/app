@@ -146,18 +146,17 @@ class RoomsPartial extends React.Component {
     const userId = this.props.common.user.id
 
     // If it exists, fetch
-    if (this.props.starred && !teamId) this.props.fetchStarredRooms(userId)
-    if (!this.props.starred && teamId) this.props.fetchRooms(teamId, userId)
-    if (teamId) this.props.fetchTeam(teamId, userId)
+    this.props.fetchRooms(teamId, userId)
   }
 
   componentDidUpdate(prevProps) {
     const { teamId } = this.props.match.params
     const userId = this.props.common.user.id
 
-    if (!prevProps.starred && this.props.starred) this.props.fetchStarredRooms(userId)
-    if (!prevProps.starred && teamId != prevProps.match.params.teamId) this.props.fetchRooms(teamId, userId)
-    if (teamId != prevProps.match.params.teamId) this.props.fetchTeam(teamId, userId)
+    if (teamId != prevProps.match.params.teamId) {
+      this.props.fetchRooms(teamId, userId)
+      this.props.fetchTeam(teamId, userId)
+    }
   }
 
   componentWillUnmount() {
@@ -171,7 +170,7 @@ class RoomsPartial extends React.Component {
   }
 
   async fetchResults() {
-    if (this.state.filter == '' && !this.props.starred) return
+    if (this.state.filter == '') return
 
     try {
       const search = await GraphqlService.getInstance().search(this.props.team.id, this.state.filter)
@@ -237,11 +236,9 @@ class RoomsPartial extends React.Component {
             <HeaderTitle>
               {this.props.common.user.name}
             </HeaderTitle>
-            {this.props.team.name && !this.props.starred &&
-              <HeaderSubtitle>
-                {this.props.team.name}
-              </HeaderSubtitle>
-            }
+            <HeaderSubtitle>
+              {this.props.team.name}
+            </HeaderSubtitle>
           </div>
         </Header>
 
@@ -327,7 +324,6 @@ class RoomsPartial extends React.Component {
                       unread={unread}
                       title={title}
                       image={image}
-                      label={this.props.starred ? room.team.name : null}
                       excerpt={room.excerpt}
                       public={room.public}
                       private={room.private}
@@ -358,7 +354,6 @@ class RoomsPartial extends React.Component {
                       unread={unread}
                       title={room.title}
                       image={room.image}
-                      label={this.props.starred ? room.team.name : null}
                       excerpt={room.excerpt}
                       public={room.public}
                       private={room.private}
@@ -391,7 +386,6 @@ class RoomsPartial extends React.Component {
                       title={title}
                       image={image}
                       icon={null}
-                      label={null}
                       excerpt={room.excerpt}
                       public={room.public}
                       private={room.private}
@@ -403,19 +397,17 @@ class RoomsPartial extends React.Component {
           }
         </div>
 
-        {!this.props.starred &&
-          <FooterButton className="row" onClick={() => this.setState({ roomCreateModal: true })}>
-            <IconComponent
-              color="#475669"
-              icon="ROOMS_ADD_ROOM"
-              size="1x"
-              className="mr-10"
-            />
-            <FooterButtonText>
-              Create New Channel
-            </FooterButtonText>
-          </FooterButton>
-        }
+        <FooterButton className="row" onClick={() => this.setState({ roomCreateModal: true })}>
+          <IconComponent
+            color="#475669"
+            icon="ROOMS_ADD_ROOM"
+            size="1x"
+            className="mr-10"
+          />
+          <FooterButtonText>
+            Create New Channel
+          </FooterButtonText>
+        </FooterButton>
       </Rooms>
     )
   }

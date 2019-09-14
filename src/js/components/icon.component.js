@@ -43,7 +43,6 @@ const IconStyles = {
 }
 
 const Icons = {
-  DOCK_STARRED: props => <FontAwesomeIcon icon={faStar} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_ADD_TEAM: props => <FontAwesomeIcon icon={faPlusSquare} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_UPDATE_TEAM: props => <FontAwesomeIcon icon={faSlidersHSquare} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_HELP: props => <FontAwesomeIcon icon={faLifeRing} color={props.color} size={props.size} style={IconStyles} />,

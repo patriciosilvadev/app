@@ -25,23 +25,3 @@ export function fetchRooms(teamId, userId) {
     }
   }
 }
-
-export function fetchStarredRooms(userId) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      const starredRooms = await GraphqlService.getInstance().starredRooms(userId)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'ROOMS',
-        payload: starredRooms.data.starredRooms,
-      })
-    } catch (e) {
-      dispatch(updateLoading(true))
-      dispatch(updateError(null))
-    }
-  }
-}

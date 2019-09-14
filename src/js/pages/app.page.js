@@ -77,12 +77,7 @@ class AppPage extends React.Component {
 
         <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
           <Route path="/app" component={DockPartial} />
-
-          {/* Rooms */}
-          <Route path="/app/starred" render={props => <RoomsPartial {...props} starred={true} />} />
-          <Route path="/app/team/:teamId" render={props => <RoomsPartial {...props} starred={false} />} />
-
-          {/* Room */}
+          <Route path="/app/team/:teamId" render={props => <RoomsPartial {...props} />} />
           <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
 
           {/* Members */}

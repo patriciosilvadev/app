@@ -104,15 +104,6 @@ class DockPartial extends React.Component {
           )
         })}
 
-        <Link to={`/app/starred`}>
-          <IconComponent
-            color={lastPathname == "starred" ? "#007af5" : "#475669"}
-            icon="DOCK_STARRED"
-            size="lg"
-            className="mt-15 button"
-          />
-        </Link>
-
         <IconComponent
           color="#475669"
           size="lg"
