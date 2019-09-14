@@ -10,6 +10,8 @@ import ErrorComponent from '../components/error.component'
 import PropTypes from 'prop-types'
 import { createRoom } from '../actions'
 import { Button } from '@weekday/elements'
+import { InputComponent } from '../components/input.component'
+import { TextareaComponent } from '../components/textarea.component'
 
 const Row = styled.div`
   background-color: transparent;
@@ -24,56 +26,13 @@ const Column = styled.div`
   padding-left: 20px;
 `
 
-const InputComponent = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 5px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
-const TextareaComponent = styled.textarea`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
 export default function RoomModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [team, setTeam] = useState(props.team)
   const common = useSelector(state => state.common)
-  const currentTeam = useSelector(state => state.team)
+  const team = useSelector(state => state.team)
   const dispatch = useDispatch()
 
   // prettier-ignore
@@ -90,7 +49,7 @@ export default function RoomModal(props) {
 
             <Button
               jumbo
-              onClick={() => dispatch(createRoom(title, description, currentTeam.id, null))}
+              onClick={() => dispatch(createRoom(title, description, team.id, null))}
               text="Create"
             />
           </div>
@@ -103,8 +62,8 @@ export default function RoomModal(props) {
       <Row className="row align-items-start">
         <Avatar
           size="x-large"
-          image={currentTeam.image}
-          title={currentTeam.name}
+          image={team.image}
+          title={team.name}
           className="button"
         />
 

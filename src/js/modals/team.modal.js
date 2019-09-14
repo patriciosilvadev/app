@@ -16,48 +16,8 @@ import IconComponent from '../components/icon.component'
 import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { Button } from '@weekday/elements'
-
-const InputComponent = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
-const TextareaComponent = styled.textarea`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
+import { InputComponent } from '../components/input.component'
+import { TextareaComponent } from '../components/textarea.component'
 
 const Header = styled.div`
   flex: 1;
