@@ -49,13 +49,14 @@ const IconStyles = {
 const Icons = {
   MARKDOWN: props => <FontAwesomeIcon icon={faMarkdown} color={props.color} size={props.size} style={IconStyles} />,
   PLUS: props => <FontAwesomeIcon icon={faPlus} color={props.color} size={props.size} style={IconStyles} />,
+  SEARCH: props => <FontAwesomeIcon icon={faSearch} color={props.color} size={props.size} style={IconStyles} />,
 
   DOCK_ADD_TEAM: props => <FontAwesomeIcon icon={faPlusSquare} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_HELP: props => <FontAwesomeIcon icon={faLifeRing} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_SIGNOUT: props => <FontAwesomeIcon icon={faSignOut} color={props.color} size={props.size} style={IconStyles} />,
   DOCK_ACCOUNT: props => <FontAwesomeIcon icon={faUserCircle} color={props.color} size={props.size} style={IconStyles} />,
 
-  ROOMS_SEARCH: props => <FontAwesomeIcon icon={faSearch} color={props.color} size={props.size} style={IconStyles} />,
+
   ROOMS_ADD_ROOM: props => <FontAwesomeIcon icon={faPlusCircle} color={props.color} size={props.size} style={IconStyles} />,
 
   ROOM_LOCK: props => <FontAwesomeIcon icon={faLock} color={props.color} size={props.size} style={IconStyles} />,

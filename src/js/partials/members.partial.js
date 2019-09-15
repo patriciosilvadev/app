@@ -121,7 +121,7 @@ class MembersPartial extends React.Component {
           })}
 
           <QuickUserComponent
-            members={this.props.team.members}
+            teamId={this.props.team.id}
             visible={this.state.userMenu}
             width={250}
             direction="right-bottom"
@@ -138,7 +138,7 @@ class MembersPartial extends React.Component {
               <IconComponent
                 icon="PLUS"
                 color="#007AF5"
-                size="s"
+                size="sm"
               />
             </Avatar>
           </QuickUserComponent>

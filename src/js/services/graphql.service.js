@@ -474,22 +474,12 @@ export default class GraphqlService {
     return this.client.query({
       query: gql`
         query search($team: String, $query: String) {
-          searchUsers(team: $team, query: $query) {
+          search(team: $team, query: $query) {
             id
             name
             image
             role
-          }
-
-          searchRooms(team: $team, query: $query) {
-            id
-            title
-            image
-            url
-            team {
-              id
-              name
-            }
+            username
           }
         }
       `,

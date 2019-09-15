@@ -3,7 +3,11 @@ import PopupComponent from '../components/popup.component'
 import styled from 'styled-components'
 import UserComponent from '../components/user.component'
 import MembersComponent from '../components/members.component'
+import SpinnerComponent from '../components/spinner.component'
 import PropTypes from 'prop-types'
+import { Subject } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
+import GraphqlService from '../services/graphql.service'
 
 const Filter = styled.input`
   border: none;
@@ -28,9 +32,27 @@ export default class QuickUserComponent extends React.Component {
       filter: '',
       index: 0,
       members: [],
+      loading: false,
     }
 
     this.filterRef = React.createRef()
+    this.onSearch = this.onSearch.bind(this)
+    this.onSearch$ = new Subject()
+    this.subscription = null
+  }
+
+  onSearch(e) {
+    const search = e.target.value
+    this.setState({ filter: search })
+    this.onSearch$.next(search)
+  }
+
+  componentWillUnmount() {
+    if (this.subscription) this.subscription.unsubscribe()
+  }
+
+  componentDidMount() {
+    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
   }
 
   componentDidUpdate() {
@@ -38,26 +60,32 @@ export default class QuickUserComponent extends React.Component {
     if (this.filterRef.focus) this.filterRef.focus()
   }
 
-  static getDerivedStateFromProps(props, state) {
-    // Remove the @ sign
-    // QuillJS seems to input some weird chars here that
-    // we just need to strip out
-    const username = state.filter.replace('@', '')
+  async fetchResults() {
+    if (this.state.filter == '') return this.setState({ members: [] })
+    this.setState({ loading: true })
 
-    // Create the Regex test against the remaining word
-    // Return if there is no match
-    // // Cap them at 5
-    const newMembers = props.members.filter((member, index) => member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
+    try {
+      const { data } = await GraphqlService.getInstance().search(this.props.teamId, this.state.filter)
+      const members = []
 
-    // Create the brand the state object the component should use
-    let newState = { members: newMembers }
+      // Create a results object for the users
+      data.search.map(user => {
+        members.push({
+          user: {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            image: user.image,
+            role: user.role,
+          }
+        })
+      })
 
-    // If the new members array has changed (due to updated text from the user
-    // then reset the cursor & start over)
-    if (newMembers.length != state.members.length) newState.position = 0
+      this.setState({ loading: false })
 
-    // Return the state object
-    return newState
+      // Update our UI with our results
+      this.setState({ members })
+    } catch (e) {}
   }
 
   // prettier-ignore
@@ -70,18 +98,20 @@ export default class QuickUserComponent extends React.Component {
         direction={this.props.direction || "right-bottom"}
         content={
           <div className="column flexer">
+            {this.state.loading && <SpinnerComponent />}
+
             <div className="row">
               <Filter
                 autoFocus
                 ref={ref => this.filterRef = ref}
                 placeholder="Search for users"
                 value={this.state.filter}
-                onChange={(e) => this.setState({ filter: e.target.value })}
+                onChange={this.onSearch}
               />
             </div>
             <MembersComponent
               members={this.state.members}
-              handleAccept={() => this.props.handleAccept(member)}
+              handleAccept={(member) => this.props.handleAccept(member)}
             />
           </div>
         }>
@@ -98,6 +128,6 @@ QuickUserComponent.propTypes = {
   width: PropTypes.number,
   direction: PropTypes.string,
   handleAccept: PropTypes.func,
-  members: PropTypes.array,
+  team: PropTypes.string,
   children: PropTypes.any,
 }

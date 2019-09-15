@@ -125,8 +125,8 @@ class RoomsPartial extends React.Component {
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
-
     this.onSearch$ = new Subject()
+    this.subscription = null
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -275,7 +275,7 @@ class RoomsPartial extends React.Component {
 
         <SearchContainer className="row">
           <IconComponent
-            icon="ROOMS_SEARCH"
+            icon="SEARCH"
             color="#475669"
             size="1x"
             className="mr-5"
