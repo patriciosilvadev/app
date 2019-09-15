@@ -54,7 +54,6 @@ const HeaderSubtitleTeamLink = styled.div`
   margin-left: 5px;
 `
 
-
 const SearchInput = styled.input`
   font-size: 14px;
   border: none;
@@ -188,34 +187,23 @@ class RoomsPartial extends React.Component {
     if (this.state.filter == '') return
 
     try {
-      const search = await GraphqlService.getInstance().search(this.props.team.id, this.state.filter)
+      const { data } = await GraphqlService.getInstance().search(this.props.team.id, this.state.filter)
       const results = []
 
       // Create a results object for the users
-      search.data.searchUsers.map(user => {
+      data.search.map(user => {
         results.push({
           id: user.id,
-          title: user.name,
+          name: user.name,
+          username: user.username,
           image: user.image,
-          label: user.role,
-          type: 'USER',
-        })
-      })
-
-      // Create a results object for the rooms
-      search.data.searchRooms.map(room => {
-        results.push({
-          id: room.id,
-          title: room.title,
-          image: room.image,
-          label: 'CHANNEL',
-          url: room.url,
-          type: 'ROOM',
+          role: user.role,
         })
       })
 
       // Update our UI with our results
-      this.setState({ results })
+      // Remove ourselves
+      this.setState({ results: results.filter(result => result.id != this.props.common.user.id) })
     } catch (e) {}
   }
 
@@ -303,15 +291,12 @@ class RoomsPartial extends React.Component {
                     key={index}
                     active={false}
                     unread={null}
-                    title={result.title}
+                    title={result.name}
                     image={result.image}
-                    excerpt={null}
+                    excerpt={result.username}
                     public={null}
                     private={null}
-                    onClick={() => result.type == "USER"
-                      ? this.createPrivateRoom(result)
-                      : this.navigateToRoom(result)
-                    }
+                    onClick={() => this.createPrivateRoom(result)}
                   />
                 )
               })}
@@ -322,7 +307,7 @@ class RoomsPartial extends React.Component {
                   className="w-100"
                   active={false}
                   unread={null}
-                  title={`Create "${this.state.filter}"`}
+                  title={`Create channel "${this.state.filter}"`}
                   image={null}
                   excerpt={null}
                   public={null}
