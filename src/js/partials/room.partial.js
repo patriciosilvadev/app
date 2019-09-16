@@ -44,10 +44,9 @@ const HeaderTitle = styled.div`
 
 const HeaderDescription = styled.div`
   margin-left: 10px;
-  padding: 10px;
   border-radius: 5px;
   color: #adb5bd;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   display: inline-block;
   border: 2px solid white;
@@ -306,7 +305,7 @@ class RoomPartial extends React.Component {
                   <WelcomeUserNameLink
                     className="button"
                     onClick={() => this.setState({ roomUpdateModal: true })}>
-                    Update Room
+                    Update 
                   </WelcomeUserNameLink>
                 }
               </WelcomeUser>

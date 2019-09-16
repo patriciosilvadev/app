@@ -23,7 +23,7 @@ import {
   faReply,
   faCheck,
   faPen,
-} from '@fortawesome/pro-light-svg-icons'
+} from '@fortawesome/pro-regular-svg-icons'
 import {
   faLock,
   faDownload,

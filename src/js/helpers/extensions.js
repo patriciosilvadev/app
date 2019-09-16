@@ -13,6 +13,14 @@ String.prototype.timeToDecimal = function() {
   return parseFloat(parseInt(arr[0], 10) + '.' + (dec < 10 ? '0' : '') + dec)
 }
 
+Number.prototype.numberShorthand = function() {
+  const number = parseInt(this) * 100
+
+  if (number < 1000) return number.toString()
+  if (number >= 1000 && number < 1000000) return number.toString().substring(0, number.toString().length - 3) + 'k'
+  if (number >= 1000000) return number.toString().substring(0, number.toString().length - 6) + 'm'
+}
+
 String.prototype.generateInitials = function() {
   if (this != '') {
     return this.split(' ')

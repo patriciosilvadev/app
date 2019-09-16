@@ -10,6 +10,7 @@ import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
 import { updateRoom, deleteRoom, updateUserStarred, fetchRooms } from '../actions'
 import IconComponent from '../components/icon.component'
+import '../helpers/extensions'
 
 const Toolbar = styled.div`
   height: 100%;
@@ -24,18 +25,38 @@ const ToolbarButton = styled.div`
   padding: 10px;
   border-radius: 100px;
   cursor: pointer;
-  margin-top: 0px;
+  margin-bottom: 3px;
 
-  &:hover {
+  &:hover,
+  &.active {
     background-color: #eff2f7;
   }
 `
 
-const ToolbarButtonIcon = styled.div``
+const ToolbarButtonIcon = styled.div`
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+`
 
 const ToolbarButtons = styled.div`
   padding: 12px;
   height: 100%;
+`
+
+const Badge = styled.span`
+  display: inline-block;
+  width: auto;
+  border-radius: 10px;
+  padding: 3px 5px 3px 5px;
+  color: white;
+  background: #007af5;
+  font-size: 8px;
+  font-weight: 600;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  transform: translateX(30%);
 `
 
 class ToolbarPartial extends React.Component {
@@ -161,7 +182,9 @@ class ToolbarPartial extends React.Component {
 
           {!this.props.room.private &&
             <Tooltip direction="left" text="Members">
-              <ToolbarButton className="row" onClick={() => {
+              <ToolbarButton
+                className={`row ${lastPathname == "members" ? "active" : ""}`}
+                onClick={() => {
                   // If we are on the members page, then navigate bacl
                   if (lastPathname == "members") {
                     this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}`)
@@ -169,10 +192,13 @@ class ToolbarPartial extends React.Component {
                     this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
                   }
               }}>
+                <Badge>
+                  {this.props.room.members.length.numberShorthand()}
+                </Badge>
                 <ToolbarButtonIcon className="row justify-content-center">
                   <IconComponent
                     icon="TOOLBAR_MEMBERS"
-                    color={lastPathname == "members" ? "#007af5" : "#ADB5BD"}
+                    color="#ADB5BD"
                     size="1x"
                   />
                 </ToolbarButtonIcon>
