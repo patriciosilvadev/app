@@ -9,9 +9,13 @@ import MenuComponent from '../components/menu.component'
 import PopupComponent from '../components/popup.component'
 import PropTypes from 'prop-types'
 import { updateRoom, deleteRoom, updateUserStarred, fetchRooms } from '../actions'
-import IconComponent from '../components/icon.component'
 import '../helpers/extensions'
-
+import IconComponentDelete from '../icons/System/delete-bin-7-line'
+import IconComponentStar from '../icons/System/star-line'
+import IconComponentEye from '../icons/System/eye-line'
+import IconComponentEyeOff from '../icons/System/eye-off-line'
+import IconComponentMembers from '../icons/User/group-line'
+import IconComponentPencil from '../icons/Design/pencil-line'
 const Toolbar = styled.div`
   height: 100%;
   background: white;
@@ -179,11 +183,7 @@ class ToolbarPartial extends React.Component {
           {!this.props.room.private &&
             <ToolbarButton className="row" onClick={() => this.setState({ roomModal: true })}>
               <ToolbarButtonIcon className="row justify-content-center">
-                <IconComponent
-                  icon="TOOLBAR_EDIT"
-                  color="#ADB5BD"
-                  size="1x"
-                />
+                <IconComponentPencil size={18} fill="#ADB5BD" />
               </ToolbarButtonIcon>
             </ToolbarButton>
           }
@@ -204,11 +204,7 @@ class ToolbarPartial extends React.Component {
                   {this.props.room.members.length.numberShorthand()}
                 </Badge>
                 <ToolbarButtonIcon className="row justify-content-center">
-                  <IconComponent
-                    icon="TOOLBAR_MEMBERS"
-                    color="#ADB5BD"
-                    size="1x"
-                  />
+                  <IconComponentMembers size={18} fill="#ADB5BD" />
                 </ToolbarButtonIcon>
               </ToolbarButton>
             </Tooltip>
@@ -222,8 +218,8 @@ class ToolbarPartial extends React.Component {
                 <div className="column flexer">
                   <MenuComponent
                     items={[
-                      { icon: <IconComponent size="1x" icon="TOOLBAR_EYE" color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                      { icon: <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                      { icon: <IconComponentEye size={18} color="#889098" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                      { icon: <IconComponentEyeOff size={18} color="#889098" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
 
                     ]}
                   />
@@ -232,8 +228,8 @@ class ToolbarPartial extends React.Component {
               <Tooltip direction="left" text="Visibility">
                 <ToolbarButton className="row" onClick={() => this.setState({ visibilityMenu: true })}>
                   <ToolbarButtonIcon className="row justify-content-center">
-                    {this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE" color="#ADB5BD" />}
-                    {!this.props.room.public && <IconComponent size="1x" icon="TOOLBAR_EYE_OFF" color="#ADB5BD" />}
+                    {this.props.room.public && <IconComponentEye size={18} fill="#ADB5BD" />}
+                    {!this.props.room.public && <IconComponentEyeOff size={18} fill="#ADB5BD" />}
                   </ToolbarButtonIcon>
                 </ToolbarButton>
               </Tooltip>
@@ -243,7 +239,7 @@ class ToolbarPartial extends React.Component {
           <Tooltip direction="left" text="Favourite">
             <ToolbarButton className="row" onClick={() => this.updateUserStarred(!this.state.starred)}>
               <ToolbarButtonIcon className="row justify-content-center">
-              <IconComponent size="1x" icon="TOOLBAR_STARRED" color={this.state.starred ? "#EBB403" : "#ADB5BD"} width={18} height={18} />
+                <IconComponentStar size={18} fill={this.state.starred ? "#EBB403" : "#ADB5BD"} />
               </ToolbarButtonIcon>
             </ToolbarButton>
           </Tooltip>
@@ -251,7 +247,7 @@ class ToolbarPartial extends React.Component {
           <Tooltip direction="left" text="Delete">
             <ToolbarButton className="row" onClick={() => this.setState({confirmModal: true})}>
               <ToolbarButtonIcon className="row justify-content-center">
-                <IconComponent size="1x" icon="TOOLBAR_TRASH" color="#ADB5BD" width={18} height={18} />
+                <IconComponentDelete size={18} fill="#ADB5BD" />
               </ToolbarButtonIcon>
             </ToolbarButton>
           </Tooltip>

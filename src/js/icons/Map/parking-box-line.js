@@ -1,0 +1,7 @@
+import React from "react";
+export default props => (
+  <svg viewBox="0 0 24 24" width={props.size} height={props.size} {...props}>
+    <path fill="none" d="M0 0h24v24H0z" />
+    <path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm1 2v14h14V5H5zm4 2h3.5a3.5 3.5 0 010 7H11v3H9V7zm2 2v3h1.5a1.5 1.5 0 000-3H11z" />
+  </svg>
+);

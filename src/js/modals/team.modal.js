@@ -12,13 +12,14 @@ import ConfirmModal from './confirm.modal'
 import styled from 'styled-components'
 import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
-import IconComponent from '../components/icon.component'
 import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
+import IconComponentCheck from '../icons/System/check-line'
+import IconComponentClose from '../icons/System/close-line'
 
 const Header = styled.div`
   flex: 1;
@@ -460,11 +461,10 @@ export default function TeamModal(props) {
                         onChange={(e) => setUsernames(e.target.value)}
                       />
 
-                      <IconComponent
-                        icon="TEAM_CHECK"
-                        color="#EBEDEF"
+                    <IconComponentCheck
+                        fill="#EBEDEF"
                         className="mr-20 button"
-                        size="1x"
+                        size={20}
                         onClick={createTeamMembers}
                       />
                     </Usernames>
@@ -488,10 +488,9 @@ export default function TeamModal(props) {
                                 setMemberDeleteId(member.user.id)
                               }
                             }}
-                            icon={<IconComponent
-                              icon="TEAM_DELETE"
-                              color="#868E96"
-                              size="1x"
+                            icon={<IconComponentClose
+                              fill="#868E96"
+                              size={20}
                             />}
                           />
 

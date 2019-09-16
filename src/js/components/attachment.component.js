@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import IconComponent from './icon.component'
+import IconComponentClose from '../icons/System/close-line'
+import IconComponentDownload from '../icons/System/download-line'
 
 const Delete = styled.div`
   top: -5px;
@@ -101,32 +102,17 @@ export default function AttachmentComponent({ onDeleteClick, onDownloadClick, si
     <div className="relative" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
       {over && onDownloadClick &&
         <DownloadContainer onClick={onDownloadClick}>
-          <IconComponent
-            icon="ATTACHMENT_DOWNLOAD"
-            color="white"
-            size="xs"
-          />
+          <IconComponentDownload size={12} fill="white" />
         </DownloadContainer>
       }
 
       {over && onDeleteClick &&
         <Delete onClick={onDeleteClick}>
-          <IconComponent
-            icon="ATTACHMENT_DELETE"
-            color="white"
-            size="xs"
-          />
+          <IconComponentClose size={12} fill="white" />
         </Delete>
       }
 
       <Thumbnail image={thumbnail} className={`${size}`}>
-        {!thumbnail &&
-          <IconComponent
-            icon="ATTACHMENT_FILE"
-            color="#565456"
-            size="xs"
-          />
-        }
       </Thumbnail>
     </div>
   )

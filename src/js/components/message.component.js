@@ -9,7 +9,8 @@ import PopupComponent from '../components/popup.component'
 import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
 import PropTypes from 'prop-types'
-import IconComponent from './icon.component'
+import IconComponentSmile from '../icons/User/user-smile-line'
+import IconComponentReply from '../icons/Business/reply-line'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -192,19 +193,17 @@ export default function MessageComponent(props) {
                       />
                     }>
 
-                    <IconComponent
-                      icon="MESSAGE_EMOTICON"
-                      color="#CFD4D9"
-                      size="1x"
+                    <IconComponentSmile
+                      fill="#CFD4D9"
+                      size={18}
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
                   </PopupComponent>
 
-                  <IconComponent
-                    icon="MESSAGE_REPLY"
-                    color="#CFD4D9"
-                    size="1x"
+                  <IconComponentReply
+                    fill="#CFD4D9"
+                    size={18}
                     className="button"
                     onClick={() => setReply(!reply)}
                   />

@@ -6,11 +6,14 @@ import styled from 'styled-components'
 import PopupComponent from '../components/popup.component'
 import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
-import IconComponent from '../components/icon.component'
 import { updateLoading, updateError } from '../actions'
 import UploadService from '../services/upload.service'
 import { MessageMedia } from '@weekday/elements'
 import MembersComponent from '../components/members.component'
+import IconComponentSmile from '../icons/User/user-smile-line'
+import IconComponentPaperclip from '../icons/Business/attachment-line'
+import IconComponentAt from '../icons/Business/at-line'
+import IconComponentSend from '../icons/Business/send-plane-2-line'
 
 const Compose = styled.div`
   width: 100%;
@@ -314,29 +317,26 @@ class ComposeComponent extends React.Component {
                 onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
             }>
-            <IconComponent
-              icon="COMPOSE_EMOTICON"
-              color="#565456"
+            <IconComponentSmile
+              fill="#565456"
               className="button ml-15"
-              size="1x"
+              size={18}
               onClick={() => this.setState({ emoticonMenu: true })}
             />
           </PopupComponent>
 
-          <IconComponent
-            icon="COMPOSE_ATTACHMENT"
-            color="#565456"
-            size="1x"
+          <IconComponentPaperclip
+            fill="#565456"
+            size={18}
             className="ml-15 button"
             onClick={() => this.fileRef.click()}
           />
 
           {!this.props.compact &&
             <React.Fragment>
-              <IconComponent
-                icon="COMPOSE_AT"
-                color="#565456"
-                size="1x"
+              <IconComponentAt
+                fill="#565456"
+                size={18}
                 className="ml-15 button"
                 onClick={() => {
                   this.insertAtCursor("@")
@@ -344,11 +344,10 @@ class ComposeComponent extends React.Component {
                 }}
               />
 
-              <IconComponent
-                icon="COMPOSE_SEND"
-                color="#565456"
+            <IconComponentSend
+                fill="#565456"
                 className="ml-15 button"
-                size="1x"
+                size={18}
                 onClick={this.onSend}
               />
             </React.Fragment>

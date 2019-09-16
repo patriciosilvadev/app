@@ -17,7 +17,7 @@ import { browserHistory } from '../services/browser-history.service'
 import { updateRoom } from '../actions'
 import SpinnerComponent from '../components/spinner.component'
 import NotificationComponent from '../components/notification.component'
-import IconComponent from '../components/icon.component'
+import IconComponentMarkdown from '../icons/Document/markdown-fill'
 
 const Row = styled.div`
   background-color: transparent;
@@ -158,10 +158,9 @@ export default function RoomModal(props) {
           />
 
           <div className="row">
-            <IconComponent
-              icon="MARKDOWN"
-              color="#007af5"
-              size="1x"
+            <IconComponentMarkdown
+              fill="#007af5"
+              size={18}
             />
             <Supported>
               Markdown supported

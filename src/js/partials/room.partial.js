@@ -298,7 +298,7 @@ class RoomPartial extends React.Component {
                     {this.state.title}
                   </WelcomeTitle>
                   <WelcomeDescription>
-                    {this.props.room.description}
+                    <ReactMarkdown source={this.props.room.description} />
                   </WelcomeDescription>
                 </Welcome>
 

@@ -11,8 +11,9 @@ import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchTeam } from '../actions'
-import IconComponent from '../components/icon.component'
 import TeamModal from '../modals/team.modal'
+import IconComponentAddCircle from '../icons/System/add-circle-line'
+import IconComponentSearch from '../icons/System/search-line'
 
 const Rooms = styled.div`
   width: 300px;
@@ -268,10 +269,9 @@ class RoomsPartial extends React.Component {
         </Header>
 
         <SearchContainer className="row">
-          <IconComponent
-            icon="SEARCH"
-            color="#475669"
-            size="1x"
+          <IconComponentSearch
+            fill="#475669"
+            size={20}
             className="mr-5"
           />
 
@@ -418,10 +418,9 @@ class RoomsPartial extends React.Component {
         </div>
 
         <FooterButton className="row" onClick={() => this.setState({ roomModal: true })}>
-          <IconComponent
-            color="#475669"
-            icon="ROOMS_ADD_ROOM"
-            size="1x"
+          <IconComponentAddCircle
+            fill="#475669"
+            size={20}
             className="mr-10"
           />
           <FooterButtonText>

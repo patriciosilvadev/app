@@ -7,9 +7,13 @@ import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { fetchTeams } from '../actions'
 import PropTypes from 'prop-types'
-import IconComponent from '../components/icon.component'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
+
+import IconComponentAdd from '../icons/System/add-box-line'
+import IconComponentHelp from '../icons/System/question-line'
+import IconComponentSignout from '../icons/System/logout-box-line'
+import IconComponentAccount from '../icons/User/account-circle-line'
 
 const Dock = styled.div`
   padding: 25px;
@@ -95,9 +99,9 @@ class DockPartial extends React.Component {
           )
         })}
 
-        <IconComponent
-          color="#475669"
-          size="lg"
+        <IconComponentAdd
+          fill="#475669"
+          size={24}
           className="mt-5 button"
           onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
           icon="DOCK_ADD_TEAM"
@@ -105,43 +109,27 @@ class DockPartial extends React.Component {
 
         <div className="flexer"></div>
 
-        {this.props.common.plugins.dock.map((plugin, index) => {
-          const { id, icon } = plugin
-
-          return (
-            <IconComponent
-              key={index}
-              color="#475669"
-              className="mt-15 button"
-              size="lg"
-              onClick={(e) => this.setState({ pluginId: id })}
-              icon={icon}
-            />
-          )
-        })}
-
-        <IconComponent
-          color="#475669"
+        <IconComponentHelp
+          fill="#475669"
           onClick={(e) => console.log('Help')}
           className="mt-15 button"
-          icon="DOCK_HELP"
-          size="lg"
+          size={24}
         />
 
-        <IconComponent
-          color="#475669"
+        <IconComponentSignout
+          fill="#475669"
           className="mt-15 button"
           onClick={this.signout}
           icon="DOCK_SIGNOUT"
-          size="lg"
+          size={24}
         />
 
-        <IconComponent
-          color="#475669"
+        <IconComponentAccount
+          fill="#475669"
           className="mt-15 button"
           onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
           icon="DOCK_ACCOUNT"
-          size="lg"
+          size={24}
         />
       </Dock>
     )

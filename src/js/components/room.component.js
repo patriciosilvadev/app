@@ -3,7 +3,7 @@ import { Avatar } from '@weekday/elements'
 import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
-import IconComponent from './icon.component'
+import IconComponentLock from '../icons/System/lock-line'
 
 const List = styled.div`
   background: transparent;
@@ -89,11 +89,10 @@ export default function RoomComponent(props) {
         </Title>
 
         {!props.public && !props.private &&
-          <IconComponent
-            color={props.active || props.unread ? "white" : "#475669"}
-            icon="ROOM_LOCK"
+          <IconComponentLock
+            fill={props.active || props.unread ? "white" : "#475669"}
             className="ml-5"
-            size="xs"
+            size={16}
           />
         }
 

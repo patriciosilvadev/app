@@ -8,8 +8,9 @@ import styled from 'styled-components'
 import { createRoomMember, deleteRoomMember } from '../actions'
 import PropTypes from 'prop-types'
 import { Button } from '@weekday/elements'
-import IconComponent from '../components/icon.component'
 import RoomModal from '../modals/room.modal'
+import IconComponentClose from '../icons/System/close-line'
+import IconComponentAdd from '../icons/System/add-line'
 
 const Container = styled.div`
   width: 250px;
@@ -102,10 +103,9 @@ class MembersPartial extends React.Component {
                 key={index}
                 onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}
                 deleteIcon={
-                  <IconComponent
-                    icon="AVATAR_DELETE"
+                  <IconComponentClose
                     color="white"
-                    size="xs"
+                    size={16}
                   />
                 }
               />
@@ -127,10 +127,9 @@ class MembersPartial extends React.Component {
               color="#007AF5"
               title=""
               onClick={() => this.setState({ userMenu:true })}>
-              <IconComponent
-                icon="PLUS"
-                color="#007AF5"
-                size="sm"
+              <IconComponentAdd
+                fill="#007AF5"
+                size={16}
               />
             </Avatar>
           </QuickUserComponent>
