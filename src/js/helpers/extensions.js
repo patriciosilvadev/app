@@ -14,7 +14,7 @@ String.prototype.timeToDecimal = function() {
 }
 
 Number.prototype.numberShorthand = function() {
-  const number = parseInt(this) * 100
+  const number = parseInt(this)
 
   if (number < 1000) return number.toString()
   if (number >= 1000 && number < 1000000) return number.toString().substring(0, number.toString().length - 3) + 'k'

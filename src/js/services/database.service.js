@@ -55,7 +55,7 @@ export default class DatabaseService {
                 console.log('DB REMOVE', res)
               })
               .catch(err => {
-                console.log('DB ERROR', err)
+                console.error('DB ERROR', err)
               })
           }
         })

@@ -41,6 +41,7 @@ export function deleteRoomMember(user) {
   return async (dispatch, getState) => {
     const { room, team, common } = getState()
     const userId = user.id
+    const teamId = team.id
     const userIds = [userId]
     const roomId = room.id
     const currentUserId = common.user.id
@@ -65,7 +66,7 @@ export function deleteRoomMember(user) {
           sync: roomId,
         })
 
-        browserHistory.push('/app')
+        browserHistory.push('/app/'+teamId)
       }
 
       MessagingService.getInstance().leaveRoom(userIds, roomId)

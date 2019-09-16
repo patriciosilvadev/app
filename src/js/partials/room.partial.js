@@ -67,18 +67,6 @@ const MessagesContainer = styled.div`
   height: 1px; /* Important for the height to be set here */
 `
 
-const Joinable = styled.div`
-  padding: 25px;
-  width: 100%;
-`
-
-const JoinableText = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: #343a40;
-  padding-left: 10px;
-`
-
 const Blocked = styled.div`
   font-size: 13px;
   font-weight: 500;
@@ -133,9 +121,7 @@ class RoomPartial extends React.Component {
       manualScrolling: false,
       busy: false,
       page: 0,
-      blocked: true,
-      unblocked: false,
-      open: false,
+      open: true,
       title: '',
       image: '',
       roomUpdateModal: false,
@@ -144,7 +130,6 @@ class RoomPartial extends React.Component {
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
-    this.joinRoom = this.joinRoom.bind(this)
     this.createRoomMessage = this.createRoomMessage.bind(this)
   }
 
@@ -160,18 +145,6 @@ class RoomPartial extends React.Component {
     } else {
       this.setState({ manualScrolling: true })
     }
-  }
-
-  joinRoom() {
-    this.props.createRoomMember({
-      id: this.props.common.user.id,
-      name: this.props.common.user.name,
-      email: this.props.common.user.email,
-      username: this.props.common.user.username,
-      image: this.props.common.user.image,
-      role: this.props.common.user.role,
-      color: this.props.common.user.color,
-    })
   }
 
   createRoomMessage(text, attachments) {
@@ -207,7 +180,7 @@ class RoomPartial extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchRoom(this.props.match.params.roomId)
+    if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
 
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
@@ -221,7 +194,7 @@ class RoomPartial extends React.Component {
 
     // Enabling/disabling message fetches - always true
     EventService.get().on('fetchedRoomMessages', payload => {
-      this.fetchedRoomMessages()
+      if (this.state.open) this.fetchedRoomMessages()
     })
   }
 
@@ -229,7 +202,9 @@ class RoomPartial extends React.Component {
     // Scroll to the correct position after fetchRoomMessages
     // if (this.state.scrollHeight != this.scrollRef.scrollHeight) this.scrollRef.scrollTop = this.scrollRef.scrollHeight - this.state.scrollHeight
     // If the room ID updates - then refetch all the data
-    if (this.props.match.params.roomId != prevProps.match.params.roomId) this.props.fetchRoom(this.props.match.params.roomId)
+    if (this.props.match.params.roomId != prevProps.match.params.roomId) {
+      if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
+    }
   }
 
   componentWillUnmount() {
@@ -239,15 +214,17 @@ class RoomPartial extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (props.room.id == undefined || props.room.id == '') return null
 
-    const open = !!props.room.members.filter(member => member.user.id == props.common.user.id).flatten()
-    const blocked = !open && (props.room.private || !props.room.public)
-    const unblocked = !open && !props.room.private && props.room.public
+    const isMember = !!props.room.members.filter(member => member.user.id == props.common.user.id).flatten()
+    const isPublic = props.room.public
+    const open = isMember || isPublic
+
     const title = props.room.private
       ? props.room.members
           .map(member => member.user.name)
           .filter(name => name != props.common.user.name)
           .flatten()
       : props.room.title
+
     const image = props.room.private
       ? props.room.members
           .map(member => member.user.image)
@@ -257,8 +234,6 @@ class RoomPartial extends React.Component {
 
     return {
       open,
-      blocked,
-      unblocked,
       title,
       image,
     }
@@ -276,100 +251,89 @@ class RoomPartial extends React.Component {
         }
 
         <Room className="column flexer align-items-center align-items-stretch">
-          <Header className="row">
-            <Avatar
-              image={this.state.image}
-              title={this.state.title}
-              size="medium"
-            />
-            <HeaderTitle>
-              {this.state.title}
-            </HeaderTitle>
-            <HeaderDescription>
-              <ReactMarkdown source={this.props.room.description} />
-            </HeaderDescription>
-          </Header>
+          {!this.state.open &&
+            <Blocked>
+              Sorry, you are not allowed to view this channel
+            </Blocked>
+          }
+
+          {this.state.open &&
+            <Header className="row">
+              <Avatar
+                image={this.state.image}
+                title={this.state.title}
+                size="medium"
+              />
+              <HeaderTitle>
+                {this.state.title}
+              </HeaderTitle>
+              <HeaderDescription>
+                <ReactMarkdown source={this.props.room.description} />
+              </HeaderDescription>
+            </Header>
+          }
 
           <Messages ref={(ref) => this.scrollRef = ref}>
-            <Welcome>
-              <WelcomeUser className="row">
-                <Avatar
-                  title={this.props.room.user.name}
-                  image={this.props.room.user.image}
-                  size="small"
-                />
-                <WelcomeUserName>
-                  Started by {this.props.room.user.name}
-                </WelcomeUserName>
-                {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
-                  <WelcomeUserNameLink
-                    className="button"
-                    onClick={() => this.setState({ roomUpdateModal: true })}>
-                    Update 
-                  </WelcomeUserNameLink>
-                }
-              </WelcomeUser>
-              <WelcomeTitle>
-                {this.state.title}
-              </WelcomeTitle>
-              <WelcomeDescription>
-                {this.props.room.description}
-              </WelcomeDescription>
-            </Welcome>
-
-            {!this.state.blocked &&
-              <MessagesContainer ref={(ref) => this.messagesRef = ref}>
-                {this.props.room.messages.map((message, index) => {
-                  return (
-                    <MessageComponent
-                      key={index}
-                      id={message.id}
-                      reactions={message.reactions}
-                      roomId={this.props.room.id}
-                      currentUser={this.props.common.user}
-                      user={message.user}
-                      attachments={message.attachments}
-                      message={message.message}
-                      replies={message.replies}
-                      createdAt={message.createdAt}
-                      members={this.props.room.members}
-                      createRoomMessageReply={this.props.createRoomMessageReply}
-                      createRoomMessageReaction={this.props.createRoomMessageReaction}
-                      deleteRoomMessageReaction={this.props.deleteRoomMessageReaction}
+            {this.state.open &&
+              <React.Fragment>
+                <Welcome>
+                  <WelcomeUser className="row">
+                    <Avatar
+                      title={this.props.room.user.name}
+                      image={this.props.room.user.image}
+                      size="small"
                     />
-                  )
-                })}
-              </MessagesContainer>
+                    <WelcomeUserName>
+                      Started by {this.props.room.user.name}
+                    </WelcomeUserName>
+                    {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
+                      <WelcomeUserNameLink
+                        className="button"
+                        onClick={() => this.setState({ roomUpdateModal: true })}>
+                        Update
+                      </WelcomeUserNameLink>
+                    }
+                  </WelcomeUser>
+                  <WelcomeTitle>
+                    {this.state.title}
+                  </WelcomeTitle>
+                  <WelcomeDescription>
+                    {this.props.room.description}
+                  </WelcomeDescription>
+                </Welcome>
+
+                <MessagesContainer ref={(ref) => this.messagesRef = ref}>
+                  {this.props.room.messages.map((message, index) => {
+                    return (
+                      <MessageComponent
+                        key={index}
+                        id={message.id}
+                        reactions={message.reactions}
+                        roomId={this.props.room.id}
+                        currentUser={this.props.common.user}
+                        user={message.user}
+                        attachments={message.attachments}
+                        message={message.message}
+                        replies={message.replies}
+                        createdAt={message.createdAt}
+                        members={this.props.room.members}
+                        createRoomMessageReply={this.props.createRoomMessageReply}
+                        createRoomMessageReaction={this.props.createRoomMessageReaction}
+                        deleteRoomMessageReaction={this.props.deleteRoomMessageReaction}
+                      />
+                    )
+                  })}
+                </MessagesContainer>
+              </React.Fragment>
             }
           </Messages>
 
-          {/* If they are not blocked, but are not members yet */}
-          {this.state.unblocked &&
-            <Joinable className="row">
-              <Button
-                onClick={this.joinRoom}
-                text="Join Conversation"
-              />
-              <JoinableText>
-                You are not part of this channel
-              </JoinableText>
-            </Joinable>
-          }
-
-          {/* Only if they are a member */}
           {this.state.open &&
             <ComposeComponent
               onSend={this.createRoomMessage}
               members={this.props.room.members}
               compact={false}
             />
-          }
-
-          {/* If they are not blocked, and are members */}
-          {this.state.blocked &&
-            <Blocked>
-              Sorry, you are not allowed to view this channel
-            </Blocked>
           }
         </Room>
       </React.Fragment>

@@ -51,7 +51,7 @@ const Badge = styled.span`
   padding: 3px 5px 3px 5px;
   color: white;
   background: #007af5;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 600;
   position: absolute;
   top: 0px;
@@ -80,8 +80,14 @@ class ToolbarPartial extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (props.room.id == undefined || props.room.id == '') return null
 
+    const isMember = !!props.room.members.filter(member => member.user.id == props.common.user.id).flatten()
+    const isPublic = props.room.public
+    const open = isMember || isPublic
+    const starred = props.common.user.starred.indexOf(props.room.id) != -1
+
     return {
-      starred: props.common.user.starred.indexOf(props.room.id) != -1,
+      starred,
+      open,
     }
   }
 
@@ -110,6 +116,8 @@ class ToolbarPartial extends React.Component {
 
   // prettier-ignore
   render() {
+    if (!this.state.open) return null
+
     const { pathname } = this.props.history.location
     const pathnameParts = pathname.split('/')
     const lastPathname = pathnameParts[pathnameParts.length - 1]
