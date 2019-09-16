@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Router, Route } from 'react-router-dom'
+import { browserHistory } from './services/browser-history.service'
 import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
@@ -73,7 +74,7 @@ const apollo = new ApolloClient({
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
-        <Router>
+        <Router history={browserHistory}>
           <Route path="/auth" component={AuthPage} />
           <Route path="/confirm/:token" component={ConfirmPage} />
           <Route path="/app" component={AppPage} />

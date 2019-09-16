@@ -10,7 +10,7 @@ import RoomModal from '../modals/room.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
-import { createRoom, fetchRooms, fetchStarredRooms, fetchTeam } from '../actions'
+import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import IconComponent from '../components/icon.component'
 import TeamModal from '../modals/team.modal'
 
@@ -141,7 +141,13 @@ class RoomsPartial extends React.Component {
   }
 
   createPrivateRoom(user) {
-    this.setState({ filter: '', showFilter: false }, () => this.props.createRoom(null, "", null, this.props.team.id, user))
+    this.props.createRoom(null, "", null, this.props.team.id, user)
+    this.setState({ filter: '', showFilter: false })
+  }
+
+  createPublicRoom() {
+    this.props.createRoom(this.state.filter, "", null, this.props.team.id, null)
+    this.setState({ filter: '', showFilter: false })
   }
 
   navigateToRoom(room) {
@@ -312,7 +318,7 @@ class RoomsPartial extends React.Component {
                   excerpt={null}
                   public={null}
                   private={null}
-                  onClick={() => this.props.createRoom(this.state.filter, "", null, this.props.team.id, null)}
+                  onClick={() => this.createPublicRoom()}
                 />
               }
             </React.Fragment>

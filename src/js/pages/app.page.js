@@ -2,7 +2,8 @@ import React from 'react'
 import LoadingComponent from '../components/loading.component'
 import ErrorComponent from '../components/error.component'
 import { connect } from 'react-redux'
-import { BrowserRouter as Router, Route, Link, withRouter, Switch } from 'react-router-dom'
+import { Router, Route, Link, withRouter, Switch } from 'react-router-dom'
+import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
@@ -76,13 +77,15 @@ class AppPage extends React.Component {
         <LoadingComponent show={this.props.common.loading} />
         <ErrorComponent message={this.props.common.error} />
 
-        <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
-          <Route path="/app" component={DockPartial} />
-          <Route path="/app/team/:teamId" component={RoomsPartial} />
-          <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
-          <Route path="/app/team/:teamId/room/:roomId/members" component={MembersPartial} />
-          <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
-        </div>
+        <Router history={browserHistory}>
+          <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
+            <Route path="/app" component={DockPartial} />
+            <Route path="/app/team/:teamId" component={RoomsPartial} />
+            <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
+            <Route path="/app/team/:teamId/room/:roomId/members" component={MembersPartial} />
+            <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
+          </div>
+        </Router>
       </App>
     );
   }

@@ -111,7 +111,16 @@ export default class QuickUserComponent extends React.Component {
             </div>
             <MembersComponent
               members={this.state.members}
-              handleAccept={(member) => this.props.handleAccept(member)}
+              handleAccept={(member) => {
+                // Kill the fitler
+                this.setState({
+                  filter: '',
+                  members: [],
+                }, () => {
+                  // Process the choice
+                  this.props.handleAccept(member)
+                })
+              }}
             />
           </div>
         }>

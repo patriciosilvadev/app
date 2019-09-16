@@ -13,7 +13,6 @@ import { createRoomMessageReaction } from './room'
 import { deleteRoomMessageReaction } from './room'
 import { createRoom } from './room'
 import { fetchRooms } from './rooms'
-import { fetchStarredRooms } from './rooms'
 import { fetchTeam } from './team'
 import { fetchUser } from './common'
 import { fetchTeams } from './teams'
@@ -35,7 +34,6 @@ export {
   deleteRoomMessageReaction,
   createRoom,
   fetchRooms,
-  fetchStarredRooms,
   fetchTeam,
   fetchUser,
   fetchTeams,

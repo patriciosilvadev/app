@@ -44,7 +44,6 @@ class MembersPartial extends React.Component {
 
     this.state = {
       confirmModal: false,
-      roomModal: false,
       userMenu: false,
     }
 
@@ -79,13 +78,6 @@ class MembersPartial extends React.Component {
             onCancel={() => this.setState({ confirmModal: false })}
             text="Are you sure you want to remove yourself?"
             title="Are you sure?"
-          />
-        }
-
-        {this.state.roomModal &&
-          <RoomModal
-            id={this.props.room.id}
-            onClose={() => this.setState({ roomModal: false })}
           />
         }
 
@@ -147,7 +139,8 @@ class MembersPartial extends React.Component {
         <Button
           disabled={false}
           text="Manage Users"
-          onClick={() => this.setState({ roomModal:true })}
+          className="hide"
+          onClick={() => this.setState({ userMenu:true })}
         />
       </Container>
     )
