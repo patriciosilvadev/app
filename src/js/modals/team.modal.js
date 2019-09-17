@@ -349,7 +349,7 @@ export default function TeamModal(props) {
     <ModalPortal>
       <ModalComponent
         title={props.id ? "Update Team" : "Create New Team"}
-        width={560}
+        width={700}
         height="90%"
         onClose={props.onClose}
         footer={(

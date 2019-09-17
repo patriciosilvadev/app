@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalComponent from '../components/modal.component'
 import { Avatar } from '@weekday/elements'
+import ModalPortal from '../portals/modal.portal'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
 import UploadService from '../services/upload.service'
@@ -93,82 +94,84 @@ export default function RoomModal(props) {
 
   // prettier-ignore
   return (
-    <ModalComponent
-      title={props.id ? "Update Channel" : "Create New Channel"}
-      width={560}
-      height={500}
-      onClose={props.onClose}
-      footer={(
-        <div className="column w-100 align-items-stretch">
-          <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-            <div className="flexer" />
+    <ModalPortal>
+      <ModalComponent
+        title={props.id ? "Update Channel" : "Create New Channel"}
+        width={560}
+        height={500}
+        onClose={props.onClose}
+        footer={(
+          <div className="column w-100 align-items-stretch">
+            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
+              <div className="flexer" />
 
-            {/* Null here means it's a channel - no user */}
-            <Button
-              jumbo
-              onClick={() => {
-                if (props.id) {
-                  dispatch(updateRoom({ title, image, description }))
-                } else {
-                  dispatch(createRoom(title, description, image, team.id, null))
-                  props.onClose()
-                }
-              }}
-              text={props.id ? "Update" : "Create"}
-            />
+              {/* Null here means it's a channel - no user */}
+              <Button
+                jumbo
+                onClick={() => {
+                  if (props.id) {
+                    dispatch(updateRoom({ title, image, description }))
+                  } else {
+                    dispatch(createRoom(title, description, image, team.id, null))
+                    props.onClose()
+                  }
+                }}
+                text={props.id ? "Update" : "Create"}
+              />
+            </div>
           </div>
-        </div>
-      )}>
+        )}>
 
-      {error && <ErrorComponent message={error} />}
-      {loading && <SpinnerComponent />}
-      {notification && <NotificationComponent text={notification} />}
+        {error && <ErrorComponent message={error} />}
+        {loading && <SpinnerComponent />}
+        {notification && <NotificationComponent text={notification} />}
 
-      <Row className="row align-items-start">
-        <input
-          accept="image/png,image/jpg"
-          type="file"
-          className="hide"
-          ref={fileRef}
-          onChange={handleFileChange}
-        />
-
-        <Avatar
-          title={title}
-          image={image}
-          className="mr-20"
-          size="xx-large"
-          onClick={() => fileRef.current.click()}
-        />
-
-        <Column className="column">
-          <InputComponent
-            label="Title"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="New channel title"
+        <Row className="row align-items-start">
+          <input
+            accept="image/png,image/jpg"
+            type="file"
+            className="hide"
+            ref={fileRef}
+            onChange={handleFileChange}
           />
 
-          <TextareaComponent
-            label="Description"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Add a description"
-            rows={4}
+          <Avatar
+            title={title}
+            image={image}
+            className="mr-20"
+            size="xx-large"
+            onClick={() => fileRef.current.click()}
           />
 
-          <div className="row">
-            <IconComponentMarkdown
-              fill="#007af5"
-              size={18}
+          <Column className="column">
+            <InputComponent
+              label="Title"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="New channel title"
             />
-            <Supported>
-              Markdown supported
-            </Supported>
-          </div>
-        </Column>
-      </Row>
-    </ModalComponent>
+
+            <TextareaComponent
+              label="Description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Add a description"
+              rows={4}
+            />
+
+            <div className="row">
+              <IconComponentMarkdown
+                fill="#007af5"
+                size={18}
+              />
+              <Supported>
+                Markdown supported
+              </Supported>
+            </div>
+          </Column>
+        </Row>
+      </ModalComponent>
+    </ModalPortal>
   )
 }
 

@@ -8,6 +8,20 @@ const PanelContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: flex-start;
+  justify-content: flex-start;
+  position: relative;
+  border-top: 1px solid #eaeaea;
+`
+
+const PanelContainerVertical = styled.div`
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
   flex-direction: column;
   align-items: center;
   align-content: center;
@@ -15,7 +29,7 @@ const PanelContainer = styled.div`
   position: relative;
 `
 
-const PanelTitles = styled.div`
+const PanelTitlesRow = styled.div`
   border-bottom: 1px solid #eaeaea;
   box-sizing: border-box;
   width: 100%;
@@ -25,6 +39,19 @@ const PanelTitles = styled.div`
   align-content: center;
   justify-content: flex-start;
   position: relative;
+`
+
+const PanelTitles = styled.div`
+  border-right: 1px solid #eaeaea;
+  box-sizing: border-box;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-content: center;
+  justify-content: flex-start;
+  position: relative;
+  height: 100%;
 `
 
 const Panels = styled.div`
@@ -44,13 +71,13 @@ const PanelsContainer = styled.div`
 `
 
 const PanelTabButton = styled.div`
-  padding: 20px;
-  padding-top: 10px;
+  padding: 10px 20px 10px 20px;
   color: #dcd8db;
+  border-bottom: 1px solid #eaeaea;
+  width: 100%;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-
   &.active {
     color: #00a8ff;
   }

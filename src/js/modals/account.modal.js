@@ -134,7 +134,7 @@ export default function AccountModal(props) {
     <ModalPortal>
       <ModalComponent
         title="Account"
-        width={560}
+        width={700}
         height="90%"
         onClose={props.onClose}
         footer={(
@@ -151,8 +151,23 @@ export default function AccountModal(props) {
         )}>
 
         <TabbedComponent
-          start={0}
+          start={3}
           panels={[
+            {
+              title: 'Billing',
+              show: true,
+              content: <div></div>
+            },
+            {
+              title: 'Invoices',
+              show: true,
+              content: <div></div>
+            },
+            {
+              title: 'Notifications',
+              show: true,
+              content: <div></div>
+            },
             {
               title: 'Profile',
               show: true,

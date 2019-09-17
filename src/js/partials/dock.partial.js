@@ -9,7 +9,6 @@ import { fetchTeams } from '../actions'
 import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
-
 import IconComponentAdd from '../icons/System/add-box-line'
 import IconComponentHelp from '../icons/System/question-line'
 import IconComponentSignout from '../icons/System/logout-box-line'
