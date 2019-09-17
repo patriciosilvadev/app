@@ -19,6 +19,7 @@ import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
 import IconComponentCheck from '../icons/System/check-line'
+import IconComponentDelete from '../icons/System/delete-bin-7-line'
 import IconComponentClose from '../icons/System/close-line'
 
 const Header = styled.div`
@@ -203,24 +204,37 @@ export default function TeamModal(props) {
   }
 
   const createTeamMembers = async () => {
-    setLoading(true)
-    setError(null)
-
     try {
       const teamId = props.id
-      const usernamesWithoutThisUser = usernames
+
+      // Remove existing users & ourselves from the send list
+      const dedupedUsernames = usernames
         .split(',')
         .filter(username => username.trim() != common.user.email && username.trim() != common.user.username)
+        .filter(username => {
+          // Is this username present on members
+          const existingMemberByUsername = members.filter(member => member.user.username == username.trim()).length > 0
+          const existingMemberByEmail = members.filter(member => member.user.email == username.trim()).length > 0
+
+          return !existingMemberByUsername && !existingMemberByEmail
+        })
         .join(',')
-      const { data } = await GraphqlService.getInstance().createTeamMembers(teamId, usernamesWithoutThisUser)
-      const newMembers = data.createTeamMembers
-      const userIds = newMembers.map(member => member.user.id)
 
-      setLoading(false)
-      setUsernames('')
-      setMembers([...members, ...newMembers])
+      // Only make the API call if they are new
+      if (dedupedUsernames.length > 0) {
+        setLoading(true)
+        setError(null)
 
-      MessagingService.getInstance().joinTeam(userIds, teamId)
+        const { data } = await GraphqlService.getInstance().createTeamMembers(teamId, dedupedUsernames)
+        const newMembers = data.createTeamMembers
+        const userIds = newMembers.map(member => member.user.id)
+
+        setLoading(false)
+        setUsernames('')
+        setMembers([...members, ...newMembers])
+
+        MessagingService.getInstance().joinTeam(userIds, teamId)
+      }
     } catch (e) {
       setLoading(false)
       setError('Error creating team member')
@@ -295,6 +309,15 @@ export default function TeamModal(props) {
     } catch (e) {
       setLoading(false)
       setError('Error setting admin')
+    }
+  }
+
+  const handleDeleteClick = (member) => {
+    if (member.user.id == common.user.id) {
+      setConfirmSelfDeleteModal(true)
+    } else {
+      setConfirmMemberDeleteModal(true)
+      setMemberDeleteId(member.user.id)
     }
   }
 
@@ -476,25 +499,17 @@ export default function TeamModal(props) {
                           image={member.user.image}
                           color={member.user.color}
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                          label={member.user.email}>
+                          label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
 
-                          <Button
-                            text=""
-                            onClick={() => {
-                              if (member.user.id == common.user.id) {
-                                setConfirmSelfDeleteModal(true)
-                              } else {
-                                setConfirmMemberDeleteModal(true)
-                                setMemberDeleteId(member.user.id)
-                              }
-                            }}
-                            icon={<IconComponentClose
-                              fill="#868E96"
-                              size={20}
-                            />}
+                          <IconComponentDelete
+                            fill="#007af5"
+                            size={20}
+                            onClick={() => handleDeleteClick(member)}
+                            className="button"
                           />
 
                           <Button
+                            className="ml-20"
                             onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
                             text={member.admin ? 'Remove Admin' : 'Make Admin'}
                           />

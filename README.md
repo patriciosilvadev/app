@@ -29,4 +29,4 @@ lint - Runs the linting for ESLint
 
 ## Copyrights & credits
 - Font used is [HKGrotesk](https://hanken.co/hk-grotesk/)
-- Icons from [Font Awesome Pro](https://fontawesome.com/license)
+- Icons from [Remix Icons](https://remixicon.com/)

@@ -568,17 +568,17 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamMember(id, user, payload) {
+  updateTeamMemberAdmin(id, user, admin) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMember($id: String, $user: String, $payload: String) {
-          updateTeamMember(id: $id, user: $user, payload: $payload)
+        mutation updateTeamMemberAdmin($id: String, $user: String, $admin: Boolean) {
+          updateTeamMemberAdmin(id: $id, user: $user, admin: $admin)
         }
       `,
       variables: {
         id,
         user,
-        payload,
+        admin,
       },
     })
   }
