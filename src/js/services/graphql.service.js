@@ -232,8 +232,9 @@ export default class GraphqlService {
                 reactions
                 attachments {
                   uri
-                  thumbnail
+                  size
                   mime
+                  createdAt
                 }
                 createdAt
               }
@@ -245,9 +246,10 @@ export default class GraphqlService {
               }
               message
               attachments {
-                thumbnail
                 uri
+                size
                 mime
+                createdAt
               }
               createdAt
             }
@@ -323,8 +325,9 @@ export default class GraphqlService {
                 reactions
                 attachments {
                   uri
-                  thumbnail
+                  size
                   mime
+                  createdAt
                 }
                 createdAt
               }
@@ -336,9 +339,10 @@ export default class GraphqlService {
               }
               message
               attachments {
-                thumbnail
+                size
                 uri
                 mime
+                createdAt
               }
               createdAt
             }
@@ -441,8 +445,9 @@ export default class GraphqlService {
               reactions
               attachments {
                 uri
-                thumbnail
+                size
                 mime
+                createdAt
               }
               createdAt
             }
@@ -456,8 +461,9 @@ export default class GraphqlService {
             message
             attachments {
               uri
-              thumbnail
+              size
               mime
+              createdAt
             }
             createdAt
           }
@@ -749,8 +755,9 @@ export default class GraphqlService {
               reply
               attachments {
                 uri
-                thumbnail
                 mime
+                size
+                createdAt
               }
               createdAt
             }
@@ -763,9 +770,10 @@ export default class GraphqlService {
             message
             reactions
             attachments {
-              thumbnail
               uri
               mime
+              createdAt
+              size
             }
             createdAt
           }
@@ -797,9 +805,10 @@ export default class GraphqlService {
             reply
             reactions
             attachments {
-              thumbnail
               uri
               mime
+              createdAt
+              size
             }
             createdAt
           }

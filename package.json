@@ -1,5 +1,5 @@
 {
-    "name": "weekday-client",
+    "name": "weekday-app",
     "version": "0.0.2",
     "description": "Weekday, a hackable team messaging platform.",
     "main": "index.js",
@@ -16,6 +16,7 @@
     },
     "author": "Jo du Plessis",
     "license": "ISC",
+    "url": "https://github.com/getweekday/app",
     "dependencies": {
         "@sentry/browser": "^5.5.0",
         "@weekday/elements": "git+https://github.com/getweekday/elements.git",
@@ -41,7 +42,7 @@
         "react": "^16.8.6",
         "react-apollo": "^2.2.4",
         "react-dom": "^16.8.6",
-        "react-markdown": "^4.0.6",
+        "react-markdown": "^4.2.2",
         "react-redux": "^7.1.0",
         "react-router-dom": "^5.0.0",
         "redux": "^4.0.0",

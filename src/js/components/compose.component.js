@@ -93,7 +93,13 @@ class ComposeComponent extends React.Component {
     this.state = {
       emoticonMenu: false,
       scrollHeight: 0,
-      attachments: [],
+      attachments: [{
+       uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+       mime: "image/jpeg",
+       size: 17361,
+       name: "tester.jpg",
+       createdAt: new Date(),
+      }],
       text: '',
       mention: null,
       position: 0,
@@ -116,7 +122,7 @@ class ComposeComponent extends React.Component {
 
   onSend() {
     this.props.onSend(this.state.text, this.state.attachments)
-    this.setState({ text: '', members: [] })
+    this.setState({ text: '', members: [], attachments: [] })
     this.composeRef.style.height = '25px'
   }
 
@@ -128,14 +134,13 @@ class ComposeComponent extends React.Component {
 
     try {
       const result = await new UploadService(e.target.files[0])
-      const { data, mime } = await result.json()
-      const { Location } = data
+      const { uri, mime, size, name } = await result.json()
 
       // Update the state with the new file
       // This format is what the API expects
       this.props.updateLoading(false)
       this.setState({
-        attachments: [...this.state.attachments, ...[{ thumbnail: Location, uri: Location, mime: mime.mime }]],
+        attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
       })
     } catch (e) {
       this.props.updateLoading(false)
@@ -256,10 +261,12 @@ class ComposeComponent extends React.Component {
               return (
                 <AttachmentComponent
                   key={index}
-                  size="large"
+                  layout="compose"
                   uri={attachment.uri}
                   mime={attachment.mime}
-                  thumbnail={attachment.thumbnail}
+                  size={attachment.size}
+                  name={attachment.name}
+                  createdAt={null}
                   onDeleteClick={() => this.setState({ attachments: this.state.attachments.filter((a, _) => {
                     return attachment.uri != a.uri
                   })})}

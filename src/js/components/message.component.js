@@ -247,11 +247,13 @@ export default function MessageComponent(props) {
                     {props.attachments.map((attachment, index) => {
                       return (
                         <AttachmentComponent
-                          size="medium"
                           key={index}
+                          layout="message"
+                          size={attachment.size}
                           mime={attachment.mime}
                           uri={attachment.uri}
-                          thumbnail={attachment.thumbnail}
+                          name={attachment.name}
+                          createdAt={attachment.createdAt}
                           onDownloadClick={() => window.open(attachment.uri)}
                         />
                       )

@@ -211,6 +211,41 @@ export function createRoom(title, description, image, teamId, user) {
   }
 }
 
+export function fetchRoomMessages(page) {
+  return async (dispatch, getState) => {
+    const { room } = getState()
+
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      const roomMessages = await GraphqlService.getInstance().roomMessages(room.id, page)
+      const messages = roomMessages.data.roomMessages
+
+      dispatch(updateLoading(false))
+
+      // Add the new messages to the room
+      dispatch({
+        type: 'UPDATE_ROOM',
+        payload: {
+          messages: [
+            ...room.messages,
+            ...messages.sort((left, right) => {
+              return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
+            }),
+          ],
+        },
+      })
+
+      // Tell our room to resume enabling loads
+      EventService.get().emit('fetchedRoomMessages', true)
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
 export function createRoomMessage(text, attachments) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
@@ -242,41 +277,6 @@ export function createRoomMessage(text, attachments) {
         payload: { excerpt },
         sync: room.id,
       })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function fetchRoomMessages(page) {
-  return async (dispatch, getState) => {
-    const { room } = getState()
-
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      const roomMessages = await GraphqlService.getInstance().roomMessages(room.id, page)
-      const messages = roomMessages.data.roomMessages
-
-      dispatch(updateLoading(false))
-
-      // Add the new messages to the room
-      dispatch({
-        type: 'UPDATE_ROOM',
-        payload: {
-          messages: [
-            ...room.messages,
-            ...messages.sort((left, right) => {
-              return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-            }),
-          ],
-        },
-      })
-
-      // Tell our room to resume enabling loads
-      EventService.get().emit('fetchedRoomMessages', true)
     } catch (e) {
       dispatch(updateLoading(false))
       dispatch(updateError(e))

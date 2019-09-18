@@ -60,9 +60,27 @@ const DownloadContainer = styled.div`
 `
 
 const Thumbnail = styled.div`
-  width: 100px;
-  height: 100px;
-  border-radius: 10px;
+  width: ${props => {
+      if (props.layout == 'compose') return '75px'
+      if (props.layout == 'message') return '50px'
+
+      return '25px'
+    }
+  };
+  height: ${props => {
+      if (props.layout == 'compose') return '75px'
+      if (props.layout == 'message') return '50px'
+
+      return '25px'
+    }
+  };
+  border-radius: ${props => {
+      if (props.layout == 'compose') return '10px'
+      if (props.layout == 'message') return '5px'
+
+      return '3px'
+    }
+  };
   margin-right: 10px;
   position: relative;
   background-image: url(${props => props.image});
@@ -74,53 +92,49 @@ const Thumbnail = styled.div`
   align-items: center;
   align-content: center;
   justify-content: center;
-
-  &.large {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
-  }
-
-  &.medium {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
-  }
-
-  &.small {
-    width: 25px;
-    height: 25px;
-    border-radius: 3px;
-  }
 `
 
-export default function AttachmentComponent({ onDeleteClick, onDownloadClick, size, thumbnail }) {
+const Name = styled.div``
+const Size = styled.div``
+
+export default function AttachmentComponent({ onDeleteClick, onDownloadClick, layout, size, uri, mime, name, createdAt }) {
   const [over, setOver] = useState(false)
 
   // prettier-ignore
   return (
-    <div className="relative" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      {over && onDownloadClick &&
-        <DownloadContainer onClick={onDownloadClick}>
-          <IconComponentDownload size={12} fill="white" />
-        </DownloadContainer>
-      }
-
-      {over && onDeleteClick &&
-        <Delete onClick={onDeleteClick}>
-          <IconComponentClose size={12} fill="white" />
-        </Delete>
-      }
-
-      <Thumbnail image={thumbnail} className={`${size}`}>
+    <div className="row" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+      <Thumbnail
+        image={null}
+        layout={layout}>
       </Thumbnail>
+
+      <div className="column">
+        <Name>{name}</Name>
+        <Size>{size} bytes</Size>
+        <div className="row">
+          {onDownloadClick &&
+            <DownloadContainer onClick={onDownloadClick}>
+              <IconComponentDownload size={12} fill="white" />
+            </DownloadContainer>
+          }
+
+          {onDeleteClick &&
+            <Delete onClick={onDeleteClick}>
+              <IconComponentClose size={12} fill="white" />
+            </Delete>
+          }
+        </div>
+      </div>
     </div>
   )
 }
 
 AttachmentComponent.propTypes = {
-  size: PropTypes.string,
-  thumbnail: PropTypes.string,
+  layout: PropTypes.string,
+  size: PropTypes.number,
+  uri: PropTypes.string,
+  name: PropTypes.string,
+  mime: PropTypes.string,
   onDeleteClick: PropTypes.func,
   onDownloadClick: PropTypes.func,
 }
