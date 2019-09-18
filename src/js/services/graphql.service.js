@@ -232,6 +232,7 @@ export default class GraphqlService {
                 reactions
                 attachments {
                   uri
+                  name
                   size
                   mime
                   createdAt
@@ -249,6 +250,7 @@ export default class GraphqlService {
                 uri
                 size
                 mime
+                name
                 createdAt
               }
               createdAt
@@ -327,6 +329,7 @@ export default class GraphqlService {
                   uri
                   size
                   mime
+                  name
                   createdAt
                 }
                 createdAt
@@ -342,6 +345,7 @@ export default class GraphqlService {
                 size
                 uri
                 mime
+                name
                 createdAt
               }
               createdAt
@@ -447,6 +451,7 @@ export default class GraphqlService {
                 uri
                 size
                 mime
+                name
                 createdAt
               }
               createdAt
@@ -462,6 +467,7 @@ export default class GraphqlService {
             attachments {
               uri
               size
+              name
               mime
               createdAt
             }
@@ -756,6 +762,7 @@ export default class GraphqlService {
               attachments {
                 uri
                 mime
+                name
                 size
                 createdAt
               }
@@ -772,6 +779,7 @@ export default class GraphqlService {
             attachments {
               uri
               mime
+              name
               createdAt
               size
             }
@@ -806,6 +814,7 @@ export default class GraphqlService {
             reactions
             attachments {
               uri
+              name
               mime
               createdAt
               size
