@@ -84,22 +84,20 @@ class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    // Placeholder attachment for testing:
-    // {
-    // thumbnail: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg",
-    // uri: "https://weekday-users.s3-us-west-2.amazonaws.com/test/2019_9_5/4530e1e0-cfc1-11e9-a7b6-fb87a3313afa.dsH1ib2b_400x400.jpg",
-    // mime: "image/jpeg"
-    // }
+    /*
+    Placeholder attachment for testing:
+    {
+     uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+     mime: "image/jpeg",
+     size: 17361,
+     name: "tester.jpg",
+     createdAt: new Date(),
+    }
+    */
     this.state = {
       emoticonMenu: false,
       scrollHeight: 0,
-      attachments: [{
-       uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-       mime: "image/jpeg",
-       size: 17361,
-       name: "tester.jpg",
-       createdAt: new Date(),
-      }],
+      attachments: [],
       text: '',
       mention: null,
       position: 0,
