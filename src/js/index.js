@@ -85,6 +85,7 @@ function DemoPage(props) {
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
+        {/* navigate() */}
         <button onClick={() => Keg.keg('location').refill('update', '/app/team')}>Click me</button>
 
         <CRoutes>
