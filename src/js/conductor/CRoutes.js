@@ -1,14 +1,16 @@
 import React from 'react'
 import { ThemeContext } from './ThemeContext'
+import Keg from '@joduplessis/keg'
 
 export const CRoutes = (props) => {
   const [currentLocation, setCurrentLocation] = React.useState('/')
 
   // Receive hashhistory update via Keg
   // navigate() wrapper for Keg qeueu add
-  setTimeout(() => {
-    setCurrentLocation('/team')
-  }, 2000)
+  Keg.keg('location').tap('update', async (val, pour) => {
+    setCurrentLocation(val)
+    pour()
+  })
 
   return (
     <ThemeContext.Provider value={{ currentLocation }}>

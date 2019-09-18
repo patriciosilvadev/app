@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ThemeContext } from './ThemeContext'
 import queryString from 'query-string'
 
@@ -11,7 +11,10 @@ export const CRoute = (props) => {
         // <div>Now loading for {value.currentLocation}</div>
         return (
           <React.Fragment>
-            <props.component {...props.routeProps} />
+            <props.component
+              {...props.routeProps}
+              currentLocation={value.currentLocation}
+            />
           </React.Fragment>
         )
       }}

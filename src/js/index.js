@@ -28,6 +28,7 @@ import teams from './reducers/teams'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
 import * as Sentry from '@sentry/browser'
+import Keg from '@joduplessis/keg'
 
 // Testing
 import { CRoutes } from './conductor/CRoutes'
@@ -76,7 +77,7 @@ const apollo = new ApolloClient({
 
 function DemoPage(props) {
   return (
-    <div>Page ID {props.id}</div>
+    <div>Page ID {props.id} ... {props.currentLocation}</div>
   )
 }
 
@@ -84,6 +85,7 @@ function DemoPage(props) {
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
+        <button onClick={() => Keg.keg('location').refill('update', '/app/team')}>Click me</button>
 
         <CRoutes>
           <CRoute path='/app' component={DemoPage} routeProps={{ id: 12 }}></CRoute>

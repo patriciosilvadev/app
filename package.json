@@ -18,6 +18,7 @@
     "license": "ISC",
     "url": "https://github.com/getweekday/app",
     "dependencies": {
+        "@joduplessis/keg": "git+https://github.com/joduplessis/keg.git",
         "@sentry/browser": "^5.5.0",
         "@weekday/elements": "git+https://github.com/getweekday/elements.git",
         "apollo-cache-inmemory": "^1.2.10",
