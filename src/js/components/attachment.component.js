@@ -96,28 +96,54 @@ const Thumbnail = styled.div`
 `
 
 const Name = styled.div`
-  font-size: 16px;
   font-weight: 600;
   font-style: normal;
   color: #040b1c;
   display: inline-block;
+  font-size: ${props => {
+      if (props.layout == 'compose') return '14px'
+      if (props.layout == 'message') return '14px'
+
+      return '16px'
+    }
+  };
+  margin-bottom: ${props => {
+      if (props.layout == 'compose') return '3px'
+      if (props.layout == 'message') return '1px'
+
+      return '3px'
+    }
+  };
 `
 
 const Size = styled.div`
-  color: #adb5bd;
-  font-size: 14px;
   font-weight: 400;
+  color: #adb5bd;
   display: inline-block;
+  font-size: ${props => {
+      if (props.layout == 'compose') return '13px'
+      if (props.layout == 'message') return '12px'
+
+      return '12px'
+    }
+  };
+  margin-bottom: ${props => {
+      if (props.layout == 'compose') return '3px'
+      if (props.layout == 'message') return '1px'
+
+      return '3px'
+    }
+  };
 `
 
 const Link = styled.div`
-  font-weight: 500;
-  font-size: 12px;
+  font-weight: 600;
+  font-size: 10px;
   color: #007af5;
   margin-right: 10px;
 `
 
-export default function AttachmentComponent({ onDeleteClick, onDownloadClick, layout, size, uri, mime, name, createdAt }) {
+export default function AttachmentComponent({ onDeleteClick, onDownloadClick, layout, size, label, uri, mime, name, createdAt }) {
   const [over, setOver] = useState(false)
 
   // prettier-ignore
@@ -137,9 +163,8 @@ export default function AttachmentComponent({ onDeleteClick, onDownloadClick, la
       */}
 
       <div className="column">
-        <Name>{name}</Name>
-        
-        {layout == "compose" && <Size>{size} bytes</Size>}
+        <Name layout={layout}>{name}</Name>
+        {layout == "compose" && <Size layout={layout}>{size} bytes</Size>}
 
         <div className="row">
           <Link
