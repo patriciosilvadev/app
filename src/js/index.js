@@ -29,6 +29,10 @@ import room from './reducers/room'
 import rooms from './reducers/rooms'
 import * as Sentry from '@sentry/browser'
 
+// Testing
+import { CRoutes } from './conductor/CRoutes'
+import { CRoute } from './conductor/CRoute'
+
 // Only enable sentry & SWs for production
 if (process.env.ENVIRONMENT != 'dev') {
   Sentry.init({ dsn: process.env.SENTRY })
@@ -70,10 +74,21 @@ const apollo = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
+function DemoPage(props) {
+  return (
+    <div>Page ID {props.id}</div>
+  )
+}
+
 // prettier-ignore
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
+
+        <CRoutes>
+          <CRoute path='/app' component={DemoPage} routeProps={{ id: 12 }}></CRoute>
+        </CRoutes>
+
         <Router history={browserHistory}>
           <Route path="/auth" component={AuthPage} />
           <Route path="/confirm/:token" component={ConfirmPage} />

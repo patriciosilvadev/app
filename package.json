@@ -38,7 +38,7 @@
         "pouchdb": "^7.0.0",
         "pouchdb-find": "^7.0.0",
         "promise": "^8.0.1",
-        "query-string": "^6.4.2",
+        "query-string": "^6.8.3",
         "react": "^16.8.6",
         "react-apollo": "^2.2.4",
         "react-dom": "^16.8.6",
