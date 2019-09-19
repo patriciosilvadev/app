@@ -19,6 +19,10 @@ const Container = styled.div`
   height: 100%;
 `
 
+const HeaderRow = styled.div`
+  width: 100%;
+`
+
 const Subtitle = styled.div`
   color: #858e96;
   font-size: 12px;
@@ -31,6 +35,7 @@ const Title = styled.div`
   font-weight: 700;
   font-style: normal;
   color: #040b1c;
+  flex: 1;
 `
 
 const Members = styled.div`
@@ -82,9 +87,17 @@ class MembersPartial extends React.Component {
           />
         }
 
-        <Title>
-          Members
-        </Title>
+        <HeaderRow className="row">
+          <Title>
+            Members
+          </Title>
+          <IconComponentClose
+            color="#858e96"
+            size={24}
+            className="button"
+            onClick={() => this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}`)}
+          />
+        </HeaderRow>
         <Subtitle>
           {this.props.room.members.length} members in this conversation
         </Subtitle>

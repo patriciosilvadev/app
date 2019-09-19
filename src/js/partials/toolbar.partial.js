@@ -192,14 +192,7 @@ class ToolbarPartial extends React.Component {
             <Tooltip direction="left" text="Members">
               <ToolbarButton
                 className={`row ${lastPathname == "members" ? "active" : ""}`}
-                onClick={() => {
-                  // If we are on the members page, then navigate bacl
-                  if (lastPathname == "members") {
-                    this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}`)
-                  } else {
-                    this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)
-                  }
-              }}>
+                onClick={() => this.props.history.push(`/app/team/${this.props.room.team.id}/room/${this.props.room.id}/members`)}>
                 <Badge>
                   {this.props.room.members.length.numberShorthand()}
                 </Badge>

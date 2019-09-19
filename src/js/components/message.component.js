@@ -65,15 +65,24 @@ const Text = styled.div`
   }
 
   code {
-    font-family: Menlo;
-    font-size: 10px;
+    background: #FAFAFA;
+    border: 1px solid #EAEAEA;
+    border-left: 3px solid #007af5;
+    color: #666;
+    border-radius: 5px;
+    page-break-inside: avoid;
+    font-family: monospace;
+    font-size: 14px;
+    margin-top: 5px;
+    line-height: 1.6;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1em 1.5em;
+    display: block;
+    word-wrap: break-word;
   }
 
   pre {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 5px;
-    margin: 10px 0px 0px 0px;
   }
 `
 

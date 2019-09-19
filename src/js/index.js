@@ -85,12 +85,13 @@ function DemoPage(props) {
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
-        {/* navigate() */}
-        <button onClick={() => Keg.keg('location').refill('update', '/app/team')}>Click me</button>
-
-        <CRoutes>
-          <CRoute path='/app' component={DemoPage} routeProps={{ id: 12 }}></CRoute>
-        </CRoutes>
+        {/*
+          Placeholder for Conductor dev
+          <button onClick={() => Keg.keg('location').refill('update', '/app/team')}>Click me</button>
+          <CRoutes>
+            <CRoute path='/app' component={DemoPage} routeProps={{ id: 12 }}></CRoute>
+          </CRoutes>
+        */}
 
         <Router history={browserHistory}>
           <Route path="/auth" component={AuthPage} />
