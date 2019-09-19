@@ -1,29 +1,29 @@
 import React, { useState } from 'react'
 import { ThemeContext } from './ThemeContext'
 
-function matchPathToUrl(pattern, url) {
+function matchPathToUrl(path, url) {
   const sanitizedUrl = url[0] == '/' ? url.substring(1) : url
-  const sanitizedPattern = pattern[0] == '/' ? pattern.substring(1) : pattern
+  const sanitizedPath = path[0] == '/' ? path.substring(1) : path
   const sanitizedUrlParts = sanitizedUrl.split('/')
-  const sanitizedPatternParts = sanitizedPattern.split('/')
-  const patternBoundaries = sanitizedPattern.split('/').map(part => part[0] == ':' ? -1 : part)
+  const sanitizedPathParts = sanitizedPath.split('/')
+  const pathBoundaries = sanitizedPath.split('/').map(part => part[0] == ':' ? -1 : part)
   let values = {}
 
-  const passes = patternBoundaries.reduce((pass, part, index) => {
-    if (sanitizedUrlParts.length != sanitizedPatternParts.length) return false
+  const passes = pathBoundaries.reduce((pass, part, index) => {
+    if (sanitizedUrlParts.length != sanitizedPathParts.length) return false
 
     // If the part doesn't equal -1
     // then the 2 should be the same
     // otherwise return false
     if (part != -1) {
-      if (sanitizedPatternParts[index] != sanitizedUrlParts[index]) return false
+      if (sanitizedPathParts[index] != sanitizedUrlParts[index]) return false
     } else {
       // If the part does equal -1
       // then it's a vairable
       // We need to check that it exists
       if (sanitizedUrlParts[index] == undefined || sanitizedUrlParts[index] == null) return false
 
-      values[sanitizedPatternParts[index]] = sanitizedUrlParts[index]
+      values[sanitizedPathParts[index]] = sanitizedUrlParts[index]
     }
 
     return pass ? true : false
