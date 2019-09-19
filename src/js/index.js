@@ -34,6 +34,11 @@ import Keg from '@joduplessis/keg'
 import { CRoutes } from './conductor/CRoutes'
 import { CRoute } from './conductor/CRoute'
 
+// var UrlPattern = require('url-pattern');
+// var teamPattern = new UrlPattern('/app/team/:teamId/');
+// var roomPattern = new UrlPattern('/app/team/:teamId/room/:roomId');
+// console.log(teamPattern.match('/app/team/5ce12ae5ffd420dc2f5a6878/'))
+// console.log(roomPattern.match('/app/team/5ce12ae5ffd420dc2f5a6878/room/23923764972364927234'))
 // Only enable sentry & SWs for production
 if (process.env.ENVIRONMENT != 'dev') {
   Sentry.init({ dsn: process.env.SENTRY })
