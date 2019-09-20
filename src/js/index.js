@@ -31,9 +31,8 @@ import * as Sentry from '@sentry/browser'
 import Keg from '@joduplessis/keg'
 
 // Testing
-import { CRoutes } from './conductor/CRoutes'
-import { CRoute } from './conductor/CRoute'
-
+// import { CRoutes } from './conductor/CRoutes'
+// import { CRoute } from './conductor/CRoute'
 // var UrlPattern = require('url-pattern');
 // var teamPattern = new UrlPattern('/app/team/:teamId/');
 // var roomPattern = new UrlPattern('/app/team/:teamId/room/:roomId');
@@ -79,12 +78,6 @@ const apollo = new ApolloClient({
   link: new HttpLink({ uri: API_HOST }),
   cache: new InMemoryCache(),
 })
-
-function DemoPage(props) {
-  return (
-    <div>Page ID {props.id} ... {props.currentLocation}</div>
-  )
-}
 
 // prettier-ignore
 ReactDOM.render(
