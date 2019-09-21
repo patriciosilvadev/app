@@ -1,4 +1,4 @@
-import AvatarComponent from './avatar.component'
+import { Avatar } from '@weekday/elements'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
@@ -34,7 +34,7 @@ export default function UserComponent({ image, name, label, className, children,
       onClick={onClick}
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
-      <AvatarComponent
+      <Avatar
         className="small"
         image={image}
         title={name}

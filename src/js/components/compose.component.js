@@ -6,9 +6,14 @@ import styled from 'styled-components'
 import PopupComponent from '../components/popup.component'
 import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
-import IconComponent from '../components/icon.component'
 import { updateLoading, updateError } from '../actions'
 import UploadService from '../services/upload.service'
+import { MessageMedia } from '@weekday/elements'
+import MembersComponent from '../components/members.component'
+import IconComponentSmile from '../icons/User/user-smile-line'
+import IconComponentPaperclip from '../icons/Business/attachment-line'
+import IconComponentAt from '../icons/Business/at-line'
+import IconComponentSend from '../icons/Business/send-plane-2-line'
 
 const Compose = styled.div`
   width: 100%;
@@ -19,7 +24,6 @@ const InputContainer = styled.div`
   flex: 1;
   padding: ${props => (props.compact ? '10px' : '15px 0px 15px 0px')};
   background: ${props => (props.compact ? '#f8f9fa' : 'white')};
-  flex: 1;
   border-radius: 25px;
 `
 
@@ -27,8 +31,11 @@ const Attachments = styled.div`
   width: 100%;
   padding: 20px;
   background: #ffffff;
-  border-top: 0px solid #ecf0f2;
-  position: relative;
+  border-top: 1px solid #ecf0f2;
+  position: absolute;
+  top: -1px;
+  left: 0px;
+  transform: translateY(-100%);
 `
 
 const Footer = styled.div`
@@ -49,8 +56,7 @@ const Input = styled.textarea`
   border: none;
   resize: none;
   overflow-y: scroll;
-  height: ${props => props.defaultheight}px;
-  transition: height 0.15s linear;
+  transition: height 0.05s linear;
   display: block;
   background: transparent;
   color: #212123;
@@ -76,6 +82,16 @@ class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
 
+    /*
+    Placeholder attachment for testing:
+    {
+     uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+     mime: "image/jpeg",
+     size: 17361,
+     name: "tester.jpg",
+     createdAt: new Date(),
+    }
+    */
     this.state = {
       emoticonMenu: false,
       scrollHeight: 0,
@@ -102,7 +118,7 @@ class ComposeComponent extends React.Component {
 
   onSend() {
     this.props.onSend(this.state.text, this.state.attachments)
-    this.setState({ text: '', members: [] })
+    this.setState({ text: '', members: [], attachments: [] })
     this.composeRef.style.height = '25px'
   }
 
@@ -114,17 +130,15 @@ class ComposeComponent extends React.Component {
 
     try {
       const result = await new UploadService(e.target.files[0])
-      const { data, mime } = await result.json()
-      const { Location } = data
+      const { uri, mime, size, name } = await result.json()
 
       // Update the state with the new file
       // This format is what the API expects
       this.props.updateLoading(false)
       this.setState({
-        attachments: [...this.state.attachments, ...[{ thumbnail: Location, uri: Location, mime: mime.mime }]],
+        attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
       })
     } catch (e) {
-      console.log(e)
       this.props.updateLoading(false)
       this.props.updateError(e)
     }
@@ -149,39 +163,23 @@ class ComposeComponent extends React.Component {
   }
 
   handleKeyUp(e) {
+    this.updateComposeHeight()
+
     if (e.keyCode == 16) this.setState({ shift: false })
   }
 
   handleKeyDown(e) {
+    // Enter
     if (e.keyCode == 13) e.preventDefault()
+
+    // Shift
     if (e.keyCode == 16) this.setState({ shift: true })
 
-    // Plain enter
-    if (e.keyCode == 13 && !this.state.shift && this.state.members.length == 0) {
-      this.onSend()
-    }
+    // Enter & Shift & no member popup
+    if (e.keyCode == 13 && !this.state.shift && this.state.members.length == 0) this.onSend()
 
-    // Shift & enter
-    if (e.keyCode == 13 && this.state.shift) {
-      this.insertAtCursor('\n')
-    }
-
-    // Up/Down
-    if (e.keyCode == 13 && this.state.members.length != 0) {
-      this.replaceWordAtCursor(`@${this.state.members[this.state.position].user.username} `)
-    }
-
-    // Up
-    if (e.keyCode == 38 && this.state.members.length != 0) {
-      e.preventDefault()
-      this.setState({ position: this.state.position - 1 < 0 ? this.state.members.length - 1 : this.state.position - 1 })
-    }
-
-    // Down
-    if (e.keyCode == 40 && this.state.members.length != 0) {
-      e.preventDefault()
-      this.setState({ position: this.state.position + 1 == this.state.members.length ? 0 : this.state.position + 1 })
-    }
+    // Enter & Shift
+    if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
   }
 
   handleComposeChange(e) {
@@ -193,8 +191,6 @@ class ComposeComponent extends React.Component {
 
       if (firstLetter == '@') this.filterMembers(word)
       if (firstLetter != '@') this.setState({ members: [] })
-
-      this.updateComposeHeight()
     })
   }
 
@@ -217,8 +213,7 @@ class ComposeComponent extends React.Component {
   }
 
   updateComposeHeight() {
-    this.composeRef.style.height = '25px'
-    this.composeRef.style.height = this.composeRef.scrollHeight + 'px'
+    this.setState({ height: this.state.text.split('\n').length * (this.props.compact ? 20 : 25) })
   }
 
   replaceWordAtCursor(word) {
@@ -249,10 +244,10 @@ class ComposeComponent extends React.Component {
 
   componentDidMount() {
     this.composeRef.focus()
+    this.updateComposeHeight()
   }
 
   componentDidUpdate() {
-    if (!this.props.compact) this.props.syncHeight()
   }
 
   // prettier-ignore
@@ -265,10 +260,12 @@ class ComposeComponent extends React.Component {
               return (
                 <AttachmentComponent
                   key={index}
-                  size="large"
+                  layout="compose"
                   uri={attachment.uri}
                   mime={attachment.mime}
-                  thumbnail={attachment.thumbnail}
+                  size={attachment.size}
+                  name={attachment.name}
+                  createdAt={null}
                   onDeleteClick={() => this.setState({ attachments: this.state.attachments.filter((a, _) => {
                     return attachment.uri != a.uri
                   })})}
@@ -280,20 +277,10 @@ class ComposeComponent extends React.Component {
 
         {this.state.members.length != 0 &&
           <MentionContainer>
-            {this.state.members.map((member, index) => {
-              return (
-                <UserComponent
-                  key={index}
-                  className="button"
-                  active={index == this.state.position}
-                  image={member.user.image}
-                  color={member.user.color}
-                  name={member.user.name}
-                  label={member.user.username}
-                  onClick={() => this.replaceWordAtCursor(`@${member.user.username} `)}>
-                </UserComponent>
-              )
-            })}
+            <MembersComponent
+              members={this.state.members}
+              handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
+            />
           </MentionContainer>
         }
 
@@ -310,61 +297,63 @@ class ComposeComponent extends React.Component {
           />
 
           <Input
+            style={{ height: this.state.height }}
             ref={(ref) => this.composeRef = ref}
             placeholder="Say something"
             value={this.state.text}
             compact={this.props.compact}
-            defaultHeight={25}
             onKeyUp={this.handleKeyUp}
             onKeyDown={this.handleKeyDown}
             onChange={this.handleComposeChange}
           />
 
-          <PopupComponent
-            handleDismiss={() => this.setState({ emoticonMenu: false })}
-            visible={this.state.emoticonMenu}
-            width={350}
-            direction="left-top"
-            content={
-              <Picker
-                style={{ width: 350 }}
-                set='emojione'
-                title=""
-                emoji=""
-                showPreview={false}
-                showSkinTones={false}
-                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-              />
-            }>
-
-            <IconComponent
-              icon="COMPOSE_EMOTICON"
-              color="#565456"
-              className="button"
-              onClick={() => this.setState({ emoticonMenu: true })}
-            />
-          </PopupComponent>
-
-          <IconComponent
-            icon="COMPOSE_ATTACHMENT"
-            color="#565456"
-            className="ml-15 button"
-            onClick={() => this.fileRef.click()}
-          />
-
           {!this.props.compact &&
             <React.Fragment>
-              <IconComponent
-                icon="COMPOSE_AT"
-                color="#565456"
+              <PopupComponent
+                handleDismiss={() => this.setState({ emoticonMenu: false })}
+                visible={this.state.emoticonMenu}
+                width={350}
+                direction="right-top"
+                content={
+                  <Picker
+                    style={{ width: 350 }}
+                    set='emojione'
+                    title=""
+                    emoji=""
+                    showPreview={false}
+                    showSkinTones={false}
+                    onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
+                  />
+                }>
+                <IconComponentSmile
+                  fill="#565456"
+                  className="button ml-15"
+                  size={18}
+                  onClick={() => this.setState({ emoticonMenu: true })}
+                />
+              </PopupComponent>
+
+              <IconComponentPaperclip
+                fill="#565456"
+                size={18}
                 className="ml-15 button"
-                onClick={() => this.insertAtCursor("@")}
+                onClick={() => this.fileRef.click()}
               />
 
-              <IconComponent
-                icon="COMPOSE_SEND"
-                color="#565456"
+              <IconComponentAt
+                fill="#565456"
+                size={18}
                 className="ml-15 button"
+                onClick={() => {
+                  this.insertAtCursor("@")
+                  this.filterMembers("")
+                }}
+              />
+
+              <IconComponentSend
+                fill="#565456"
+                className="ml-15 button"
+                size={18}
                 onClick={this.onSend}
               />
             </React.Fragment>
@@ -389,7 +378,6 @@ ComposeComponent.propTypes = {
   members: PropTypes.array,
   compact: PropTypes.bool,
   updateLoading: PropTypes.func,
-  syncHeight: PropTypes.func,
   updateError: PropTypes.func,
 }
 

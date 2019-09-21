@@ -1,35 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalComponent from '../components/modal.component'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
+import ModalPortal from '../portals/modal.portal'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
+import UploadService from '../services/upload.service'
 import PopupComponent from '../components/popup.component'
-import PopupMenuComponent from '../components/popup-menu.component'
 import LoadingComponent from '../components/loading.component'
 import ErrorComponent from '../components/error.component'
 import PropTypes from 'prop-types'
 import { createRoom } from '../actions'
-
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
+import { Button } from '@weekday/elements'
+import { InputComponent } from '../components/input.component'
+import { TextareaComponent } from '../components/textarea.component'
+import { browserHistory } from '../services/browser-history.service'
+import { updateRoom } from '../actions'
+import SpinnerComponent from '../components/spinner.component'
+import NotificationComponent from '../components/notification.component'
+import IconComponentMarkdown from '../icons/Document/markdown-fill'
 
 const Row = styled.div`
   background-color: transparent;
@@ -44,104 +33,145 @@ const Column = styled.div`
   padding-left: 20px;
 `
 
-const InputComponent = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 5px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
-const TextareaComponent = styled.textarea`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
+const Supported = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #007af5;
+  margin-left: 5px;
 `
 
 export default function RoomModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [image, setImage] = useState('')
   const [description, setDescription] = useState('')
-  const [team, setTeam] = useState(props.team)
   const common = useSelector(state => state.common)
-  const currentTeam = useSelector(state => state.team)
+  const team = useSelector(state => state.team)
+  const fileRef = useRef(null)
   const dispatch = useDispatch()
+
+  const handleFileChange = async e => {
+    if (e.target.files.length == 0) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const result = await new UploadService(e.target.files[0])
+      const { data, mime } = await result.json()
+
+      setImage(data.Location)
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      setError('Error uploading file')
+    }
+  }
+
+  // Effect loads current team details
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!props.id) return
+
+        setLoading(true)
+
+        const { data } = await GraphqlService.getInstance().room(props.id)
+        const room = data.room
+
+        setImage(room.image)
+        setTitle(room.title)
+        setDescription(room.description)
+        setLoading(false)
+      } catch (e) {
+        setLoading(false)
+        setError('Error getting data')
+      }
+    })()
+  }, [props.id])
 
   // prettier-ignore
   return (
-    <ModalComponent
-      title="Create New Channel"
-      width={560}
-      height={300}
-      onClose={props.onClose}
-      footer={(
-        <div className="column w-100 align-items-stretch">
-          <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-            <div className="flexer" />
-            <BigSolidButton onClick={() => dispatch(createRoom(title, description, currentTeam.id, null))}>
-              Create
-            </BigSolidButton>
+    <ModalPortal>
+      <ModalComponent
+        title={props.id ? "Update Channel" : "Create New Channel"}
+        width={560}
+        height={500}
+        onClose={props.onClose}
+        footer={(
+          <div className="column w-100 align-items-stretch">
+            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
+              <div className="flexer" />
+
+              {/* Null here means it's a channel - no user */}
+              <Button
+                jumbo
+                onClick={() => {
+                  if (props.id) {
+                    dispatch(updateRoom({ title, image, description }))
+                  } else {
+                    dispatch(createRoom(title, description, image, team.id, null))
+                    props.onClose()
+                  }
+                }}
+                text={props.id ? "Update" : "Create"}
+              />
+            </div>
           </div>
-        </div>
-      )}>
+        )}>
 
-      <LoadingComponent show={loading} />
-      <ErrorComponent message={error} />
+        {error && <ErrorComponent message={error} />}
+        {loading && <SpinnerComponent />}
+        {notification && <NotificationComponent text={notification} />}
 
-      <Row className="row align-items-start">
-        <AvatarComponent
-          size="x-large"
-          image={currentTeam.image}
-          title={currentTeam.name}
-          className="button"
-        />
-
-        <Column className="column">
-          <InputComponent
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="New channel title"
+        <Row className="row align-items-start">
+          <input
+            accept="image/png,image/jpg"
+            type="file"
+            className="hide"
+            ref={fileRef}
+            onChange={handleFileChange}
           />
 
-          <TextareaComponent
-            label="Description"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Enter bio"
-            rows={2}
+          <Avatar
+            title={title}
+            image={image}
+            className="mr-20"
+            size="xx-large"
+            onClick={() => fileRef.current.click()}
           />
-        </Column>
-      </Row>
-    </ModalComponent>
+
+          <Column className="column">
+            <InputComponent
+              label="Title"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="New channel title"
+            />
+
+            <TextareaComponent
+              label="Description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Add a description"
+              rows={4}
+            />
+
+            <div className="row">
+              <IconComponentMarkdown
+                fill="#007af5"
+                size={18}
+              />
+              <Supported>
+                Markdown supported
+              </Supported>
+            </div>
+          </Column>
+        </Row>
+      </ModalComponent>
+    </ModalPortal>
   )
 }
 

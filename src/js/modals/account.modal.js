@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import NotificationComponent from '../components/notification.component'
 import ModalComponent from '../components/modal.component'
@@ -13,48 +13,10 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
-
-const InputComponent = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
-const TextareaComponent = styled.textarea`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
+import ModalPortal from '../portals/modal.portal'
+import { Button } from '@weekday/elements'
+import { InputComponent } from '../components/input.component'
+import { TextareaComponent } from '../components/textarea.component'
 
 const Header = styled.div`
   flex: 1;
@@ -78,33 +40,6 @@ const HeaderLink = styled.div`
   font-weight: 400;
   padding-left: 10px;
   cursor: pointer;
-`
-
-const Label = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-  padding-bottom: 5px;
-`
-
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
 `
 
 const SmallTextButton = styled.div`
@@ -196,111 +131,125 @@ export default function AccountModal(props) {
 
   // prettier-ignore
   return (
-    <ModalComponent
-      title="Account"
-      width={560}
-      height="90%"
-      onClose={props.onClose}
-      footer={(
-        <div className="column w-100 align-items-stretch">
-          <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-            <div className="flexer" />
-            <BigSolidButton onClick={handleSubmit}>
-              Save
-            </BigSolidButton>
+    <ModalPortal>
+      <ModalComponent
+        title="Account"
+        width={700}
+        height="90%"
+        onClose={props.onClose}
+        footer={(
+          <div className="column w-100 align-items-stretch">
+            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
+              <div className="flexer" />
+              <Button
+                jumbo
+                onClick={handleSubmit}
+                text="Save"
+              />
+            </div>
           </div>
-        </div>
-      )}>
+        )}>
 
-      <TabbedComponent
-        start={0}
-        panels={[
-          {
-            title: 'Profile',
-            show: true,
-            content: (
-              <div className="row align-items-start w-100">
-                <div className="column w-100">
-                  {error && <ErrorComponent message={error} />}
-                  {loading && <SpinnerComponent />}
-                  {notification && <NotificationComponent text={notification} />}
+        <TabbedComponent
+          start={3}
+          panels={[
+            {
+              title: 'Billing',
+              show: true,
+              content: <div></div>
+            },
+            {
+              title: 'Invoices',
+              show: true,
+              content: <div></div>
+            },
+            {
+              title: 'Notifications',
+              show: true,
+              content: <div></div>
+            },
+            {
+              title: 'Profile',
+              show: true,
+              content: (
+                <div className="row align-items-start w-100">
+                  <div className="column w-100">
+                    {error && <ErrorComponent message={error} />}
+                    {loading && <SpinnerComponent />}
+                    {notification && <NotificationComponent text={notification} />}
 
-                  <div className="row w-100 p-20">
-                    <input
-                      accept="image/png,image/jpg"
-                      type="file"
-                      className="hide"
-                      ref={fileRef}
-                      onChange={handleFileChange}
-                    />
+                    <div className="row w-100 p-20">
+                      <input
+                        accept="image/png,image/jpg"
+                        type="file"
+                        className="hide"
+                        ref={fileRef}
+                        onChange={handleFileChange}
+                      />
 
-                    <AvatarComponent
-                      image={image}
-                      className="mr-20"
-                      size="large"
-                      circle
-                    />
+                      <Avatar
+                        image={image}
+                        className="mr-20"
+                        size="large"
+                        circle
+                      />
 
-                    <Header className="column">
-                      <div className="row pb-5">
-                        <HeaderName>{name}</HeaderName>
-                      </div>
-                      <div className="row">
-                        <HeaderRole>{role}</HeaderRole>
-                        <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
-                      </div>
-                    </Header>
-                  </div>
+                      <Header className="column">
+                        <div className="row pb-5">
+                          <HeaderName>{name}</HeaderName>
+                        </div>
+                        <div className="row">
+                          <HeaderRole>{role}</HeaderRole>
+                          <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
+                        </div>
+                      </Header>
+                    </div>
 
-                  <div className="column p-20 flex-1 scroll w-100">
-                    <Label>Full name</Label>
-                    <InputComponent
-                      label="Full name"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="Enter full name"
-                    />
+                    <div className="column p-20 flex-1 scroll w-100">
+                      <InputComponent
+                        label="Full name"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="Enter full name"
+                      />
 
-                    <Label>Role</Label>
-                    <InputComponent
-                      label="Role"
-                      value={role}
-                      onChange={e => setRole(e.target.value)}
-                      placeholder="Enter your role"
-                    />
+                      <InputComponent
+                        label="Role"
+                        value={role}
+                        onChange={e => setRole(e.target.value)}
+                        placeholder="Enter your role"
+                      />
 
-                    <Label>Username</Label>
-                    <InputComponent
-                      label="Username"
-                      value={username}
-                      onChange={e => setUsername(e.target.value)}
-                      placeholder="Username"
-                    />
+                      <InputComponent
+                        label="Username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        placeholder="Username"
+                      />
 
-                    <Label>Email</Label>
-                    <InputComponent
-                      label="Email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                    />
+                      <InputComponent
+                        label="Email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                      />
 
-                    <Label>Description</Label>
-                    <TextareaComponent
-                      label="Description"
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      placeholder="Enter bio"
-                      rows={2}
-                    />
+                      <TextareaComponent
+                        label="Description"
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                        placeholder="Enter bio"
+                        rows={2}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          }
-        ]}
-      />
-    </ModalComponent>
+              )
+            }
+          ]}
+        />
+      </ModalComponent>
+    </ModalPortal>
   )
 }
 

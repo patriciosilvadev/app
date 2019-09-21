@@ -232,8 +232,10 @@ export default class GraphqlService {
                 reactions
                 attachments {
                   uri
-                  thumbnail
+                  name
+                  size
                   mime
+                  createdAt
                 }
                 createdAt
               }
@@ -245,9 +247,11 @@ export default class GraphqlService {
               }
               message
               attachments {
-                thumbnail
                 uri
+                size
                 mime
+                name
+                createdAt
               }
               createdAt
             }
@@ -323,8 +327,10 @@ export default class GraphqlService {
                 reactions
                 attachments {
                   uri
-                  thumbnail
+                  size
                   mime
+                  name
+                  createdAt
                 }
                 createdAt
               }
@@ -336,9 +342,11 @@ export default class GraphqlService {
               }
               message
               attachments {
-                thumbnail
+                size
                 uri
                 mime
+                name
+                createdAt
               }
               createdAt
             }
@@ -360,48 +368,6 @@ export default class GraphqlService {
       `,
       variables: {
         id,
-      },
-    })
-  }
-
-  starredRooms(user) {
-    return this.client.query({
-      query: gql`
-        query starredRooms($user: String!) {
-          starredRooms(user: $user) {
-            id
-            title
-            description
-            url
-            image
-            public
-            excerpt
-            private
-            user {
-              id
-              name
-              username
-              image
-            }
-            members {
-              user {
-                id
-                image
-                name
-              }
-            }
-            team {
-              id
-              name
-              image
-            }
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      variables: {
-        user,
       },
     })
   }
@@ -483,8 +449,10 @@ export default class GraphqlService {
               reactions
               attachments {
                 uri
-                thumbnail
+                size
                 mime
+                name
+                createdAt
               }
               createdAt
             }
@@ -498,8 +466,10 @@ export default class GraphqlService {
             message
             attachments {
               uri
-              thumbnail
+              size
+              name
               mime
+              createdAt
             }
             createdAt
           }
@@ -516,22 +486,12 @@ export default class GraphqlService {
     return this.client.query({
       query: gql`
         query search($team: String, $query: String) {
-          searchUsers(team: $team, query: $query) {
+          search(team: $team, query: $query) {
             id
             name
             image
             role
-          }
-
-          searchRooms(team: $team, query: $query) {
-            id
-            title
-            image
-            url
-            team {
-              id
-              name
-            }
+            username
           }
         }
       `,
@@ -620,17 +580,17 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamMember(id, user, payload) {
+  updateTeamMemberAdmin(id, user, admin) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMember($id: String, $user: String, $payload: String) {
-          updateTeamMember(id: $id, user: $user, payload: $payload)
+        mutation updateTeamMemberAdmin($id: String, $user: String, $admin: Boolean) {
+          updateTeamMemberAdmin(id: $id, user: $user, admin: $admin)
         }
       `,
       variables: {
         id,
         user,
-        payload,
+        admin,
       },
     })
   }
@@ -720,7 +680,19 @@ export default class GraphqlService {
     return this.client.mutate({
       mutation: gql`
         mutation updateRoom($id: String, $payload: String) {
-          updateRoom(id: $id, payload: $payload)
+          updateRoom(id: $id, payload: $payload) {
+            id
+            title
+            description
+            createdAt
+            public
+            private
+            team {
+              id
+              name
+              image
+            }
+          }
         }
       `,
       variables: {
@@ -789,8 +761,10 @@ export default class GraphqlService {
               reply
               attachments {
                 uri
-                thumbnail
                 mime
+                name
+                size
+                createdAt
               }
               createdAt
             }
@@ -803,9 +777,11 @@ export default class GraphqlService {
             message
             reactions
             attachments {
-              thumbnail
               uri
               mime
+              name
+              createdAt
+              size
             }
             createdAt
           }
@@ -837,9 +813,11 @@ export default class GraphqlService {
             reply
             reactions
             attachments {
-              thumbnail
               uri
+              name
               mime
+              createdAt
+              size
             }
             createdAt
           }

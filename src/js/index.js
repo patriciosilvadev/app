@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Router, Route } from 'react-router-dom'
+import { browserHistory } from './services/browser-history.service'
 import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
@@ -27,7 +28,16 @@ import teams from './reducers/teams'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
 import * as Sentry from '@sentry/browser'
+import Keg from '@joduplessis/keg'
 
+// Testing
+// import { CRoutes } from './conductor/CRoutes'
+// import { CRoute } from './conductor/CRoute'
+// var UrlPattern = require('url-pattern');
+// var teamPattern = new UrlPattern('/app/team/:teamId/');
+// var roomPattern = new UrlPattern('/app/team/:teamId/room/:roomId');
+// console.log(teamPattern.match('/app/team/5ce12ae5ffd420dc2f5a6878/'))
+// console.log(roomPattern.match('/app/team/5ce12ae5ffd420dc2f5a6878/room/23923764972364927234'))
 // Only enable sentry & SWs for production
 if (process.env.ENVIRONMENT != 'dev') {
   Sentry.init({ dsn: process.env.SENTRY })
@@ -73,7 +83,15 @@ const apollo = new ApolloClient({
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
-        <Router>
+        {/*
+          Placeholder for Conductor dev
+          <button onClick={() => Keg.keg('location').refill('update', '/app/team')}>Click me</button>
+          <CRoutes>
+            <CRoute path='/app' component={DemoPage} routeProps={{ id: 12 }}></CRoute>
+          </CRoutes>
+        */}
+
+        <Router history={browserHistory}>
           <Route path="/auth" component={AuthPage} />
           <Route path="/confirm/:token" component={ConfirmPage} />
           <Route path="/app" component={AppPage} />

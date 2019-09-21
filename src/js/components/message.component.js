@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import AvatarComponent from './avatar.component'
+import { Avatar } from '@weekday/elements'
 import AttachmentComponent from './attachment.component'
 import moment from 'moment'
 import ComposeComponent from './compose.component'
@@ -9,7 +9,10 @@ import PopupComponent from '../components/popup.component'
 import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
 import PropTypes from 'prop-types'
-import IconComponent from './icon.component'
+import IconComponentSmile from '../icons/User/user-smile-line'
+import IconComponentReply from '../icons/Business/reply-line'
+import ReactDOMServer from 'react-dom/server'
+import marked from 'marked'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -41,7 +44,7 @@ const Meta = styled.div`
 
 const User = styled.div`
   color: #212123;
-  font-weight: 800;
+  font-weight: 600;
   font-style: normal;
   font-size: 14px;
 `
@@ -64,15 +67,24 @@ const Text = styled.div`
   }
 
   code {
-    font-family: Menlo;
-    font-size: 10px;
+    background: #FAFAFA;
+    border: 1px solid #EAEAEA;
+    border-left: 3px solid #007af5;
+    color: #666;
+    border-radius: 5px;
+    page-break-inside: avoid;
+    font-family: monospace;
+    font-size: 14px;
+    margin-top: 5px;
+    line-height: 1.6;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1em 1.5em;
+    display: block;
+    word-wrap: break-word;
   }
 
   pre {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 5px;
-    margin: 10px 0px 0px 0px;
   }
 `
 
@@ -153,14 +165,51 @@ export default function MessageComponent(props) {
   const createRoomMessageReply = (text, attachments) => {
     setReply(false)
 
-    props.createRoomMessageReply(props.id, currentUser.id, text, attachments)
+    props.createRoomMessageReply(props.id, props.currentUser.id, text, attachments)
   }
+
+  const compiledMessage = marked(props.message)
+
+  let matchArr;
+  let lastOffset = 0;
+  const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g');
+  const partsOfTheMessageText = [];
+
+  while ((matchArr = regex.exec(compiledMessage)) !== null) {
+    const previousText = compiledMessage.substring(lastOffset, matchArr.index)
+    if (previousText.length) partsOfTheMessageText.push(previousText)
+
+    lastOffset = matchArr.index + matchArr[0].length
+
+    const emoji = ReactDOMServer.renderToStaticMarkup(
+      <Emoji
+        emoji={matchArr[0]}
+        set="emojione"
+        size={22}
+        fallback={(em, props) => {
+          return em ? `:${em.short_names[0]}:` : props.emoji;
+        }}
+      />
+    )
+
+    if (emoji) {
+      partsOfTheMessageText.push(emoji)
+    } else {
+      partsOfTheMessageText.push(matchArr[0])
+    }
+  }
+
+  const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+
+  if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText);
+
+  const message = partsOfTheMessageText.join('')
 
   // prettier-ignore
   return (
     <Message className="column" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
       <div className="row align-items-start w-100">
-        <AvatarComponent
+        <Avatar
           image={props.user.image}
           title={props.user.name}
           className="mr-15"
@@ -192,17 +241,17 @@ export default function MessageComponent(props) {
                       />
                     }>
 
-                    <IconComponent
-                      icon="MESSAGE_EMOTICON"
-                      color="#CFD4D9"
+                    <IconComponentSmile
+                      fill="#CFD4D9"
+                      size={18}
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
                   </PopupComponent>
 
-                  <IconComponent
-                    icon="MESSAGE_REPLY"
-                    color="#CFD4D9"
+                  <IconComponentReply
+                    fill="#CFD4D9"
+                    size={18}
                     className="button"
                     onClick={() => setReply(!reply)}
                   />
@@ -210,9 +259,7 @@ export default function MessageComponent(props) {
               }
             </div>
 
-            <Text>
-              <ReactMarkdown source={props.message} />
-            </Text>
+            <Text dangerouslySetInnerHTML={{__html: message}} />
 
             {props.reactions &&
               <React.Fragment>
@@ -246,11 +293,13 @@ export default function MessageComponent(props) {
                     {props.attachments.map((attachment, index) => {
                       return (
                         <AttachmentComponent
-                          size="medium"
                           key={index}
+                          layout="message"
+                          size={attachment.size}
                           mime={attachment.mime}
                           uri={attachment.uri}
-                          thumbnail={attachment.thumbnail}
+                          name={attachment.name}
+                          createdAt={attachment.createdAt}
                           onDownloadClick={() => window.open(attachment.uri)}
                         />
                       )

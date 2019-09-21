@@ -2,59 +2,25 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalComponent from '../components/modal.component'
 import TabbedComponent from '../components/tabbed.component'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import NotificationComponent from '../components/notification.component'
 import GraphqlService from '../services/graphql.service'
 import SpinnerComponent from '../components/spinner.component'
+import ErrorComponent from '../components/error.component'
 import UploadService from '../services/upload.service'
 import ConfirmModal from './confirm.modal'
 import styled from 'styled-components'
 import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
-import IconComponent from '../components/icon.component'
 import MessagingService from '../services/messaging.service'
-
-const InputComponent = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
-const TextareaComponent = styled.textarea`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #495057;
-  font-size: 15px;
-  font-weight: regular;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ebedef;
-  border-radius: 5px;
-  resize: none;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
+import ModalPortal from '../portals/modal.portal'
+import { Button } from '@weekday/elements'
+import { InputComponent } from '../components/input.component'
+import { TextareaComponent } from '../components/textarea.component'
+import { browserHistory } from '../services/browser-history.service'
+import IconComponentCheck from '../icons/System/check-line'
+import IconComponentDelete from '../icons/System/delete-bin-7-line'
+import IconComponentClose from '../icons/System/close-line'
 
 const Header = styled.div`
   flex: 1;
@@ -87,26 +53,6 @@ const Label = styled.div`
   padding-bottom: 5px;
 `
 
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
-
 const SmallTextButton = styled.div`
   color: #adb5bd;
   font-size: 14px;
@@ -117,30 +63,6 @@ const SmallTextButton = styled.div`
   &:hover {
     color: #007af5;
   }
-`
-
-const Button = styled.div`
-  padding: 5px;
-  border-radius: 100px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #eff2f7;
-  }
-`
-
-const ButtonIcon = styled.div`
-  width: 30px;
-  height: 30px;
-`
-
-const ButtonText = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  height: 30px;
-  color: #343a40;
-  padding-left: 10px;
-  padding-right: 10px;
 `
 
 const Usernames = styled.div`
@@ -202,28 +124,6 @@ export default function TeamModal(props) {
     }
   }
 
-  useEffect(() => {
-    ;(async () => {
-      try {
-        if (!props.id) return
-
-        setLoading(true)
-
-        const { data } = await GraphqlService.getInstance().team(props.id)
-        const team = data.team
-
-        setImage(team.image)
-        setName(team.name)
-        setDescription(team.description)
-        setMembers(team.members)
-        setLoading(false)
-      } catch (e) {
-        setLoading(false)
-        setError('Error getting data')
-      }
-    })()
-  }, {})
-
   const createTeam = async () => {
     setLoading(true)
     setError(null)
@@ -270,7 +170,7 @@ export default function TeamModal(props) {
 
       dispatch({
         type: 'UPDATE_TEAM',
-        payload: data.updateTeam,
+        payload: { name, description, image, teamId },
         sync: teamId,
       })
     } catch (e) {
@@ -291,11 +191,11 @@ export default function TeamModal(props) {
       setLoading(false)
       dispatch({
         type: 'DELETE_TEAM',
-        payload: teamId,
+        payload: { teamId },
         sync: teamId,
       })
 
-      props.history.push('/teams')
+      browserHistory.push('/app')
       props.onClose()
     } catch (e) {
       setLoading(false)
@@ -304,24 +204,37 @@ export default function TeamModal(props) {
   }
 
   const createTeamMembers = async () => {
-    setLoading(true)
-    setError(null)
-
     try {
       const teamId = props.id
-      const usernamesWithoutThisUser = usernames
+
+      // Remove existing users & ourselves from the send list
+      const dedupedUsernames = usernames
         .split(',')
         .filter(username => username.trim() != common.user.email && username.trim() != common.user.username)
+        .filter(username => {
+          // Is this username present on members
+          const existingMemberByUsername = members.filter(member => member.user.username == username.trim()).length > 0
+          const existingMemberByEmail = members.filter(member => member.user.email == username.trim()).length > 0
+
+          return !existingMemberByUsername && !existingMemberByEmail
+        })
         .join(',')
-      const { data } = await GraphqlService.getInstance().createTeamMembers(teamId, usernamesWithoutThisUser)
-      const newMembers = data.createTeamMembers
-      const userIds = newMembers.map(member => member.user.id)
 
-      setLoading(false)
-      setUsernames('')
-      setMembers([...members, ...newMembers])
+      // Only make the API call if they are new
+      if (dedupedUsernames.length > 0) {
+        setLoading(true)
+        setError(null)
 
-      MessagingService.getInstance().joinTeam(userIds, teamId)
+        const { data } = await GraphqlService.getInstance().createTeamMembers(teamId, dedupedUsernames)
+        const newMembers = data.createTeamMembers
+        const userIds = newMembers.map(member => member.user.id)
+
+        setLoading(false)
+        setUsernames('')
+        setMembers([...members, ...newMembers])
+
+        MessagingService.getInstance().joinTeam(userIds, teamId)
+      }
     } catch (e) {
       setLoading(false)
       setError('Error creating team member')
@@ -369,13 +282,13 @@ export default function TeamModal(props) {
       // Don't sync this one - because its just for us
       dispatch({
         type: 'DELETE_TEAM',
-        payload: teamId,
+        payload: { teamId },
       })
 
       MessagingService.getInstance().leave(teamId)
 
       // Redirect the user back to the landing page
-      props.history.push('/teams')
+      browserHistory.push('/app')
       props.onClose()
     } catch (e) {
       setLoading(false)
@@ -399,193 +312,217 @@ export default function TeamModal(props) {
     }
   }
 
+  const handleDeleteClick = (member) => {
+    if (member.user.id == common.user.id) {
+      setConfirmSelfDeleteModal(true)
+    } else {
+      setConfirmMemberDeleteModal(true)
+      setMemberDeleteId(member.user.id)
+    }
+  }
+
+  // Effect loads current team details
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!props.id) return
+
+        setLoading(true)
+
+        const { data } = await GraphqlService.getInstance().team(props.id)
+        const team = data.team
+
+        setImage(team.image)
+        setName(team.name)
+        setDescription(team.description)
+        setMembers(team.members)
+        setLoading(false)
+      } catch (e) {
+        setLoading(false)
+        setError('Error getting data')
+      }
+    })()
+  }, [props.id])
+
   // prettier-ignore
   return (
-    <ModalComponent
-      title={props.id ? "Update Team" : "Create New Team"}
-      width={560}
-      height="90%"
-      onClose={props.onClose}
-      footer={(
-        <div className="column w-100 align-items-stretch">
-          <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-            <div className="flexer" />
+    <ModalPortal>
+      <ModalComponent
+        title={props.id ? "Update Team" : "Create New Team"}
+        width={700}
+        height="90%"
+        onClose={props.onClose}
+        footer={(
+          <div className="column w-100 align-items-stretch">
+            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
+              <div className="flexer" />
 
-            {confirmDeleteModal &&
-              <ConfirmModal
-                onOkay={deleteTeam}
-                onCancel={() => setConfirmDeleteModal(false)}
-                text="Are you sure you want to delete this team, it can not be undone?"
-                title="Are you sure?"
-              />
-            }
+              {confirmDeleteModal &&
+                <ConfirmModal
+                  onOkay={deleteTeam}
+                  onCancel={() => setConfirmDeleteModal(false)}
+                  text="Are you sure you want to delete this team, it can not be undone?"
+                  title="Are you sure?"
+                />
+              }
 
-            {props.id &&
-              <React.Fragment>
-                <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
-                  Delete team
-                </SmallTextButton>
-                <BigSolidButton onClick={updateTeam}>
-                  Save
-                </BigSolidButton>
-              </React.Fragment>
-            }
+              {props.id &&
+                <React.Fragment>
+                  <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
+                    Delete team
+                  </SmallTextButton>
+                  <Button
+                    jumbo
+                    onClick={updateTeam}
+                    text="Save"
+                  />
+                </React.Fragment>
+              }
 
-            {!props.id &&
-              <BigSolidButton onClick={createTeam}>
-                Create
-              </BigSolidButton>
-            }
+              {!props.id &&
+                <Button
+                  jumbo
+                  onClick={createTeam}
+                  text="Create"
+                />
+              }
+            </div>
           </div>
-        </div>
-      )}>
-        <TabbedComponent
-          start={0}
-          panels={[
-            {
-              title: 'Profile',
-              show: true,
-              content: (
-                <div className="row align-items-start w-100">
-                  <div className="column w-100">
+        )}>
+          <TabbedComponent
+            start={0}
+            panels={[
+              {
+                title: 'Profile',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+                      {error && <ErrorComponent message={error} />}
+                      {loading && <SpinnerComponent />}
+                      {notification && <NotificationComponent text={notification} />}
+
+                      <div className="row w-100 p-20">
+                        <input
+                          accept="image/png,image/jpg"
+                          type="file"
+                          className="hide"
+                          ref={fileRef}
+                          onChange={handleFileChange}
+                        />
+
+                        <Avatar
+                          image={image}
+                          className="mr-20"
+                          size="large"
+                        />
+
+                        <Header className="column flexer header">
+                          <div className="row pb-5">
+                            <HeaderName>{name}</HeaderName>
+                          </div>
+                          <div className="row">
+                            {props.id &&
+                              <HeaderMembers>{members.length} members</HeaderMembers>
+                            }
+                            <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
+                          </div>
+                        </Header>
+                      </div>
+
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <InputComponent
+                          label="Full name"
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          placeholder="Enter full name"
+                        />
+
+                        <TextareaComponent
+                          label="Description"
+                          value={description}
+                          onChange={e => setDescription(e.target.value)}
+                          placeholder="Add a description"
+                          rows={5}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                title: 'Members',
+                show: members.length != 0,
+                content: (
+                  <div className="column flex-1 w-100 h-100">
                     {error && <ErrorComponent message={error} />}
                     {loading && <SpinnerComponent />}
                     {notification && <NotificationComponent text={notification} />}
 
-                    <div className="row w-100 p-20">
-                      <input
-                        accept="image/png,image/jpg"
-                        type="file"
-                        className="hide"
-                        ref={fileRef}
-                        onChange={handleFileChange}
+                    {confirmSelfDeleteModal &&
+                      <ConfirmModal
+                        onOkay={deleteTeamMemberSelf}
+                        onCancel={() => setConfirmSelfDeleteModal(false)}
+                        text="Are you sure you want to leave this team?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    {confirmMemberDeleteModal &&
+                      <ConfirmModal
+                        onOkay={deleteTeamMember}
+                        onCancel={() => setConfirmMemberDeleteModal(false)}
+                        text="Are you sure you want to remove this person, it can not be undone?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    <Usernames className="row">
+                      <UsernamesInput
+                        placeholder="Comma seperated usernames or email addresses"
+                        value={usernames}
+                        onChange={(e) => setUsernames(e.target.value)}
                       />
 
-                      <AvatarComponent
-                        image={image}
-                        className="mr-20"
-                        size="large"
+                    <IconComponentCheck
+                        fill="#EBEDEF"
+                        className="mr-20 button"
+                        size={20}
+                        onClick={createTeamMembers}
                       />
+                    </Usernames>
 
-                      <Header className="column flexer header">
-                        <div className="row pb-5">
-                          <HeaderName>{name}</HeaderName>
-                        </div>
-                        <div className="row">
-                          {props.id &&
-                            <HeaderMembers>{members.length} members</HeaderMembers>
-                          }
-                          <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
-                        </div>
-                      </Header>
-                    </div>
+                    {members.map((member, index) => {
+                      return (
+                        <UserComponent
+                          key={index}
+                          image={member.user.image}
+                          color={member.user.color}
+                          name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
+                          label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
 
-                    <div className="column p-20 flex-1 scroll w-100">
-                      <Label>Name</Label>
-                      <InputComponent
-                        label="Full name"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder="Enter full name"
-                      />
+                          <IconComponentDelete
+                            fill="#007af5"
+                            size={20}
+                            onClick={() => handleDeleteClick(member)}
+                            className="button"
+                          />
 
-                      <Label>Description</Label>
-                      <TextareaComponent
-                        label="Description"
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                        placeholder="Enter bio"
-                        rows={2}
-                      />
-                    </div>
+                          <Button
+                            className="ml-20"
+                            onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
+                            text={member.admin ? 'Remove Admin' : 'Make Admin'}
+                          />
+                        </UserComponent>
+                      )
+                    })}
                   </div>
-                </div>
-              )
-            },
-            {
-              title: 'Members',
-              show: !!props.id,
-              content: (
-                <div className="column flex-1 w-100 h-100">
-                  {error && <ErrorComponent message={error} />}
-                  {loading && <SpinnerComponent />}
-                  {notification && <NotificationComponent text={notification} />}
-
-                  {confirmSelfDeleteModal &&
-                    <ConfirmModal
-                      onOkay={deleteTeamMemberSelf}
-                      onCancel={() => setConfirmSelfDeleteModal(false)}
-                      text="Are you sure you want to leave this team?"
-                      title="Are you sure?"
-                    />
-                  }
-
-                  {confirmMemberDeleteModal &&
-                    <ConfirmModal
-                      onOkay={deleteTeamMember}
-                      onCancel={() => setConfirmMemberDeleteModal(false)}
-                      text="Are you sure you want to remove this person, it can not be undone?"
-                      title="Are you sure?"
-                    />
-                  }
-
-                  <Usernames className="row">
-                    <UsernamesInput
-                      placeholder="Comma seperated usernames or email addresses"
-                      value={usernames}
-                      onChange={(e) => setUsernames(e.target.value)}
-                    />
-
-                    <IconComponent
-                      icon="TEAM_CHECK"
-                      color="#EBEDEF"
-                      className="mr-20 button"
-                      onClick={createTeamMembers}
-                    />
-                  </Usernames>
-
-                  {members.map((member, index) => {
-                    return (
-                      <UserComponent
-                        key={index}
-                        image={member.user.image}
-                        color={member.user.color}
-                        name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                        label={member.user.email}>
-                        <Button className="row">
-                          <ButtonIcon
-                            className="row justify-content-center"
-                            onClick={() => {
-                              if (member.user.id == common.user.id) {
-                                setConfirmSelfDeleteModal(true)
-                              } else {
-                                setConfirmMemberDeleteModal(true)
-                                setMemberDeleteId(member.user.id)
-                              }
-                            }}>
-                            <IconComponent
-                              icon="TEAM_DELETE"
-                              color="#868E96"
-                            />
-                          </ButtonIcon>
-                        </Button>
-
-                        <Button className="row">
-                          <ButtonText
-                            className="row justify-content-center"
-                            onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}>
-                            {member.admin ? 'Remove Admin' : 'Make Admin'}
-                          </ButtonText>
-                        </Button>
-                      </UserComponent>
-                    )
-                  })}
-                </div>
-              )
-            }
-          ]}
-        />
-    </ModalComponent>
+                )
+              }
+            ]}
+          />
+      </ModalComponent>
+    </ModalPortal>
   )
 }
 

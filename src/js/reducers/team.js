@@ -18,7 +18,7 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_TEAM':
-        if (action.payload.id != state.id) return
+        if (action.payload.teamId != state.id) return
         draft = Object.assign(draft, action.payload)
         break
     }

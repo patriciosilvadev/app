@@ -14,6 +14,11 @@ module.exports = env => {
     entry: {
       index: path.resolve(__dirname, './src/js/index.js'),
     },
+    resolve: {
+      alias: {
+        react: path.resolve('./node_modules/react')
+      }
+    },
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.[name].js',
@@ -61,7 +66,7 @@ module.exports = env => {
     },
     module: {
       rules: [
-
+        /*
         {
           test: /\.js$/,
           exclude: /node_modules/,
@@ -69,6 +74,7 @@ module.exports = env => {
           enforce: "pre",
           options: {}
         },
+        */
         {
           test: /.htaccess/,
           use: [

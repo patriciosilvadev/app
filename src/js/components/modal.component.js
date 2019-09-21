@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import IconComponent from './icon.component'
+import IconComponentClose from '../icons/System/close-line'
 
 const Modal = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
@@ -18,6 +18,7 @@ const Modal = styled.div`
   justify-content: center;
   visibility: visible;
   opacity: 1;
+  z-index: 10;
   transition: visibility 0s, opacity 0.1s linear;
 `
 
@@ -52,9 +53,9 @@ export default function ModalComponent({ children, open, title, width, height, o
       <Inner className="column" style={{ width, height }}>
         <Title className="row">
           <TitleText>{title}</TitleText>
-          <IconComponent
-            icon="MODAL_CLOSE"
-            color="#524150"
+          <IconComponentClose
+            fill="#524150"
+            size={22}
             className="button"
             onClick={onClose}
           />

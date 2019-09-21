@@ -23,7 +23,13 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_USER_STARRED':
-        draft.user.starred = action.payload.starred ? [...state.user.starred, action.payload.room] : state.user.starred.filter(t => t != action.payload.room)
+        draft.user.starred = action.payload.starred
+          ? [...state.user.starred, action.payload.roomId]
+          : state.user.starred.filter(roomId => roomId != action.payload.roomId)
+        break
+
+      case 'UPDATE_UNREAD':
+        draft.unread = action.payload
         break
 
       case 'UPDATE_ERROR':
@@ -34,7 +40,7 @@ export default (state = initialState, action) =>
         draft.loading = action.payload
         break
 
-      case 'CREATE_DOCK_PLUGIN':
+      case 'REGISTER_DOCK_PLUGIN':
         draft.plugins.dock.push(action.payload)
         break
     }

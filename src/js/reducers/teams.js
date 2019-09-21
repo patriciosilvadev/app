@@ -9,19 +9,22 @@ export default (state = initialState, action) =>
         return action.payload
 
       case 'DELETE_TEAM':
-        draft = state.filter(team => team.id != action.payload)
+        return state.filter(team => team.id != action.payload.teamId)
+        break
 
       case 'CREATE_TEAM':
         draft.push(action.payload)
+        break
 
       case 'UPDATE_TEAM':
-        draft = state.map(team => {
-          if (team.id != action.payload.id) return team
+        return state.map(team => {
+          if (team.id != action.payload.teamId) return team
 
           return {
             ...team,
             ...action.payload,
           }
         })
+        break
     }
   })

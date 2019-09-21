@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import AvatarComponent from './avatar.component'
+import { Avatar } from '@weekday/elements'
 import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
-import IconComponent from './icon.component'
+import IconComponentLock from '../icons/System/lock-line'
 
 const List = styled.div`
   background: transparent;
@@ -11,10 +11,20 @@ const List = styled.div`
   padding-bottom: 4px;
   padding-left: 25px;
   padding-right: 25px;
+  display: flex;
+  width: 100%;
 
   &.active {
     background: #0c1828;
   }
+`
+
+const Badge = styled.div`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #007af5;
+  margin-left: auto;
 `
 
 const Icon = styled.div`
@@ -22,13 +32,15 @@ const Icon = styled.div`
   padding-right: 0px;
 `
 
-const Name = styled.div`
+const Title = styled.div`
   overflow: hidden;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 15px;
+  font-weight: 500;
   color: #475669;
   white-space: nowrap;
+  width: max-content;
+  padding-left: 10px;
 
   &.active {
     color: #ffffff;
@@ -37,30 +49,23 @@ const Name = styled.div`
 `
 
 const Excerpt = styled.div`
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 13px;
   color: #475669;
   white-space: nowrap;
   overflow: hidden;
+  font-weight: 400;
   text-overflow: ellipsis;
-  width: 50%;
+  padding-left: 5px;
+  opacity: 0.8;
+  flex: 1;
 
   &.active {
-    color: #ffffff;
+    color: #475669;
     font-weight: 500;
   }
 `
 
-const Label = styled.div`
-  font-size: 7px;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: #007af5;
-  padding: 3px 5px 3px 5px;
-  border-radius: 3px;
-  background: #0c1828;
-  margin-left: 5px;
-`
+
 
 export default function RoomComponent(props) {
   const [over, setOver] = useState(false)
@@ -72,47 +77,30 @@ export default function RoomComponent(props) {
       onMouseLeave={() => setOver(false)}
       onClick={props.onClick ? props.onClick : null}
       className={props.active ? "row active" : "row"}>
-        <div className="row flexer" style={{ overflow: 'hidden' }}>
-          {!props.icon &&
-            <AvatarComponent
-              dark={props.dark}
-              size="small-medium"
-              image={props.image}
-              title={props.title}
-              badge={props.unread}
-            /> 
-          }
+        <Avatar
+          dark={props.dark}
+          size="small-medium"
+          image={props.image}
+          title={props.title}
+        />
 
-          <div className="column flexer pl-10">
-            <div className="row flexer">
-              {props.title &&
-                <Name className={props.active || props.unread ? "active" : null}>
-                  {props.title}
-                </Name>
-              }
+        <Title className={props.active || props.unread ? "active" : null}>
+          {props.title}
+        </Title>
 
-              {!props.public && !props.private &&
-                <IconComponent
-                  color={props.active || props.unread ? "white" : "#475669"}
-                  icon="ROOMS_LOCK"
-                  className="ml-5"
-                />
-              }
+        {!props.public && !props.private &&
+          <IconComponentLock
+            fill={props.active || props.unread ? "white" : "#475669"}
+            className="ml-5"
+            size={16}
+          />
+        }
 
-              {props.label &&
-                <Label className={props.active || props.unread ? "active" : null}>
-                  {props.label}
-                </Label>
-              }
-            </div>
+        <Excerpt className={props.active || props.unread ? "active" : null}>
+          {props.excerpt}
+        </Excerpt>
 
-            {props.excerpt &&
-              <Excerpt className={props.active || props.unread ? "active" : null}>
-                {props.excerpt}
-              </Excerpt>
-            }
-          </div>
-        </div>
+        {props.unread && <Badge />}
     </List>
   )
 }

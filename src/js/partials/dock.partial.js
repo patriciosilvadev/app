@@ -1,15 +1,18 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import AvatarComponent from '../components/avatar.component'
+import { Avatar } from '@weekday/elements'
 import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { fetchTeams } from '../actions'
 import PropTypes from 'prop-types'
-import IconComponent from '../components/icon.component'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
+import IconComponentAdd from '../icons/System/add-box-line'
+import IconComponentHelp from '../icons/System/question-line'
+import IconComponentSignout from '../icons/System/logout-box-line'
+import IconComponentAccount from '../icons/User/account-circle-line'
 
 const Dock = styled.div`
   padding: 25px;
@@ -27,7 +30,6 @@ class DockPartial extends React.Component {
 
     this.state = {
       teamModal: false,
-      teamCreateModal: false,
       accountModal: false,
       pluginId: null,
     }
@@ -47,34 +49,28 @@ class DockPartial extends React.Component {
 
   // prettier-ignore
   render() {
+    const { pathname } = this.props.history.location
+    const pathnameParts = pathname.split('/')
+    const lastPathname = pathnameParts[pathnameParts.length - 1]
+
     return (
       <Dock className="column align-items-center">
         {this.props.common.plugins.dock.map((plugin, index) => {
           const { Component, id } = plugin
 
           if (this.state.pluginId == id) return (
-            <Component 
+            <Component
               key={index}
               onClose={() => this.setState({ pluginId: null })}
             />
-          )          
+          )
         })}
 
-        {/* Update an existing team */}
+        {/* Create a new team */}
         {this.state.teamModal &&
           <TeamModal
-            id={this.props.team.id}
-            history={this.props.history}
-            onClose={() => this.setState({ teamModal: false })}
-          />
-        }
-
-        {/* Create a new team */}
-        {this.state.teamCreateModal &&
-          <TeamModal
             id={null}
-            history={this.props.history}
-            onClose={() => this.setState({ teamCreateModal: false })}
+            onClose={() => this.setState({ teamModal: false })}
           />
         }
 
@@ -85,80 +81,54 @@ class DockPartial extends React.Component {
             onClose={() => this.setState({ accountModal: false })}
           />
         }
-        
+
         {this.props.teams.map((team, index) => {
           return (
             <Link key={index} to={`/app/team/${team.id}`}>
-              <AvatarComponent
+              <Avatar
                 dark
                 size="medium"
                 image={team.image}
                 title={team.name}
                 className="button mb-10"
+                outlineInnerColor="#08111d"
+                outlineOuterColor={lastPathname != "starred" && this.props.team.id == team.id ? "#007af5" : "transparent"}
               />
             </Link>
           )
         })}
 
-        <Link to={`/app/starred`}>
-          <IconComponent
-            color="#475669"
-            icon="ROOMS_STARRED"
-            className="mt-15 button"
-          />
-        </Link>
-
-        <IconComponent
-          color="#475669"
-          className="mt-15 button"
-          onClick={(e) => this.setState({ teamCreateModal: true, userMenu: false })}
-          icon="ROOMS_ADD_TEAM"
+        <IconComponentAdd
+          fill="#475669"
+          size={24}
+          className="mt-5 button"
+          onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
+          icon="DOCK_ADD_TEAM"
         />
-
-        {this.props.team.id &&
-          <IconComponent
-            color="#475669"
-            className="mt-15 button"
-            onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
-            icon="ROOMS_UPDATE_TEAM"
-          />
-        }
 
         <div className="flexer"></div>
 
-        {this.props.common.plugins.dock.map((plugin, index) => {
-          const { id, icon } = plugin
-
-          return (
-            <IconComponent
-              key={index}
-              color="#475669"
-              className="mt-15 button"
-              onClick={(e) => this.setState({ pluginId: id })}
-              icon={icon}
-            />
-          )
-        })}
-
-        <IconComponent
-          color="#475669"
+        <IconComponentHelp
+          fill="#475669"
           onClick={(e) => console.log('Help')}
           className="mt-15 button"
-          icon="ROOMS_HELP"
+          size={24}
         />
 
-        <IconComponent
-          color="#475669"
+        <IconComponentSignout
+          fill="#475669"
           className="mt-15 button"
           onClick={this.signout}
-          icon="ROOMS_SIGNOUT"
+          icon="DOCK_SIGNOUT"
+          size={24}
         />
 
-        <IconComponent
-          color="#475669"
+        <IconComponentAccount
+          fill="#475669"
           className="mt-15 button"
           onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
-          icon="ROOMS_ACCOUNT"
+          icon="DOCK_ACCOUNT"
+          size={24}
         />
       </Dock>
     )

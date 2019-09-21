@@ -5,9 +5,9 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 
-export function createDockPlugin(plugin) {
+export function registerDockPlugin(plugin) {
   return {
-    type: 'CREATE_DOCK_PLUGIN',
+    type: 'REGISTER_DOCK_PLUGIN',
     payload: plugin,
   }
 }
@@ -23,11 +23,7 @@ export function updateUserStarred(userId, roomId, starred) {
       dispatch(updateLoading(false))
       dispatch({
         type: 'UPDATE_USER_STARRED',
-        payload: {
-          room: roomId,
-          user: userId,
-          starred,
-        },
+        payload: { roomId, starred },
       })
     } catch (e) {
       dispatch(updateLoading(false))
@@ -39,7 +35,9 @@ export function updateUserStarred(userId, roomId, starred) {
 export function initialize(ids) {
   return async (dispatch, getState) => {
     MessagingService.getInstance().initialize([...ids, getState().common.user.id])
+
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
+
     MessagingService.getInstance().client.on('sync', ({ action }) => {
       dispatch(action)
 
@@ -56,26 +54,26 @@ export function initialize(ids) {
       }
     })
 
-    MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
-      MessagingService.getInstance().leave(roomId)
-      dispatch({ type: 'DELETE_ROOM', payload: roomId })
-    })
-
-    MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
-      MessagingService.getInstance().leave(teamId)
-      dispatch({ type: 'DELETE_TEAM', payload: teamId })
-    })
-
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       MessagingService.getInstance().join(roomId)
       const room = await GraphqlService.getInstance().room(id)
       dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
     })
 
+    MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
+      MessagingService.getInstance().leave(roomId)
+      dispatch({ type: 'DELETE_ROOM', payload: { roomId }})
+    })
+
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       MessagingService.getInstance().join(teamId)
       const team = await GraphqlService.getInstance().team(id)
-      dispatch({ type: 'CREATE_ROOM', payload: team.data.team })
+      dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
+    })
+
+    MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
+      MessagingService.getInstance().leave(teamId)
+      dispatch({ type: 'DELETE_TEAM', payload: { teamId }})
     })
 
     DatabaseService.getInstance()
@@ -107,9 +105,7 @@ export function initialize(ids) {
       })
 
     // TODO: Debug
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cae0db41ba84ec5b2377a8c')
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5d054a66af06e24fecbb8022')
+    DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
   }
 }
 

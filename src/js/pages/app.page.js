@@ -2,7 +2,8 @@ import React from 'react'
 import LoadingComponent from '../components/loading.component'
 import ErrorComponent from '../components/error.component'
 import { connect } from 'react-redux'
-import { BrowserRouter as Router, Route, Link, withRouter, Switch } from 'react-router-dom'
+import { Router, Route, Link, withRouter, Switch } from 'react-router-dom'
+import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
@@ -11,6 +12,7 @@ import RoomsPartial from '../partials/rooms.partial'
 import RoomPartial from '../partials/room.partial'
 import DockPartial from '../partials/dock.partial'
 import ToolbarPartial from '../partials/toolbar.partial'
+import MembersPartial from '../partials/members.partial'
 import GraphqlService from '../services/graphql.service'
 
 const App = styled.div`
@@ -75,25 +77,15 @@ class AppPage extends React.Component {
         <LoadingComponent show={this.props.common.loading} />
         <ErrorComponent message={this.props.common.error} />
 
-        <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
-          <Route path="/app" component={DockPartial} />
-
-          {/* Rooms */}
-          <Route path="/app/starred" render={props => <RoomsPartial {...props} starred={true} />} />
-          <Route path="/app/team/:teamId" render={props => <RoomsPartial {...props} starred={false} />} />
-
-          {/* Room */}
-          <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
-
-          {/* Members */}
-          <Route path="/app/team/:teamId/room/:roomId/members" render={props => {
-              const MembersPartial = React.lazy(() => import("../partials/lazy/members.partial"))
-              return <React.Suspense fallback={<Loader />}><MembersPartial {...props}/></React.Suspense>
-          }}/>
-
-          {/* Toolbar */}
-          <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
-        </div>
+        <Router history={browserHistory}>
+          <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
+            <Route path="/app" component={DockPartial} />
+            <Route path="/app/team/:teamId" component={RoomsPartial} />
+            <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />
+            <Route path="/app/team/:teamId/room/:roomId/members" component={MembersPartial} />
+            <Route path="/app/team/:teamId/room/:roomId" component={ToolbarPartial} />
+          </div>
+        </Router>
       </App>
     );
   }

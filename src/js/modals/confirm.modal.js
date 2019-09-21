@@ -4,26 +4,7 @@ import styled from 'styled-components'
 import ModalComponent from '../components/modal.component'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-
-const BigSolidButton = styled.div`
-  background-color: #007af5;
-  color: white;
-  font-size: 25px;
-  font-weight: 600;
-  padding: 20px 30px 20px 30px;
-  border-radius: 5px;
-  transition: background-color 0.25s, color 0.25s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0f081f;
-    color: #007af5;
-  }
-
-  &:first-child {
-    margin-right: 5px;
-  }
-`
+import { Button } from '@weekday/elements'
 
 export default function ConfirmModal({ onOkay, onCancel, text, title }) {
   // prettier-ignore
@@ -31,8 +12,8 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
     <ModalPortal>
       <ModalComponent
         title={title}
-        width={400}
-        height={250}
+        width={450}
+        height={300}
         onClose={onCancel}>
           <div className="row justify-content-center pt-30">
             <div className="h5 pl-30 pr-30 center w-light color-dark-0">
@@ -40,8 +21,8 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
             </div>
           </div>
           <div className="row justify-content-center pt-30 pb-30">
-            <BigSolidButton onClick={onOkay}>Yes</BigSolidButton>
-            <BigSolidButton onClick={onCancel}>No</BigSolidButton>
+            <Button jumbo onClick={onOkay} text="Yes" className="mr-10" />
+            <Button jumbo onClick={onCancel} text="No" />
           </div>
       </ModalComponent>
     </ModalPortal>

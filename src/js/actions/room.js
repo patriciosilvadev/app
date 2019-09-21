@@ -24,7 +24,7 @@ export function createRoomMember(user) {
         type: 'CREATE_ROOM_MEMBER',
         payload: {
           member: { user },
-          room: roomId,
+          roomId,
         },
         sync: roomId,
       })
@@ -41,6 +41,7 @@ export function deleteRoomMember(user) {
   return async (dispatch, getState) => {
     const { room, team, common } = getState()
     const userId = user.id
+    const teamId = team.id
     const userIds = [userId]
     const roomId = room.id
     const currentUserId = common.user.id
@@ -54,21 +55,18 @@ export function deleteRoomMember(user) {
       dispatch(updateLoading(false))
       dispatch({
         type: 'DELETE_ROOM_MEMBER',
-        payload: {
-          user: userId,
-          room: roomId,
-        },
+        payload: { userId, roomId },
         sync: roomId,
       })
 
       if (userId == currentUserId) {
         dispatch({
           type: 'DELETE_ROOM',
-          payload: roomId,
+          payload: { roomId },
           sync: roomId,
         })
 
-        browserHistory.push('/teams')
+        browserHistory.push('/app/'+teamId)
       }
 
       MessagingService.getInstance().leaveRoom(userIds, roomId)
@@ -82,6 +80,7 @@ export function deleteRoomMember(user) {
 export function deleteRoom(roomId) {
   return async (dispatch, getState) => {
     const { room } = getState()
+    const roomId = room.id
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
@@ -92,7 +91,7 @@ export function deleteRoom(roomId) {
       dispatch(updateLoading(false))
       dispatch({
         type: 'DELETE_ROOM',
-        payload: roomId,
+        payload: { roomId },
         sync: roomId,
       })
     } catch (e) {
@@ -105,18 +104,19 @@ export function deleteRoom(roomId) {
 export function updateRoom(updatedRoom) {
   return async (dispatch, getState) => {
     const { room } = getState()
+    const roomId = room.id
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      await GraphqlService.getInstance().updateRoom(room.id, updatedRoom)
+      const { data } = await GraphqlService.getInstance().updateRoom(roomId, updatedRoom)
 
       dispatch(updateLoading(false))
       dispatch({
         type: 'UPDATE_ROOM',
-        payload: updatedRoom,
-        sync: room.id,
+        payload: { ...data.updateRoom, roomId },
+        sync: roomId,
       })
     } catch (e) {
       dispatch(updateLoading(false))
@@ -155,39 +155,57 @@ export function fetchRoom(roomId) {
   }
 }
 
-export function createRoomMessage(text, attachments) {
+export function createRoom(title, description, image, teamId, user) {
   return async (dispatch, getState) => {
-    const { room, common } = getState()
-    const excerpt = common.user.name + ': ' + text
-
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
+    const { rooms, common } = getState()
 
     try {
-      const createRoomMessage = await GraphqlService.getInstance().createRoomMessage(room.id, common.user.id, common.user.name, text, attachments, null)
+      // 1. Find rooms where there rae only 2 members
+      // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
+      const room = user
+        ? rooms
+          .filter(room => room.members.length == 2 && room.private)
+          .filter(room => room.members.filter(member => member.user.id == user.id).length == 1)
+          .flatten()
+        : null
 
-      dispatch(updateLoading(false))
+      // 3. If it's found - then go there
+      if (room) return browserHistory.push(`/app/team/${teamId}/room/${room.id}`)
 
-      // Create the message
-      dispatch({
-        type: 'CREATE_ROOM_MESSAGE',
-        payload: {
-          message: createRoomMessage.data.createRoomMessage,
-          excerpt: excerpt,
-          room: room.id,
-          team: room.team.id,
-        },
-        sync: room.id,
+      // Create the default member array
+      // If user isn't null - then it's a private room
+      const members = user
+        ? [{ user: user.id }, { user: getState().common.user.id }]
+        : [{ user: getState().common.user.id }]
+
+      // Otherwise create the new room
+      // 1) Create the room object based on an open room or private
+      // 2) Default public room is always members only
+      const { data } = await GraphqlService.getInstance().createRoom({
+        title,
+        description,
+        image,
+        members,
+        team: teamId,
+        messages: [],
+        public: false,
+        private: user ? true : false,
+        user: common.user.id,
       })
 
-      // Update the room excerpt
+      const roomData = data.createRoom
+      const roomId = roomData.id
+
       dispatch({
-        type: 'UPDATE_ROOM',
-        payload: { excerpt },
-        sync: room.id,
+        type: 'CREATE_ROOM',
+        payload: roomData,
       })
+
+      MessagingService.getInstance().join(roomId)
+
+      browserHistory.push(`/app/team/${teamId}/room/${roomId}`)
     } catch (e) {
-      dispatch(updateLoading(false))
+      console.log(e)
       dispatch(updateError(e))
     }
   }
@@ -228,19 +246,57 @@ export function fetchRoomMessages(page) {
   }
 }
 
+export function createRoomMessage(text, attachments) {
+  return async (dispatch, getState) => {
+    const { room, common } = getState()
+    const excerpt = common.user.name + ': ' + text
+
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      const { data } = await GraphqlService.getInstance().createRoomMessage(room.id, common.user.id, common.user.name, text, attachments, null)
+
+      dispatch(updateLoading(false))
+
+      // Create the message
+      dispatch({
+        type: 'CREATE_ROOM_MESSAGE',
+        payload: {
+          message: data.createRoomMessage,
+          excerpt: excerpt,
+          roomId: room.id,
+          teamId: room.team.id,
+        },
+        sync: room.id,
+      })
+
+      // Update the room excerpt
+      dispatch({
+        type: 'UPDATE_ROOM',
+        payload: { excerpt },
+        sync: room.id,
+      })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
 export function createRoomMessageReply(messageId, userId, text, attachments) {
   return async (dispatch, getState) => {
     const { room } = getState()
 
     try {
-      const createRoomMessageReply = await GraphqlService.getInstance().createRoomMessageReply(messageId, userId, text, attachments)
+      const { data } = await GraphqlService.getInstance().createRoomMessageReply(messageId, userId, text, attachments)
 
       dispatch({
         type: 'CREATE_ROOM_MESSAGE_REPLY',
         payload: {
-          room: room.id,
-          id: messageId,
-          reply: createRoomMessageReply.data.createRoomMessageReply,
+          messageId,
+          roomId: room.id,
+          reply: data.createRoomMessageReply,
         },
         sync: room.id,
       })
@@ -253,14 +309,14 @@ export function createRoomMessageReaction(messageId, reaction) {
     const { room } = getState()
 
     try {
-      const createRoomMessageReaction = await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
+      await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
 
       dispatch({
         type: 'CREATE_ROOM_MESSAGE_REACTION',
         payload: {
-          room: room.id,
-          id: messageId,
-          reaction: reaction,
+          roomId: room.id,
+          messageId,
+          reaction,
         },
         sync: room.id,
       })
@@ -273,14 +329,14 @@ export function deleteRoomMessageReaction(messageId, reaction) {
     const { room } = getState()
 
     try {
-      const deleteRoomMessageReaction = await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
+      await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
 
       dispatch({
         type: 'DELETE_ROOM_MESSAGE_REACTION',
         payload: {
-          room: room.id,
-          id: messageId,
-          reaction: reaction,
+          roomId: room.id,
+          messageId,
+          reaction,
         },
         sync: room.id,
       })
