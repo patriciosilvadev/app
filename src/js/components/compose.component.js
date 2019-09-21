@@ -247,8 +247,7 @@ class ComposeComponent extends React.Component {
     this.updateComposeHeight()
   }
 
-  componentDidUpdate() {
-  }
+  componentDidUpdate() {}
 
   // prettier-ignore
   render() {

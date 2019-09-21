@@ -142,12 +142,12 @@ class RoomsPartial extends React.Component {
   }
 
   createPrivateRoom(user) {
-    this.props.createRoom(null, "", null, this.props.team.id, user)
+    this.props.createRoom(null, '', null, this.props.team.id, user)
     this.setState({ filter: '', showFilter: false })
   }
 
   createPublicRoom() {
-    this.props.createRoom(this.state.filter, "", null, this.props.team.id, null)
+    this.props.createRoom(this.state.filter, '', null, this.props.team.id, null)
     this.setState({ filter: '', showFilter: false })
   }
 

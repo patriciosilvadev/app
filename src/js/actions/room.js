@@ -66,7 +66,7 @@ export function deleteRoomMember(user) {
           sync: roomId,
         })
 
-        browserHistory.push('/app/'+teamId)
+        browserHistory.push('/app/' + teamId)
       }
 
       MessagingService.getInstance().leaveRoom(userIds, roomId)
@@ -164,9 +164,9 @@ export function createRoom(title, description, image, teamId, user) {
       // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
       const room = user
         ? rooms
-          .filter(room => room.members.length == 2 && room.private)
-          .filter(room => room.members.filter(member => member.user.id == user.id).length == 1)
-          .flatten()
+            .filter(room => room.members.length == 2 && room.private)
+            .filter(room => room.members.filter(member => member.user.id == user.id).length == 1)
+            .flatten()
         : null
 
       // 3. If it's found - then go there
@@ -174,9 +174,7 @@ export function createRoom(title, description, image, teamId, user) {
 
       // Create the default member array
       // If user isn't null - then it's a private room
-      const members = user
-        ? [{ user: user.id }, { user: getState().common.user.id }]
-        : [{ user: getState().common.user.id }]
+      const members = user ? [{ user: user.id }, { user: getState().common.user.id }] : [{ user: getState().common.user.id }]
 
       // Otherwise create the new room
       // 1) Create the room object based on an open room or private

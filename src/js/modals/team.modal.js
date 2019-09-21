@@ -312,7 +312,7 @@ export default function TeamModal(props) {
     }
   }
 
-  const handleDeleteClick = (member) => {
+  const handleDeleteClick = member => {
     if (member.user.id == common.user.id) {
       setConfirmSelfDeleteModal(true)
     } else {

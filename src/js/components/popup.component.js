@@ -14,6 +14,7 @@ const Container = styled.div`
   height: max-content;
 `
 
+// prettier-ignore
 const Content = styled.div`
   display: flex;
   position: absolute;
@@ -94,7 +95,7 @@ export default class PopupComponent extends React.Component {
     const left = rectangle ? rectangle.left : 0
     const width = rectangle ? rectangle.width : 0
     const height = rectangle ? rectangle.height : 0
-    const className = this.props.containerClassName ? this.props.containerClassName : ""
+    const className = this.props.containerClassName ? this.props.containerClassName : ''
 
     // prettier-ignore
     return (

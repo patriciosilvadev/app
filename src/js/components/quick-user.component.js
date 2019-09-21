@@ -77,7 +77,7 @@ export default class QuickUserComponent extends React.Component {
             username: user.username,
             image: user.image,
             role: user.role,
-          }
+          },
         })
       })
 

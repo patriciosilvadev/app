@@ -67,8 +67,8 @@ const Text = styled.div`
   }
 
   code {
-    background: #FAFAFA;
-    border: 1px solid #EAEAEA;
+    background: #fafafa;
+    border: 1px solid #eaeaea;
     border-left: 3px solid #007af5;
     color: #666;
     border-radius: 5px;
@@ -170,10 +170,12 @@ export default function MessageComponent(props) {
 
   const compiledMessage = marked(props.message)
 
-  let matchArr;
-  let lastOffset = 0;
-  const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g');
-  const partsOfTheMessageText = [];
+  let matchArr
+  let lastOffset = 0
+
+  // prettier-ignore
+  const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
+  const partsOfTheMessageText = []
 
   while ((matchArr = regex.exec(compiledMessage)) !== null) {
     const previousText = compiledMessage.substring(lastOffset, matchArr.index)
@@ -187,7 +189,7 @@ export default function MessageComponent(props) {
         set="emojione"
         size={22}
         fallback={(em, props) => {
-          return em ? `:${em.short_names[0]}:` : props.emoji;
+          return em ? `:${em.short_names[0]}:` : props.emoji
         }}
       />
     )
@@ -201,7 +203,7 @@ export default function MessageComponent(props) {
 
   const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
 
-  if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText);
+  if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
   const message = partsOfTheMessageText.join('')
 

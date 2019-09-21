@@ -29,7 +29,7 @@ const Textarea = styled.textarea`
   }
 `
 
-export function TextareaComponent (props) {
+export function TextareaComponent(props) {
   return (
     <React.Fragment>
       <Label>{props.label}</Label>

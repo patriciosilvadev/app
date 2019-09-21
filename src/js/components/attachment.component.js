@@ -60,6 +60,7 @@ const DownloadContainer = styled.div`
   }
 `
 
+// prettier-ignore
 const Thumbnail = styled.div`
   width: ${props => {
       if (props.layout == 'compose') return '50px'
@@ -95,6 +96,7 @@ const Thumbnail = styled.div`
   justify-content: center;
 `
 
+// prettier-ignore
 const Name = styled.div`
   font-weight: 600;
   font-style: normal;
@@ -116,6 +118,7 @@ const Name = styled.div`
   };
 `
 
+// prettier-ignore
 const Size = styled.div`
   font-weight: 400;
   color: #adb5bd;

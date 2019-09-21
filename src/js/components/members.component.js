@@ -34,10 +34,11 @@ export default class MembersComponent extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     return {
-      members: props.members.filter((member, index) => index <= 5 ? true : false)
+      members: props.members.filter((member, index) => (index <= 5 ? true : false)),
     }
   }
 
+  // prettier-ignore
   render() {
     return (
       <React.Fragment>

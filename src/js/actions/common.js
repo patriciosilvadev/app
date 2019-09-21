@@ -62,7 +62,7 @@ export function initialize(ids) {
 
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
       MessagingService.getInstance().leave(roomId)
-      dispatch({ type: 'DELETE_ROOM', payload: { roomId }})
+      dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
     })
 
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
@@ -73,7 +73,7 @@ export function initialize(ids) {
 
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
       MessagingService.getInstance().leave(teamId)
-      dispatch({ type: 'DELETE_TEAM', payload: { teamId }})
+      dispatch({ type: 'DELETE_TEAM', payload: { teamId } })
     })
 
     DatabaseService.getInstance()

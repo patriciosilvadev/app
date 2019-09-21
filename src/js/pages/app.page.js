@@ -78,7 +78,7 @@ class AppPage extends React.Component {
         <ErrorComponent message={this.props.common.error} />
 
         <Router history={browserHistory}>
-          <div className="row w-100 align-items-start align-content-start justify-content-start flex-1">
+          <div className="row w-100 h-100 align-items-start align-content-start justify-content-start flex-1">
             <Route path="/app" component={DockPartial} />
             <Route path="/app/team/:teamId" component={RoomsPartial} />
             <Route path="/app/team/:teamId/room/:roomId" component={RoomPartial} />

@@ -65,8 +65,6 @@ const Excerpt = styled.div`
   }
 `
 
-
-
 export default function RoomComponent(props) {
   const [over, setOver] = useState(false)
 
