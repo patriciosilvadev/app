@@ -165,7 +165,7 @@ export default function MessageComponent(props) {
   const createRoomMessageReply = (text, attachments) => {
     setReply(false)
 
-    props.createRoomMessageReply(props.id, currentUser.id, text, attachments)
+    props.createRoomMessageReply(props.id, props.currentUser.id, text, attachments)
   }
 
   const compiledMessage = marked(props.message)

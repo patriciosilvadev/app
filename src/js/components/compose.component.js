@@ -24,7 +24,6 @@ const InputContainer = styled.div`
   flex: 1;
   padding: ${props => (props.compact ? '10px' : '15px 0px 15px 0px')};
   background: ${props => (props.compact ? '#f8f9fa' : 'white')};
-  flex: 1;
   border-radius: 25px;
 `
 
@@ -214,7 +213,7 @@ class ComposeComponent extends React.Component {
   }
 
   updateComposeHeight() {
-    this.setState({ height: this.state.text.split('\n').length * 25 })
+    this.setState({ height: this.state.text.split('\n').length * (this.props.compact ? 20 : 25) })
   }
 
   replaceWordAtCursor(word) {
@@ -308,39 +307,39 @@ class ComposeComponent extends React.Component {
             onChange={this.handleComposeChange}
           />
 
-          <PopupComponent
-            handleDismiss={() => this.setState({ emoticonMenu: false })}
-            visible={this.state.emoticonMenu}
-            width={350}
-            direction="right-top"
-            content={
-              <Picker
-                style={{ width: 350 }}
-                set='emojione'
-                title=""
-                emoji=""
-                showPreview={false}
-                showSkinTones={false}
-                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-              />
-            }>
-            <IconComponentSmile
-              fill="#565456"
-              className="button ml-15"
-              size={18}
-              onClick={() => this.setState({ emoticonMenu: true })}
-            />
-          </PopupComponent>
-
-          <IconComponentPaperclip
-            fill="#565456"
-            size={18}
-            className="ml-15 button"
-            onClick={() => this.fileRef.click()}
-          />
-
           {!this.props.compact &&
             <React.Fragment>
+              <PopupComponent
+                handleDismiss={() => this.setState({ emoticonMenu: false })}
+                visible={this.state.emoticonMenu}
+                width={350}
+                direction="right-top"
+                content={
+                  <Picker
+                    style={{ width: 350 }}
+                    set='emojione'
+                    title=""
+                    emoji=""
+                    showPreview={false}
+                    showSkinTones={false}
+                    onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
+                  />
+                }>
+                <IconComponentSmile
+                  fill="#565456"
+                  className="button ml-15"
+                  size={18}
+                  onClick={() => this.setState({ emoticonMenu: true })}
+                />
+              </PopupComponent>
+
+              <IconComponentPaperclip
+                fill="#565456"
+                size={18}
+                className="ml-15 button"
+                onClick={() => this.fileRef.click()}
+              />
+
               <IconComponentAt
                 fill="#565456"
                 size={18}
@@ -351,7 +350,7 @@ class ComposeComponent extends React.Component {
                 }}
               />
 
-            <IconComponentSend
+              <IconComponentSend
                 fill="#565456"
                 className="ml-15 button"
                 size={18}
