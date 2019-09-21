@@ -57,8 +57,7 @@ const Input = styled.textarea`
   border: none;
   resize: none;
   overflow-y: scroll;
-  height: ${props => props.defaultheight}px;
-  transition: height 0.15s linear;
+  transition: height 0.05s linear;
   display: block;
   background: transparent;
   color: #212123;
@@ -165,6 +164,8 @@ class ComposeComponent extends React.Component {
   }
 
   handleKeyUp(e) {
+    this.updateComposeHeight()
+
     if (e.keyCode == 16) this.setState({ shift: false })
   }
 
@@ -191,8 +192,6 @@ class ComposeComponent extends React.Component {
 
       if (firstLetter == '@') this.filterMembers(word)
       if (firstLetter != '@') this.setState({ members: [] })
-
-      this.updateComposeHeight()
     })
   }
 
@@ -215,8 +214,7 @@ class ComposeComponent extends React.Component {
   }
 
   updateComposeHeight() {
-    this.composeRef.style.height = '25px'
-    this.composeRef.style.height = this.composeRef.scrollHeight + 'px'
+    this.setState({ height: this.state.text.split('\n').length * 25 })
   }
 
   replaceWordAtCursor(word) {
@@ -247,6 +245,10 @@ class ComposeComponent extends React.Component {
 
   componentDidMount() {
     this.composeRef.focus()
+    this.updateComposeHeight()
+  }
+
+  componentDidUpdate() {
   }
 
   // prettier-ignore
@@ -296,11 +298,11 @@ class ComposeComponent extends React.Component {
           />
 
           <Input
+            style={{ height: this.state.height }}
             ref={(ref) => this.composeRef = ref}
             placeholder="Say something"
             value={this.state.text}
             compact={this.props.compact}
-            defaultHeight={25}
             onKeyUp={this.handleKeyUp}
             onKeyDown={this.handleKeyDown}
             onChange={this.handleComposeChange}
