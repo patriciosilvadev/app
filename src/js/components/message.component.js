@@ -11,6 +11,8 @@ import ReactMarkdown from 'react-markdown'
 import PropTypes from 'prop-types'
 import IconComponentSmile from '../icons/User/user-smile-line'
 import IconComponentReply from '../icons/Business/reply-line'
+import ReactDOMServer from 'react-dom/server'
+import marked from 'marked'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -166,6 +168,43 @@ export default function MessageComponent(props) {
     props.createRoomMessageReply(props.id, currentUser.id, text, attachments)
   }
 
+  const compiledMessage = marked(props.message)
+
+  let matchArr;
+  let lastOffset = 0;
+  const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g');
+  const partsOfTheMessageText = [];
+
+  while ((matchArr = regex.exec(compiledMessage)) !== null) {
+    const previousText = compiledMessage.substring(lastOffset, matchArr.index)
+    if (previousText.length) partsOfTheMessageText.push(previousText)
+
+    lastOffset = matchArr.index + matchArr[0].length
+
+    const emoji = ReactDOMServer.renderToStaticMarkup(
+      <Emoji
+        emoji={matchArr[0]}
+        set="emojione"
+        size={22}
+        fallback={(em, props) => {
+          return em ? `:${em.short_names[0]}:` : props.emoji;
+        }}
+      />
+    )
+
+    if (emoji) {
+      partsOfTheMessageText.push(emoji)
+    } else {
+      partsOfTheMessageText.push(matchArr[0])
+    }
+  }
+
+  const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+
+  if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText);
+
+  const message = partsOfTheMessageText.join('')
+
   // prettier-ignore
   return (
     <Message className="column" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
@@ -220,9 +259,7 @@ export default function MessageComponent(props) {
               }
             </div>
 
-            <Text>
-              <ReactMarkdown source={props.message} />
-            </Text>
+            <Text dangerouslySetInnerHTML={{__html: message}} />
 
             {props.reactions &&
               <React.Fragment>
