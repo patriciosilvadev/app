@@ -41,8 +41,8 @@ import Keg from '@joduplessis/keg'
 // Only enable sentry & SWs for production
 if (process.env.ENVIRONMENT != 'dev') {
   Sentry.init({ dsn: process.env.SENTRY })
-
   // For Workbox - registers a SW
+  /*
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker
@@ -55,6 +55,7 @@ if (process.env.ENVIRONMENT != 'dev') {
         })
     })
   }
+  */
 }
 
 // Redux with our middlewares
