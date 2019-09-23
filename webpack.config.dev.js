@@ -5,8 +5,6 @@ const WorkboxPlugin = require('workbox-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 
 module.exports = env => {
-  const SOCKETIO_HOST = 'http://localhost:3333'
-
   return {
     mode: 'development',
     devtool: 'source-map',
