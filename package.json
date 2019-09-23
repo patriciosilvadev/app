@@ -4,7 +4,7 @@
     "description": "Weekday, a hackable team messaging platform.",
     "main": "index.js",
     "scripts": {
-        "build": "webpack --config webpack.config.js",
+        "build:prod": "webpack --config webpack.config.js",
         "build:dev": "webpack --config webpack.config.dev.js",
         "watch:prod": "webpack -w --config webpack.config.js",
         "watch:dev": "webpack -w --config webpack.config.dev.js",
