@@ -31,15 +31,10 @@ module.exports = env => {
         favicon: './src/images/favicon.png',
         socketio: SOCKETIO_HOST +'/socket.io/socket.io.js',
       }),
-      /*
-      Removed here - we don't want SW caching to interfere with dev
-      This line will be in prod though
-
       new WorkboxPlugin.GenerateSW({
         clientsClaim: true,
         skipWaiting: true
       })
-      */
     ],
     optimization: {
       splitChunks: {
