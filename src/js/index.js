@@ -9,7 +9,7 @@ import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { API_HOST } from './constants'
+import { API_HOST } from './environment'
 import { sync } from './middleware/sync'
 import AuthPage from './pages/auth.page'
 import ConfirmPage from './pages/confirm.page'
@@ -27,25 +27,8 @@ import team from './reducers/team'
 import teams from './reducers/teams'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
-import * as Sentry from '@sentry/browser'
 import Keg from '@joduplessis/keg'
-
-// Set up Sentry
-Sentry.init({ dsn: 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390' })
-
-// Workbox
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/service-worker.js')
-      .then(registration => {
-        console.log('SW registered: ', registration)
-      })
-      .catch(registrationError => {
-        console.log('SW registration failed: ', registrationError)
-      })
-  })
-}
+import './environment'
 
 // Redux with our middlewares
 const store = createStore(

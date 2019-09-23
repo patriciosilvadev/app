@@ -3,7 +3,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
-const envFilePath = process.env.NODE_ENV == 'production' ? 'constants.prod.js' : 'constants.js'
+const envFilePath = process.env.NODE_ENV == 'production' ? 'environment.production.js' : 'environment.staging.js'
 
 module.exports = env => {
   return {
@@ -34,7 +34,7 @@ module.exports = env => {
         skipWaiting: true
       }),
       new webpack.NormalModuleReplacementPlugin(
-          /src\/js\/constants\.js/,
+          /src\/js\/environment\.js/,
           envFilePath
       ),
     ],

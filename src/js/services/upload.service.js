@@ -1,4 +1,4 @@
-import { UPLOAD_HOST } from '../constants'
+import { UPLOAD_HOST } from '../environment'
 
 export default class UploadService {
   constructor(file) {

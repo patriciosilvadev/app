@@ -1,5 +1,5 @@
 import PouchDB from 'pouchdb'
-import { LOCAL_DB } from '../constants'
+import { LOCAL_DB } from '../environment'
 
 export default class DatabaseService {
   static instance

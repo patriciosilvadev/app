@@ -1,4 +1,4 @@
-import { SOCKETIO_HOST } from '../constants'
+import { SOCKETIO_HOST } from '../environment'
 
 export default class MessagingService {
   static instance

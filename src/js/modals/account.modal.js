@@ -155,17 +155,17 @@ export default function AccountModal(props) {
           panels={[
             {
               title: 'Billing',
-              show: true,
+              show: false,
               content: <div></div>
             },
             {
               title: 'Invoices',
-              show: true,
+              show: false,
               content: <div></div>
             },
             {
               title: 'Notifications',
-              show: true,
+              show: false,
               content: <div></div>
             },
             {
