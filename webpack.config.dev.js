@@ -3,7 +3,6 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
-const envFilePath = process.env.NODE_ENV == 'production' ? 'environment.production.js' : 'environment.staging.js'
 
 module.exports = env => {
   return {
@@ -31,8 +30,7 @@ module.exports = env => {
         socketio: 'http://localhost:3333/socket.io/socket.io.js',
       }),
       new webpack.NormalModuleReplacementPlugin(
-          /src\/js\/environment\.js/,
-          envFilePath
+          /src\/js\/environment\.js/, 'environment.staging.js'
       ),
       /*
       Removed here - we don't want SW caching to interfere with dev
