@@ -1,0 +1,5 @@
+export const UPLOAD_HOST = 'https://api.weekday.sh/api/upload'
+export const AUTH_HOST = 'https://api.weekday.sh/api/auth'
+export const API_HOST = 'https://api.weekday.sh/graphql'
+export const SOCKETIO_HOST = 'https://websocket.weekday.sh'
+export const LOCAL_DB = 'weekday'

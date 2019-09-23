@@ -30,32 +30,21 @@ import rooms from './reducers/rooms'
 import * as Sentry from '@sentry/browser'
 import Keg from '@joduplessis/keg'
 
-// Testing
-// import { CRoutes } from './conductor/CRoutes'
-// import { CRoute } from './conductor/CRoute'
-// var UrlPattern = require('url-pattern');
-// var teamPattern = new UrlPattern('/app/team/:teamId/');
-// var roomPattern = new UrlPattern('/app/team/:teamId/room/:roomId');
-// console.log(teamPattern.match('/app/team/5ce12ae5ffd420dc2f5a6878/'))
-// console.log(roomPattern.match('/app/team/5ce12ae5ffd420dc2f5a6878/room/23923764972364927234'))
-// Only enable sentry & SWs for production
-if (process.env.ENVIRONMENT != 'dev') {
-  Sentry.init({ dsn: process.env.SENTRY })
-  // For Workbox - registers a SW
-  /*
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker
-        .register('/service-worker.js')
-        .then(registration => {
-          console.log('SW registered: ', registration)
-        })
-        .catch(registrationError => {
-          console.log('SW registration failed: ', registrationError)
-        })
-    })
-  }
-  */
+// Set up Snetry
+Sentry.init({ dsn: 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390' })
+
+// Workbox
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration)
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError)
+      })
+  })
 }
 
 // Redux with our middlewares
@@ -84,14 +73,6 @@ const apollo = new ApolloClient({
 ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
-        {/*
-          Placeholder for Conductor dev
-          <button onClick={() => Keg.keg('location').refill('update', '/app/team')}>Click me</button>
-          <CRoutes>
-            <CRoute path='/app' component={DemoPage} routeProps={{ id: 12 }}></CRoute>
-          </CRoutes>
-        */}
-
         <Router history={browserHistory}>
           <Route path="/auth" component={AuthPage} />
           <Route path="/confirm/:token" component={ConfirmPage} />

@@ -3,11 +3,9 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
-const envFile = require('dotenv').config({ path: __dirname + '/.env' })
+const envFilePath = process.env.NODE_ENV == 'production' ? 'constants.prod.js' : 'constants.js'
 
 module.exports = env => {
-  const SOCKETIO_HOST = process.env.ENVIRONMENT == 'dev' ? process.env.SOCKETIO_HOST : process.env.SOCKETIO_HOST_PROD
-
   return {
     mode: 'production',
     entry: {
@@ -29,12 +27,16 @@ module.exports = env => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         favicon: './src/images/favicon.png',
-        socketio: SOCKETIO_HOST +'/socket.io/socket.io.js',
+        socketio: 'https://websocket.weekday.sh/socket.io/socket.io.js',
       }),
       new WorkboxPlugin.GenerateSW({
         clientsClaim: true,
         skipWaiting: true
-      })
+      }),
+      new webpack.NormalModuleReplacementPlugin(
+          /src\/js\/constants\.js/,
+          envFilePath
+      ),
     ],
     optimization: {
       splitChunks: {

@@ -3,10 +3,9 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
-const envFile = require('dotenv').config({ path: __dirname + '/.env' })
 
 module.exports = env => {
-  const SOCKETIO_HOST = envFile.parsed.ENVIRONMENT == 'dev' ? envFile.parsed.SOCKETIO_HOST : envFile.parsed.SOCKETIO_HOST_PROD
+  const SOCKETIO_HOST = 'http://localhost:3333'
 
   return {
     mode: 'development',
@@ -30,7 +29,7 @@ module.exports = env => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         favicon: './src/images/favicon.png',
-        socketio: SOCKETIO_HOST +'/socket.io/socket.io.js',
+        socketio: 'http://localhost:3333/socket.io/socket.io.js',
       }),
       /*
       Removed here - we don't want SW caching to interfere with dev
