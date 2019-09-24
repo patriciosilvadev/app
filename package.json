@@ -18,10 +18,9 @@
     "license": "ISC",
     "url": "https://github.com/getweekday/app",
     "dependencies": {
-        "@joduplessis/conductor": "git+https://github.com/joduplessis/conductor.git",
-        "@joduplessis/keg": "git+https://github.com/joduplessis/keg.git",
+        "@joduplessis/keg": "0.0.2",
         "@sentry/browser": "^5.5.0",
-        "@weekday/elements": "git+https://github.com/getweekday/elements.git",
+        "@weekday/elements": "^0.3.1",
         "apollo-cache-inmemory": "^1.2.10",
         "apollo-client": "^2.4.2",
         "apollo-link-http": "^1.5.5",
