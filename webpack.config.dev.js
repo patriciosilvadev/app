@@ -66,6 +66,7 @@ module.exports = env => {
     },
     module: {
       rules: [
+        /*
         {
           test: /\.js$/,
           exclude: /node_modules/,
@@ -73,6 +74,7 @@ module.exports = env => {
           enforce: "pre",
           options: {}
         },
+        */
         {
           test: /.htaccess/,
           use: [

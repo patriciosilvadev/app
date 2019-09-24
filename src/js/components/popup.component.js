@@ -108,7 +108,7 @@ export default class PopupComponent extends React.Component {
             <div style={{ top, left, width, height, position: 'absolute' }}>
               <Content
                 ref={(ref) => this.wrapperRef = ref}
-                width={this.props.contentWidth}
+                width={this.props.width}
                 className={this.props.direction}>
                 <ContentActiveArea>
                   {this.props.content}

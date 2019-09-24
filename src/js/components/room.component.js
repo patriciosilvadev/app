@@ -15,7 +15,7 @@ const List = styled.div`
   width: 100%;
 
   &.active {
-    background: #0c1828;
+
   }
 `
 
@@ -35,32 +35,32 @@ const Icon = styled.div`
 const Title = styled.div`
   overflow: hidden;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 500;
-  color: #475669;
+  color: #acb5bd;
   white-space: nowrap;
   width: max-content;
   padding-left: 10px;
 
   &.active {
-    color: #ffffff;
+    color: #495057;
     font-weight: 600;
   }
 `
 
 const Excerpt = styled.div`
   font-size: 13px;
-  color: #475669;
+  color: #acb5bd;
   white-space: nowrap;
   overflow: hidden;
-  font-weight: 400;
+  font-weight: 500;
   text-overflow: ellipsis;
   padding-left: 5px;
   opacity: 0.8;
   flex: 1;
 
   &.active {
-    color: #475669;
+    color: #495057;
     font-weight: 500;
   }
 `
@@ -76,7 +76,6 @@ export default function RoomComponent(props) {
       onClick={props.onClick ? props.onClick : null}
       className={props.active ? "row active" : "row"}>
         <Avatar
-          dark={props.dark}
           size="small-medium"
           image={props.image}
           title={props.title}
@@ -88,7 +87,7 @@ export default function RoomComponent(props) {
 
         {!props.public && !props.private &&
           <IconComponentLock
-            fill={props.active || props.unread ? "white" : "#475669"}
+            fill={props.active || props.unread ? "#495057" : "#acb5bd"}
             className="ml-5"
             size={16}
           />

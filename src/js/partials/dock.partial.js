@@ -21,7 +21,8 @@ const Dock = styled.div`
   position: relative;
   z-index: 2;
   background: #08111d;
-  border-right: 1px solid #0c1828;
+  background: white;
+  border-right: 1px solid #f1f3f5;
 `
 
 class DockPartial extends React.Component {
@@ -86,12 +87,11 @@ class DockPartial extends React.Component {
           return (
             <Link key={index} to={`/app/team/${team.id}`}>
               <Avatar
-                dark
-                size="medium"
+                size="large"
                 image={team.image}
                 title={team.name}
                 className="button mb-10"
-                outlineInnerColor="#08111d"
+                outlineInnerColor="white"
                 outlineOuterColor={lastPathname != "starred" && this.props.team.id == team.id ? "#007af5" : "transparent"}
               />
             </Link>
@@ -99,33 +99,32 @@ class DockPartial extends React.Component {
         })}
 
         <IconComponentAdd
-          fill="#475669"
+          fill="#babec9"
           size={24}
-          className="mt-5 button"
+          className="mt-10 button"
           onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
-          icon="DOCK_ADD_TEAM"
         />
 
         <div className="flexer"></div>
 
         <IconComponentHelp
-          fill="#475669"
+          fill="#babec9"
           onClick={(e) => console.log('Help')}
-          className="mt-15 button"
+          className="mt-20 button"
           size={24}
         />
 
         <IconComponentSignout
-          fill="#475669"
-          className="mt-15 button"
+          fill="#babec9"
+          className="mt-20 button"
           onClick={this.signout}
           icon="DOCK_SIGNOUT"
           size={24}
         />
 
         <IconComponentAccount
-          fill="#475669"
-          className="mt-15 button"
+          fill="#babec9"
+          className="mt-20 button"
           onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
           icon="DOCK_ACCOUNT"
           size={24}

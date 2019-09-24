@@ -3,7 +3,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 const Error = styled.div`
-  position: absolute;
+  position: relative;
   top: 0px;
   left: 0px;
   width: 100%;
@@ -15,21 +15,14 @@ const Error = styled.div`
   align-items: center;
   align-content: center;
   justify-content: center;
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s, opacity 0.25s linear;
-
-  &.show {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 30px;
-    visibility: visible;
-    opacity: 1;
-    transition: visibility 0s, opacity 0.1s linear;
-    z-index: 10000;
-  }
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 30px;
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 0.1s linear;
+  z-index: 10000;
 `
 
 const Text = styled.div`
@@ -40,6 +33,8 @@ const Text = styled.div`
 
 export default function ErrorComponent(props) {
   const show = !!props.message
+
+  if (!show) return null
 
   // prettier-ignore
   return (

@@ -38,6 +38,7 @@ const Tools = styled.div`
 const Meta = styled.div`
   margin-left: 10px;
   font-size: 14px;
+  font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
 `
@@ -46,11 +47,11 @@ const User = styled.div`
   color: #212123;
   font-weight: 600;
   font-style: normal;
-  font-size: 14px;
+  font-size: 16px;
 `
 
 const Text = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   color: #212123;
   font-weight: 400;
   line-height: 1.4;
@@ -69,12 +70,12 @@ const Text = styled.div`
   code {
     background: #fafafa;
     border: 1px solid #eaeaea;
-    border-left: 3px solid #007af5;
-    color: #666;
-    border-radius: 5px;
+    border-left: 5px solid #007af5;
+    color: #495057;
+    border-radius: 2px;
     page-break-inside: avoid;
-    font-family: monospace;
-    font-size: 14px;
+    font-family: Menlo, monospace;
+    font-size: 12px;
     margin-top: 5px;
     line-height: 1.6;
     max-width: 100%;

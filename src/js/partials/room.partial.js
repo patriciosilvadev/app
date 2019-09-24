@@ -33,8 +33,8 @@ const Header = styled.div`
 `
 
 const HeaderTitle = styled.div`
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 25px;
+  font-weight: 800;
   font-style: normal;
   color: #040b1c;
   padding-left: 15px;

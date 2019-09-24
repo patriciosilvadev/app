@@ -16,12 +16,13 @@ import IconComponentAddCircle from '../icons/System/add-circle-line'
 import IconComponentSearch from '../icons/System/search-line'
 
 const Rooms = styled.div`
-  width: 300px;
+  width: 350px;
   display: flex;
   height: 100%;
   position: relative;
   z-index: 2;
-  background: #08111d;
+  background: white;
+  border-right: 1px solid #f1f3f5;
 `
 
 const Header = styled.div`
@@ -33,9 +34,9 @@ const Header = styled.div`
 `
 
 const HeaderTitle = styled.div`
-  font-size: 14px;
-  font-weight: 400;
-  color: #8492a6;
+  font-size: 16px;
+  font-weight: 600;
+  color: #6c707c;
 `
 
 const HeaderSubtitle = styled.div`
@@ -43,45 +44,59 @@ const HeaderSubtitle = styled.div`
 `
 
 const HeaderSubtitleTeam = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #475669;
+  margin-left: 10px;
 `
 
 const HeaderSubtitleTeamLink = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #007af5;
-  margin-left: 5px;
 `
 
 const SearchInput = styled.input`
-  font-size: 14px;
+  font-size: 16px;
   border: none;
-  background: transparent;
   width: 100%;
-  color: #8492a6;
+  padding: 15px;
+  color: #495057;
+  font-weight: 500;
+  background: transparent;
 
   &::placeholder {
-    color: #475669;
+    color: #acb5bd;
   }
 `
 
 const SearchContainer = styled.div`
-  background-color: transparent;
-  width: 100%;
-  padding: 25px 25px 0px 25px;
-  border-bottom: 0px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  width: 300px;
+  margin: 25px;
+  margin-bottom: 0px;
+  margin-top: 15px;
   transition: background-color 0.5s;
+  background: #f8f9fa;
+
 `
 
 const Heading = styled.div`
   padding: 25px 25px 10px 25px;
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
+`
+
+const HeaderTitleTemp = styled.div`
+  font-size: 50px;
+  font-weight: 800;
+  font-style: normal;
+  color: #040b1c;
+  transition: opacity 0.5s;
+  display: inline-block;
 `
 
 const FooterButton = styled.div`
@@ -242,6 +257,8 @@ class RoomsPartial extends React.Component {
           />
         }
 
+        {/*
+
         <Header className="row">
           <Avatar
             dark
@@ -255,24 +272,41 @@ class RoomsPartial extends React.Component {
             <HeaderTitle>
               {this.props.common.user.name}
             </HeaderTitle>
-            <HeaderSubtitle className="row">
-              <HeaderSubtitleTeam>
-                {this.props.team.name}
-              </HeaderSubtitleTeam>
-              <HeaderSubtitleTeamLink
-                className="button"
-                onClick={() => this.setState({ teamModal: true })}>
-                View Team
-              </HeaderSubtitleTeamLink>
-            </HeaderSubtitle>
           </div>
+        </Header>
+        <HeaderSubtitle className="row">
+          <HeaderSubtitleTeam>
+            {this.props.team.name}
+          </HeaderSubtitleTeam>
+          <HeaderSubtitleTeamLink
+            className="button"
+            onClick={() => this.setState({ teamModal: true })}>
+            View Team
+          </HeaderSubtitleTeamLink>
+        </HeaderSubtitle>
+        */}
+        <Header className="column">
+          <div className="row">
+          <HeaderSubtitleTeamLink
+            className="button"
+            onClick={() => this.setState({ teamModal: true })}>
+            Update Team Details
+          </HeaderSubtitleTeamLink>
+          <HeaderSubtitleTeam>
+            {this.props.team.members.length} members
+          </HeaderSubtitleTeam>
+          </div>
+
+          <HeaderTitleTemp>
+            {this.props.team.name}
+          </HeaderTitleTemp>
         </Header>
 
         <SearchContainer className="row">
           <IconComponentSearch
             fill="#475669"
             size={20}
-            className="mr-5"
+            className="mr-5 ml-15"
           />
 
           <SearchInput
@@ -292,7 +326,6 @@ class RoomsPartial extends React.Component {
               {this.state.results.map((result, index) => {
                 return (
                   <RoomComponent
-                    dark
                     className="w-100"
                     key={index}
                     active={false}
@@ -309,7 +342,6 @@ class RoomsPartial extends React.Component {
 
               {this.state.results.length == 0 &&
                 <RoomComponent
-                  dark
                   className="w-100"
                   active={false}
                   unread={null}
@@ -339,7 +371,6 @@ class RoomsPartial extends React.Component {
                 return (
                   <Link className="w-100" key={index} to={to}>
                     <RoomComponent
-                      dark
                       active={pathname.indexOf(room.id) != -1}
                       unread={unread}
                       title={title}
@@ -369,7 +400,6 @@ class RoomsPartial extends React.Component {
                 return (
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
                     <RoomComponent
-                      dark
                       active={pathname.indexOf(room.id) != -1}
                       unread={unread}
                       title={room.title}
@@ -400,7 +430,6 @@ class RoomsPartial extends React.Component {
                 return (
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
                     <RoomComponent
-                      dark
                       active={pathname.indexOf(room.id) != -1}
                       unread={unread}
                       title={title}
@@ -415,6 +444,17 @@ class RoomsPartial extends React.Component {
               })}
             </React.Fragment>
           }
+
+          <RoomComponent
+            active={false}
+            unread={null}
+            title="New Channel"
+            image={null}
+            icon={null}
+            excerpt={null}
+            public={true}
+            private={false}
+          />
         </div>
 
         <FooterButton className="row" onClick={() => this.setState({ roomModal: true })}>
