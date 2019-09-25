@@ -395,7 +395,7 @@ class AuthPage extends React.Component {
 
                           <Footer className="column align-items-center">
                             <Button
-                              jumbo
+                              size="large"
                               type="submit"
                               disabled={isSubmitting}
                               text="Send me a verification code"
@@ -477,7 +477,7 @@ class AuthPage extends React.Component {
 
                           <Footer className="column align-items-center">
                             <Button
-                              jumbo
+                              size="large"
                               type="submit"
                               disabled={isSubmitting}
                               text="Update Password"
@@ -579,7 +579,7 @@ class AuthPage extends React.Component {
 
                       <Footer className="column align-items-center">
                         <Button
-                          jumbo
+                          size="large"
                           type="submit"
                           disabled={isSubmitting}
                           text="Sign up"
@@ -655,7 +655,7 @@ class AuthPage extends React.Component {
 
                       <Spacer />
                       <Button
-                        jumbo
+                        size="large"
                         type="submit"
                         disabled={isSubmitting}
                         text="Sign in"

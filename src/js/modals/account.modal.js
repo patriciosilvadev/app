@@ -142,7 +142,7 @@ export default function AccountModal(props) {
             <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
               <div className="flexer" />
               <Button
-                jumbo
+                size="large"
                 onClick={handleSubmit}
                 text="Save"
               />

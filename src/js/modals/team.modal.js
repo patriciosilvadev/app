@@ -334,9 +334,9 @@ export default function TeamModal(props) {
               <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
                 Delete team
               </SmallTextButton>
-              
+
               <Button
-                jumbo
+                size="large"
                 onClick={updateTeam}
                 text="Save"
               />

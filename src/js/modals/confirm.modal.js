@@ -21,8 +21,8 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
             </div>
           </div>
           <div className="row justify-content-center pt-30 pb-30">
-            <Button jumbo onClick={onOkay} text="Yes" className="mr-10" />
-            <Button jumbo onClick={onCancel} text="No" />
+            <Button size="large" onClick={onOkay} text="Yes" className="mr-10" />
+            <Button size="large" onClick={onCancel} text="No" />
           </div>
       </ModalComponent>
     </ModalPortal>

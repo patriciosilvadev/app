@@ -10,7 +10,6 @@ import PopupComponent from '../components/popup.component'
 import LoadingComponent from '../components/loading.component'
 import ErrorComponent from '../components/error.component'
 import PropTypes from 'prop-types'
-import { createRoom } from '../actions'
 import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
@@ -107,16 +106,9 @@ export default function RoomModal(props) {
 
               {/* Null here means it's a channel - no user */}
               <Button
-                jumbo
-                onClick={() => {
-                  if (props.id) {
-                    dispatch(updateRoom({ title, image, description }))
-                  } else {
-                    dispatch(createRoom(title, description, image, team.id, null))
-                    props.onClose()
-                  }
-                }}
-                text={props.id ? "Update" : "Create"}
+                size="large"
+                onClick={() => dispatch(updateRoom({ title, image, description }))}
+                text="Update"
               />
             </div>
           </div>
