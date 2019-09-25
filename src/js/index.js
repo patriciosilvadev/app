@@ -27,7 +27,6 @@ import team from './reducers/team'
 import teams from './reducers/teams'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
-import Keg from '@joduplessis/keg'
 import './environment'
 
 // Redux with our middlewares

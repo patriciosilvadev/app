@@ -14,8 +14,9 @@ import RoomModal from '../modals/room.modal'
 import MenuComponent from '../components/menu.component'
 import ReactMarkdown from 'react-markdown'
 import PopupComponent from '../components/popup.component'
-import { DeleteOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, PeopleOutline, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
+import { MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, PeopleOutline, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
 import ConfirmModal from '../modals/confirm.modal'
+import QuickUserComponent from '../components/quick-user.component'
 
 const Room = styled.div`
   background: white;
@@ -46,7 +47,6 @@ const HeaderTitle = styled.div`
   transition: opacity 0.5s;
   display: inline-block;
   margin-right: 0px;
-  flex: 1;
 `
 
 const HeaderButton = styled.div`
@@ -57,21 +57,6 @@ const HeaderButton = styled.div`
   transition: opacity 0.5s;
   position: relative;
   cursor: pointer;
-`
-
-const Badge = styled.span`
-  display: inline-block;
-  width: auto;
-  border-radius: 10px;
-  padding: 3px 5px 3px 5px;
-  color: white;
-  background: #007af5;
-  font-size: 8px;
-  font-weight: 800;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  transform: translateX(30%) translateY(-50%);
 `
 
 const Messages = styled.div`
@@ -85,6 +70,13 @@ const MessagesContainer = styled.div`
   width: 100%;
   padding: 25px;
   height: 1px; /* Important for the height to be set here */
+`
+
+const MembersLink = styled.div`
+  color: #007AF5;
+  font-weight: 700;
+  font-size: 12px;
+  margin-right: 15px;
 `
 
 const Blocked = styled.div`
@@ -322,14 +314,10 @@ class RoomPartial extends React.Component {
                 {!this.state.starred && <StarBorder htmlColor="#babec9" fontSize="default" />}
               </HeaderButton>
 
-              {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
-                <HeaderButton onClick={() => this.setState({ roomUpdateModal: true })}>
-                  <CreateOutlined
-                    htmlColor="#acb5bd"
-                    fontSize="default"
-                  />
-                </HeaderButton>
-              }
+              <HeaderButton>
+                {this.props.room.public && <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />}
+                {!this.props.room.public && <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />}
+              </HeaderButton>
 
               <PopupComponent
                 handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -338,61 +326,83 @@ class RoomPartial extends React.Component {
                   <div className="column flexer">
                     <MenuComponent
                       items={[
-                        { icon: <VisibilityOutlined htmlColor="#acb5bd" fontSize="small" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                        { icon: <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="small" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                        { icon: <CreateOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Update", label: 'Update room details', onClick: (e) => this.setState({ visibilityMenu: false, roomUpdateModal: true }), hide: !(!this.props.room.private && this.props.room.user.id == this.props.common.user.id) },
+                        { icon: <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
+                        { icon: <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
+                        { icon: <DeleteOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Delete", label: 'Delete room', onClick: (e) => this.setState({ visibilityMenu: false, confirmDeleteModal: true }) },
                       ]}
                     />
                   </div>
                 }>
                 <HeaderButton onClick={() => this.setState({ visibilityMenu: true })}>
-                  {this.props.room.public && <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />}
-                  {!this.props.room.public && <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />}
+                  <MoreHorizOutlined
+                    htmlColor="#acb5bd"
+                    fontSize="default"
+                  />
                 </HeaderButton>
               </PopupComponent>
 
-              <HeaderButton onClick={() => this.setState({ roomUpdateModal: true })}>
-                <PeopleOutline
-                  htmlColor="#acb5bd"
-                  fontSize="default"
-                />
-                <Badge>
-                  {this.props.room.members.length.numberShorthand()}
-                </Badge>
-              </HeaderButton>
+              <div className="flexer"></div>
 
-              <HeaderButton onClick={() => this.setState({ confirmDeleteModal: true })}>
-                <DeleteOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
-                />
-              </HeaderButton>
-            </Header>
-          }
+              <MembersLink>
+                Manage Members
+              </MembersLink>
 
-          <div className="row p-10 w-100">
-            {this.props.room.members.map((member, index) => {
-              return (
+              <QuickUserComponent
+                teamId={this.props.team.id}
+                visible={this.state.userMenu}
+                width={250}
+                direction="right-bottom"
+                handleDismiss={() => this.setState({ userMenu: false })}
+                handleAccept={({ user }) => this.createRoomMember(user)}>
                 <Avatar
-                  className="mr-5 mb-5"
+                  className="mr-5"
                   size="medium"
                   circle
-                  image={member.user.image}
-                  outlineOuterColor={this.props.common.user.id == member.user.id ? "#007AF5" : null}
-                  outlineInnerColor="#FFFFFF"
-                  title={member.user.name}
-                  key={index}
-                  onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}
-                  deleteIcon={
-                    <CloseOutlined
-                      htmlColor="#ffffff"
-                      fontSize="small"
-                    />
-                  }
-                />
-              )
-            })}
-            <div className="flexer"></div>
-          </div>
+                  image={null}
+                  color="#007AF5"
+                  title=""
+                  onClick={() => this.setState({ userMenu:true })}>
+                  <AddOutlined
+                    htmlColor="#007AF5"
+                    fontSize="small"
+                  />
+                </Avatar>
+              </QuickUserComponent>
+
+              {this.props.room.members.slice(0,3).map((member, index) => {
+                return (
+                  <Avatar
+                    className="mr-5"
+                    size="medium"
+                    circle
+                    image={member.user.image}
+                    outlineOuterColor={this.props.common.user.id == member.user.id ? "#007AF5" : null}
+                    outlineInnerColor="#FFFFFF"
+                    title={member.user.name}
+                    key={index}
+                    onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}
+                    deleteIcon={
+                      <CloseOutlined
+                        htmlColor="#ffffff"
+                        fontSize="small"
+                      />
+                    }
+                  />
+                )
+              })}
+
+              <Avatar
+                className="hide"
+                size="medium"
+                circle
+                image={null}
+                color="#007AF5"
+                title={this.props.room.members.length.numberShorthand()}
+                onClick={() => this.setState({ userMenu:true })}
+              />
+            </Header>
+          }
 
           <Messages ref={(ref) => this.scrollRef = ref}>
             {this.state.open &&

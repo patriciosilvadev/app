@@ -69,20 +69,24 @@ const SearchInput = styled.input`
   }
 `
 
-const SearchContainer = styled.div`
+const SearchInner = styled.div`
   border-radius: 3px;
-  width: 300px;
-  margin: 25px;
-  margin-bottom: 0px;
-  margin-top: 15px;
-  transition: background-color 0.5s;
   background: #f8f9fa;
+  flex: 1;
+  margin: 10px;
+  margin-right: 0px;
+`
+
+const SearchContainer = styled.div`
+  width: 100%;
+  border-bottom: 1px solid #f1f3f5;
+  height: 70px;
 `
 
 const Heading = styled.div`
   padding: 25px 25px 10px 25px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
@@ -226,35 +230,38 @@ class RoomsPartial extends React.Component {
           />
         }
 
-        <Header className="row">
+        <SearchContainer className="row">
+          <SearchInner className="row">
+            <Search
+              htmlColor="#475669"
+              fontSize="small"
+              className="ml-15"
+            />
+
+            <SearchInput
+              ref={(ref) => this.filterRef = ref}
+              visible={this.state.showFilter}
+              value={this.state.filter}
+              onChange={this.onSearch}
+              placeholder="Search by name..."
+            />
+          </SearchInner>
+
+          <SettingsOutlined
+            htmlColor="#acb5bd"
+            fontSize="default"
+            className="mr-20 ml-20 button"
+            onClick={() => this.setState({ teamModal: true })}
+          />
+        </SearchContainer>
+
+        <Header className="row hide">
           <HeaderTitle>
             {this.props.team.name}
           </HeaderTitle>
           <div className="row">
-            <SettingsOutlined
-              htmlColor="#acb5bd"
-              fontSize="default"
-              className="ml-15 button"
-              onClick={() => this.setState({ teamModal: true })}
-            />
           </div>
         </Header>
-
-        <SearchContainer className="row">
-          <Search
-            htmlColor="#475669"
-            fontSize="small"
-            className="ml-15"
-          />
-
-          <SearchInput
-            ref={(ref) => this.filterRef = ref}
-            visible={this.state.showFilter}
-            value={this.state.filter}
-            onChange={this.onSearch}
-            placeholder="Search by name..."
-          />
-        </SearchContainer>
 
         <div className="flexer w-100 column align-items-stretch scroll">
           {this.state.filter != "" &&
@@ -327,7 +334,7 @@ class RoomsPartial extends React.Component {
             <React.Fragment>
               <Heading className="row">
                 <span className="flexer">
-                  Channels
+                  {this.props.team.name} Channels
                 </span>
 
                 <AddCircleOutline
