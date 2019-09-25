@@ -9,10 +9,9 @@ import PopupComponent from '../components/popup.component'
 import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
 import PropTypes from 'prop-types'
-import IconComponentSmile from '../icons/User/user-smile-line'
-import IconComponentReply from '../icons/Business/reply-line'
 import ReactDOMServer from 'react-dom/server'
 import marked from 'marked'
+import { SentimentSatisfiedOutlined, ReplyOutlined } from '@material-ui/icons'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -53,7 +52,7 @@ const User = styled.div`
 const Text = styled.div`
   font-size: 16px;
   color: #212123;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.4;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -244,17 +243,17 @@ export default function MessageComponent(props) {
                       />
                     }>
 
-                    <IconComponentSmile
-                      fill="#CFD4D9"
-                      size={18}
+                    <SentimentSatisfiedOutlined
+                      htmlColor="#CFD4D9"
+                      fontSize="small"
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
                   </PopupComponent>
 
-                  <IconComponentReply
-                    fill="#CFD4D9"
-                    size={18}
+                  <ReplyOutlined
+                    htmlColor="#CFD4D9"
+                    fontSize="small"
                     className="button"
                     onClick={() => setReply(!reply)}
                   />

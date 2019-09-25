@@ -18,9 +18,7 @@ import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
-import IconComponentCheck from '../icons/System/check-line'
-import IconComponentDelete from '../icons/System/delete-bin-7-line'
-import IconComponentClose from '../icons/System/close-line'
+import { AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
 
 const Header = styled.div`
   flex: 1;
@@ -484,10 +482,10 @@ export default function TeamModal(props) {
                         onChange={(e) => setUsernames(e.target.value)}
                       />
 
-                    <IconComponentCheck
-                        fill="#EBEDEF"
+                      <AddCircleOutlined
+                        htmlColor="#EBEDEF"
                         className="mr-20 button"
-                        size={20}
+                        fontSize="default"
                         onClick={createTeamMembers}
                       />
                     </Usernames>
@@ -501,9 +499,9 @@ export default function TeamModal(props) {
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
                           label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
 
-                          <IconComponentDelete
-                            fill="#007af5"
-                            size={20}
+                          <DeleteOutlined
+                            htmlColor="#007af5"
+                            fontSize="default"
                             onClick={() => handleDeleteClick(member)}
                             className="button"
                           />

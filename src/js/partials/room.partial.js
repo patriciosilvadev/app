@@ -14,10 +14,8 @@ import RoomModal from '../modals/room.modal'
 import MenuComponent from '../components/menu.component'
 import ReactMarkdown from 'react-markdown'
 import PopupComponent from '../components/popup.component'
-import { DeleteOutlined, StarBorder, Star, Create, PeopleOutline, Subject, VisibilityOff, Visibility } from '@material-ui/icons';
+import { DeleteOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, PeopleOutline, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
 import ConfirmModal from '../modals/confirm.modal'
-import IconComponentClose from '../icons/System/close-line'
-import IconComponentAdd from '../icons/System/add-line'
 
 const Room = styled.div`
   background: white;
@@ -34,8 +32,9 @@ const Header = styled.div`
   background: transparent;
   border-bottom: 1px solid #f1f3f5;
   background: white;
-  padding 25px;
+  padding 0px 25px 0px 25px;
   display: flex;
+  height: 70px;
 `
 
 const HeaderTitle = styled.div`
@@ -325,7 +324,7 @@ class RoomPartial extends React.Component {
 
               {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
                 <HeaderButton onClick={() => this.setState({ roomUpdateModal: true })}>
-                  <Create
+                  <CreateOutlined
                     htmlColor="#acb5bd"
                     fontSize="default"
                   />
@@ -339,15 +338,15 @@ class RoomPartial extends React.Component {
                   <div className="column flexer">
                     <MenuComponent
                       items={[
-                        { icon: <Visibility htmlColor="#acb5bd" fontSize="small" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                        { icon: <VisibilityOff htmlColor="#acb5bd" fontSize="small" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                        { icon: <VisibilityOutlined htmlColor="#acb5bd" fontSize="small" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                        { icon: <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="small" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
                       ]}
                     />
                   </div>
                 }>
                 <HeaderButton onClick={() => this.setState({ visibilityMenu: true })}>
-                  {this.props.room.public && <Visibility htmlColor="#acb5bd" fontSize="default" />}
-                  {!this.props.room.public && <VisibilityOff htmlColor="#acb5bd" fontSize="default" />}
+                  {this.props.room.public && <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />}
+                  {!this.props.room.public && <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />}
                 </HeaderButton>
               </PopupComponent>
 
@@ -384,9 +383,9 @@ class RoomPartial extends React.Component {
                   key={index}
                   onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}
                   deleteIcon={
-                    <IconComponentClose
-                      color="white"
-                      size={16}
+                    <CloseOutlined
+                      htmlColor="#ffffff"
+                      fontSize="small"
                     />
                   }
                 />

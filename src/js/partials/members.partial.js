@@ -9,8 +9,7 @@ import { createRoomMember, deleteRoomMember } from '../actions'
 import PropTypes from 'prop-types'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
-import IconComponentClose from '../icons/System/close-line'
-import IconComponentAdd from '../icons/System/add-line'
+import { CloseOutlined, AddOutlined } from '@material-ui/icons'
 
 const Container = styled.div`
   width: 250px;
@@ -91,7 +90,7 @@ class MembersPartial extends React.Component {
           <Title>
             Members
           </Title>
-          <IconComponentClose
+          <CloseOutlined
             color="#858e96"
             size={24}
             className="button"
@@ -140,7 +139,7 @@ class MembersPartial extends React.Component {
               color="#007AF5"
               title=""
               onClick={() => this.setState({ userMenu:true })}>
-              <IconComponentAdd
+              <AddOutlined
                 fill="#007AF5"
                 size={16}
               />

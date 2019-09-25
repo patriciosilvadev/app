@@ -18,7 +18,7 @@ import { browserHistory } from '../services/browser-history.service'
 import { updateRoom } from '../actions'
 import SpinnerComponent from '../components/spinner.component'
 import NotificationComponent from '../components/notification.component'
-import IconComponentMarkdown from '../icons/Document/markdown-fill'
+import { DiMarkdown } from 'react-icons/di'
 
 const Row = styled.div`
   background-color: transparent;
@@ -160,8 +160,8 @@ export default function RoomModal(props) {
             />
 
             <div className="row">
-              <IconComponentMarkdown
-                fill="#007af5"
+              <DiMarkdown
+                color="#007af5"
                 size={18}
               />
               <Supported>

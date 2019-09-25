@@ -3,7 +3,6 @@ import { Avatar } from '@weekday/elements'
 import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
-import IconComponentLock from '../icons/System/lock-line'
 import { LockOutlined } from '@material-ui/icons';
 
 const List = styled.div`

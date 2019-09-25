@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import IconComponentClose from '../icons/System/close-line'
+import { CloseOutlined } from '@material-ui/icons'
 
 const Modal = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
@@ -53,9 +53,9 @@ export default function ModalComponent({ children, open, title, width, height, o
       <Inner className="column" style={{ width, height }}>
         <Title className="row">
           <TitleText>{title}</TitleText>
-          <IconComponentClose
-            fill="#524150"
-            size={22}
+          <CloseOutlined
+            htmlColor="#524150"
+            fontSize="large"
             className="button"
             onClick={onClose}
           />

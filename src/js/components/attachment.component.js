@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import IconComponentClose from '../icons/System/close-line'
-import IconComponentDownload from '../icons/System/download-line'
-import IconComponentPaperclip from '../icons/Business/attachment-line'
+import { AttachFileOutlined, GetAppOutlined, CloseOutlined } from '@material-ui/icons'
 
 const Delete = styled.div`
   top: -5px;
@@ -152,9 +150,9 @@ export default function AttachmentComponent({ onDeleteClick, onDownloadClick, la
   // prettier-ignore
   return (
     <div className="row" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <IconComponentPaperclip
-        fill="#565456"
-        size={layout == "compose" ? 35 : 25}
+      <AttachFileOutlined
+        htmlColor="#565456"
+        fontSize={layout == "compose" ? "large" : "default"}
         className="mr-10"
       />
 

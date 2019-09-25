@@ -12,9 +12,7 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import TeamModal from '../modals/team.modal'
-import IconComponentAddCircle from '../icons/System/add-circle-line'
-import IconComponentSearch from '../icons/System/search-line'
-import { SettingsApplications, Search, AddCircleOutline } from '@material-ui/icons';
+import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline } from '@material-ui/icons';
 
 const Rooms = styled.div`
   width: 350px;
@@ -29,9 +27,10 @@ const Rooms = styled.div`
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding: 25px 25px 0px 25px;
-  border-bottom: 0px solid rgba(255, 255, 255, 0.05);
+  padding 0px 25px 0px 25px;
+  border-bottom: 1px solid #f1f3f5;
   transition: background-color 0.5s;
+  height: 70px;
 `
 
 const HeaderTitle = styled.div`
@@ -232,18 +231,12 @@ class RoomsPartial extends React.Component {
             {this.props.team.name}
           </HeaderTitle>
           <div className="row">
-            <HeaderSubtitle className="row">
-              <SettingsApplications
-                htmlColor="#007af5"
-                fontSize="small"
-                className="mr-5"
-              />
-              <HeaderSubtitleLink
-                className="button"
-                onClick={() => this.setState({ teamModal: true })}>
-                View
-              </HeaderSubtitleLink>
-            </HeaderSubtitle>
+            <SettingsOutlined
+              htmlColor="#acb5bd"
+              fontSize="default"
+              className="ml-15 button"
+              onClick={() => this.setState({ teamModal: true })}
+            />
           </div>
         </Header>
 
