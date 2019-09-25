@@ -7,13 +7,18 @@ import RoomModal from '../modals/room.modal'
 import PropTypes from 'prop-types'
 import { updateRoom } from '../actions'
 
-const Toolbar = styled.div`
+const Drawer = styled.div`
   height: 100%;
   background: white;
   border-left: 1px solid #f1f3f5;
-  box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0);
+  box-shadow: 0px 0px 100px 100px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
+  position: absolute;
   position: relative;
-  z-index: 1;
+  right: 0px;
+  top: 0px;
+  z-index: 1000;
+  width: 500px;
   width: 70px;
 `
 
@@ -27,8 +32,8 @@ class ToolbarPartial extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <Toolbar className="row">
-      </Toolbar>
+      <Drawer className="row">
+      </Drawer>
     )
   }
 }

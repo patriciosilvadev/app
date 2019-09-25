@@ -11,6 +11,7 @@ import UploadService from '../services/upload.service'
 import { MessageMedia } from '@weekday/elements'
 import MembersComponent from '../components/members.component'
 import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined } from '@material-ui/icons'
+import { DiMarkdown } from 'react-icons/di'
 
 const Compose = styled.div`
   width: 100%;
@@ -357,8 +358,13 @@ class ComposeComponent extends React.Component {
         </InputContainer>
 
         {!this.props.compact &&
-          <Footer>
-            Use can you <strong>**markdown**</strong> to format your message
+          <Footer className="row">
+            <DiMarkdown
+              color="#cfd4d9"
+              size={18}
+              className="mr-10"
+            />
+            <span>Use can you <strong>**markdown**</strong> to format your message</span>
           </Footer>
         }
       </Compose>

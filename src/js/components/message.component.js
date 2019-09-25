@@ -67,14 +67,14 @@ const Text = styled.div`
   }
 
   code {
-    background: #fafafa;
+    background: white;
     border: 1px solid #eaeaea;
     border-left: 5px solid #007af5;
     color: #495057;
     border-radius: 2px;
     page-break-inside: avoid;
     font-family: Menlo, monospace;
-    font-size: 12px;
+    font-size: 10px;
     margin-top: 5px;
     line-height: 1.6;
     max-width: 100%;
@@ -103,8 +103,8 @@ const Reactions = styled.div`
 
     .name {
       font-size: 12px;
-      font-weight: 500;
-      color: #8e8a8c;
+      font-weight: 800;
+      color: #212123;
       padding-left: 5px;
     }
   }
@@ -127,6 +127,7 @@ const ReplyContainer = styled.div`
 const ReplyText = styled.div`
   padding: 10px;
   border-radius: 100px;
+  border: 1px solid ${props => chroma(props.color).desaturate(2).brighten(2.25)};
   background: ${props =>
     props.color
       ? chroma(props.color)

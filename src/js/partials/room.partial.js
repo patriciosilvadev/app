@@ -64,6 +64,7 @@ const Messages = styled.div`
   overflow: scroll;
   width: 100%;
   border-bottom: 1px solid #f1f3f5;
+  background: #f8f9fa;
 `
 
 const MessagesContainer = styled.div`
@@ -373,8 +374,6 @@ class RoomPartial extends React.Component {
                     size="medium"
                     circle
                     image={member.user.image}
-                    outlineOuterColor={this.props.common.user.id == member.user.id ? "#007AF5" : null}
-                    outlineInnerColor="#FFFFFF"
                     title={member.user.name}
                     key={index}
                     onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}

@@ -227,7 +227,7 @@ class RoomsPartial extends React.Component {
           <SearchInner className="row">
             <Search
               htmlColor="#475669"
-              fontSize="small"
+              fontSize="default"
               className="ml-15"
             />
 

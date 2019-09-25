@@ -9,11 +9,13 @@ import { fetchTeams, createTeam } from '../actions'
 import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
-import { AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined } from '@material-ui/icons'
+import { AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
 import QuickInputComponent from '../components/quick-input.component'
 
 const Dock = styled.div`
-  padding: 25px;
+  width: 70px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   display: flex;
   height: 100%;
   position: relative;
@@ -97,7 +99,7 @@ class DockPartial extends React.Component {
           handleDismiss={() => this.setState({ teamPopup: false })}
           handleAccept={(name) => this.setState({ teamPopup: false }, () => this.props.createTeam(name))}
           placeholder="New team name">
-          <AddBoxOutlined
+          <AddToPhotosOutlined
             htmlColor="#babec9"
             fontSize="default"
             className="mt-10 button"
