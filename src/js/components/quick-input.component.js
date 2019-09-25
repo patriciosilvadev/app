@@ -42,6 +42,11 @@ export default class QuickInputComponent extends React.Component {
     }
   }
 
+  componentDidUpdate() {
+    if (!this.filterRef) return
+    if (this.filterRef.focus) this.filterRef.focus()
+  }
+
   // prettier-ignore
   render() {
     return (
@@ -55,6 +60,7 @@ export default class QuickInputComponent extends React.Component {
             <div className="row">
               <Filter
                 autoFocus
+                ref={ref => this.filterRef = ref}
                 onKeyDown={this.handleKeyDown}
                 placeholder={this.props.placeholder}
                 value={this.state.filter}

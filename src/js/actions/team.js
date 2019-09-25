@@ -26,7 +26,6 @@ export function fetchTeam(teamId) {
   }
 }
 
-
 export function createTeam(name) {
   return async (dispatch, getState) => {
     const { common } = getState()
