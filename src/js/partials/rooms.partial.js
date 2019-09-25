@@ -12,7 +12,8 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline } from '@material-ui/icons';
+import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline } from '@material-ui/icons'
+import QuickInputComponent from '../components/quick-input.component'
 
 const Rooms = styled.div`
   width: 350px;
@@ -100,7 +101,7 @@ class RoomsPartial extends React.Component {
       filter: '',
       results: [],
       teamModal: false,
-      roomModal: false,
+      roomPopup: false,
       starred: [],
       public: [],
       private: [],
@@ -222,14 +223,6 @@ class RoomsPartial extends React.Component {
           />
         }
 
-        {/* Create a new room */}
-        {this.state.roomModal &&
-          <RoomModal
-            id={null}
-            onClose={() => this.setState({ roomModal: false })}
-          />
-        }
-
         <SearchContainer className="row">
           <SearchInner className="row">
             <Search
@@ -330,45 +323,49 @@ class RoomsPartial extends React.Component {
             </React.Fragment>
           }
 
-          {this.state.public.length != 0 &&
-            <React.Fragment>
-              <Heading className="row">
-                <span className="flexer">
-                  {this.props.team.name} Channels
-                </span>
+          <Heading className="row">
+            <span className="flexer">
+              {this.props.team.name} Channels
+            </span>
 
-                <AddCircleOutline
-                  htmlColor="#babec9"
-                  fontSize="small"
-                  className="button"
-                  onClick={() => this.setState({ roomModal: true })}
+            <QuickInputComponent
+              visible={this.state.roomPopup}
+              width={300}
+              direction="right-bottom"
+              handleDismiss={() => this.setState({ roomPopup: false })}
+              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
+              placeholder="New room name">
+              <AddCircleOutline
+                htmlColor="#babec9"
+                fontSize="small"
+                className="button"
+                onClick={() => this.setState({ roomPopup: true })}
+              />
+            </QuickInputComponent>
+          </Heading>
+
+          {this.state.public.map((room, index) => {
+            if (this.props.common.user.starred.indexOf(room.id) != -1) return
+            if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+            const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
+            const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+            const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+
+            return (
+              <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
+                <RoomComponent
+                  active={pathname.indexOf(room.id) != -1}
+                  unread={unread}
+                  title={room.title}
+                  image={room.image}
+                  excerpt={room.excerpt}
+                  public={room.public}
+                  private={room.private}
                 />
-              </Heading>
-
-              {this.state.public.map((room, index) => {
-                if (this.props.common.user.starred.indexOf(room.id) != -1) return
-                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
-                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
-                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
-
-                return (
-                  <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                    <RoomComponent
-                      active={pathname.indexOf(room.id) != -1}
-                      unread={unread}
-                      title={room.title}
-                      image={room.image}
-                      excerpt={room.excerpt}
-                      public={room.public}
-                      private={room.private}
-                    />
-                  </Link>
-                )
-              })}
-            </React.Fragment>
-          }
+              </Link>
+            )
+          })}
 
           {this.state.private.length != 0 &&
             <React.Fragment>

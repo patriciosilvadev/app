@@ -20,7 +20,43 @@ export function fetchTeam(teamId) {
         payload: team.data.team,
       })
     } catch (e) {
-      dispatch(updateLoading(true))
+      dispatch(updateLoading(false))
+      dispatch(updateError(null))
+    }
+  }
+}
+
+
+export function createTeam(name) {
+  return async (dispatch, getState) => {
+    const { common } = getState()
+
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      const { data } = await GraphqlService.getInstance().createTeam({
+        name,
+        description: "",
+        image: null,
+        members: [
+          {
+            user: common.user.id,
+            admin: true,
+          },
+        ],
+      })
+      const teamId = data.createTeam.id
+
+      dispatch(updateLoading(false))
+      dispatch({
+        type: 'CREATE_TEAM',
+        payload: data.createTeam,
+      })
+
+      MessagingService.getInstance().join(teamId)
+    } catch (e) {
+      dispatch(updateLoading(false))
       dispatch(updateError(null))
     }
   }

@@ -5,11 +5,12 @@ import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import { fetchTeams } from '../actions'
+import { fetchTeams, createTeam } from '../actions'
 import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
 import { AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined } from '@material-ui/icons'
+import QuickInputComponent from '../components/quick-input.component'
 
 const Dock = styled.div`
   padding: 25px;
@@ -28,12 +29,15 @@ class DockPartial extends React.Component {
 
     this.state = {
       teamModal: false,
+      teamPopup: false,
       accountModal: false,
       pluginId: null,
     }
 
     this.signout = this.signout.bind(this)
   }
+
+
 
   async signout() {
     await AuthService.signout()
@@ -64,15 +68,6 @@ class DockPartial extends React.Component {
           )
         })}
 
-        {/* Create a new team */}
-        {this.state.teamModal &&
-          <TeamModal
-            id={null}
-            onClose={() => this.setState({ teamModal: false })}
-          />
-        }
-
-        {/* Update user account */}
         {this.state.accountModal &&
           <AccountModal
             id={this.props.common.user.id}
@@ -95,12 +90,20 @@ class DockPartial extends React.Component {
           )
         })}
 
-        <AddBoxOutlined
-          htmlColor="#babec9"
-          fontSize="default"
-          className="mt-10 button"
-          onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
-        />
+        <QuickInputComponent
+          visible={this.state.teamPopup}
+          width={300}
+          direction="left-bottom"
+          handleDismiss={() => this.setState({ teamPopup: false })}
+          handleAccept={(name) => this.setState({ teamPopup: false }, () => this.props.createTeam(name))}
+          placeholder="New team name">
+          <AddBoxOutlined
+            htmlColor="#babec9"
+            fontSize="default"
+            className="mt-10 button"
+            onClick={(e) => this.setState({ teamPopup: true })}
+          />
+        </QuickInputComponent>
 
         <div className="flexer"></div>
 
@@ -137,10 +140,12 @@ DockPartial.propTypes = {
   common: PropTypes.any,
   teams: PropTypes.array,
   fetchTeams: PropTypes.func,
+  createTeam: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   fetchTeams: userId => fetchTeams(userId),
+  createTeam: name => createTeam(name),
 }
 
 const mapStateToProps = state => {

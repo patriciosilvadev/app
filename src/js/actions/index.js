@@ -17,6 +17,7 @@ import { fetchTeam } from './team'
 import { fetchUser } from './common'
 import { fetchTeams } from './teams'
 import { updateUserStarred } from './common'
+import { createTeam } from './team'
 
 export {
   initialize,
@@ -38,4 +39,5 @@ export {
   fetchUser,
   fetchTeams,
   updateUserStarred,
+  createTeam,
 }

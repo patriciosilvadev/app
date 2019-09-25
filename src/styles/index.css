@@ -116,12 +116,12 @@ body {
   position: relative;
 }
 
-.button, button {
+.button {
   transition: opacity 0.25s linear;
   cursor: pointer;
 }
 
-.button:hover, button:hover {
+.button:hover {
   opacity: 0.5;
   transition: opacity 0.25s linear;
 }

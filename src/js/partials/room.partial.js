@@ -72,13 +72,6 @@ const MessagesContainer = styled.div`
   height: 1px; /* Important for the height to be set here */
 `
 
-const MembersLink = styled.div`
-  color: #007AF5;
-  font-weight: 700;
-  font-size: 12px;
-  margin-right: 15px;
-`
-
 const Blocked = styled.div`
   font-size: 13px;
   font-weight: 500;
@@ -95,7 +88,7 @@ const Welcome = styled.div`
 `
 
 const WelcomeTitle = styled.div`
-  font-weight: 500;
+  font-weight: 900;
   font-size: 60px;
   color: #040b1c;
   padding-bottom: 10px;
@@ -344,9 +337,12 @@ class RoomPartial extends React.Component {
 
               <div className="flexer"></div>
 
-              <MembersLink>
-                Manage Members
-              </MembersLink>
+              <Button
+                text="Manage Members"
+                size="small"
+                theme="blue-border"
+                className="mr-15"
+              />
 
               <QuickUserComponent
                 teamId={this.props.team.id}

@@ -122,39 +122,6 @@ export default function TeamModal(props) {
     }
   }
 
-  const createTeam = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const { data } = await GraphqlService.getInstance().createTeam({
-        name,
-        description,
-        image,
-        members: [
-          {
-            user: common.user.id,
-            admin: true,
-          },
-        ],
-      })
-      const teamId = data.createTeam.id
-
-      setLoading(false)
-      dispatch({
-        type: 'CREATE_TEAM',
-        payload: data.createTeam,
-      })
-
-      MessagingService.getInstance().join(teamId)
-
-      props.onClose()
-    } catch (e) {
-      setLoading(false)
-      setError('Error creating team')
-    }
-  }
-
   const updateTeam = async () => {
     setLoading(true)
     setError(null)
@@ -364,26 +331,15 @@ export default function TeamModal(props) {
                 />
               }
 
-              {props.id &&
-                <React.Fragment>
-                  <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
-                    Delete team
-                  </SmallTextButton>
-                  <Button
-                    jumbo
-                    onClick={updateTeam}
-                    text="Save"
-                  />
-                </React.Fragment>
-              }
-
-              {!props.id &&
-                <Button
-                  jumbo
-                  onClick={createTeam}
-                  text="Create"
-                />
-              }
+              <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
+                Delete team
+              </SmallTextButton>
+              
+              <Button
+                jumbo
+                onClick={updateTeam}
+                text="Save"
+              />
             </div>
           </div>
         )}>
