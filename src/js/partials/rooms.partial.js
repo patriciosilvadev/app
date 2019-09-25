@@ -14,6 +14,7 @@ import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import TeamModal from '../modals/team.modal'
 import IconComponentAddCircle from '../icons/System/add-circle-line'
 import IconComponentSearch from '../icons/System/search-line'
+import { SettingsApplications, Search, AddCircleOutline } from '@material-ui/icons';
 
 const Rooms = styled.div`
   width: 350px;
@@ -34,23 +35,22 @@ const Header = styled.div`
 `
 
 const HeaderTitle = styled.div`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #6c707c;
+  font-style: normal;
+  color: #040b1c;
+  transition: opacity 0.5s;
+  display: inline-block;
+  flex: 1;
 `
 
 const HeaderSubtitle = styled.div`
-  padding-top: 5px;
-`
-
-const HeaderSubtitleTeam = styled.div`
   font-size: 13px;
   font-weight: 600;
   color: #475669;
-  margin-left: 10px;
 `
 
-const HeaderSubtitleTeamLink = styled.div`
+const HeaderSubtitleLink = styled.div`
   font-size: 13px;
   font-weight: 600;
   color: #007af5;
@@ -78,7 +78,6 @@ const SearchContainer = styled.div`
   margin-top: 15px;
   transition: background-color 0.5s;
   background: #f8f9fa;
-
 `
 
 const Heading = styled.div`
@@ -88,35 +87,6 @@ const Heading = styled.div`
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
-`
-
-const HeaderTitleTemp = styled.div`
-  font-size: 50px;
-  font-weight: 800;
-  font-style: normal;
-  color: #040b1c;
-  transition: opacity 0.5s;
-  display: inline-block;
-`
-
-const FooterButton = styled.div`
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 25px;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.75;
-  }
-`
-
-const FooterButtonText = styled.div`
-  color: #475669;
-  font-weight: 400;
-  font-size: 14px;
-
-  &:hover {
-    opacity: 0.75;
-  }
 `
 
 class RoomsPartial extends React.Component {
@@ -257,56 +227,31 @@ class RoomsPartial extends React.Component {
           />
         }
 
-        {/*
-
         <Header className="row">
-          <Avatar
-            dark
-            size="small"
-            image={this.props.common.user.image}
-            title={this.props.common.user.name}
-            className="button"
-          />
-
-          <div className="column pl-10">
-            <HeaderTitle>
-              {this.props.common.user.name}
-            </HeaderTitle>
-          </div>
-        </Header>
-        <HeaderSubtitle className="row">
-          <HeaderSubtitleTeam>
+          <HeaderTitle>
             {this.props.team.name}
-          </HeaderSubtitleTeam>
-          <HeaderSubtitleTeamLink
-            className="button"
-            onClick={() => this.setState({ teamModal: true })}>
-            View Team
-          </HeaderSubtitleTeamLink>
-        </HeaderSubtitle>
-        */}
-        <Header className="column">
+          </HeaderTitle>
           <div className="row">
-          <HeaderSubtitleTeamLink
-            className="button"
-            onClick={() => this.setState({ teamModal: true })}>
-            Update Team Details
-          </HeaderSubtitleTeamLink>
-          <HeaderSubtitleTeam>
-            {this.props.team.members.length} members
-          </HeaderSubtitleTeam>
+            <HeaderSubtitle className="row">
+              <SettingsApplications
+                htmlColor="#007af5"
+                fontSize="small"
+                className="mr-5"
+              />
+              <HeaderSubtitleLink
+                className="button"
+                onClick={() => this.setState({ teamModal: true })}>
+                View
+              </HeaderSubtitleLink>
+            </HeaderSubtitle>
           </div>
-
-          <HeaderTitleTemp>
-            {this.props.team.name}
-          </HeaderTitleTemp>
         </Header>
 
         <SearchContainer className="row">
-          <IconComponentSearch
-            fill="#475669"
-            size={20}
-            className="mr-5 ml-15"
+          <Search
+            htmlColor="#475669"
+            fontSize="small"
+            className="ml-15"
           />
 
           <SearchInput
@@ -387,7 +332,18 @@ class RoomsPartial extends React.Component {
 
           {this.state.public.length != 0 &&
             <React.Fragment>
-              <Heading>Channels</Heading>
+              <Heading className="row">
+                <span className="flexer">
+                  Channels
+                </span>
+
+                <AddCircleOutline
+                  htmlColor="#babec9"
+                  fontSize="small"
+                  className="button"
+                  onClick={() => this.setState({ roomModal: true })}
+                />
+              </Heading>
 
               {this.state.public.map((room, index) => {
                 if (this.props.common.user.starred.indexOf(room.id) != -1) return
@@ -444,29 +400,7 @@ class RoomsPartial extends React.Component {
               })}
             </React.Fragment>
           }
-
-          <RoomComponent
-            active={false}
-            unread={null}
-            title="New Channel"
-            image={null}
-            icon={null}
-            excerpt={null}
-            public={true}
-            private={false}
-          />
         </div>
-
-        <FooterButton className="row" onClick={() => this.setState({ roomModal: true })}>
-          <IconComponentAddCircle
-            fill="#475669"
-            size={20}
-            className="mr-10"
-          />
-          <FooterButtonText>
-            Create New Channel
-          </FooterButtonText>
-        </FooterButton>
       </Rooms>
     )
   }

@@ -1,16 +1,20 @@
 * {
-  font-family: 'HKGrotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   outline: none;
   text-decoration: none;
   box-sizing: border-box;
 
   /*
   TEMP
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family:'HKGrotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   font-family: 'BLOKK Neue' !important;
   font-size: 14px !important;
   */
 }
+
+.MuiSvgIcon-root, .MuiSvgIcon-root.MuiSvgIcon-fontSizeInherit { font-size: 22px !important; }
+.MuiSvgIcon-root.MuiSvgIcon-fontSizeSmall { font-size: 16px !important; }
+.MuiSvgIcon-root.MuiSvgIcon-fontSizeLarge { font-size: 25px !important; }
 
 .emoji-mart-search {
   display: none;

@@ -8,10 +8,16 @@ import ComposeComponent from '../components/compose.component'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import EventService from '../services/event.service'
-import { fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReply, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
+import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReply, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
+import MenuComponent from '../components/menu.component'
 import ReactMarkdown from 'react-markdown'
+import PopupComponent from '../components/popup.component'
+import { DeleteOutlined, StarBorder, Star, Create, PeopleOutline, Subject, VisibilityOff, Visibility } from '@material-ui/icons';
+import ConfirmModal from '../modals/confirm.modal'
+import IconComponentClose from '../icons/System/close-line'
+import IconComponentAdd from '../icons/System/add-line'
 
 const Room = styled.div`
   background: white;
@@ -27,31 +33,46 @@ const Header = styled.div`
   width: 100%;
   background: transparent;
   border-bottom: 1px solid #f1f3f5;
-  background: #202529;
   background: white;
-  padding 15px 25px 15px 25px;
+  padding 25px;
+  display: flex;
 `
 
 const HeaderTitle = styled.div`
   font-size: 25px;
-  font-weight: 800;
+  font-weight: 600;
   font-style: normal;
   color: #040b1c;
   padding-left: 15px;
   transition: opacity 0.5s;
   display: inline-block;
+  margin-right: 0px;
+  flex: 1;
 `
 
-const HeaderDescription = styled.div`
-  margin-left: 10px;
-  border-radius: 5px;
+const HeaderButton = styled.div`
+  margin-left: 15px;
   color: #adb5bd;
-  font-size: 15px;
-  font-weight: 400;
-  display: inline-block;
-  border: 2px solid white;
+  font-size: 13px;
+  font-weight: 500;
   transition: opacity 0.5s;
+  position: relative;
+  cursor: pointer;
+`
+
+const Badge = styled.span`
   display: inline-block;
+  width: auto;
+  border-radius: 10px;
+  padding: 3px 5px 3px 5px;
+  color: white;
+  background: #007af5;
+  font-size: 8px;
+  font-weight: 800;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  transform: translateX(30%) translateY(-50%);
 `
 
 const Messages = styled.div`
@@ -106,13 +127,6 @@ const WelcomeUserName = styled.div`
   padding-left: 10px;
 `
 
-const WelcomeUserNameLink = styled.div`
-  font-weight: 500;
-  font-size: 12px;
-  color: #007af5;
-  padding-left: 10px;
-`
-
 class RoomPartial extends React.Component {
   constructor(props) {
     super(props)
@@ -125,12 +139,18 @@ class RoomPartial extends React.Component {
       title: '',
       image: '',
       roomUpdateModal: false,
+      confirmDeleteModal: false,
+      starred: false,
+      visibilityMenu: false,
     }
 
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.createRoomMessage = this.createRoomMessage.bind(this)
+    this.updateRoomVisibility = this.updateRoomVisibility.bind(this)
+    this.updateUserStarred = this.updateUserStarred.bind(this)
+    this.deleteRoom = this.deleteRoom.bind(this)
   }
 
   scrollToBottom() {
@@ -211,12 +231,31 @@ class RoomPartial extends React.Component {
     this.scrollRef.removeEventListener('scroll', this.handleScrollEvent)
   }
 
+  updateUserStarred(starred) {
+    const userId = this.props.common.user.id
+    const roomId = this.props.room.id
+
+    this.props.updateUserStarred(userId, roomId, starred)
+  }
+
+  updateRoomVisibility(visibility) {
+    this.setState({ visibilityMenu: false })
+    this.props.updateRoom(visibility)
+  }
+
+  deleteRoom() {
+    this.setState({ confirmModal: false })
+    this.props.deleteRoom(this.props.room.id)
+    this.props.history.push(`/app/team/${this.props.team.id}/`)
+  }
+
   static getDerivedStateFromProps(props, state) {
     if (props.room.id == undefined || props.room.id == '') return null
 
     const isMember = !!props.room.members.filter(member => member.user.id == props.common.user.id).flatten()
     const isPublic = props.room.public
     const open = isMember || isPublic
+    const starred = props.common.user.starred.indexOf(props.room.id) != -1
 
     const title = props.room.private
       ? props.room.members
@@ -236,6 +275,7 @@ class RoomPartial extends React.Component {
       open,
       title,
       image,
+      starred,
     }
   }
 
@@ -247,6 +287,15 @@ class RoomPartial extends React.Component {
           <RoomModal
             id={this.props.room.id}
             onClose={() => this.setState({ roomUpdateModal: false })}
+          />
+        }
+
+        {this.state.confirmDeleteModal &&
+          <ConfirmModal
+            onOkay={this.deleteRoom}
+            onCancel={() => this.setState({ confirmDeleteModal: false })}
+            text="Are you sure you want to delete this room?"
+            title="Are you sure?"
           />
         }
 
@@ -264,14 +313,87 @@ class RoomPartial extends React.Component {
                 title={this.state.title}
                 size="medium"
               />
+
               <HeaderTitle>
                 {this.state.title}
               </HeaderTitle>
-              <HeaderDescription>
-                <ReactMarkdown source={this.props.room.description} />
-              </HeaderDescription>
+
+              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)}>
+                {this.state.starred && <Star htmlColor="#EBB403" fontSize="default" />}
+                {!this.state.starred && <StarBorder htmlColor="#babec9" fontSize="default" />}
+              </HeaderButton>
+
+              {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
+                <HeaderButton onClick={() => this.setState({ roomUpdateModal: true })}>
+                  <Create
+                    htmlColor="#acb5bd"
+                    fontSize="default"
+                  />
+                </HeaderButton>
+              }
+
+              <PopupComponent
+                handleDismiss={() => this.setState({ visibilityMenu: false })}
+                visible={this.state.visibilityMenu} width={275} direction="right-bottom"
+                content={
+                  <div className="column flexer">
+                    <MenuComponent
+                      items={[
+                        { icon: <Visibility htmlColor="#acb5bd" fontSize="small" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                        { icon: <VisibilityOff htmlColor="#acb5bd" fontSize="small" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                      ]}
+                    />
+                  </div>
+                }>
+                <HeaderButton onClick={() => this.setState({ visibilityMenu: true })}>
+                  {this.props.room.public && <Visibility htmlColor="#acb5bd" fontSize="default" />}
+                  {!this.props.room.public && <VisibilityOff htmlColor="#acb5bd" fontSize="default" />}
+                </HeaderButton>
+              </PopupComponent>
+
+              <HeaderButton onClick={() => this.setState({ roomUpdateModal: true })}>
+                <PeopleOutline
+                  htmlColor="#acb5bd"
+                  fontSize="default"
+                />
+                <Badge>
+                  {this.props.room.members.length.numberShorthand()}
+                </Badge>
+              </HeaderButton>
+
+              <HeaderButton onClick={() => this.setState({ confirmDeleteModal: true })}>
+                <DeleteOutlined
+                  htmlColor="#acb5bd"
+                  fontSize="default"
+                />
+              </HeaderButton>
             </Header>
           }
+
+          <div className="row p-10 w-100">
+            {this.props.room.members.map((member, index) => {
+              return (
+                <Avatar
+                  className="mr-5 mb-5"
+                  size="medium"
+                  circle
+                  image={member.user.image}
+                  outlineOuterColor={this.props.common.user.id == member.user.id ? "#007AF5" : null}
+                  outlineInnerColor="#FFFFFF"
+                  title={member.user.name}
+                  key={index}
+                  onDeleteClick={() => this.props.common.user.id != member.user.id ? this.deleteRoomMember(member.user) : this.setState({ confirmModal: true })}
+                  deleteIcon={
+                    <IconComponentClose
+                      color="white"
+                      size={16}
+                    />
+                  }
+                />
+              )
+            })}
+            <div className="flexer"></div>
+          </div>
 
           <Messages ref={(ref) => this.scrollRef = ref}>
             {this.state.open &&
@@ -286,13 +408,6 @@ class RoomPartial extends React.Component {
                     <WelcomeUserName>
                       Started by {this.props.room.user.name}
                     </WelcomeUserName>
-                    {!this.props.room.private && this.props.room.user.id == this.props.common.user.id &&
-                      <WelcomeUserNameLink
-                        className="button"
-                        onClick={() => this.setState({ roomUpdateModal: true })}>
-                        Update
-                      </WelcomeUserNameLink>
-                    }
                   </WelcomeUser>
                   <WelcomeTitle>
                     {this.state.title}
@@ -350,10 +465,12 @@ RoomPartial.propTypes = {
   fetchRoomMessages: PropTypes.func,
   createRoomMember: PropTypes.func,
   updateRoom: PropTypes.func,
+  deleteRoom: PropTypes.func,
   createRoomMessage: PropTypes.func,
   createRoomMessageReply: PropTypes.func,
   createRoomMessageReaction: PropTypes.func,
   deleteRoomMessageReaction: PropTypes.func,
+  updateUserStarred: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -366,6 +483,8 @@ const mapDispatchToProps = {
   createRoomMessageReply: (messageId, userId, text, attachments) => createRoomMessageReply(messageId, userId, text, attachments),
   createRoomMessageReaction: (messageId, reaction) => createRoomMessageReaction(messageId, reaction),
   deleteRoomMessageReaction: (messageId, reaction) => deleteRoomMessageReaction(messageId, reaction),
+  updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),
+  deleteRoom: roomId => deleteRoom(roomId),
 }
 
 const mapStateToProps = state => {

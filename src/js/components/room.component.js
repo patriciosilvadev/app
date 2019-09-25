@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
 import IconComponentLock from '../icons/System/lock-line'
+import { LockOutlined } from '@material-ui/icons';
 
 const List = styled.div`
   background: transparent;
@@ -35,8 +36,8 @@ const Icon = styled.div`
 const Title = styled.div`
   overflow: hidden;
   cursor: pointer;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
   color: #acb5bd;
   white-space: nowrap;
   width: max-content;
@@ -86,10 +87,10 @@ export default function RoomComponent(props) {
         </Title>
 
         {!props.public && !props.private &&
-          <IconComponentLock
-            fill={props.active || props.unread ? "#495057" : "#acb5bd"}
+          <LockOutlined
+            htmlColor={props.active || props.unread ? "#495057" : "#acb5bd"}
+            fontSize="small"
             className="ml-5"
-            size={16}
           />
         }
 

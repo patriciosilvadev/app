@@ -13,6 +13,7 @@ import IconComponentAdd from '../icons/System/add-box-line'
 import IconComponentHelp from '../icons/System/question-line'
 import IconComponentSignout from '../icons/System/logout-box-line'
 import IconComponentAccount from '../icons/User/account-circle-line'
+import { AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined } from '@material-ui/icons';
 
 const Dock = styled.div`
   padding: 25px;
@@ -98,36 +99,35 @@ class DockPartial extends React.Component {
           )
         })}
 
-        <IconComponentAdd
-          fill="#babec9"
-          size={24}
+        <AddBoxOutlined
+          htmlColor="#babec9"
+          fontSize="default"
           className="mt-10 button"
           onClick={(e) => this.setState({ teamModal: true, userMenu: false })}
         />
 
         <div className="flexer"></div>
 
-        <IconComponentHelp
-          fill="#babec9"
+        <HelpOutlineOutlined
+          htmlColor="#babec9"
           onClick={(e) => console.log('Help')}
           className="mt-20 button"
-          size={24}
+          fontSize="default"
         />
 
-        <IconComponentSignout
-          fill="#babec9"
+        <ExitToAppOutlined
+          htmlColor="#babec9"
           className="mt-20 button"
           onClick={this.signout}
-          icon="DOCK_SIGNOUT"
-          size={24}
+          fontSize="default"
         />
 
-        <IconComponentAccount
-          fill="#babec9"
+        <Avatar
+          size="medium"
+          image={this.props.common.user.image}
+          title={this.props.common.user.name}
           className="mt-20 button"
           onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
-          icon="DOCK_ACCOUNT"
-          size={24}
         />
       </Dock>
     )
