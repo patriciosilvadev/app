@@ -6,13 +6,13 @@ import PropTypes from 'prop-types'
 const Name = styled.div`
   color: #483545;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
 `
 
 const Label = styled.div`
   color: #858e96;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 500;
 `
 
 const User = styled.div`

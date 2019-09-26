@@ -36,7 +36,7 @@ export function createTeam(name) {
     try {
       const { data } = await GraphqlService.getInstance().createTeam({
         name,
-        description: "",
+        description: '',
         image: null,
         members: [
           {

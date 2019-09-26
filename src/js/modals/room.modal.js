@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalComponent from '../components/modal.component'
+import TabbedComponent from '../components/tabbed.component'
 import { Avatar } from '@weekday/elements'
 import ModalPortal from '../portals/modal.portal'
 import GraphqlService from '../services/graphql.service'
@@ -14,17 +15,28 @@ import { Button } from '@weekday/elements'
 import { InputComponent } from '../components/input.component'
 import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
-import { updateRoom } from '../actions'
+import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
 import SpinnerComponent from '../components/spinner.component'
 import NotificationComponent from '../components/notification.component'
 import { DiMarkdown } from 'react-icons/di'
+import { AddOutlined, AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
+import UserComponent from '../components/user.component'
+import ConfirmModal from './confirm.modal'
+import QuickUserComponent from '../components/quick-user.component'
 
 const Row = styled.div`
   background-color: transparent;
   width: 100%;
-  padding: 10px 25px 0px 25px;
+  padding: 25px;
   border-bottom: 0px solid rgba(255, 255, 255, 0.05);
   transition: background-color 0.5s;
+`
+
+const Link = styled.div`
+  color: #00a8ff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
 `
 
 const Column = styled.div`
@@ -39,10 +51,15 @@ const Supported = styled.div`
   margin-left: 5px;
 `
 
+const AddButton = styled.div`
+  padding: 20px;
+`
+
 export default function RoomModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
+  const [userMenu, setUserMenu] = useState(null)
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [description, setDescription] = useState('')
@@ -50,6 +67,11 @@ export default function RoomModal(props) {
   const team = useSelector(state => state.team)
   const fileRef = useRef(null)
   const dispatch = useDispatch()
+  const [memberToDelete, setMemberToDelete] = useState(null)
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
+  const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
+  const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
+  const members = props.members || []
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -69,7 +91,6 @@ export default function RoomModal(props) {
     }
   }
 
-  // Effect loads current team details
   useEffect(() => {
     ;(async () => {
       try {
@@ -95,9 +116,9 @@ export default function RoomModal(props) {
   return (
     <ModalPortal>
       <ModalComponent
-        title={props.id ? "Update Channel" : "Create New Channel"}
-        width={560}
-        height={500}
+        title="Channel"
+        width={700}
+        height="90%"
         onClose={props.onClose}
         footer={(
           <div className="column w-100 align-items-stretch">
@@ -113,55 +134,171 @@ export default function RoomModal(props) {
             </div>
           </div>
         )}>
+          <TabbedComponent
+            start={0}
+            panels={[
+              {
+                title: 'Profile',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+                      {error && <ErrorComponent message={error} />}
+                      {loading && <SpinnerComponent />}
+                      {notification && <NotificationComponent text={notification} />}
 
-        {error && <ErrorComponent message={error} />}
-        {loading && <SpinnerComponent />}
-        {notification && <NotificationComponent text={notification} />}
+                      <Row className="row align-items-start">
+                        <input
+                          accept="image/png,image/jpg"
+                          type="file"
+                          className="hide"
+                          ref={fileRef}
+                          onChange={handleFileChange}
+                        />
 
-        <Row className="row align-items-start">
-          <input
-            accept="image/png,image/jpg"
-            type="file"
-            className="hide"
-            ref={fileRef}
-            onChange={handleFileChange}
+                        <div className="column">
+                          <Avatar
+                            title={title}
+                            image={image}
+                            className="mr-20 mb-20"
+                            size="xx-large"
+                            onClick={() => fileRef.current.click()}
+                          />
+
+                          <Link onClick={() => fileRef.current.click()}>Update image</Link>
+                        </div>
+
+                        <Column className="column">
+                          <InputComponent
+                            label="Title"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            placeholder="New channel title"
+                          />
+
+                          <TextareaComponent
+                            label="Description"
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                            placeholder="Add a description"
+                            rows={8}
+                          />
+
+                          <div className="row">
+                            <DiMarkdown
+                              color="#007af5"
+                              size={18}
+                            />
+                            <Supported>
+                              Markdown supported
+                            </Supported>
+                          </div>
+                        </Column>
+                      </Row>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                title: 'Members',
+                show: members.length != 0,
+                content: (
+                  <div className="column flex-1 w-100 h-100">
+                    {error && <ErrorComponent message={error} />}
+                    {loading && <SpinnerComponent />}
+                    {notification && <NotificationComponent text={notification} />}
+
+                    {confirmSelfDeleteModal &&
+                      <ConfirmModal
+                        onOkay={() => {
+                          setConfirmSelfDeleteModal(false)
+                          setUserMenu(false)
+                          dispatch(deleteRoomMember(memberToDelete))
+                          onClose()
+                        }}
+                        onCancel={() => setConfirmSelfDeleteModal(false)}
+                        text="Are you sure you want to leave this room?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    {confirmMemberDeleteModal &&
+                      <ConfirmModal
+                        onOkay={() => {
+                          if (members.length <= 2) return
+
+                          setConfirmMemberDeleteModal(false)
+                          setUserMenu(false)
+                          dispatch(deleteRoomMember(memberToDelete))
+                        }}
+                        onCancel={() => setConfirmMemberDeleteModal(false)}
+                        text="Are you sure you want to remove this person, it can not be undone?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    {members.map((member, index) => {
+                      return (
+                        <UserComponent
+                          key={index}
+                          image={member.user.image}
+                          color={member.user.color}
+                          name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
+                          label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
+
+                          <Button
+                            size="small"
+                            onClick={() => {
+                              setMemberToDelete(member.user)
+
+                              if (common.user.id == member.user.id) {
+                                setConfirmSelfDeleteModal(true)
+                              } else {
+                                setConfirmMemberDeleteModal(true)
+                              }
+                            }}
+                            text="Delete Member"
+                          />
+                        </UserComponent>
+                      )
+                    })}
+
+                    <QuickUserComponent
+                      teamId={team.id}
+                      visible={userMenu}
+                      width={250}
+                      direction="right-bottom"
+                      handleDismiss={() => setUserMenu(false)}
+                      handleAccept={({ user }) => {
+                        // Check to see if there are already people
+                        // Don't re-add people
+                        if (members.filter(member => member.user.id == user.id).length > 0) return
+
+                        // Otherwise all good - add them
+                        dispatch(createRoomMember(user))
+                        setUserMenu(false)
+                      }}>
+                      <AddButton className="row" onClick={() => setUserMenu(true)}>
+                        <Avatar
+                          className="mr-5"
+                          size="medium"
+                          circle
+                          image={null}
+                          color="#007af5"
+                          title="">
+                          <AddOutlined
+                            htmlColor="#00a8ff"
+                            fontSize="small"
+                          />
+                        </Avatar>
+                        <Link className="ml-10">Add new Member</Link>
+                      </AddButton>
+                    </QuickUserComponent>
+                  </div>
+                )
+              }
+            ]}
           />
-
-          <Avatar
-            title={title}
-            image={image}
-            className="mr-20"
-            size="xx-large"
-            onClick={() => fileRef.current.click()}
-          />
-
-          <Column className="column">
-            <InputComponent
-              label="Title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="New channel title"
-            />
-
-            <TextareaComponent
-              label="Description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Add a description"
-              rows={4}
-            />
-
-            <div className="row">
-              <DiMarkdown
-                color="#007af5"
-                size={18}
-              />
-              <Supported>
-                Markdown supported
-              </Supported>
-            </div>
-          </Column>
-        </Row>
       </ModalComponent>
     </ModalPortal>
   )
@@ -169,5 +306,6 @@ export default function RoomModal(props) {
 
 RoomModal.propTypes = {
   team: PropTypes.any,
+  members: PropTypes.array,
   onClose: PropTypes.func,
 }

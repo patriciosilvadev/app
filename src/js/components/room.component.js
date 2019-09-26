@@ -3,7 +3,7 @@ import { Avatar } from '@weekday/elements'
 import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
-import { LockOutlined } from '@material-ui/icons';
+import { LockOutlined } from '@material-ui/icons'
 
 const List = styled.div`
   background: transparent;
@@ -13,10 +13,6 @@ const List = styled.div`
   padding-right: 25px;
   display: flex;
   width: 100%;
-
-  &.active {
-
-  }
 `
 
 const Badge = styled.div`

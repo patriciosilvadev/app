@@ -8,15 +8,26 @@ import ComposeComponent from '../components/compose.component'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import EventService from '../services/event.service'
-import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReply, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import MenuComponent from '../components/menu.component'
 import ReactMarkdown from 'react-markdown'
 import PopupComponent from '../components/popup.component'
-import { MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, PeopleOutline, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
 import ConfirmModal from '../modals/confirm.modal'
 import QuickUserComponent from '../components/quick-user.component'
+import { MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, PeopleOutline, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
+import {
+  deleteRoom,
+  updateUserStarred,
+  fetchRoom,
+  createRoomMember,
+  updateRoom,
+  fetchRoomMessages,
+  createRoomMessage,
+  createRoomMessageReply,
+  createRoomMessageReaction,
+  deleteRoomMessageReaction,
+} from '../actions'
 
 const Room = styled.div`
   background: white;
@@ -271,6 +282,7 @@ class RoomPartial extends React.Component {
         {this.state.roomUpdateModal &&
           <RoomModal
             id={this.props.room.id}
+            members={this.props.room.members}
             onClose={() => this.setState({ roomUpdateModal: false })}
           />
         }
@@ -320,7 +332,7 @@ class RoomPartial extends React.Component {
                   <div className="column flexer">
                     <MenuComponent
                       items={[
-                        { icon: <CreateOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Update", label: 'Update room details', onClick: (e) => this.setState({ visibilityMenu: false, roomUpdateModal: true }), hide: !(!this.props.room.private && this.props.room.user.id == this.props.common.user.id) },
+                        { icon: <CreateOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Details", label: 'Update room details', onClick: (e) => this.setState({ visibilityMenu: false, roomUpdateModal: true }), hide: !(!this.props.room.private && this.props.room.user.id == this.props.common.user.id) },
                         { icon: <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
                         { icon: <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
                         { icon: <DeleteOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Delete", label: 'Delete room', onClick: (e) => this.setState({ visibilityMenu: false, confirmDeleteModal: true }) },
@@ -343,6 +355,7 @@ class RoomPartial extends React.Component {
                 size="small"
                 theme="blue-border"
                 className="mr-15"
+                onClick={() => this.setState({ roomUpdateModal: true })}
               />
 
               <QuickUserComponent

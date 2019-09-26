@@ -39,8 +39,6 @@ class DockPartial extends React.Component {
     this.signout = this.signout.bind(this)
   }
 
-
-
   async signout() {
     await AuthService.signout()
 

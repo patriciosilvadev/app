@@ -124,6 +124,7 @@ const ReplyContainer = styled.div`
   margin-top: 2px;
 `
 
+// prettier-ignore
 const ReplyText = styled.div`
   padding: 10px;
   border-radius: 100px;

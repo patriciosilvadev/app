@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const Label = styled.div`
   color: #858e96;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 700;
   padding-bottom: 5px;
 `
 
@@ -14,7 +14,7 @@ const Textarea = styled.textarea`
   background: transparent;
   color: #495057;
   font-size: 15px;
-  font-weight: regular;
+  font-weight: 500;
   padding: 10px;
   width: 100%;
   border: 1px solid #ebedef;

@@ -40,7 +40,7 @@ const HeaderMembers = styled.div`
 const HeaderLink = styled.div`
   color: #00a8ff;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 600;
   cursor: pointer;
 `
 
@@ -313,7 +313,7 @@ export default function TeamModal(props) {
   return (
     <ModalPortal>
       <ModalComponent
-        title={props.id ? "Update Team" : "Create New Team"}
+        title="Team"
         width={700}
         height="90%"
         onClose={props.onClose}
@@ -397,7 +397,7 @@ export default function TeamModal(props) {
                           value={description}
                           onChange={e => setDescription(e.target.value)}
                           placeholder="Add a description"
-                          rows={5}
+                          rows={8}
                         />
                       </div>
                     </div>
@@ -463,6 +463,7 @@ export default function TeamModal(props) {
                           />
 
                           <Button
+                            size="small"
                             className="ml-20"
                             onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
                             text={member.admin ? 'Remove Admin' : 'Make Admin'}
