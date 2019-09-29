@@ -9,7 +9,7 @@ import { fetchTeams, createTeam } from '../actions'
 import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
-import { AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
+import { AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
 import QuickInputComponent from '../components/quick-input.component'
 
 const Dock = styled.div`
@@ -20,7 +20,7 @@ const Dock = styled.div`
   height: 100%;
   position: relative;
   z-index: 2;
-  background: #08111d;
+  background: #040B1C;
   background: white;
   border-right: 1px solid #f1f3f5;
 `
@@ -97,12 +97,12 @@ class DockPartial extends React.Component {
           handleDismiss={() => this.setState({ teamPopup: false })}
           handleAccept={(name) => this.setState({ teamPopup: false }, () => this.props.createTeam(name))}
           placeholder="New team name">
-          <AddToPhotosOutlined
-            htmlColor="#babec9"
-            fontSize="default"
-            className="mt-10 button"
-            onClick={(e) => this.setState({ teamPopup: true })}
-          />
+          <Avatar
+            color="white"
+            className="button"
+            onClick={(e) => this.setState({ teamPopup: true })}>
+            <AddOutlined htmlColor="#babec9" fontSize="default" />
+          </Avatar>
         </QuickInputComponent>
 
         <div className="flexer"></div>

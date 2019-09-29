@@ -12,6 +12,7 @@ import { MessageMedia } from '@weekday/elements'
 import MembersComponent from '../components/members.component'
 import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
+import { IoIosSend } from 'react-icons/io'
 
 const Compose = styled.div`
   width: 100%;
@@ -325,21 +326,21 @@ class ComposeComponent extends React.Component {
                 <SentimentSatisfiedOutlined
                   htmlColor="#565456"
                   className="button ml-15"
-                  fontSize="small"
+                  fontSize="default"
                   onClick={() => this.setState({ emoticonMenu: true })}
                 />
               </PopupComponent>
 
               <AttachFileOutlined
                 htmlColor="#565456"
-                fontSize="small"
+                fontSize="default"
                 className="ml-15 button"
                 onClick={() => this.fileRef.click()}
               />
 
               <AlternateEmailOutlined
                 htmlColor="#565456"
-                fontSize="small"
+                fontSize="default"
                 className="ml-15 button"
                 onClick={() => {
                   this.insertAtCursor("@")
@@ -347,10 +348,10 @@ class ComposeComponent extends React.Component {
                 }}
               />
 
-              <SendOutlined
-                htmlColor="#565456"
+              <IoIosSend
+                color="#565456"
                 className="ml-15 button"
-                fontSize="small"
+                size={30}
                 onClick={this.onSend}
               />
             </React.Fragment>

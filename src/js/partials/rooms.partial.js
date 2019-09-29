@@ -16,7 +16,7 @@ import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline } from '@mat
 import QuickInputComponent from '../components/quick-input.component'
 
 const Rooms = styled.div`
-  width: 350px;
+  width: 300px;
   display: flex;
   height: 100%;
   position: relative;
