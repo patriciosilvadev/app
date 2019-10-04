@@ -12,8 +12,12 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline } from '@material-ui/icons'
+import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
+import { GroupWorkOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
 import QuickInputComponent from '../components/quick-input.component'
+import PopupComponent from '../components/popup.component'
+import MenuComponent from '../components/menu.component'
+import AccountModal from '../modals/account.modal'
 
 const Rooms = styled.div`
   width: 300px;
@@ -22,23 +26,24 @@ const Rooms = styled.div`
   position: relative;
   z-index: 2;
   background: white;
+  background: #F8F9FA;
+  background: #040B1C;
   border-right: 1px solid #f1f3f5;
 `
 
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding 0px 25px 0px 25px;
-  border-bottom: 1px solid #f1f3f5;
+  padding 25px;
+  border-bottom: 1px solid #0a152e;
   transition: background-color 0.5s;
-  height: 70px;
 `
 
 const HeaderTitle = styled.div`
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   font-style: normal;
-  color: #040b1c;
+  color: white;
   transition: opacity 0.5s;
   display: inline-block;
   flex: 1;
@@ -50,6 +55,31 @@ const HeaderSubtitle = styled.div`
   color: #475669;
 `
 
+const AccountMenuHeader = styled.div`
+  padding: 20px;
+  width: 100%;
+  flex: 1;
+  border-bottom: 1px solid #f1f3f5;
+`
+
+const AccountMenuTitle = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  font-style: normal;
+  color: #343A40;
+  transition: opacity 0.5s;
+  display: inline-block;
+  flex: 1;
+  padding: 5px;
+`
+
+const AccountMenuSubtitle = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #CFD4D9;
+  padding: 5px 5px 5px 5px;
+`
+
 const HeaderSubtitleLink = styled.div`
   font-size: 13px;
   font-weight: 600;
@@ -57,31 +87,28 @@ const HeaderSubtitleLink = styled.div`
 `
 
 const SearchInput = styled.input`
-  font-size: 16px;
+  font-size: 14px;
   border: none;
   width: 100%;
-  padding: 15px;
-  color: #495057;
+  padding: 5px;
+  color: white;
   font-weight: 500;
   background: transparent;
 
   &::placeholder {
-    color: #acb5bd;
+    color: #324057;
   }
 `
 
 const SearchInner = styled.div`
   border-radius: 3px;
-  background: #f8f9fa;
   flex: 1;
   margin: 10px;
-  margin-right: 0px;
 `
 
 const SearchContainer = styled.div`
   width: 100%;
-  border-bottom: 1px solid #f1f3f5;
-  height: 70px;
+  border-bottom: 1px solid #0a152e;
 `
 
 const Heading = styled.div`
@@ -102,13 +129,15 @@ class RoomsPartial extends React.Component {
       results: [],
       teamModal: false,
       roomPopup: false,
+      accountModal: false,
+      accountMenu: false,
       starred: [],
       public: [],
       private: [],
     }
 
     this.filterRef = React.createRef()
-
+    this.signout = this.signout.bind(this)
     this.createPrivateRoom = this.createPrivateRoom.bind(this)
     this.navigateToRoom = this.navigateToRoom.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
@@ -116,6 +145,12 @@ class RoomsPartial extends React.Component {
     this.onSearch = this.onSearch.bind(this)
     this.onSearch$ = new Subject()
     this.subscription = null
+  }
+
+  async signout() {
+    await AuthService.signout()
+
+    this.props.history.push('/auth')
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -215,13 +250,79 @@ class RoomsPartial extends React.Component {
 
     return (
       <Rooms className="column align-items-stretch">
-        {/* Update an existing team */}
         {this.state.teamModal &&
           <TeamModal
             id={this.props.team.id}
             onClose={() => this.setState({ teamModal: false })}
           />
         }
+
+        {this.state.accountModal &&
+          <AccountModal
+            id={this.props.common.user.id}
+            onClose={() => this.setState({ accountModal: false })}
+          />
+        }
+
+        <Header className="row">
+          <Avatar
+            size="medium"
+            image={this.props.common.user.image}
+            title={this.props.common.user.name}
+            className="mr-10"
+          />
+
+          <div className="column w-100">
+            <HeaderTitle>
+              {this.props.common.user.name}
+            </HeaderTitle>
+
+            <HeaderSubtitle>
+              {this.props.team.name}
+            </HeaderSubtitle>
+          </div>
+
+          <PopupComponent
+            handleDismiss={() => this.setState({ accountMenu: false })}
+            visible={this.state.accountMenu}
+            width={275}
+            direction="right-bottom"
+            content={
+              <div className="column flexer">
+                <AccountMenuHeader className="column align-items-center">
+                  <Avatar
+                    size="medium"
+                    image={this.props.common.user.image}
+                    title={this.props.common.user.name}
+                    className="mr-10"
+                  />
+
+                  <AccountMenuTitle>
+                    {this.props.common.user.name}
+                  </AccountMenuTitle>
+
+                  <AccountMenuSubtitle>
+                    {this.props.team.name}
+                  </AccountMenuSubtitle>
+                </AccountMenuHeader>
+                <MenuComponent
+                  items={[
+                    { icon: <SettingsOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Account setting", onClick: (e) => this.setState({ accountMenu: false, accountModal: true }) },
+                    { icon: <GroupWorkOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Team settings", onClick: (e) => this.setState({ accountMenu: false, teamModal: true }) },
+                    { icon: <ExitToAppOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Signout", onClick: (e) => this.setState({ accountMenu: false }, () => this.signout()) },
+                    { icon: <HelpOutlineOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Help", onClick: (e) => this.setState({ accountMenu: false }) },
+                  ]}
+                />
+              </div>
+            }>
+            <KeyboardArrowDownOutlined
+              htmlColor="#475669"
+              fontSize="default"
+              className="button"
+              onClick={() => this.setState({ accountMenu: true })}
+            />
+          </PopupComponent>
+        </Header>
 
         <SearchContainer className="row">
           <SearchInner className="row">
@@ -236,25 +337,10 @@ class RoomsPartial extends React.Component {
               visible={this.state.showFilter}
               value={this.state.filter}
               onChange={this.onSearch}
-              placeholder="Search by name..."
+              placeholder="Start Conversation"
             />
           </SearchInner>
-
-          <SettingsOutlined
-            htmlColor="#acb5bd"
-            fontSize="default"
-            className="mr-20 ml-20 button"
-            onClick={() => this.setState({ teamModal: true })}
-          />
         </SearchContainer>
-
-        <Header className="row hide">
-          <HeaderTitle>
-            {this.props.team.name}
-          </HeaderTitle>
-          <div className="row">
-          </div>
-        </Header>
 
         <div className="flexer w-100 column align-items-stretch scroll">
           {this.state.filter != "" &&
@@ -325,7 +411,7 @@ class RoomsPartial extends React.Component {
 
           <Heading className="row">
             <span className="flexer">
-              {this.props.team.name} Channels
+              Channels
             </span>
 
             <QuickInputComponent
@@ -336,7 +422,7 @@ class RoomsPartial extends React.Component {
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
               placeholder="New room name">
               <AddCircleOutline
-                htmlColor="#babec9"
+                htmlColor="#475669"
                 fontSize="small"
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
@@ -397,6 +483,27 @@ class RoomsPartial extends React.Component {
               })}
             </React.Fragment>
           }
+
+          <Heading className="row">
+            <span className="flexer">
+              Snippets
+            </span>
+
+            <QuickInputComponent
+              visible={this.state.roomPopup}
+              width={300}
+              direction="right-bottom"
+              handleDismiss={() => this.setState({ roomPopup: false })}
+              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
+              placeholder="New room name">
+              <AddCircleOutline
+                htmlColor="#475669"
+                fontSize="small"
+                className="button"
+                onClick={() => this.setState({ roomPopup: true })}
+              />
+            </QuickInputComponent>
+          </Heading>
         </div>
       </Rooms>
     )

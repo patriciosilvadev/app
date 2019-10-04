@@ -11,7 +11,7 @@ import { EmailOutlined, LinkOutlined, FlashOnOutlined, FlagOutlined, Fingerprint
 const Drawer = styled.div`
   height: 100%;
   background: #040B1C;
-  background: white;
+  background: #F8F9FA;
   border-left: 1px solid #f1f3f5;
   box-shadow: 0px 0px 100px 100px rgba(0, 0, 0, 0.05);
   box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
@@ -35,6 +35,8 @@ class ToolbarPartial extends React.Component {
 
   // prettier-ignore
   render() {
+    return null
+    
     return (
       <Drawer className="column align-items-center ">
         <Avatar color="#DC2A86" className="mb-10">
@@ -45,18 +47,6 @@ class ToolbarPartial extends React.Component {
         </Avatar>
         <Avatar color="#007AF5" className="mb-10">
           <FingerprintOutlined htmlColor="#007AF5" fontSize="small" />
-        </Avatar>
-
-
-
-        <Avatar color="white" className="mb-10 mt-10">
-          <FlashOnOutlined htmlColor="#babec9" fontSize="default" />
-        </Avatar>
-        <Avatar color="white" className="mb-10">
-          <LinkOutlined htmlColor="#babec9" fontSize="default" />
-        </Avatar>
-        <Avatar color="white" className="mb-10">
-          <EmailOutlined htmlColor="#babec9" fontSize="default" />
         </Avatar>
       </Drawer>
     )

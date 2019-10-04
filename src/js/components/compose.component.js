@@ -45,7 +45,7 @@ const Footer = styled.div`
   color: #cfd4d9;
 
   strong {
-    font-weight: 500;
+    font-weight: 700;
   }
 `
 
@@ -365,7 +365,7 @@ class ComposeComponent extends React.Component {
               size={18}
               className="mr-10"
             />
-            <span>Use can you <strong>**markdown**</strong> to format your message</span>
+          <span>Use <strong>**markdown**</strong> to format your message</span>
           </Footer>
         }
       </Compose>

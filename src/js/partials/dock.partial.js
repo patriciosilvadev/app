@@ -20,9 +20,9 @@ const Dock = styled.div`
   height: 100%;
   position: relative;
   z-index: 2;
-  background: #040B1C;
   background: white;
-  border-right: 1px solid #f1f3f5;
+  background: #040B1C;
+  border-right: 1px solid #0a152e;
 `
 
 class DockPartial extends React.Component {
@@ -30,19 +30,9 @@ class DockPartial extends React.Component {
     super(props)
 
     this.state = {
-      teamModal: false,
       teamPopup: false,
-      accountModal: false,
       pluginId: null,
     }
-
-    this.signout = this.signout.bind(this)
-  }
-
-  async signout() {
-    await AuthService.signout()
-
-    this.props.history.push('/auth')
   }
 
   componentDidMount() {
@@ -68,23 +58,18 @@ class DockPartial extends React.Component {
           )
         })}
 
-        {this.state.accountModal &&
-          <AccountModal
-            id={this.props.common.user.id}
-            onClose={() => this.setState({ accountModal: false })}
-          />
-        }
-
         {this.props.teams.map((team, index) => {
           return (
-            <Link key={index} to={`/app/team/${team.id}`}>
+            <Link
+              key={index}
+              to={`/app/team/${team.id}`}
+              style={{ opacity: lastPathname != "starred" && this.props.team.id == team.id ? 1 : 0.5 }}>
               <Avatar
-                size="medium-large"
+                dark
+                size="medium"
                 image={team.image}
                 title={team.name}
                 className="button mb-10"
-                outlineInnerColor="white"
-                outlineOuterColor={lastPathname != "starred" && this.props.team.id == team.id ? "#007af5" : "transparent"}
               />
             </Link>
           )
@@ -98,36 +83,12 @@ class DockPartial extends React.Component {
           handleAccept={(name) => this.setState({ teamPopup: false }, () => this.props.createTeam(name))}
           placeholder="New team name">
           <Avatar
-            color="white"
+            dark
             className="button"
             onClick={(e) => this.setState({ teamPopup: true })}>
-            <AddOutlined htmlColor="#babec9" fontSize="default" />
+            <AddOutlined htmlColor="#007af5" fontSize="default" />
           </Avatar>
         </QuickInputComponent>
-
-        <div className="flexer"></div>
-
-        <HelpOutlineOutlined
-          htmlColor="#babec9"
-          onClick={(e) => console.log('Help')}
-          className="mt-20 button"
-          fontSize="default"
-        />
-
-        <ExitToAppOutlined
-          htmlColor="#babec9"
-          className="mt-20 button"
-          onClick={this.signout}
-          fontSize="default"
-        />
-
-        <Avatar
-          size="medium"
-          image={this.props.common.user.image}
-          title={this.props.common.user.name}
-          className="mt-20 button"
-          onClick={(e) => this.setState({ accountModal: true, userMenu: false })}
-        />
       </Dock>
     )
   }

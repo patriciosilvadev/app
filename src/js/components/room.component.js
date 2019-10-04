@@ -7,20 +7,16 @@ import { LockOutlined } from '@material-ui/icons'
 
 const List = styled.div`
   background: transparent;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 25px;
-  padding-right: 25px;
+  margin-top: 4px;
+  margin-bottom: 4px;
   display: flex;
-  width: 100%;
 `
 
 const Badge = styled.div`
-  width: 7px;
-  height: 7px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: #007af5;
-  margin-left: auto;
 `
 
 const Icon = styled.div`
@@ -31,34 +27,28 @@ const Icon = styled.div`
 const Title = styled.div`
   overflow: hidden;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 400;
-  color: #acb5bd;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${props => props.active ? "white" : "#acb5bd" } ;
   white-space: nowrap;
   width: max-content;
-  padding-left: 10px;
-
-  &.active {
-    color: #495057;
-    font-weight: 600;
-  }
 `
 
 const Excerpt = styled.div`
-  font-size: 13px;
-  color: #acb5bd;
-  white-space: nowrap;
-  overflow: hidden;
+  font-size: 11px;
+  color: #475669;
   font-weight: 500;
   text-overflow: ellipsis;
-  padding-left: 5px;
-  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
   flex: 1;
+  margin-top: 4px;
+`
 
-  &.active {
-    color: #495057;
-    font-weight: 500;
-  }
+const Contents = styled.div`
+  overflow: hidden;
+  align-items: stretch;
+  margin-right: 25px;
 `
 
 export default function RoomComponent(props) {
@@ -70,30 +60,40 @@ export default function RoomComponent(props) {
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => setOver(false)}
       onClick={props.onClick ? props.onClick : null}
-      className={props.active ? "row active" : "row"}>
+      active={props.active}>
         <Avatar
-          size="small-medium"
+          dark
+          size="medium"
           image={props.image}
           title={props.title}
+          className="mr-10 ml-25"
         />
 
-        <Title className={props.active || props.unread ? "active" : null}>
-          {props.title}
-        </Title>
+        <Contents className="column flexer">
+          <div className="row flexer">
+            <Title active={props.active || props.unread}>
+              {props.title}
+            </Title>
 
-        {!props.public && !props.private &&
-          <LockOutlined
-            htmlColor={props.active || props.unread ? "#495057" : "#acb5bd"}
-            fontSize="small"
-            className="ml-5"
-          />
-        }
+            {!props.public && !props.private &&
+              <LockOutlined
+                htmlColor="#475669"
+                fontSize="small"
+                className="ml-5"
+              />
+            }
 
-        <Excerpt className={props.active || props.unread ? "active" : null}>
-          {props.excerpt}
-        </Excerpt>
+            <div className="flexer"></div>
 
-        {props.unread && <Badge />}
+            {props.unread && <Badge />}
+          </div>
+
+          {props.excerpt &&
+            <Excerpt>
+              {props.excerpt}
+            </Excerpt>
+          }
+        </Contents>
     </List>
   )
 }

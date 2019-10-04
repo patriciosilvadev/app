@@ -344,7 +344,7 @@ export default function TeamModal(props) {
           </div>
         )}>
           <TabbedComponent
-            start={0}
+            start={props.start || 0}
             panels={[
               {
                 title: 'Profile',
@@ -483,6 +483,7 @@ export default function TeamModal(props) {
 
 TeamModal.propTypes = {
   onClose: PropTypes.func,
+  start: PropTypes.number,
   id: PropTypes.string,
   history: PropTypes.any,
 }

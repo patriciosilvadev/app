@@ -247,7 +247,6 @@ export function fetchRoomMessages(page) {
 export function createRoomMessage(text, attachments) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
-    const excerpt = common.user.name + ': ' + text
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
@@ -262,7 +261,7 @@ export function createRoomMessage(text, attachments) {
         type: 'CREATE_ROOM_MESSAGE',
         payload: {
           message: data.createRoomMessage,
-          excerpt: excerpt,
+          excerpt: text,
           roomId: room.id,
           teamId: room.team.id,
         },
@@ -272,7 +271,11 @@ export function createRoomMessage(text, attachments) {
       // Update the room excerpt
       dispatch({
         type: 'UPDATE_ROOM',
-        payload: { excerpt },
+        payload: {
+          excerpt: text,
+          roomId: room.id,
+          teamId: room.team.id,
+        },
         sync: room.id,
       })
     } catch (e) {
