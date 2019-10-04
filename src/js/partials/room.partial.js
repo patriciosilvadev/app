@@ -56,7 +56,7 @@ const HeaderTitle = styled.div`
   color: #040b1c;
   transition: opacity 0.5s;
   display: inline-block;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 `
 
 const HeaderText = styled.div`
@@ -93,7 +93,6 @@ const Messages = styled.div`
   flex: 1;
   overflow: scroll;
   width: 100%;
-  border-bottom: 1px solid #f1f3f5;
   background: #f8f9fa;
   background: white;
 `
@@ -126,9 +125,25 @@ const WelcomeTitle = styled.div`
   padding-bottom: 10px;
 `
 
+const WelcomeDescriptionUpdate = styled.div`
+  font-weight: 400;
+  font-size: 18px;
+  color: #adb5bd;
+  font-style: italic;
+`
+
+const Typing = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  color: "#adb5bd";
+  border-bottom: 1px solid #f1f3f5;
+  padding: 10px 25px 10px 25px
+  width: 100%;
+`
+
 const WelcomeDescription = styled.div`
   font-weight: 400;
-  font-size: 22px;
+  font-size: 18px;
   color: #adb5bd;
 `
 
@@ -159,6 +174,8 @@ class RoomPartial extends React.Component {
       confirmDeleteModal: false,
       starred: false,
       visibilityMenu: false,
+      lastTypingTime: 0,
+      typing: '',
     }
 
     this.messagesRef = React.createRef()
@@ -168,6 +185,18 @@ class RoomPartial extends React.Component {
     this.updateRoomVisibility = this.updateRoomVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.deleteRoom = this.deleteRoom.bind(this)
+    this.composeTypingNames = this.composeTypingNames.bind(this)
+  }
+
+  composeTypingNames() {
+    // Don't include ourselves
+    const typingUsers = this.props.room.typing.filter(t => t.userId != this.props.common.user.id)
+
+    if (typingUsers.length == 0) {
+      return ""
+    } else {
+        return typingUsers.map(t => t.userName).join(', ') + " is typing"
+    }
   }
 
   scrollToBottom() {
@@ -433,9 +462,18 @@ class RoomPartial extends React.Component {
                   <WelcomeTitle>
                     {this.state.title}
                   </WelcomeTitle>
-                  <WelcomeDescription>
-                    <ReactMarkdown source={this.props.room.description} />
-                  </WelcomeDescription>
+                  {this.props.room.description &&
+                    <WelcomeDescription>
+                      <ReactMarkdown source={this.props.room.description} />
+                    </WelcomeDescription>
+                  }
+                  {!this.props.room.description &&
+                    <WelcomeDescriptionUpdate
+                      className="button"
+                      onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
+                      Add some information about this chat
+                    </WelcomeDescriptionUpdate>
+                  }
                 </Welcome>
 
                 <MessagesContainer ref={(ref) => this.messagesRef = ref}>
@@ -463,6 +501,10 @@ class RoomPartial extends React.Component {
               </React.Fragment>
             }
           </Messages>
+
+          <Typing>
+            {this.composeTypingNames()}
+          </Typing>
 
           {this.state.open &&
             <ComposeComponent

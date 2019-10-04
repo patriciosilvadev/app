@@ -125,6 +125,36 @@ export function updateRoom(updatedRoom) {
   }
 }
 
+export function updateRoomAddTyping(userName, userId) {
+  return async (dispatch, getState) => {
+    const { room } = getState()
+    const roomId = room.id
+    const alreadyTyping = room.typing.filter(typing => typing.userId == userId).flatten()
+
+    // Don't re-add people
+    if (alreadyTyping) return
+
+    dispatch({
+      type: 'UPDATE_ROOM_ADD_TYPING',
+      payload: { userName, userId, roomId },
+      sync: roomId,
+    })
+  }
+}
+
+export function updateRoomDeleteTyping(userName, userId) {
+  return async (dispatch, getState) => {
+    const { room } = getState()
+    const roomId = room.id
+
+    dispatch({
+      type: 'UPDATE_ROOM_DELETE_TYPING',
+      payload: { userName, userId, roomId },
+      sync: roomId,
+    })
+  }
+}
+
 export function fetchRoom(roomId) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))
@@ -140,6 +170,7 @@ export function fetchRoom(roomId) {
         type: 'ROOM',
         payload: {
           ...room,
+          typing: [],
           messages: room.messages.sort((left, right) => {
             return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
           }),
@@ -247,6 +278,7 @@ export function fetchRoomMessages(page) {
 export function createRoomMessage(text, attachments) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
+    const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
@@ -261,7 +293,7 @@ export function createRoomMessage(text, attachments) {
         type: 'CREATE_ROOM_MESSAGE',
         payload: {
           message: data.createRoomMessage,
-          excerpt: text,
+          excerpt,
           roomId: room.id,
           teamId: room.team.id,
         },
@@ -272,7 +304,7 @@ export function createRoomMessage(text, attachments) {
       dispatch({
         type: 'UPDATE_ROOM',
         payload: {
-          excerpt: text,
+          excerpt,
           roomId: room.id,
           teamId: room.team.id,
         },

@@ -6,13 +6,15 @@ import styled from 'styled-components'
 import PopupComponent from '../components/popup.component'
 import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError } from '../actions'
+import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping } from '../actions'
 import UploadService from '../services/upload.service'
 import { MessageMedia } from '@weekday/elements'
 import MembersComponent from '../components/members.component'
 import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
 import { IoIosSend } from 'react-icons/io'
+import { Subject } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
 
 const Compose = styled.div`
   width: 100%;
@@ -100,10 +102,14 @@ class ComposeComponent extends React.Component {
       position: 0,
       members: [],
       shift: false,
+      files: [],
+      fileIndex: 0,
     }
 
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
+
+    this.onType$ = new Subject()
 
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
@@ -113,6 +119,7 @@ class ComposeComponent extends React.Component {
     this.updateComposeHeight = this.updateComposeHeight.bind(this)
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
+    this.subscription = null
   }
 
   onSend() {
@@ -124,23 +131,45 @@ class ComposeComponent extends React.Component {
   async handleFileChange(e) {
     if (e.target.files.length == 0) return
 
+    this.setState({
+      files: e.target.files,
+      fileIndex: 0,
+    }, () => {
+      this.processFiles()
+    })
+  }
+
+  async processFiles() {
     this.props.updateLoading(true)
     this.props.updateError(null)
 
+
     try {
-      const result = await new UploadService(e.target.files[0])
+      const file = this.state.files[this.state.fileIndex]
+      const result = await new UploadService(file)
       const { uri, mime, size, name } = await result.json()
 
-      // Update the state with the new file
-      // This format is what the API expects
-      this.props.updateLoading(false)
+      // Add the new files & increase the index
       this.setState({
         attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
+        fileIndex: this.state.fileIndex + 1,
+      }, () => {
+        // If all is done, update the UI & stop loading (reset index)
+        // Or otherwise move onto the next file
+        if (this.state.files.length == this.state.fileIndex) {
+          this.setState({ fileIndex: 0 })
+
+           this.props.updateLoading(false)
+           this.props.updateError(null)
+        } else {
+          this.processFiles()
+        }
       })
     } catch (e) {
       this.props.updateLoading(false)
       this.props.updateError(e)
     }
+
   }
 
   insertAtCursor(text) {
@@ -179,10 +208,16 @@ class ComposeComponent extends React.Component {
 
     // Enter & Shift
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
+
+    // Update typing
+    this.props.updateRoomAddTyping(this.props.common.user.name, this.props.common.user.id)
   }
 
   handleComposeChange(e) {
-    this.setState({ text: e.target.value }, () => {
+    const text = e.target.value
+
+    this.onType$.next(text)
+    this.setState({ text }, () => {
       const { selectionStart } = this.composeRef
       const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
       const word = this.composeRef.value.split(' ')[wordArray - 1]
@@ -244,6 +279,11 @@ class ComposeComponent extends React.Component {
   componentDidMount() {
     this.composeRef.focus()
     this.updateComposeHeight()
+    this.subscription = this.onType$.pipe(debounceTime(1000)).subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
+  }
+
+  componentWillUnmount() {
+    if (this.subscription) this.subscription.unsubscribe()
   }
 
   componentDidUpdate() {}
@@ -382,11 +422,15 @@ ComposeComponent.propTypes = {
   compact: PropTypes.bool,
   updateLoading: PropTypes.func,
   updateError: PropTypes.func,
+  updateRoomAddTyping: PropTypes.func,
+  updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   updateLoading: loading => updateLoading(loading),
   updateError: error => updateLoading(error),
+  updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
+  updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
 }
 
 const mapStateToProps = state => {

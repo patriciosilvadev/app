@@ -11,6 +11,7 @@ const initialState = {
   members: [],
   user: {},
   team: {},
+  typing: [],
 }
 
 export default (state = initialState, action) =>
@@ -49,6 +50,19 @@ export default (state = initialState, action) =>
           }
         })
         break
+
+      case 'UPDATE_ROOM_ADD_TYPING':
+        draft.typing.push({
+          userName: action.payload.userName,
+          userId: action.payload.userId
+        })
+        break
+
+      case 'UPDATE_ROOM_DELETE_TYPING':
+        return {
+          ...state,
+          typing: state.typing.filter(typing => typing.userId != action.payload.userId)
+        }
 
       case 'CREATE_ROOM_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {

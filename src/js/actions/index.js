@@ -18,6 +18,8 @@ import { fetchUser } from './common'
 import { fetchTeams } from './teams'
 import { updateUserStarred } from './common'
 import { createTeam } from './team'
+import { updateRoomAddTyping } from './room'
+import { updateRoomDeleteTyping } from './room'
 
 export {
   initialize,
@@ -40,4 +42,6 @@ export {
   fetchTeams,
   updateUserStarred,
   createTeam,
+  updateRoomAddTyping,
+  updateRoomDeleteTyping,
 }

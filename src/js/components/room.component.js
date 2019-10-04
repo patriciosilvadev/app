@@ -6,9 +6,9 @@ import PropTypes from 'prop-types'
 import { LockOutlined } from '@material-ui/icons'
 
 const List = styled.div`
-  background: transparent;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  background: ${props => props.active ? "#0c1828" : "transparent" };
+  padding-top: 4px;
+  padding-bottom: 4px;
   display: flex;
 `
 
