@@ -15,16 +15,20 @@ import { DiMarkdown } from 'react-icons/di'
 import { IoIosSend } from 'react-icons/io'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+import Keg from '@joduplessis/keg'
+import SpinnerComponent from '../components/spinner.component'
+import ErrorComponent from '../components/error.component'
+import NotificationComponent from '../components/notification.component'
 
 const Compose = styled.div`
   width: 100%;
-  padding: ${props => (props.compact ? '0px' : '10px 25px 10px 25px')};
+  padding: 0px;
 `
 
 const InputContainer = styled.div`
   flex: 1;
-  padding: ${props => (props.compact ? '10px' : '15px 0px 15px 0px')};
-  background: ${props => (props.compact ? '#f8f9fa' : 'white')};
+  padding: 25px 25px 0px 25px;
+  background: white;
   border-radius: 25px;
 `
 
@@ -41,7 +45,7 @@ const Attachments = styled.div`
 
 const Footer = styled.div`
   padding-top: 0px;
-  padding-bottom: 10px;
+  padding: 25px;
   font-size: 12px;
   font-weight: 400;
   color: #cfd4d9;
@@ -61,7 +65,7 @@ const Input = styled.textarea`
   display: block;
   background: transparent;
   color: #212123;
-  font-size: ${props => (props.compact ? '14px' : '17px')};
+  font-size: 20px;
   font-weight: 400;
 
   &::placeholder {
@@ -102,8 +106,9 @@ class ComposeComponent extends React.Component {
       position: 0,
       members: [],
       shift: false,
-      files: [],
-      fileIndex: 0,
+      error: null,
+      loading: null,
+      notification: null,
     }
 
     this.composeRef = React.createRef()
@@ -131,45 +136,9 @@ class ComposeComponent extends React.Component {
   async handleFileChange(e) {
     if (e.target.files.length == 0) return
 
-    this.setState({
-      files: e.target.files,
-      fileIndex: 0,
-    }, () => {
-      this.processFiles()
-    })
-  }
-
-  async processFiles() {
-    this.props.updateLoading(true)
-    this.props.updateError(null)
-
-
-    try {
-      const file = this.state.files[this.state.fileIndex]
-      const result = await new UploadService(file)
-      const { uri, mime, size, name } = await result.json()
-
-      // Add the new files & increase the index
-      this.setState({
-        attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
-        fileIndex: this.state.fileIndex + 1,
-      }, () => {
-        // If all is done, update the UI & stop loading (reset index)
-        // Or otherwise move onto the next file
-        if (this.state.files.length == this.state.fileIndex) {
-          this.setState({ fileIndex: 0 })
-
-           this.props.updateLoading(false)
-           this.props.updateError(null)
-        } else {
-          this.processFiles()
-        }
-      })
-    } catch (e) {
-      this.props.updateLoading(false)
-      this.props.updateError(e)
+    for (let file of e.target.files) {
+      Keg.keg('compose').refill('uploads', file)
     }
-
   }
 
   insertAtCursor(text) {
@@ -247,7 +216,7 @@ class ComposeComponent extends React.Component {
   }
 
   updateComposeHeight() {
-    this.setState({ height: this.state.text.split('\n').length * (this.props.compact ? 20 : 25) })
+    this.setState({ height: this.state.text.split('\n').length * 25 })
   }
 
   replaceWordAtCursor(word) {
@@ -278,8 +247,32 @@ class ComposeComponent extends React.Component {
 
   componentDidMount() {
     this.composeRef.focus()
+
+    // Resize compose initiallyl
     this.updateComposeHeight()
-    this.subscription = this.onType$.pipe(debounceTime(1000)).subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
+
+    // Stop typing indicator after 1000 ms of inactivity
+    this.subscription = this.onType$
+      .pipe(debounceTime(1000))
+      .subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
+
+    // Listen for file changes in attachments
+    Keg.keg('compose').tap('uploads', async (file, pour) => {
+      this.setState({ loading: true })
+      this.setState({ error: null })
+
+      try {
+        const result = await new UploadService(file)
+        const { uri, mime, size, name } = await result.json()
+
+        // Add the new files & increase the index
+        this.setState({ attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]] }, () => pour())
+        this.setState({ loading: false })
+      } catch (e) {
+        this.setState({ loading: false })
+        this.setState({ error: e })
+      }
+    })
   }
 
   componentWillUnmount() {
@@ -291,7 +284,11 @@ class ComposeComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <Compose compact={this.props.compact} className="column align-items-stretch">
+      <Compose className="column align-items-stretch">
+        {this.state.error && <ErrorComponent message={this.state.error} />}
+        {this.state.loading && <SpinnerComponent />}
+        {this.state.notification && <NotificationComponent text={this.state.notification} />}
+
         {this.state.attachments.length != 0 &&
           <Attachments className="row">
             {this.state.attachments.map((attachment, index) => {
@@ -322,10 +319,7 @@ class ComposeComponent extends React.Component {
           </MentionContainer>
         }
 
-        <InputContainer
-          compact={this.props.compact}
-          className="row">
-
+        <InputContainer className="row">
           <input
             className="hide"
             ref={(ref) => this.fileRef = ref}
@@ -339,75 +333,68 @@ class ComposeComponent extends React.Component {
             ref={(ref) => this.composeRef = ref}
             placeholder="Say something"
             value={this.state.text}
-            compact={this.props.compact}
             onKeyUp={this.handleKeyUp}
             onKeyDown={this.handleKeyDown}
             onChange={this.handleComposeChange}
           />
 
-          {!this.props.compact &&
-            <React.Fragment>
-              <PopupComponent
-                handleDismiss={() => this.setState({ emoticonMenu: false })}
-                visible={this.state.emoticonMenu}
-                width={350}
-                direction="right-top"
-                content={
-                  <Picker
-                    style={{ width: 350 }}
-                    set='emojione'
-                    title=""
-                    emoji=""
-                    showPreview={false}
-                    showSkinTones={false}
-                    onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-                  />
-                }>
-                <SentimentSatisfiedOutlined
-                  htmlColor="#565456"
-                  className="button ml-15"
-                  fontSize="default"
-                  onClick={() => this.setState({ emoticonMenu: true })}
-                />
-              </PopupComponent>
-
-              <AttachFileOutlined
-                htmlColor="#565456"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => this.fileRef.click()}
+          <PopupComponent
+            handleDismiss={() => this.setState({ emoticonMenu: false })}
+            visible={this.state.emoticonMenu}
+            width={350}
+            direction="right-top"
+            content={
+              <Picker
+                style={{ width: 350 }}
+                set='emojione'
+                title=""
+                emoji=""
+                showPreview={false}
+                showSkinTones={false}
+                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
+            }>
+            <SentimentSatisfiedOutlined
+              htmlColor="#565456"
+              className="button ml-15"
+              fontSize="default"
+              onClick={() => this.setState({ emoticonMenu: true })}
+            />
+          </PopupComponent>
 
-              <AlternateEmailOutlined
-                htmlColor="#565456"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => {
-                  this.insertAtCursor("@")
-                  this.filterMembers("")
-                }}
-              />
+          <AttachFileOutlined
+            htmlColor="#565456"
+            fontSize="default"
+            className="ml-15 button"
+            onClick={() => this.fileRef.click()}
+          />
 
-              <IoIosSend
-                color="#565456"
-                className="ml-15 button"
-                size={30}
-                onClick={this.onSend}
-              />
-            </React.Fragment>
-          }
+          <AlternateEmailOutlined
+            htmlColor="#565456"
+            fontSize="default"
+            className="ml-15 button"
+            onClick={() => {
+              this.insertAtCursor("@")
+              this.filterMembers("")
+            }}
+          />
+
+          <IoIosSend
+            color="#565456"
+            className="ml-15 button"
+            size={30}
+            onClick={this.onSend}
+          />
         </InputContainer>
 
-        {!this.props.compact &&
-          <Footer className="row">
-            <DiMarkdown
-              color="#cfd4d9"
-              size={18}
-              className="mr-10"
-            />
+        <Footer className="row">
+          <DiMarkdown
+            color="#cfd4d9"
+            size={18}
+            className="mr-10"
+          />
           <span>Use <strong>**markdown**</strong> to format your message</span>
-          </Footer>
-        }
+        </Footer>
       </Compose>
     )
   }
@@ -419,16 +406,11 @@ ComposeComponent.propTypes = {
   common: PropTypes.any,
   onSend: PropTypes.func,
   members: PropTypes.array,
-  compact: PropTypes.bool,
-  updateLoading: PropTypes.func,
-  updateError: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
   updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  updateLoading: loading => updateLoading(loading),
-  updateError: error => updateLoading(error),
   updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
   updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
 }

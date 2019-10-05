@@ -483,27 +483,6 @@ class RoomsPartial extends React.Component {
               })}
             </React.Fragment>
           }
-
-          <Heading className="row">
-            <span className="flexer">
-              Snippets
-            </span>
-
-            <QuickInputComponent
-              visible={this.state.roomPopup}
-              width={300}
-              direction="right-bottom"
-              handleDismiss={() => this.setState({ roomPopup: false })}
-              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
-              placeholder="New room name">
-              <AddCircleOutline
-                htmlColor="#475669"
-                fontSize="small"
-                className="button"
-                onClick={() => this.setState({ roomPopup: true })}
-              />
-            </QuickInputComponent>
-          </Heading>
         </div>
       </Rooms>
     )

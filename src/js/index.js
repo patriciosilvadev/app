@@ -28,6 +28,7 @@ import teams from './reducers/teams'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
 import './environment'
+import logger from 'redux-logger'
 
 // Redux with our middlewares
 const store = createStore(
@@ -38,7 +39,11 @@ const store = createStore(
     room,
     rooms,
   }),
-  applyMiddleware(thunk, sync)
+  applyMiddleware(
+    thunk,
+    sync,
+    //logger
+  )
 )
 
 // Plugin framework setup

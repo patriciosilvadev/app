@@ -99,6 +99,7 @@
         "puppeteer": "^1.19.0",
         "react-hot-loader": "^4.3.6",
         "react-loaders": "^3.0.1",
+        "redux-logger": "^3.0.6",
         "sass-loader": "^7.1.0",
         "style-loader": "^0.23.0",
         "styled-components": "^4.1.3",

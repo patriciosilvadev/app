@@ -373,24 +373,26 @@ class RoomPartial extends React.Component {
                     {this.props.room.members.length == 1 ? "member" : "members"}
                   </HeaderText>
 
-                  <QuickUserComponent
-                    teamId={this.props.team.id}
-                    visible={this.state.userMenu}
-                    width={250}
-                    direction="right-bottom"
-                    handleDismiss={() => this.setState({ userMenu: false })}
-                    handleAccept={({ user }) => this.createRoomMember(user)}>
-                    <div
-                      className="ml-10 row button"
-                      onClick={() => this.setState({ userMenu:true })}>
-                      <AddOutlined
-                        htmlColor="#007af5"
-                        fontSize="small"
-                        className="mr-5"
-                      />
-                      <HeaderLink>Add New</HeaderLink>
-                    </div>
-                  </QuickUserComponent>
+                  {!this.props.room.private &&
+                    <QuickUserComponent
+                      teamId={this.props.team.id}
+                      visible={this.state.userMenu}
+                      width={250}
+                      direction="right-bottom"
+                      handleDismiss={() => this.setState({ userMenu: false })}
+                      handleAccept={({ user }) => this.createRoomMember(user)}>
+                      <div
+                        className="ml-10 row button"
+                        onClick={() => this.setState({ userMenu:true })}>
+                        <AddOutlined
+                          htmlColor="#007af5"
+                          fontSize="small"
+                          className="mr-5"
+                        />
+                        <HeaderLink>Add New</HeaderLink>
+                      </div>
+                    </QuickUserComponent>
+                  }
                 </div>
               </div>
 
@@ -422,19 +424,23 @@ class RoomPartial extends React.Component {
                 </HeaderButton>
               </PopupComponent>
 
-              <InfoOutlined
-                htmlColor="#acb5bd"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
-              />
+              {!this.props.room.private &&
+                <InfoOutlined
+                  htmlColor="#acb5bd"
+                  fontSize="default"
+                  className="ml-15 button"
+                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
+                />
+              }
 
-              <PeopleOutline
-                htmlColor="#acb5bd"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
-              />
+              {!this.props.room.private &&
+                <PeopleOutline
+                  htmlColor="#acb5bd"
+                  fontSize="default"
+                  className="ml-15 button"
+                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
+                />
+              }
 
               <DeleteOutlined
                 htmlColor="#acb5bd"
@@ -455,18 +461,22 @@ class RoomPartial extends React.Component {
                       image={this.props.room.user.image}
                       size="small"
                     />
+
                     <WelcomeUserName>
                       Started by {this.props.room.user.name}
                     </WelcomeUserName>
                   </WelcomeUser>
+
                   <WelcomeTitle>
                     {this.state.title}
                   </WelcomeTitle>
+
                   {this.props.room.description &&
                     <WelcomeDescription>
                       <ReactMarkdown source={this.props.room.description} />
                     </WelcomeDescription>
                   }
+
                   {!this.props.room.description &&
                     <WelcomeDescriptionUpdate
                       className="button"
