@@ -23,6 +23,8 @@ import NotificationComponent from '../components/notification.component'
 const Compose = styled.div`
   width: 100%;
   padding: 0px;
+  border-sizing: box-border;
+  border: ${props => props.active ? "2px solid #007af5": "none"}
 `
 
 const InputContainer = styled.div`
@@ -109,10 +111,12 @@ class ComposeComponent extends React.Component {
       error: null,
       loading: null,
       notification: null,
+      isDragging: false,
     }
 
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
+    this.dropZone = React.createRef()
 
     this.onType$ = new Subject()
 
@@ -134,9 +138,11 @@ class ComposeComponent extends React.Component {
   }
 
   async handleFileChange(e) {
-    if (e.target.files.length == 0) return
+    const files = e.target.files || []
 
-    for (let file of e.target.files) {
+    if (files.length == 0) return
+
+    for (let file of files) {
       Keg.keg('compose').refill('uploads', file)
     }
   }
@@ -248,6 +254,49 @@ class ComposeComponent extends React.Component {
   componentDidMount() {
     this.composeRef.focus()
 
+    this.dropZone.addEventListener('dragover', (e) => {
+      e.stopPropagation()
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+
+      this.setState({ isDragging: true })
+    })
+
+    this.dropZone.addEventListener('dragleave', (e) => {
+      e.stopPropagation()
+      e.preventDefault()
+
+      this.setState({ isDragging: false })
+    })
+
+    // Get file data on drop
+    this.dropZone.addEventListener('drop', (e) => {
+      e.stopPropagation()
+      e.preventDefault()
+
+      const files = e.dataTransfer.files || []
+
+      if (files.length == 0) return
+
+      for (let file of files) {
+        Keg.keg('compose').refill('uploads', file)
+      }
+      /*
+
+      for (var i=0, file; file=files[i]; i++) {
+        var reader = new FileReader()
+
+        reader.onload = function(e2) {
+          var img = document.createElement('img')
+          img.src= e2.target.result
+          document.body.appendChild(img)
+        }
+
+        reader.readAsDataURL(file)
+      }
+      */
+    })
+
     // Resize compose initiallyl
     this.updateComposeHeight()
 
@@ -277,6 +326,9 @@ class ComposeComponent extends React.Component {
 
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
+
+    dropZone.removeEventListener('dragover')
+    dropZone.removeEventListener('drop')
   }
 
   componentDidUpdate() {}
@@ -284,7 +336,9 @@ class ComposeComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <Compose className="column align-items-stretch">
+      <Compose
+        active={this.state.isDragging}
+        ref={ref => this.dropZone = ref} className="column align-items-stretch">
         {this.state.error && <ErrorComponent message={this.state.error} />}
         {this.state.loading && <SpinnerComponent />}
         {this.state.notification && <NotificationComponent text={this.state.notification} />}
