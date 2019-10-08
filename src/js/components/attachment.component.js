@@ -9,6 +9,7 @@ const Container = styled.div`
   padding: 15px;
   border-radius: 10px;
   margin-bottom: 5px;
+  margin-right: 5px;
 `
 
 const Delete = styled.div`

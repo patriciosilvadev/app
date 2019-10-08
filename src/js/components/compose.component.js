@@ -262,7 +262,7 @@ class ComposeComponent extends React.Component {
       this.setState({ isDragging: true })
     })
 
-    this.dropZone.addEventListener('dragleave', (e) => {
+    this.dropZone.addEventListener('dragend', (e) => {
       e.stopPropagation()
       e.preventDefault()
 
@@ -274,6 +274,8 @@ class ComposeComponent extends React.Component {
       e.stopPropagation()
       e.preventDefault()
 
+      this.setState({ isDragging: false })
+
       const files = e.dataTransfer.files || []
 
       if (files.length == 0) return
@@ -281,20 +283,6 @@ class ComposeComponent extends React.Component {
       for (let file of files) {
         Keg.keg('compose').refill('uploads', file)
       }
-      /*
-
-      for (var i=0, file; file=files[i]; i++) {
-        var reader = new FileReader()
-
-        reader.onload = function(e2) {
-          var img = document.createElement('img')
-          img.src= e2.target.result
-          document.body.appendChild(img)
-        }
-
-        reader.readAsDataURL(file)
-      }
-      */
     })
 
     // Resize compose initiallyl
@@ -316,11 +304,14 @@ class ComposeComponent extends React.Component {
 
         // Add the new files & increase the index
         this.setState({ attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]] }, () => pour())
-        this.setState({ loading: false })
       } catch (e) {
         this.setState({ loading: false })
         this.setState({ error: e })
       }
+    }, () => {
+      // This is the empty() callback
+      // Stop loading when all is done
+      this.setState({ loading: false })
     })
   }
 

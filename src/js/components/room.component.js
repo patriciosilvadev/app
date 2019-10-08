@@ -7,6 +7,7 @@ import { LockOutlined } from '@material-ui/icons'
 
 const List = styled.div`
   background: ${props => props.active ? "#0c1828" : "transparent" };
+  opacity: ${props => props.active || props.unread ? 1 : 0.5 };
   padding-top: 4px;
   padding-bottom: 4px;
   display: flex;
@@ -29,7 +30,7 @@ const Title = styled.div`
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  color: ${props => props.active ? "white" : "#acb5bd" } ;
+  color: white ;
   white-space: nowrap;
   width: max-content;
 `
@@ -60,6 +61,7 @@ export default function RoomComponent(props) {
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => setOver(false)}
       onClick={props.onClick ? props.onClick : null}
+      unread={props.unread}
       active={props.active}>
         <Avatar
           dark
@@ -71,7 +73,7 @@ export default function RoomComponent(props) {
 
         <Contents className="column flexer">
           <div className="row flexer">
-            <Title active={props.active || props.unread}>
+            <Title>
               {props.title}
             </Title>
 
