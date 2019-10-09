@@ -275,7 +275,7 @@ export function fetchRoomMessages(page) {
   }
 }
 
-export function createRoomMessage(text, attachments) {
+export function createRoomMessage(text, attachments, parent = null) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
     const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text
@@ -284,7 +284,14 @@ export function createRoomMessage(text, attachments) {
     dispatch(updateError(null))
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(room.id, common.user.id, common.user.name, text, attachments, null)
+      const { data } = await GraphqlService.getInstance().createRoomMessage(
+        room.id,
+        common.user.id,
+        common.user.name,
+        text,
+        attachments,
+        parent
+      )
 
       dispatch(updateLoading(false))
 
@@ -314,26 +321,6 @@ export function createRoomMessage(text, attachments) {
       dispatch(updateLoading(false))
       dispatch(updateError(e))
     }
-  }
-}
-
-export function createRoomMessageReply(messageId, userId, text, attachments) {
-  return async (dispatch, getState) => {
-    const { room } = getState()
-
-    try {
-      const { data } = await GraphqlService.getInstance().createRoomMessageReply(messageId, userId, text, attachments)
-
-      dispatch({
-        type: 'CREATE_ROOM_MESSAGE_REPLY',
-        payload: {
-          messageId,
-          roomId: room.id,
-          reply: data.createRoomMessageReply,
-        },
-        sync: room.id,
-      })
-    } catch (e) {}
   }
 }
 

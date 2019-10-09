@@ -7,7 +7,6 @@ import { LockOutlined } from '@material-ui/icons'
 
 const List = styled.div`
   background: ${props => props.active ? "#0c1828" : "transparent" };
-  opacity: ${props => props.active || props.unread ? 1 : 0.5 };
   padding-top: 4px;
   padding-bottom: 4px;
   display: flex;
@@ -30,7 +29,7 @@ const Title = styled.div`
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  color: white ;
+  color: ${props => props.active ? "white" : "#475669" };
   white-space: nowrap;
   width: max-content;
 `
@@ -69,11 +68,12 @@ export default function RoomComponent(props) {
           image={props.image}
           title={props.title}
           className="mr-10 ml-25"
+          style={{ opacity: props.active || props.unread ? 1 : 0.5 }}
         />
 
         <Contents className="column flexer">
           <div className="row flexer">
-            <Title>
+            <Title active={props.active || props.unread}>
               {props.title}
             </Title>
 

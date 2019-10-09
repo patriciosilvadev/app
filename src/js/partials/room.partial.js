@@ -24,7 +24,6 @@ import {
   updateRoom,
   fetchRoomMessages,
   createRoomMessage,
-  createRoomMessageReply,
   createRoomMessageReaction,
   deleteRoomMessageReaction,
 } from '../actions'
@@ -501,7 +500,6 @@ class RoomPartial extends React.Component {
                         replies={message.replies}
                         createdAt={message.createdAt}
                         members={this.props.room.members}
-                        createRoomMessageReply={this.props.createRoomMessageReply}
                         createRoomMessageReaction={this.props.createRoomMessageReaction}
                         deleteRoomMessageReaction={this.props.deleteRoomMessageReaction}
                       />
@@ -540,7 +538,6 @@ RoomPartial.propTypes = {
   updateRoom: PropTypes.func,
   deleteRoom: PropTypes.func,
   createRoomMessage: PropTypes.func,
-  createRoomMessageReply: PropTypes.func,
   createRoomMessageReaction: PropTypes.func,
   deleteRoomMessageReaction: PropTypes.func,
   updateUserStarred: PropTypes.func,
@@ -553,7 +550,6 @@ const mapDispatchToProps = {
   createRoomMember: user => createRoomMember(user),
   updateRoom: updatedRoom => updateRoom(updatedRoom),
   createRoomMessage: (text, attachments) => createRoomMessage(text, attachments),
-  createRoomMessageReply: (messageId, userId, text, attachments) => createRoomMessageReply(messageId, userId, text, attachments),
   createRoomMessageReaction: (messageId, reaction) => createRoomMessageReaction(messageId, reaction),
   deleteRoomMessageReaction: (messageId, reaction) => deleteRoomMessageReaction(messageId, reaction),
   updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),

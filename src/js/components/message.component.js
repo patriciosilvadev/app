@@ -164,12 +164,6 @@ export default function MessageComponent(props) {
     props.createRoomMessageReaction(props.id, `${emoticon}__${props.currentUser.id}__${props.currentUser.name.split(' ')[0]}`)
   }
 
-  const createRoomMessageReply = (text, attachments) => {
-    setReply(false)
-
-    props.createRoomMessageReply(props.id, props.currentUser.id, text, attachments)
-  }
-
   const compiledMessage = marked(props.message)
 
   let matchArr
@@ -312,33 +306,6 @@ export default function MessageComponent(props) {
                 }
               </React.Fragment>
             }
-
-            {props.replies &&
-              <React.Fragment>
-                {props.replies.length != 0 &&
-                  <Replies>
-                    {props.replies.map((r, ri) => {
-                      return (
-                        <ReplyContainer key={ri}>
-                          <ReplyText color={props.currentUser.id == r.user.id ? r.user.color : null}>
-                            <strong>@{r.user.username}</strong> {r.reply}
-                          </ReplyText>
-                        </ReplyContainer>
-                      )
-                    })}
-                  </Replies>
-                }
-              </React.Fragment>
-            }
-
-            {reply &&
-              <Compose>
-                <ComposeComponent
-                  onSend={createRoomMessageReply}
-                  compact={true}
-                />
-              </Compose>
-            }
           </Bubble>
         </div>
       </div>
@@ -357,7 +324,6 @@ MessageComponent.propTypes = {
   replies: PropTypes.array,
   createdAt: PropTypes.string,
   members: PropTypes.array,
-  createRoomMessageReply: PropTypes.func,
   createRoomMessageReaction: PropTypes.func,
   deleteRoomMessageReaction: PropTypes.func,
 }
