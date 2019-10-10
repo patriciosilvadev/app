@@ -3,15 +3,45 @@ import styled from 'styled-components'
 import '../helpers/extensions'
 import PropTypes from 'prop-types'
 
-export default function NotificationComponent({ text }) {
+const Container = styled.div`
+  background-color: #05A6FF;
+  width: 100%;
+`
+
+const ActionText = styled.span`
+  color: white;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 7px;
+  margin-left: auto;
+  cursor: pointer;
+`
+
+const Text = styled.span`
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 7px;
+`
+
+export default function NotificationComponent(props) {
   // prettier-ignore
   return (
-    <div className="row h55 w-100 p-10 align-content-center align-items-center justify-content-center" style={{ backgroundColor: "#05A6FF", color: "white", textAlign: "center" }}>
-      {text}
-    </div>
+    <Container className="row">
+      <Text>
+        {props.text}
+      </Text>
+      {props.actionText &&
+        <ActionText onClick={props.onActionClick}>
+          {props.actionText}
+        </ActionText>
+      }
+    </Container>
   )
 }
 
 NotificationComponent.propTypes = {
   text: PropTypes.string,
+  actionText: PropTypes.string,
+  onActionClick: PropTypes.func,
 }

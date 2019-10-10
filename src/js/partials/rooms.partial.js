@@ -131,7 +131,7 @@ class RoomsPartial extends React.Component {
       teamModal: false,
       roomPopup: false,
       accountModal: false,
-      accountMenu: true,
+      accountMenu: false,
       starred: [],
       public: [],
       private: [],

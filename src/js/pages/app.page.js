@@ -14,6 +14,7 @@ import DockPartial from '../partials/dock.partial'
 import ToolbarPartial from '../partials/toolbar.partial'
 import MembersPartial from '../partials/members.partial'
 import GraphqlService from '../services/graphql.service'
+import NotificationComponent from '../components/notification.component'
 
 const App = styled.div`
   background-color: white;
@@ -76,6 +77,14 @@ class AppPage extends React.Component {
       <App className="column align-items-start app-page">
         <LoadingComponent show={this.props.common.loading} />
         <ErrorComponent message={this.props.common.error} />
+
+        <NotificationComponent
+          text="Push notifications are disabled"
+          actionText="Click here to enable them"
+          onActionClick={() => {
+            console.log("Cool")
+          }}
+        />
 
         <Router history={browserHistory}>
           <div className="row w-100 h-100 align-items-start align-content-start justify-content-start flex-1">
