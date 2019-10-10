@@ -18,6 +18,7 @@ import QuickInputComponent from '../components/quick-input.component'
 import PopupComponent from '../components/popup.component'
 import MenuComponent from '../components/menu.component'
 import AccountModal from '../modals/account.modal'
+import ToggleComponent from '../components/toggle.component'
 
 const Rooms = styled.div`
   width: 300px;
@@ -130,7 +131,7 @@ class RoomsPartial extends React.Component {
       teamModal: false,
       roomPopup: false,
       accountModal: false,
-      accountMenu: false,
+      accountMenu: true,
       starred: [],
       public: [],
       private: [],
@@ -304,6 +305,13 @@ class RoomsPartial extends React.Component {
                   <AccountMenuSubtitle>
                     {this.props.team.name}
                   </AccountMenuSubtitle>
+
+                  <ToggleComponent
+                    on={true}
+                    onChange={(value) => {
+                      console.log('RoomsPartial', value)
+                    }}
+                  />
                 </AccountMenuHeader>
                 <MenuComponent
                   items={[
