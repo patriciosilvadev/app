@@ -81,8 +81,11 @@ class AppPage extends React.Component {
         <NotificationComponent
           text="Push notifications are disabled"
           actionText="Click here to enable them"
+          onDismissClick={() => {
+            console.log('Close')
+          }}
           onActionClick={() => {
-            console.log("Cool")
+            console.log("Action")
           }}
         />
 
