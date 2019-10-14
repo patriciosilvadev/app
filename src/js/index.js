@@ -31,29 +31,20 @@ import './environment'
 import logger from 'redux-logger'
 import {  askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
 
-async function triggerPushNotification() {
+async function subscribePushNotification() {
   if ('serviceWorker' in navigator) {
     const register = await navigator.serviceWorker.register('/sw.js', {
       scope: '/'
     });
 
-
-    if ('PushManager' in window) {
-      askPushNotificationPermission()
-        .then(res => {
-          CookieService.setCookie('PN', 'YES')
-          this.setState({ pushNotifications: false })
-        })
-        .catch(err => {
-          this.setState({ pushNotifications: true })
-        })
-    }
-
+    // Subscribe to the PNs
     const subscription = await register.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
     });
 
+    // Join - we're not using this for anything yet
+    // But we will
     await fetch(API_HOST + '/subscribe', {
       method: 'POST',
       body: JSON.stringify(subscription),
@@ -66,9 +57,7 @@ async function triggerPushNotification() {
   }
 }
 
-
-triggerPushNotification().catch(error => console.error(error));
-
+subscribePushNotification().catch(error => console.error(error));
 
 // Redux with our middlewares
 const store = createStore(

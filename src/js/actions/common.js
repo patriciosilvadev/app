@@ -5,6 +5,18 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 
+let serviceWorkerRegistration
+
+export function showLocalPushNotification(message) {
+  if (serviceWorkerRegistration) {
+    serviceWorkerRegistration.showNotification('New Message', {
+      body: message,
+      icon: '/images/favicon.png',
+      image: '/images/logo.png',
+    })
+  }
+}
+
 export function registerDockPlugin(plugin) {
   return {
     type: 'REGISTER_DOCK_PLUGIN',
@@ -34,28 +46,37 @@ export function updateUserStarred(userId, roomId, starred) {
 
 export function initialize(ids) {
   return async (dispatch, getState) => {
-    console.log('Initializing...')
+    navigator.serviceWorker.ready.then(register => {
+      serviceWorkerRegistration = register
+    })
 
+    // Join all these SocketIO rooms
     MessagingService.getInstance().initialize([...ids, getState().common.user.id])
+
+    // Handle incoming messages
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
     MessagingService.getInstance().client.on('sync', ({ action }) => {
       dispatch(action)
 
       // Handle any reads/unreads here for the DB
       if (action.type == 'CREATE_ROOM_MESSAGE') {
-        const { room, team } = action.payload
+        const { roomId, teamId, message } = action.payload
 
-        // Don't do anything if we are on the right room
-        if (room == getState().room.id) return
+        // Don't do a PN or unread increment if we are on the same room
+        // as the message
+        if (roomId == getState().room.id) return
+
+        // Trigger a push notification
+        showLocalPushNotification(message)
 
         // Create an unread marker
         // Channel will be null, which is good
-        DatabaseService.getInstance().unread(team, room)
+        DatabaseService.getInstance().unread(teamId, roomId)
       }
     })
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       MessagingService.getInstance().join(roomId)
-      const room = await GraphqlService.getInstance().room(id)
+      const room = await GraphqlService.getInstance().room(roomId)
       dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
     })
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
@@ -64,7 +85,7 @@ export function initialize(ids) {
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       MessagingService.getInstance().join(teamId)
-      const team = await GraphqlService.getInstance().team(id)
+      const team = await GraphqlService.getInstance().team(teamId)
       dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
     })
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
@@ -104,7 +125,7 @@ export function initialize(ids) {
       })
 
     // TODO: Debug
-    DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
+    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
   }
 }
 
