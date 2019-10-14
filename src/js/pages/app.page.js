@@ -16,7 +16,6 @@ import MembersPartial from '../partials/members.partial'
 import GraphqlService from '../services/graphql.service'
 import NotificationComponent from '../components/notification.component'
 import CookieService from '../services/cookies.service'
-import { askPushNotificationPermission } from '../helpers/util'
 
 const App = styled.div`
   background-color: white;

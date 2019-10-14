@@ -9,7 +9,7 @@ import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { API_HOST } from './environment'
+import { GRAPHQL_HOST, API_HOST, PUBLIC_VAPID_KEY } from './environment'
 import { sync } from './middleware/sync'
 import AuthPage from './pages/auth.page'
 import ConfirmPage from './pages/confirm.page'
@@ -29,14 +29,46 @@ import room from './reducers/room'
 import rooms from './reducers/rooms'
 import './environment'
 import logger from 'redux-logger'
+import {  askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(registration => console.log('SW registered.', registration))
-      .catch(error => console.log('No registration failed'))
-  })
+async function triggerPushNotification() {
+  if ('serviceWorker' in navigator) {
+    const register = await navigator.serviceWorker.register('/sw.js', {
+      scope: '/'
+    });
+
+
+    if ('PushManager' in window) {
+      askPushNotificationPermission()
+        .then(res => {
+          CookieService.setCookie('PN', 'YES')
+          this.setState({ pushNotifications: false })
+        })
+        .catch(err => {
+          this.setState({ pushNotifications: true })
+        })
+    }
+
+    const subscription = await register.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
+    });
+
+    await fetch(API_HOST + '/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(subscription),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } else {
+    console.error('Service workers are not supported in this browser');
+  }
 }
+
+
+triggerPushNotification().catch(error => console.error(error));
+
 
 // Redux with our middlewares
 const store = createStore(
@@ -60,7 +92,7 @@ window.React = React
 
 // Setup GraphQL
 const apollo = new ApolloClient({
-  link: new HttpLink({ uri: API_HOST }),
+  link: new HttpLink({ uri: GRAPHQL_HOST }),
   cache: new InMemoryCache(),
 })
 
