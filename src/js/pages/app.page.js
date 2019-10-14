@@ -15,6 +15,8 @@ import ToolbarPartial from '../partials/toolbar.partial'
 import MembersPartial from '../partials/members.partial'
 import GraphqlService from '../services/graphql.service'
 import NotificationComponent from '../components/notification.component'
+import CookieService from '../services/cookies.service'
+import { askPushNotificationPermission } from '../helpers/util'
 
 const App = styled.div`
   background-color: white;
@@ -39,13 +41,17 @@ class AppPage extends React.Component {
 
     this.state = {
       teams: [],
+      pushNotifications: false,
     }
+
+    this.dismissPushNotifications = this.dismissPushNotifications.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
     const current = this.props.common.user.id
     const prev = prevProps.common.user.id
 
+    if (!current || !prev) return
     if (current != prev) this.fetchData(current)
   }
 
@@ -67,6 +73,35 @@ class AppPage extends React.Component {
     const ids = joins.data.joins.map(join => join.id)
 
     this.props.initialize(ids)
+    this.checkPushNotification()
+  }
+
+  checkPushNotification() {
+    // If they've interacted with the notification bar in any way
+    // Don't bother them again
+    if (CookieService.getCookie('PN') == 'YES') this.setState({ pushNotifications: false })
+    if (CookieService.getCookie('PN') == 'NO') this.setState({ pushNotifications: false })
+
+    // If they haven't - then ask them
+    if (!CookieService.getCookie('PN')) this.pushNotifications()
+  }
+
+  pushNotifications() {
+    if ('PushManager' in window) {
+      askPushNotificationPermission()
+        .then(res => {
+          CookieService.setCookie('PN', 'YES')
+          this.setState({ pushNotifications: false })
+        })
+        .catch(err => {
+          this.setState({ pushNotifications: true })
+        })
+    }
+  }
+
+  dismissPushNotifications() {
+    CookieService.setCookie('PN', 'NO')
+    this.setState({ pushNotifications: false })
   }
 
   // prettier-ignore
@@ -78,16 +113,14 @@ class AppPage extends React.Component {
         <LoadingComponent show={this.props.common.loading} />
         <ErrorComponent message={this.props.common.error} />
 
-        <NotificationComponent
-          text="Push notifications are disabled"
-          actionText="Click here to enable them"
-          onDismissClick={() => {
-            console.log('Close')
-          }}
-          onActionClick={() => {
-            console.log("Action")
-          }}
-        />
+        {this.state.pushNotifications &&
+          <NotificationComponent
+            text="Push notifications are disabled. You will not receive any notifications in the background."
+            actionText={null}
+            onDismissClick={this.dismissPushNotifications}
+            onActionClick={this.askPushNotifications}
+          />
+        }
 
         <Router history={browserHistory}>
           <div className="row w-100 h-100 align-items-start align-content-start justify-content-start flex-1">

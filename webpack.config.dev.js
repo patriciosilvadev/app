@@ -32,15 +32,10 @@ module.exports = env => {
       new webpack.NormalModuleReplacementPlugin(
           /src\/js\/environment\.js/, 'environment.staging.js'
       ),
-      /*
-      Removed here - we don't want SW caching to interfere with dev
-      This line will be in prod though
-
-      new WorkboxPlugin.GenerateSW({
-        clientsClaim: true,
-        skipWaiting: true
+      new WorkboxPlugin.InjectManifest({
+        swSrc: './src/js/sw.js',
+        swDest: 'sw.js'
       })
-      */
     ],
     optimization: {
       splitChunks: {

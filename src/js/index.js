@@ -30,6 +30,14 @@ import rooms from './reducers/rooms'
 import './environment'
 import logger from 'redux-logger'
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(registration => console.log('SW registered.', registration))
+      .catch(error => console.log('No registration failed'))
+  })
+}
+
 // Redux with our middlewares
 const store = createStore(
   combineReducers({

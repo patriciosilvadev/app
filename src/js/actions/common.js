@@ -34,10 +34,10 @@ export function updateUserStarred(userId, roomId, starred) {
 
 export function initialize(ids) {
   return async (dispatch, getState) => {
+    console.log('Initializing...')
+
     MessagingService.getInstance().initialize([...ids, getState().common.user.id])
-
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
-
     MessagingService.getInstance().client.on('sync', ({ action }) => {
       dispatch(action)
 
@@ -53,29 +53,26 @@ export function initialize(ids) {
         DatabaseService.getInstance().unread(team, room)
       }
     })
-
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       MessagingService.getInstance().join(roomId)
       const room = await GraphqlService.getInstance().room(id)
       dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
     })
-
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
       MessagingService.getInstance().leave(roomId)
       dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
     })
-
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       MessagingService.getInstance().join(teamId)
       const team = await GraphqlService.getInstance().team(id)
       dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
     })
-
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
       MessagingService.getInstance().leave(teamId)
       dispatch({ type: 'DELETE_TEAM', payload: { teamId } })
     })
 
+    // Get unread count
     DatabaseService.getInstance()
       .database.allDocs({ include_docs: true })
       .then(({ rows }) => {
@@ -85,6 +82,8 @@ export function initialize(ids) {
         dispatch({ type: 'UPDATE_ERROR', payload: 'allDocs DB error' })
       })
 
+    // If anything changes
+    // Update the rooms list
     DatabaseService.getInstance()
       .database.changes({
         live: true,

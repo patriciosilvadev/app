@@ -28,13 +28,13 @@ module.exports = env => {
         favicon: './src/images/favicon.png',
         socketio: 'https://websocket.weekday.sh/socket.io/socket.io.js',
       }),
-      new WorkboxPlugin.GenerateSW({
-        clientsClaim: true,
-        skipWaiting: true
-      }),
       new webpack.NormalModuleReplacementPlugin(
           /src\/js\/environment\.js/, 'environment.production.js'
       ),
+      new WorkboxPlugin.InjectManifest({
+        swSrc: './src/js/sw.js',
+        swDest: 'sw.js'
+      })
     ],
     optimization: {
       splitChunks: {

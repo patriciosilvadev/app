@@ -318,8 +318,9 @@ class ComposeComponent extends React.Component {
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
 
-    dropZone.removeEventListener('dragover')
-    dropZone.removeEventListener('drop')
+    this.dropZone.removeEventListener('dragover')
+    this.dropZone.removeEventListener('dragend')
+    this.dropZone.removeEventListener('drop')
   }
 
   componentDidUpdate() {}

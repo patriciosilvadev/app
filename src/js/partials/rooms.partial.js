@@ -306,12 +306,14 @@ class RoomsPartial extends React.Component {
                     {this.props.team.name}
                   </AccountMenuSubtitle>
 
+                  {/*
                   <ToggleComponent
                     on={true}
                     onChange={(value) => {
                       console.log('RoomsPartial', value)
                     }}
                   />
+                  */}
                 </AccountMenuHeader>
                 <MenuComponent
                   items={[
