@@ -28,8 +28,12 @@ import teams from './reducers/teams'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
 import './environment'
-import logger from 'redux-logger'
+import { createLogger } from 'redux-logger'
 import {  askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
+
+const logger = createLogger({
+  collapsed: true
+});
 
 async function subscribePushNotification() {
   if ('serviceWorker' in navigator) {
@@ -71,7 +75,7 @@ const store = createStore(
   applyMiddleware(
     thunk,
     sync,
-    //logger
+    logger,
   )
 )
 

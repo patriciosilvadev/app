@@ -171,6 +171,7 @@ class RoomPartial extends React.Component {
       roomUpdateModal: false,
       roomUpdateModalStart: 0,
       confirmDeleteModal: false,
+      replyMessage: null,
       starred: false,
       visibilityMenu: false,
       lastTypingTime: 0,
@@ -180,10 +181,10 @@ class RoomPartial extends React.Component {
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
-    this.createRoomMessage = this.createRoomMessage.bind(this)
     this.updateRoomVisibility = this.updateRoomVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.deleteRoom = this.deleteRoom.bind(this)
+    this.scrollToBottom = this.scrollToBottom.bind(this)
     this.composeTypingNames = this.composeTypingNames.bind(this)
   }
 
@@ -210,20 +211,6 @@ class RoomPartial extends React.Component {
     } else {
       this.setState({ manualScrolling: true })
     }
-  }
-
-  createRoomMessage(text, attachments) {
-    this.props.createRoomMessage(text, attachments)
-
-    // Scroll down
-    this.scrollToBottom()
-
-    // Reset the state
-    this.setState({
-      manualScrolling: false,
-      text: '',
-      attachments: [],
-    })
   }
 
   fetchRoomMessages() {
@@ -270,6 +257,9 @@ class RoomPartial extends React.Component {
     if (this.props.match.params.roomId != prevProps.match.params.roomId) {
       if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
     }
+
+    // Scroll down
+    this.scrollToBottom()
   }
 
   componentWillUnmount() {
@@ -490,18 +480,8 @@ class RoomPartial extends React.Component {
                     return (
                       <MessageComponent
                         key={index}
-                        id={message.id}
-                        reactions={message.reactions}
-                        roomId={this.props.room.id}
-                        currentUser={this.props.common.user}
-                        user={message.user}
-                        attachments={message.attachments}
-                        message={message.message}
-                        replies={message.replies}
-                        createdAt={message.createdAt}
-                        members={this.props.room.members}
-                        createRoomMessageReaction={this.props.createRoomMessageReaction}
-                        deleteRoomMessageReaction={this.props.deleteRoomMessageReaction}
+                        message={message}
+                        setReplyMessage={() => this.setState({ replyMessage: message })}
                       />
                     )
                   })}
@@ -516,9 +496,8 @@ class RoomPartial extends React.Component {
 
           {this.state.open &&
             <ComposeComponent
-              onSend={this.createRoomMessage}
-              members={this.props.room.members}
-              compact={false}
+              replyMessage={this.state.replyMessage}
+              clearReplyMessage={() => this.setState({ replyMessage: null })}
             />
           }
         </Room>
@@ -536,11 +515,8 @@ RoomPartial.propTypes = {
   fetchRoomMessages: PropTypes.func,
   createRoomMember: PropTypes.func,
   updateRoom: PropTypes.func,
-  deleteRoom: PropTypes.func,
-  createRoomMessage: PropTypes.func,
-  createRoomMessageReaction: PropTypes.func,
-  deleteRoomMessageReaction: PropTypes.func,
   updateUserStarred: PropTypes.func,
+  deleteRoom: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -549,9 +525,6 @@ const mapDispatchToProps = {
   fetchRoomMessages: page => fetchRoomMessages(page),
   createRoomMember: user => createRoomMember(user),
   updateRoom: updatedRoom => updateRoom(updatedRoom),
-  createRoomMessage: (text, attachments) => createRoomMessage(text, attachments),
-  createRoomMessageReaction: (messageId, reaction) => createRoomMessageReaction(messageId, reaction),
-  deleteRoomMessageReaction: (messageId, reaction) => deleteRoomMessageReaction(messageId, reaction),
   updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),
   deleteRoom: roomId => deleteRoom(roomId),
 }

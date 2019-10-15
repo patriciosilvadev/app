@@ -23,13 +23,11 @@ const Modal = styled.div`
 `
 
 const Inner = styled.div`
-  overflow: hidden;
   background: white;
   border-radius: 5px;
 `
 
 const InnerContainer = styled.div`
-  overflow: hidden;
   flex: 1;
   width: 100%;
 `

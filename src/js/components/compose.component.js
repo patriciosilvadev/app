@@ -5,20 +5,67 @@ import AttachmentComponent from '../components/attachment.component'
 import styled from 'styled-components'
 import PopupComponent from '../components/popup.component'
 import UserComponent from '../components/user.component'
+import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping } from '../actions'
+import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import { MessageMedia } from '@weekday/elements'
 import MembersComponent from '../components/members.component'
-import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined } from '@material-ui/icons'
+import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
 import { IoIosSend } from 'react-icons/io'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
+import { Avatar } from '@weekday/elements'
 import SpinnerComponent from '../components/spinner.component'
 import ErrorComponent from '../components/error.component'
 import NotificationComponent from '../components/notification.component'
+
+const ReplyPadding = styled.div`
+  padding: 25px;
+`
+
+const ReplyContainer = styled.div`
+  border: 1px solid #cbd4db;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+`
+
+const ReplyMessage = styled.div`
+  font-weight: 500;
+  font-size: 16px;
+  font-style: normal;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ReplyText = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+  margin-bottom: 10px;
+  display: inline-block;
+`
+
+const ReplyName = styled.div`
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12px;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ReplyMeta = styled.div`
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+`
 
 const Compose = styled.div`
   width: 100%;
@@ -30,8 +77,6 @@ const Compose = styled.div`
 const InputContainer = styled.div`
   flex: 1;
   padding: 25px 25px 0px 25px;
-  background: white;
-  border-radius: 25px;
 `
 
 const Attachments = styled.div`
@@ -81,8 +126,12 @@ const MentionContainer = styled.div`
   background: white;
   top: 0px;
   right: 0px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   transform: translateY(-100%);
   border-top: 1px solid #ebedef;
+  overflow: hidden;
+  z-index: 100000;
 `
 
 class ComposeComponent extends React.Component {
@@ -129,12 +178,20 @@ class ComposeComponent extends React.Component {
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
     this.subscription = null
+    this.onDragOver = this.onDragOver.bind(this)
+    this.onDragEnd = this.onDragEnd.bind(this)
+    this.onDrop = this.onDrop.bind(this)
   }
 
   onSend() {
-    this.props.onSend(this.state.text, this.state.attachments)
+    const parent = this.props.replyMessage ? this.props.replyMessage.id : null
+    const text = this.state.text
+    const attachments = this.state.attachments
+
+    this.props.createRoomMessage(text, attachments, parent)
     this.setState({ text: '', members: [], attachments: [] })
     this.composeRef.style.height = '25px'
+    this.props.clearReplyMessage()
   }
 
   async handleFileChange(e) {
@@ -214,8 +271,8 @@ class ComposeComponent extends React.Component {
     // Cap them at 5
     const members =
       username == ''
-        ? this.props.members.filter((member, index) => index < 5)
-        : this.props.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
+        ? this.props.room.members.filter((member, index) => index < 5)
+        : this.props.room.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
 
     // Create the brand the state object the component should use
     this.setState({ members })
@@ -251,39 +308,43 @@ class ComposeComponent extends React.Component {
     this.composeRef.focus()
   }
 
+  onDragOver(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+
+    this.setState({ isDragging: true })
+  }
+
+  onDragEnd(e) {
+    e.stopPropagation()
+    e.preventDefault()
+
+    this.setState({ isDragging: false })
+  }
+
+  onDrop(e) {
+    e.stopPropagation()
+    e.preventDefault()
+
+    this.setState({ isDragging: false })
+
+    const files = e.dataTransfer.files || []
+
+    if (files.length == 0) return
+
+    for (let file of files) {
+      Keg.keg('compose').refill('uploads', file)
+    }
+  }
+
   componentDidMount() {
     this.composeRef.focus()
 
-    this.dropZone.addEventListener('dragover', (e) => {
-      e.stopPropagation()
-      e.preventDefault()
-      e.dataTransfer.dropEffect = 'copy'
-
-      this.setState({ isDragging: true })
-    })
-
-    this.dropZone.addEventListener('dragend', (e) => {
-      e.stopPropagation()
-      e.preventDefault()
-
-      this.setState({ isDragging: false })
-    })
-
-    // Get file data on drop
-    this.dropZone.addEventListener('drop', (e) => {
-      e.stopPropagation()
-      e.preventDefault()
-
-      this.setState({ isDragging: false })
-
-      const files = e.dataTransfer.files || []
-
-      if (files.length == 0) return
-
-      for (let file of files) {
-        Keg.keg('compose').refill('uploads', file)
-      }
-    })
+    // Drag event listeners
+    this.dropZone.addEventListener('dragover', this.onDragOver)
+    this.dropZone.addEventListener('dragend', this.onDragEnd)
+    this.dropZone.addEventListener('drop', this.onDrop)
 
     // Resize compose initiallyl
     this.updateComposeHeight()
@@ -318,9 +379,10 @@ class ComposeComponent extends React.Component {
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
 
-    this.dropZone.removeEventListener('dragover')
-    this.dropZone.removeEventListener('dragend')
-    this.dropZone.removeEventListener('drop')
+    // Drag event listeners
+    this.dropZone.removeEventListener('dragover', this.onDragOver)
+    this.dropZone.removeEventListener('dragend', this.onDragEnd)
+    this.dropZone.removeEventListener('drop', this.onDrop)
   }
 
   componentDidUpdate() {}
@@ -363,6 +425,38 @@ class ComposeComponent extends React.Component {
               handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
             />
           </MentionContainer>
+        }
+
+        {this.props.replyMessage &&
+          <ReplyPadding className="column align-items-stretch flexer">
+            <ReplyText>Replying to:</ReplyText>
+            <ReplyContainer className="row justify-content-center">
+              <Avatar
+                image={this.props.replyMessage.user.image}
+                title={this.props.replyMessage.user.name}
+                className="mr-15"
+                size="medium"
+              />
+
+              <div className="column flexer">
+                <div className="row">
+                  <ReplyName>
+                    {this.props.replyMessage.user.name}
+                  </ReplyName>
+                  <ReplyMeta>{moment(this.props.replyMessage.createdAt).fromNow()}</ReplyMeta>
+                </div>
+                <ReplyMessage>
+                  {this.props.replyMessage.message}
+                </ReplyMessage>
+              </div>
+              <CloseOutlined
+                htmlColor="#524150"
+                fontSize="large"
+                className="button"
+                onClick={this.props.clearReplyMessage}
+              />
+            </ReplyContainer>
+          </ReplyPadding>
         }
 
         <InputContainer className="row">
@@ -447,22 +541,26 @@ class ComposeComponent extends React.Component {
 }
 
 ComposeComponent.propTypes = {
+  room: PropTypes.any,
   team: PropTypes.any,
   teams: PropTypes.any,
   common: PropTypes.any,
-  onSend: PropTypes.func,
-  members: PropTypes.array,
+  replyMessage: PropTypes.any,
+  clearReplyMessage: PropTypes.any,
+  createRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
   updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
+  createRoomMessage: (text, attachments, parent) => createRoomMessage(text, attachments, parent),
   updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
   updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
 }
 
 const mapStateToProps = state => {
   return {
+    room: state.room,
     common: state.common,
     team: state.team,
     teams: state.teams,

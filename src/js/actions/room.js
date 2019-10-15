@@ -275,7 +275,7 @@ export function fetchRoomMessages(page) {
   }
 }
 
-export function createRoomMessage(text, attachments, parent = null) {
+export function createRoomMessage(text, attachments, parent) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
     const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text

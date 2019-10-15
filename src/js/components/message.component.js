@@ -12,6 +12,9 @@ import PropTypes from 'prop-types'
 import ReactDOMServer from 'react-dom/server'
 import marked from 'marked'
 import { SentimentSatisfiedOutlined, ReplyOutlined } from '@material-ui/icons'
+import { useSelector, useDispatch } from 'react-redux'
+import { createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
+import ReplyModal from '../modals/reply.modal'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -114,57 +117,75 @@ const Attachments = styled.div`
   padding-top: 5px;
 `
 
-const Replies = styled.div`
-  position: relative;
-  width: 100%;
-  padding-top: 10px;
+const ParentPadding = styled.div`
+  padding: 0px;
 `
 
-const ReplyContainer = styled.div`
-  margin-top: 2px;
+const ParentContainer = styled.div`
+  border: 1px solid #cbd4db;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  margin-top: 5px;
 `
 
-// prettier-ignore
-const ReplyText = styled.div`
-  padding: 10px;
-  border-radius: 100px;
-  border: 1px solid ${props => chroma(props.color).desaturate(2).brighten(2.25)};
-  background: ${props =>
-    props.color
-      ? chroma(props.color)
-          .desaturate(3)
-          .brighten(2.5)
-      : '#f8f9fa'};
-  font-size: 13px;
-  color: ${props => (props.color ? props.color : '#495057')};
+const ParentMessage = styled.div`
+  font-weight: 500;
+  font-size: 16px;
+  font-style: normal;
+  color: #151b26;
   display: inline-block;
+`
 
-  strong {
-    font-weight: 800;
-  }
+const ParentName = styled.div`
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12px;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ParentText = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  display: inline-block;
+`
+
+const ParentMeta = styled.div`
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
 `
 
 export default function MessageComponent(props) {
-  const [reply, setReply] = useState(false)
   const [over, setOver] = useState(false)
   const [emoticons, setEmoticons] = useState(false)
+  const dispatch = useDispatch()
+  const room = useSelector(state => state.room)
+  const common = useSelector(state => state.common)
 
-  const deleteRoomMessageReaction = reaction => {
+  const handleDeleteRoomMessageReaction = reaction => {
     setEmoticons(false)
 
     // Only this user can do this
-    if (reaction.split('__')[1] != props.currentUser.id) return
+    if (reaction.split('__')[1] != common.user.id) return
 
-    props.deleteRoomMessageReaction(props.id, reaction)
+    dispatch(deleteRoomMessageReaction(props.message.id, reaction))
   }
 
-  const createRoomMessageReaction = emoticon => {
+  const handleCreateRoomMessageReaction = emoticon => {
     setEmoticons(false)
-
-    props.createRoomMessageReaction(props.id, `${emoticon}__${props.currentUser.id}__${props.currentUser.name.split(' ')[0]}`)
+    dispatch(createRoomMessageReaction(props.message.id, `${emoticon}__${common.user.id}__${common.user.name.split(' ')[0]}`))
   }
 
-  const compiledMessage = marked(props.message)
+  // Here we start processing the markdown
+  const compiledMessage = marked(props.message.message)
 
   let matchArr
   let lastOffset = 0
@@ -208,8 +229,8 @@ export default function MessageComponent(props) {
     <Message className="column" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
       <div className="row align-items-start w-100">
         <Avatar
-          image={props.user.image}
-          title={props.user.name}
+          image={props.message.user.image}
+          title={props.message.user.name}
           className="mr-15"
           size="medium"
         />
@@ -217,8 +238,8 @@ export default function MessageComponent(props) {
         <div className="column w-100">
           <Bubble className="column">
             <div className="row w-100 relative">
-              <User>{props.user.name}</User>
-              <Meta>{moment(props.createdAt).fromNow()}</Meta>
+              <User>{props.message.user.name}</User>
+              <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
 
               {over &&
                 <Tools className="row">
@@ -235,7 +256,7 @@ export default function MessageComponent(props) {
                         emoji=""
                         showPreview={false}
                         showSkinTones={false}
-                        onSelect={(emoji) => createRoomMessageReaction(emoji.colons)}
+                        onSelect={(emoji) => handleCreateRoomMessageReaction(emoji.colons)}
                       />
                     }>
 
@@ -251,44 +272,38 @@ export default function MessageComponent(props) {
                     htmlColor="#CFD4D9"
                     fontSize="small"
                     className="button"
-                    onClick={() => setReply(!reply)}
+                    onClick={props.setReplyMessage}
                   />
                 </Tools>
               }
             </div>
 
-            <Text dangerouslySetInnerHTML={{__html: message}} />
-
-            {props.reactions &&
-              <React.Fragment>
-                {props.reactions.length != 0 &&
-                  <Reactions className="row">
-                    {props.reactions.map((reaction, index) => {
-                      const reactionParts = reaction.split('__')
-                      const emoticon = reactionParts[0]
-                      const userName = reactionParts[2]
-
-                      return (
-                        <div key={index} className="row button reaction" onClick={() => deleteRoomMessageReaction(reaction)}>
-                          <Emoji
-                            emoji={emoticon}
-                            size={16}
-                            set='emojione'
-                          />
-                          <span className="name">{userName}</span>
-                        </div>
-                      )
-                    })}
-                  </Reactions>
-                }
-              </React.Fragment>
+            {props.message.parent &&
+              <ParentPadding className="column align-items-stretch flexer">
+                <ParentText>Replying to:</ParentText>
+                <ParentContainer className="row justify-content-center">
+                  <div className="column flexer">
+                    <div className="row">
+                      <ParentName>
+                        {props.message.parent.user.name}
+                      </ParentName>
+                      <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
+                    </div>
+                    <ParentMessage>
+                      {props.message.parent.message}
+                    </ParentMessage>
+                  </div>
+                </ParentContainer>
+              </ParentPadding>
             }
 
-            {props.attachments &&
+            <Text dangerouslySetInnerHTML={{__html: message}} />
+
+            {props.message.attachments &&
               <React.Fragment>
-                {props.attachments.length != 0 &&
+                {props.message.attachments.length != 0 &&
                   <Attachments>
-                    {props.attachments.map((attachment, index) => {
+                    {props.message.attachments.map((attachment, index) => {
                       return (
                         <AttachmentComponent
                           key={index}
@@ -306,6 +321,31 @@ export default function MessageComponent(props) {
                 }
               </React.Fragment>
             }
+
+            {props.message.reactions &&
+              <React.Fragment>
+                {props.message.reactions.length != 0 &&
+                  <Reactions className="row">
+                    {props.message.reactions.map((reaction, index) => {
+                      const reactionParts = reaction.split('__')
+                      const emoticon = reactionParts[0]
+                      const userName = reactionParts[2]
+
+                      return (
+                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
+                          <Emoji
+                            emoji={emoticon}
+                            size={16}
+                            set='emojione'
+                          />
+                          <span className="name">{userName}</span>
+                        </div>
+                      )
+                    })}
+                  </Reactions>
+                }
+              </React.Fragment>
+            }
           </Bubble>
         </div>
       </div>
@@ -315,15 +355,6 @@ export default function MessageComponent(props) {
 
 MessageComponent.propTypes = {
   id: PropTypes.string,
-  reactions: PropTypes.array,
-  roomId: PropTypes.string,
-  currentUser: PropTypes.object,
-  user: PropTypes.object,
-  attachments: PropTypes.array,
-  message: PropTypes.string,
-  replies: PropTypes.array,
-  createdAt: PropTypes.string,
-  members: PropTypes.array,
-  createRoomMessageReaction: PropTypes.func,
-  deleteRoomMessageReaction: PropTypes.func,
+  message: PropTypes.object,
+  setReplyMessage: PropTypes.any,
 }
