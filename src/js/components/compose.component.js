@@ -1,26 +1,18 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Picker } from 'emoji-mart'
-import AttachmentComponent from '../components/attachment.component'
 import styled from 'styled-components'
-import PopupComponent from '../components/popup.component'
-import UserComponent from '../components/user.component'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
-import { MessageMedia } from '@weekday/elements'
-import MembersComponent from '../components/members.component'
 import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
 import { IoIosSend } from 'react-icons/io'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
-import { Avatar } from '@weekday/elements'
-import SpinnerComponent from '../components/spinner.component'
-import ErrorComponent from '../components/error.component'
-import NotificationComponent from '../components/notification.component'
+import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
 
 const ReplyPadding = styled.div`
   padding: 25px;
@@ -393,15 +385,15 @@ class ComposeComponent extends React.Component {
       <Compose
         active={this.state.isDragging}
         ref={ref => this.dropZone = ref} className="column align-items-stretch">
-        {this.state.error && <ErrorComponent message={this.state.error} />}
-        {this.state.loading && <SpinnerComponent />}
-        {this.state.notification && <NotificationComponent text={this.state.notification} />}
+        {this.state.error && <Error message={this.state.error} />}
+        {this.state.loading && <Spinner />}
+        {this.state.notification && <Notification text={this.state.notification} />}
 
         {this.state.attachments.length != 0 &&
           <Attachments className="row">
             {this.state.attachments.map((attachment, index) => {
               return (
-                <AttachmentComponent
+                <Attachment
                   key={index}
                   layout="compose"
                   uri={attachment.uri}
@@ -420,7 +412,7 @@ class ComposeComponent extends React.Component {
 
         {this.state.members.length != 0 &&
           <MentionContainer>
-            <MembersComponent
+            <Members
               members={this.state.members}
               handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
             />
@@ -478,7 +470,7 @@ class ComposeComponent extends React.Component {
             onChange={this.handleComposeChange}
           />
 
-          <PopupComponent
+          <Popup
             handleDismiss={() => this.setState({ emoticonMenu: false })}
             visible={this.state.emoticonMenu}
             width={350}
@@ -500,7 +492,7 @@ class ComposeComponent extends React.Component {
               fontSize="default"
               onClick={() => this.setState({ emoticonMenu: true })}
             />
-          </PopupComponent>
+          </Popup>
 
           <AttachFileOutlined
             htmlColor="#565456"

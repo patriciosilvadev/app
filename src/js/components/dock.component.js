@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Avatar } from '@weekday/elements'
 import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
@@ -10,7 +9,7 @@ import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
 import { AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
-import QuickInputComponent from '../components/quick-input.component'
+import { QuickInput, Avatar } from '@weekday/elements'
 
 const Dock = styled.div`
   width: 70px;
@@ -25,7 +24,7 @@ const Dock = styled.div`
   border-right: 1px solid #0a152e;
 `
 
-class DockPartial extends React.Component {
+class DockComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -75,7 +74,7 @@ class DockPartial extends React.Component {
           )
         })}
 
-        <QuickInputComponent
+        <QuickInput
           visible={this.state.teamPopup}
           width={300}
           direction="left-bottom"
@@ -88,13 +87,13 @@ class DockPartial extends React.Component {
             onClick={(e) => this.setState({ teamPopup: true })}>
             <AddOutlined htmlColor="#007af5" fontSize="default" />
           </Avatar>
-        </QuickInputComponent>
+        </QuickInput>
       </Dock>
     )
   }
 }
 
-DockPartial.propTypes = {
+DockComponent.propTypes = {
   team: PropTypes.any,
   room: PropTypes.any,
   rooms: PropTypes.array,
@@ -122,4 +121,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(DockPartial)
+)(DockComponent)

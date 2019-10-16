@@ -1,11 +1,7 @@
 import React, { useState } from 'react'
-import { Avatar } from '@weekday/elements'
-import AttachmentComponent from './attachment.component'
 import moment from 'moment'
-import ComposeComponent from './compose.component'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
-import PopupComponent from '../components/popup.component'
 import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
 import PropTypes from 'prop-types'
@@ -14,7 +10,8 @@ import marked from 'marked'
 import { SentimentSatisfiedOutlined, ReplyOutlined } from '@material-ui/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
-import ReplyModal from '../modals/reply.modal'
+import ComposeComponent from './compose.component'
+import { Attachment, Popup, Avatar } from '@weekday/elements'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -243,7 +240,7 @@ export default function MessageComponent(props) {
 
               {over &&
                 <Tools className="row">
-                  <PopupComponent
+                  <Popup
                     handleDismiss={() => setEmoticons(false)}
                     visible={emoticons}
                     width={350}
@@ -266,7 +263,7 @@ export default function MessageComponent(props) {
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
-                  </PopupComponent>
+                  </Popup>
 
                   <ReplyOutlined
                     htmlColor="#CFD4D9"
@@ -305,7 +302,7 @@ export default function MessageComponent(props) {
                   <Attachments>
                     {props.message.attachments.map((attachment, index) => {
                       return (
-                        <AttachmentComponent
+                        <Attachment
                           key={index}
                           layout="message"
                           size={attachment.size}

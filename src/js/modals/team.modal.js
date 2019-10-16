@@ -1,24 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import ModalComponent from '../components/modal.component'
-import TabbedComponent from '../components/tabbed.component'
-import { Avatar } from '@weekday/elements'
-import NotificationComponent from '../components/notification.component'
 import GraphqlService from '../services/graphql.service'
-import SpinnerComponent from '../components/spinner.component'
-import ErrorComponent from '../components/error.component'
 import UploadService from '../services/upload.service'
 import ConfirmModal from './confirm.modal'
-import styled from 'styled-components'
-import UserComponent from '../components/user.component'
 import PropTypes from 'prop-types'
 import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
-import { Button } from '@weekday/elements'
-import { InputComponent } from '../components/input.component'
-import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
 import { AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
+import styled from 'styled-components'
+import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
 
 const Header = styled.div`
   flex: 1;
@@ -312,7 +303,7 @@ export default function TeamModal(props) {
   // prettier-ignore
   return (
     <ModalPortal>
-      <ModalComponent
+      <Modal
         title="Team"
         width={700}
         height="90%"
@@ -343,7 +334,7 @@ export default function TeamModal(props) {
             </div>
           </div>
         )}>
-          <TabbedComponent
+          <Tabbed
             start={props.start || 0}
             panels={[
               {
@@ -352,9 +343,9 @@ export default function TeamModal(props) {
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
-                      {error && <ErrorComponent message={error} />}
-                      {loading && <SpinnerComponent />}
-                      {notification && <NotificationComponent text={notification} />}
+                      {error && <Error message={error} />}
+                      {loading && <Spinner />}
+                      {notification && <Notification text={notification} />}
 
                       <div className="row w-100 p-20">
                         <input
@@ -385,14 +376,14 @@ export default function TeamModal(props) {
                       </div>
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <InputComponent
+                        <Input
                           label="Full name"
                           value={name}
                           onChange={e => setName(e.target.value)}
                           placeholder="Enter full name"
                         />
 
-                        <TextareaComponent
+                        <Textarea
                           label="Description"
                           value={description}
                           onChange={e => setDescription(e.target.value)}
@@ -409,9 +400,9 @@ export default function TeamModal(props) {
                 show: members.length != 0,
                 content: (
                   <div className="column flex-1 w-100 h-100">
-                    {error && <ErrorComponent message={error} />}
-                    {loading && <SpinnerComponent />}
-                    {notification && <NotificationComponent text={notification} />}
+                    {error && <Error message={error} />}
+                    {loading && <Spinner />}
+                    {notification && <Notification text={notification} />}
 
                     {confirmSelfDeleteModal &&
                       <ConfirmModal
@@ -448,7 +439,7 @@ export default function TeamModal(props) {
 
                     {members.map((member, index) => {
                       return (
-                        <UserComponent
+                        <User
                           key={index}
                           image={member.user.image}
                           color={member.user.color}
@@ -468,7 +459,7 @@ export default function TeamModal(props) {
                             onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
                             text={member.admin ? 'Remove Admin' : 'Make Admin'}
                           />
-                        </UserComponent>
+                        </User>
                       )
                     })}
                   </div>
@@ -476,7 +467,7 @@ export default function TeamModal(props) {
               }
             ]}
           />
-      </ModalComponent>
+      </Modal>
     </ModalPortal>
   )
 }
