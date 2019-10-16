@@ -310,7 +310,6 @@ export default function MessageComponent(props) {
                           uri={attachment.uri}
                           name={attachment.name}
                           createdAt={attachment.createdAt}
-                          onDownloadClick={() => window.open(attachment.uri)}
                         />
                       )
                     })}
