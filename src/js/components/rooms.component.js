@@ -321,7 +321,7 @@ class RoomsComponent extends React.Component {
                 />
               </div>
             }>
-            <div style={{ background: 'red' }}>
+            <div>
               <KeyboardArrowDownOutlined
                 htmlColor="#475669"
                 fontSize="default"
