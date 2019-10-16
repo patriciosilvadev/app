@@ -14,7 +14,8 @@ import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom,
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import MessageComponent from '../components/message.component'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, QuickUser, Avatar } from '@weekday/elements'
+import { Popup, Menu, Avatar } from '@weekday/elements'
+import QuickUserComponent from '../components/quick-user.component'
 
 const Room = styled.div`
   background: white;
@@ -350,7 +351,7 @@ class RoomComponent extends React.Component {
                   </HeaderText>
 
                   {!this.props.room.private &&
-                    <QuickUser
+                    <QuickUserComponent
                       teamId={this.props.team.id}
                       visible={this.state.userMenu}
                       width={250}
@@ -367,7 +368,7 @@ class RoomComponent extends React.Component {
                         />
                         <HeaderLink>Add New</HeaderLink>
                       </div>
-                    </QuickUser>
+                    </QuickUserComponent>
                   }
                 </div>
               </div>

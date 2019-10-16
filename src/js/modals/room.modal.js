@@ -10,7 +10,8 @@ import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
 import { DiMarkdown } from 'react-icons/di'
 import { AddOutlined, AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
 import ConfirmModal from './confirm.modal'
-import { User, QuickUser, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
+import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
+import QuickUserComponent from '../components/quick-user.component'
 
 const Row = styled.div`
   background-color: transparent;
@@ -251,7 +252,7 @@ export default function RoomModal(props) {
                       )
                     })}
 
-                    <QuickUser
+                    <QuickUserComponent
                       teamId={team.id}
                       visible={userMenu}
                       width={250}
@@ -281,7 +282,7 @@ export default function RoomModal(props) {
                         </Avatar>
                         <Link className="ml-10">Add new Member</Link>
                       </AddButton>
-                    </QuickUser>
+                    </QuickUserComponent>
                   </div>
                 )
               }

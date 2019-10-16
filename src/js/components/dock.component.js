@@ -9,7 +9,8 @@ import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
 import { AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
-import { QuickInput, Avatar } from '@weekday/elements'
+import { Avatar } from '@weekday/elements'
+import QuickInputComponent from '../components/quick-input.component'
 
 const Dock = styled.div`
   width: 70px;
@@ -74,7 +75,7 @@ class DockComponent extends React.Component {
           )
         })}
 
-        <QuickInput
+        <QuickInputComponent
           visible={this.state.teamPopup}
           width={300}
           direction="left-bottom"
@@ -87,7 +88,7 @@ class DockComponent extends React.Component {
             onClick={(e) => this.setState({ teamPopup: true })}>
             <AddOutlined htmlColor="#007af5" fontSize="default" />
           </Avatar>
-        </QuickInput>
+        </QuickInputComponent>
       </Dock>
     )
   }

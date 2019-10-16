@@ -13,7 +13,8 @@ import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
 import { GroupWorkOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
-import { Toggle, QuickInput, Popup, Menu, Avatar, Room } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
+import QuickInputComponent from '../components/quick-input.component'
 
 const Rooms = styled.div`
   width: 300px;
@@ -419,7 +420,7 @@ class RoomsComponent extends React.Component {
               Channels
             </span>
 
-            <QuickInput
+            <QuickInputComponent
               visible={this.state.roomPopup}
               width={300}
               direction="right-bottom"
@@ -432,7 +433,7 @@ class RoomsComponent extends React.Component {
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
               />
-            </QuickInput>
+            </QuickInputComponent>
           </Heading>
 
           {this.state.public.map((room, index) => {
