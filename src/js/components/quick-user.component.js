@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Subject } from 'rxjs'
+import PropTypes from 'prop-types'
 import { debounceTime } from 'rxjs/operators'
 import GraphqlService from '../services/graphql.service'
 import { Popup, User, Members, Spinner } from '@weekday/elements'

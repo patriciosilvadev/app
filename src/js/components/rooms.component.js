@@ -283,7 +283,7 @@ class RoomsComponent extends React.Component {
             handleDismiss={() => this.setState({ accountMenu: false })}
             visible={this.state.accountMenu}
             width={275}
-            direction="right-bottom"
+            direction="left-bottom"
             content={
               <div className="column flexer">
                 <AccountMenuHeader className="column align-items-center">
@@ -321,12 +321,14 @@ class RoomsComponent extends React.Component {
                 />
               </div>
             }>
-            <KeyboardArrowDownOutlined
-              htmlColor="#475669"
-              fontSize="default"
-              className="button"
-              onClick={() => this.setState({ accountMenu: true })}
-            />
+            <div style={{ background: 'red' }}>
+              <KeyboardArrowDownOutlined
+                htmlColor="#475669"
+                fontSize="default"
+                className="button"
+                onClick={() => this.setState({ accountMenu: true })}
+              />
+            </div>
           </Popup>
         </Header>
 

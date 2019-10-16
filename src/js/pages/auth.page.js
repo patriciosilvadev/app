@@ -37,7 +37,7 @@ const Content = styled.div`
   width: 100%;
 `
 
-const Error = styled.div`
+const ErrorText = styled.div`
   width: 100%;
   color: red;
   padding: 0px 0px 10px 0px;
@@ -164,12 +164,12 @@ const LogoText = styled.div`
   position: relative;
   bottom: 2px;
   color: #007af5;
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 400;
 `
 
 const Form = styled.form`
-  width: 100%;
+  padding: 20px;
 `
 
 const Spacer = styled.div`
@@ -302,9 +302,9 @@ class AuthPage extends React.Component {
   render() {
     return(
       <Auth className="row">
-        <Container className="column justify-content-center align-content-center align-items-center">
-          <Logo className="row">
-            <img src="../../images/logo.png" height="20"/>
+        <Container className="column justify-content-center align-content-center align-items-stretch">
+          <Logo className="row justify-content-center align-content-center align-items-center">
+            <img src="../../images/logo.png" height="30"/>
             <LogoText>weekday</LogoText>
           </Logo>
 
@@ -353,7 +353,7 @@ class AuthPage extends React.Component {
                             className={errors.email && touched.email ? 'error' : null}
                           />
 
-                          {errors.email && touched.email && <Error>{errors.email}</Error>}
+                          {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
                           <Footer className="column align-items-center">
                             <Button
@@ -411,7 +411,7 @@ class AuthPage extends React.Component {
                             className={errors.email && touched.email ? 'error' : null}
                           />
 
-                          {errors.email && touched.email && <Error>{errors.email}</Error>}
+                          {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
                           <Input
                             type="password"
@@ -423,7 +423,7 @@ class AuthPage extends React.Component {
                             className={errors.password && touched.password ? 'error' : null}
                           />
 
-                          {errors.password && touched.password && <Error>{errors.password}</Error>}
+                          {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
                           <Input
                             type="text"
@@ -435,7 +435,7 @@ class AuthPage extends React.Component {
                             className={errors.code && touched.code ? 'error' : null}
                           />
 
-                          {errors.code && touched.code && <Error>{errors.code}</Error>}
+                          {errors.code && touched.code && <ErrorText>{errors.code}</ErrorText>}
 
                           <Footer className="column align-items-center">
                             <Button
@@ -501,7 +501,7 @@ class AuthPage extends React.Component {
                         className={errors.username && touched.username ? 'error' : null}
                       />
 
-                      {errors.username && touched.username && <Error>{errors.username}</Error>}
+                      {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
 
                       <Input
                         type="text"
@@ -513,7 +513,7 @@ class AuthPage extends React.Component {
                         className={errors.email && touched.email ? 'error' : null}
                       />
 
-                      {errors.email && touched.email && <Error>{errors.email}</Error>}
+                      {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
                       <Input
                         type="password"
@@ -525,7 +525,7 @@ class AuthPage extends React.Component {
                         className={errors.password && touched.password ? 'error' : null}
                       />
 
-                      {errors.password && touched.password && <Error>{errors.password}</Error>}
+                      {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
                       <Input
                         type="password"
@@ -537,7 +537,7 @@ class AuthPage extends React.Component {
                         className={errors.confirm && touched.confirm ? 'error' : null}
                       />
 
-                      {errors.confirm && touched.confirm && <Error>{errors.confirm}</Error>}
+                      {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
 
                       <Footer className="column align-items-center">
                         <Button
@@ -601,7 +601,7 @@ class AuthPage extends React.Component {
                         className={errors.username && touched.username ? 'error' : null}
                       />
 
-                      {errors.username && touched.username && <Error>{errors.username}</Error>}
+                      {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
 
                       <Input
                         name="password"
@@ -613,7 +613,7 @@ class AuthPage extends React.Component {
                         className={errors.password && touched.password ? 'error' : null}
                       />
 
-                      {errors.password && touched.password && <Error>{errors.password}</Error>}
+                      {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
                       <Spacer />
                       <Button
