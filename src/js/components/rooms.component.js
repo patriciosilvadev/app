@@ -151,6 +151,7 @@ class RoomsComponent extends React.Component {
 
   async signout() {
     await AuthService.signout()
+    await GraphqlService.signout()
 
     this.props.history.push('/auth')
   }

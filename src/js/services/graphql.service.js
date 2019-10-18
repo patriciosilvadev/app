@@ -54,6 +54,10 @@ export default class GraphqlService {
     return this.instance
   }
 
+  static signout() {
+    this.instance = null
+  }
+
   /**
    * Queries
    */
