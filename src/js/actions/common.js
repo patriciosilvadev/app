@@ -4,6 +4,7 @@ import DatabaseService from '../services/database.service'
 import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
+import CookiesService from '../services/cookies.service'
 
 let serviceWorkerRegistration
 
@@ -151,7 +152,9 @@ export function fetchUser(userId) {
     dispatch(updateError(null))
 
     try {
-      const user = await GraphqlService.getInstance().user(userId)
+      // Thsi is always the first GQL point called
+      const token = CookiesService.getCookie('jwt')
+      const user = await GraphqlService.getInstance(token).user(userId)
 
       dispatch(updateLoading(false))
       dispatch({

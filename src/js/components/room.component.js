@@ -9,7 +9,7 @@ import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
 import ConfirmModal from '../modals/confirm.modal'
-import { InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, PeopleOutline, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
+import { InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
 import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import MessageComponent from '../components/message.component'
@@ -24,7 +24,6 @@ const Room = styled.div`
   padding-left: 0px;
   padding-right: 0px;
   position: relative;
-  z-index: 1;
 `
 
 const Header = styled.div`
@@ -395,7 +394,9 @@ class RoomComponent extends React.Component {
                     />
                   </div>
                 }>
-                <HeaderButton onClick={() => this.setState({ visibilityMenu: true })}>
+                <HeaderButton
+                  className="button"
+                  onClick={() => this.setState({ visibilityMenu: true })}>
                   {this.props.room.public && <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />}
                   {!this.props.room.public && <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />}
                 </HeaderButton>
@@ -411,7 +412,7 @@ class RoomComponent extends React.Component {
               }
 
               {!this.props.room.private &&
-                <PeopleOutline
+                <GroupOutlined
                   htmlColor="#acb5bd"
                   fontSize="default"
                   className="ml-15 button"

@@ -21,7 +21,7 @@ const Rooms = styled.div`
   display: flex;
   height: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 1;
   background: white;
   background: #F8F9FA;
   background: #040B1C;
@@ -115,6 +115,11 @@ const Heading = styled.div`
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
+`
+
+const RoomsContainer = styled.div`
+  flex: 1;
+  width: 100%;
 `
 
 class RoomsComponent extends React.Component {
@@ -350,7 +355,7 @@ class RoomsComponent extends React.Component {
           </SearchInner>
         </SearchContainer>
 
-        <div className="flexer w-100 column align-items-stretch scroll">
+        <RoomsContainer className="column align-items-stretch scroll">
           {this.state.filter != "" &&
             <React.Fragment>
               <Heading>Results</Heading>
@@ -424,7 +429,7 @@ class RoomsComponent extends React.Component {
 
             <QuickInputComponent
               visible={this.state.roomPopup}
-              width={300}
+              width={250}
               direction="right-bottom"
               handleDismiss={() => this.setState({ roomPopup: false })}
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
@@ -491,7 +496,7 @@ class RoomsComponent extends React.Component {
               })}
             </React.Fragment>
           }
-        </div>
+        </RoomsContainer>
       </Rooms>
     )
   }

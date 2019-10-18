@@ -1,13 +1,16 @@
 import ApolloClient from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
+import { createHttpLink, HttpLink } from 'apollo-link-http'
+import { ApolloLink, concat } from 'apollo-link'
 import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import AuthService from './auth.service'
+import CookiesService from './cookies.service'
 
 export default class GraphqlService {
   static instance
   client
 
-  constructor() {
+  constructor(token) {
     const defaultOptions = {
       watchQuery: {
         fetchPolicy: 'network-only',
@@ -19,24 +22,34 @@ export default class GraphqlService {
       },
     }
 
+    const authMiddleware = new ApolloLink((operation, forward) => {
+      operation.setContext({
+        headers: {
+          authorization: `Bearer ${token}`,
+        }
+      });
+
+      return forward(operation);
+    })
+
     this.client = new ApolloClient({
       cache: new InMemoryCache(),
       defaultOptions: defaultOptions,
-      link: createHttpLink({
+      link: concat(authMiddleware, createHttpLink({
         fetch: fetch,
         uri: 'http://localhost:8181/graphql',
         onError: ({ networkError, graphQLErrors }) => {
           console.log('graphQLErrors', graphQLErrors)
           console.log('networkError', networkError)
         },
-      }),
+      })),
     })
   }
 
-  static getInstance() {
+  static getInstance(token = null) {
     if (this.instance) return this.instance
 
-    this.instance = new GraphqlService()
+    this.instance = new GraphqlService(token)
 
     return this.instance
   }
