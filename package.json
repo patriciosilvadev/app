@@ -2,7 +2,7 @@
     "name": "weekday-app",
     "version": "0.0.4",
     "description": "Weekday, a hackable team messaging platform.",
-    "main": "index.js",
+    "main": "src/js/app.js",
     "scripts": {
         "build:prod": "webpack --config webpack.config.js",
         "build:dev": "webpack --config webpack.config.dev.js",
@@ -12,7 +12,8 @@
         "serve:dev": "webpack-dev-server --config webpack.config.dev.js --hot --inline",
         "dev": "npm run watch:dev | npm run serve:dev",
         "test": "jest",
-        "lint": "eslint ./src"
+        "lint": "eslint ./src",
+        "electron": "electron ."
     },
     "author": "Jo du Plessis",
     "license": "ISC",
@@ -70,6 +71,7 @@
         "css-loader": "^1.0.0",
         "dotenv": "^8.1.0",
         "dotenv-webpack": "^1.7.0",
+        "electron": "^6.0.12",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.14.0",
         "enzyme-to-json": "^3.3.5",
