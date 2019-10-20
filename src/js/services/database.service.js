@@ -17,7 +17,7 @@ export default class DatabaseService {
   unread(team, room) {
     this.database
       .query(
-        doc => {
+        (doc, emit) => {
           emit([doc.team, doc.room])
         },
         { key: [team, room] }
@@ -26,20 +26,28 @@ export default class DatabaseService {
         const record = result.rows.flatten()
 
         // If it does exist, we want to update it
-        if (record) return
+        if (record) {
+          this.database.get(record.id).then(doc => {
+            doc.count = parseInt(doc.count) + 1
+            return this.database.put(doc)
+          })
+        }
 
         // If it does not, then we want to create it
-        this.database
-          .post({
-            team,
-            room,
-          })
-          .then(doc => {
-            console.log('CREATE DB ROW', doc)
-          })
-          .catch(err => {
-            console.log('DB ERROR', err)
-          })
+        if (!record) {
+          this.database
+            .post({
+              team,
+              room,
+              count: 1
+            })
+            .then(doc => {
+              console.log('CREATE DB ROW', doc)
+            })
+            .catch(err => {
+              console.log('DB ERROR', err)
+            })
+        }
       })
   }
 

@@ -126,7 +126,7 @@ export function initialize(ids) {
       })
 
     // TODO: Debug
-    // DatabaseService.getInstance().unread('5ca1e41c05ac7cdbc80c5351', '5cbb6dd5d446d5774bba598a')
+    DatabaseService.getInstance().unread('5ce12ae5ffd420dc2f5a6878', '5cbb6dd5d446d5774bba598a')
   }
 }
 
