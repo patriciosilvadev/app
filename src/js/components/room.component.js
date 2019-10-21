@@ -158,7 +158,9 @@ class RoomComponent extends React.Component {
       roomUpdateModal: false,
       roomUpdateModalStart: 0,
       confirmDeleteModal: false,
-      replyMessage: null,
+      message: null,
+      reply: false,
+      update: false,
       starred: false,
       visibilityMenu: false,
       lastTypingTime: 0,
@@ -201,6 +203,8 @@ class RoomComponent extends React.Component {
   }
 
   fetchRoomMessages() {
+    // Don't refetch messages every time it's triggered
+    // We need to wait if there's already a fetch in progress
     if (this.state.busy) return
 
     // Get new messages
@@ -212,10 +216,6 @@ class RoomComponent extends React.Component {
       page: this.state.page + 1,
       busy: true,
     })
-  }
-
-  fetchedRoomMessages() {
-    this.setState({ busy: false })
   }
 
   componentDidMount() {
@@ -231,9 +231,9 @@ class RoomComponent extends React.Component {
       if (!this.state.manualScrolling && this.scrollRef) this.scrollToBottom()
     }, 500)
 
-    // Enabling/disabling message fetches - always true
-    EventService.get().on('fetchedRoomMessages', payload => {
-      if (this.state.open) this.fetchedRoomMessages()
+    // Disblae the busy flag, so that the user can conitnue loading messages
+    EventService.get().on('successfullyFetchedRoomMessages', payload => {
+      this.setState({ busy: false })
     })
   }
 
@@ -470,7 +470,8 @@ class RoomComponent extends React.Component {
                       <MessageComponent
                         key={index}
                         message={message}
-                        setReplyMessage={() => this.setState({ replyMessage: message })}
+                        setUpdateMessage={() => this.setState({ message, update: true, reply: false })}
+                        setReplyMessage={() => this.setState({ message, update: false, reply: true })}
                       />
                     )
                   })}
@@ -485,8 +486,10 @@ class RoomComponent extends React.Component {
 
           {this.state.open &&
             <ComposeComponent
-              replyMessage={this.state.replyMessage}
-              clearReplyMessage={() => this.setState({ replyMessage: null })}
+              reply={this.state.reply}
+              update={this.state.update}
+              message={this.state.message}
+              clearMessage={() => this.setState({ message: null, update: false, reply: false })}
             />
           }
         </Room>

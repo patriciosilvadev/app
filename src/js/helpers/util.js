@@ -33,11 +33,15 @@ export const urlBase64ToUint8Array = base64String => {
 }
 
 export const showLocalPushNotification = (title, body) => {
-  if (serviceWorkerRegistration) {
-    serviceWorkerRegistration.showNotification(title, {
-      body,
-      icon: '/images/favicon.png',
-      image: '/images/logo.png',
-    })
-  }
+  navigator.serviceWorker.ready.then(register => {
+    const serviceWorkerRegistration = register
+    
+    if (serviceWorkerRegistration) {
+      serviceWorkerRegistration.showNotification(title, {
+        body,
+        icon: '/images/favicon.png',
+        image: '/images/logo.png',
+      })
+    }
+  })
 }

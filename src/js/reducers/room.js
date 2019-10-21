@@ -38,17 +38,22 @@ export default (state = initialState, action) =>
         draft.messages = [...state.messages, action.payload.message]
         break
 
-      case 'CREATE_ROOM_MESSAGE_REPLY':
+      case 'UPDATE_ROOM_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
-          if (message.id == action.payload.messageId) {
+          if (message.id == action.payload.id) {
             return {
               ...message,
-              replies: [...message.replies, action.payload.reply],
+              attachments: action.payload.message.attachments,
+              message: action.payload.message.message,
             }
           } else {
             return message
           }
         })
+        break
+
+      case 'DELETE_ROOM_MESSAGE':
+        draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
         break
 
       case 'UPDATE_ROOM_ADD_TYPING':

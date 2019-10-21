@@ -12,6 +12,7 @@ import { Avatar, Loading, Error, Notification } from '@weekday/elements'
 import RoomsComponent from '../components/rooms.component'
 import RoomComponent from '../components/room.component'
 import DockComponent from '../components/dock.component'
+import { askPushNotificationPermission } from '../helpers/util'
 
 const App = styled.div`
   background-color: white;

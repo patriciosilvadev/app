@@ -30,7 +30,7 @@ import room from './reducers/room'
 import rooms from './reducers/rooms'
 import './environment'
 import { createLogger } from 'redux-logger'
-import {  askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
+import { askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
 
 const logger = createLogger({
   collapsed: true

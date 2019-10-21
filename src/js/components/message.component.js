@@ -6,10 +6,11 @@ import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
 import PropTypes from 'prop-types'
 import ReactDOMServer from 'react-dom/server'
+import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
-import { SentimentSatisfiedOutlined, ReplyOutlined } from '@material-ui/icons'
+import { DeleteOutlined, Create, SentimentSatisfiedOutlined, ReplyOutlined } from '@material-ui/icons'
 import { useSelector, useDispatch } from 'react-redux'
-import { createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
+import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage } from '../actions'
 import ComposeComponent from './compose.component'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
 
@@ -162,10 +163,16 @@ const ParentMeta = styled.div`
 
 export default function MessageComponent(props) {
   const [over, setOver] = useState(false)
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [emoticons, setEmoticons] = useState(false)
   const dispatch = useDispatch()
   const room = useSelector(state => state.room)
   const common = useSelector(state => state.common)
+
+  const handleDeleteRoomMessage = () => {
+    dispatch(deleteRoomMessage(props.message.id))
+    setConfirmDeleteModal(false)
+  }
 
   const handleDeleteRoomMessageReaction = reaction => {
     setEmoticons(false)
@@ -224,6 +231,15 @@ export default function MessageComponent(props) {
   // prettier-ignore
   return (
     <Message className="column" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+      {confirmDeleteModal &&
+        <ConfirmModal
+          onOkay={handleDeleteRoomMessage}
+          onCancel={() => setConfirmDeleteModal(false)}
+          text="Are you sure you want to delete this?"
+          title="Are you sure?"
+        />
+      }
+
       <div className="row align-items-start w-100">
         <Avatar
           image={props.message.user.image}
@@ -264,6 +280,20 @@ export default function MessageComponent(props) {
                       onClick={() => setEmoticons(true)}
                     />
                   </Popup>
+
+                  <DeleteOutlined
+                    htmlColor="#CFD4D9"
+                    fontSize="small"
+                    className="button mr-10"
+                    onClick={() => setConfirmDeleteModal(true)}
+                  />
+
+                  <Create
+                    htmlColor="#CFD4D9"
+                    fontSize="small"
+                    className="button mr-10"
+                    onClick={props.setUpdateMessage}
+                  />
 
                   <ReplyOutlined
                     htmlColor="#CFD4D9"
@@ -353,4 +383,5 @@ MessageComponent.propTypes = {
   id: PropTypes.string,
   message: PropTypes.object,
   setReplyMessage: PropTypes.any,
+  setUpdateMessage: PropTypes.any,
 }

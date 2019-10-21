@@ -730,6 +730,19 @@ export default class GraphqlService {
     })
   }
 
+  deleteRoomMessage(id) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteRoomMessage($id: String) {
+          deleteRoomMessage(id: $id)
+        }
+      `,
+      variables: {
+        id,
+      },
+    })
+  }
+
   deleteRoomMember(id, user) {
     return this.client.mutate({
       mutation: gql`
@@ -740,6 +753,53 @@ export default class GraphqlService {
       variables: {
         id,
         user,
+      },
+    })
+  }
+
+  updateRoomMessage(roomId, userId, userName, id, message, attachments) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateRoomMessage($roomId: String, $userId: String, $userName: String, $id: String, $message: String, $attachments: [AttachmentInput]) {
+          updateRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, id: $id, message: $message, attachments: $attachments) {
+            id
+            user {
+              id
+              name
+              image
+              username
+            }
+            message
+            reactions
+            attachments {
+              uri
+              mime
+              name
+              createdAt
+              size
+            }
+            parent {
+              user {
+                id
+                name
+                image
+                username
+                color
+              }
+              message
+              createdAt
+            }
+            createdAt
+          }
+        }
+      `,
+      variables: {
+        roomId,
+        userId,
+        userName,
+        id,
+        message,
+        attachments,
       },
     })
   }

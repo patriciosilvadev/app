@@ -267,7 +267,7 @@ export function fetchRoomMessages(page) {
       })
 
       // Tell our room to resume enabling loads
-      EventService.get().emit('fetchedRoomMessages', true)
+      EventService.get().emit('successfullyFetchedRoomMessages', true)
     } catch (e) {
       dispatch(updateLoading(false))
       dispatch(updateError(e))
@@ -321,6 +321,81 @@ export function createRoomMessage(text, attachments, parent) {
       dispatch(updateLoading(false))
       dispatch(updateError(e))
     }
+  }
+}
+
+export function updateRoomMessage(id, text, attachments) {
+  return async (dispatch, getState) => {
+    const { room, common } = getState()
+    const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text
+    const roomId = room.id
+    const userName = common.user.name
+    const userId = common.user.id
+    const teamId = room.team.id
+
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      const { data } = await GraphqlService.getInstance().updateRoomMessage(
+        roomId,
+        userId,
+        userName,
+        id,
+        text,
+        attachments,
+      )
+
+      dispatch(updateLoading(false))
+
+      // Create the message
+      dispatch({
+        type: 'UPDATE_ROOM_MESSAGE',
+        payload: {
+          id,
+          excerpt,
+          roomId,
+          teamId,
+          message: data.updateRoomMessage,
+        },
+        sync: roomId,
+      })
+
+      // Update the room excerpt
+      dispatch({
+        type: 'UPDATE_ROOM',
+        payload: {
+          id,
+          excerpt,
+          roomId,
+          teamId,
+        },
+        sync: roomId,
+      })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
+export function deleteRoomMessage(messageId) {
+  return async (dispatch, getState) => {
+    const { room } = getState()
+    const roomId = room.id
+
+    try {
+      await GraphqlService.getInstance().deleteRoomMessage(messageId)
+
+      dispatch({
+        type: 'DELETE_ROOM_MESSAGE',
+        payload: {
+          roomId,
+          messageId,
+        },
+        sync: roomId,
+      })
+    } catch (e) {}
   }
 }
 

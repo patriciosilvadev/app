@@ -7,6 +7,8 @@ import { deleteRoom } from './room'
 import { updateRoom } from './room'
 import { fetchRoom } from './room'
 import { createRoomMessage } from './room'
+import { updateRoomMessage } from './room'
+import { deleteRoomMessage } from './room'
 import { fetchRoomMessages } from './room'
 import { createRoomMessageReaction } from './room'
 import { deleteRoomMessageReaction } from './room'
@@ -30,6 +32,8 @@ export {
   updateRoom,
   fetchRoom,
   createRoomMessage,
+  updateRoomMessage,
+  deleteRoomMessage,
   fetchRoomMessages,
   createRoomMessageReaction,
   deleteRoomMessageReaction,

@@ -36,10 +36,6 @@ export function updateUserStarred(userId, roomId, starred) {
 
 export function initialize(ids) {
   return async (dispatch, getState) => {
-    navigator.serviceWorker.ready.then(register => {
-      serviceWorkerRegistration = register
-    })
-
     // Join all these SocketIO rooms
     MessagingService.getInstance().initialize([...ids, getState().common.user.id])
 

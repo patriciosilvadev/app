@@ -4,9 +4,9 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage } from '../actions'
+import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
-import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
+import { CheckOutlined, SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
 import { IoIosSend } from 'react-icons/io'
 import { Subject } from 'rxjs'
@@ -141,9 +141,11 @@ class ComposeComponent extends React.Component {
     }
     */
     this.state = {
+      id: null,
       emoticonMenu: false,
       scrollHeight: 0,
       attachments: [],
+      parent: [],
       text: '',
       mention: null,
       position: 0,
@@ -176,14 +178,29 @@ class ComposeComponent extends React.Component {
   }
 
   onSend() {
-    const parent = this.props.replyMessage ? this.props.replyMessage.id : null
+    const id = this.props.message ? this.props.message.id : null
     const text = this.state.text
     const attachments = this.state.attachments
+    const parent = this.props.reply
+                    ? this.props.message
+                      ? this.props.message.id
+                      : null
+                    : null
 
-    this.props.createRoomMessage(text, attachments, parent)
-    this.setState({ text: '', members: [], attachments: [] })
+    // If it's a reply OR create
+    if (!this.props.update) this.props.createRoomMessage(text, attachments, parent)
+
+    // If it's an update
+    if (this.props.update) this.props.updateRoomMessage(id, text, attachments)
+
+    // Clear the parent/update message
+    this.props.clearMessage()
+
+    // Reset our state
+    this.setState({ id: null, text: '', members: [], attachments: [] })
+
+    // And then resize our input textarea to default
     this.composeRef.style.height = '25px'
-    this.props.clearReplyMessage()
   }
 
   async handleFileChange(e) {
@@ -377,7 +394,21 @@ class ComposeComponent extends React.Component {
     this.dropZone.removeEventListener('drop', this.onDrop)
   }
 
-  componentDidUpdate() {}
+  static getDerivedStateFromProps(props, state) {
+    if (!props.update) return null
+
+    // Only update one
+    if (props.message.id != state.id && props.update) {
+      return {
+        id: props.message.id,
+        attachments: props.message.attachments,
+        text: props.message.message,
+        parent: props.message.parent,
+      }
+    }
+
+    return null
+  }
 
   // prettier-ignore
   render() {
@@ -388,6 +419,10 @@ class ComposeComponent extends React.Component {
         {this.state.error && <Error message={this.state.error} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} />}
+
+        {this.props.update && this.props.message.parent &&
+          <Notification text="Updating reply" />
+        }
 
         {this.state.attachments.length != 0 &&
           <Attachments className="row">
@@ -419,13 +454,13 @@ class ComposeComponent extends React.Component {
           </MentionContainer>
         }
 
-        {this.props.replyMessage &&
+        {this.props.message && this.props.reply &&
           <ReplyPadding className="column align-items-stretch flexer">
             <ReplyText>Replying to:</ReplyText>
             <ReplyContainer className="row justify-content-center">
               <Avatar
-                image={this.props.replyMessage.user.image}
-                title={this.props.replyMessage.user.name}
+                image={this.props.message.user.image}
+                title={this.props.message.user.name}
                 className="mr-15"
                 size="medium"
               />
@@ -433,19 +468,19 @@ class ComposeComponent extends React.Component {
               <div className="column flexer">
                 <div className="row">
                   <ReplyName>
-                    {this.props.replyMessage.user.name}
+                    {this.props.message.user.name}
                   </ReplyName>
-                  <ReplyMeta>{moment(this.props.replyMessage.createdAt).fromNow()}</ReplyMeta>
+                  <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
                 </div>
                 <ReplyMessage>
-                  {this.props.replyMessage.message}
+                  {this.props.message.message}
                 </ReplyMessage>
               </div>
               <CloseOutlined
                 htmlColor="#524150"
                 fontSize="large"
                 className="button"
-                onClick={this.props.clearReplyMessage}
+                onClick={this.props.clearMessage}
               />
             </ReplyContainer>
           </ReplyPadding>
@@ -511,12 +546,23 @@ class ComposeComponent extends React.Component {
             }}
           />
 
-          <IoIosSend
-            color="#565456"
-            className="ml-15 button"
-            size={30}
-            onClick={this.onSend}
-          />
+          {!this.props.update &&
+            <IoIosSend
+              color="#565456"
+              className="ml-15 button"
+              size={30}
+              onClick={this.onSend}
+            />
+          }
+
+          {this.props.update &&
+            <CheckOutlined
+              className="ml-15 button"
+              htmlColor="#565456"
+              fontSize="default"
+              onClick={this.onSend}
+            />
+          }
         </InputContainer>
 
         <Footer className="row">
@@ -537,15 +583,19 @@ ComposeComponent.propTypes = {
   team: PropTypes.any,
   teams: PropTypes.any,
   common: PropTypes.any,
-  replyMessage: PropTypes.any,
-  clearReplyMessage: PropTypes.any,
+  message: PropTypes.any,
+  reply: PropTypes.bool,
+  update: PropTypes.bool,
+  clearMessage: PropTypes.any,
   createRoomMessage: PropTypes.func,
+  updateRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
   updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   createRoomMessage: (text, attachments, parent) => createRoomMessage(text, attachments, parent),
+  updateRoomMessage: (id, text, attachments) => updateRoomMessage(id, text, attachments),
   updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
   updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
 }
