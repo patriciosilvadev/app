@@ -32,10 +32,10 @@ export const urlBase64ToUint8Array = base64String => {
   return outputArray;
 }
 
-export const showLocalPushNotification = message => {
+export const showLocalPushNotification = (title, body) => {
   if (serviceWorkerRegistration) {
-    serviceWorkerRegistration.showNotification('New Message', {
-      body: message,
+    serviceWorkerRegistration.showNotification(title, {
+      body,
       icon: '/images/favicon.png',
       image: '/images/logo.png',
     })
