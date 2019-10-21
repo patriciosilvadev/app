@@ -31,3 +31,13 @@ export const urlBase64ToUint8Array = base64String => {
   }
   return outputArray;
 }
+
+export const showLocalPushNotification = message => {
+  if (serviceWorkerRegistration) {
+    serviceWorkerRegistration.showNotification('New Message', {
+      body: message,
+      icon: '/images/favicon.png',
+      image: '/images/logo.png',
+    })
+  }
+}

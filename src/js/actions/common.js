@@ -5,18 +5,7 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
-
-let serviceWorkerRegistration
-
-export function showLocalPushNotification(message) {
-  if (serviceWorkerRegistration) {
-    serviceWorkerRegistration.showNotification('New Message', {
-      body: message,
-      icon: '/images/favicon.png',
-      image: '/images/logo.png',
-    })
-  }
-}
+import { showLocalPushNotification } from '../helpers/util'
 
 export function registerDockPlugin(plugin) {
   return {
@@ -56,25 +45,6 @@ export function initialize(ids) {
 
     // Handle incoming messages
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
-    MessagingService.getInstance().client.on('sync', ({ action }) => {
-      dispatch(action)
-
-      // Handle any reads/unreads here for the DB
-      if (action.type == 'CREATE_ROOM_MESSAGE') {
-        const { roomId, teamId, message } = action.payload
-
-        // Don't do a PN or unread increment if we are on the same room
-        // as the message
-        if (roomId == getState().room.id) return
-
-        // Trigger a push notification
-        showLocalPushNotification(message)
-
-        // Create an unread marker
-        // Channel will be null, which is good
-        DatabaseService.getInstance().unread(teamId, roomId)
-      }
-    })
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       MessagingService.getInstance().join(roomId)
       const room = await GraphqlService.getInstance().room(roomId)
@@ -92,6 +62,25 @@ export function initialize(ids) {
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
       MessagingService.getInstance().leave(teamId)
       dispatch({ type: 'DELETE_TEAM', payload: { teamId } })
+    })
+    MessagingService.getInstance().client.on('sync', ({ action }) => {
+      dispatch(action)
+
+      // Handle any reads/unreads here for the DB
+      if (action.type == 'CREATE_ROOM_MESSAGE') {
+        const { roomId, teamId, message } = action.payload
+
+        // Don't do a PN or unread increment if we are on the same room
+        // as the message
+        if (roomId == getState().room.id) return
+
+        // Trigger a push notification
+        showLocalPushNotification('New Message', message)
+
+        // Create an unread marker
+        // Channel will be null, which is good
+        DatabaseService.getInstance().unread(teamId, roomId)
+      }
     })
 
     // Get unread count
