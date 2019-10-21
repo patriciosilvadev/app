@@ -27,20 +27,15 @@ module.exports = env => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         favicon: './src/images/favicon.png',
-        socketio: 'http://localhost:3000/socket.io/socket.io.js',
+        socketio: 'http://localhost:3001/socket.io/socket.io.js',
       }),
       new webpack.NormalModuleReplacementPlugin(
           /src\/js\/environment\.js/, 'environment.staging.js'
       ),
-      /*
-      Removed here - we don't want SW caching to interfere with dev
-      This line will be in prod though
-
-      new WorkboxPlugin.GenerateSW({
-        clientsClaim: true,
-        skipWaiting: true
+      new WorkboxPlugin.InjectManifest({
+        swSrc: './src/js/sw.js',
+        swDest: 'sw.js'
       })
-      */
     ],
     optimization: {
       splitChunks: {

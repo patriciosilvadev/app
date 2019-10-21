@@ -1,5 +1,8 @@
 export const UPLOAD_HOST = ''
 export const AUTH_HOST = ''
+export const GRAPHQL_HOST = ''
 export const API_HOST = ''
 export const SOCKETIO_HOST = ''
 export const LOCAL_DB = ''
+export const PUBLIC_VAPID_KEY = ''
+export const NODE_ENV = ''

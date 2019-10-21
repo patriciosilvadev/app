@@ -1,12 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import RoomComponent from '../components/room.component'
-import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import '../helpers/extensions'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
 import RoomModal from '../modals/room.modal'
+import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
@@ -14,17 +13,15 @@ import { createRoom, fetchRooms, fetchTeam } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
 import { GroupWorkOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
+import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
-import PopupComponent from '../components/popup.component'
-import MenuComponent from '../components/menu.component'
-import AccountModal from '../modals/account.modal'
 
 const Rooms = styled.div`
   width: 300px;
   display: flex;
   height: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 1;
   background: white;
   background: #F8F9FA;
   background: #040B1C;
@@ -120,7 +117,12 @@ const Heading = styled.div`
   color: #475669;
 `
 
-class RoomsPartial extends React.Component {
+const RoomsContainer = styled.div`
+  flex: 1;
+  width: 100%;
+`
+
+class RoomsComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -149,6 +151,7 @@ class RoomsPartial extends React.Component {
 
   async signout() {
     await AuthService.signout()
+    await GraphqlService.signout()
 
     this.props.history.push('/auth')
   }
@@ -282,11 +285,11 @@ class RoomsPartial extends React.Component {
             </HeaderSubtitle>
           </div>
 
-          <PopupComponent
+          <Popup
             handleDismiss={() => this.setState({ accountMenu: false })}
             visible={this.state.accountMenu}
             width={275}
-            direction="right-bottom"
+            direction="left-bottom"
             content={
               <div className="column flexer">
                 <AccountMenuHeader className="column align-items-center">
@@ -304,8 +307,17 @@ class RoomsPartial extends React.Component {
                   <AccountMenuSubtitle>
                     {this.props.team.name}
                   </AccountMenuSubtitle>
+
+                  {/*
+                  <Toggle
+                    on={true}
+                    onChange={(value) => {
+                      console.log('RoomsComponent', value)
+                    }}
+                  />
+                  */}
                 </AccountMenuHeader>
-                <MenuComponent
+                <Menu
                   items={[
                     { icon: <SettingsOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Account setting", onClick: (e) => this.setState({ accountMenu: false, accountModal: true }) },
                     { icon: <GroupWorkOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Team settings", onClick: (e) => this.setState({ accountMenu: false, teamModal: true }) },
@@ -315,13 +327,15 @@ class RoomsPartial extends React.Component {
                 />
               </div>
             }>
-            <KeyboardArrowDownOutlined
-              htmlColor="#475669"
-              fontSize="default"
-              className="button"
-              onClick={() => this.setState({ accountMenu: true })}
-            />
-          </PopupComponent>
+            <div>
+              <KeyboardArrowDownOutlined
+                htmlColor="#475669"
+                fontSize="default"
+                className="button"
+                onClick={() => this.setState({ accountMenu: true })}
+              />
+            </div>
+          </Popup>
         </Header>
 
         <SearchContainer className="row">
@@ -342,14 +356,14 @@ class RoomsPartial extends React.Component {
           </SearchInner>
         </SearchContainer>
 
-        <div className="flexer w-100 column align-items-stretch scroll">
+        <RoomsContainer className="column align-items-stretch scroll">
           {this.state.filter != "" &&
             <React.Fragment>
               <Heading>Results</Heading>
 
               {this.state.results.map((result, index) => {
                 return (
-                  <RoomComponent
+                  <Room
                     className="w-100"
                     key={index}
                     active={false}
@@ -365,7 +379,7 @@ class RoomsPartial extends React.Component {
               })}
 
               {this.state.results.length == 0 &&
-                <RoomComponent
+                <Room
                   className="w-100"
                   active={false}
                   unread={null}
@@ -389,14 +403,15 @@ class RoomsPartial extends React.Component {
 
                 const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
                 const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
-                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const unreadCount = unread ? unread.doc.count : null
                 const to = `/app/team/${room.team.id}/room/${room.id}`
 
                 return (
                   <Link className="w-100" key={index} to={to}>
-                    <RoomComponent
+                    <Room
                       active={pathname.indexOf(room.id) != -1}
-                      unread={unread}
+                      unread={unreadCount}
                       title={title}
                       image={image}
                       excerpt={room.excerpt}
@@ -416,7 +431,7 @@ class RoomsPartial extends React.Component {
 
             <QuickInputComponent
               visible={this.state.roomPopup}
-              width={300}
+              width={250}
               direction="right-bottom"
               handleDismiss={() => this.setState({ roomPopup: false })}
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
@@ -436,13 +451,14 @@ class RoomsPartial extends React.Component {
 
             const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
             const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
-            const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+            const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+            const unreadCount = unread ? unread.doc.count : null
 
             return (
               <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                <RoomComponent
+                <Room
                   active={pathname.indexOf(room.id) != -1}
-                  unread={unread}
+                  unread={unreadCount}
                   title={room.title}
                   image={room.image}
                   excerpt={room.excerpt}
@@ -462,15 +478,16 @@ class RoomsPartial extends React.Component {
 
                 const title = room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "")
                 const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
-                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).length != 0
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const unreadCount = unread ? unread.doc.count : null
 
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
                 return (
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                    <RoomComponent
+                    <Room
                       active={pathname.indexOf(room.id) != -1}
-                      unread={unread}
+                      unread={unreadCount}
                       title={title}
                       image={image}
                       icon={null}
@@ -483,34 +500,13 @@ class RoomsPartial extends React.Component {
               })}
             </React.Fragment>
           }
-
-          <Heading className="row">
-            <span className="flexer">
-              Snippets
-            </span>
-
-            <QuickInputComponent
-              visible={this.state.roomPopup}
-              width={300}
-              direction="right-bottom"
-              handleDismiss={() => this.setState({ roomPopup: false })}
-              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
-              placeholder="New room name">
-              <AddCircleOutline
-                htmlColor="#475669"
-                fontSize="small"
-                className="button"
-                onClick={() => this.setState({ roomPopup: true })}
-              />
-            </QuickInputComponent>
-          </Heading>
-        </div>
+        </RoomsContainer>
       </Rooms>
     )
   }
 }
 
-RoomsPartial.propTypes = {
+RoomsComponent.propTypes = {
   starred: PropTypes.bool,
   team: PropTypes.any,
   room: PropTypes.any,
@@ -543,4 +539,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RoomsPartial)
+)(RoomsComponent)

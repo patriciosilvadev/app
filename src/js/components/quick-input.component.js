@@ -1,11 +1,8 @@
 import React from 'react'
-import PopupComponent from '../components/popup.component'
 import styled from 'styled-components'
-import UserComponent from '../components/user.component'
-import MembersComponent from '../components/members.component'
-import SpinnerComponent from '../components/spinner.component'
-import PropTypes from 'prop-types'
 import GraphqlService from '../services/graphql.service'
+import { Popup } from '@weekday/elements'
+import PropTypes from 'prop-types'
 
 const Filter = styled.input`
   border: none;
@@ -50,7 +47,7 @@ export default class QuickInputComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <PopupComponent
+      <Popup
         visible={this.props.visible}
         handleDismiss={this.props.handleDismiss}
         width={this.props.width || 250}
@@ -70,7 +67,7 @@ export default class QuickInputComponent extends React.Component {
           </div>
         }>
         {this.props.children}
-      </PopupComponent>
+      </Popup>
     )
   }
 }

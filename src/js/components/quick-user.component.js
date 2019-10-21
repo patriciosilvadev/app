@@ -1,13 +1,10 @@
 import React from 'react'
-import PopupComponent from '../components/popup.component'
 import styled from 'styled-components'
-import UserComponent from '../components/user.component'
-import MembersComponent from '../components/members.component'
-import SpinnerComponent from '../components/spinner.component'
-import PropTypes from 'prop-types'
 import { Subject } from 'rxjs'
+import PropTypes from 'prop-types'
 import { debounceTime } from 'rxjs/operators'
 import GraphqlService from '../services/graphql.service'
+import { Popup, User, Members, Spinner } from '@weekday/elements'
 
 const Filter = styled.input`
   border: none;
@@ -24,7 +21,7 @@ const Filter = styled.input`
   }
 `
 
-export default class QuickUserComponent extends React.Component {
+export default class QuickUser extends React.Component {
   constructor(props) {
     super(props)
 
@@ -91,14 +88,14 @@ export default class QuickUserComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <PopupComponent
+      <Popup
         visible={this.props.visible}
         handleDismiss={this.props.handleDismiss}
         width={this.props.width || 250}
         direction={this.props.direction || "right-bottom"}
         content={
           <div className="column flexer">
-            {this.state.loading && <SpinnerComponent />}
+            {this.state.loading && <Spinner />}
 
             <div className="row">
               <Filter
@@ -109,7 +106,7 @@ export default class QuickUserComponent extends React.Component {
                 onChange={this.onSearch}
               />
             </div>
-            <MembersComponent
+            <Members
               members={this.state.members}
               handleAccept={(member) => {
                 // Kill the fitler
@@ -126,12 +123,12 @@ export default class QuickUserComponent extends React.Component {
         }>
 
         {this.props.children}
-      </PopupComponent>
+      </Popup>
     )
   }
 }
 
-QuickUserComponent.propTypes = {
+QuickUser.propTypes = {
   visible: PropTypes.bool,
   handleDismiss: PropTypes.func,
   width: PropTypes.number,

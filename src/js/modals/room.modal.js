@@ -1,27 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import ModalComponent from '../components/modal.component'
-import TabbedComponent from '../components/tabbed.component'
-import { Avatar } from '@weekday/elements'
 import ModalPortal from '../portals/modal.portal'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
 import UploadService from '../services/upload.service'
-import PopupComponent from '../components/popup.component'
-import LoadingComponent from '../components/loading.component'
-import ErrorComponent from '../components/error.component'
 import PropTypes from 'prop-types'
-import { Button } from '@weekday/elements'
-import { InputComponent } from '../components/input.component'
-import { TextareaComponent } from '../components/textarea.component'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
-import SpinnerComponent from '../components/spinner.component'
-import NotificationComponent from '../components/notification.component'
 import { DiMarkdown } from 'react-icons/di'
 import { AddOutlined, AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
-import UserComponent from '../components/user.component'
 import ConfirmModal from './confirm.modal'
+import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 
 const Row = styled.div`
@@ -115,7 +104,7 @@ export default function RoomModal(props) {
   // prettier-ignore
   return (
     <ModalPortal>
-      <ModalComponent
+      <Modal
         title="Channel"
         width={700}
         height="90%"
@@ -134,7 +123,7 @@ export default function RoomModal(props) {
             </div>
           </div>
         )}>
-          <TabbedComponent
+          <Tabbed
             start={props.start || 0}
             panels={[
               {
@@ -143,9 +132,9 @@ export default function RoomModal(props) {
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
-                      {error && <ErrorComponent message={error} />}
-                      {loading && <SpinnerComponent />}
-                      {notification && <NotificationComponent text={notification} />}
+                      {error && <Error message={error} />}
+                      {loading && <Spinner />}
+                      {notification && <Notification text={notification} />}
 
                       <Row className="row align-items-start">
                         <input
@@ -169,14 +158,14 @@ export default function RoomModal(props) {
                         </div>
 
                         <Column className="column">
-                          <InputComponent
+                          <Input
                             label="Title"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
                             placeholder="New channel title"
                           />
 
-                          <TextareaComponent
+                          <Textarea
                             label="Description"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
@@ -204,9 +193,9 @@ export default function RoomModal(props) {
                 show: members.length != 0,
                 content: (
                   <div className="column flex-1 w-100 h-100">
-                    {error && <ErrorComponent message={error} />}
-                    {loading && <SpinnerComponent />}
-                    {notification && <NotificationComponent text={notification} />}
+                    {error && <Error message={error} />}
+                    {loading && <Spinner />}
+                    {notification && <Notification text={notification} />}
 
                     {confirmSelfDeleteModal &&
                       <ConfirmModal
@@ -239,7 +228,7 @@ export default function RoomModal(props) {
 
                     {members.map((member, index) => {
                       return (
-                        <UserComponent
+                        <User
                           key={index}
                           image={member.user.image}
                           color={member.user.color}
@@ -259,7 +248,7 @@ export default function RoomModal(props) {
                             }}
                             text="Delete Member"
                           />
-                        </UserComponent>
+                        </User>
                       )
                     })}
 
@@ -299,7 +288,7 @@ export default function RoomModal(props) {
               }
             ]}
           />
-      </ModalComponent>
+      </Modal>
     </ModalPortal>
   )
 }

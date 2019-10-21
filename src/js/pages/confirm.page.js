@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
-import LoadingComponent from '../components/loading.component'
-import ErrorComponent from '../components/error.component'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import { Loading, Error } from '@weekday/elements'
 
 const Confirm = styled.div`
   height: 100%;
@@ -78,10 +77,10 @@ export default props => {
   // prettier-ignore
   return (
     <Confirm className="row">
-      <LoadingComponent show={loading} />
+      <Loading show={loading} />
 
       <Container className="column justify-content-center align-content-center">
-        <ErrorComponent message={error} />
+        <Error message={error} />
 
         {!block && !confirmed && <Text>Checking...</Text>}
         {block && <Text>Not found</Text>}

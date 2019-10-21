@@ -1,16 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import ModalComponent from '../components/modal.component'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Button } from '@weekday/elements'
+import { Button, Modal } from '@weekday/elements'
 
 export default function ConfirmModal({ onOkay, onCancel, text, title }) {
   // prettier-ignore
   return (
     <ModalPortal>
-      <ModalComponent
+      <Modal
         title={title}
         width={450}
         height={300}
@@ -24,7 +23,7 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
             <Button size="large" onClick={onOkay} text="Yes" className="mr-10" />
             <Button size="large" onClick={onCancel} text="No" />
           </div>
-      </ModalComponent>
+      </Modal>
     </ModalPortal>
   )
 }

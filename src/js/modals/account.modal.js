@@ -2,21 +2,14 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
-import NotificationComponent from '../components/notification.component'
-import ModalComponent from '../components/modal.component'
 import UploadService from '../services/upload.service'
-import TabbedComponent from '../components/tabbed.component'
-import SpinnerComponent from '../components/spinner.component'
-import ErrorComponent from '../components/error.component'
 import styled from 'styled-components'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Button } from '@weekday/elements'
-import { InputComponent } from '../components/input.component'
-import { TextareaComponent } from '../components/textarea.component'
+import { Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
 
 const Header = styled.div`
   flex: 1;
@@ -132,7 +125,7 @@ export default function AccountModal(props) {
   // prettier-ignore
   return (
     <ModalPortal>
-      <ModalComponent
+      <Modal
         title="Account"
         width={700}
         height="90%"
@@ -150,7 +143,7 @@ export default function AccountModal(props) {
           </div>
         )}>
 
-        <TabbedComponent
+        <Tabbed
           start={3}
           panels={[
             {
@@ -174,9 +167,9 @@ export default function AccountModal(props) {
               content: (
                 <div className="row align-items-start w-100">
                   <div className="column w-100">
-                    {error && <ErrorComponent message={error} />}
-                    {loading && <SpinnerComponent />}
-                    {notification && <NotificationComponent text={notification} />}
+                    {error && <Error message={error} />}
+                    {loading && <Spinner />}
+                    {notification && <Notification text={notification} />}
 
                     <div className="row w-100 p-20">
                       <input
@@ -206,35 +199,35 @@ export default function AccountModal(props) {
                     </div>
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <InputComponent
+                      <Input
                         label="Full name"
                         value={name}
                         onChange={e => setName(e.target.value)}
                         placeholder="Enter full name"
                       />
 
-                      <InputComponent
+                      <Input
                         label="Role"
                         value={role}
                         onChange={e => setRole(e.target.value)}
                         placeholder="Enter your role"
                       />
 
-                      <InputComponent
+                      <Input
                         label="Username"
                         value={username}
                         onChange={e => setUsername(e.target.value)}
                         placeholder="Username"
                       />
 
-                      <InputComponent
+                      <Input
                         label="Email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         placeholder="Enter your email"
                       />
 
-                      <TextareaComponent
+                      <Textarea
                         label="Description"
                         value={description}
                         onChange={e => setDescription(e.target.value)}
@@ -248,7 +241,7 @@ export default function AccountModal(props) {
             }
           ]}
         />
-      </ModalComponent>
+      </Modal>
     </ModalPortal>
   )
 }

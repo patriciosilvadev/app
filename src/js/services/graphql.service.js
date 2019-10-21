@@ -1,13 +1,16 @@
 import ApolloClient from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
+import { createHttpLink, HttpLink } from 'apollo-link-http'
+import { ApolloLink, concat } from 'apollo-link'
 import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import AuthService from './auth.service'
+import CookiesService from './cookies.service'
 
 export default class GraphqlService {
   static instance
   client
 
-  constructor() {
+  constructor(token) {
     const defaultOptions = {
       watchQuery: {
         fetchPolicy: 'network-only',
@@ -19,26 +22,40 @@ export default class GraphqlService {
       },
     }
 
+    const authMiddleware = new ApolloLink((operation, forward) => {
+      operation.setContext({
+        headers: {
+          authorization: `Bearer ${token}`,
+        }
+      });
+
+      return forward(operation);
+    })
+
     this.client = new ApolloClient({
       cache: new InMemoryCache(),
       defaultOptions: defaultOptions,
-      link: createHttpLink({
+      link: concat(authMiddleware, createHttpLink({
         fetch: fetch,
         uri: 'http://localhost:8181/graphql',
         onError: ({ networkError, graphQLErrors }) => {
           console.log('graphQLErrors', graphQLErrors)
           console.log('networkError', networkError)
         },
-      }),
+      })),
     })
   }
 
-  static getInstance() {
+  static getInstance(token = null) {
     if (this.instance) return this.instance
 
-    this.instance = new GraphqlService()
+    this.instance = new GraphqlService(token)
 
     return this.instance
+  }
+
+  static signout() {
+    this.instance = null
   }
 
   /**
@@ -315,23 +332,15 @@ export default class GraphqlService {
             messages {
               id
               reactions
-              replies {
+              parent {
                 user {
                   id
                   name
-                  username
                   image
+                  username
                   color
                 }
-                reply
-                reactions
-                attachments {
-                  uri
-                  size
-                  mime
-                  name
-                  createdAt
-                }
+                message
                 createdAt
               }
               user {
@@ -437,7 +446,7 @@ export default class GraphqlService {
           roomMessages(id: $id, page: $page) {
             id
             reactions
-            replies {
+            parent {
               user {
                 id
                 name
@@ -445,15 +454,7 @@ export default class GraphqlService {
                 username
                 color
               }
-              reply
-              reactions
-              attachments {
-                uri
-                size
-                mime
-                name
-                createdAt
-              }
+              message
               createdAt
             }
             user {
@@ -746,28 +747,9 @@ export default class GraphqlService {
   createRoomMessage(id, user, name, message, attachments, parent) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessage($id: String, $user: String, $name: String, $message: String, $attachments: [AttachmentInput]) {
-          createRoomMessage(id: $id, user: $user, name: $name, message: $message, attachments: $attachments) {
+        mutation createRoomMessage($id: String, $user: String, $name: String, $message: String, $attachments: [AttachmentInput], $parent: String) {
+          createRoomMessage(id: $id, user: $user, name: $name, message: $message, attachments: $attachments, parent: $parent) {
             id
-            replies {
-              user {
-                id
-                name
-                color
-                image
-                username
-              }
-              reactions
-              reply
-              attachments {
-                uri
-                mime
-                name
-                size
-                createdAt
-              }
-              createdAt
-            }
             user {
               id
               name
@@ -783,6 +765,17 @@ export default class GraphqlService {
               createdAt
               size
             }
+            parent {
+              user {
+                id
+                name
+                image
+                username
+                color
+              }
+              message
+              createdAt
+            }
             createdAt
           }
         }
@@ -794,40 +787,6 @@ export default class GraphqlService {
         message,
         attachments,
         parent,
-      },
-    })
-  }
-
-  createRoomMessageReply(id, user, reply, attachments) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation createRoomMessageReply($id: String, $user: String, $reply: String, $attachments: [AttachmentInput]) {
-          createRoomMessageReply(id: $id, user: $user, reply: $reply, attachments: $attachments) {
-            user {
-              id
-              name
-              color
-              image
-              username
-            }
-            reply
-            reactions
-            attachments {
-              uri
-              name
-              mime
-              createdAt
-              size
-            }
-            createdAt
-          }
-        }
-      `,
-      variables: {
-        id,
-        user,
-        reply,
-        attachments,
       },
     })
   }

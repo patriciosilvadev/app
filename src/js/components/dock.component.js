@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Avatar } from '@weekday/elements'
 import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
@@ -10,6 +9,7 @@ import PropTypes from 'prop-types'
 import TeamModal from '../modals/team.modal'
 import AccountModal from '../modals/account.modal'
 import { AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
+import { Avatar } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 
 const Dock = styled.div`
@@ -19,13 +19,12 @@ const Dock = styled.div`
   display: flex;
   height: 100%;
   position: relative;
-  z-index: 2;
   background: white;
   background: #040B1C;
   border-right: 1px solid #0a152e;
 `
 
-class DockPartial extends React.Component {
+class DockComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -94,7 +93,7 @@ class DockPartial extends React.Component {
   }
 }
 
-DockPartial.propTypes = {
+DockComponent.propTypes = {
   team: PropTypes.any,
   room: PropTypes.any,
   rooms: PropTypes.array,
@@ -122,4 +121,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(DockPartial)
+)(DockComponent)

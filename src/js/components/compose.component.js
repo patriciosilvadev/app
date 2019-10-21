@@ -1,31 +1,74 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Picker } from 'emoji-mart'
-import AttachmentComponent from '../components/attachment.component'
 import styled from 'styled-components'
-import PopupComponent from '../components/popup.component'
-import UserComponent from '../components/user.component'
+import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping } from '../actions'
+import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
-import { MessageMedia } from '@weekday/elements'
-import MembersComponent from '../components/members.component'
-import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined } from '@material-ui/icons'
+import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
 import { IoIosSend } from 'react-icons/io'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+import Keg from '@joduplessis/keg'
+import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
+
+const ReplyPadding = styled.div`
+  padding: 25px;
+`
+
+const ReplyContainer = styled.div`
+  border: 1px solid #cbd4db;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+`
+
+const ReplyMessage = styled.div`
+  font-weight: 500;
+  font-size: 16px;
+  font-style: normal;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ReplyText = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+  margin-bottom: 10px;
+  display: inline-block;
+`
+
+const ReplyName = styled.div`
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12px;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ReplyMeta = styled.div`
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+`
 
 const Compose = styled.div`
   width: 100%;
-  padding: ${props => (props.compact ? '0px' : '10px 25px 10px 25px')};
+  padding: 0px;
+  border-sizing: box-border;
+  border: ${props => props.active ? "2px solid #007af5": "none"}
 `
 
 const InputContainer = styled.div`
   flex: 1;
-  padding: ${props => (props.compact ? '10px' : '15px 0px 15px 0px')};
-  background: ${props => (props.compact ? '#f8f9fa' : 'white')};
-  border-radius: 25px;
+  padding: 25px 25px 0px 25px;
 `
 
 const Attachments = styled.div`
@@ -41,7 +84,7 @@ const Attachments = styled.div`
 
 const Footer = styled.div`
   padding-top: 0px;
-  padding-bottom: 10px;
+  padding: 25px;
   font-size: 12px;
   font-weight: 400;
   color: #cfd4d9;
@@ -61,7 +104,7 @@ const Input = styled.textarea`
   display: block;
   background: transparent;
   color: #212123;
-  font-size: ${props => (props.compact ? '14px' : '17px')};
+  font-size: 20px;
   font-weight: 400;
 
   &::placeholder {
@@ -75,8 +118,12 @@ const MentionContainer = styled.div`
   background: white;
   top: 0px;
   right: 0px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   transform: translateY(-100%);
   border-top: 1px solid #ebedef;
+  overflow: hidden;
+  z-index: 100000;
 `
 
 class ComposeComponent extends React.Component {
@@ -102,12 +149,15 @@ class ComposeComponent extends React.Component {
       position: 0,
       members: [],
       shift: false,
-      files: [],
-      fileIndex: 0,
+      error: null,
+      loading: null,
+      notification: null,
+      isDragging: false,
     }
 
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
+    this.dropZone = React.createRef()
 
     this.onType$ = new Subject()
 
@@ -120,56 +170,30 @@ class ComposeComponent extends React.Component {
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
     this.subscription = null
+    this.onDragOver = this.onDragOver.bind(this)
+    this.onDragEnd = this.onDragEnd.bind(this)
+    this.onDrop = this.onDrop.bind(this)
   }
 
   onSend() {
-    this.props.onSend(this.state.text, this.state.attachments)
+    const parent = this.props.replyMessage ? this.props.replyMessage.id : null
+    const text = this.state.text
+    const attachments = this.state.attachments
+
+    this.props.createRoomMessage(text, attachments, parent)
     this.setState({ text: '', members: [], attachments: [] })
     this.composeRef.style.height = '25px'
+    this.props.clearReplyMessage()
   }
 
   async handleFileChange(e) {
-    if (e.target.files.length == 0) return
+    const files = e.target.files || []
 
-    this.setState({
-      files: e.target.files,
-      fileIndex: 0,
-    }, () => {
-      this.processFiles()
-    })
-  }
+    if (files.length == 0) return
 
-  async processFiles() {
-    this.props.updateLoading(true)
-    this.props.updateError(null)
-
-
-    try {
-      const file = this.state.files[this.state.fileIndex]
-      const result = await new UploadService(file)
-      const { uri, mime, size, name } = await result.json()
-
-      // Add the new files & increase the index
-      this.setState({
-        attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
-        fileIndex: this.state.fileIndex + 1,
-      }, () => {
-        // If all is done, update the UI & stop loading (reset index)
-        // Or otherwise move onto the next file
-        if (this.state.files.length == this.state.fileIndex) {
-          this.setState({ fileIndex: 0 })
-
-           this.props.updateLoading(false)
-           this.props.updateError(null)
-        } else {
-          this.processFiles()
-        }
-      })
-    } catch (e) {
-      this.props.updateLoading(false)
-      this.props.updateError(e)
+    for (let file of files) {
+      Keg.keg('compose').refill('uploads', file)
     }
-
   }
 
   insertAtCursor(text) {
@@ -239,15 +263,15 @@ class ComposeComponent extends React.Component {
     // Cap them at 5
     const members =
       username == ''
-        ? this.props.members.filter((member, index) => index < 5)
-        : this.props.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
+        ? this.props.room.members.filter((member, index) => index < 5)
+        : this.props.room.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
 
     // Create the brand the state object the component should use
     this.setState({ members })
   }
 
   updateComposeHeight() {
-    this.setState({ height: this.state.text.split('\n').length * (this.props.compact ? 20 : 25) })
+    this.setState({ height: this.state.text.split('\n').length * 25 })
   }
 
   replaceWordAtCursor(word) {
@@ -276,14 +300,81 @@ class ComposeComponent extends React.Component {
     this.composeRef.focus()
   }
 
+  onDragOver(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+
+    this.setState({ isDragging: true })
+  }
+
+  onDragEnd(e) {
+    e.stopPropagation()
+    e.preventDefault()
+
+    this.setState({ isDragging: false })
+  }
+
+  onDrop(e) {
+    e.stopPropagation()
+    e.preventDefault()
+
+    this.setState({ isDragging: false })
+
+    const files = e.dataTransfer.files || []
+
+    if (files.length == 0) return
+
+    for (let file of files) {
+      Keg.keg('compose').refill('uploads', file)
+    }
+  }
+
   componentDidMount() {
     this.composeRef.focus()
+
+    // Drag event listeners
+    this.dropZone.addEventListener('dragover', this.onDragOver)
+    this.dropZone.addEventListener('dragend', this.onDragEnd)
+    this.dropZone.addEventListener('drop', this.onDrop)
+
+    // Resize compose initiallyl
     this.updateComposeHeight()
-    this.subscription = this.onType$.pipe(debounceTime(1000)).subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
+
+    // Stop typing indicator after 1000 ms of inactivity
+    this.subscription = this.onType$
+      .pipe(debounceTime(1000))
+      .subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
+
+    // Listen for file changes in attachments
+    Keg.keg('compose').tap('uploads', async (file, pour) => {
+      this.setState({ loading: true })
+      this.setState({ error: null })
+
+      try {
+        const result = await new UploadService(file)
+        const { uri, mime, size, name } = await result.json()
+
+        // Add the new files & increase the index
+        this.setState({ attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]] }, () => pour())
+      } catch (e) {
+        this.setState({ loading: false })
+        this.setState({ error: e })
+      }
+    }, () => {
+      // This is the empty() callback
+      // Stop loading when all is done
+      this.setState({ loading: false })
+    })
   }
 
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
+
+    // Drag event listeners
+    this.dropZone.removeEventListener('dragover', this.onDragOver)
+    this.dropZone.removeEventListener('dragend', this.onDragEnd)
+    this.dropZone.removeEventListener('drop', this.onDrop)
   }
 
   componentDidUpdate() {}
@@ -291,12 +382,18 @@ class ComposeComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <Compose compact={this.props.compact} className="column align-items-stretch">
+      <Compose
+        active={this.state.isDragging}
+        ref={ref => this.dropZone = ref} className="column align-items-stretch">
+        {this.state.error && <Error message={this.state.error} />}
+        {this.state.loading && <Spinner />}
+        {this.state.notification && <Notification text={this.state.notification} />}
+
         {this.state.attachments.length != 0 &&
           <Attachments className="row">
             {this.state.attachments.map((attachment, index) => {
               return (
-                <AttachmentComponent
+                <Attachment
                   key={index}
                   layout="compose"
                   uri={attachment.uri}
@@ -315,17 +412,46 @@ class ComposeComponent extends React.Component {
 
         {this.state.members.length != 0 &&
           <MentionContainer>
-            <MembersComponent
+            <Members
               members={this.state.members}
               handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
             />
           </MentionContainer>
         }
 
-        <InputContainer
-          compact={this.props.compact}
-          className="row">
+        {this.props.replyMessage &&
+          <ReplyPadding className="column align-items-stretch flexer">
+            <ReplyText>Replying to:</ReplyText>
+            <ReplyContainer className="row justify-content-center">
+              <Avatar
+                image={this.props.replyMessage.user.image}
+                title={this.props.replyMessage.user.name}
+                className="mr-15"
+                size="medium"
+              />
 
+              <div className="column flexer">
+                <div className="row">
+                  <ReplyName>
+                    {this.props.replyMessage.user.name}
+                  </ReplyName>
+                  <ReplyMeta>{moment(this.props.replyMessage.createdAt).fromNow()}</ReplyMeta>
+                </div>
+                <ReplyMessage>
+                  {this.props.replyMessage.message}
+                </ReplyMessage>
+              </div>
+              <CloseOutlined
+                htmlColor="#524150"
+                fontSize="large"
+                className="button"
+                onClick={this.props.clearReplyMessage}
+              />
+            </ReplyContainer>
+          </ReplyPadding>
+        }
+
+        <InputContainer className="row">
           <input
             className="hide"
             ref={(ref) => this.fileRef = ref}
@@ -339,102 +465,94 @@ class ComposeComponent extends React.Component {
             ref={(ref) => this.composeRef = ref}
             placeholder="Say something"
             value={this.state.text}
-            compact={this.props.compact}
             onKeyUp={this.handleKeyUp}
             onKeyDown={this.handleKeyDown}
             onChange={this.handleComposeChange}
           />
 
-          {!this.props.compact &&
-            <React.Fragment>
-              <PopupComponent
-                handleDismiss={() => this.setState({ emoticonMenu: false })}
-                visible={this.state.emoticonMenu}
-                width={350}
-                direction="right-top"
-                content={
-                  <Picker
-                    style={{ width: 350 }}
-                    set='emojione'
-                    title=""
-                    emoji=""
-                    showPreview={false}
-                    showSkinTones={false}
-                    onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-                  />
-                }>
-                <SentimentSatisfiedOutlined
-                  htmlColor="#565456"
-                  className="button ml-15"
-                  fontSize="default"
-                  onClick={() => this.setState({ emoticonMenu: true })}
-                />
-              </PopupComponent>
-
-              <AttachFileOutlined
-                htmlColor="#565456"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => this.fileRef.click()}
+          <Popup
+            handleDismiss={() => this.setState({ emoticonMenu: false })}
+            visible={this.state.emoticonMenu}
+            width={350}
+            direction="right-top"
+            content={
+              <Picker
+                style={{ width: 350 }}
+                set='emojione'
+                title=""
+                emoji=""
+                showPreview={false}
+                showSkinTones={false}
+                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
+            }>
+            <SentimentSatisfiedOutlined
+              htmlColor="#565456"
+              className="button ml-15"
+              fontSize="default"
+              onClick={() => this.setState({ emoticonMenu: true })}
+            />
+          </Popup>
 
-              <AlternateEmailOutlined
-                htmlColor="#565456"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => {
-                  this.insertAtCursor("@")
-                  this.filterMembers("")
-                }}
-              />
+          <AttachFileOutlined
+            htmlColor="#565456"
+            fontSize="default"
+            className="ml-15 button"
+            onClick={() => this.fileRef.click()}
+          />
 
-              <IoIosSend
-                color="#565456"
-                className="ml-15 button"
-                size={30}
-                onClick={this.onSend}
-              />
-            </React.Fragment>
-          }
+          <AlternateEmailOutlined
+            htmlColor="#565456"
+            fontSize="default"
+            className="ml-15 button"
+            onClick={() => {
+              this.insertAtCursor("@")
+              this.filterMembers("")
+            }}
+          />
+
+          <IoIosSend
+            color="#565456"
+            className="ml-15 button"
+            size={30}
+            onClick={this.onSend}
+          />
         </InputContainer>
 
-        {!this.props.compact &&
-          <Footer className="row">
-            <DiMarkdown
-              color="#cfd4d9"
-              size={18}
-              className="mr-10"
-            />
+        <Footer className="row">
+          <DiMarkdown
+            color="#cfd4d9"
+            size={18}
+            className="mr-10"
+          />
           <span>Use <strong>**markdown**</strong> to format your message</span>
-          </Footer>
-        }
+        </Footer>
       </Compose>
     )
   }
 }
 
 ComposeComponent.propTypes = {
+  room: PropTypes.any,
   team: PropTypes.any,
   teams: PropTypes.any,
   common: PropTypes.any,
-  onSend: PropTypes.func,
-  members: PropTypes.array,
-  compact: PropTypes.bool,
-  updateLoading: PropTypes.func,
-  updateError: PropTypes.func,
+  replyMessage: PropTypes.any,
+  clearReplyMessage: PropTypes.any,
+  createRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
   updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  updateLoading: loading => updateLoading(loading),
-  updateError: error => updateLoading(error),
+  createRoomMessage: (text, attachments, parent) => createRoomMessage(text, attachments, parent),
   updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
   updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
 }
 
 const mapStateToProps = state => {
   return {
+    room: state.room,
     common: state.common,
     team: state.team,
     teams: state.teams,

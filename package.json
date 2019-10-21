@@ -1,8 +1,8 @@
 {
     "name": "weekday-app",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Weekday, a hackable team messaging platform.",
-    "main": "index.js",
+    "main": "src/js/app.js",
     "scripts": {
         "build:prod": "webpack --config webpack.config.js",
         "build:dev": "webpack --config webpack.config.dev.js",
@@ -12,17 +12,18 @@
         "serve:dev": "webpack-dev-server --config webpack.config.dev.js --hot --inline",
         "dev": "npm run watch:dev | npm run serve:dev",
         "test": "jest",
-        "lint": "eslint ./src"
+        "lint": "eslint ./src",
+        "electron": "electron ."
     },
     "author": "Jo du Plessis",
     "license": "ISC",
     "url": "https://github.com/getweekday/app",
     "dependencies": {
-        "@joduplessis/keg": "0.0.2",
+        "@joduplessis/keg": "0.0.4",
         "@material-ui/core": "^4.4.3",
         "@material-ui/icons": "^4.4.3",
         "@sentry/browser": "^5.5.0",
-        "@weekday/elements": "^0.3.4",
+        "@weekday/elements": "^0.5.1",
         "apollo-cache-inmemory": "^1.2.10",
         "apollo-client": "^2.4.2",
         "apollo-link-http": "^1.5.5",
@@ -70,6 +71,7 @@
         "css-loader": "^1.0.0",
         "dotenv": "^8.1.0",
         "dotenv-webpack": "^1.7.0",
+        "electron": "^6.0.12",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.14.0",
         "enzyme-to-json": "^3.3.5",
@@ -99,6 +101,7 @@
         "puppeteer": "^1.19.0",
         "react-hot-loader": "^4.3.6",
         "react-loaders": "^3.0.1",
+        "redux-logger": "^3.0.6",
         "sass-loader": "^7.1.0",
         "style-loader": "^0.23.0",
         "styled-components": "^4.1.3",
