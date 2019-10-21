@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
-import { Router, Route } from 'react-router-dom'
+import { Router, Route, Link } from 'react-router-dom'
 import { browserHistory } from './services/browser-history.service'
 import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
@@ -18,6 +18,7 @@ import './helpers/extensions'
 import '../styles/index.css'
 import '../styles/fonts.css'
 import '../../node_modules/emoji-mart/css/emoji-mart.css'
+import AuthService from './services/auth.service'
 import '../.htaccess'
 import '../images/favicon.png'
 import '../images/pattern.png'
@@ -37,25 +38,29 @@ const logger = createLogger({
 
 async function subscribePushNotification() {
   if ('serviceWorker' in navigator) {
-    const register = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
-    });
+    try {
+      const register = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      })
 
-    // Subscribe to the PNs
-    const subscription = await register.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
-    });
+      // Subscribe to the PNs
+      const subscription = await register.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
+      })
 
-    // Join - we're not using this for anything yet
-    // But we will
-    await fetch(API_HOST + '/subscribe', {
-      method: 'POST',
-      body: JSON.stringify(subscription),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+      // Join - we're not using this for anything yet
+      // But we will
+      await fetch(API_HOST + '/subscribe', {
+        method: 'POST',
+        body: JSON.stringify(subscription),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    } catch (e) {
+      console.log(e)
+    }
   } else {
     console.error('Service workers are not supported in this browser');
   }
@@ -94,6 +99,27 @@ ReactDOM.render(
     <Provider store={store}>
       <ApolloProvider client={apollo}>
         <Router history={browserHistory}>
+          {/* Check if user is logged in */}
+          {/* Direct to the right place */}
+          <Route
+            path="/"
+            render={props => {
+              if (window.location.pathname == '/') {
+                AuthService
+                .currentAuthenticatedUser()
+                .then(res => {
+                  const { token } = res
+                  const { sub } = AuthService.parseJwt(token)
+
+                  props.history.push('/app')
+                })
+                .catch(err => {
+                  props.history.push('/auth')
+                })
+              }
+            }}
+          />
+
           <Route path="/auth" component={AuthPage} />
           <Route path="/confirm/:token" component={ConfirmPage} />
           <Route path="/app" component={AppPage} />
