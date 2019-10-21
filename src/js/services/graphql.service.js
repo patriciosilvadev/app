@@ -62,11 +62,11 @@ export default class GraphqlService {
    * Queries
    */
 
-  user(id) {
+  user(userId) {
     return this.client.query({
       query: gql`
-        query user($id: String!) {
-          user(id: $id) {
+        query user($userId: String!) {
+          user(userId: $userId) {
             id
             email
             color
@@ -84,16 +84,16 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
+        userId,
       },
     })
   }
 
-  users(list) {
+  users(userIds) {
     return this.client.query({
       query: gql`
-        query users($list: String!) {
-          users(list: $list) {
+        query users($userIds: String!) {
+          users(userIds: $userIds) {
             id
             name
             image
@@ -101,22 +101,22 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        list,
+        userIds,
       },
     })
   }
 
-  team(id, user) {
+  team(teamId, userId) {
     return this.client.query({
       query: gql`
-        query team($id: String!, $user: String) {
-          team(id: $id, user: $user) {
+        query team($teamId: String!, $userId: String) {
+          team(teamId: $teamId, userId: $userId) {
             id
             name
             url
             description
             image
-            rooms(user: $user) {
+            rooms(userId: $userId) {
               id
               title
               description
@@ -162,17 +162,17 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
-        user,
+        teamId,
+        userId,
       },
     })
   }
 
-  teams(id) {
+  teams(userId) {
     return this.client.query({
       query: gql`
-        query teams($id: String!) {
-          teams(id: $id) {
+        query teams($userId: String!) {
+          teams(userId: $userId) {
             id
             name
             description
@@ -194,111 +194,16 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
+        userId,
       },
     })
   }
 
-  roomUrl(url) {
+  room(roomId) {
     return this.client.query({
       query: gql`
-        query roomUrl($url: String!) {
-          roomUrl(url: $url) {
-            id
-            title
-            url
-            description
-            image
-            public
-            private
-            user {
-              id
-              name
-              username
-              image
-            }
-            team {
-              id
-              name
-              image
-              members {
-                user {
-                  id
-                  name
-                  email
-                  color
-                  username
-                  role
-                  image
-                }
-                admin
-              }
-            }
-            messages {
-              id
-              reactions
-              replies {
-                user {
-                  id
-                  name
-                  username
-                  image
-                  color
-                }
-                reply
-                reactions
-                attachments {
-                  uri
-                  name
-                  size
-                  mime
-                  createdAt
-                }
-                createdAt
-              }
-              user {
-                id
-                username
-                name
-                image
-              }
-              message
-              attachments {
-                uri
-                size
-                mime
-                name
-                createdAt
-              }
-              createdAt
-            }
-            members {
-              user {
-                id
-                name
-                email
-                color
-                username
-                role
-                image
-              }
-            }
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      variables: {
-        url,
-      },
-    })
-  }
-
-  room(id) {
-    return this.client.query({
-      query: gql`
-        query room($id: String!) {
-          room(id: $id) {
+        query room($roomId: String!) {
+          room(roomId: $roomId) {
             id
             title
             url
@@ -376,31 +281,31 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
+        roomId,
       },
     })
   }
 
-  joins(user) {
+  joins(userId) {
     return this.client.query({
       query: gql`
-        query joins($user: String!) {
-          joins(user: $user) {
+        query joins($userId: String!) {
+          joins(userId: $userId) {
             id
           }
         }
       `,
       variables: {
-        user,
+        userId,
       },
     })
   }
 
-  rooms(team, user) {
+  rooms(teamId, userId) {
     return this.client.query({
       query: gql`
-        query rooms($team: String, $user: String!) {
-          rooms(team: $team, user: $user) {
+        query rooms($teamId: String, $userId: String!) {
+          rooms(teamId: $teamId, userId: $userId) {
             id
             title
             description
@@ -433,17 +338,17 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        team,
-        user,
+        teamId,
+        userId,
       },
     })
   }
 
-  roomMessages(id, page) {
+  roomMessages(roomId, page) {
     return this.client.query({
       query: gql`
-        query roomMessages($id: String!, $page: Float) {
-          roomMessages(id: $id, page: $page) {
+        query roomMessages($roomId: String!, $page: Float) {
+          roomMessages(roomId: $roomId, page: $page) {
             id
             reactions
             parent {
@@ -477,17 +382,17 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
+        roomId,
         page,
       },
     })
   }
 
-  search(team, query) {
+  search(teamId, query) {
     return this.client.query({
       query: gql`
-        query search($team: String, $query: String) {
-          search(team: $team, query: $query) {
+        query search($teamId: String, $query: String) {
+          search(teamId: $teamId, query: $query) {
             id
             name
             image
@@ -497,7 +402,7 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        team,
+        teamId,
         query,
       },
     })
@@ -507,30 +412,30 @@ export default class GraphqlService {
    * Mutations
    */
 
-  updateUser(id, payload) {
+  updateUser(userId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUser($id: String, $payload: String) {
-          updateUser(id: $id, payload: $payload)
+        mutation updateUser($userId: String, $payload: String) {
+          updateUser(userId: $userId, payload: $payload)
         }
       `,
       variables: {
-        id,
+        userId,
         payload: JSON.stringify(payload),
       },
     })
   }
 
-  updateUserStarred(id, room, starred) {
+  updateUserStarred(userId, roomId, starred) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserStarred($id: String, $room: String, $starred: Boolean) {
-          updateUserStarred(id: $id, room: $room, starred: $starred)
+        mutation updateUserStarred($userId: String, $roomId: String, $starred: Boolean) {
+          updateUserStarred(userId: $userId, roomId: $roomId, starred: $starred)
         }
       `,
       variables: {
-        id,
-        room,
+        userId,
+        roomId,
         starred,
       },
     })
@@ -554,53 +459,53 @@ export default class GraphqlService {
     })
   }
 
-  updateTeam(id, payload) {
+  updateTeam(teamId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeam($id: String, $payload: String) {
-          updateTeam(id: $id, payload: $payload)
+        mutation updateTeam($teamId: String, $payload: String) {
+          updateTeam(teamId: $teamId, payload: $payload)
         }
       `,
       variables: {
-        id,
+        teamId,
         payload: JSON.stringify(payload),
       },
     })
   }
 
-  deleteTeam(id) {
+  deleteTeam(teamId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteTeam($id: String) {
-          deleteTeam(id: $id)
+        mutation deleteTeam($teamId: String) {
+          deleteTeam(teamId: $teamId)
         }
       `,
       variables: {
-        id,
+        teamId,
       },
     })
   }
 
-  updateTeamMemberAdmin(id, user, admin) {
+  updateTeamMemberAdmin(teamId, userId, admin) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMemberAdmin($id: String, $user: String, $admin: Boolean) {
-          updateTeamMemberAdmin(id: $id, user: $user, admin: $admin)
+        mutation updateTeamMemberAdmin($teamId: String, $userId: String, $admin: Boolean) {
+          updateTeamMemberAdmin(teamId: $teamId, userId: $userId, admin: $admin)
         }
       `,
       variables: {
-        id,
-        user,
+        teamId,
+        userId,
         admin,
       },
     })
   }
 
-  createTeamMembers(id, usernames) {
+  createTeamMembers(teamId, usernames) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTeamMembers($id: String, $usernames: String) {
-          createTeamMembers(id: $id, usernames: $usernames) {
+        mutation createTeamMembers($teamId: String, $usernames: String) {
+          createTeamMembers(teamId: $teamId, usernames: $usernames) {
             user {
               id
               role
@@ -616,22 +521,22 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
+        teamId,
         usernames,
       },
     })
   }
 
-  deleteTeamMember(id, user) {
+  deleteTeamMember(teamId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteTeamMember($id: String, $user: String) {
-          deleteTeamMember(id: $id, user: $user)
+        mutation deleteTeamMember($teamId: String, $userId: String) {
+          deleteTeamMember(teamId: $teamId, userId: $userId)
         }
       `,
       variables: {
-        id,
-        user,
+        teamId,
+        userId,
       },
     })
   }
@@ -677,11 +582,11 @@ export default class GraphqlService {
     })
   }
 
-  updateRoom(id, payload) {
+  updateRoom(roomId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoom($id: String, $payload: String) {
-          updateRoom(id: $id, payload: $payload) {
+        mutation updateRoom($roomId: String, $payload: String) {
+          updateRoom(roomId: $roomId, payload: $payload) {
             id
             title
             description
@@ -697,71 +602,71 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
+        roomId,
         payload: JSON.stringify(payload),
       },
     })
   }
 
-  deleteRoom(id) {
+  deleteRoom(roomId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoom($id: String) {
-          deleteRoom(id: $id)
+        mutation deleteRoom($roomId: String) {
+          deleteRoom(roomId: $roomId)
         }
       `,
       variables: {
-        id,
+        roomId,
       },
     })
   }
 
-  createRoomMember(id, user) {
+  createRoomMember(roomId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMember($id: String, $user: String) {
-          createRoomMember(id: $id, user: $user)
+        mutation createRoomMember($roomId: String, $userId: String) {
+          createRoomMember(roomId: $roomId, userId: $userId)
         }
       `,
       variables: {
-        id,
-        user,
+        roomId,
+        userId,
       },
     })
   }
 
-  deleteRoomMessage(id) {
+  deleteRoomMessage(messageId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMessage($id: String) {
-          deleteRoomMessage(id: $id)
+        mutation deleteRoomMessage($messageId: String) {
+          deleteRoomMessage(messageId: $messageId)
         }
       `,
       variables: {
-        id,
+        messageId,
       },
     })
   }
 
-  deleteRoomMember(id, user) {
+  deleteRoomMember(roomId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMember($id: String, $user: String) {
-          deleteRoomMember(id: $id, user: $user)
+        mutation deleteRoomMember($roomId: String, $userId: String) {
+          deleteRoomMember(roomId: $roomId, userId: $userId)
         }
       `,
       variables: {
-        id,
-        user,
+        roomId,
+        userId,
       },
     })
   }
 
-  updateRoomMessage(roomId, userId, userName, id, message, attachments) {
+  updateRoomMessage(roomId, userId, userName, messageId, message, attachments) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoomMessage($roomId: String, $userId: String, $userName: String, $id: String, $message: String, $attachments: [AttachmentInput]) {
-          updateRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, id: $id, message: $message, attachments: $attachments) {
+        mutation updateRoomMessage($roomId: String, $userId: String, $userName: String, $messageId: String, $message: String, $attachments: [AttachmentInput]) {
+          updateRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, messageId: $messageId, message: $message, attachments: $attachments) {
             id
             user {
               id
@@ -797,18 +702,18 @@ export default class GraphqlService {
         roomId,
         userId,
         userName,
-        id,
+        messageId,
         message,
         attachments,
       },
     })
   }
 
-  createRoomMessage(id, user, name, message, attachments, parent) {
+  createRoomMessage(roomId, userId, userName, message, attachments, parentId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessage($id: String, $user: String, $name: String, $message: String, $attachments: [AttachmentInput], $parent: String) {
-          createRoomMessage(id: $id, user: $user, name: $name, message: $message, attachments: $attachments, parent: $parent) {
+        mutation createRoomMessage($roomId: String, $userId: String, $userName: String, $message: String, $attachments: [AttachmentInput], $parentId: String) {
+          createRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, message: $message, attachments: $attachments, parentId: $parentId) {
             id
             user {
               id
@@ -841,39 +746,39 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        id,
-        user,
-        name,
+        roomId,
+        userId,
+        userName,
         message,
         attachments,
-        parent,
+        parentId,
       },
     })
   }
 
-  createRoomMessageReaction(id, reaction) {
+  createRoomMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessageReaction($id: String, $reaction: String) {
-          createRoomMessageReaction(id: $id, reaction: $reaction)
+        mutation createRoomMessageReaction($messageId: String, $reaction: String) {
+          createRoomMessageReaction(messageId: $messageId, reaction: $reaction)
         }
       `,
       variables: {
-        id,
+        messageId,
         reaction,
       },
     })
   }
 
-  deleteRoomMessageReaction(id, reaction) {
+  deleteRoomMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMessageReaction($id: String, $reaction: String) {
-          deleteRoomMessageReaction(id: $id, reaction: $reaction)
+        mutation deleteRoomMessageReaction($messageId: String, $reaction: String) {
+          deleteRoomMessageReaction(messageId: $messageId, reaction: $reaction)
         }
       `,
       variables: {
-        id,
+        messageId,
         reaction,
       },
     })
