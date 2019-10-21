@@ -14,6 +14,31 @@ import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
 
+const UpdateContainer = styled.div`
+  position: absolute;
+  transform: translateY(-100%);
+  background: #F8F9FA;
+  border-top: 1px solid #E1E7EB;
+  border-bottom: 1px solid #E1E7EB;
+  width: 100%;
+`
+
+const UpdateText = styled.div`
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const UpdateCancel = styled.div`
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #007af5;
+  font-weight: regular;
+`
+
 const ReplyPadding = styled.div`
   padding: 25px;
 `
@@ -175,6 +200,7 @@ class ComposeComponent extends React.Component {
     this.onDragOver = this.onDragOver.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
     this.onDrop = this.onDrop.bind(this)
+    this.clearMessage = this.clearMessage.bind(this)
   }
 
   onSend() {
@@ -193,14 +219,19 @@ class ComposeComponent extends React.Component {
     // If it's an update
     if (this.props.update) this.props.updateRoomMessage(id, text, attachments)
 
+    // Reset the message
+    this.clearMessage()
+
+    // And then resize our input textarea to default
+    this.composeRef.style.height = '25px'
+  }
+
+  clearMessage() {
     // Clear the parent/update message
     this.props.clearMessage()
 
     // Reset our state
     this.setState({ id: null, text: '', members: [], attachments: [] })
-
-    // And then resize our input textarea to default
-    this.composeRef.style.height = '25px'
   }
 
   async handleFileChange(e) {
@@ -420,8 +451,20 @@ class ComposeComponent extends React.Component {
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} />}
 
-        {this.props.update && this.props.message.parent &&
-          <Notification text="Updating reply" />
+        {this.props.update &&
+          <UpdateContainer className="row">
+            <UpdateText>
+              Updating message
+
+              {this.props.message.parent &&
+                <span> - replying to {this.props.message.parent.user.name}</span>
+              }
+            </UpdateText>
+            <div className="flexer"></div>
+            <UpdateCancel className="button" onClick={this.clearMessage}>
+              Cancel
+            </UpdateCancel>
+          </UpdateContainer>
         }
 
         {this.state.attachments.length != 0 &&
