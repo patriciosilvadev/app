@@ -404,7 +404,7 @@ class RoomsComponent extends React.Component {
                 const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
                 const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
-                const unreadCount = unread ? unread.doc.count : null
+                const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
 
                 return (
@@ -452,7 +452,7 @@ class RoomsComponent extends React.Component {
             const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
             const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
             const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
-            const unreadCount = unread ? unread.doc.count : null
+            const unreadCount = unread ? unread.doc.count : 0
 
             return (
               <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
@@ -479,7 +479,7 @@ class RoomsComponent extends React.Component {
                 const title = room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "")
                 const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
-                const unreadCount = unread ? unread.doc.count : null
+                const unreadCount = unread ? unread.doc.count : 0
 
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 

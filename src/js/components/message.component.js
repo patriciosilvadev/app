@@ -37,23 +37,23 @@ const Tools = styled.div`
 
 const Meta = styled.div`
   margin-left: 10px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
 `
 
 const User = styled.div`
-  color: #212123;
+  color: #343A40;
   font-weight: 600;
   font-style: normal;
-  font-size: 14px;
+  font-size: 12px;
 `
 
 const Text = styled.div`
-  font-size: 16px;
+  font-size: 14px;
   color: #212123;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.4;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -128,15 +128,15 @@ const ParentContainer = styled.div`
 `
 
 const ParentMessage = styled.div`
-  font-weight: 500;
-  font-size: 16px;
+  font-weight: 400;
+  font-size: 14px;
   font-style: normal;
   color: #151b26;
   display: inline-block;
 `
 
 const ParentName = styled.div`
-  font-weight: 700;
+  font-weight: 500;
   font-style: normal;
   font-size: 12px;
   color: #151b26;
@@ -145,7 +145,7 @@ const ParentName = styled.div`
 
 const ParentText = styled.div`
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   color: #adb5bd;
   font-weight: regular;
   margin-bottom: 10px;
@@ -156,7 +156,7 @@ const ParentText = styled.div`
 const ParentMeta = styled.div`
   margin-left: 10px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: #adb5bd;
   font-weight: regular;
 `
