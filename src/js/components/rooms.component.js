@@ -481,11 +481,17 @@ class RoomsComponent extends React.Component {
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
 
+                // Filter based on users search
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+                // Get the other users' presence
+                const otherMember = room.members.filter(member => member.user.id != this.props.common.user.id).flatten()
+                const heartbeat = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
 
                 return (
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
                     <Room
+                      heartbeat={heartbeat}
                       active={pathname.indexOf(room.id) != -1}
                       unread={unreadCount}
                       title={title}
@@ -512,6 +518,7 @@ RoomsComponent.propTypes = {
   room: PropTypes.any,
   rooms: PropTypes.array,
   common: PropTypes.any,
+  presences: PropTypes.any,
   teams: PropTypes.array,
   createRoom: PropTypes.func,
   fetchRooms: PropTypes.func,
@@ -533,6 +540,7 @@ const mapStateToProps = state => {
     rooms: state.rooms,
     room: state.room,
     teams: state.teams,
+    presences: state.presences,
   }
 }
 

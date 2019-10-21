@@ -79,6 +79,23 @@ export function initialize(ids) {
       }
     })
 
+    // Heartbeat - we send our updates to the current team
+    setInterval(() => {
+      const { team, common } = getState()
+      const teamId = team.id
+      const userId = common.user.id
+      const heartbeat = new Date()
+
+      dispatch({
+        type: 'UPDATE_USER_PRESENCE',
+        payload: {
+          userId,
+          heartbeat,
+        },
+        sync: teamId,
+      })
+    }, 1000)
+
     // Get unread count
     DatabaseService.getInstance()
       .database.allDocs({ include_docs: true })

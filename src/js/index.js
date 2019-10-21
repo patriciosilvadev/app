@@ -26,6 +26,7 @@ import '../images/logo.png'
 import common from './reducers/common'
 import team from './reducers/team'
 import teams from './reducers/teams'
+import presences from './reducers/presences'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
 import './environment'
@@ -76,6 +77,7 @@ const store = createStore(
     teams,
     room,
     rooms,
+    presences,
   }),
   applyMiddleware(
     thunk,
