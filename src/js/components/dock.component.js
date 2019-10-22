@@ -121,9 +121,7 @@ export default function DockComponent(props) {
         width={275}
         direction="left-top"
         content={
-          <NotificationsComponent
-            notifications={notifications}
-          />
+          <NotificationsComponent />
         }>
         <Avatar
           dark
