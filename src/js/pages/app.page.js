@@ -12,6 +12,7 @@ import { Avatar, Loading, Error, Notification } from '@weekday/elements'
 import RoomsComponent from '../components/rooms.component'
 import RoomComponent from '../components/room.component'
 import DockComponent from '../components/dock.component'
+import ToolbarComponent from '../components/toolbar.component'
 import { askPushNotificationPermission } from '../helpers/util'
 
 const App = styled.div`
@@ -123,6 +124,7 @@ class AppPage extends React.Component {
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={RoomsComponent} />
             <Route path="/app/team/:teamId/room/:roomId" component={RoomComponent} />
+            <Route path="/app/team/:teamId/room/:roomId" component={ToolbarComponent} />
           </div>
         </Router>
       </App>

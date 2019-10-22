@@ -9,7 +9,7 @@ import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
 import ConfirmModal from '../modals/confirm.modal'
-import { InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
+import { SearchOutlined, InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
 import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import MessageComponent from '../components/message.component'
@@ -73,6 +73,31 @@ const HeaderButton = styled.div`
   transition: opacity 0.5s;
   position: relative;
   cursor: pointer;
+`
+
+const HeaderSearchContainer = styled.div`
+  border: 3px solid #f1f3f5;
+  background: white;
+  border-radius: 10px;
+  padding 5px;
+  flex: 1;
+  transition: margin-left 0.5s;
+  margin-left: ${props => props.focus ? "100px" : "300px"};
+  margin-right: 10px;
+`
+
+const HeaderSearchInput = styled.input`
+  font-size: 14px;
+  font-weight: 400;
+  flex: 1;
+  font-style: normal;
+  color: #212123;
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: #acb5bd
+  }
 `
 
 const Messages = styled.div`
@@ -165,6 +190,7 @@ class RoomComponent extends React.Component {
       visibilityMenu: false,
       lastTypingTime: 0,
       typing: '',
+      searchFocus: false,
     }
 
     this.messagesRef = React.createRef()
@@ -372,7 +398,25 @@ class RoomComponent extends React.Component {
                 </div>
               </div>
 
-              <div className="flexer"></div>
+              <HeaderSearchContainer
+                className="row"
+                focus={this.state.searchFocus}>
+                <SearchOutlined
+                  htmlColor="#acb5bd"
+                  fontSize="default"
+                />
+                <HeaderSearchInput
+                  placeholder="Search"
+                  onFocus={() => this.setState({ searchFocus: true })}
+                  onBlur={() => this.setState({ searchFocus: false })}
+                />
+                <CloseOutlined
+                  htmlColor="#acb5bd"
+                  fontSize="default"
+                  className="button hide"
+                  onClick={() => console.log('Reset')}
+                />
+              </HeaderSearchContainer>
 
               <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)}>
                 {this.state.starred && <Star htmlColor="#EBB403" fontSize="default" />}
