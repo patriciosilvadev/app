@@ -393,6 +393,52 @@ export default class GraphqlService {
     })
   }
 
+  searchMessages(roomId, query) {
+    return this.client.query({
+      query: gql`
+        query searchMessages($roomId: String, $query: String) {
+          searchMessages(roomId: $roomId, query: $query) {
+            id
+            reactions
+            parent {
+              user {
+                id
+                name
+                image
+                username
+                status
+                color
+              }
+              message
+              createdAt
+            }
+            user {
+              id
+              name
+              image
+              status
+              username
+              color
+            }
+            message
+            attachments {
+              uri
+              size
+              name
+              mime
+              createdAt
+            }
+            createdAt
+          }
+        }
+      `,
+      variables: {
+        roomId,
+        query,
+      },
+    })
+  }
+
   search(teamId, query) {
     return this.client.query({
       query: gql`

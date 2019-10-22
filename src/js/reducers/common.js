@@ -5,6 +5,7 @@ const initialState = {
   loading: false,
   unread: [],
   user: {
+    id: null,
     starred: [],
   },
   plugins: {

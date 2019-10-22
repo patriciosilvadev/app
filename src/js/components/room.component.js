@@ -4,18 +4,21 @@ import UploadService from '../services/upload.service'
 import '../helpers/extensions'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import GraphqlService from '../services/graphql.service'
 import EventService from '../services/event.service'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
 import ConfirmModal from '../modals/confirm.modal'
-import { SearchOutlined, InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
-import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
+import { SearchOutlined, InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
+import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import MessageComponent from '../components/message.component'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, Avatar } from '@weekday/elements'
+import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
+import { Subject } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
 
 const Room = styled.div`
   background: white;
@@ -43,6 +46,7 @@ const HeaderTitle = styled.div`
   transition: opacity 0.5s;
   display: inline-block;
   margin-bottom: 2px;
+  width: max-content;
 `
 
 const HeaderText = styled.div`
@@ -80,9 +84,8 @@ const HeaderSearchContainer = styled.div`
   background: white;
   border-radius: 10px;
   padding 5px;
-  flex: 1;
-  transition: margin-left 0.5s;
-  margin-left: ${props => props.focus ? "100px" : "300px"};
+  transition: width 0.5s;
+  width: ${props => props.focus ? "300px" : "200px"};
   margin-right: 10px;
 `
 
@@ -90,6 +93,7 @@ const HeaderSearchInput = styled.input`
   font-size: 14px;
   font-weight: 400;
   flex: 1;
+  background: transparent;
   font-style: normal;
   color: #212123;
   border: none;
@@ -101,6 +105,7 @@ const HeaderSearchInput = styled.input`
 `
 
 const Messages = styled.div`
+  position: relative;
   flex: 1;
   overflow: scroll;
   width: 100%;
@@ -191,6 +196,8 @@ class RoomComponent extends React.Component {
       lastTypingTime: 0,
       typing: '',
       searchFocus: false,
+      searchResults: null,
+      searchQuery: '',
     }
 
     this.messagesRef = React.createRef()
@@ -201,6 +208,38 @@ class RoomComponent extends React.Component {
     this.deleteRoom = this.deleteRoom.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.composeTypingNames = this.composeTypingNames.bind(this)
+    this.fetchResults = this.fetchResults.bind(this)
+    this.onSearch = this.onSearch.bind(this)
+    this.onSearch$ = new Subject()
+    this.subscription = null
+  }
+
+  onSearch(e) {
+    const query = e.target.value
+    this.setState({ searchQuery: query })
+    this.onSearch$.next(query)
+  }
+
+  async fetchResults() {
+    if (this.state.searchQuery == '') return this.setState({ searchResults: null })
+
+    this.props.updateLoading(true)
+    this.props.updateError(null)
+
+    const query = this.state.searchQuery
+    const roomId = this.props.room.id
+
+    try {
+      const { data } = await GraphqlService.getInstance().searchMessages(roomId, query)
+
+      // Update our UI with our results
+      // Remove ourselves
+      this.setState({ searchResults: data.searchMessages })
+      this.props.updateLoading(false)
+    } catch (e) {
+      this.props.updateLoading(false)
+      this.props.updateError(e)
+    }
   }
 
   composeTypingNames() {
@@ -247,6 +286,9 @@ class RoomComponent extends React.Component {
   componentDidMount() {
     if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
 
+    // Here we handle the delay for the yser typing in the search field
+    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
+
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
     this.setState({ manualScrolling: false })
@@ -277,6 +319,7 @@ class RoomComponent extends React.Component {
 
   componentWillUnmount() {
     this.scrollRef.removeEventListener('scroll', this.handleScrollEvent)
+    if (this.subscription) this.subscription.unsubscribe()
   }
 
   updateUserStarred(starred) {
@@ -356,6 +399,7 @@ class RoomComponent extends React.Component {
             </Blocked>
           }
 
+          {/* Only show the header to people who can see this room */}
           {this.state.open &&
             <Header className="row">
               <Avatar
@@ -369,6 +413,7 @@ class RoomComponent extends React.Component {
                   {this.state.title}
                 </HeaderTitle>
 
+                {/* Member header subtitle */}
                 <div className="row">
                   <HeaderText>
                     {this.props.room.members.length.numberShorthand()} &nbsp;
@@ -398,6 +443,8 @@ class RoomComponent extends React.Component {
                 </div>
               </div>
 
+              <div className="flexer"></div>
+
               <HeaderSearchContainer
                 className="row"
                 focus={this.state.searchFocus}>
@@ -405,17 +452,23 @@ class RoomComponent extends React.Component {
                   htmlColor="#acb5bd"
                   fontSize="default"
                 />
+
                 <HeaderSearchInput
                   placeholder="Search"
+                  value={this.state.searchQuery}
+                  onChange={this.onSearch}
                   onFocus={() => this.setState({ searchFocus: true })}
                   onBlur={() => this.setState({ searchFocus: false })}
                 />
-                <CloseOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
-                  className="button hide"
-                  onClick={() => console.log('Reset')}
-                />
+
+                {this.state.searchResults &&
+                  <CloseOutlined
+                    htmlColor="#acb5bd"
+                    fontSize="default"
+                    className="button"
+                    onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
+                  />
+                }
               </HeaderSearchContainer>
 
               <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)}>
@@ -474,7 +527,8 @@ class RoomComponent extends React.Component {
           }
 
           <Messages ref={(ref) => this.scrollRef = ref}>
-            {this.state.open &&
+            {/* Primary message list + header */}
+            {this.state.open && !this.state.searchResults &&
               <React.Fragment>
                 <Welcome>
                   <WelcomeUser className="row">
@@ -499,6 +553,8 @@ class RoomComponent extends React.Component {
                     </WelcomeDescription>
                   }
 
+                  {/* If there is no room description */}
+                  {/* Then give the user the option to update it */}
                   {!this.props.room.description &&
                     <WelcomeDescriptionUpdate
                       className="button"
@@ -513,7 +569,34 @@ class RoomComponent extends React.Component {
                     return (
                       <MessageComponent
                         key={index}
+                        highlight={this.state.searchQuery}
                         message={message}
+                        setUpdateMessage={() => this.setState({ message, update: true, reply: false })}
+                        setReplyMessage={() => this.setState({ message, update: false, reply: true })}
+                      />
+                    )
+                  })}
+                </MessagesContainer>
+              </React.Fragment>
+            }
+
+            {/* Search result display */}
+            {/* We use the welcome style do display search info */}
+            {this.state.open && this.state.searchResults &&
+              <React.Fragment>
+                <Welcome>
+                  <WelcomeDescription>
+                    <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? "message" : "messages"}`} />
+                  </WelcomeDescription>
+                </Welcome>
+
+                <MessagesContainer ref={(ref) => this.messagesRef = ref}>
+                  {this.state.searchResults.map((message, index) => {
+                    return (
+                      <MessageComponent
+                        key={index}
+                        message={message}
+                        highlight={this.state.searchQuery}
                         setUpdateMessage={() => this.setState({ message, update: true, reply: false })}
                         setReplyMessage={() => this.setState({ message, update: false, reply: true })}
                       />
@@ -552,6 +635,8 @@ RoomComponent.propTypes = {
   createRoomMember: PropTypes.func,
   updateRoom: PropTypes.func,
   updateUserStarred: PropTypes.func,
+  updateLoading: PropTypes.func,
+  updateError: PropTypes.func,
   deleteRoom: PropTypes.func,
 }
 
@@ -561,6 +646,8 @@ const mapDispatchToProps = {
   fetchRoomMessages: page => fetchRoomMessages(page),
   createRoomMember: user => createRoomMember(user),
   updateRoom: updatedRoom => updateRoom(updatedRoom),
+  updateLoading: loading => updateLoading(loading),
+  updateError: error => updateError(error),
   updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),
   deleteRoom: roomId => deleteRoom(roomId),
 }

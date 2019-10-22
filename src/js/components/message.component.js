@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
@@ -162,6 +162,7 @@ const ParentMeta = styled.div`
 `
 
 export default function MessageComponent(props) {
+  const [message, setMessage] = useState(false)
   const [over, setOver] = useState(false)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [emoticons, setEmoticons] = useState(false)
@@ -188,45 +189,57 @@ export default function MessageComponent(props) {
     dispatch(createRoomMessageReaction(props.message.id, `${emoticon}__${common.user.id}__${common.user.name.split(' ')[0]}`))
   }
 
-  // Here we start processing the markdown
-  const compiledMessage = marked(props.message.message)
-
-  let matchArr
-  let lastOffset = 0
-
-  // prettier-ignore
-  const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
-  const partsOfTheMessageText = []
-
-  while ((matchArr = regex.exec(compiledMessage)) !== null) {
-    const previousText = compiledMessage.substring(lastOffset, matchArr.index)
-    if (previousText.length) partsOfTheMessageText.push(previousText)
-
-    lastOffset = matchArr.index + matchArr[0].length
-
-    const emoji = ReactDOMServer.renderToStaticMarkup(
-      <Emoji
-        emoji={matchArr[0]}
-        set="emojione"
-        size={22}
-        fallback={(em, props) => {
-          return em ? `:${em.short_names[0]}:` : props.emoji
-        }}
-      />
-    )
-
-    if (emoji) {
-      partsOfTheMessageText.push(emoji)
-    } else {
-      partsOfTheMessageText.push(matchArr[0])
-    }
+  const highlightMessage = (message, query) => {
+    var reg = new RegExp(query, 'gi')
+    return message.replace(reg, str => { return `<strong>${str}<strong>` })
   }
 
-  const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+  // prettier-ignore
+  useEffect(() => {
+      // Here we start processing the markdown
+      const htmlMessage = marked(props.message.message)
+      const compiledMessage = props.highlight
+                                  ? props.highlight != ""
+                                    ? highlightMessage(htmlMessage, props.highlight)
+                                    : htmlMessage
+                                  : htmlMessage
 
-  if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
+      // What we do here is replace the emoji symbol with one from EmojiOne
+      const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
+      const partsOfTheMessageText = []
+      let matchArr
+      let lastOffset = 0
 
-  const message = partsOfTheMessageText.join('')
+      while ((matchArr = regex.exec(compiledMessage)) !== null) {
+        const previousText = compiledMessage.substring(lastOffset, matchArr.index)
+        if (previousText.length) partsOfTheMessageText.push(previousText)
+
+        lastOffset = matchArr.index + matchArr[0].length
+
+        const emoji = ReactDOMServer.renderToStaticMarkup(
+          <Emoji
+            emoji={matchArr[0]}
+            set="emojione"
+            size={22}
+            fallback={(em, props) => {
+              return em ? `:${em.short_names[0]}:` : props.emoji
+            }}
+          />
+        )
+
+        if (emoji) {
+          partsOfTheMessageText.push(emoji)
+        } else {
+          partsOfTheMessageText.push(matchArr[0])
+        }
+      }
+
+      const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+
+      if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
+
+      setMessage(partsOfTheMessageText.join(''))
+  }, [props.highlight])
 
   // prettier-ignore
   return (
@@ -317,7 +330,7 @@ export default function MessageComponent(props) {
                       <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
                     </div>
                     <ParentMessage>
-                      {props.message.parent.message}
+                      <ReactMarkdown source={props.message.parent.message} />
                     </ParentMessage>
                   </div>
                 </ParentContainer>
@@ -382,6 +395,7 @@ export default function MessageComponent(props) {
 MessageComponent.propTypes = {
   id: PropTypes.string,
   message: PropTypes.object,
+  highlight: PropTypes.string,
   setReplyMessage: PropTypes.any,
   setUpdateMessage: PropTypes.any,
 }
