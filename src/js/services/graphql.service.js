@@ -77,6 +77,7 @@ export default class GraphqlService {
             theme
             starred
             description
+            status
             image
             createdAt
             updatedAt
@@ -319,12 +320,14 @@ export default class GraphqlService {
               name
               username
               image
+              status
             }
             members {
               user {
                 id
                 image
                 name
+                status
               }
             }
             team {
@@ -357,6 +360,7 @@ export default class GraphqlService {
                 name
                 image
                 username
+                status
                 color
               }
               message
@@ -366,6 +370,7 @@ export default class GraphqlService {
               id
               name
               image
+              status
               username
               color
             }
@@ -515,6 +520,7 @@ export default class GraphqlService {
               username
               image
               createdAt
+              status
             }
             admin
           }
@@ -559,6 +565,7 @@ export default class GraphqlService {
             members {
               user {
                 id
+                status
                 name
                 color
                 role
@@ -569,6 +576,7 @@ export default class GraphqlService {
             user {
               id
               name
+              status
               role
               username
               image

@@ -9,7 +9,7 @@ import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
-import { createRoom, fetchRooms, fetchTeam } from '../actions'
+import { createRoom, fetchRooms, fetchTeam, updateUserStatus } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
 import { GroupWorkOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
@@ -44,6 +44,12 @@ const HeaderTitle = styled.div`
   transition: opacity 0.5s;
   display: inline-block;
   flex: 1;
+`
+
+const HeaderTeam = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: #475669;
 `
 
 const HeaderSubtitle = styled.div`
@@ -133,6 +139,7 @@ class RoomsComponent extends React.Component {
       roomPopup: false,
       accountModal: false,
       accountMenu: false,
+      statusMenu: false,
       starred: [],
       public: [],
       private: [],
@@ -276,13 +283,28 @@ class RoomsComponent extends React.Component {
           />
 
           <div className="column w-100">
+            <HeaderTeam>
+              {this.props.team.name}
+            </HeaderTeam>
+
             <HeaderTitle>
               {this.props.common.user.name}
             </HeaderTitle>
 
-            <HeaderSubtitle>
-              {this.props.team.name}
-            </HeaderSubtitle>
+            <QuickInputComponent
+              visible={this.state.statusMenu}
+              width={300}
+              direction="left-bottom"
+              handleDismiss={() => this.setState({ statusMenu: false })}
+              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(status))}
+              placeholder={this.props.common.user.status}>
+
+              <HeaderSubtitle
+                className="button"
+                onClick={() => this.setState({ statusMenu: true })}>
+                {this.props.common.user.status}
+              </HeaderSubtitle>
+            </QuickInputComponent>
           </div>
 
           <Popup
@@ -486,7 +508,9 @@ class RoomsComponent extends React.Component {
 
                 // Get the other users' presence
                 const otherMember = room.members.filter(member => member.user.id != this.props.common.user.id).flatten()
-                const heartbeat = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
+                const otherMemberStatus = otherMember.user.status
+                const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
+                const heartbeat = otherMemberPresence ? otherMemberPresence.heartbeat : null
 
                 return (
                   <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
@@ -497,7 +521,7 @@ class RoomsComponent extends React.Component {
                       title={title}
                       image={image}
                       icon={null}
-                      excerpt={room.excerpt}
+                      excerpt={otherMemberStatus}
                       public={room.public}
                       private={room.private}
                     />
@@ -524,9 +548,11 @@ RoomsComponent.propTypes = {
   fetchRooms: PropTypes.func,
   fetchStarredRooms: PropTypes.func,
   fetchTeam: PropTypes.func,
+  updateUserStatus: PropTypes.func,
 }
 
 const mapDispatchToProps = {
+  updateUserStatus: status => updateUserStatus(status),
   createRoom: (title, description, image, team, user) => createRoom(title, description, image, team, user),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),

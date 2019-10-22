@@ -16,6 +16,10 @@ export default (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
       case 'USER':
+        draft.user = action.payload
+        break
+
+      case 'UPDATE_USER':
         draft.user = {
           ...state.user,
           ...action.payload,

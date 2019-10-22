@@ -34,6 +34,39 @@ export function updateUserStarred(userId, roomId, starred) {
   }
 }
 
+export function updateUserStatus(status) {
+  return async (dispatch, getState) => {
+    const { team, common } = getState()
+    const userId = common.user.id
+    const teamId = team.id
+
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      await GraphqlService.getInstance().updateUser(userId, { status })
+
+      dispatch(updateLoading(false))
+
+      // Update the user on our side
+      dispatch({
+        type: 'UPDATE_USER',
+        payload: { status },
+      })
+
+      // Update the room excerpt every else
+      dispatch({
+        type: 'UPDATE_ROOM_USER_STATUS',
+        payload: { userId, status },
+        sync: teamId,
+      })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
 export function initialize(ids) {
   return async (dispatch, getState) => {
     // Join all these SocketIO rooms
