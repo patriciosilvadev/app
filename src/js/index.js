@@ -29,6 +29,7 @@ import teams from './reducers/teams'
 import presences from './reducers/presences'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
+import notifications from './reducers/notifications'
 import './environment'
 import { createLogger } from 'redux-logger'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
@@ -78,6 +79,7 @@ const store = createStore(
     room,
     rooms,
     presences,
+    notifications,
   }),
   applyMiddleware(
     thunk,

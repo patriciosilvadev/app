@@ -459,9 +459,45 @@ export default class GraphqlService {
     })
   }
 
+  notifications(userId, page) {
+    return this.client.query({
+      query: gql`
+        query notifications($userId: String, $page: Float) {
+          notifications(userId: $userId, page: $page) {
+            id
+            title
+            body
+            read
+            type
+            meta
+            createdAt
+          }
+        }
+      `,
+      variables: {
+        userId,
+        page,
+      },
+    })
+  }
+
   /**
    * Mutations
    */
+
+ updateNotificationRead(notificationId, read) {
+   return this.client.mutate({
+     mutation: gql`
+       mutation updateNotificationRead($notificationId: String, $read: Boolean) {
+         updateNotificationRead(notificationId: $notificationId, read: $read)
+       }
+     `,
+     variables: {
+       notificationId,
+       read,
+     },
+   })
+ }
 
   updateUser(userId, payload) {
     return this.client.mutate({

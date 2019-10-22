@@ -3,3 +3,4 @@
  export * from './teams'
  export * from './team'
  export * from './common'
+ export * from './notifications'
