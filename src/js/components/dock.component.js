@@ -12,6 +12,7 @@ import { NotificationsNoneOutlined, AddOutlined, AccountCircleOutlined, ExitToAp
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
+import NotificationsComponent from '../components/notifications.component'
 
 const Dock = styled.div`
   width: 70px;
@@ -34,7 +35,7 @@ const Badge = styled.span`
   border-radius: 50%;
   background-color: #007af5;
   border: 2px solid #040B1C;
-`;
+`
 
 export default function DockComponent(props) {
   const [pluginId, setPluginId] = useState(null)
@@ -120,17 +121,9 @@ export default function DockComponent(props) {
         width={275}
         direction="left-top"
         content={
-          <div className="column flexer">
-            <Menu
-              items={notifications.map(n => {
-                return {
-                  text: n.title,
-                  label: n.body,
-                  onClick: (e) => setNotificationsMenu(false)
-                },
-              })}
-            />
-          </div>
+          <NotificationsComponent
+            notifications={notifications}
+          />
         }>
         <Avatar
           dark
