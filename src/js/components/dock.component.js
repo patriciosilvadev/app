@@ -48,7 +48,7 @@ export default function DockComponent(props) {
   const notifications = useSelector(state => state.notifications)
   const [lastPathname, setLastPathname] = useState('')
   const [hasNotification, setHasNotification] = useState(false)
-  const [notificationsMenu, setNotificationsMenu] = useState(true)
+  const [notificationsMenu, setNotificationsMenu] = useState(false)
 
   // When the user creates a team from quick input component
   const handleNewTeamAccept = (name) => {
@@ -82,6 +82,8 @@ export default function DockComponent(props) {
       })}
 
       {teams.map((t, index) => {
+        const unread = !!common.unread.filter((row) => t.id == row.doc.team).flatten()
+
         return (
           <Link
             key={index}
@@ -89,6 +91,7 @@ export default function DockComponent(props) {
             style={{ opacity: lastPathname != "starred" && t.id == team.id ? 1 : 0.5 }}>
             <Avatar
               dark
+              badge={unread}
               size="medium"
               image={t.image}
               title={t.name}

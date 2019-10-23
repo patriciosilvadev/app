@@ -10,15 +10,15 @@ import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
 import ConfirmModal from '../modals/confirm.modal'
-import { SearchOutlined, InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
-import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages } from '../actions'
 import MessageComponent from '../components/message.component'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+import { SearchOutlined, InfoOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, GroupOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Room = styled.div`
   background: white;
@@ -472,8 +472,8 @@ class RoomComponent extends React.Component {
               </HeaderSearchContainer>
 
               <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)}>
-                {this.state.starred && <Star htmlColor="#EBB403" fontSize="default" />}
-                {!this.state.starred && <StarBorder htmlColor="#babec9" fontSize="default" />}
+                {this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#EBB403" size="lg" />}
+                {!this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#babec9" size="lg" />}
               </HeaderButton>
 
               <Popup
@@ -485,8 +485,8 @@ class RoomComponent extends React.Component {
                   <div className="column flexer">
                     <Menu
                       items={[
-                        { icon: <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
-                        { icon: <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
+                        { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
+                        { icon: <FontAwesomeIcon icon={["fal", "eye-slash"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
                       ]}
                     />
                   </div>
@@ -494,32 +494,35 @@ class RoomComponent extends React.Component {
                 <HeaderButton
                   className="button"
                   onClick={() => this.setState({ visibilityMenu: true })}>
-                  {this.props.room.public && <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />}
-                  {!this.props.room.public && <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />}
+                  {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />}
+                  {!this.props.room.public && <FontAwesomeIcon icon={["fal", "eye-slash"]} color="#acb5bd" size="lg" />}
                 </HeaderButton>
               </Popup>
 
               {!this.props.room.private &&
-                <InfoOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
+                <FontAwesomeIcon
+                  icon={["fal", "info-circle"]}
+                  color="#acb5bd"
+                  size="lg"
                   className="ml-15 button"
                   onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
                 />
               }
 
               {!this.props.room.private &&
-                <GroupOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
+                <FontAwesomeIcon
+                  icon={["fal", "user-friends"]}
+                  color="#acb5bd"
+                  size="lg"
                   className="ml-15 button"
                   onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
                 />
               }
 
-              <DeleteOutlined
-                htmlColor="#acb5bd"
-                fontSize="default"
+              <FontAwesomeIcon 
+                icon={["fal", "trash-alt"]}
+                color="#acb5bd"
+                size="lg"
                 className="ml-15 button"
                 onClick={() => this.setState({ confirmDeleteModal: true })}
               />

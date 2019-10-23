@@ -33,6 +33,15 @@ import notifications from './reducers/notifications'
 import './environment'
 import { createLogger } from 'redux-logger'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { 
+  faStar, 
+  faEye, 
+  faEyeSlash, 
+  faInfoCircle, 
+  faUserFriends,
+  faTrashAlt,
+} from '@fortawesome/pro-light-svg-icons'
 
 const logger = createLogger({
   collapsed: true
@@ -83,7 +92,7 @@ const store = createStore(
   }),
   applyMiddleware(
     thunk,
-    sync,
+    sync, 
     //logger,
   )
 )
@@ -97,6 +106,16 @@ const apollo = new ApolloClient({
   link: new HttpLink({ uri: GRAPHQL_HOST }),
   cache: new InMemoryCache(),
 })
+
+// Font awesome lib
+library.add(
+  faStar, 
+  faEye, 
+  faEyeSlash, 
+  faInfoCircle, 
+  faUserFriends,
+  faTrashAlt,
+)
 
 // prettier-ignore
 ReactDOM.render(

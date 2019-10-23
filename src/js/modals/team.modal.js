@@ -7,9 +7,9 @@ import PropTypes from 'prop-types'
 import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
-import { AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
+import { AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
 
 const Header = styled.div`
   flex: 1;

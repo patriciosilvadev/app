@@ -18,7 +18,7 @@ const IconContainer = styled.div`
 
 export default function ToolbarComponent(props) {
   return null
-  
+
   return (
     <Toolbar className="column">
       <IconContainer>
@@ -33,6 +33,4 @@ export default function ToolbarComponent(props) {
   )
 }
 
-ToolbarComponent.propTypes = {
-
-}
+ToolbarComponent.propTypes = {}

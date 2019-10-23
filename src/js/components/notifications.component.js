@@ -112,7 +112,7 @@ export default function NotificationsComponent(props) {
         })}
 
         <LoadContainer className="row justify-content-center">
-          <LoadText className="button" onClick={() => handleLoadButtonClick()}>Loading more</LoadText>
+          <LoadText className="button" onClick={() => handleLoadButtonClick()}>Load more</LoadText>
         </LoadContainer>
       </Inner>
     </Container>

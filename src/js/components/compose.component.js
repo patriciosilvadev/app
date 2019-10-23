@@ -404,7 +404,13 @@ class ComposeComponent extends React.Component {
         const { uri, mime, size, name } = await result.json()
 
         // Add the new files & increase the index
-        this.setState({ attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]] }, () => pour())
+        // And pour again to process the next file
+        this.setState({
+          attachments: [
+            ...this.state.attachments,
+            ...[{ uri, mime, size, name }]
+          ]
+        }, () => pour())
       } catch (e) {
         this.setState({ loading: false })
         this.setState({ error: e })

@@ -11,9 +11,9 @@ import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchTeam, updateUserStatus } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
-import { GroupWorkOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
+import { SettingsOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
+import { GroupWorkOutlined, ExitToAppOutlined, HelpOutlineOutlined } from '@material-ui/icons'
 import QuickInputComponent from '../components/quick-input.component'
 
 const Rooms = styled.div`
