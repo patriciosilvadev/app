@@ -424,7 +424,7 @@ class RoomComponent extends React.Component {
                       teamId={this.props.team.id}
                       visible={this.state.userMenu}
                       width={250}
-                      direction="right-bottom"
+                      direction="left-bottom"
                       handleDismiss={() => this.setState({ userMenu: false })}
                       handleAccept={({ user }) => this.createRoomMember(user)}>
                       <div
@@ -434,7 +434,7 @@ class RoomComponent extends React.Component {
                           className="mr-5"
                           icon={["fal", "plus"]} 
                           color="#007af5" 
-                          size="sm" 
+                          size="xs" 
                         />
                         <HeaderLink>Add New</HeaderLink>
                       </div>
@@ -479,6 +479,16 @@ class RoomComponent extends React.Component {
                 {!this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#babec9" size="lg" />}
               </HeaderButton>
 
+              {!this.props.room.private &&
+                <FontAwesomeIcon
+                  icon={["fal", "info-circle"]}
+                  color="#acb5bd"
+                  size="lg"
+                  className="ml-15 button"
+                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
+                />
+              }
+
               <Popup
                 handleDismiss={() => this.setState({ visibilityMenu: false })}
                 visible={this.state.visibilityMenu}
@@ -504,16 +514,6 @@ class RoomComponent extends React.Component {
 
               {!this.props.room.private &&
                 <FontAwesomeIcon
-                  icon={["fal", "info-circle"]}
-                  color="#acb5bd"
-                  size="lg"
-                  className="ml-15 button"
-                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
-                />
-              }
-
-              {!this.props.room.private &&
-                <FontAwesomeIcon
                   icon={["fal", "user-friends"]}
                   color="#acb5bd"
                   size="lg"
@@ -523,7 +523,7 @@ class RoomComponent extends React.Component {
               }
 
               <FontAwesomeIcon 
-                icon={["fal", "trash-alt"]}
+                icon={["fal", "trash"]}
                 color="#acb5bd"
                 size="lg"
                 className="ml-15 button"

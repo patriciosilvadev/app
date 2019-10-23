@@ -41,6 +41,7 @@ import {
   faInfoCircle, 
   faUserFriends,
   faTrashAlt,
+  faTrash,
   faSmile,
   faPaperclip,
   faPaperPlane,
@@ -57,8 +58,11 @@ import {
   faCog,
   faQuestionCircle,
   faSignOut,
+  faSyncAlt,
 } from '@fortawesome/pro-light-svg-icons'
-import { faSearch } from '@fortawesome/pro-regular-svg-icons'
+import { 
+  faSearch,
+} from '@fortawesome/pro-regular-svg-icons'
 
 const logger = createLogger({
   collapsed: true
@@ -132,6 +136,7 @@ library.add(
   faInfoCircle, 
   faUserFriends,
   faTrashAlt,
+  faTrash,
   faSmile,
   faPaperclip,
   faPaperPlane,
@@ -149,6 +154,7 @@ library.add(
   faCog,
   faQuestionCircle,
   faSignOut,
+  faSyncAlt,
 )
 
 // prettier-ignore

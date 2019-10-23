@@ -36,7 +36,7 @@ const Column = styled.div`
 const Supported = styled.div`
   font-size: 12px;
   font-weight: 600;
-  color: #007af5;
+  color: #00a8ff;
   margin-left: 5px;
 `
 
@@ -154,7 +154,11 @@ export default function RoomModal(props) {
                             onClick={() => fileRef.current.click()}
                           />
 
-                          <Link onClick={() => fileRef.current.click()}>Update image</Link>
+                          <Link 
+                            className="button" 
+                            onClick={() => fileRef.current.click()}>
+                            Update image
+                          </Link>
                         </div>
 
                         <Column className="column">
@@ -175,7 +179,7 @@ export default function RoomModal(props) {
 
                           <div className="row">
                             <DiMarkdown
-                              color="#007af5"
+                              color="#00a8ff"
                               size={18}
                             />
                             <Supported>
@@ -267,7 +271,7 @@ export default function RoomModal(props) {
                         dispatch(createRoomMember(user))
                         setUserMenu(false)
                       }}>
-                      <AddButton className="row" onClick={() => setUserMenu(true)}>
+                      <AddButton className="button row" onClick={() => setUserMenu(true)}>
                         <Avatar
                           className="mr-5"
                           size="medium"

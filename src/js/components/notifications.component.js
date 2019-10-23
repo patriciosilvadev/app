@@ -112,8 +112,16 @@ export default function NotificationsComponent(props) {
           )
         })}
 
-        <LoadContainer className="row justify-content-center">
-          <LoadText className="button" onClick={() => handleLoadButtonClick()}>Load more</LoadText>
+        <LoadContainer 
+          onClick={() => handleLoadButtonClick()}
+          className="button row justify-content-center">
+          <FontAwesomeIcon 
+            icon={["fal", "sync-alt"]}
+            color="#adb5bd"
+            size="sm"
+            className="mt-5 mb-5"
+          />
+          <LoadText>Load more</LoadText>
         </LoadContainer>
       </Inner>
     </Container>

@@ -459,11 +459,11 @@ class RoomsComponent extends React.Component {
               direction="right-bottom"
               handleDismiss={() => this.setState({ roomPopup: false })}
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
-              placeholder="New room name">
+              placeholder="New channel name">
               <FontAwesomeIcon 
                 icon={["fal", "plus-circle"]} 
                 color="#475669" 
-                size="sm" 
+                size="lg" 
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
               />
