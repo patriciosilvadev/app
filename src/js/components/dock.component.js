@@ -6,13 +6,11 @@ import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { fetchTeams, createTeam, fetchNotifications } from '../actions'
 import PropTypes from 'prop-types'
-import TeamModal from '../modals/team.modal'
-import AccountModal from '../modals/account.modal'
-import { NotificationsNoneOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Dock = styled.div`
   width: 70px;
@@ -112,7 +110,11 @@ export default function DockComponent(props) {
           dark
           className="button"
           onClick={(e) => setTeamPopup(true)}>
-          <AddOutlined htmlColor="#007af5" fontSize="default" />
+          <FontAwesomeIcon 
+            icon={["fal", "plus"]} 
+            color="#007af5" 
+            size="sm" 
+          />
         </Avatar>
       </QuickInputComponent>
 
@@ -126,18 +128,17 @@ export default function DockComponent(props) {
         content={
           <NotificationsComponent />
         }>
-        <Avatar
-          dark
+        <div 
           className="button"
           onClick={(e) => setNotificationsMenu(true)}>
           {hasNotification && <Badge />}
-
-          <NotificationsNoneOutlined
-            htmlColor="white"
-            size="default"
+          <FontAwesomeIcon 
+            icon={["fal", "bell"]} 
+            color="white" 
+            size="lg" 
             style={{ opacity: hasNotification ? 1 : 0.5}}
           />
-        </Avatar>
+        </div>
       </Popup>
     </Dock>
   )

@@ -9,7 +9,7 @@ import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
-import { AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Header = styled.div`
   flex: 1;
@@ -429,10 +429,11 @@ export default function TeamModal(props) {
                         onChange={(e) => setUsernames(e.target.value)}
                       />
 
-                      <AddCircleOutlined
-                        htmlColor="#EBEDEF"
+                      <FontAwesomeIcon 
+                        icon={["fal", "plus-circle"]} 
+                        color="#EBEDEF" 
+                        size="lg" 
                         className="mr-20 button"
-                        fontSize="default"
                         onClick={createTeamMembers}
                       />
                     </Usernames>
@@ -446,9 +447,10 @@ export default function TeamModal(props) {
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
                           label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
 
-                          <DeleteOutlined
-                            htmlColor="#007af5"
-                            fontSize="default"
+                          <FontAwesomeIcon 
+                            icon={["fal", "trash-alt"]} 
+                            color="#007af5" 
+                            size="lg" 
                             onClick={() => handleDeleteClick(member)}
                             className="button"
                           />

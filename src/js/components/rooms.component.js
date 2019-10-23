@@ -12,9 +12,8 @@ import PropTypes from 'prop-types'
 import { createRoom, fetchRooms, fetchTeam, updateUserStatus } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
-import { SettingsOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
-import { GroupWorkOutlined, ExitToAppOutlined, HelpOutlineOutlined } from '@material-ui/icons'
 import QuickInputComponent from '../components/quick-input.component'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Rooms = styled.div`
   width: 300px;
@@ -339,20 +338,22 @@ class RoomsComponent extends React.Component {
                   />
                   */}
                 </AccountMenuHeader>
+
                 <Menu
                   items={[
-                    { icon: <SettingsOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Account setting", onClick: (e) => this.setState({ accountMenu: false, accountModal: true }) },
-                    { icon: <GroupWorkOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Team settings", onClick: (e) => this.setState({ accountMenu: false, teamModal: true }) },
-                    { icon: <ExitToAppOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Signout", onClick: (e) => this.setState({ accountMenu: false }, () => this.signout()) },
-                    { icon: <HelpOutlineOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Help", onClick: (e) => this.setState({ accountMenu: false }) },
+                    { icon: <FontAwesomeIcon icon={["fal", "cog"]} color="#acb5bd" size="lg" />, text: "Account setting", onClick: (e) => this.setState({ accountMenu: false, accountModal: true }) },
+                    { icon: <FontAwesomeIcon icon={["fal", "users-cog"]} color="#acb5bd" size="lg" />, text: "Team settings", onClick: (e) => this.setState({ accountMenu: false, teamModal: true }) },
+                    { icon: <FontAwesomeIcon icon={["fal", "sign-out"]} color="#acb5bd" size="lg" />, text: "Signout", onClick: (e) => this.setState({ accountMenu: false }, () => this.signout()) },
+                    { icon: <FontAwesomeIcon icon={["fal", "question-circle"]} color="#acb5bd" size="lg" />, text: "Help", onClick: (e) => this.setState({ accountMenu: false }) },
                   ]}
                 />
               </div>
             }>
             <div>
-              <KeyboardArrowDownOutlined
-                htmlColor="#475669"
-                fontSize="default"
+              <FontAwesomeIcon 
+                icon={["fal", "chevron-down"]} 
+                color="#475669" 
+                size="sm" 
                 className="button"
                 onClick={() => this.setState({ accountMenu: true })}
               />
@@ -362,9 +363,10 @@ class RoomsComponent extends React.Component {
 
         <SearchContainer className="row">
           <SearchInner className="row">
-            <Search
-              htmlColor="#475669"
-              fontSize="default"
+            <FontAwesomeIcon 
+              icon={["far", "search"]} 
+              color="#475669" 
+              size="sm" 
               className="ml-15"
             />
 
@@ -458,9 +460,10 @@ class RoomsComponent extends React.Component {
               handleDismiss={() => this.setState({ roomPopup: false })}
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
               placeholder="New room name">
-              <AddCircleOutline
-                htmlColor="#475669"
-                fontSize="small"
+              <FontAwesomeIcon 
+                icon={["fal", "plus-circle"]} 
+                color="#475669" 
+                size="sm" 
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
               />

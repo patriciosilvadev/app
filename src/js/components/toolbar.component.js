@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { SearchOutlined } from '@material-ui/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Toolbar = styled.div`
   display: flex;
@@ -22,12 +22,7 @@ export default function ToolbarComponent(props) {
   return (
     <Toolbar className="column">
       <IconContainer>
-        <SearchOutlined
-          htmlColor="#acb5bd"
-          fontSize="default"
-          className="button"
-          onClick={() => this.setState({ accountMenu: true })}
-        />
+
       </IconContainer>
     </Toolbar>
   )

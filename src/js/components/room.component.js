@@ -17,7 +17,6 @@ import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
-import { SearchOutlined, InfoOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, GroupOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Room = styled.div`
@@ -431,10 +430,11 @@ class RoomComponent extends React.Component {
                       <div
                         className="ml-10 row button"
                         onClick={() => this.setState({ userMenu:true })}>
-                        <AddOutlined
-                          htmlColor="#007af5"
-                          fontSize="small"
+                        <FontAwesomeIcon 
                           className="mr-5"
+                          icon={["fal", "plus"]} 
+                          color="#007af5" 
+                          size="sm" 
                         />
                         <HeaderLink>Add New</HeaderLink>
                       </div>
@@ -448,9 +448,11 @@ class RoomComponent extends React.Component {
               <HeaderSearchContainer
                 className="row"
                 focus={this.state.searchFocus}>
-                <SearchOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
+                <FontAwesomeIcon 
+                  icon={["far", "search"]} 
+                  color="#acb5bd" 
+                  size="sm" 
+                  className="ml-10 mr-10"
                 />
 
                 <HeaderSearchInput
@@ -462,10 +464,11 @@ class RoomComponent extends React.Component {
                 />
 
                 {this.state.searchResults &&
-                  <CloseOutlined
-                    htmlColor="#acb5bd"
-                    fontSize="default"
+                  <FontAwesomeIcon 
                     className="button"
+                    icon={["fal", "times"]} 
+                    color="#acb5bd" 
+                    size="lg" 
                     onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
                   />
                 }
@@ -486,7 +489,7 @@ class RoomComponent extends React.Component {
                     <Menu
                       items={[
                         { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
-                        { icon: <FontAwesomeIcon icon={["fal", "eye-slash"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
+                        { icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
                       ]}
                     />
                   </div>
@@ -495,7 +498,7 @@ class RoomComponent extends React.Component {
                   className="button"
                   onClick={() => this.setState({ visibilityMenu: true })}>
                   {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />}
-                  {!this.props.room.public && <FontAwesomeIcon icon={["fal", "eye-slash"]} color="#acb5bd" size="lg" />}
+                  {!this.props.room.public && <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />}
                 </HeaderButton>
               </Popup>
 

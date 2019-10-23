@@ -8,10 +8,10 @@ import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
 import { DiMarkdown } from 'react-icons/di'
-import { AddOutlined, AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
 import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Row = styled.div`
   background-color: transparent;
@@ -256,7 +256,7 @@ export default function RoomModal(props) {
                       teamId={team.id}
                       visible={userMenu}
                       width={250}
-                      direction="right-bottom"
+                      direction="left-bottom"
                       handleDismiss={() => setUserMenu(false)}
                       handleAccept={({ user }) => {
                         // Check to see if there are already people
@@ -275,9 +275,10 @@ export default function RoomModal(props) {
                           image={null}
                           color="#007af5"
                           title="">
-                          <AddOutlined
-                            htmlColor="#00a8ff"
-                            fontSize="small"
+                          <FontAwesomeIcon 
+                            icon={["fal", "plus"]} 
+                            color="#00a8ff" 
+                            size="sm" 
                           />
                         </Avatar>
                         <Link className="ml-10">Add new Member</Link>

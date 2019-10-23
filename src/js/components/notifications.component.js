@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchNotifications, updateNotificationRead } from '../actions'
 import { Spinner } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Container = styled.div`
   width: 100%;

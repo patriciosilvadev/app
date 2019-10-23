@@ -37,11 +37,28 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { 
   faStar, 
   faEye, 
-  faEyeSlash, 
+  faLowVision, 
   faInfoCircle, 
   faUserFriends,
   faTrashAlt,
+  faSmile,
+  faPaperclip,
+  faPaperPlane,
+  faAt,
+  faPlusCircle,
+  faPlus,
+  faCheck,
+  faTimes,
+  faBell,
+  faPen,
+  faReply,
+  faChevronDown,
+  faUsersCog,
+  faCog,
+  faQuestionCircle,
+  faSignOut,
 } from '@fortawesome/pro-light-svg-icons'
+import { faSearch } from '@fortawesome/pro-regular-svg-icons'
 
 const logger = createLogger({
   collapsed: true
@@ -111,10 +128,27 @@ const apollo = new ApolloClient({
 library.add(
   faStar, 
   faEye, 
-  faEyeSlash, 
+  faLowVision, 
   faInfoCircle, 
   faUserFriends,
   faTrashAlt,
+  faSmile,
+  faPaperclip,
+  faPaperPlane,
+  faAt,
+  faPlusCircle,
+  faPlus,
+  faCheck,
+  faTimes,
+  faSearch,
+  faBell,
+  faPen,
+  faReply,
+  faChevronDown,
+  faUsersCog,
+  faCog,
+  faQuestionCircle,
+  faSignOut,
 )
 
 // prettier-ignore

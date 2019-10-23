@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import styled from 'styled-components'
@@ -9,7 +8,8 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Header = styled.div`
   flex: 1;

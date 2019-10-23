@@ -6,13 +6,12 @@ import moment from 'moment'
 import PropTypes from 'prop-types'
 import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
-import { CheckOutlined, SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
-import { IoIosSend } from 'react-icons/io'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const UpdateContainer = styled.div`
   position: absolute;
@@ -525,10 +524,11 @@ class ComposeComponent extends React.Component {
                   {this.props.message.message}
                 </ReplyMessage>
               </div>
-              <CloseOutlined
-                htmlColor="#524150"
-                fontSize="large"
-                className="button"
+              <FontAwesomeIcon 
+                className="ml-15 button"
+                icon={["fal", "times"]} 
+                color="#565456" 
+                size="lg" 
                 onClick={this.props.clearMessage}
               />
             </ReplyContainer>
@@ -570,25 +570,28 @@ class ComposeComponent extends React.Component {
                 onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
             }>
-            <SentimentSatisfiedOutlined
-              htmlColor="#565456"
-              className="button ml-15"
-              fontSize="default"
+            <FontAwesomeIcon 
+              className="ml-15 button"
+              icon={["fal", "smile"]} 
+              color="#565456" 
+              size="lg" 
               onClick={() => this.setState({ emoticonMenu: true })}
             />
           </Popup>
 
-          <AttachFileOutlined
-            htmlColor="#565456"
-            fontSize="default"
+          <FontAwesomeIcon 
             className="ml-15 button"
+            icon={["fal", "paperclip"]} 
+            color="#565456" 
+            size="lg" 
             onClick={() => this.fileRef.click()}
           />
 
-          <AlternateEmailOutlined
-            htmlColor="#565456"
-            fontSize="default"
+          <FontAwesomeIcon 
             className="ml-15 button"
+            icon={["fal", "at"]} 
+            color="#565456" 
+            size="lg" 
             onClick={() => {
               this.insertAtCursor("@")
               this.filterMembers("")
@@ -596,19 +599,21 @@ class ComposeComponent extends React.Component {
           />
 
           {!this.props.update &&
-            <IoIosSend
-              color="#565456"
+            <FontAwesomeIcon 
               className="ml-15 button"
-              size={30}
+              icon={["fal", "paper-plane"]} 
+              color="#565456" 
+              size="lg" 
               onClick={this.onSend}
             />
           }
 
           {this.props.update &&
-            <CheckOutlined
+            <FontAwesomeIcon 
               className="ml-15 button"
-              htmlColor="#565456"
-              fontSize="default"
+              icon={["fal", "check"]} 
+              color="#565456" 
+              size="lg" 
               onClick={this.onSend}
             />
           }

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import { Button, Modal } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function ConfirmModal({ onOkay, onCancel, text, title }) {
   // prettier-ignore

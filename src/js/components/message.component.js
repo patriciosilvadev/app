@@ -8,11 +8,10 @@ import PropTypes from 'prop-types'
 import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
-import { DeleteOutlined, Create, SentimentSatisfiedOutlined, ReplyOutlined } from '@material-ui/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage } from '../actions'
-import ComposeComponent from './compose.component'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -286,32 +285,36 @@ export default function MessageComponent(props) {
                       />
                     }>
 
-                    <SentimentSatisfiedOutlined
-                      htmlColor="#CFD4D9"
-                      fontSize="small"
+                    <FontAwesomeIcon 
+                      icon={["fal", "smile"]} 
+                      color="#CFD4D9" 
+                      size="sm" 
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
                   </Popup>
 
-                  <DeleteOutlined
-                    htmlColor="#CFD4D9"
-                    fontSize="small"
+                  <FontAwesomeIcon 
+                    icon={["fal", "trash-alt"]} 
+                    color="#CFD4D9" 
+                    size="sm" 
                     className="button mr-10"
                     onClick={() => setConfirmDeleteModal(true)}
                   />
 
-                  <Create
-                    htmlColor="#CFD4D9"
-                    fontSize="small"
+                  <FontAwesomeIcon 
+                    icon={["fal", "pen"]} 
+                    color="#CFD4D9" 
+                    size="sm" 
                     className="button mr-10"
                     onClick={props.setUpdateMessage}
                   />
 
-                  <ReplyOutlined
-                    htmlColor="#CFD4D9"
-                    fontSize="small"
-                    className="button"
+                  <FontAwesomeIcon 
+                    icon={["fal", "reply"]} 
+                    color="#CFD4D9" 
+                    size="sm" 
+                    className="button mr-10"
                     onClick={props.setReplyMessage}
                   />
                 </Tools>
