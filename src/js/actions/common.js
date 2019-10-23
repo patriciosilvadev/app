@@ -75,8 +75,9 @@ export function initialize(ids) {
     // Handle incoming messages
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
-      MessagingService.getInstance().join(roomId)
       const room = await GraphqlService.getInstance().room(roomId)
+      if (!room.data.room) return
+      MessagingService.getInstance().join(roomId)
       dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
     })
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
@@ -84,8 +85,9 @@ export function initialize(ids) {
       dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
-      MessagingService.getInstance().join(teamId)
       const team = await GraphqlService.getInstance().team(teamId)
+      if (!team.data.team) return
+      MessagingService.getInstance().join(teamId)
       dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
     })
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {

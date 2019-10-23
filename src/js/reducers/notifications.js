@@ -5,6 +5,10 @@ const initialState = []
 export default (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
+      case 'ADD_NOTIFICATION':
+        draft.push(action.payload)
+        break
+
       case 'NOTIFICATIONS':
         draft.push(...action.payload)
         break
