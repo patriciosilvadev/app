@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage } from '../actions'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { youtubeUrlParser, vimeoUrlParser } from '../helpers/util'
+import { youtubeUrlParser, vimeoUrlParser, imageUrlParser } from '../helpers/util'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -168,11 +168,32 @@ const PreviewContainer = styled.div`
   left: 0px;
   width: 100%;
   height: 100%;
+  z-index: 1;
   background-color: rgba(4, 11, 28, 0.75);
+`
+
+const PreviewClose = styled.div`
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  width: max-content;
+  height: max-content;
+  z-index: 1;
+  padding: 20px;
+`
+
+const PreviewImage = styled.div`
+  width: 80%;
+  height: 80%;
+  background-position: center center;
+  background-image: url(${props => props.image});
+  background-size: contain;
+  border-radius: 5px;
 `
 
 export default memo(props => {
   const [message, setMessage] = useState(false)
+  const [preview, setPreview] = useState(null)
   const [over, setOver] = useState(false)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [emoticons, setEmoticons] = useState(false)
@@ -181,6 +202,7 @@ export default memo(props => {
   const common = useSelector(state => state.common)
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
+  const [images, setImages] = useState([])
 
   const handleDeleteRoomMessage = () => {
     dispatch(deleteRoomMessage(props.message.id))
@@ -208,53 +230,54 @@ export default memo(props => {
 
   // prettier-ignore
   useEffect(() => {
-      setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
-      setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
+    setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
+    setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
+    setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
 
-      // Here we start processing the markdown
-      const htmlMessage = marked(props.message.message)
-      const compiledMessage = props.highlight
-                                  ? props.highlight != ""
-                                    ? highlightMessage(htmlMessage, props.highlight)
-                                    : htmlMessage
+    // Here we start processing the markdown
+    const htmlMessage = marked(props.message.message)
+    const compiledMessage = props.highlight
+                                ? props.highlight != ""
+                                  ? highlightMessage(htmlMessage, props.highlight)
                                   : htmlMessage
+                                : htmlMessage
 
-      // What we do here is replace the emoji symbol with one from EmojiOne
-      const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
-      const partsOfTheMessageText = []
-      let matchArr
-      let lastOffset = 0
+    // What we do here is replace the emoji symbol with one from EmojiOne
+    const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
+    const partsOfTheMessageText = []
+    let matchArr
+    let lastOffset = 0
 
-      // Match all instances of the emoji
-      while ((matchArr = regex.exec(compiledMessage)) !== null) {
-        const previousText = compiledMessage.substring(lastOffset, matchArr.index)
-        if (previousText.length) partsOfTheMessageText.push(previousText)
+    // Match all instances of the emoji
+    while ((matchArr = regex.exec(compiledMessage)) !== null) {
+      const previousText = compiledMessage.substring(lastOffset, matchArr.index)
+      if (previousText.length) partsOfTheMessageText.push(previousText)
 
-        lastOffset = matchArr.index + matchArr[0].length
+      lastOffset = matchArr.index + matchArr[0].length
 
-        const emoji = ReactDOMServer.renderToStaticMarkup(
-          <Emoji
-            emoji={matchArr[0]}
-            set="emojione"
-            size={22}
-            fallback={(em, props) => {
-              return em ? `:${em.short_names[0]}:` : props.emoji
-            }}
-          />
-        )
+      const emoji = ReactDOMServer.renderToStaticMarkup(
+        <Emoji
+          emoji={matchArr[0]}
+          set="emojione"
+          size={22}
+          fallback={(em, props) => {
+            return em ? `:${em.short_names[0]}:` : props.emoji
+          }}
+        />
+      )
 
-        if (emoji) {
-          partsOfTheMessageText.push(emoji)
-        } else {
-          partsOfTheMessageText.push(matchArr[0])
-        }
+      if (emoji) {
+        partsOfTheMessageText.push(emoji)
+      } else {
+        partsOfTheMessageText.push(matchArr[0])
       }
+    }
 
-      const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+    const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
 
-      if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
+    if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
-      setMessage(partsOfTheMessageText.join(''))
+    setMessage(partsOfTheMessageText.join(''))
   }, [props.highlight])
 
   // prettier-ignore
@@ -362,19 +385,32 @@ export default memo(props => {
 
             <Text dangerouslySetInnerHTML={{__html: message}} />
 
-            {/*
-            <ModalPortal>
-              <PreviewContainer className="row justify-content-center">
-                <img src="https://weekday-users.s3.us-west-2.amazonaws.com/12-10-2019/d21b4cb0-ed28-11e9-b424-1d6c0b83f80c.colors.png" width="50%" height="50%" />
-              </PreviewContainer>
-            </ModalPortal>
-            */}
+            {preview &&
+              <ModalPortal>
+                <PreviewContainer className="row justify-content-center">
+                  <PreviewClose>
+                    <FontAwesomeIcon
+                      icon={["fal", "times"]}
+                      color="#8DA2A5"
+                      size="2x"
+                      className="button"
+                      onClick={() => setPreview(null)}
+                    />
+                  </PreviewClose>
+                  <PreviewImage
+                    image={preview}
+                  />
+                </PreviewContainer>
+              </ModalPortal>
+            }
 
             {props.message.attachments &&
               <React.Fragment>
                 {props.message.attachments.length != 0 &&
                   <Attachments>
                     {props.message.attachments.map((attachment, index) => {
+                      const isImage = attachment.mime.split('/')[0]
+
                       return (
                         <Attachment
                           key={index}
@@ -385,6 +421,7 @@ export default memo(props => {
                           uri={attachment.uri}
                           name={attachment.name}
                           createdAt={attachment.createdAt}
+                          onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
                         />
                       )
                     })}
@@ -392,6 +429,26 @@ export default memo(props => {
                 }
               </React.Fragment>
             }
+
+            {images.map((image, index) => {
+              const name = image.split('/')[image.split('/').length - 1]
+              const extension = image.split('.')[image.split('.').length - 1]
+              const mime = `image/${extension}`
+
+              return (
+                <Attachment
+                  key={index}
+                  layout="message"
+                  size={null}
+                  mime={mime}
+                  preview={image}
+                  uri={image}
+                  name={name}
+                  createdAt={props.message.createdAt}
+                  onPreviewClick={() => setPreview(image)}
+                />
+              )
+            })}
 
             {youtubeVideos.map((youtubeVideo, index) => {
               return (

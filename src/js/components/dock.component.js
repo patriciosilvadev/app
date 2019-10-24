@@ -86,14 +86,17 @@ export default function DockComponent(props) {
           <Link
             key={index}
             to={`/app/team/${t.id}`}
-            style={{ opacity: lastPathname != "starred" && t.id == team.id ? 1 : 0.5 }}>
+            style={{
+              opacity: lastPathname != "starred" && t.id == team.id ? 1 : 0.5,
+              marginBottom: 10,
+            }}>
             <Avatar
               dark
               badge={unread}
               size="medium"
               image={t.image}
               title={t.name}
-              className="button mb-10"
+              className="button"
             />
           </Link>
         )
@@ -110,10 +113,10 @@ export default function DockComponent(props) {
           dark
           className="button"
           onClick={(e) => setTeamPopup(true)}>
-          <FontAwesomeIcon 
-            icon={["fal", "plus"]} 
-            color="#007af5" 
-            size="sm" 
+          <FontAwesomeIcon
+            icon={["fal", "plus"]}
+            color="#007af5"
+            size="sm"
           />
         </Avatar>
       </QuickInputComponent>
@@ -128,14 +131,14 @@ export default function DockComponent(props) {
         content={
           <NotificationsComponent />
         }>
-        <div 
+        <div
           className="button"
           onClick={(e) => setNotificationsMenu(true)}>
           {hasNotification && <Badge />}
-          <FontAwesomeIcon 
-            icon={["fal", "bell"]} 
-            color="white" 
-            size="lg" 
+          <FontAwesomeIcon
+            icon={["fal", "bell"]}
+            color="white"
+            size="lg"
             style={{ opacity: hasNotification ? 1 : 0.5}}
           />
         </div>

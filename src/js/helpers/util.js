@@ -5,6 +5,11 @@ export const bytesToSize = bytes => {
   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
+export const imageUrlParser = url => {
+  const match = url.match(/(http[s]?:\/\/.*\.(?:png|jpg))/i)
+  return match ? match[1] : false
+}
+
 export const vimeoUrlParser = url => {
   const match = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i)
   return match ? match[1] : false
