@@ -1,8 +1,19 @@
-export function bytesToSize(bytes) {
+export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb'];
   if (bytes == 0) return '0 Byte';
   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+}
+
+export const vimeoUrlParser = url => {
+  const match = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i)
+  return match ? match[1] : false
+}
+
+export const youtubeUrlParser = url => {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/
+  const match = url.match(regExp)
+  return (match && match[7].length == 11) ? match[7] : false
 }
 
 export const askPushNotificationPermission = () => {
@@ -41,7 +52,7 @@ export const urlBase64ToUint8Array = base64String => {
 export const showLocalPushNotification = (title, body) => {
   navigator.serviceWorker.ready.then(register => {
     const serviceWorkerRegistration = register
-    
+
     if (serviceWorkerRegistration) {
       serviceWorkerRegistration.showNotification(title, {
         body,

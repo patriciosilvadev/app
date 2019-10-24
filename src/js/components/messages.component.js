@@ -6,7 +6,6 @@ import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import MessageComponent from '../components/message.component'
 
 export default memo(props => {
-  console.log('render')
   return (
     <React.Fragment>
       {props.messages.map((message, index) => {

@@ -13,6 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage } from '../actions'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { youtubeUrlParser, vimeoUrlParser } from '../helpers/util'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -178,6 +179,8 @@ export default memo(props => {
   const dispatch = useDispatch()
   const room = useSelector(state => state.room)
   const common = useSelector(state => state.common)
+  const [youtubeVideos, setYoutubeVideos] = useState([])
+  const [vimeoVideos, setVimeoVideos] = useState([])
 
   const handleDeleteRoomMessage = () => {
     dispatch(deleteRoomMessage(props.message.id))
@@ -205,6 +208,9 @@ export default memo(props => {
 
   // prettier-ignore
   useEffect(() => {
+      setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
+      setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
+
       // Here we start processing the markdown
       const htmlMessage = marked(props.message.message)
       const compiledMessage = props.highlight
@@ -219,6 +225,7 @@ export default memo(props => {
       let matchArr
       let lastOffset = 0
 
+      // Match all instances of the emoji
       while ((matchArr = regex.exec(compiledMessage)) !== null) {
         const previousText = compiledMessage.substring(lastOffset, matchArr.index)
         if (previousText.length) partsOfTheMessageText.push(previousText)
@@ -385,6 +392,34 @@ export default memo(props => {
                 }
               </React.Fragment>
             }
+
+            {youtubeVideos.map((youtubeVideo, index) => {
+              return (
+                <iframe
+                  key={index}
+                  width={560}
+                  height={300}
+                  src={`https://www.youtube.com/embed/${youtubeVideo}`}
+                  frameBorder={0}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen>
+                </iframe>
+              )
+            })}
+
+            {vimeoVideos.map((vimeoVideo, index) => {
+              return (
+                <iframe
+                  key={index}
+                  width={560}
+                  height={300}
+                  src={`https://player.vimeo.com/video/${vimeoVideo}`}
+                  frameBorder={0}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen>
+                </iframe>
+              )
+            })}
 
             {props.message.reactions &&
               <React.Fragment>

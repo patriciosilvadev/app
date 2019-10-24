@@ -20,6 +20,9 @@
   display: none;
 }
 
+a { color: #007af5; }
+a:visited { color: #007af5; }
+
 .emoji-mart-bar {
   margin-bottom: 10px;
 }
