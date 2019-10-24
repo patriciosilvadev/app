@@ -259,6 +259,7 @@ export default class GraphqlService {
               attachments {
                 size
                 uri
+                preview
                 mime
                 name
                 createdAt
@@ -379,6 +380,7 @@ export default class GraphqlService {
               uri
               size
               name
+              preview
               mime
               createdAt
             }
@@ -425,6 +427,7 @@ export default class GraphqlService {
               uri
               size
               name
+              preview
               mime
               createdAt
             }
@@ -769,6 +772,7 @@ export default class GraphqlService {
             attachments {
               uri
               mime
+              preview
               name
               createdAt
               size
@@ -816,6 +820,7 @@ export default class GraphqlService {
             attachments {
               uri
               mime
+              preview
               name
               createdAt
               size

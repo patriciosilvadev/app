@@ -12,6 +12,7 @@ import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { bytesToSize } from '../helpers/util'
 
 const UpdateContainer = styled.div`
   position: absolute;
@@ -168,7 +169,20 @@ class ComposeComponent extends React.Component {
       id: null,
       emoticonMenu: false,
       scrollHeight: 0,
-      attachments: [],
+      attachments: [
+        {
+          uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+          mime: "image/jpeg",
+          size: 17361,
+          name: "tester.jpg",
+         },
+         {
+          uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+          mime: "image/jpeg",
+          size: 17361,
+          name: "testers.jpg",
+         }
+      ],
       parent: [],
       text: '',
       mention: null,

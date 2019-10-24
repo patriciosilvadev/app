@@ -134,7 +134,7 @@ const Welcome = styled.div`
 `
 
 const WelcomeTitle = styled.div`
-  font-weight: 500;
+  font-weight: 800;
   font-size: 60px;
   color: #040b1c;
   padding-bottom: 10px;

@@ -70,9 +70,9 @@ export default function RoomModal(props) {
 
     try {
       const result = await new UploadService(e.target.files[0])
-      const { data, mime } = await result.json()
+      const { uri, mime, size, name } = await result.json()
 
-      setImage(data.Location)
+      setImage(uri)
       setLoading(false)
     } catch (e) {
       setLoading(false)

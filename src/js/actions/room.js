@@ -110,12 +110,12 @@ export function updateRoom(updatedRoom) {
     dispatch(updateError(null))
 
     try {
-      const { data } = await GraphqlService.getInstance().updateRoom(roomId, updatedRoom)
+      await GraphqlService.getInstance().updateRoom(roomId, updatedRoom)
 
       dispatch(updateLoading(false))
       dispatch({
         type: 'UPDATE_ROOM',
-        payload: { ...data.updateRoom, roomId },
+        payload: { ...updatedRoom, roomId },
         sync: roomId,
       })
     } catch (e) {

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
 import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
+import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
@@ -158,6 +159,15 @@ const ParentMeta = styled.div`
   font-weight: 500;
   color: #adb5bd;
   font-weight: regular;
+`
+
+const PreviewContainer = styled.div`
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(4, 11, 28, 0.75);
 `
 
 export default function MessageComponent(props) {
@@ -342,6 +352,14 @@ export default function MessageComponent(props) {
 
             <Text dangerouslySetInnerHTML={{__html: message}} />
 
+            {/* 
+            <ModalPortal>
+              <PreviewContainer className="row justify-content-center">
+                <img src="https://weekday-users.s3.us-west-2.amazonaws.com/12-10-2019/d21b4cb0-ed28-11e9-b424-1d6c0b83f80c.colors.png" width="50%" height="50%" />
+              </PreviewContainer>
+            </ModalPortal>
+            */}
+
             {props.message.attachments &&
               <React.Fragment>
                 {props.message.attachments.length != 0 &&
@@ -353,6 +371,7 @@ export default function MessageComponent(props) {
                           layout="message"
                           size={attachment.size}
                           mime={attachment.mime}
+                          preview={attachment.preview}
                           uri={attachment.uri}
                           name={attachment.name}
                           createdAt={attachment.createdAt}
