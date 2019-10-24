@@ -158,31 +158,24 @@ class ComposeComponent extends React.Component {
     /*
     Placeholder attachment for testing:
     {
-     uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-     mime: "image/jpeg",
-     size: 17361,
-     name: "tester.jpg",
-     createdAt: new Date(),
+      uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+      mime: "image/jpeg",
+      size: 17361,
+      name: "tester.jpg",
+      },
+      {
+      uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+      mime: "image/jpeg",
+      size: 17361,
+      name: "testers.jpg",
+      }
     }
     */
     this.state = {
       id: null,
       emoticonMenu: false,
       scrollHeight: 0,
-      attachments: [
-        {
-          uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-          mime: "image/jpeg",
-          size: 17361,
-          name: "tester.jpg",
-         },
-         {
-          uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-          mime: "image/jpeg",
-          size: 17361,
-          name: "testers.jpg",
-         }
-      ],
+      attachments: [],
       parent: [],
       text: '',
       mention: null,

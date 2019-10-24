@@ -24,6 +24,11 @@
   margin-bottom: 10px;
 }
 
+video {
+  background: black;
+  object-fit: cover !important;
+}
+
 .modal-root {
   position: absolute;
   left: 0px;

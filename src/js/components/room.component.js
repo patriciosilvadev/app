@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { connect } from 'react-redux'
 import UploadService from '../services/upload.service'
 import '../helpers/extensions'
@@ -11,13 +11,13 @@ import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
 import ConfirmModal from '../modals/confirm.modal'
 import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages } from '../actions'
-import MessageComponent from '../components/message.component'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import MessagesComponent from './messages.component'
 
 const Room = styled.div`
   background: white;
@@ -103,7 +103,23 @@ const HeaderSearchInput = styled.input`
   }
 `
 
-const Messages = styled.div`
+const Blocked = styled.div`
+  font-size: 13px;
+  font-weight: 500;
+  color: #343a40;
+  padding: 10px;
+`
+
+const Typing = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  color: "#adb5bd";
+  border-bottom: 1px solid #f1f3f5;
+  padding: 10px 25px 10px 25px
+  width: 100%;
+`
+
+const MessagesContainer = styled.div`
   position: relative;
   flex: 1;
   overflow: scroll;
@@ -112,17 +128,10 @@ const Messages = styled.div`
   background: white;
 `
 
-const MessagesContainer = styled.div`
+const MessagesInner = styled.div`
   width: 100%;
   padding: 25px;
   height: 1px; /* Important for the height to be set here */
-`
-
-const Blocked = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: #343a40;
-  padding: 10px;
 `
 
 const Welcome = styled.div`
@@ -145,15 +154,6 @@ const WelcomeDescriptionUpdate = styled.div`
   font-size: 18px;
   color: #adb5bd;
   font-style: italic;
-`
-
-const Typing = styled.div`
-  font-weight: 400;
-  font-size: 12px;
-  color: "#adb5bd";
-  border-bottom: 1px solid #f1f3f5;
-  padding: 10px 25px 10px 25px
-  width: 100%;
 `
 
 const WelcomeDescription = styled.div`
@@ -211,6 +211,8 @@ class RoomComponent extends React.Component {
     this.onSearch = this.onSearch.bind(this)
     this.onSearch$ = new Subject()
     this.subscription = null
+    this.setUpdateMessage = this.setUpdateMessage.bind(this)
+    this.setReplyMessage = this.setReplyMessage.bind(this)
   }
 
   onSearch(e) {
@@ -253,13 +255,19 @@ class RoomComponent extends React.Component {
   }
 
   scrollToBottom() {
-    if (this.scrollRef) this.scrollRef.scrollTop = this.scrollRef.scrollHeight
+    // If there is no scroll ref
+    if (!this.scrollRef) return
+
+    // If the user is scrolling
+    if (this.state.manualScrolling) return
+
+    this.scrollRef.scrollTop = this.scrollRef.scrollHeight
   }
 
   handleScrollEvent(e) {
     if (this.scrollRef.scrollTop == 0) this.fetchRoomMessages()
 
-    if (this.scrollRef.offsetHeight == this.scrollRef.scrollHeight - this.scrollRef.scrollTop + 1) {
+    if (this.scrollRef.offsetHeight == this.scrollRef.scrollHeight - this.scrollRef.scrollTop) {
       this.setState({ manualScrolling: false })
     } else {
       this.setState({ manualScrolling: true })
@@ -294,9 +302,7 @@ class RoomComponent extends React.Component {
 
     // Keep it scrolled down if they remain at the bottom
     // and if it's not on manual
-    setInterval(() => {
-      if (!this.state.manualScrolling && this.scrollRef) this.scrollToBottom()
-    }, 500)
+    // setInterval(() => this.scrollToBottom(), 500)
 
     // Disblae the busy flag, so that the user can conitnue loading messages
     EventService.get().on('successfullyFetchedRoomMessages', payload => {
@@ -337,6 +343,14 @@ class RoomComponent extends React.Component {
     this.setState({ confirmModal: false })
     this.props.deleteRoom(this.props.room.id)
     this.props.history.push(`/app/team/${this.props.team.id}/`)
+  }
+
+  setUpdateMessage(message) {
+    this.setState({ message, update: true, reply: false })
+  }
+
+  setReplyMessage(message) {
+    this.setState({ message, update: false, reply: true })
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -430,11 +444,11 @@ class RoomComponent extends React.Component {
                       <div
                         className="ml-10 row button"
                         onClick={() => this.setState({ userMenu:true })}>
-                        <FontAwesomeIcon 
+                        <FontAwesomeIcon
                           className="mr-5"
-                          icon={["fal", "plus"]} 
-                          color="#007af5" 
-                          size="xs" 
+                          icon={["fal", "plus"]}
+                          color="#007af5"
+                          size="xs"
                         />
                         <HeaderLink>Add New</HeaderLink>
                       </div>
@@ -448,10 +462,10 @@ class RoomComponent extends React.Component {
               <HeaderSearchContainer
                 className="row"
                 focus={this.state.searchFocus}>
-                <FontAwesomeIcon 
-                  icon={["far", "search"]} 
-                  color="#acb5bd" 
-                  size="sm" 
+                <FontAwesomeIcon
+                  icon={["far", "search"]}
+                  color="#acb5bd"
+                  size="sm"
                   className="ml-10 mr-10"
                 />
 
@@ -464,11 +478,11 @@ class RoomComponent extends React.Component {
                 />
 
                 {this.state.searchResults &&
-                  <FontAwesomeIcon 
+                  <FontAwesomeIcon
                     className="button"
-                    icon={["fal", "times"]} 
-                    color="#acb5bd" 
-                    size="lg" 
+                    icon={["fal", "times"]}
+                    color="#acb5bd"
+                    size="lg"
                     onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
                   />
                 }
@@ -522,7 +536,7 @@ class RoomComponent extends React.Component {
                 />
               }
 
-              <FontAwesomeIcon 
+              <FontAwesomeIcon
                 icon={["fal", "trash"]}
                 color="#acb5bd"
                 size="lg"
@@ -532,7 +546,7 @@ class RoomComponent extends React.Component {
             </Header>
           }
 
-          <Messages ref={(ref) => this.scrollRef = ref}>
+          <MessagesContainer ref={(ref) => this.scrollRef = ref}>
             {/* Primary message list + header */}
             {this.state.open && !this.state.searchResults &&
               <React.Fragment>
@@ -570,19 +584,14 @@ class RoomComponent extends React.Component {
                   }
                 </Welcome>
 
-                <MessagesContainer ref={(ref) => this.messagesRef = ref}>
-                  {this.props.room.messages.map((message, index) => {
-                    return (
-                      <MessageComponent
-                        key={index}
-                        highlight={this.state.searchQuery}
-                        message={message}
-                        setUpdateMessage={() => this.setState({ message, update: true, reply: false })}
-                        setReplyMessage={() => this.setState({ message, update: false, reply: true })}
-                      />
-                    )
-                  })}
-                </MessagesContainer>
+                <MessagesInner ref={(ref) => this.messagesRef = ref}>
+                  <MessagesComponent
+                    highlight={this.state.searchQuery}
+                    setUpdateMessage={this.setUpdateMessage}
+                    setReplyMessage={this.setReplyMessage}
+                    messages={this.props.room.messages}
+                  />
+                </MessagesInner>
               </React.Fragment>
             }
 
@@ -596,22 +605,17 @@ class RoomComponent extends React.Component {
                   </WelcomeDescription>
                 </Welcome>
 
-                <MessagesContainer ref={(ref) => this.messagesRef = ref}>
-                  {this.state.searchResults.map((message, index) => {
-                    return (
-                      <MessageComponent
-                        key={index}
-                        message={message}
-                        highlight={this.state.searchQuery}
-                        setUpdateMessage={() => this.setState({ message, update: true, reply: false })}
-                        setReplyMessage={() => this.setState({ message, update: false, reply: true })}
-                      />
-                    )
-                  })}
-                </MessagesContainer>
+                <MessagesInner ref={(ref) => this.messagesRef = ref}>
+                  <MessagesComponent
+                    messages={this.state.searchResults}
+                    highlight={this.state.searchQuery}
+                    setUpdateMessage={this.setUpdateMessage}
+                    setReplyMessage={this.setReplyMessage}
+                  />
+                </MessagesInner>
               </React.Fragment>
             }
-          </Messages>
+          </MessagesContainer>
 
           <Typing>
             {this.composeTypingNames()}

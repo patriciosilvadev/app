@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, memo } from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
@@ -170,7 +170,7 @@ const PreviewContainer = styled.div`
   background-color: rgba(4, 11, 28, 0.75);
 `
 
-export default function MessageComponent(props) {
+export default memo(props => {
   const [message, setMessage] = useState(false)
   const [over, setOver] = useState(false)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
@@ -252,7 +252,10 @@ export default function MessageComponent(props) {
 
   // prettier-ignore
   return (
-    <Message className="column" onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+    <Message
+      className="column"
+      onMouseEnter={() => setOver(true)}
+      onMouseLeave={() => setOver(false)}>
       {confirmDeleteModal &&
         <ConfirmModal
           onOkay={handleDeleteRoomMessage}
@@ -295,35 +298,35 @@ export default function MessageComponent(props) {
                       />
                     }>
 
-                    <FontAwesomeIcon 
-                      icon={["fal", "smile"]} 
-                      color="#CFD4D9" 
-                      size="sm" 
+                    <FontAwesomeIcon
+                      icon={["fal", "smile"]}
+                      color="#CFD4D9"
+                      size="sm"
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
                   </Popup>
 
-                  <FontAwesomeIcon 
-                    icon={["fal", "trash-alt"]} 
-                    color="#CFD4D9" 
-                    size="sm" 
+                  <FontAwesomeIcon
+                    icon={["fal", "trash-alt"]}
+                    color="#CFD4D9"
+                    size="sm"
                     className="button mr-10"
                     onClick={() => setConfirmDeleteModal(true)}
                   />
 
-                  <FontAwesomeIcon 
-                    icon={["fal", "pen"]} 
-                    color="#CFD4D9" 
-                    size="sm" 
+                  <FontAwesomeIcon
+                    icon={["fal", "pen"]}
+                    color="#CFD4D9"
+                    size="sm"
                     className="button mr-10"
                     onClick={props.setUpdateMessage}
                   />
 
-                  <FontAwesomeIcon 
-                    icon={["fal", "reply"]} 
-                    color="#CFD4D9" 
-                    size="sm" 
+                  <FontAwesomeIcon
+                    icon={["fal", "reply"]}
+                    color="#CFD4D9"
+                    size="sm"
                     className="button mr-10"
                     onClick={props.setReplyMessage}
                   />
@@ -352,7 +355,7 @@ export default function MessageComponent(props) {
 
             <Text dangerouslySetInnerHTML={{__html: message}} />
 
-            {/* 
+            {/*
             <ModalPortal>
               <PreviewContainer className="row justify-content-center">
                 <img src="https://weekday-users.s3.us-west-2.amazonaws.com/12-10-2019/d21b4cb0-ed28-11e9-b424-1d6c0b83f80c.colors.png" width="50%" height="50%" />
@@ -412,12 +415,4 @@ export default function MessageComponent(props) {
       </div>
     </Message>
   )
-}
-
-MessageComponent.propTypes = {
-  id: PropTypes.string,
-  message: PropTypes.object,
-  highlight: PropTypes.string,
-  setReplyMessage: PropTypes.any,
-  setUpdateMessage: PropTypes.any,
-}
+})
