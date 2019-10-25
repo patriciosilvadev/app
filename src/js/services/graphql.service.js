@@ -257,6 +257,8 @@ export default class GraphqlService {
               }
               message
               attachments {
+                _id
+                id
                 size
                 uri
                 preview
@@ -377,6 +379,8 @@ export default class GraphqlService {
             }
             message
             attachments {
+              _id
+              id
               uri
               size
               name
@@ -424,6 +428,8 @@ export default class GraphqlService {
             }
             message
             attachments {
+              _id
+              id
               uri
               size
               name
@@ -770,6 +776,8 @@ export default class GraphqlService {
             message
             reactions
             attachments {
+              _id
+              id
               uri
               mime
               preview
@@ -818,6 +826,8 @@ export default class GraphqlService {
             message
             reactions
             attachments {
+              _id
+              id
               uri
               mime
               preview

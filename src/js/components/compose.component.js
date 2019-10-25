@@ -177,7 +177,7 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text: '',
+      text: 'Testing',
       mention: null,
       position: 0,
       members: [],
@@ -210,6 +210,8 @@ class ComposeComponent extends React.Component {
   }
 
   onSend() {
+    if (this.state.text == '') return
+
     const id = this.props.message ? this.props.message.id : null
     const text = this.state.text
     const attachments = this.state.attachments
@@ -531,11 +533,11 @@ class ComposeComponent extends React.Component {
                   {this.props.message.message}
                 </ReplyMessage>
               </div>
-              <FontAwesomeIcon 
+              <FontAwesomeIcon
                 className="ml-15 button"
-                icon={["fal", "times"]} 
-                color="#565456" 
-                size="lg" 
+                icon={["fal", "times"]}
+                color="#565456"
+                size="lg"
                 onClick={this.props.clearMessage}
               />
             </ReplyContainer>
@@ -577,28 +579,28 @@ class ComposeComponent extends React.Component {
                 onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
             }>
-            <FontAwesomeIcon 
+            <FontAwesomeIcon
               className="ml-15 button"
-              icon={["fal", "smile"]} 
-              color="#565456" 
-              size="lg" 
+              icon={["fal", "smile"]}
+              color="#565456"
+              size="lg"
               onClick={() => this.setState({ emoticonMenu: true })}
             />
           </Popup>
 
-          <FontAwesomeIcon 
+          <FontAwesomeIcon
             className="ml-15 button"
-            icon={["fal", "paperclip"]} 
-            color="#565456" 
-            size="lg" 
+            icon={["fal", "paperclip"]}
+            color="#565456"
+            size="lg"
             onClick={() => this.fileRef.click()}
           />
 
-          <FontAwesomeIcon 
+          <FontAwesomeIcon
             className="ml-15 button"
-            icon={["fal", "at"]} 
-            color="#565456" 
-            size="lg" 
+            icon={["fal", "at"]}
+            color="#565456"
+            size="lg"
             onClick={() => {
               this.insertAtCursor("@")
               this.filterMembers("")
@@ -606,21 +608,21 @@ class ComposeComponent extends React.Component {
           />
 
           {!this.props.update &&
-            <FontAwesomeIcon 
+            <FontAwesomeIcon
               className="ml-15 button"
-              icon={["fal", "paper-plane"]} 
-              color="#565456" 
-              size="lg" 
+              icon={["fal", "paper-plane"]}
+              color="#565456"
+              size="lg"
               onClick={this.onSend}
             />
           }
 
           {this.props.update &&
-            <FontAwesomeIcon 
+            <FontAwesomeIcon
               className="ml-15 button"
-              icon={["fal", "check"]} 
-              color="#565456" 
-              size="lg" 
+              icon={["fal", "check"]}
+              color="#565456"
+              size="lg"
               onClick={this.onSend}
             />
           }

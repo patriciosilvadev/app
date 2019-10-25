@@ -278,7 +278,7 @@ export default memo(props => {
     if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
     setMessage(partsOfTheMessageText.join(''))
-  }, [props.highlight])
+  })
 
   // prettier-ignore
   return (

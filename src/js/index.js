@@ -34,11 +34,11 @@ import './environment'
 import { createLogger } from 'redux-logger'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { 
-  faStar, 
-  faEye, 
-  faLowVision, 
-  faInfoCircle, 
+import {
+  faStar,
+  faEye,
+  faLowVision,
+  faInfoCircle,
   faUserFriends,
   faTrashAlt,
   faTrash,
@@ -60,7 +60,7 @@ import {
   faSignOut,
   faSyncAlt,
 } from '@fortawesome/pro-light-svg-icons'
-import { 
+import {
   faSearch,
 } from '@fortawesome/pro-regular-svg-icons'
 
@@ -113,7 +113,7 @@ const store = createStore(
   }),
   applyMiddleware(
     thunk,
-    sync, 
+    sync,
     //logger,
   )
 )
@@ -130,10 +130,10 @@ const apollo = new ApolloClient({
 
 // Font awesome lib
 library.add(
-  faStar, 
-  faEye, 
-  faLowVision, 
-  faInfoCircle, 
+  faStar,
+  faEye,
+  faLowVision,
+  faInfoCircle,
   faUserFriends,
   faTrashAlt,
   faTrash,

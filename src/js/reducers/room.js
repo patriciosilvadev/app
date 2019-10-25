@@ -74,8 +74,11 @@ export default (state = initialState, action) =>
           if (message.id == action.payload.messageId) {
             return {
               ...message,
+
+              // We need to use the _id because attachments is a schema-only of message
+              // Not a child object - the ID accessor only gets added to Models
               attachments: message.attachments.map(attachment => {
-                if (attachment.id == action.payload.attachmentId {
+                if (attachment._id == action.payload.attachmentId) {
                   return {
                     ...attachment,
                     preview: action.payload.uri,
