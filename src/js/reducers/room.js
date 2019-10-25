@@ -69,6 +69,28 @@ export default (state = initialState, action) =>
           typing: state.typing.filter(typing => typing.userId != action.payload.userId)
         }
 
+      case 'UPDATE_ROOM_MESSAGE_ATTACHMENT_PREVIEW':
+        draft.messages = state.messages.map((message, _) => {
+          if (message.id == action.payload.messageId) {
+            return {
+              ...message,
+              attachments: message.attachments.map(attachment => {
+                if (attachment.id == action.payload.attachmentId {
+                  return {
+                    ...attachment,
+                    preview: action.payload.uri,
+                  }
+                } else {
+                  return attachment
+                }
+              }),
+            }
+          } else {
+            return message
+          }
+        })
+        break
+
       case 'CREATE_ROOM_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
