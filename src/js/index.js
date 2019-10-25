@@ -114,7 +114,7 @@ const store = createStore(
   applyMiddleware(
     thunk,
     sync,
-    //logger,
+    logger,
   )
 )
 

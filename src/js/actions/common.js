@@ -189,9 +189,7 @@ export function fetchUser(userId) {
     dispatch(updateError(null))
 
     try {
-      // Thsi is always the first GQL point called
-      const token = CookiesService.getCookie('jwt')
-      const user = await GraphqlService.getInstance(token).user(userId)
+      const user = await GraphqlService.getInstance().user(userId)
 
       dispatch(updateLoading(false))
       dispatch({

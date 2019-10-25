@@ -239,11 +239,11 @@ class AuthPage extends React.Component {
 
       if (auth.status != 200) return this.setState({ error: 'Incorrect details' })
       if (auth.status == 200) {
-        const { token, user } = data
+        const { token, userId } = data
 
         AuthService.saveToken(token)
 
-        this.props.fetchUser(user)
+        this.props.fetchUser(userId)
         this.props.history.push('/app')
       }
     } catch (e) {

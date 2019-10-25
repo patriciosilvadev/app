@@ -46,8 +46,10 @@ export default class GraphqlService {
     })
   }
 
-  static getInstance(token = null) {
+  static getInstance() {
     if (this.instance) return this.instance
+
+    const token = CookiesService.getCookie('jwt')
 
     this.instance = new GraphqlService(token)
 

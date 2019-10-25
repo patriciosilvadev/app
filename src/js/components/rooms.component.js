@@ -14,6 +14,7 @@ import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AuthService from '../services/auth.service'
 
 const Rooms = styled.div`
   width: 300px;
@@ -145,21 +146,15 @@ class RoomsComponent extends React.Component {
     }
 
     this.filterRef = React.createRef()
-    this.signout = this.signout.bind(this)
+
     this.createPrivateRoom = this.createPrivateRoom.bind(this)
     this.navigateToRoom = this.navigateToRoom.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
+
     this.onSearch$ = new Subject()
     this.subscription = null
-  }
-
-  async signout() {
-    await AuthService.signout()
-    await GraphqlService.signout()
-
-    this.props.history.push('/auth')
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -253,6 +248,33 @@ class RoomsComponent extends React.Component {
     this.onSearch$.next(search)
   }
 
+  _openAccountSettings() {
+    this.setState({ accountMenu: false, accountModal: true })
+  }
+
+  _openTeamSettings() {
+    this.setState({ accountMenu: false, teamModal: true })
+  }
+
+  _signout() {
+    this.setState({
+      accountMenu: false
+    }, async () => {
+      await AuthService.signout()
+      await GraphqlService.signout()
+
+      this.props.history.push('/auth')
+    })
+  }
+
+  _openUserMenu() {
+    this.setState({ accountMenu: true })
+  }
+
+  _closeUserMenu() {
+    this.setState({ accountMenu: false })
+  }
+
   // prettier-ignore
   render() {
     const { pathname } = this.props.history.location
@@ -307,7 +329,7 @@ class RoomsComponent extends React.Component {
           </div>
 
           <Popup
-            handleDismiss={() => this.setState({ accountMenu: false })}
+            handleDismiss={this._closeUserMenu.bind(this)}
             visible={this.state.accountMenu}
             width={275}
             direction="left-bottom"
@@ -328,34 +350,36 @@ class RoomsComponent extends React.Component {
                   <AccountMenuSubtitle>
                     {this.props.team.name}
                   </AccountMenuSubtitle>
-
-                  {/*
-                  <Toggle
-                    on={true}
-                    onChange={(value) => {
-                      console.log('RoomsComponent', value)
-                    }}
-                  />
-                  */}
                 </AccountMenuHeader>
 
                 <Menu
                   items={[
-                    { icon: <FontAwesomeIcon icon={["fal", "cog"]} color="#acb5bd" size="lg" />, text: "Account setting", onClick: (e) => this.setState({ accountMenu: false, accountModal: true }) },
-                    { icon: <FontAwesomeIcon icon={["fal", "users-cog"]} color="#acb5bd" size="lg" />, text: "Team settings", onClick: (e) => this.setState({ accountMenu: false, teamModal: true }) },
-                    { icon: <FontAwesomeIcon icon={["fal", "sign-out"]} color="#acb5bd" size="lg" />, text: "Signout", onClick: (e) => this.setState({ accountMenu: false }, () => this.signout()) },
-                    { icon: <FontAwesomeIcon icon={["fal", "question-circle"]} color="#acb5bd" size="lg" />, text: "Help", onClick: (e) => this.setState({ accountMenu: false }) },
+                    {
+                      icon: <FontAwesomeIcon icon={["fal", "cog"]} color="#acb5bd" size="lg" />,
+                      text: "Account settings",
+                      onClick: this._openAccountSettings.bind(this)
+                    },
+                    {
+                      icon: <FontAwesomeIcon icon={["fal", "users-cog"]} color="#acb5bd" size="lg" />,
+                      text: "Team settings",
+                      onClick: this._openTeamSettings.bind(this),
+                    },
+                    {
+                      icon: <FontAwesomeIcon icon={["fal", "sign-out"]} color="#acb5bd" size="lg" />,
+                      text: "Signout",
+                      onClick: this._signout.bind(this),
+                    },
                   ]}
                 />
               </div>
             }>
             <div>
-              <FontAwesomeIcon 
-                icon={["fal", "chevron-down"]} 
-                color="#475669" 
-                size="sm" 
+              <FontAwesomeIcon
+                icon={["fal", "chevron-down"]}
+                color="#475669"
+                size="sm"
                 className="button"
-                onClick={() => this.setState({ accountMenu: true })}
+                onClick={this._openUserMenu.bind(this)}
               />
             </div>
           </Popup>
@@ -363,10 +387,10 @@ class RoomsComponent extends React.Component {
 
         <SearchContainer className="row">
           <SearchInner className="row">
-            <FontAwesomeIcon 
-              icon={["far", "search"]} 
-              color="#475669" 
-              size="sm" 
+            <FontAwesomeIcon
+              icon={["far", "search"]}
+              color="#475669"
+              size="sm"
               className="ml-15"
             />
 
@@ -460,10 +484,10 @@ class RoomsComponent extends React.Component {
               handleDismiss={() => this.setState({ roomPopup: false })}
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
               placeholder="New channel name">
-              <FontAwesomeIcon 
-                icon={["fal", "plus-circle"]} 
-                color="#475669" 
-                size="lg" 
+              <FontAwesomeIcon
+                icon={["fal", "plus-circle"]}
+                color="#475669"
+                size="lg"
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
               />

@@ -45,6 +45,9 @@ class AppPage extends React.Component {
   }
 
   async componentDidUpdate(prevProps) {
+    if (!this.props.common.user) return null
+    if (!prevProps.common.user) return null
+
     const current = this.props.common.user.id
     const prev = prevProps.common.user.id
 
@@ -103,6 +106,7 @@ class AppPage extends React.Component {
 
   // prettier-ignore
   render() {
+    if (!this.props.common.user) return <Loading show={true} />
     if (!this.props.common.user.id) return <Loading show={true} />
 
     return (
