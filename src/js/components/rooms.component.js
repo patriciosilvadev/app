@@ -323,7 +323,7 @@ class RoomsComponent extends React.Component {
               <HeaderSubtitle
                 className="button"
                 onClick={() => this.setState({ statusMenu: true })}>
-                {this.props.common.user.status}
+                {this.props.common.user.status || "Update your status"}
               </HeaderSubtitle>
             </QuickInputComponent>
           </div>

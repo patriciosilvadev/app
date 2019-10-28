@@ -68,12 +68,12 @@ export default function AccountModal(props) {
         const { data } = await GraphqlService.getInstance().user(props.id)
         const user = data.user
 
-        setImage(user.image)
-        setName(user.name)
-        setUsername(user.username)
-        setRole(user.role)
-        setDescription(user.description)
-        setEmail(user.email)
+        setImage(user.image || '')
+        setName(user.name || '')
+        setUsername(user.username || '')
+        setRole(user.role || '')
+        setDescription(user.description || '')
+        setEmail(user.email || '')
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -86,7 +86,7 @@ export default function AccountModal(props) {
     if (email.trim() == '') return setError('This field is mandatory')
 
     setLoading(true)
-    setError(true)
+    setError(false)
 
     try {
       const updatedUser = { name, role, email, description, username, image }
@@ -100,7 +100,7 @@ export default function AccountModal(props) {
       setNotification('Succesfully updated')
     } catch (e) {
       setLoading(false)
-      setError('Error uploading file')
+      setError('Email or username are taken')
     }
   }
 
