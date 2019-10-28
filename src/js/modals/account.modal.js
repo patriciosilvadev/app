@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
+import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -18,6 +19,44 @@ const Header = styled.div`
 const TitleText = styled.div`
   color: #483545;
   font-size: 14px;
+  font-weight: 400;
+`
+
+const MailTable = styled.table`
+  margin-bottom: 50px;
+  margin-top: 50px;
+`
+
+const MailTableCell = styled.td`
+  border-bottom: 1px solid #edf0f2;
+  height: 30px;
+`
+
+const MailButtonConfirm = styled.span`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const MailButtonDelete = styled.span`
+  color: #D93025;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const MailAddress = styled.div`
+  color:#007af5;
+  font-size: 12px;
+  font-weight: 600;
+`
+
+const MailStatus = styled.div`
+  color: #858e96;
+  font-size: 12px;
   font-weight: 400;
 `
 
@@ -47,6 +86,28 @@ const SmallTextButton = styled.div`
   }
 `
 
+const EmailAddress = props => {
+  const [over, setOver] = useState(false)
+
+  return (
+    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+      <MailTableCell width="40%"><MailAddress>{props.email.address}</MailAddress></MailTableCell>
+      <MailTableCell width="30%"><MailStatus>{props.email.confirmed ? "Confirmed" : "Not confirmed"}</MailStatus></MailTableCell>
+      <MailTableCell>
+        {over &&
+          <React.Fragment>
+            {!props.email.confirmed &&
+              <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">Confirm</MailButtonConfirm>
+            }
+
+            <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">Delete</MailButtonDelete>
+          </React.Fragment>
+        }
+      </MailTableCell>
+    </tr>
+  )
+}
+
 export default function AccountModal(props) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(null)
@@ -56,7 +117,8 @@ export default function AccountModal(props) {
   const [username, setUsername] = useState('')
   const [role, setRole] = useState('')
   const [description, setDescription] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState([])
+  const [newEmailAddress, setNewEmailAddress] = useState('hello@joduplessis.com')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
 
@@ -81,6 +143,64 @@ export default function AccountModal(props) {
       }
     })()
   }, {})
+
+  const handleNewEmailAddressConfirm = async (emailAddress) => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AuthService.confirmEmail(emailAddress, userId)
+
+      setLoading(false)
+      setNotification('We have sent you a confirmation email')
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
+
+  const handleNewEmailAddressDelete = async (emailAddress) => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AuthService.deleteEmail(emailAddress, userId)
+
+      setLoading(false)
+      setNotification('Succesfully removed email')
+      setEmail(email.filter(e => e.address != emailAddress))
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
+
+  const handleNewEmailAddressAdd = async () => {
+    if (newEmailAddress.trim() == '') return setError('This field is mandatory')
+
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AuthService.addEmail(newEmailAddress, userId)
+
+      if (auth.status == 401) {
+        setError('Email is already taken')
+        setLoading(false)
+      } else {
+        setLoading(false)
+        setEmail([...email, { address: newEmailAddress, confirmed: false }])
+        setNewEmail('')
+        setNotification('Succesfully added new email')
+      }
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
 
   const handleSubmit = async () => {
     if (email.trim() == '') return setError('This field is mandatory')
@@ -231,25 +351,28 @@ export default function AccountModal(props) {
                       <TitleText>Connected email addresses</TitleText>
                       <SubtitleText>Use your Weekday account with more than just 1 email address.</SubtitleText>
 
-                      <table width="100%">
+                      <MailTable width="100%">
                         <tbody>
-                          <tr>
-                            <td>ed</td>
-                            <td>delete</td>
-                          </tr>
+                          {email.map((e, index) => (
+                            <EmailAddress
+                              key={index}
+                              onDelete={handleNewEmailAddressDelete}
+                              onConfirm={handleNewEmailAddressConfirm}
+                              email={e}
+                            />
+                          ))}
                         </tbody>
-                      </table>
-
-
+                      </MailTable>
 
                       <Input
-                        label="Email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        label="Connect another email address"
+                        value={newEmailAddress}
+                        onChange={e => setNewEmailAddress(e.target.value)}
                         placeholder="Enter your email"
                       />
                       <Button
                         text="Add"
+                        onClick={handleNewEmailAddressAdd}
                       />
                     </div>
                   </div>

@@ -65,6 +65,36 @@ export default class AuthService {
     })
   }
 
+  static confirmEmail(email, userId) {
+    return fetch(AUTH_HOST + '/email/confirm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
+  static deleteEmail(email, userId) {
+    return fetch(AUTH_HOST + '/email/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
+  static addEmail(email, userId) {
+    return fetch(AUTH_HOST + '/email/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
   static reset(email) {
     return fetch(AUTH_HOST + '/password/reset', {
       method: 'POST',
