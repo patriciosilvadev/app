@@ -2,7 +2,6 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
-const Dotenv = require('dotenv-webpack')
 
 module.exports = env => {
   return {
@@ -22,7 +21,6 @@ module.exports = env => {
       chunkFilename: 'bundle.[name].js',
     },
     plugins: [
-      new Dotenv(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         favicon: './src/images/favicon.png',
@@ -32,8 +30,12 @@ module.exports = env => {
           /src\/js\/environment\.js/, 'environment.production.js'
       ),
       new WorkboxPlugin.InjectManifest({
-        swSrc: './src/js/sw.js',
-        swDest: 'sw.js'
+        swSrc: './src/js/sw.cache.js',
+        swDest: 'sw.cache.js'
+      }),
+      new WorkboxPlugin.InjectManifest({
+        swSrc: './src/js/sw.pn.js',
+        swDest: 'sw.pn.js'
       })
     ],
     optimization: {

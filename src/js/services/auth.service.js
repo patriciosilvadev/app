@@ -11,16 +11,14 @@ export default class AuthService {
 
   static currentAuthenticatedUser() {
     return new Promise((resolve, reject) => {
-      const jwt = CookiesService.getCookie('jwt')
+      const token = CookiesService.getCookie('jwt')
 
       // Now parse the JWT
-      if (jwt) {
-        const { exp, sub } = this.parseJwt(jwt)
+      if (token) {
+        const { exp, sub, userId } = this.parseJwt(token)
 
         if (exp > Date.now() / 1000) {
-          resolve({
-            token: jwt,
-          })
+          resolve({ token, exp, sub, userId })
         } else {
           reject('Expired')
         }

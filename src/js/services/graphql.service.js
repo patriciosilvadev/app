@@ -496,19 +496,19 @@ export default class GraphqlService {
    * Mutations
    */
 
- updateNotificationRead(notificationId, read) {
-   return this.client.mutate({
-     mutation: gql`
-       mutation updateNotificationRead($notificationId: String, $read: Boolean) {
-         updateNotificationRead(notificationId: $notificationId, read: $read)
-       }
-     `,
-     variables: {
-       notificationId,
-       read,
-     },
-   })
- }
+  updateNotificationRead(notificationId, read) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateNotificationRead($notificationId: String, $read: Boolean) {
+          updateNotificationRead(notificationId: $notificationId, read: $read)
+        }
+      `,
+      variables: {
+        notificationId,
+        read,
+      },
+    })
+  }
 
   updateUser(userId, payload) {
     return this.client.mutate({

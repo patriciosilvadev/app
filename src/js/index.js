@@ -16,7 +16,6 @@ import ConfirmPage from './pages/confirm.page'
 import AppPage from './pages/app.page'
 import './helpers/extensions'
 import '../styles/index.css'
-import '../styles/fonts.css'
 import '../../node_modules/emoji-mart/css/emoji-mart.css'
 import AuthService from './services/auth.service'
 import '../.htaccess'
@@ -32,7 +31,6 @@ import rooms from './reducers/rooms'
 import notifications from './reducers/notifications'
 import './environment'
 import { createLogger } from 'redux-logger'
-import { askPushNotificationPermission, urlBase64ToUint8Array } from './helpers/util'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
   faStar,
@@ -68,38 +66,6 @@ const logger = createLogger({
   collapsed: true
 });
 
-async function subscribePushNotification() {
-  if ('serviceWorker' in navigator) {
-    try {
-      const register = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
-      })
-
-      // Subscribe to the PNs
-      const subscription = await register.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
-      })
-
-      // Join - we're not using this for anything yet
-      // But we will
-      await fetch(API_HOST + '/subscribe', {
-        method: 'POST',
-        body: JSON.stringify(subscription),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-    } catch (e) {
-      console.log(e)
-    }
-  } else {
-    console.error('Service workers are not supported in this browser');
-  }
-}
-
-subscribePushNotification().catch(error => console.error(error));
-
 // Redux with our middlewares
 const store = createStore(
   combineReducers({
@@ -114,9 +80,19 @@ const store = createStore(
   applyMiddleware(
     thunk,
     sync,
-    logger,
+    //logger,
   )
 )
+
+// Register our chaching service workers
+if ('serviceWorker' in navigator) {
+  navigator
+    .serviceWorker
+    .register('/sw.cache.js', { scope: '/' })
+    .catch(err => console.error('Could not register service worker', e))
+} else {
+  console.error('Service workers are not supported in this browser')
+}
 
 // Plugin framework setup
 window.__REDUX_STORE_HOOK__ = store

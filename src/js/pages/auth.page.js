@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AuthService from '../services/auth.service'
 import { connect } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
@@ -7,7 +7,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
-import { Loading, Error, Button, Input, Textarea } from '@weekday/elements'
+import { Loading, Button, Error, Input, Textarea } from '@weekday/elements'
 
 const Auth = styled.div`
   height: 100%;
@@ -78,7 +78,6 @@ const Header = styled.div`
 const Footer = styled.div`
   width: 100%;
   padding: 20px;
-  border-top: 1px solid #f1f3f5;
 `
 
 const Avatar = styled.div`
@@ -360,7 +359,7 @@ class AuthPage extends React.Component {
                               size="large"
                               type="submit"
                               disabled={isSubmitting}
-                              text="Send me a verification code"
+                              text="Send me a code"
                             />
                             <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                               Go back to sign in
@@ -494,6 +493,7 @@ class AuthPage extends React.Component {
                       <Input
                         type="text"
                         name="username"
+                        autocomplete="off"
                         value={values.username}
                         placeholder="Username"
                         onChange={handleChange}
@@ -506,6 +506,7 @@ class AuthPage extends React.Component {
                       <Input
                         type="text"
                         name="email"
+                        autocomplete="off"
                         value={values.email}
                         placeholder="Email"
                         onChange={handleChange}
@@ -518,6 +519,7 @@ class AuthPage extends React.Component {
                       <Input
                         type="password"
                         name="password"
+                        autocomplete="off"
                         value={values.password}
                         placeholder="Password"
                         onChange={handleChange}
@@ -530,6 +532,7 @@ class AuthPage extends React.Component {
                       <Input
                         type="password"
                         name="confirm"
+                        autocomplete="off"
                         value={values.confirm}
                         placeholder="Confirm password"
                         onChange={handleChange}
@@ -595,6 +598,7 @@ class AuthPage extends React.Component {
                         name="username"
                         type="text"
                         placeholder="Username"
+                        autocomplete="off"
                         value={values.username}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -607,6 +611,7 @@ class AuthPage extends React.Component {
                         name="password"
                         type="password"
                         placeholder="Password"
+                        autocomplete="off"
                         value={values.password}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -622,10 +627,10 @@ class AuthPage extends React.Component {
                         disabled={isSubmitting}
                         text="Sign in"
                       />
-                      <SmallTextButton onClick={() => this.setState({ view: 'password' })} className="mt-30">
+                    <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
                         I've lost my password
                       </SmallTextButton>
-                      <SmallTextButton onClick={() => this.setState({ view: 'signup' })} className="mt-10">
+                      <SmallTextButton onClick={() => this.setState({ view: 'signup', error: null })} className="mt-10">
                         Create an account
                       </SmallTextButton>
                     </Form>

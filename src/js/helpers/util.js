@@ -22,8 +22,8 @@ export const youtubeUrlParser = url => {
 }
 
 export const askPushNotificationPermission = () => {
-  return new Promise(function(resolve, reject) {
-    const permissionResult = Notification.requestPermission(function(result) {
+  return new Promise((resolve, reject) => {
+    const permissionResult = Notification.requestPermission(result => {
       resolve(result);
     });
 
@@ -32,7 +32,6 @@ export const askPushNotificationPermission = () => {
     }
   })
   .then(function(permissionResult) {
-    console.log(permissionResult)
     if (permissionResult !== 'granted') {
       throw new Error('We weren\'t granted permission.');
     }
