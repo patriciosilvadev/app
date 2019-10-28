@@ -61,7 +61,7 @@ export default props => {
       setLoading(true)
 
       try {
-        const auth = await AuthService.confirm(props.match.params.token)
+        const auth = await AuthService.confirm(props.match.params.email, props.match.params.token)
 
         setLoading(false)
 
@@ -84,7 +84,7 @@ export default props => {
 
         {!block && !confirmed && <Text>Checking...</Text>}
         {block && <Text>Not found</Text>}
-        {confirmed && <Text>Your account has been confirmed</Text>}
+        {confirmed && <Text>Your email has been confirmed</Text>}
       </Container>
 
       <Logo>

@@ -160,7 +160,7 @@ ReactDOM.render(
           />
 
           <Route path="/auth" component={AuthPage} />
-          <Route path="/confirm/:token" component={ConfirmPage} />
+          <Route path="/confirm/:email/:token" component={ConfirmPage} />
           <Route path="/app" component={AppPage} />
         </Router>
       </ApolloProvider>

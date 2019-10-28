@@ -36,7 +36,7 @@ export default class AuthService {
     CookiesService.setCookie('jwt', token)
   }
 
-  static confirm(token) {
+  static confirm(email, token) {
     return fetch(AUTH_HOST + '/confirm', {
       method: 'POST',
       mode: 'cors',
@@ -47,7 +47,7 @@ export default class AuthService {
       },
       redirect: 'follow',
       referrer: 'no-referrer',
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({email, token }),
     })
   }
 

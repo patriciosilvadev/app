@@ -70,7 +70,10 @@ export default class GraphqlService {
         query user($userId: String!) {
           user(userId: $userId) {
             id
-            email
+            email {
+              address
+              confirmed
+            }
             color
             username
             password
@@ -129,7 +132,10 @@ export default class GraphqlService {
               user {
                 id
                 name
-                email
+                email {
+                  address
+                  confirmed
+                }
                 color
                 username
                 image
@@ -139,7 +145,10 @@ export default class GraphqlService {
                 user {
                   id
                   name
-                  email
+                  email {
+                    address
+                    confirmed
+                  }
                   color
                   username
                   image
@@ -153,7 +162,10 @@ export default class GraphqlService {
                 id
                 role
                 name
-                email
+                email {
+                  address
+                  confirmed
+                }
                 color
                 username
                 image
@@ -184,7 +196,10 @@ export default class GraphqlService {
               user {
                 id
                 name
-                email
+                email {
+                  address
+                  confirmed
+                }
                 color
                 username
                 image
@@ -228,7 +243,10 @@ export default class GraphqlService {
                 user {
                   id
                   name
-                  email
+                  email {
+                    address
+                    confirmed
+                  }
                   color
                   username
                   role
@@ -274,7 +292,10 @@ export default class GraphqlService {
               user {
                 id
                 name
-                email
+                email {
+                  address
+                  confirmed
+                }
                 color
                 username
                 role
@@ -608,7 +629,10 @@ export default class GraphqlService {
               id
               role
               name
-              email
+              email {
+                address
+                confirmed
+              }
               color
               username
               image

@@ -15,13 +15,13 @@ const Header = styled.div`
   flex: 1;
 `
 
-const HeaderName = styled.div`
+const TitleText = styled.div`
   color: #483545;
   font-size: 14px;
   font-weight: 400;
 `
 
-const HeaderRole = styled.div`
+const SubtitleText = styled.div`
   color: #858e96;
   font-size: 12px;
   font-weight: 400;
@@ -144,23 +144,8 @@ export default function AccountModal(props) {
         )}>
 
         <Tabbed
-          start={3}
+          start={1}
           panels={[
-            {
-              title: 'Billing',
-              show: false,
-              content: <div></div>
-            },
-            {
-              title: 'Invoices',
-              show: false,
-              content: <div></div>
-            },
-            {
-              title: 'Notifications',
-              show: false,
-              content: <div></div>
-            },
             {
               title: 'Profile',
               show: true,
@@ -189,10 +174,10 @@ export default function AccountModal(props) {
 
                       <Header className="column">
                         <div className="row pb-5">
-                          <HeaderName>{name}</HeaderName>
+                          <TitleText>{name}</TitleText>
                         </div>
                         <div className="row">
-                          <HeaderRole>{role}</HeaderRole>
+                          <SubtitleText>{role}</SubtitleText>
                           <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
                         </div>
                       </Header>
@@ -220,13 +205,6 @@ export default function AccountModal(props) {
                         placeholder="Username"
                       />
 
-                      <Input
-                        label="Email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                      />
-
                       <Textarea
                         label="Description"
                         value={description}
@@ -238,7 +216,51 @@ export default function AccountModal(props) {
                   </div>
                 </div>
               )
-            }
+            },
+            {
+              title: 'Email accounts',
+              show: true,
+              content: (
+                <div className="row align-items-start w-100">
+                  <div className="column w-100">
+                    {error && <Error message={error} />}
+                    {loading && <Spinner />}
+                    {notification && <Notification text={notification} />}
+
+                    <div className="column p-20 flex-1 scroll w-100">
+                      <TitleText>Connected email addresses</TitleText>
+                      <SubtitleText>Use your Weekday account with more than just 1 email address.</SubtitleText>
+
+                      <table width="100%">
+                        <tbody>
+                          <tr>
+                            <td>ed</td>
+                            <td>delete</td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+
+
+                      <Input
+                        label="Email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                      />
+                      <Button
+                        text="Add"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            },
+            {
+              title: 'Security',
+              show: true,
+              content: <div></div>
+            },
           ]}
         />
       </Modal>

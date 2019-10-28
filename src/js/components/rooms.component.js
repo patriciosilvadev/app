@@ -137,7 +137,7 @@ class RoomsComponent extends React.Component {
       results: [],
       teamModal: false,
       roomPopup: false,
-      accountModal: false,
+      accountModal: true,
       accountMenu: false,
       statusMenu: false,
       starred: [],
