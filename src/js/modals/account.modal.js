@@ -118,7 +118,7 @@ export default function AccountModal(props) {
   const [role, setRole] = useState('')
   const [description, setDescription] = useState('')
   const [email, setEmail] = useState([])
-  const [newEmailAddress, setNewEmailAddress] = useState('hello@joduplessis.com')
+  const [newEmailAddress, setNewEmailAddress] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
 
@@ -161,6 +161,8 @@ export default function AccountModal(props) {
   }
 
   const handleNewEmailAddressDelete = async (emailAddress) => {
+    if (email.length == 1) return setError('You need at least 1 connected email address')
+
     setLoading(true)
     setError(false)
 
@@ -193,7 +195,7 @@ export default function AccountModal(props) {
       } else {
         setLoading(false)
         setEmail([...email, { address: newEmailAddress, confirmed: false }])
-        setNewEmail('')
+        setNewEmailAddress('')
         setNotification('Succesfully added new email')
       }
     } catch (e) {
