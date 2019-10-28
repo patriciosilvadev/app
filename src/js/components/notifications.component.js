@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { fetchNotifications, updateNotificationRead } from '../actions'
 import { Spinner } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import '../../images/notifications-empty.png'
 
 const Container = styled.div`
   width: 100%;
@@ -60,6 +61,9 @@ const LoadContainer = styled.div`
   border-top: 1px solid #E1E7EB;
   border-bottom: 1px solid #E1E7EB;
   width: 100%;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
 `
 
 const LoadText = styled.div`
@@ -68,6 +72,18 @@ const LoadText = styled.div`
   font-weight: 700;
   color: #adb5bd;
   font-weight: regular;
+`
+
+const TitleText = styled.div`
+  color: #483545;
+  font-size: 14px;
+  font-weight: 400;
+`
+
+const SubtitleText = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
 `
 
 export default function NotificationsComponent(props) {
@@ -90,7 +106,7 @@ export default function NotificationsComponent(props) {
     <Container className="column flexer">
       {common.loading && <Spinner />}
 
-      <Inner className="column flexer">
+      <Inner className="column flexer align-items-center">
         {notifications.map((notification, index) => {
           return (
             <Row key={index} className="row">
@@ -112,16 +128,24 @@ export default function NotificationsComponent(props) {
           )
         })}
 
-        <LoadContainer 
+        {notifications.length == 0 &&
+          <React.Fragment>
+            <img src="/images/notifications-empty.png" width="125" className="mt-40 mb-20" />
+            <TitleText>Whoops</TitleText>
+            <SubtitleText>You have no notifications</SubtitleText>
+          </React.Fragment>
+        }
+
+        <LoadContainer
           onClick={() => handleLoadButtonClick()}
           className="button row justify-content-center">
-          <FontAwesomeIcon 
+          <FontAwesomeIcon
             icon={["fal", "sync-alt"]}
             color="#adb5bd"
             size="sm"
             className="mt-5 mb-5"
           />
-          <LoadText>Load more</LoadText>
+        <LoadText>Refresh</LoadText>
         </LoadContainer>
       </Inner>
     </Container>

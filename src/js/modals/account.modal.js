@@ -22,6 +22,12 @@ const TitleText = styled.div`
   font-weight: 400;
 `
 
+const SubtitleText = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
+`
+
 const MailTable = styled.table`
   margin-bottom: 50px;
   margin-top: 50px;
@@ -55,12 +61,6 @@ const MailAddress = styled.div`
 `
 
 const MailStatus = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-`
-
-const SubtitleText = styled.div`
   color: #858e96;
   font-size: 12px;
   font-weight: 400;

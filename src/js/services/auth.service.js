@@ -47,7 +47,7 @@ export default class AuthService {
       },
       redirect: 'follow',
       referrer: 'no-referrer',
-      body: JSON.stringify({email, token }),
+      body: JSON.stringify({email, token}),
     })
   }
 
