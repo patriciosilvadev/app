@@ -5,6 +5,7 @@ import UploadService from '../services/upload.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { Formik } from 'formik'
+import ConfirmModal from './confirm.modal'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
@@ -119,6 +120,10 @@ export default function AccountModal(props) {
   const [description, setDescription] = useState('')
   const [email, setEmail] = useState([])
   const [newEmailAddress, setNewEmailAddress] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
+  const [confirmAccountDeleteModal, setConfirmAccountDeleteModal] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
 
@@ -143,6 +148,45 @@ export default function AccountModal(props) {
       }
     })()
   }, {})
+
+  const handleAccountDelete = async () => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      await AuthService.accountDelete(userId)
+      AuthService.signout()
+      window.location.reload()
+
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
+
+  const handlePasswordUpdate = async () => {
+    if (newPassword != newPasswordConfirm) return setError('Passwords must match')
+
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AuthService.updatePassword(userId, currentPassword, newPassword)
+
+      if (auth.status == 401) {
+        setError('Wrong password')
+        setLoading(false)
+      } else {
+        setLoading(false)
+        setNotification('Successfully updated')
+      }
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
 
   const handleNewEmailAddressConfirm = async (emailAddress) => {
     setLoading(true)
@@ -251,22 +295,10 @@ export default function AccountModal(props) {
         title="Account"
         width={700}
         height="90%"
-        onClose={props.onClose}
-        footer={(
-          <div className="column w-100 align-items-stretch">
-            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-              <div className="flexer" />
-              <Button
-                size="large"
-                onClick={handleSubmit}
-                text="Save"
-              />
-            </div>
-          </div>
-        )}>
+        onClose={props.onClose}>
 
         <Tabbed
-          start={1}
+          start={0}
           panels={[
             {
               title: 'Profile',
@@ -334,6 +366,11 @@ export default function AccountModal(props) {
                         placeholder="Enter bio"
                         rows={2}
                       />
+
+                      <Button
+                        onClick={handleSubmit}
+                        text="Save"
+                      />
                     </div>
                   </div>
                 </div>
@@ -384,7 +421,83 @@ export default function AccountModal(props) {
             {
               title: 'Security',
               show: true,
-              content: <div></div>
+              content: (
+                <div className="row align-items-start w-100">
+                  <div className="column w-100">
+                    {error && <Error message={error} />}
+                    {loading && <Spinner />}
+                    {notification && <Notification text={notification} />}
+
+                    <div className="column p-20 flex-1 scroll w-100">
+                      <TitleText>Change your password</TitleText>
+                      <SubtitleText className="mb-30">Update your password</SubtitleText>
+
+                      <Input
+                        label="Current password"
+                        value={currentPassword}
+                        onChange={e => setCurrentPassword(e.target.value)}
+                        placeholder=""
+                        type="password"
+                        autocomplete="no"
+                      />
+
+                      <Input
+                        label="New password"
+                        value={newPassword}
+                        onChange={e => setNewPassword(e.target.value)}
+                        placeholder=""
+                        type="password"
+                        autocomplete="no"
+                      />
+
+                      <Input
+                        label="Confirm new password"
+                        value={newPasswordConfirm}
+                        onChange={e => setNewPasswordConfirm(e.target.value)}
+                        placeholder=""
+                        type="password"
+                        autocomplete="no"
+                      />
+                      <Button
+                        text="Update"
+                        onClick={handlePasswordUpdate}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            },
+            {
+              title: 'Danger zone',
+              show: true,
+              content: (
+                <div className="row align-items-start w-100">
+                  <div className="column w-100">
+                    {error && <Error message={error} />}
+                    {loading && <Spinner />}
+                    {notification && <Notification text={notification} />}
+
+                    {confirmAccountDeleteModal &&
+                      <ConfirmModal
+                        onOkay={handleAccountDelete}
+                        onCancel={() => setConfirmAccountDeleteModal(false)}
+                        text="Are you sure you want to delete your account, it can not be undone?"
+                        title="Are you sure?"
+                      />
+                    }
+
+                    <div className="column p-20 flex-1 scroll w-100">
+                      <TitleText>Delete your account</TitleText>
+                      <SubtitleText className="mb-30">Here be dragons! This cannot be undone.</SubtitleText>
+
+                      <Button
+                        text="Delete"
+                        onClick={() => setConfirmAccountDeleteModal(true)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
             },
           ]}
         />

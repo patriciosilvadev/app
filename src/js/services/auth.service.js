@@ -51,16 +51,16 @@ export default class AuthService {
     })
   }
 
-  static update(email, password, code) {
+  static updatePassword(userId, currentPassword, newPassword) {
     return fetch(AUTH_HOST + '/password/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email,
-        code,
-        password,
+        userId,
+        currentPassword,
+        newPassword,
       }),
     })
   }
@@ -95,13 +95,27 @@ export default class AuthService {
     })
   }
 
-  static reset(email) {
+  static resetPassword(email) {
     return fetch(AUTH_HOST + '/password/reset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email }),
+    })
+  }
+
+  static updatePasswordReset(email, password, code) {
+    return fetch(AUTH_HOST + '/password/reset/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        code,
+        password,
+      }),
     })
   }
 
@@ -139,6 +153,16 @@ export default class AuthService {
         username,
         password,
       }),
+    })
+  }
+
+  static accountDelete(userId) {
+    return fetch(AUTH_HOST + '/account/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
     })
   }
 }

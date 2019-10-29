@@ -260,7 +260,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AuthService.reset(email)
+      const auth = await AuthService.resetPassword(email)
       const data = await auth.json()
 
       this.setState({ loading: false })
@@ -282,7 +282,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AuthService.update(email, password, code)
+      const auth = await AuthService.updatePasswordReset(email, password, code)
       const data = await auth.json()
 
       this.setState({ loading: false })
