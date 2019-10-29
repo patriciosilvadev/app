@@ -12,22 +12,7 @@ import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const Header = styled.div`
-  flex: 1;
-`
-
-const TitleText = styled.div`
-  color: #483545;
-  font-size: 14px;
-  font-weight: 400;
-`
-
-const SubtitleText = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-`
+import { Text } from '../elements'
 
 const MailTable = styled.table`
   margin-bottom: 50px;
@@ -65,26 +50,6 @@ const MailStatus = styled.div`
   color: #858e96;
   font-size: 12px;
   font-weight: 400;
-`
-
-const HeaderLink = styled.div`
-  color: #00a8ff;
-  font-size: 12px;
-  font-weight: 400;
-  padding-left: 10px;
-  cursor: pointer;
-`
-
-const SmallTextButton = styled.div`
-  color: #adb5bd;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: underline;
-  cursor: pointer;
-
-  &:hover {
-    color: #007af5;
-  }
 `
 
 const EmailAddress = props => {
@@ -249,13 +214,11 @@ export default function AccountModal(props) {
   }
 
   const handleSubmit = async () => {
-    if (email.trim() == '') return setError('This field is mandatory')
-
     setLoading(true)
     setError(false)
 
     try {
-      const updatedUser = { name, role, email, description, username, image }
+      const updatedUser = { name, role, description, username, image }
       const userId = props.id
 
       await GraphqlService.getInstance().updateUser(userId, updatedUser)
@@ -326,15 +289,15 @@ export default function AccountModal(props) {
                         circle
                       />
 
-                      <Header className="column">
+                      <div className="column">
                         <div className="row pb-5">
-                          <TitleText>{name}</TitleText>
+                          <Text color="d" display="h3">{name}</Text>
                         </div>
                         <div className="row">
-                          <SubtitleText>{role}</SubtitleText>
-                          <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
+                          <Text color="m" display="p" className="mr-10">{role}</Text>
+                          <Text color="highlight" display="a" className="button" onClick={() => fileRef.current.click()}>Update profile image</Text>
                         </div>
-                      </Header>
+                      </div>
                     </div>
 
                     <div className="column p-20 flex-1 scroll w-100">
@@ -387,8 +350,8 @@ export default function AccountModal(props) {
                     {notification && <Notification text={notification} />}
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <TitleText>Connected email addresses</TitleText>
-                      <SubtitleText>Use your Weekday account with more than just 1 email address.</SubtitleText>
+                      <Text color="d" display="h3">Connected email addresses</Text>
+                      <Text color="m" display="p" className="mb-30">Use your Weekday account with more than just 1 email address.</Text>
 
                       <MailTable width="100%">
                         <tbody>
@@ -429,8 +392,8 @@ export default function AccountModal(props) {
                     {notification && <Notification text={notification} />}
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <TitleText>Change your password</TitleText>
-                      <SubtitleText className="mb-30">Update your password</SubtitleText>
+                      <Text color="d" display="h3">Change & update your password</Text>
+                      <Text color="m" display="p" className="mb-30">You need to know your old password.</Text>
 
                       <Input
                         label="Current password"
@@ -487,8 +450,8 @@ export default function AccountModal(props) {
                     }
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <TitleText>Delete your account</TitleText>
-                      <SubtitleText className="mb-30">Here be dragons! This cannot be undone.</SubtitleText>
+                      <Text color="d" display="h3">Here be dragons!</Text>
+                      <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
 
                       <Button
                         text="Delete"

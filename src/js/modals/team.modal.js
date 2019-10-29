@@ -10,73 +10,8 @@ import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const Header = styled.div`
-  flex: 1;
-`
-
-const HeaderName = styled.div`
-  color: #483545;
-  font-size: 14px;
-  font-weight: 400;
-`
-
-const HeaderMembers = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-  padding-right: 10px;
-`
-
-const HeaderLink = styled.div`
-  color: #00a8ff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-`
-
-const Label = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-  padding-bottom: 5px;
-`
-
-const SmallTextButton = styled.div`
-  color: #adb5bd;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: underline;
-  cursor: pointer;
-
-  &:hover {
-    color: #007af5;
-  }
-`
-
-const Usernames = styled.div`
-  width: 100%;
-  border-bottom: 1px solid #f1f3f5;
-
-  &::placeholder {
-    color: #ebedef;
-  }
-`
-
-const UsernamesInput = styled.input`
-  color: #202529;
-  font-size: 16px;
-  font-weight: 400;
-  padding: 20px;
-  width: 100%;
-  text-align: left;
-  flex: 1;
-  border: none;
-
-  &::placeholder {
-    color: #ebedef;
-  }
-`
+import { Text } from '../elements'
+import { copyToClipboard } from '../helpers/util'
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -84,7 +19,8 @@ export default function TeamModal(props) {
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
-  const [usernames, setUsernames] = useState('')
+  const [url, setUrl] = useState('')
+  const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
   const [description, setDescription] = useState('')
   const dispatch = useDispatch()
@@ -292,6 +228,7 @@ export default function TeamModal(props) {
         setName(team.name)
         setDescription(team.description)
         setMembers(team.members)
+        setUrl(team.url)
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -307,35 +244,9 @@ export default function TeamModal(props) {
         title="Team"
         width={700}
         height="90%"
-        onClose={props.onClose}
-        footer={(
-          <div className="column w-100 align-items-stretch">
-            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-              <div className="flexer" />
-
-              {confirmDeleteModal &&
-                <ConfirmModal
-                  onOkay={deleteTeam}
-                  onCancel={() => setConfirmDeleteModal(false)}
-                  text="Are you sure you want to delete this team, it can not be undone?"
-                  title="Are you sure?"
-                />
-              }
-
-              <SmallTextButton className="mr-30" onClick={() => setConfirmDeleteModal(true)}>
-                Delete team
-              </SmallTextButton>
-
-              <Button
-                size="large"
-                onClick={updateTeam}
-                text="Save"
-              />
-            </div>
-          </div>
-        )}>
+        onClose={props.onClose}>
           <Tabbed
-            start={props.start || 0}
+            start={props.start || 2}
             panels={[
               {
                 title: 'Profile',
@@ -362,17 +273,17 @@ export default function TeamModal(props) {
                           size="large"
                         />
 
-                        <Header className="column flexer header">
+                        <div className="column flexer header">
                           <div className="row pb-5">
-                            <HeaderName>{name}</HeaderName>
+                            <Text color="d" display="h3">{name}</Text>
                           </div>
                           <div className="row">
                             {props.id &&
-                              <HeaderMembers>{members.length} members</HeaderMembers>
+                              <Text color="m" display="p" className="mr-10">{members.length} members</Text>
                             }
-                            <HeaderLink onClick={() => fileRef.current.click()}>Update profile image</HeaderLink>
+                            <Text color="highlight" display="a" className="button" onClick={() => fileRef.current.click()}>Update profile image</Text>
                           </div>
-                        </Header>
+                        </div>
                       </div>
 
                       <div className="column p-20 flex-1 scroll w-100">
@@ -390,6 +301,11 @@ export default function TeamModal(props) {
                           placeholder="Add a description"
                           rows={8}
                         />
+
+                        <Button
+                          onClick={updateTeam}
+                          text="Save"
+                        />
                       </div>
                     </div>
                   </div>
@@ -397,7 +313,7 @@ export default function TeamModal(props) {
               },
               {
                 title: 'Members',
-                show: members.length != 0,
+                show: true,
                 content: (
                   <div className="column flex-1 w-100 h-100">
                     {error && <Error message={error} />}
@@ -422,22 +338,6 @@ export default function TeamModal(props) {
                       />
                     }
 
-                    <Usernames className="row">
-                      <UsernamesInput
-                        placeholder="Comma seperated usernames or email addresses"
-                        value={usernames}
-                        onChange={(e) => setUsernames(e.target.value)}
-                      />
-
-                      <FontAwesomeIcon 
-                        icon={["fal", "plus-circle"]} 
-                        color="#EBEDEF" 
-                        size="lg" 
-                        className="mr-20 button"
-                        onClick={createTeamMembers}
-                      />
-                    </Usernames>
-
                     {members.map((member, index) => {
                       return (
                         <User
@@ -445,12 +345,12 @@ export default function TeamModal(props) {
                           image={member.user.image}
                           color={member.user.color}
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                          label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
+                          label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
-                          <FontAwesomeIcon 
-                            icon={["fal", "trash-alt"]} 
-                            color="#007af5" 
-                            size="lg" 
+                          <FontAwesomeIcon
+                            icon={["fal", "trash-alt"]}
+                            color="#007af5"
+                            size="lg"
                             onClick={() => handleDeleteClick(member)}
                             className="button"
                           />
@@ -466,7 +366,72 @@ export default function TeamModal(props) {
                     })}
                   </div>
                 )
-              }
+              },
+              {
+                title: 'Invite & share',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <Text color="d" display="h3">Invite users</Text>
+                        <Text color="m" display="p" className="mb-10">Add users email.</Text>
+
+                        <div className="mb-30">
+                          <Text
+                            className="button"
+                            color="highlight"
+                            display="a"
+                            onClick={() => copyToClipboard(`http://localhost:8080/join/${url}`)}>
+                            Click here
+                          </Text>
+                          <Text color="d" display="p"> to copy a temporary access URL that users can use to join this team</Text>
+                        </div>
+
+                        <Textarea
+                          placeholder="Comma seperated email addresses"
+                          value={emails}
+                          onChange={(e) => setEmails(e.target.value)}
+                        />
+
+                        <Button
+                          text="Invite users"
+                          onClick={createTeamMembers}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                title: 'Danger zone',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+
+                      {confirmDeleteModal &&
+                        <ConfirmModal
+                          onOkay={deleteTeam}
+                          onCancel={() => setConfirmDeleteModal(false)}
+                          text="Are you sure you want to delete this team, it can not be undone?"
+                          title="Are you sure?"
+                        />
+                      }
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <Text color="d" display="h3">Here be dragons!</Text>
+                        <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+
+                        <Button
+                          text="Delete"
+                          onClick={() => setConfirmDeleteModal(true)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
             ]}
           />
       </Modal>

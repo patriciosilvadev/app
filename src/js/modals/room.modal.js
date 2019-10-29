@@ -154,8 +154,8 @@ export default function RoomModal(props) {
                             onClick={() => fileRef.current.click()}
                           />
 
-                          <Link 
-                            className="button" 
+                          <Link
+                            className="button"
                             onClick={() => fileRef.current.click()}>
                             Update image
                           </Link>
@@ -237,7 +237,7 @@ export default function RoomModal(props) {
                           image={member.user.image}
                           color={member.user.color}
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                          label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
+                          label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
                           <Button
                             size="small"
@@ -279,10 +279,10 @@ export default function RoomModal(props) {
                           image={null}
                           color="#007af5"
                           title="">
-                          <FontAwesomeIcon 
-                            icon={["fal", "plus"]} 
-                            color="#00a8ff" 
-                            size="sm" 
+                          <FontAwesomeIcon
+                            icon={["fal", "plus"]}
+                            color="#00a8ff"
+                            size="sm"
                           />
                         </Avatar>
                         <Link className="ml-10">Add new Member</Link>

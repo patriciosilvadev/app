@@ -135,9 +135,9 @@ class RoomsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: false,
+      teamModal: true,
       roomPopup: false,
-      accountModal: true,
+      accountModal: false,
       accountMenu: false,
       statusMenu: false,
       starred: [],
