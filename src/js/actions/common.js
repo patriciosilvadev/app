@@ -67,24 +67,54 @@ export function updateUserStatus(status) {
   }
 }
 
-export function initialize(ids) {
+export function initialize() {
   return async (dispatch, getState) => {
-    // Join all these SocketIO rooms
-    MessagingService.getInstance().initialize([...ids, getState().common.user.id])
+    // Join our single room for us
+    MessagingService.getInstance().join(getState().common.user.id)
 
     // Handle incoming messages
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
+      // If this user is already in this room, then don't do anything
+      if (!!getState().rooms.filter(r => r.id == roomId).flatten()) return
+
+      // Get the room data
       const room = await GraphqlService.getInstance().room(roomId)
       if (!room.data.room) return
+
+      // Joing the room SOCKET
       MessagingService.getInstance().join(roomId)
+
+      // Create the room in the store
+      // They may or may not be a member of it (irrelevant if it's public)
       dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
     })
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
+      // Unsub from this SOCKET
       MessagingService.getInstance().leave(roomId)
+
+      // And then remove it
+      dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
+    })
+    MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
+      const userId = getState().common.user.id
+      const room = getState().rooms.filter(r => r.id == roomId)
+      const isMember = room.members.filter(m => m.user.id == userId)
+
+      // If they are a member, then they have a right to be a here
+      // Don't make them leave
+      if (isMember) return
+
+      // Unsub from this SOCKET
+      MessagingService.getInstance().leave(roomId)
+
+      // And then remove it
       dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
+      // If this user is already in this team, then don't do anything
+      if (!!getState().teams.filter(t => t.id == teamId).flatten()) return
+
       const team = await GraphqlService.getInstance().team(teamId)
       if (!team.data.team) return
       MessagingService.getInstance().join(teamId)

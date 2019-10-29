@@ -13,6 +13,10 @@ export function fetchRooms(teamId, userId) {
 
     try {
       const rooms = await GraphqlService.getInstance().rooms(teamId, userId)
+      const roomIds = rooms.data.rooms.map(room => room.id)
+
+      // Join the rooms
+      MessagingService.getInstance().joins(roomIds)
 
       dispatch(updateLoading(false))
       dispatch({

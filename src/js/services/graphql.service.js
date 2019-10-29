@@ -313,21 +313,6 @@ export default class GraphqlService {
     })
   }
 
-  joins(userId) {
-    return this.client.query({
-      query: gql`
-        query joins($userId: String!) {
-          joins(userId: $userId) {
-            id
-          }
-        }
-      `,
-      variables: {
-        userId,
-      },
-    })
-  }
-
   rooms(teamId, userId) {
     return this.client.query({
       query: gql`
@@ -624,7 +609,7 @@ export default class GraphqlService {
     return this.client.mutate({
       mutation: gql`
         mutation inviteTeamMembers($teamName: String, $teamUrl: String, $emails: String) {
-          inviteTeamMembers(teamName: $teamName, teamUrl: $teamUrl, emails: $emails) 
+          inviteTeamMembers(teamName: $teamName, teamUrl: $teamUrl, emails: $emails)
         }
       `,
       variables: {

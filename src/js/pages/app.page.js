@@ -69,11 +69,7 @@ class AppPage extends React.Component {
 
   async fetchData(userId) {
     this.props.fetchUser(userId)
-
-    const joins = await GraphqlService.getInstance().joins(userId)
-    const ids = joins.data.joins.map(join => join.id)
-
-    this.props.initialize(ids)
+    this.props.initialize()
     this.checkPushNotification()
   }
 
@@ -180,7 +176,7 @@ AppPage.propTypes = {
 }
 
 const mapDispatchToProps = {
-  initialize: ids => initialize(ids),
+  initialize: () => initialize(),
   fetchUser: userId => fetchUser(userId),
 }
 

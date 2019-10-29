@@ -9,10 +9,11 @@ import EventService from '../services/event.service'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
+import MessagingService from '../services/messaging.service'
 import ConfirmModal from '../modals/confirm.modal'
 import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
+import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
@@ -334,7 +335,14 @@ class RoomComponent extends React.Component {
     this.props.updateUserStarred(userId, roomId, starred)
   }
 
+  // { private, public }
   updateRoomVisibility(visibility) {
+    const roomId = this.props.room.id
+    const teamId = this.props.team.id
+
+    if (visibility.private || !visibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
+    if (visibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
+
     this.setState({ visibilityMenu: false })
     this.props.updateRoom(visibility)
   }
@@ -512,8 +520,8 @@ class RoomComponent extends React.Component {
                   <div className="column flexer">
                     <Menu
                       items={[
-                        { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
-                        { icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
+                        { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                        { icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
                       ]}
                     />
                   </div>
@@ -544,6 +552,12 @@ class RoomComponent extends React.Component {
                 onClick={() => this.setState({ confirmDeleteModal: true })}
               />
             </Header>
+          }
+
+          {this.props.room.public &&
+            <Notification
+              text="This team channel is public"
+            />
           }
 
           <MessagesContainer ref={(ref) => this.scrollRef = ref}>
