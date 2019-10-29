@@ -9,7 +9,7 @@ import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
-import { createRoom, fetchRooms, fetchTeam, updateUserStatus } from '../actions'
+import { createRoom, fetchRooms, fetchTeam, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
@@ -460,19 +460,25 @@ class RoomsComponent extends React.Component {
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
+                const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
+                const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
 
                 return (
-                  <Link className="w-100" key={index} to={to}>
-                    <Room
-                      active={pathname.indexOf(room.id) != -1}
-                      unread={unreadCount}
-                      title={title}
-                      image={image}
-                      excerpt={room.excerpt}
-                      public={room.public}
-                      private={room.private}
-                    />
-                  </Link>
+                  <Room
+                    key={index}
+                    active={pathname.indexOf(room.id) != -1}
+                    unread={unreadCount}
+                    title={title}
+                    image={image}
+                    excerpt={room.excerpt}
+                    public={room.public}
+                    private={room.private}
+                    muted={muted}
+                    archived={archived}
+                    onClick={() => this.props.history.push(to)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                  />
                 )
               })}
             </React.Fragment>
@@ -508,6 +514,8 @@ class RoomsComponent extends React.Component {
             const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
             const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
             const unreadCount = unread ? unread.doc.count : 0
+            const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
+            const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
 
             return (
               <Room
@@ -519,11 +527,11 @@ class RoomsComponent extends React.Component {
                 excerpt={room.excerpt}
                 public={room.public}
                 private={room.private}
-                muted={true}
-                archived={false}
-                onArchivedClick={() => console.log('2')}
-                onMutedClick={() => console.log('1')}
+                muted={muted}
+                archived={archived}
                 onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
+                onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
               />
             )
           })}
@@ -539,6 +547,8 @@ class RoomsComponent extends React.Component {
                 const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
+                const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
+                const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
 
                 // Filter based on users search
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
@@ -550,19 +560,23 @@ class RoomsComponent extends React.Component {
                 const heartbeat = otherMemberPresence ? otherMemberPresence.heartbeat : null
 
                 return (
-                  <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                    <Room
-                      heartbeat={heartbeat}
-                      active={pathname.indexOf(room.id) != -1}
-                      unread={unreadCount}
-                      title={title}
-                      image={image}
-                      icon={null}
-                      excerpt={otherMemberStatus}
-                      public={room.public}
-                      private={room.private}
-                    />
-                  </Link>
+                  <Room
+                    key={index}
+                    heartbeat={heartbeat}
+                    active={pathname.indexOf(room.id) != -1}
+                    unread={unreadCount}
+                    title={title}
+                    image={image}
+                    icon={null}
+                    excerpt={otherMemberStatus}
+                    public={room.public}
+                    private={room.private}
+                    muted={muted}
+                    archived={archived}
+                    onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                  />
                 )
               })}
             </React.Fragment>
@@ -580,19 +594,25 @@ class RoomsComponent extends React.Component {
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
+                const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
+                const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
 
                 return (
-                  <Link className="w-100" key={index} to={to}>
-                    <Room
-                      active={pathname.indexOf(room.id) != -1}
-                      unread={unreadCount}
-                      title={title}
-                      image={image}
-                      excerpt={room.excerpt}
-                      public={room.public}
-                      private={room.private}
-                    />
-                  </Link>
+                  <Room
+                    key={index}
+                    active={pathname.indexOf(room.id) != -1}
+                    unread={unreadCount}
+                    title={title}
+                    image={image}
+                    excerpt={room.excerpt}
+                    public={room.public}
+                    private={room.private}
+                    muted={muted}
+                    archived={archived}
+                    onClick={() => this.props.history.push(to)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                  />
                 )
               })}
             </React.Fragment>
@@ -616,6 +636,8 @@ RoomsComponent.propTypes = {
   fetchStarredRooms: PropTypes.func,
   fetchTeam: PropTypes.func,
   updateUserStatus: PropTypes.func,
+  updateUserMuted: PropTypes.func,
+  updateUserArchived: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -624,6 +646,8 @@ const mapDispatchToProps = {
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),
   fetchTeam: teamId => fetchTeam(teamId),
+  updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
+  updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
 }
 
 const mapStateToProps = state => {
