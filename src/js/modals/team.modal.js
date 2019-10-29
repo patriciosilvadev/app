@@ -95,38 +95,15 @@ export default function TeamModal(props) {
     }
   }
 
-  const createTeamMembers = async () => {
+  const inviteTeamMembers = async () => {
     try {
-      const teamId = props.id
+      setLoading(true)
+      setError(null)
 
-      // Remove existing users & ourselves from the send list
-      const dedupedUsernames = usernames
-        .split(',')
-        .filter(username => username.trim() != common.user.email && username.trim() != common.user.username)
-        .filter(username => {
-          // Is this username present on members
-          const existingMemberByUsername = members.filter(member => member.user.username == username.trim()).length > 0
-          const existingMemberByEmail = members.filter(member => member.user.email == username.trim()).length > 0
+      await GraphqlService.getInstance().inviteTeamMembers(name, url, emails)
 
-          return !existingMemberByUsername && !existingMemberByEmail
-        })
-        .join(',')
-
-      // Only make the API call if they are new
-      if (dedupedUsernames.length > 0) {
-        setLoading(true)
-        setError(null)
-
-        const { data } = await GraphqlService.getInstance().createTeamMembers(teamId, dedupedUsernames)
-        const newMembers = data.createTeamMembers
-        const userIds = newMembers.map(member => member.user.id)
-
-        setLoading(false)
-        setUsernames('')
-        setMembers([...members, ...newMembers])
-
-        MessagingService.getInstance().joinTeam(userIds, teamId)
-      }
+      setLoading(false)
+      setEmails('')
     } catch (e) {
       setLoading(false)
       setError('Error creating team member')
@@ -397,7 +374,7 @@ export default function TeamModal(props) {
 
                         <Button
                           text="Invite users"
-                          onClick={createTeamMembers}
+                          onClick={inviteTeamMembers}
                         />
                       </div>
                     </div>

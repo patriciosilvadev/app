@@ -620,32 +620,17 @@ export default class GraphqlService {
     })
   }
 
-  createTeamMembers(teamId, usernames) {
+  inviteTeamMembers(teamName, teamUrl, emails) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTeamMembers($teamId: String, $usernames: String) {
-          createTeamMembers(teamId: $teamId, usernames: $usernames) {
-            user {
-              id
-              role
-              name
-              email {
-                address
-                confirmed
-              }
-              color
-              username
-              image
-              createdAt
-              status
-            }
-            admin
-          }
+        mutation inviteTeamMembers($teamName: String, $teamUrl: String, $emails: String) {
+          inviteTeamMembers(teamName: $teamName, teamUrl: $teamUrl, emails: $emails) 
         }
       `,
       variables: {
-        teamId,
-        usernames,
+        teamName,
+        teamUrl,
+        emails,
       },
     })
   }
