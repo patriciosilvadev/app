@@ -71,7 +71,8 @@ export default props => {
 
       try {
         const { userId } = await AuthService.currentAuthenticatedUser()
-        const auth = await AuthService.join(props.match.params.url, userId)
+        const { url } = props.match.params
+        const auth = await AuthService.join(url, userId)
 
         setLoading(false)
 
