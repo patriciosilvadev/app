@@ -69,7 +69,7 @@ class AppPage extends React.Component {
 
   async fetchData(userId) {
     this.props.fetchUser(userId)
-    this.props.initialize()
+    this.props.initialize(userId)
     this.checkPushNotification()
   }
 
@@ -176,7 +176,7 @@ AppPage.propTypes = {
 }
 
 const mapDispatchToProps = {
-  initialize: () => initialize(),
+  initialize: userId => initialize(userId),
   fetchUser: userId => fetchUser(userId),
 }
 

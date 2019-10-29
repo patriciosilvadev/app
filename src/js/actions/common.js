@@ -107,10 +107,10 @@ export function updateUserStatus(status) {
   }
 }
 
-export function initialize() {
+export function initialize(userId) {
   return async (dispatch, getState) => {
     // Join our single room for us
-    MessagingService.getInstance().join(getState().common.user.id)
+    MessagingService.getInstance().join(userId)
 
     // Handle incoming messages
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
@@ -236,7 +236,7 @@ export function initialize() {
       })
 
     // TODO: Debug
-    DatabaseService.getInstance().unread('5ce12ae5ffd420dc2f5a6878', '5cbb6dd5d446d5774bba598a')
+    DatabaseService.getInstance().unread('5db7e3d88476242154d43183', '5db87f04db059a6d8dc8d068')
   }
 }
 

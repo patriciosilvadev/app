@@ -519,14 +519,12 @@ class RoomComponent extends React.Component {
                 width={275}
                 direction="right-bottom"
                 content={
-                  <div className="column flexer">
-                    <Menu
-                      items={[
-                        { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                        { icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
-                      ]}
-                    />
-                  </div>
+                  <Menu
+                    items={[
+                      { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                      { icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                    ]}
+                  />
                 }>
                 <HeaderButton
                   className="button"

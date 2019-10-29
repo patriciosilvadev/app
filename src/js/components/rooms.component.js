@@ -309,7 +309,7 @@ class RoomsComponent extends React.Component {
             className="mr-10"
           />
 
-          <div className="column w-100">
+          <div className="column flexer pl-10">
             <HeaderTeam>
               {this.props.team.name}
             </HeaderTeam>
@@ -510,17 +510,21 @@ class RoomsComponent extends React.Component {
             const unreadCount = unread ? unread.doc.count : 0
 
             return (
-              <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                <Room
-                  active={pathname.indexOf(room.id) != -1}
-                  unread={unreadCount}
-                  title={room.title}
-                  image={room.image}
-                  excerpt={room.excerpt}
-                  public={room.public}
-                  private={room.private}
-                />
-              </Link>
+              <Room
+                key={index}
+                active={pathname.indexOf(room.id) != -1}
+                unread={unreadCount}
+                title={room.title}
+                image={room.image}
+                excerpt={room.excerpt}
+                public={room.public}
+                private={room.private}
+                muted={true}
+                archived={false}
+                onArchivedClick={() => console.log('2')}
+                onMutedClick={() => console.log('1')}
+                onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
+              />
             )
           })}
 
