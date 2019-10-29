@@ -141,6 +141,8 @@ class RoomsComponent extends React.Component {
       accountMenu: false,
       statusMenu: false,
       starred: [],
+      muted: [],
+      archived: [],
       public: [],
       private: [],
     }
@@ -159,11 +161,15 @@ class RoomsComponent extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     const starredRooms = props.rooms.filter((room, index) => props.common.user.starred.indexOf(room.id) != -1)
+    const mutedRooms = props.rooms.filter((room, index) => props.common.user.muted.indexOf(room.id) != -1)
+    const archivedRooms = props.rooms.filter((room, index) => props.common.user.archived.indexOf(room.id) != -1)
     const privateRooms = props.rooms.filter((room, index) => room.private && props.common.user.starred.indexOf(room.id) == -1)
     const publicRooms = props.rooms.filter((room, index) => !room.private && props.common.user.starred.indexOf(room.id) == -1)
 
     return {
       starred: starredRooms,
+      muted: mutedRooms,
+      archived: archivedRooms,
       private: privateRooms,
       public: publicRooms,
     }
@@ -549,6 +555,36 @@ class RoomsComponent extends React.Component {
                       image={image}
                       icon={null}
                       excerpt={otherMemberStatus}
+                      public={room.public}
+                      private={room.private}
+                    />
+                  </Link>
+                )
+              })}
+            </React.Fragment>
+          }
+
+          {this.state.archived.length != 0 &&
+            <React.Fragment>
+              <Heading>Archived</Heading>
+
+              {this.state.archived.map((room, index) => {
+                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const unreadCount = unread ? unread.doc.count : 0
+                const to = `/app/team/${room.team.id}/room/${room.id}`
+
+                return (
+                  <Link className="w-100" key={index} to={to}>
+                    <Room
+                      active={pathname.indexOf(room.id) != -1}
+                      unread={unreadCount}
+                      title={title}
+                      image={image}
+                      excerpt={room.excerpt}
                       public={room.public}
                       private={room.private}
                     />

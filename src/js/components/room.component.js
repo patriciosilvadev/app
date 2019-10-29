@@ -368,6 +368,8 @@ class RoomComponent extends React.Component {
     const isPublic = props.room.public
     const open = isMember || isPublic
     const starred = props.common.user.starred.indexOf(props.room.id) != -1
+    const muted = props.common.user.muted.indexOf(props.room.id) != -1
+    const archived = props.common.user.archived.indexOf(props.room.id) != -1
 
     const title = props.room.private
       ? props.room.members

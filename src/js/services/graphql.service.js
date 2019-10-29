@@ -81,6 +81,8 @@ export default class GraphqlService {
             role
             theme
             starred
+            muted
+            archived
             description
             status
             image
@@ -526,6 +528,36 @@ export default class GraphqlService {
       variables: {
         userId,
         payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  updateUserMuted(userId, roomId, muted) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateUserMuted($userId: String, $roomId: String, $muted: Boolean) {
+          updateUserMuted(userId: $userId, roomId: $roomId, muted: $muted)
+        }
+      `,
+      variables: {
+        userId,
+        roomId,
+        muted,
+      },
+    })
+  }
+
+  updateUserArchived(userId, roomId, archived) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateUserArchived($userId: String, $roomId: String, $archived: Boolean) {
+          updateUserArchived(userId: $userId, roomId: $roomId, archived: $archived)
+        }
+      `,
+      variables: {
+        userId,
+        roomId,
+        archived,
       },
     })
   }

@@ -14,6 +14,46 @@ export function registerDockPlugin(plugin) {
   }
 }
 
+export function updateUserMuted(userId, roomId, muted) {
+  return async (dispatch, getState) => {
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      await GraphqlService.getInstance().updateUserMuted(userId, roomId, muted)
+
+      dispatch(updateLoading(false))
+      dispatch({
+        type: 'UPDATE_USER_MUTED',
+        payload: { roomId, muted },
+      })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
+export function updateUserArchived(userId, roomId, archived) {
+  return async (dispatch, getState) => {
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      await GraphqlService.getInstance().updateUserArchived(userId, roomId, archived)
+
+      dispatch(updateLoading(false))
+      dispatch({
+        type: 'UPDATE_USER_ARCHIVED',
+        payload: { roomId, archived },
+      })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
 export function updateUserStarred(userId, roomId, starred) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))
@@ -130,10 +170,13 @@ export function initialize() {
       // Handle any reads/unreads here for the DB
       if (action.type == 'CREATE_ROOM_MESSAGE') {
         const { roomId, teamId, message } = action.payload
+        const isArchived = !!getState().rooms.filter((room, index) => props.common.user.archived.indexOf(room.id) != -1).flatten()
+        const isStarred = !!getState().rooms.filter((room, index) => props.common.user.starred.indexOf(room.id) != -1).flatten()
+        const isCurrentRoom = roomId == getState().room.id
 
         // Don't do a PN or unread increment if we are on the same room
         // as the message
-        if (roomId == getState().room.id) return
+        if (isArchived || isStarred || isCurrentRoom) return
 
         // Trigger a push notification
         showLocalPushNotification('New Message', message)
