@@ -165,4 +165,20 @@ export default class AuthService {
       body: JSON.stringify({ userId }),
     })
   }
+
+  static join(url, userId) {
+    return fetch(AUTH_HOST + '/join', {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow',
+      referrer: 'no-referrer',
+      body: JSON.stringify({url, userId}),
+    })
+  }
+
 }
