@@ -6,12 +6,10 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
-export function createRoomMember(user) {
+export function createRoomMember(roomId, user) {
   return async (dispatch, getState) => {
-    const { room } = getState()
     const userId = user.id
     const userIds = [userId]
-    const roomId = room.id
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
@@ -37,13 +35,11 @@ export function createRoomMember(user) {
   }
 }
 
-export function deleteRoomMember(user) {
+export function deleteRoomMember(roomId, user) {
   return async (dispatch, getState) => {
-    const { room, team, common } = getState()
+    const { common } = getState()
     const userId = user.id
-    const teamId = team.id
     const userIds = [userId]
-    const roomId = room.id
     const currentUserId = common.user.id
 
     dispatch(updateLoading(true))
@@ -53,20 +49,21 @@ export function deleteRoomMember(user) {
       await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
 
       dispatch(updateLoading(false))
+
+      // Delete the room member from the store
       dispatch({
         type: 'DELETE_ROOM_MEMBER',
         payload: { userId, roomId },
         sync: roomId,
       })
 
+      // Delete the room for them
       if (userId == currentUserId) {
         dispatch({
           type: 'DELETE_ROOM',
           payload: { roomId },
           sync: roomId,
         })
-
-        browserHistory.push('/app/' + teamId)
       }
 
       MessagingService.getInstance().leaveRoom(userIds, roomId)
@@ -79,9 +76,6 @@ export function deleteRoomMember(user) {
 
 export function deleteRoom(roomId) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-    const roomId = room.id
-
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
@@ -101,11 +95,8 @@ export function deleteRoom(roomId) {
   }
 }
 
-export function updateRoom(updatedRoom) {
+export function updateRoom(roomId, updatedRoom) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-    const roomId = room.id
-
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
@@ -125,10 +116,8 @@ export function updateRoom(updatedRoom) {
   }
 }
 
-export function updateRoomAddTyping(userName, userId) {
+export function updateRoomAddTyping(roomId, userName, userId) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-    const roomId = room.id
     const alreadyTyping = room.typing.filter(typing => typing.userId == userId).flatten()
 
     // Don't re-add people
@@ -142,11 +131,8 @@ export function updateRoomAddTyping(userName, userId) {
   }
 }
 
-export function updateRoomDeleteTyping(userName, userId) {
+export function updateRoomDeleteTyping(roomId, userName, userId) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-    const roomId = room.id
-
     dispatch({
       type: 'UPDATE_ROOM_DELETE_TYPING',
       payload: { userName, userId, roomId },
@@ -178,7 +164,7 @@ export function fetchRoom(roomId) {
       })
 
       // Clear all the markers for read/unread
-      DatabaseService.getInstance().read(room.id)
+      DatabaseService.getInstance().read(roomId)
     } catch (e) {
       dispatch(updateLoading(false))
       dispatch(updateError(e))
@@ -240,15 +226,13 @@ export function createRoom(title, description, image, teamId, user) {
   }
 }
 
-export function fetchRoomMessages(page) {
+export function fetchRoomMessages(roomId, page) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      const roomMessages = await GraphqlService.getInstance().roomMessages(room.id, page)
+      const roomMessages = await GraphqlService.getInstance().roomMessages(roomId, page)
       const messages = roomMessages.data.roomMessages
 
       dispatch(updateLoading(false))
@@ -267,7 +251,7 @@ export function fetchRoomMessages(page) {
       })
 
       // Tell our room to resume enabling loads
-      EventService.get().emit('successfullyFetchedRoomMessages', true)
+      EventService.get().emit('successfullyFetchedMoreRoomMessages', true)
     } catch (e) {
       dispatch(updateLoading(false))
       dispatch(updateError(e))
@@ -275,7 +259,7 @@ export function fetchRoomMessages(page) {
   }
 }
 
-export function createRoomMessage(text, attachments, parent) {
+export function createRoomMessage(roomId, text, attachments, parent) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
     const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text
@@ -285,7 +269,7 @@ export function createRoomMessage(text, attachments, parent) {
 
     try {
       const { data } = await GraphqlService.getInstance().createRoomMessage(
-        room.id,
+        roomId,
         common.user.id,
         common.user.name,
         text,
@@ -301,10 +285,10 @@ export function createRoomMessage(text, attachments, parent) {
         payload: {
           message: data.createRoomMessage,
           excerpt,
-          roomId: room.id,
+          roomId: roomId,
           teamId: room.team.id,
         },
-        sync: room.id,
+        sync: roomId,
       })
 
       // Update the room excerpt
@@ -312,10 +296,10 @@ export function createRoomMessage(text, attachments, parent) {
         type: 'UPDATE_ROOM',
         payload: {
           excerpt,
-          roomId: room.id,
+          roomId: roomId,
           teamId: room.team.id,
         },
-        sync: room.id,
+        sync: roomId,
       })
     } catch (e) {
       dispatch(updateLoading(false))
@@ -324,11 +308,10 @@ export function createRoomMessage(text, attachments, parent) {
   }
 }
 
-export function updateRoomMessage(id, text, attachments) {
+export function updateRoomMessage(roomId, messageId, message, attachments) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
-    const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text
-    const roomId = room.id
+    const excerpt = common.user.name.toString().split(' ')[0] + ": " + message || message
     const userName = common.user.name
     const userId = common.user.id
     const teamId = room.team.id
@@ -341,8 +324,8 @@ export function updateRoomMessage(id, text, attachments) {
         roomId,
         userId,
         userName,
-        id,
-        text,
+        messageId,
+        message,
         attachments,
       )
 
@@ -352,7 +335,7 @@ export function updateRoomMessage(id, text, attachments) {
       dispatch({
         type: 'UPDATE_ROOM_MESSAGE',
         payload: {
-          id,
+          messageId,
           excerpt,
           roomId,
           teamId,
@@ -365,7 +348,6 @@ export function updateRoomMessage(id, text, attachments) {
       dispatch({
         type: 'UPDATE_ROOM',
         payload: {
-          id,
           excerpt,
           roomId,
           teamId,
@@ -379,11 +361,8 @@ export function updateRoomMessage(id, text, attachments) {
   }
 }
 
-export function deleteRoomMessage(messageId) {
+export function deleteRoomMessage(roomId, messageId) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-    const roomId = room.id
-
     try {
       await GraphqlService.getInstance().deleteRoomMessage(messageId)
 
@@ -399,41 +378,37 @@ export function deleteRoomMessage(messageId) {
   }
 }
 
-export function createRoomMessageReaction(messageId, reaction) {
+export function createRoomMessageReaction(roomId, messageId, reaction) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-
     try {
       await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
 
       dispatch({
         type: 'CREATE_ROOM_MESSAGE_REACTION',
         payload: {
-          roomId: room.id,
+          roomId,
           messageId,
           reaction,
         },
-        sync: room.id,
+        sync: roomId,
       })
     } catch (e) {}
   }
 }
 
-export function deleteRoomMessageReaction(messageId, reaction) {
+export function deleteRoomMessageReaction(roomId, messageId, reaction) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-
     try {
       await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
 
       dispatch({
         type: 'DELETE_ROOM_MESSAGE_REACTION',
         payload: {
-          roomId: room.id,
+          roomId,
           messageId,
           reaction,
         },
-        sync: room.id,
+        sync: roomId,
       })
     } catch (e) {}
   }

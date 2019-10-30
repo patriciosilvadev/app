@@ -281,7 +281,7 @@ class RoomComponent extends React.Component {
     if (this.state.busy) return
 
     // Get new messages
-    this.props.fetchRoomMessages(this.state.page)
+    this.props.fetchRoomMessages(this.props.room.id, this.state.page)
 
     // Save the height of the messages area
     // Important for when we update their scroll position
@@ -306,7 +306,7 @@ class RoomComponent extends React.Component {
     // setInterval(() => this.scrollToBottom(), 500)
 
     // Disblae the busy flag, so that the user can conitnue loading messages
-    EventService.get().on('successfullyFetchedRoomMessages', payload => {
+    EventService.get().on('successfullyFetchedMoreRoomMessages', payload => {
       this.setState({ busy: false })
     })
   }
@@ -344,7 +344,7 @@ class RoomComponent extends React.Component {
     if (visibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
 
     this.setState({ visibilityMenu: false })
-    this.props.updateRoom(visibility)
+    this.props.updateRoom(roomId, visibility)
   }
 
   deleteRoom() {
@@ -450,7 +450,7 @@ class RoomComponent extends React.Component {
                       width={250}
                       direction="left-bottom"
                       handleDismiss={() => this.setState({ userMenu: false })}
-                      handleAccept={({ user }) => this.props.createRoomMember(user)}>
+                      handleAccept={({ user }) => this.props.createRoomMember(this.props.room.id, user)}>
                       <div
                         className="ml-10 row button"
                         onClick={() => this.setState({ userMenu:true })}>
@@ -514,7 +514,7 @@ class RoomComponent extends React.Component {
                   />
 
                   <FontAwesomeIcon
-                    icon={["fal", "user-friends"]}
+                    icon={["fal", "at"]}
                     color="#acb5bd"
                     size="lg"
                     className="mr-20 button"
@@ -662,9 +662,9 @@ RoomComponent.propTypes = {
 const mapDispatchToProps = {
   fetchRoom: url => fetchRoom(url),
   createRoom: (title, description, team, user) => createRoom(title, description, team, user),
-  fetchRoomMessages: page => fetchRoomMessages(page),
-  createRoomMember: user => createRoomMember(user),
-  updateRoom: updatedRoom => updateRoom(updatedRoom),
+  fetchRoomMessages: (roomId, page) => fetchRoomMessages(roomId, page),
+  createRoomMember: (roomId, user) => createRoomMember(roomId, user),
+  updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
   updateLoading: loading => updateLoading(loading),
   updateError: error => updateError(error),
   updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),

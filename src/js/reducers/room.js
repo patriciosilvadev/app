@@ -40,7 +40,7 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_ROOM_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
-          if (message.id == action.payload.id) {
+          if (message.id == action.payload.messageId) {
             return {
               ...message,
               attachments: action.payload.message.attachments,

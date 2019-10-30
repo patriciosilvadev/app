@@ -205,7 +205,7 @@ export default memo(props => {
   const [images, setImages] = useState([])
 
   const handleDeleteRoomMessage = () => {
-    dispatch(deleteRoomMessage(props.message.id))
+    dispatch(deleteRoomMessage(room.id, props.message.id))
     setConfirmDeleteModal(false)
   }
 
@@ -215,12 +215,12 @@ export default memo(props => {
     // Only this user can do this
     if (reaction.split('__')[1] != common.user.id) return
 
-    dispatch(deleteRoomMessageReaction(props.message.id, reaction))
+    dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
   }
 
   const handleCreateRoomMessageReaction = emoticon => {
     setEmoticons(false)
-    dispatch(createRoomMessageReaction(props.message.id, `${emoticon}__${common.user.id}__${common.user.name.split(' ')[0]}`))
+    dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${common.user.id}__${common.user.name.split(' ')[0]}`))
   }
 
   const highlightMessage = (message, query) => {

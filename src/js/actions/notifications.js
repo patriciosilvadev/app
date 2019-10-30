@@ -28,9 +28,6 @@ export function fetchNotifications(userId, page) {
 
 export function updateNotificationRead(notificationId, read) {
   return async (dispatch, getState) => {
-    const { room } = getState()
-    const roomId = room.id
-
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 

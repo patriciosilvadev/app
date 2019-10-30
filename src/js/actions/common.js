@@ -7,13 +7,6 @@ import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
 
-export function registerDockPlugin(plugin) {
-  return {
-    type: 'REGISTER_DOCK_PLUGIN',
-    payload: plugin,
-  }
-}
-
 export function updateUserMuted(userId, roomId, muted) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))
@@ -74,12 +67,8 @@ export function updateUserStarred(userId, roomId, starred) {
   }
 }
 
-export function updateUserStatus(status) {
+export function updateUserStatus(userId, teamId, status) {
   return async (dispatch, getState) => {
-    const { team, common } = getState()
-    const userId = common.user.id
-    const teamId = team.id
-
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 

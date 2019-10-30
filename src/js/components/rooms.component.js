@@ -333,7 +333,7 @@ class RoomsComponent extends React.Component {
               width={300}
               direction="left-bottom"
               handleDismiss={() => this.setState({ statusMenu: false })}
-              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(status))}
+              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(this.props.common.user.id, this.props.team.id, status))}
               placeholder={this.props.common.user.status}>
 
               <HeaderSubtitle
@@ -656,7 +656,7 @@ RoomsComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  updateUserStatus: status => updateUserStatus(status),
+  updateUserStatus: (userId, teamId, status) => updateUserStatus(userId, teamId, status),
   createRoom: (title, description, image, team, user) => createRoom(title, description, image, team, user),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),

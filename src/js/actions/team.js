@@ -26,10 +26,8 @@ export function fetchTeam(teamId) {
   }
 }
 
-export function createTeam(name) {
+export function createTeam(userId, name) {
   return async (dispatch, getState) => {
-    const { common } = getState()
-
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
@@ -40,7 +38,7 @@ export function createTeam(name) {
         image: null,
         members: [
           {
-            user: common.user.id,
+            user: userId,
             admin: true,
           },
         ],

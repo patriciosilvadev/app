@@ -94,7 +94,9 @@ export default class QuickUser extends React.Component {
     return (
       <Popup
         visible={this.props.visible}
-        handleDismiss={this.props.handleDismiss}
+        handleDismiss={() => {
+          this.setState({ filter: '', members: [] }, () => this.props.handleDismiss())
+        }}
         width={this.props.width || 250}
         direction={this.props.direction || "right-bottom"}
         content={
@@ -113,7 +115,6 @@ export default class QuickUser extends React.Component {
             <Members
               members={this.state.members}
               handleAccept={(member) => {
-                // Kill the fitler
                 this.setState({
                   filter: '',
                   members: [],

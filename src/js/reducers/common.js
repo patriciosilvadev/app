@@ -10,9 +10,6 @@ const initialState = {
     archived: [],
     muted: [],
   },
-  plugins: {
-    dock: [],
-  },
 }
 
 export default (state = initialState, action) =>

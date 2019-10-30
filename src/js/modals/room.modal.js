@@ -176,7 +176,7 @@ export default function RoomModal(props) {
 
                       <div className="p-20">
                         <Button
-                          onClick={() => dispatch(updateRoom({ title, image, description }))}
+                          onClick={() => dispatch(updateRoom(room.id, { title, image, description }))}
                           text="Update"
                         />
                       </div>
@@ -198,7 +198,7 @@ export default function RoomModal(props) {
                         onOkay={() => {
                           setConfirmSelfDeleteModal(false)
                           setUserMenu(false)
-                          dispatch(deleteRoomMember(memberToDelete))
+                          dispatch(deleteRoomMember(room.id, memberToDelete))
                           onClose()
                         }}
                         onCancel={() => setConfirmSelfDeleteModal(false)}
@@ -210,11 +210,9 @@ export default function RoomModal(props) {
                     {confirmMemberDeleteModal &&
                       <ConfirmModal
                         onOkay={() => {
-                          if (members.length <= 2) return
-
                           setConfirmMemberDeleteModal(false)
                           setUserMenu(false)
-                          dispatch(deleteRoomMember(memberToDelete))
+                          dispatch(deleteRoomMember(room.id, memberToDelete))
                         }}
                         onCancel={() => setConfirmMemberDeleteModal(false)}
                         text="Are you sure you want to remove this person, it can not be undone?"
@@ -234,6 +232,12 @@ export default function RoomModal(props) {
                           <Button
                             size="small"
                             onClick={() => {
+                              if (members.length <= 2) {
+                                setError('There must be at least 2 people')
+                                setTimeout(() => setError(null), 2000)
+                                return
+                              }
+
                               setMemberToDelete(member.user)
 
                               if (common.user.id == member.user.id) {
@@ -260,7 +264,7 @@ export default function RoomModal(props) {
                         if (members.filter(member => member.user.id == user.id).length > 0) return
 
                         // Otherwise all good - add them
-                        dispatch(createRoomMember(user))
+                        dispatch(createRoomMember(room.id, user))
                         setUserMenu(false)
                       }}>
                       <AddButton className="button row" onClick={() => setUserMenu(true)}>

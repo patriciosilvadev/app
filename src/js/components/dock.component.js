@@ -52,7 +52,7 @@ export default function DockComponent(props) {
   // When the user creates a team from quick input component
   const handleNewTeamAccept = (name) => {
     setTeamPopup(false)
-    dispatch(createTeam(name))
+    dispatch(createTeam(common.user.id, name))
   }
 
   // Important for setting highlighted team
@@ -74,12 +74,6 @@ export default function DockComponent(props) {
   // prettier-ignore
   return (
     <Dock className="column align-items-center">
-      {common.plugins.dock.map((plugin, index) => {
-        const { Component, id } = plugin
-
-        if (pluginId == id) return <Component key={index} onClose={() => setPluginId(null)} />
-      })}
-
       {teams.map((t, index) => {
         const unread = !!common.unread.filter((row) => t.id == row.doc.team).flatten()
 

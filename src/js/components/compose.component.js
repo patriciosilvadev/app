@@ -222,10 +222,10 @@ class ComposeComponent extends React.Component {
                     : null
 
     // If it's a reply OR create
-    if (!this.props.update) this.props.createRoomMessage(text, attachments, parent)
+    if (!this.props.update) this.props.createRoomMessage(this.props.room.id, text, attachments, parent)
 
     // If it's an update
-    if (this.props.update) this.props.updateRoomMessage(id, text, attachments)
+    if (this.props.update) this.props.updateRoomMessage(this.props.room.id, id, text, attachments)
 
     // Reset the message
     this.clearMessage()
@@ -290,7 +290,7 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing
-    this.props.updateRoomAddTyping(this.props.common.user.name, this.props.common.user.id)
+    this.props.updateRoomAddTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id)
   }
 
   handleComposeChange(e) {
@@ -400,7 +400,7 @@ class ComposeComponent extends React.Component {
     // Stop typing indicator after 1000 ms of inactivity
     this.subscription = this.onType$
       .pipe(debounceTime(1000))
-      .subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
+      .subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id))
 
     // Listen for file changes in attachments
     Keg.keg('compose').tap('uploads', async (file, pour) => {
@@ -657,10 +657,10 @@ ComposeComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  createRoomMessage: (text, attachments, parent) => createRoomMessage(text, attachments, parent),
-  updateRoomMessage: (id, text, attachments) => updateRoomMessage(id, text, attachments),
-  updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
-  updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
+  createRoomMessage: (roomId, text, attachments, parent) => createRoomMessage(roomId, text, attachments, parent),
+  updateRoomMessage: (roomId, messageId, message, attachments) => updateRoomMessage(roomId, messageId, message, attachments),
+  updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
+  updateRoomDeleteTyping: (roomId, userName, userId) => updateRoomDeleteTyping(roomId, userName, userId),
 }
 
 const mapStateToProps = state => {
