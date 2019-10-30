@@ -399,7 +399,7 @@ class RoomComponent extends React.Component {
   }
 
   // prettier-ignore
-  render() {
+  render() {      
     return (
       <React.Fragment>
         {this.state.roomUpdateModal &&

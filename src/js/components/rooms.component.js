@@ -437,26 +437,24 @@ class RoomsComponent extends React.Component {
             <React.Fragment>
               <Heading>Results</Heading>
 
-              {this.state.results.map((result, index) => {
+              {this.state.results.map((user, index) => {
                 return (
                   <Room
-                    className="w-100"
                     key={index}
                     active={false}
                     unread={null}
-                    title={result.name}
-                    image={result.image}
-                    excerpt={result.username}
+                    title={user.name}
+                    image={user.image}
+                    excerpt={user.username}
                     public={null}
                     private={null}
-                    onClick={() => this.createPrivateRoom(result)}
+                    onClick={() => this.createPrivateRoom(user)}
                   />
                 )
               })}
 
               {this.state.results.length == 0 &&
                 <Room
-                  className="w-100"
                   active={false}
                   unread={null}
                   title={`Create channel "${this.state.filter}"`}

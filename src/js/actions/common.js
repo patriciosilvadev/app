@@ -191,7 +191,7 @@ export function initialize(userId) {
         },
         sync: teamId,
       })
-    }, 1000)
+    }, 10000)
 
     // Get unread count
     DatabaseService.getInstance()

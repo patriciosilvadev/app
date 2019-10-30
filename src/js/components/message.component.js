@@ -229,7 +229,7 @@ export default memo(props => {
   }
 
   // prettier-ignore
-  useEffect(() => {
+  useEffect(() => {    
     setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
     setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
     setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
@@ -278,7 +278,7 @@ export default memo(props => {
     if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
     setMessage(partsOfTheMessageText.join(''))
-  })
+  }, [props.highlight, props.message])
 
   // prettier-ignore
   return (
