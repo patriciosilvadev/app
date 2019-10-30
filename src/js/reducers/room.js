@@ -61,19 +61,34 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_ROOM_ADD_TYPING':
-        if (state.typing.filter(typing => typing.userId == action.payload.userId).flatten()) return
+        // If it's already there
+        if (state.typing.filter(t => t.userId == action.payload.userId).flatten()) {
+          draft.typing = state.typing.map(t => {
+            // If it isn't this users typing
+            // then don't change anything
+            if (t.userId != action.payload.userId) return t
 
+            // Otherwise - update their time
+            return {
+              userName: action.payload.userName,
+              userId: action.payload.userId,
+              userTime: new Date().getTime(),
+            }
+          })
+
+          return
+        }
+
+        // If they are NOT there - then we want to add them
         draft.typing.push({
           userName: action.payload.userName,
-          userId: action.payload.userId
+          userId: action.payload.userId,
+          userTime: new Date().getTime(),
         })
         break
 
       case 'UPDATE_ROOM_DELETE_TYPING':
-        return {
-          ...state,
-          typing: state.typing.filter(typing => typing.userId != action.payload.userId)
-        }
+        return { ...state, typing: state.typing.filter(t => t.userId != action.payload.userId) }
 
       case 'UPDATE_ROOM_MESSAGE_ATTACHMENT_PREVIEW':
         draft.messages = state.messages.map((message, _) => {

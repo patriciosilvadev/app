@@ -4,11 +4,9 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage, updateRoomMessage } from '../actions'
+import { updateLoading, updateError, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import { DiMarkdown } from 'react-icons/di'
-import { Subject } from 'rxjs'
-import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -192,8 +190,6 @@ class ComposeComponent extends React.Component {
     this.fileRef = React.createRef()
     this.dropZone = React.createRef()
 
-    this.onType$ = new Subject()
-
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
@@ -202,7 +198,6 @@ class ComposeComponent extends React.Component {
     this.updateComposeHeight = this.updateComposeHeight.bind(this)
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
-    this.subscription = null
     this.onDragOver = this.onDragOver.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
     this.onDrop = this.onDrop.bind(this)
@@ -300,7 +295,6 @@ class ComposeComponent extends React.Component {
   handleComposeChange(e) {
     const text = e.target.value
 
-    this.onType$.next(text)
     this.setState({ text }, () => {
       const { selectionStart } = this.composeRef
       const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
@@ -401,17 +395,6 @@ class ComposeComponent extends React.Component {
     // Resize compose initiallyl
     this.updateComposeHeight()
 
-    // Stop typing indicator after 1000 ms of inactivity
-    this.subscription = this.onType$
-      .pipe(debounceTime(1000))
-      .subscribe(debounced => {
-        this.props.updateRoomDeleteTyping(
-          this.props.room.id,
-          this.props.common.user.name,
-          this.props.common.user.id
-        )
-      })
-
     // Listen for file changes in attachments
     Keg.keg('compose').tap('uploads', async (file, pour) => {
       this.setState({ loading: true })
@@ -441,9 +424,6 @@ class ComposeComponent extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.subscription) this.subscription.unsubscribe()
-
-    // Drag event listeners
     this.dropZone.removeEventListener('dragover', this.onDragOver)
     this.dropZone.removeEventListener('dragend', this.onDragEnd)
     this.dropZone.removeEventListener('drop', this.onDrop)
@@ -663,14 +643,12 @@ ComposeComponent.propTypes = {
   createRoomMessage: PropTypes.func,
   updateRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
-  updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   createRoomMessage: (roomId, text, attachments, parent) => createRoomMessage(roomId, text, attachments, parent),
   updateRoomMessage: (roomId, messageId, message, attachments) => updateRoomMessage(roomId, messageId, message, attachments),
   updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
-  updateRoomDeleteTyping: (roomId, userName, userId) => updateRoomDeleteTyping(roomId, userName, userId),
 }
 
 const mapStateToProps = state => {

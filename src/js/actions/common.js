@@ -6,6 +6,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
+import { updateRoomDeleteTyping } from './room'
 
 export function updateUserMuted(userId, roomId, muted) {
   return async (dispatch, getState) => {
@@ -195,8 +196,23 @@ export function initialize(userId) {
           heartbeat,
         },
         sync: teamId,
-      }) 
+      })
     }, 10000)
+
+    // Check if the typing array is valid every 1 second
+    // Iterage over the current room's typing array
+    // If it's too old - then remove it and notify everyone else
+    setInterval(() => {
+      const { room } = getState()
+      const roomId = room.id
+      const snapshot = new Date().getTime()
+
+      room.typing.map(t => {
+        if ((snapshot - t.userTime) > 1000) {
+          dispatch(updateRoomDeleteTyping(roomId, t.userId))
+        }
+      })
+    }, 2500)
 
     // Get unread count
     DatabaseService.getInstance()

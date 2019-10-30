@@ -126,11 +126,11 @@ export function updateRoomAddTyping(roomId, userName, userId) {
   }
 }
 
-export function updateRoomDeleteTyping(roomId, userName, userId) {
+export function updateRoomDeleteTyping(roomId, userId) {
   return async (dispatch, getState) => {
     dispatch({
       type: 'UPDATE_ROOM_DELETE_TYPING',
-      payload: { userName, userId, roomId },
+      payload: { userId, roomId },
       sync: roomId,
     })
   }
