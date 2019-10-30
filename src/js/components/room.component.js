@@ -1,4 +1,5 @@
 import React, { memo } from 'react'
+import moment from 'moment'
 import { connect } from 'react-redux'
 import UploadService from '../services/upload.service'
 import '../helpers/extensions'
@@ -148,7 +149,7 @@ const Welcome = styled.div`
 `
 
 const WelcomeTitle = styled.div`
-  font-weight: 800;
+  font-weight: 500;
   font-size: 60px;
   color: #040b1c;
   padding-bottom: 10px;
@@ -575,7 +576,7 @@ class RoomComponent extends React.Component {
                       />
 
                       <WelcomeUserName>
-                        Started by {this.props.room.user.name}
+                        Started by {this.props.room.user.name} - {moment(this.props.room.createdAt).fromNow()}
                       </WelcomeUserName>
                     </WelcomeUser>
 
@@ -595,7 +596,7 @@ class RoomComponent extends React.Component {
                       <WelcomeDescriptionUpdate
                         className="button"
                         onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
-                        Add some more context about this conversation - click here
+                        Add some more context about this conversation here
                       </WelcomeDescriptionUpdate>
                     }
                   </Welcome>

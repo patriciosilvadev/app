@@ -186,12 +186,25 @@ class RoomsComponent extends React.Component {
   }
 
   createPrivateRoom(user) {
-    this.props.createRoom(null, '', null, this.props.team.id, user)
+    const title = null
+    const description = null
+    const image = null
+    const teamId = this.props.team.id
+    const initialOtherUserId = user.id
+    const userId = this.props.common.user.id
+
+    this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
-  createPublicRoom() {
-    this.props.createRoom(this.state.filter, '', null, this.props.team.id, null)
+  createPublicRoom(title) {
+    const description = null
+    const image = null
+    const teamId = this.props.team.id
+    const initialOtherUserId = null
+    const userId = this.props.common.user.id
+
+    this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
@@ -451,7 +464,7 @@ class RoomsComponent extends React.Component {
                   excerpt={null}
                   public={null}
                   private={null}
-                  onClick={() => this.createPublicRoom()}
+                  onClick={() => this.createPublicRoom(this.state.filter)}
                 />
               }
             </React.Fragment>
@@ -503,7 +516,7 @@ class RoomsComponent extends React.Component {
               width={250}
               direction="right-bottom"
               handleDismiss={() => this.setState({ roomPopup: false })}
-              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
+              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.createPublicRoom(name))}
               placeholder="New channel name">
               <FontAwesomeIcon
                 icon={["fal", "plus-circle"]}
@@ -657,7 +670,7 @@ RoomsComponent.propTypes = {
 
 const mapDispatchToProps = {
   updateUserStatus: (userId, teamId, status) => updateUserStatus(userId, teamId, status),
-  createRoom: (title, description, image, team, user) => createRoom(title, description, image, team, user),
+  createRoom: (title, description, image, teamId, userId, initialOtherUserId) => createRoom(title, description, image, teamId, userId, initialOtherUserId),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),
   fetchTeam: teamId => fetchTeam(teamId),
