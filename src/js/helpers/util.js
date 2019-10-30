@@ -6,7 +6,7 @@ export const bytesToSize = bytes => {
 }
 
 export const imageUrlParser = url => {
-  const match = url.match(/(http[s]?:\/\/.*\.(?:png|jpg|jpeg|gif))/i)
+  const match = url.match(/(http[s]?:\/\/.*\.(?:png|jpg|svg|jpeg|gif))/i)
   return match ? match[1] : false
 }
 

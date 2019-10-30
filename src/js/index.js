@@ -58,6 +58,7 @@ import {
   faQuestionCircle,
   faSignOut,
   faSyncAlt,
+  faEllipsisV,
 } from '@fortawesome/pro-light-svg-icons'
 import {
   faSearch,
@@ -132,6 +133,7 @@ library.add(
   faQuestionCircle,
   faSignOut,
   faSyncAlt,
+  faEllipsisV,
 )
 
 // prettier-ignore

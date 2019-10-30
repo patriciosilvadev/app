@@ -114,6 +114,15 @@ const SearchContainer = styled.div`
   border-bottom: 1px solid #0a152e;
 `
 
+const ArchivedButton = styled.div`
+  padding: 25px 25px 10px 25px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #475669;
+`
+
 const Heading = styled.div`
   padding: 25px 25px 10px 25px;
   font-size: 11px;
@@ -140,6 +149,7 @@ class RoomsComponent extends React.Component {
       accountModal: false,
       accountMenu: false,
       statusMenu: false,
+      archivedVisible: false,
       starred: [],
       muted: [],
       archived: [],
@@ -582,9 +592,15 @@ class RoomsComponent extends React.Component {
           }
 
           {this.state.archived.length != 0 &&
-            <React.Fragment>
-              <Heading>Archived</Heading>
+            <ArchivedButton
+              className="button"
+              onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
+              {this.state.archivedVisible ? "Hide archived" : "See archived"}
+            </ArchivedButton>
+          }
 
+          {this.state.archived.length != 0 && this.state.archivedVisible &&
+            <React.Fragment>
               {this.state.archived.map((room, index) => {
                 if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
@@ -609,7 +625,7 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onArchivedClick={(e) => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
                     onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
                   />
                 )

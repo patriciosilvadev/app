@@ -54,6 +54,7 @@ export default function RoomModal(props) {
   const [description, setDescription] = useState('')
   const common = useSelector(state => state.common)
   const team = useSelector(state => state.team)
+  const room = useSelector(state => state.room)
   const fileRef = useRef(null)
   const dispatch = useDispatch()
   const [memberToDelete, setMemberToDelete] = useState(null)
@@ -248,7 +249,7 @@ export default function RoomModal(props) {
                     })}
 
                     <QuickUserComponent
-                      teamId={team.id}
+                      room={room}
                       visible={userMenu}
                       width={250}
                       direction="left-bottom"

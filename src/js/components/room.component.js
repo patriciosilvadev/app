@@ -445,12 +445,12 @@ class RoomComponent extends React.Component {
 
                   {!this.props.room.private &&
                     <QuickUserComponent
-                      teamId={this.props.team.id}
+                      room={this.props.room}
                       visible={this.state.userMenu}
                       width={250}
                       direction="left-bottom"
                       handleDismiss={() => this.setState({ userMenu: false })}
-                      handleAccept={({ user }) => this.createRoomMember(user)}>
+                      handleAccept={({ user }) => this.props.createRoomMember(user)}>
                       <div
                         className="ml-10 row button"
                         onClick={() => this.setState({ userMenu:true })}>
@@ -498,19 +498,29 @@ class RoomComponent extends React.Component {
                 }
               </HeaderSearchContainer>
 
-              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)}>
+              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-15">
                 {this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#EBB403" size="lg" />}
                 {!this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#babec9" size="lg" />}
               </HeaderButton>
 
               {!this.props.room.private &&
-                <FontAwesomeIcon
-                  icon={["fal", "info-circle"]}
-                  color="#acb5bd"
-                  size="lg"
-                  className="ml-15 button"
-                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
-                />
+                <React.Fragment>
+                  <FontAwesomeIcon
+                    icon={["fal", "info-circle"]}
+                    color="#acb5bd"
+                    size="lg"
+                    className="mr-15 button"
+                    onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
+                  />
+
+                  <FontAwesomeIcon
+                    icon={["fal", "user-friends"]}
+                    color="#acb5bd"
+                    size="lg"
+                    className="mr-20 button"
+                    onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
+                  />
+                </React.Fragment>
               }
 
               <Popup
@@ -521,36 +531,21 @@ class RoomComponent extends React.Component {
                 content={
                   <Menu
                     items={[
-                      { icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                      { icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                      { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: this.props.room.public ? 'Current' : null, onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                      { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: !this.props.room.public ? 'Current' : null, onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                      { hide: this.props.room.private, divider: true },
+                      { icon: <FontAwesomeIcon icon={["fal", "trash"]} color="#acb5bd" size="lg" />, text: "Delete", onClick: (e) => this.setState({ confirmDeleteModal: true, visibilityMenu: false }) },
                     ]}
                   />
                 }>
-                <HeaderButton
-                  className="button"
-                  onClick={() => this.setState({ visibilityMenu: true })}>
-                  {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />}
-                  {!this.props.room.public && <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />}
-                </HeaderButton>
-              </Popup>
-
-              {!this.props.room.private &&
                 <FontAwesomeIcon
-                  icon={["fal", "user-friends"]}
+                  icon={["fal", "ellipsis-v"]}
                   color="#acb5bd"
-                  size="lg"
-                  className="ml-15 button"
-                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
+                  size="2x"
+                  className="button"
+                  onClick={() => this.setState({ visibilityMenu: true })}
                 />
-              }
-
-              <FontAwesomeIcon
-                icon={["fal", "trash"]}
-                color="#acb5bd"
-                size="lg"
-                className="ml-15 button"
-                onClick={() => this.setState({ confirmDeleteModal: true })}
-              />
+              </Popup>
             </Header>
           }
 

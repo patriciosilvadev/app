@@ -105,7 +105,7 @@ export default function DockComponent(props) {
 
       <QuickInputComponent
         visible={teamPopup}
-        width={300}
+        width={250}
         direction="left-bottom"
         placeholder="New team name"
         handleDismiss={() => setTeamPopup(false)}
