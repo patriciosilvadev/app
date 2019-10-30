@@ -267,13 +267,16 @@ class RoomComponent extends React.Component {
     // If the user is scrolling
     if (this.state.manualScrolling) return
 
+    // Move it right down
     this.scrollRef.scrollTop = this.scrollRef.scrollHeight
   }
 
   handleScrollEvent(e) {
+    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
+
     if (this.scrollRef.scrollTop == 0) this.fetchRoomMessages()
 
-    if (this.scrollRef.offsetHeight == this.scrollRef.scrollHeight - this.scrollRef.scrollTop) {
+    if (this.scrollRef.offsetHeight >= offsetHeight) {
       this.setState({ manualScrolling: false })
     } else {
       this.setState({ manualScrolling: true })
@@ -399,7 +402,7 @@ class RoomComponent extends React.Component {
   }
 
   // prettier-ignore
-  render() {      
+  render() {
     return (
       <React.Fragment>
         {this.state.roomUpdateModal &&
