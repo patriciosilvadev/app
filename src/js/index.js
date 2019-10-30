@@ -34,7 +34,6 @@ import './environment'
 import { createLogger } from 'redux-logger'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
-  faStar,
   faEye,
   faLowVision,
   faInfoCircle,
@@ -59,6 +58,7 @@ import {
   faSignOut,
   faSyncAlt,
   faEllipsisV,
+  faStar,
 } from '@fortawesome/pro-light-svg-icons'
 import {
   faSearch,
