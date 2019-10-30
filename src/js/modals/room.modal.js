@@ -108,21 +108,7 @@ export default function RoomModal(props) {
         title="Channel"
         width={700}
         height="90%"
-        onClose={props.onClose}
-        footer={(
-          <div className="column w-100 align-items-stretch">
-            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-              <div className="flexer" />
-
-              {/* Null here means it's a channel - no user */}
-              <Button
-                size="large"
-                onClick={() => dispatch(updateRoom({ title, image, description }))}
-                text="Update"
-              />
-            </div>
-          </div>
-        )}>
+        onClose={props.onClose}>
           <Tabbed
             start={props.start || 0}
             panels={[
@@ -154,9 +140,7 @@ export default function RoomModal(props) {
                             onClick={() => fileRef.current.click()}
                           />
 
-                          <Link
-                            className="button"
-                            onClick={() => fileRef.current.click()}>
+                          <Link className="button mt-10" onClick={() => fileRef.current.click()}>
                             Update image
                           </Link>
                         </div>
@@ -188,6 +172,13 @@ export default function RoomModal(props) {
                           </div>
                         </Column>
                       </Row>
+
+                      <div className="p-20">
+                        <Button
+                          onClick={() => dispatch(updateRoom({ title, image, description }))}
+                          text="Update"
+                        />
+                      </div>
                     </div>
                   </div>
                 )

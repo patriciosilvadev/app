@@ -170,8 +170,8 @@ export function initialize(userId) {
       // Handle any reads/unreads here for the DB
       if (action.type == 'CREATE_ROOM_MESSAGE') {
         const { roomId, teamId, message } = action.payload
-        const isArchived = !!getState().rooms.filter((room, index) => props.common.user.archived.indexOf(room.id) != -1).flatten()
-        const isStarred = !!getState().rooms.filter((room, index) => props.common.user.starred.indexOf(room.id) != -1).flatten()
+        const isStarred = getState().common.user.starred.indexOf(roomId) != -1
+        const isArchived = getState().common.user.archived.indexOf(roomId) != -1
         const isCurrentRoom = roomId == getState().room.id
 
         // Don't do a PN or unread increment if we are on the same room

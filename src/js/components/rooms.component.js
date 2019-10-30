@@ -163,8 +163,8 @@ class RoomsComponent extends React.Component {
     const starredRooms = props.rooms.filter((room, index) => props.common.user.starred.indexOf(room.id) != -1)
     const mutedRooms = props.rooms.filter((room, index) => props.common.user.muted.indexOf(room.id) != -1)
     const archivedRooms = props.rooms.filter((room, index) => props.common.user.archived.indexOf(room.id) != -1)
-    const privateRooms = props.rooms.filter((room, index) => room.private && props.common.user.starred.indexOf(room.id) == -1)
-    const publicRooms = props.rooms.filter((room, index) => !room.private && props.common.user.starred.indexOf(room.id) == -1)
+    const privateRooms = props.rooms.filter((room, index) => room.private && props.common.user.starred.indexOf(room.id) == -1 && props.common.user.archived.indexOf(room.id) == -1)
+    const publicRooms = props.rooms.filter((room, index) => !room.private && props.common.user.starred.indexOf(room.id) == -1 && props.common.user.archived.indexOf(room.id) == -1)
 
     return {
       starred: starredRooms,
@@ -340,13 +340,12 @@ class RoomsComponent extends React.Component {
             width={275}
             direction="left-bottom"
             content={
-              <div className="column flexer">
+              <React.Fragment>
                 <AccountMenuHeader className="column align-items-center">
                   <Avatar
                     size="medium"
                     image={this.props.common.user.image}
                     title={this.props.common.user.name}
-                    className="mr-10"
                   />
 
                   <AccountMenuTitle>
@@ -377,7 +376,7 @@ class RoomsComponent extends React.Component {
                     },
                   ]}
                 />
-              </div>
+              </React.Fragment>
             }>
             <div>
               <FontAwesomeIcon
@@ -460,8 +459,8 @@ class RoomsComponent extends React.Component {
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
-                const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
-                const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
+                const muted = this.props.common.user.muted.indexOf(room.id) != -1
+                const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
                 return (
                   <Room
@@ -514,8 +513,8 @@ class RoomsComponent extends React.Component {
             const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
             const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
             const unreadCount = unread ? unread.doc.count : 0
-            const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
-            const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
+            const muted = this.props.common.user.muted.indexOf(room.id) != -1
+            const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
             return (
               <Room
@@ -547,8 +546,8 @@ class RoomsComponent extends React.Component {
                 const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
-                const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
-                const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
+                const muted = this.props.common.user.muted.indexOf(room.id) != -1
+                const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
                 // Filter based on users search
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
@@ -594,8 +593,8 @@ class RoomsComponent extends React.Component {
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
-                const muted = !!this.props.common.user.muted.filter((r) => r.id == room.id).flatten()
-                const archived = !!this.props.common.user.archived.filter((r) => r.id == room.id).flatten()
+                const muted = this.props.common.user.muted.indexOf(room.id) != -1
+                const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
                 return (
                   <Room

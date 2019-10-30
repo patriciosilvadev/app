@@ -299,11 +299,10 @@ export default memo(props => {
         <Avatar
           image={props.message.user.image}
           title={props.message.user.name}
-          className="mr-15"
           size="medium"
         />
 
-        <div className="column w-100">
+        <div className="column flexer pl-15">
           <Bubble className="column">
             <div className="row w-100 relative">
               <User>{props.message.user.name}</User>
