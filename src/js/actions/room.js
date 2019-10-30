@@ -116,9 +116,9 @@ export function updateRoom(roomId, updatedRoom) {
   }
 }
 
-export function updateRoomAddTyping(roomId, userName, userId) {
+export function updateRoomAddTyping(roomId, roomTyping, userName, userId) {
   return async (dispatch, getState) => {
-    const alreadyTyping = room.typing.filter(typing => typing.userId == userId).flatten()
+    const alreadyTyping = roomTyping.filter(typing => typing.userId == userId).flatten()
 
     // Don't re-add people
     if (alreadyTyping) return
@@ -239,14 +239,11 @@ export function fetchRoomMessages(roomId, page) {
 
       // Add the new messages to the room
       dispatch({
-        type: 'UPDATE_ROOM',
+        type: 'UPDATE_ROOM_ADD_MESSAGES',
         payload: {
-          messages: [
-            ...room.messages,
-            ...messages.sort((left, right) => {
-              return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-            }),
-          ],
+          messages: messages.sort((left, right) => {
+            return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
+          }),
         },
       })
 

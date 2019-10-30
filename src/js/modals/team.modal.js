@@ -223,7 +223,7 @@ export default function TeamModal(props) {
         height="90%"
         onClose={props.onClose}>
           <Tabbed
-            start={props.start || 2}
+            start={props.start || 0}
             panels={[
               {
                 title: 'Profile',
@@ -250,7 +250,7 @@ export default function TeamModal(props) {
                           size="large"
                         />
 
-                        <div className="column flexer header">
+                        <div className="column flexer header pl-10">
                           <div className="row pb-5">
                             <Text color="d" display="h3">{name}</Text>
                           </div>

@@ -290,7 +290,12 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing
-    this.props.updateRoomAddTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id)
+    this.props.updateRoomAddTyping(
+      this.props.room.id,
+      this.props.room.typing,
+      this.props.common.user.name,
+      this.props.common.user.id
+    )
   }
 
   handleComposeChange(e) {
@@ -659,7 +664,7 @@ ComposeComponent.propTypes = {
 const mapDispatchToProps = {
   createRoomMessage: (roomId, text, attachments, parent) => createRoomMessage(roomId, text, attachments, parent),
   updateRoomMessage: (roomId, messageId, message, attachments) => updateRoomMessage(roomId, messageId, message, attachments),
-  updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
+  updateRoomAddTyping: (roomId, roomTyping, userName, userId) => updateRoomAddTyping(roomId, roomTyping, userName, userId),
   updateRoomDeleteTyping: (roomId, userName, userId) => updateRoomDeleteTyping(roomId, userName, userId),
 }
 

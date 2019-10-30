@@ -20,6 +20,10 @@ import { debounceTime } from 'rxjs/operators'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MessagesComponent from './messages.component'
 
+const PaddingToKeepMessagesDown = styled.div`
+  height: 1500px;
+`
+
 const Room = styled.div`
   background: white;
   height: 100%;
@@ -559,39 +563,43 @@ class RoomComponent extends React.Component {
             {/* Primary message list + header */}
             {this.state.open && !this.state.searchResults &&
               <React.Fragment>
-                <Welcome>
-                  <WelcomeUser className="row">
-                    <Avatar
-                      title={this.props.room.user.name}
-                      image={this.props.room.user.image}
-                      size="small"
-                    />
+                {this.props.room.private && <PaddingToKeepMessagesDown />}
 
-                    <WelcomeUserName>
-                      Started by {this.props.room.user.name}
-                    </WelcomeUserName>
-                  </WelcomeUser>
+                {!this.props.room.private &&
+                  <Welcome>
+                    <WelcomeUser className="row">
+                      <Avatar
+                        title={this.props.room.user.name}
+                        image={this.props.room.user.image}
+                        size="small"
+                      />
 
-                  <WelcomeTitle>
-                    {this.state.title}
-                  </WelcomeTitle>
+                      <WelcomeUserName>
+                        Started by {this.props.room.user.name}
+                      </WelcomeUserName>
+                    </WelcomeUser>
 
-                  {this.props.room.description &&
-                    <WelcomeDescription>
-                      <ReactMarkdown source={this.props.room.description} />
-                    </WelcomeDescription>
-                  }
+                    <WelcomeTitle>
+                      {this.state.title}
+                    </WelcomeTitle>
 
-                  {/* If there is no room description */}
-                  {/* Then give the user the option to update it */}
-                  {!this.props.room.description &&
-                    <WelcomeDescriptionUpdate
-                      className="button"
-                      onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
-                      Add some information about this chat
-                    </WelcomeDescriptionUpdate>
-                  }
-                </Welcome>
+                    {this.props.room.description &&
+                      <WelcomeDescription>
+                        <ReactMarkdown source={this.props.room.description} />
+                      </WelcomeDescription>
+                    }
+
+                    {/* If there is no room description */}
+                    {/* Then give the user the option to update it */}
+                    {!this.props.room.description &&
+                      <WelcomeDescriptionUpdate
+                        className="button"
+                        onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
+                        Add some more context about this conversation - click here
+                      </WelcomeDescriptionUpdate>
+                    }
+                  </Welcome>
+                }
 
                 <MessagesInner ref={(ref) => this.messagesRef = ref}>
                   <MessagesComponent

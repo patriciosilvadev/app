@@ -34,6 +34,10 @@ export default (state = initialState, action) =>
         draft = Object.assign(draft, action.payload)
         break
 
+      case 'UPDATE_ROOM_ADD_MESSAGES':
+        draft.messages = [...state.messages, action.payload.messages]
+        break
+
       case 'CREATE_ROOM_MESSAGE':
         draft.messages = [...state.messages, action.payload.message]
         break
