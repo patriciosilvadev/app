@@ -61,6 +61,8 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_ROOM_ADD_TYPING':
+        if (state.typing.filter(typing => typing.userId == action.payload.userId).flatten()) return
+
         draft.typing.push({
           userName: action.payload.userName,
           userId: action.payload.userId

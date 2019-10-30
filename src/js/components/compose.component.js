@@ -292,7 +292,6 @@ class ComposeComponent extends React.Component {
     // Update typing
     this.props.updateRoomAddTyping(
       this.props.room.id,
-      this.props.room.typing,
       this.props.common.user.name,
       this.props.common.user.id
     )
@@ -405,7 +404,13 @@ class ComposeComponent extends React.Component {
     // Stop typing indicator after 1000 ms of inactivity
     this.subscription = this.onType$
       .pipe(debounceTime(1000))
-      .subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id))
+      .subscribe(debounced => {
+        this.props.updateRoomDeleteTyping(
+          this.props.room.id,
+          this.props.common.user.name,
+          this.props.common.user.id
+        )
+      })
 
     // Listen for file changes in attachments
     Keg.keg('compose').tap('uploads', async (file, pour) => {
@@ -664,7 +669,7 @@ ComposeComponent.propTypes = {
 const mapDispatchToProps = {
   createRoomMessage: (roomId, text, attachments, parent) => createRoomMessage(roomId, text, attachments, parent),
   updateRoomMessage: (roomId, messageId, message, attachments) => updateRoomMessage(roomId, messageId, message, attachments),
-  updateRoomAddTyping: (roomId, roomTyping, userName, userId) => updateRoomAddTyping(roomId, roomTyping, userName, userId),
+  updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
   updateRoomDeleteTyping: (roomId, userName, userId) => updateRoomDeleteTyping(roomId, userName, userId),
 }
 

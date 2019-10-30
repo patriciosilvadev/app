@@ -116,13 +116,8 @@ export function updateRoom(roomId, updatedRoom) {
   }
 }
 
-export function updateRoomAddTyping(roomId, roomTyping, userName, userId) {
+export function updateRoomAddTyping(roomId, userName, userId) {
   return async (dispatch, getState) => {
-    const alreadyTyping = roomTyping.filter(typing => typing.userId == userId).flatten()
-
-    // Don't re-add people
-    if (alreadyTyping) return
-
     dispatch({
       type: 'UPDATE_ROOM_ADD_TYPING',
       payload: { userName, userId, roomId },

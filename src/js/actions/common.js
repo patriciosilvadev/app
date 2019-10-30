@@ -195,7 +195,7 @@ export function initialize(userId) {
           heartbeat,
         },
         sync: teamId,
-      })
+      }) 
     }, 10000)
 
     // Get unread count
