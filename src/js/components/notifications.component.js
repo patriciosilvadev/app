@@ -103,10 +103,10 @@ export default function NotificationsComponent(props) {
   }
 
   return (
-    <Container className="column flexer">
+    <Container className="column">
       {common.loading && <Spinner />}
 
-      <Inner className="column flexer align-items-center">
+      <Inner className="column align-items-center">
         {notifications.map((notification, index) => {
           return (
             <Row key={index} className="row">

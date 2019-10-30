@@ -18,7 +18,6 @@ import AuthService from '../services/auth.service'
 
 const Rooms = styled.div`
   width: 300px;
-  display: flex;
   height: 100%;
   position: relative;
   z-index: 1;
@@ -26,6 +25,12 @@ const Rooms = styled.div`
   background: #F8F9FA;
   background: #040B1C;
   border-right: 1px solid #f1f3f5;
+`
+
+const RoomsContainer = styled.div`
+  flex: 1;
+  overflow: scroll;
+  width: 100%;
 `
 
 const Header = styled.div`
@@ -130,11 +135,6 @@ const Heading = styled.div`
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
-`
-
-const RoomsContainer = styled.div`
-  flex: 1;
-  width: 100%;
 `
 
 class RoomsComponent extends React.Component {
@@ -309,7 +309,7 @@ class RoomsComponent extends React.Component {
     const { pathname } = this.props.history.location
 
     return (
-      <Rooms className="column align-items-stretch">
+      <Rooms className="column">
         {this.state.teamModal &&
           <TeamModal
             id={this.props.team.id}
@@ -432,7 +432,7 @@ class RoomsComponent extends React.Component {
           </SearchInner>
         </SearchContainer>
 
-        <RoomsContainer className="column align-items-stretch scroll">
+        <RoomsContainer>
           {this.state.filter != "" &&
             <React.Fragment>
               <Heading>Results</Heading>

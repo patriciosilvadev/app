@@ -179,6 +179,11 @@ export function initialize(userId) {
     // Heartbeat - we send our updates to the current team
     setInterval(() => {
       const { team, common } = getState()
+
+      if (!common.user) return
+      if (!common.user.id) return
+      if (!team.id) return
+
       const teamId = team.id
       const userId = common.user.id
       const heartbeat = new Date()

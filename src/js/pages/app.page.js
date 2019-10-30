@@ -16,12 +16,22 @@ import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from '../helpers/util'
 
-const App = styled.div`
+const AppContainer = styled.div`
   background-color: white;
   background-size: contain;
   width: 100%;
   height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
 `
+
+const App = styled.div`
+  width: 100%;
+  height: 100%;
+  flex: 1;
+`
+
 const Loader = () => (
   <div className="react-fragment-loader">
     <div className="react-fragment-spinner">
@@ -143,7 +153,7 @@ class AppPage extends React.Component {
     if (!this.props.common.user.id) return <Loading show={true} />
 
     return (
-      <App className="column align-items-start app-page">
+      <AppContainer>
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
 
@@ -157,14 +167,14 @@ class AppPage extends React.Component {
         }
 
         <Router history={browserHistory}>
-          <div className="row w-100 h-100 align-items-start align-content-start justify-content-start flex-1">
+          <App className="row">
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={RoomsComponent} />
             <Route path="/app/team/:teamId/room/:roomId" component={RoomComponent} />
             <Route path="/app/team/:teamId/room/:roomId" component={ToolbarComponent} />
-          </div>
+          </App>
         </Router>
-      </App>
+      </AppContainer>
     );
   }
 }
