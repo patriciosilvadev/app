@@ -21,11 +21,13 @@ export default (state = initialState, action) =>
               // Then we re-create the member object and update their
               // status. This value will be used in rooms.js to display
               // an update status (we don't need to do anything else)
-              if (member.user.id == action.payload.userId) return {
-                ...member,
-                user: {
-                  ...member.user,
-                  status: action.payload.status
+              if (member.user.id == action.payload.userId) {
+                return {
+                  ...member,
+                  user: {
+                    ...member.user,
+                    status: action.payload.status,
+                  },
                 }
               }
             }),

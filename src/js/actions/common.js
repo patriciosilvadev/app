@@ -107,7 +107,12 @@ export function initialize(userId) {
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       // If this user is already in this room, then don't do anything
-      if (getState().rooms.filter(r => r.id == roomId).flatten()) return
+      if (
+        getState()
+          .rooms.filter(r => r.id == roomId)
+          .flatten()
+      )
+        return
 
       // Get the room data
       const room = await GraphqlService.getInstance().room(roomId)
@@ -131,7 +136,9 @@ export function initialize(userId) {
     })
     MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
       const userId = getState().common.user.id
-      const room = getState().rooms.filter(r => r.id == roomId).flatten()
+      const room = getState()
+        .rooms.filter(r => r.id == roomId)
+        .flatten()
 
       // If they don't have this room
       if (!room) return
@@ -154,7 +161,12 @@ export function initialize(userId) {
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       // If this user is already in this team, then don't do anything
-      if (!!getState().teams.filter(t => t.id == teamId).flatten()) return
+      if (
+        !!getState()
+          .teams.filter(t => t.id == teamId)
+          .flatten()
+      )
+        return
 
       const team = await GraphqlService.getInstance().team(teamId)
       if (!team.data.team) return
@@ -188,7 +200,6 @@ export function initialize(userId) {
       }
     })
 
-
     // Tell our current team about our status
     setInterval(() => {
       const { team, common } = getState()
@@ -205,7 +216,7 @@ export function initialize(userId) {
 
       // Remove after 30 seconds
       presences.users.map(p => {
-        if ((snapshot - p.userTime) > 30000) {
+        if (snapshot - p.userTime > 30000) {
           dispatch(deletePresence(p.userId))
         }
       })
@@ -221,7 +232,7 @@ export function initialize(userId) {
 
       // Remove after 1 second
       room.typing.map(t => {
-        if ((snapshot - t.userTime) > 1000) {
+        if (snapshot - t.userTime > 1000) {
           dispatch(updateRoomDeleteTyping(roomId, t.userId))
         }
       })

@@ -1,1 +1,1 @@
- export { Text } from './text.element'
+export { Text } from './text.element'

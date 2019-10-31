@@ -87,7 +87,7 @@ const HeaderSearchContainer = styled.div`
   border-radius: 10px;
   padding 5px;
   transition: width 0.5s;
-  width: ${props => props.focus ? "300px" : "200px"};
+  width: ${props => (props.focus ? '300px' : '200px')};
   margin-right: 10px;
 `
 
@@ -102,7 +102,7 @@ const HeaderSearchInput = styled.input`
   outline: none;
 
   &::placeholder {
-    color: #acb5bd
+    color: #acb5bd;
   }
 `
 
@@ -255,9 +255,9 @@ class RoomComponent extends React.Component {
     const typingUsers = this.props.room.typing.filter(t => t.userId != this.props.common.user.id)
 
     if (typingUsers.length == 0) {
-      return ""
+      return ''
     } else {
-        return typingUsers.map(t => t.userName).join(', ') + " is typing"
+      return typingUsers.map(t => t.userName).join(', ') + ' is typing'
     }
   }
 

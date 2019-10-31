@@ -33,7 +33,7 @@ const MailButtonConfirm = styled.span`
 `
 
 const MailButtonDelete = styled.span`
-  color: #D93025;
+  color: #d93025;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
@@ -41,7 +41,7 @@ const MailButtonDelete = styled.span`
 `
 
 const MailAddress = styled.div`
-  color:#007af5;
+  color: #007af5;
   font-size: 12px;
   font-weight: 600;
 `
@@ -55,6 +55,7 @@ const MailStatus = styled.div`
 const EmailAddress = props => {
   const [over, setOver] = useState(false)
 
+  // prettier-ignore
   return (
     <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
       <MailTableCell width="40%"><MailAddress>{props.email.address}</MailAddress></MailTableCell>
@@ -123,7 +124,6 @@ export default function AccountModal(props) {
       await AuthService.accountDelete(userId)
       AuthService.signout()
       window.location.reload()
-
     } catch (e) {
       setLoading(false)
       setError('There has been an error')
@@ -153,7 +153,7 @@ export default function AccountModal(props) {
     }
   }
 
-  const handleNewEmailAddressConfirm = async (emailAddress) => {
+  const handleNewEmailAddressConfirm = async emailAddress => {
     setLoading(true)
     setError(false)
 
@@ -169,7 +169,7 @@ export default function AccountModal(props) {
     }
   }
 
-  const handleNewEmailAddressDelete = async (emailAddress) => {
+  const handleNewEmailAddressDelete = async emailAddress => {
     if (email.length == 1) return setError('You need at least 1 connected email address')
 
     setLoading(true)

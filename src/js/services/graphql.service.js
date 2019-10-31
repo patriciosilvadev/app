@@ -27,23 +27,26 @@ export default class GraphqlService {
       operation.setContext({
         headers: {
           authorization: `Bearer ${token}`,
-        }
-      });
+        },
+      })
 
-      return forward(operation);
+      return forward(operation)
     })
 
     this.client = new ApolloClient({
       cache: new InMemoryCache(),
       defaultOptions: defaultOptions,
-      link: concat(authMiddleware, createHttpLink({
-        fetch: fetch,
-        uri: GRAPHQL_HOST,
-        onError: ({ networkError, graphQLErrors }) => {
-          console.log('graphQLErrors', graphQLErrors)
-          console.log('networkError', networkError)
-        },
-      })),
+      link: concat(
+        authMiddleware,
+        createHttpLink({
+          fetch: fetch,
+          uri: GRAPHQL_HOST,
+          onError: ({ networkError, graphQLErrors }) => {
+            console.log('graphQLErrors', graphQLErrors)
+            console.log('networkError', networkError)
+          },
+        })
+      ),
     })
   }
 

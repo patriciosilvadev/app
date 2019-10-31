@@ -6,6 +6,7 @@ import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import MessageComponent from '../components/message.component'
 
 export default memo(props => {
+  // prettier-ignore
   return (
     <React.Fragment>
       {props.messages.map((message, index) => {

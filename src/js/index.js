@@ -60,13 +60,11 @@ import {
   faEllipsisV,
   faStar,
 } from '@fortawesome/pro-light-svg-icons'
-import {
-  faSearch,
-} from '@fortawesome/pro-regular-svg-icons'
+import { faSearch } from '@fortawesome/pro-regular-svg-icons'
 
 const logger = createLogger({
-  collapsed: true
-});
+  collapsed: true,
+})
 
 // Redux with our middlewares
 const store = createStore(
@@ -79,19 +77,12 @@ const store = createStore(
     presences,
     notifications,
   }),
-  applyMiddleware(
-    thunk,
-    sync,
-    //logger,
-  )
+  applyMiddleware(thunk, sync, logger)
 )
 
 // Register our chaching service workers
 if ('serviceWorker' in navigator) {
-  navigator
-    .serviceWorker
-    .register('/sw.cache.js', { scope: '/' })
-    .catch(err => console.error('Could not register service worker', e))
+  navigator.serviceWorker.register('/sw.cache.js', { scope: '/' }).catch(err => console.error('Could not register service worker', e))
 } else {
   console.error('Service workers are not supported in this browser')
 }
@@ -133,7 +124,7 @@ library.add(
   faQuestionCircle,
   faSignOut,
   faSyncAlt,
-  faEllipsisV,
+  faEllipsisVs
 )
 
 // prettier-ignore

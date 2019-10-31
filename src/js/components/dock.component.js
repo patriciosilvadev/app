@@ -20,7 +20,7 @@ const Dock = styled.div`
   height: 100%;
   position: relative;
   background: white;
-  background: #040B1C;
+  background: #040b1c;
   border-right: 1px solid #0a152e;
 `
 
@@ -32,7 +32,7 @@ const Badge = styled.span`
   height: 11px;
   border-radius: 50%;
   background-color: #007af5;
-  border: 2px solid #040B1C;
+  border: 2px solid #040b1c;
 `
 
 export default function DockComponent(props) {
@@ -50,7 +50,7 @@ export default function DockComponent(props) {
   const notifications = useSelector(state => state.notifications)
 
   // When the user creates a team from quick input component
-  const handleNewTeamAccept = (name) => {
+  const handleNewTeamAccept = name => {
     setTeamPopup(false)
     dispatch(createTeam(common.user.id, name))
   }

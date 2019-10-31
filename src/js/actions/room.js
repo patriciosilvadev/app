@@ -173,8 +173,8 @@ export function createRoom(title, description, image, teamId, userId, initialOth
       // 1. Find rooms where there rae only 2 members
       // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
       const room = initialOtherUserId
-        ? getState().rooms
-            .filter(room => room.members.length == 2 && room.private)
+        ? getState()
+            .rooms.filter(room => room.members.length == 2 && room.private)
             .filter(room => room.members.filter(member => member.user.id == initialOtherUserId).length == 1)
             .flatten()
         : null
@@ -255,20 +255,13 @@ export function fetchRoomMessages(roomId, page) {
 export function createRoomMessage(roomId, text, attachments, parent) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
-    const excerpt = common.user.name.toString().split(' ')[0] + ": " + text || text
+    const excerpt = common.user.name.toString().split(' ')[0] + ': ' + text || text
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(
-        roomId,
-        common.user.id,
-        common.user.name,
-        text,
-        attachments,
-        parent
-      )
+      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, common.user.id, common.user.name, text, attachments, parent)
 
       dispatch(updateLoading(false))
 
@@ -304,7 +297,7 @@ export function createRoomMessage(roomId, text, attachments, parent) {
 export function updateRoomMessage(roomId, messageId, message, attachments) {
   return async (dispatch, getState) => {
     const { room, common } = getState()
-    const excerpt = common.user.name.toString().split(' ')[0] + ": " + message || message
+    const excerpt = common.user.name.toString().split(' ')[0] + ': ' + message || message
     const userName = common.user.name
     const userId = common.user.id
     const teamId = room.team.id
@@ -313,14 +306,7 @@ export function updateRoomMessage(roomId, messageId, message, attachments) {
     dispatch(updateError(null))
 
     try {
-      const { data } = await GraphqlService.getInstance().updateRoomMessage(
-        roomId,
-        userId,
-        userName,
-        messageId,
-        message,
-        attachments,
-      )
+      const { data } = await GraphqlService.getInstance().updateRoomMessage(roomId, userId, userName, messageId, message, attachments)
 
       dispatch(updateLoading(false))
 

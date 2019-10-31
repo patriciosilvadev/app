@@ -19,10 +19,10 @@ const IconContainer = styled.div`
 export default function ToolbarComponent(props) {
   return null
 
+  // prettier-ignore
   return (
     <Toolbar className="column">
       <IconContainer>
-
       </IconContainer>
     </Toolbar>
   )

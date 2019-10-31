@@ -69,18 +69,18 @@ export default class QuickUser extends React.Component {
       // Create a results object for the users
       // Dedupe existing users
       data.search
-      .filter(user => !this.props.room.members.filter(member => member.user.id == user.id).flatten())
-      .map(user => {
-        members.push({
-          user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            image: user.image,
-            role: user.role,
-          },
+        .filter(user => !this.props.room.members.filter(member => member.user.id == user.id).flatten())
+        .map(user => {
+          members.push({
+            user: {
+              id: user.id,
+              name: user.name,
+              username: user.username,
+              image: user.image,
+              role: user.role,
+            },
+          })
         })
-      })
 
       this.setState({ loading: false })
 

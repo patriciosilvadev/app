@@ -22,8 +22,8 @@ const Rooms = styled.div`
   position: relative;
   z-index: 2;
   background: white;
-  background: #F8F9FA;
-  background: #040B1C;
+  background: #f8f9fa;
+  background: #040b1c;
   border-right: 1px solid #f1f3f5;
 `
 
@@ -74,7 +74,7 @@ const AccountMenuTitle = styled.div`
   font-size: 14px;
   font-weight: 500;
   font-style: normal;
-  color: #343A40;
+  color: #343a40;
   transition: opacity 0.5s;
   display: inline-block;
   flex: 1;
@@ -84,7 +84,7 @@ const AccountMenuTitle = styled.div`
 const AccountMenuSubtitle = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #CFD4D9;
+  color: #cfd4d9;
   padding: 5px 5px 5px 5px;
 `
 
@@ -286,9 +286,7 @@ class RoomsComponent extends React.Component {
   }
 
   _signout() {
-    this.setState({
-      accountMenu: false
-    }, async () => {
+    this.setState({ accountMenu: false }, async () => {
       await AuthService.signout()
       await GraphqlService.signout()
 

@@ -15,9 +15,9 @@ import { bytesToSize } from '../helpers/util'
 const UpdateContainer = styled.div`
   position: absolute;
   transform: translateY(-100%);
-  background: #F8F9FA;
-  border-top: 1px solid #E1E7EB;
-  border-bottom: 1px solid #E1E7EB;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e7eb;
+  border-bottom: 1px solid #e1e7eb;
   width: 100%;
 `
 
@@ -86,7 +86,7 @@ const Compose = styled.div`
   width: 100%;
   padding: 0px;
   border-sizing: box-border;
-  border: ${props => props.active ? "2px solid #007af5": "none"}
+  border: ${props => (props.active ? '2px solid #007af5' : 'none')};
 `
 
 const InputContainer = styled.div`
@@ -210,11 +210,7 @@ class ComposeComponent extends React.Component {
     const id = this.props.message ? this.props.message.id : null
     const text = this.state.text
     const attachments = this.state.attachments
-    const parent = this.props.reply
-                    ? this.props.message
-                      ? this.props.message.id
-                      : null
-                    : null
+    const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
 
     // If it's a reply OR create
     if (!this.props.update) this.props.createRoomMessage(this.props.room.id, text, attachments, parent)
@@ -285,11 +281,7 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing
-    this.props.updateRoomAddTyping(
-      this.props.room.id,
-      this.props.common.user.name,
-      this.props.common.user.id
-    )
+    this.props.updateRoomAddTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id)
   }
 
   handleComposeChange(e) {
@@ -396,31 +388,37 @@ class ComposeComponent extends React.Component {
     this.updateComposeHeight()
 
     // Listen for file changes in attachments
-    Keg.keg('compose').tap('uploads', async (file, pour) => {
-      this.setState({ loading: true })
-      this.setState({ error: null })
+    Keg.keg('compose').tap(
+      'uploads',
+      async (file, pour) => {
+        this.setState({ loading: true })
+        this.setState({ error: null })
 
-      try {
-        const result = await new UploadService(file)
-        const { uri, mime, size, name } = await result.json()
+        try {
+          const result = await new UploadService(file)
+          const { uri, mime, size, name } = await result.json()
 
-        // Add the new files & increase the index
-        // And pour again to process the next file
-        this.setState({
-          attachments: [
-            ...this.state.attachments,
-            ...[{ uri, mime, size, name }]
-          ]
-        }, () => pour())
-      } catch (e) {
+          // Add the new files & increase the index
+          // And pour again to process the next file
+          this.setState(
+            {
+              attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
+            },
+            () => {
+              pour()
+            }
+          )
+        } catch (e) {
+          this.setState({ loading: false })
+          this.setState({ error: e })
+        }
+      },
+      () => {
+        // This is the empty() callback
+        // Stop loading when all is done
         this.setState({ loading: false })
-        this.setState({ error: e })
       }
-    }, () => {
-      // This is the empty() callback
-      // Stop loading when all is done
-      this.setState({ loading: false })
-    })
+    )
   }
 
   componentWillUnmount() {

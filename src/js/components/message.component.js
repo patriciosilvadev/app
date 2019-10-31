@@ -45,7 +45,7 @@ const Meta = styled.div`
 `
 
 const User = styled.div`
-  color: #343A40;
+  color: #343a40;
   font-weight: 600;
   font-style: normal;
   font-size: 12px;
@@ -225,11 +225,13 @@ export default memo(props => {
 
   const highlightMessage = (message, query) => {
     var reg = new RegExp(query, 'gi')
-    return message.replace(reg, str => { return `<strong>${str}<strong>` })
+    return message.replace(reg, str => {
+      return `<strong>${str}<strong>`
+    })
   }
 
   // prettier-ignore
-  useEffect(() => {    
+  useEffect(() => {
     setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
     setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
     setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))

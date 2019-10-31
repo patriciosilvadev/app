@@ -36,15 +36,15 @@ const Created = styled.div`
 
 const Title = styled.div`
   font-size: 14px;
-  font-weight:  ${props => props.read ? "400" : "600"};
-  color: ${props => props.read ? "#cfd4da" : "#202529"};
+  font-weight: ${props => (props.read ? '400' : '600')};
+  color: ${props => (props.read ? '#cfd4da' : '#202529')};
   flex: 1;
 `
 
 const Body = styled.div`
   font-size: 12px;
-  font-weight:  ${props => props.read ? "400" : "600"};
-  color: ${props => props.read ? "#cfd4da" : "#343A40"};
+  font-weight: ${props => (props.read ? '400' : '600')};
+  color: ${props => (props.read ? '#cfd4da' : '#343a40')};
   margin-top: 4px;
 `
 
@@ -57,9 +57,9 @@ const Button = styled.div`
 `
 
 const LoadContainer = styled.div`
-  background: #F8F9FA;
-  border-top: 1px solid #E1E7EB;
-  border-bottom: 1px solid #E1E7EB;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e7eb;
+  border-bottom: 1px solid #e1e7eb;
   width: 100%;
   position: absolute;
   bottom: 0px;
@@ -102,6 +102,7 @@ export default function NotificationsComponent(props) {
     dispatch(fetchNotifications(userId, page))
   }
 
+  // prettier-ignore
   return (
     <Container className="column">
       {common.loading && <Spinner />}

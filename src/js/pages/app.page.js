@@ -123,7 +123,7 @@ class AppPage extends React.Component {
         console.error('Could not register service worker', e)
       }
     } else {
-      console.error('Service workers are not supported in this browser');
+      console.error('Service workers are not supported in this browser')
     }
   }
 
