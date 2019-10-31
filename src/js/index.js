@@ -124,7 +124,7 @@ library.add(
   faQuestionCircle,
   faSignOut,
   faSyncAlt,
-  faEllipsisVs
+  faEllipsisV
 )
 
 // prettier-ignore
