@@ -17,7 +17,7 @@ const Auth = styled.div`
   left: 0px;
   z-index: 100;
   background: #08111d;
-  background-image: url(../../images/pattern.png);
+  background-image: url(https://weekday-app.s3-us-west-2.amazonaws.com/pattern.png);
   background-size: 800px;
   background-repeat: no-repeat;
   background-position: center center;
@@ -303,7 +303,7 @@ class AuthPage extends React.Component {
       <Auth className="row">
         <Container className="column justify-content-center align-content-center align-items-stretch">
           <Logo className="row justify-content-center align-content-center align-items-center">
-            <img src="../../images/logo.png" height="30"/>
+            <img src="https://weekday-app.s3-us-west-2.amazonaws.com/logo.png" height="30"/>
             <LogoText>weekday</LogoText>
           </Logo>
 

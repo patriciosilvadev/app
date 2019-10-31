@@ -28,7 +28,6 @@ module.exports = env => {
     plugins: [
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
-        favicon: './src/images/favicon.png',
         socketio: 'https://websocket.weekday.sh/socket.io/socket.io.js',
       }),
       new webpack.NormalModuleReplacementPlugin(

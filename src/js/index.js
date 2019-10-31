@@ -18,11 +18,8 @@ import AppPage from './pages/app.page'
 import './helpers/extensions'
 import '../styles/index.css'
 import '../../node_modules/emoji-mart/css/emoji-mart.css'
-import AuthService from './services/auth.service'
 import '../.htaccess'
-import '../images/favicon.png'
-import '../images/pattern.png'
-import '../images/logo.png'
+import AuthService from './services/auth.service'
 import common from './reducers/common'
 import team from './reducers/team'
 import teams from './reducers/teams'
@@ -77,7 +74,7 @@ const store = createStore(
     presences,
     notifications,
   }),
-  applyMiddleware(thunk, sync, logger)
+  applyMiddleware(thunk, sync)
 )
 
 // Register our chaching service workers

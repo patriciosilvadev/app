@@ -8,6 +8,8 @@ export const SOCKETIO_HOST = 'https://websocket.weekday.sh'
 export const LOCAL_DB = 'weekday'
 export const PUBLIC_VAPID_KEY = 'BK-o1CaPiLRUYWahx8VbyocJwrdmbdAYE3qPG17rZ6kjOWduL6-P6UFu5yxfH4fw4KhGzxmnbYAMeSAVU4zshkk'
 export const NODE_ENV = 'production'
+
+// Gets used for copying & pasting links
 export const LINK_URL_PREFIX = 'https://app.weekday.sh'
 
 // Set up Sentry
