@@ -7,6 +7,7 @@ import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
 import { updateRoomDeleteTyping } from './room'
+import { addPresence, deletePresence } from './presences'
 
 export function updateUserMuted(userId, roomId, muted) {
   return async (dispatch, getState) => {
@@ -187,27 +188,28 @@ export function initialize(userId) {
       }
     })
 
-    // Heartbeat - we send our updates to the current team
+
+    // Tell our current team about our status
     setInterval(() => {
       const { team, common } = getState()
-
-      if (!common.user) return
-      if (!common.user.id) return
-      if (!team.id) return
-
       const teamId = team.id
       const userId = common.user.id
-      const heartbeat = new Date()
 
-      dispatch({
-        type: 'UPDATE_USER_PRESENCE',
-        payload: {
-          userId,
-          heartbeat,
-        },
-        sync: teamId,
+      dispatch(addPresence(teamId, userId))
+    }, 5000)
+
+    // Clean our presence array every 5 seconds
+    setInterval(() => {
+      const { presences } = getState()
+      const snapshot = new Date().getTime()
+
+      // Remove after 30 seconds
+      presences.users.map(p => {
+        if ((snapshot - p.userTime) > 30000) {
+          dispatch(deletePresence(p.userId))
+        }
       })
-    }, 10000)
+    }, 5000)
 
     // Check if the typing array is valid every 1 second
     // Iterage over the current room's typing array
@@ -217,6 +219,7 @@ export function initialize(userId) {
       const roomId = room.id
       const snapshot = new Date().getTime()
 
+      // Remove after 1 second
       room.typing.map(t => {
         if ((snapshot - t.userTime) > 1000) {
           dispatch(updateRoomDeleteTyping(roomId, t.userId))

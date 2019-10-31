@@ -8,26 +8,32 @@ const initialState = {
 export default (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      // This gets updated from the initialize() function
-      // In the common.js actions file (setInterval)
-      case 'UPDATE_USER_PRESENCE':
-        // Do they exist already
-        const user = state.users.filter(user => user.userId == action.payload.userId).flatten()
+      case 'ADD_PRESENCE':
+        // If it's already there
+        if (state.users.filter(p => p.userId == action.payload.userId).flatten()) {
+          draft.users = state.users.map(p => {
+            // If it isn't this users typing
+            // then don't change anything
+            if (p.userId != action.payload.userId) return p
 
-        // If they do - then update their heartbeat
-        if (user) {
-          draft.users = state.users.map(user => {
-            const { userId } = user
-            const heartbeat = new Date()
-
-            if (userId == action.payload.userId) return { userId, heartbeat }
-
-            return user
+            // Otherwise - update their time
+            return {
+              userId: action.payload.userId,
+              userTime: new Date().getTime(),
+            }
           })
-        } else {
-          // If not, then create them
-          draft.users.push({ userId: action.payload.userId, heartbeat: new Date() })
+
+          return
         }
+
+        // If they are NOT there - then we want to add them
+        draft.users.push({
+          userId: action.payload.userId,
+          userTime: new Date().getTime(),
+        })
         break
+
+      case 'DELETE_PRESENCE':
+        return { users: state.users.filter(p => p.userId != action.payload.userId) }
     }
   })

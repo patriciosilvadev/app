@@ -574,15 +574,20 @@ class RoomsComponent extends React.Component {
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
                 // Get the other users' presence
+                const snapshot = new Date().getTime()
                 const otherMember = room.members.filter(member => member.user.id != this.props.common.user.id).flatten()
                 const otherMemberStatus = otherMember.user.status
                 const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
-                const heartbeat = otherMemberPresence ? otherMemberPresence.heartbeat : null
+                const presence = otherMemberPresence
+                                  ? ((snapshot - otherMemberPresence.userTime) > 15000)
+                                    ? "away"
+                                    : "online"
+                                  : null
 
                 return (
                   <Room
                     key={index}
-                    heartbeat={heartbeat}
+                    presence={presence}
                     active={pathname.indexOf(room.id) != -1}
                     unread={unreadCount}
                     title={title}
