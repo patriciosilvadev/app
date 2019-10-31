@@ -12,6 +12,7 @@ import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Ava
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Text } from '../elements'
 import { copyToClipboard } from '../helpers/util'
+import { LINK_URL_PREFIX } from '../environment'
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -360,7 +361,7 @@ export default function TeamModal(props) {
                             className="button"
                             color="highlight"
                             display="a"
-                            onClick={() => copyToClipboard(`http://localhost:8080/join/${url}`)}>
+                            onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/join/${url}`)}>
                             Click here
                           </Text>
                           <Text color="d" display="p"> to copy a temporary access URL that users can use to join this team</Text>
