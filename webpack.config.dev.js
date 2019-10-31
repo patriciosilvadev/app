@@ -21,6 +21,11 @@ module.exports = env => {
       publicPath: '/',
       chunkFilename: 'bundle.[name].js',
     },
+    performance: {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000
+    },
     plugins: [
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
