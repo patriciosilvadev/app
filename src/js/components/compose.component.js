@@ -86,6 +86,7 @@ const Compose = styled.div`
   width: 100%;
   padding: 0px;
   border-sizing: box-border;
+  z-index: 2;
   border: ${props => (props.active ? '2px solid #007af5' : 'none')};
 `
 
