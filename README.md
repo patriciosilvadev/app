@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/getweekday/app.svg?branch=master)](https://travis-ci.org/getweekday/client)
-
 # Weekday
 ### Weekday is a hackable team messaging platform.
 
@@ -26,7 +24,3 @@ dev - Start a dev server
 test - Runs Jest/Enzyme tests (more tests to follow)
 lint - Runs the linting for ESLint
 ```
-
-## Copyrights & credits
-- Font used is [HKGrotesk](https://hanken.co/hk-grotesk/)
-- Icons from [Remix Icons](https://remixicon.com/)
