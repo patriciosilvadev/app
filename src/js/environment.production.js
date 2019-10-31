@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/browser'
+//import * as Sentry from '@sentry/browser'
 
 export const UPLOAD_HOST = 'https://api.weekday.sh/api/upload'
 export const AUTH_HOST = 'https://api.weekday.sh/api/auth'
@@ -11,4 +11,4 @@ export const NODE_ENV = 'production'
 export const LINK_URL_PREFIX = 'https://app.weekday.sh'
 
 // Set up Sentry
-Sentry.init({ dsn: 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390' })
+// Sentry.init({ dsn: 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390' })
