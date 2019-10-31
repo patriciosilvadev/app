@@ -4,15 +4,38 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoomAddTyping, updateRoomDeleteTyping, createRoomMessage } from '../actions'
+import { updateLoading, updateError, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
-import { SentimentSatisfiedOutlined, AttachFileOutlined, AlternateEmailOutlined, SendOutlined, CloseOutlined } from '@material-ui/icons'
 import { DiMarkdown } from 'react-icons/di'
-import { IoIosSend } from 'react-icons/io'
-import { Subject } from 'rxjs'
-import { debounceTime } from 'rxjs/operators'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { bytesToSize } from '../helpers/util'
+
+const UpdateContainer = styled.div`
+  position: absolute;
+  transform: translateY(-100%);
+  background: #f8f9fa;
+  border-top: 1px solid #e1e7eb;
+  border-bottom: 1px solid #e1e7eb;
+  width: 100%;
+`
+
+const UpdateText = styled.div`
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const UpdateCancel = styled.div`
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #007af5;
+  font-weight: regular;
+`
 
 const ReplyPadding = styled.div`
   padding: 25px;
@@ -63,7 +86,7 @@ const Compose = styled.div`
   width: 100%;
   padding: 0px;
   border-sizing: box-border;
-  border: ${props => props.active ? "2px solid #007af5": "none"}
+  border: ${props => (props.active ? '2px solid #007af5' : 'none')};
 `
 
 const InputContainer = styled.div`
@@ -133,17 +156,25 @@ class ComposeComponent extends React.Component {
     /*
     Placeholder attachment for testing:
     {
-     uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-     mime: "image/jpeg",
-     size: 17361,
-     name: "tester.jpg",
-     createdAt: new Date(),
+      uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+      mime: "image/jpeg",
+      size: 17361,
+      name: "tester.jpg",
+      },
+      {
+      uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+      mime: "image/jpeg",
+      size: 17361,
+      name: "testers.jpg",
+      }
     }
     */
     this.state = {
+      id: null,
       emoticonMenu: false,
       scrollHeight: 0,
       attachments: [],
+      parent: [],
       text: '',
       mention: null,
       position: 0,
@@ -159,8 +190,6 @@ class ComposeComponent extends React.Component {
     this.fileRef = React.createRef()
     this.dropZone = React.createRef()
 
-    this.onType$ = new Subject()
-
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
@@ -169,21 +198,39 @@ class ComposeComponent extends React.Component {
     this.updateComposeHeight = this.updateComposeHeight.bind(this)
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
-    this.subscription = null
     this.onDragOver = this.onDragOver.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
     this.onDrop = this.onDrop.bind(this)
+    this.clearMessage = this.clearMessage.bind(this)
   }
 
   onSend() {
-    const parent = this.props.replyMessage ? this.props.replyMessage.id : null
+    if (this.state.text == '') return
+
+    const id = this.props.message ? this.props.message.id : null
     const text = this.state.text
     const attachments = this.state.attachments
+    const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
 
-    this.props.createRoomMessage(text, attachments, parent)
-    this.setState({ text: '', members: [], attachments: [] })
+    // If it's a reply OR create
+    if (!this.props.update) this.props.createRoomMessage(this.props.room.id, text, attachments, parent)
+
+    // If it's an update
+    if (this.props.update) this.props.updateRoomMessage(this.props.room.id, id, text, attachments)
+
+    // Reset the message
+    this.clearMessage()
+
+    // And then resize our input textarea to default
     this.composeRef.style.height = '25px'
-    this.props.clearReplyMessage()
+  }
+
+  clearMessage() {
+    // Clear the parent/update message
+    this.props.clearMessage()
+
+    // Reset our state
+    this.setState({ id: null, text: '', members: [], attachments: [] })
   }
 
   async handleFileChange(e) {
@@ -234,13 +281,12 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing
-    this.props.updateRoomAddTyping(this.props.common.user.name, this.props.common.user.id)
+    this.props.updateRoomAddTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id)
   }
 
   handleComposeChange(e) {
     const text = e.target.value
 
-    this.onType$.next(text)
     this.setState({ text }, () => {
       const { selectionStart } = this.composeRef
       const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
@@ -341,43 +387,61 @@ class ComposeComponent extends React.Component {
     // Resize compose initiallyl
     this.updateComposeHeight()
 
-    // Stop typing indicator after 1000 ms of inactivity
-    this.subscription = this.onType$
-      .pipe(debounceTime(1000))
-      .subscribe(debounced => this.props.updateRoomDeleteTyping(this.props.common.user.name, this.props.common.user.id))
-
     // Listen for file changes in attachments
-    Keg.keg('compose').tap('uploads', async (file, pour) => {
-      this.setState({ loading: true })
-      this.setState({ error: null })
+    Keg.keg('compose').tap(
+      'uploads',
+      async (file, pour) => {
+        this.setState({ loading: true })
+        this.setState({ error: null })
 
-      try {
-        const result = await new UploadService(file)
-        const { uri, mime, size, name } = await result.json()
+        try {
+          const result = await new UploadService(file)
+          const { uri, mime, size, name } = await result.json()
 
-        // Add the new files & increase the index
-        this.setState({ attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]] }, () => pour())
-      } catch (e) {
+          // Add the new files & increase the index
+          // And pour again to process the next file
+          this.setState(
+            {
+              attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
+            },
+            () => {
+              pour()
+            }
+          )
+        } catch (e) {
+          this.setState({ loading: false })
+          this.setState({ error: e })
+        }
+      },
+      () => {
+        // This is the empty() callback
+        // Stop loading when all is done
         this.setState({ loading: false })
-        this.setState({ error: e })
       }
-    }, () => {
-      // This is the empty() callback
-      // Stop loading when all is done
-      this.setState({ loading: false })
-    })
+    )
   }
 
   componentWillUnmount() {
-    if (this.subscription) this.subscription.unsubscribe()
-
-    // Drag event listeners
     this.dropZone.removeEventListener('dragover', this.onDragOver)
     this.dropZone.removeEventListener('dragend', this.onDragEnd)
     this.dropZone.removeEventListener('drop', this.onDrop)
   }
 
-  componentDidUpdate() {}
+  static getDerivedStateFromProps(props, state) {
+    if (!props.update) return null
+
+    // Only update one
+    if (props.message.id != state.id && props.update) {
+      return {
+        id: props.message.id,
+        attachments: props.message.attachments,
+        text: props.message.message,
+        parent: props.message.parent,
+      }
+    }
+
+    return null
+  }
 
   // prettier-ignore
   render() {
@@ -388,6 +452,22 @@ class ComposeComponent extends React.Component {
         {this.state.error && <Error message={this.state.error} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} />}
+
+        {this.props.update &&
+          <UpdateContainer className="row">
+            <UpdateText>
+              Updating message
+
+              {this.props.message.parent &&
+                <span> - replying to {this.props.message.parent.user.name}</span>
+              }
+            </UpdateText>
+            <div className="flexer"></div>
+            <UpdateCancel className="button" onClick={this.clearMessage}>
+              Cancel
+            </UpdateCancel>
+          </UpdateContainer>
+        }
 
         {this.state.attachments.length != 0 &&
           <Attachments className="row">
@@ -419,13 +499,13 @@ class ComposeComponent extends React.Component {
           </MentionContainer>
         }
 
-        {this.props.replyMessage &&
+        {this.props.message && this.props.reply &&
           <ReplyPadding className="column align-items-stretch flexer">
             <ReplyText>Replying to:</ReplyText>
             <ReplyContainer className="row justify-content-center">
               <Avatar
-                image={this.props.replyMessage.user.image}
-                title={this.props.replyMessage.user.name}
+                image={this.props.message.user.image}
+                title={this.props.message.user.name}
                 className="mr-15"
                 size="medium"
               />
@@ -433,19 +513,20 @@ class ComposeComponent extends React.Component {
               <div className="column flexer">
                 <div className="row">
                   <ReplyName>
-                    {this.props.replyMessage.user.name}
+                    {this.props.message.user.name}
                   </ReplyName>
-                  <ReplyMeta>{moment(this.props.replyMessage.createdAt).fromNow()}</ReplyMeta>
+                  <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
                 </div>
                 <ReplyMessage>
-                  {this.props.replyMessage.message}
+                  {this.props.message.message}
                 </ReplyMessage>
               </div>
-              <CloseOutlined
-                htmlColor="#524150"
-                fontSize="large"
-                className="button"
-                onClick={this.props.clearReplyMessage}
+              <FontAwesomeIcon
+                className="ml-15 button"
+                icon={["fal", "times"]}
+                color="#565456"
+                size="lg"
+                onClick={this.props.clearMessage}
               />
             </ReplyContainer>
           </ReplyPadding>
@@ -486,37 +567,53 @@ class ComposeComponent extends React.Component {
                 onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
               />
             }>
-            <SentimentSatisfiedOutlined
-              htmlColor="#565456"
-              className="button ml-15"
-              fontSize="default"
+            <FontAwesomeIcon
+              className="ml-15 button"
+              icon={["fal", "smile"]}
+              color="#565456"
+              size="lg"
               onClick={() => this.setState({ emoticonMenu: true })}
             />
           </Popup>
 
-          <AttachFileOutlined
-            htmlColor="#565456"
-            fontSize="default"
+          <FontAwesomeIcon
             className="ml-15 button"
+            icon={["fal", "paperclip"]}
+            color="#565456"
+            size="lg"
             onClick={() => this.fileRef.click()}
           />
 
-          <AlternateEmailOutlined
-            htmlColor="#565456"
-            fontSize="default"
+          <FontAwesomeIcon
             className="ml-15 button"
+            icon={["fal", "at"]}
+            color="#565456"
+            size="lg"
             onClick={() => {
               this.insertAtCursor("@")
               this.filterMembers("")
             }}
           />
 
-          <IoIosSend
-            color="#565456"
-            className="ml-15 button"
-            size={30}
-            onClick={this.onSend}
-          />
+          {!this.props.update &&
+            <FontAwesomeIcon
+              className="ml-15 button"
+              icon={["fal", "paper-plane"]}
+              color="#565456"
+              size="lg"
+              onClick={this.onSend}
+            />
+          }
+
+          {this.props.update &&
+            <FontAwesomeIcon
+              className="ml-15 button"
+              icon={["fal", "check"]}
+              color="#565456"
+              size="lg"
+              onClick={this.onSend}
+            />
+          }
         </InputContainer>
 
         <Footer className="row">
@@ -537,17 +634,19 @@ ComposeComponent.propTypes = {
   team: PropTypes.any,
   teams: PropTypes.any,
   common: PropTypes.any,
-  replyMessage: PropTypes.any,
-  clearReplyMessage: PropTypes.any,
+  message: PropTypes.any,
+  reply: PropTypes.bool,
+  update: PropTypes.bool,
+  clearMessage: PropTypes.any,
   createRoomMessage: PropTypes.func,
+  updateRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
-  updateRoomDeleteTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  createRoomMessage: (text, attachments, parent) => createRoomMessage(text, attachments, parent),
-  updateRoomAddTyping: (userName, userId) => updateRoomAddTyping(userName, userId),
-  updateRoomDeleteTyping: (userName, userId) => updateRoomDeleteTyping(userName, userId),
+  createRoomMessage: (roomId, text, attachments, parent) => createRoomMessage(roomId, text, attachments, parent),
+  updateRoomMessage: (roomId, messageId, message, attachments) => updateRoomMessage(roomId, messageId, message, attachments),
+  updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
 }
 
 const mapStateToProps = state => {

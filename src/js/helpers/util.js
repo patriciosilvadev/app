@@ -1,43 +1,84 @@
+// prettier-ignore
+export const bytesToSize = bytes => {
+  var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
+  if (bytes == 0) return '0 Byte'
+  var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
+  return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i]
+}
 
+// prettier-ignore
+export const imageUrlParser = url => {
+  const match = url.match(/(http[s]?:\/\/.*\.(?:png|jpg|svg|jpeg|gif))/i)
+  return match ? match[1] : false
+}
+
+// prettier-ignore
+export const vimeoUrlParser = url => {
+  const match = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i)
+  return match ? match[1] : false
+}
+
+// prettier-ignore
+export const youtubeUrlParser = url => {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/
+  const match = url.match(regExp)
+  return (match && match[7].length == 11) ? match[7] : false
+}
+
+// prettier-ignore
 export const askPushNotificationPermission = () => {
-  return new Promise(function(resolve, reject) {
-    const permissionResult = Notification.requestPermission(function(result) {
-      resolve(result);
-    });
+  return new Promise((resolve, reject) => {
+    const permissionResult = Notification.requestPermission(result => {
+      resolve(result)
+    })
 
     if (permissionResult) {
-      permissionResult.then(resolve, reject);
+      permissionResult.then(resolve, reject)
     }
   })
   .then(function(permissionResult) {
-    console.log(permissionResult)
     if (permissionResult !== 'granted') {
-      throw new Error('We weren\'t granted permission.');
+      throw new Error('We weren\'t granted permission.')
     }
-  });
+  })
 }
 
+// prettier-ignore
 export const urlBase64ToUint8Array = base64String => {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding)
     .replace(/\-/g, '+')
-    .replace(/_/g, '/');
+    .replace(/_/g, '/')
 
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
 
   for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+    outputArray[i] = rawData.charCodeAt(i)
   }
-  return outputArray;
+  return outputArray
 }
 
 export const showLocalPushNotification = (title, body) => {
-  if (serviceWorkerRegistration) {
-    serviceWorkerRegistration.showNotification(title, {
-      body,
-      icon: '/images/favicon.png',
-      image: '/images/logo.png',
-    })
-  }
+  navigator.serviceWorker.ready.then(register => {
+    const serviceWorkerRegistration = register
+
+    if (serviceWorkerRegistration) {
+      serviceWorkerRegistration.showNotification(title, {
+        body,
+        icon: '/images/favicon.png',
+        image: '/images/logo.png',
+      })
+    }
+  })
+}
+
+export const copyToClipboard = value => {
+  const tempInput = document.createElement('input')
+  tempInput.style = 'position: absolute; left: -1000px; top: -1000px;'
+  tempInput.value = value
+  document.body.appendChild(tempInput)
+  tempInput.select()
+  document.execCommand('copy')
+  document.body.removeChild(tempInput)
 }

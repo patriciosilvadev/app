@@ -34,16 +34,21 @@ export default (state = initialState, action) =>
         draft = Object.assign(draft, action.payload)
         break
 
+      case 'UPDATE_ROOM_ADD_MESSAGES':
+        draft.messages = [...state.messages, action.payload.messages]
+        break
+
       case 'CREATE_ROOM_MESSAGE':
         draft.messages = [...state.messages, action.payload.message]
         break
 
-      case 'CREATE_ROOM_MESSAGE_REPLY':
+      case 'UPDATE_ROOM_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
             return {
               ...message,
-              replies: [...message.replies, action.payload.reply],
+              attachments: action.payload.message.attachments,
+              message: action.payload.message.message,
             }
           } else {
             return message
@@ -51,18 +56,64 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'DELETE_ROOM_MESSAGE':
+        draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
+        break
+
       case 'UPDATE_ROOM_ADD_TYPING':
+        // If it's already there
+        if (state.typing.filter(t => t.userId == action.payload.userId).flatten()) {
+          draft.typing = state.typing.map(t => {
+            // If it isn't this users typing
+            // then don't change anything
+            if (t.userId != action.payload.userId) return t
+
+            // Otherwise - update their time
+            return {
+              userName: action.payload.userName,
+              userId: action.payload.userId,
+              userTime: new Date().getTime(),
+            }
+          })
+
+          return
+        }
+
+        // If they are NOT there - then we want to add them
         draft.typing.push({
           userName: action.payload.userName,
-          userId: action.payload.userId
+          userId: action.payload.userId,
+          userTime: new Date().getTime(),
         })
         break
 
       case 'UPDATE_ROOM_DELETE_TYPING':
-        return {
-          ...state,
-          typing: state.typing.filter(typing => typing.userId != action.payload.userId)
-        }
+        return { ...state, typing: state.typing.filter(t => t.userId != action.payload.userId) }
+
+      case 'UPDATE_ROOM_MESSAGE_ATTACHMENT_PREVIEW':
+        draft.messages = state.messages.map((message, _) => {
+          if (message.id == action.payload.messageId) {
+            return {
+              ...message,
+
+              // We need to use the _id because attachments is a schema-only of message
+              // Not a child object - the ID accessor only gets added to Models
+              attachments: message.attachments.map(attachment => {
+                if (attachment._id == action.payload.attachmentId) {
+                  return {
+                    ...attachment,
+                    preview: action.payload.uri,
+                  }
+                } else {
+                  return attachment
+                }
+              }),
+            }
+          } else {
+            return message
+          }
+        })
+        break
 
       case 'CREATE_ROOM_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {

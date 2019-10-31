@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import GraphqlService from '../services/graphql.service'
 import { Popup } from '@weekday/elements'
 import PropTypes from 'prop-types'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Filter = styled.input`
   border: none;
@@ -12,7 +13,6 @@ const Filter = styled.input`
   font-size: 15px;
   font-weight: 400;
   padding: 15px;
-  width: 250px;
 
   &::placeholder {
     color: #acb5bd;
@@ -53,18 +53,14 @@ export default class QuickInputComponent extends React.Component {
         width={this.props.width || 250}
         direction={this.props.direction || "right-bottom"}
         content={
-          <div className="column flexer">
-            <div className="row">
-              <Filter
-                autoFocus
-                ref={ref => this.filterRef = ref}
-                onKeyDown={this.handleKeyDown}
-                placeholder={this.props.placeholder}
-                value={this.state.filter}
-                onChange={(e) => this.setState({ filter: e.target.value })}
-              />
-            </div>
-          </div>
+          <Filter
+            autoFocus
+            ref={ref => this.filterRef = ref}
+            onKeyDown={this.handleKeyDown}
+            placeholder={this.props.placeholder}
+            value={this.state.filter}
+            onChange={(e) => this.setState({ filter: e.target.value })}
+          />
         }>
         {this.props.children}
       </Popup>

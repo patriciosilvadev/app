@@ -6,55 +6,42 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
-export function fetchTeam(teamId) {
+export function fetchNotifications(userId, page) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      const team = await GraphqlService.getInstance().team(teamId)
+      const notifications = await GraphqlService.getInstance().notifications(userId, page)
 
       dispatch(updateLoading(false))
       dispatch({
-        type: 'TEAM',
-        payload: team.data.team,
+        type: 'NOTIFICATIONS',
+        payload: notifications.data.notifications,
       })
     } catch (e) {
       dispatch(updateLoading(false))
-      dispatch(updateError(null))
+      dispatch(updateError(e))
     }
   }
 }
 
-export function createTeam(userId, name) {
+export function updateNotificationRead(notificationId, read) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      const { data } = await GraphqlService.getInstance().createTeam({
-        name,
-        description: '',
-        image: null,
-        members: [
-          {
-            user: userId,
-            admin: true,
-          },
-        ],
-      })
-      const teamId = data.createTeam.id
+      await GraphqlService.getInstance().updateNotificationRead(notificationId, read)
 
       dispatch(updateLoading(false))
       dispatch({
-        type: 'CREATE_TEAM',
-        payload: data.createTeam,
+        type: 'UPDATE_NOTIFICATION_READ',
+        payload: { notificationId, read },
       })
-
-      MessagingService.getInstance().join(teamId)
     } catch (e) {
       dispatch(updateLoading(false))
-      dispatch(updateError(null))
+      dispatch(updateError(e))
     }
   }
 }

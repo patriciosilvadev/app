@@ -4,7 +4,7 @@ import DatabaseService from '../services/database.service'
 import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
-import { updateLoading, updateError } from './'
+import { updateLoading, updateError } from './common'
 
 export function fetchRooms(teamId, userId) {
   return async (dispatch, getState) => {
@@ -13,6 +13,10 @@ export function fetchRooms(teamId, userId) {
 
     try {
       const rooms = await GraphqlService.getInstance().rooms(teamId, userId)
+      const roomIds = rooms.data.rooms.map(room => room.id)
+
+      // Join the rooms
+      MessagingService.getInstance().joins(roomIds)
 
       dispatch(updateLoading(false))
       dispatch({

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import { debounceTime } from 'rxjs/operators'
 import GraphqlService from '../services/graphql.service'
 import { Popup, User, Members, Spinner } from '@weekday/elements'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Filter = styled.input`
   border: none;
@@ -62,21 +63,24 @@ export default class QuickUser extends React.Component {
     this.setState({ loading: true })
 
     try {
-      const { data } = await GraphqlService.getInstance().search(this.props.teamId, this.state.filter)
+      const { data } = await GraphqlService.getInstance().search(this.props.room.team.id, this.state.filter)
       const members = []
 
       // Create a results object for the users
-      data.search.map(user => {
-        members.push({
-          user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            image: user.image,
-            role: user.role,
-          },
+      // Dedupe existing users
+      data.search
+        .filter(user => !this.props.room.members.filter(member => member.user.id == user.id).flatten())
+        .map(user => {
+          members.push({
+            user: {
+              id: user.id,
+              name: user.name,
+              username: user.username,
+              image: user.image,
+              role: user.role,
+            },
+          })
         })
-      })
 
       this.setState({ loading: false })
 
@@ -90,7 +94,9 @@ export default class QuickUser extends React.Component {
     return (
       <Popup
         visible={this.props.visible}
-        handleDismiss={this.props.handleDismiss}
+        handleDismiss={() => {
+          this.setState({ filter: '', members: [] }, () => this.props.handleDismiss())
+        }}
         width={this.props.width || 250}
         direction={this.props.direction || "right-bottom"}
         content={
@@ -109,7 +115,6 @@ export default class QuickUser extends React.Component {
             <Members
               members={this.state.members}
               handleAccept={(member) => {
-                // Kill the fitler
                 this.setState({
                   filter: '',
                   members: [],
@@ -130,10 +135,10 @@ export default class QuickUser extends React.Component {
 
 QuickUser.propTypes = {
   visible: PropTypes.bool,
-  handleDismiss: PropTypes.func,
   width: PropTypes.number,
   direction: PropTypes.string,
+  room: PropTypes.object,
   handleAccept: PropTypes.func,
-  team: PropTypes.string,
+  handleDismiss: PropTypes.func,
   children: PropTypes.any,
 }

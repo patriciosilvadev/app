@@ -8,10 +8,10 @@ import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
 import { DiMarkdown } from 'react-icons/di'
-import { AddOutlined, AddCircleOutlined, DeleteOutlined, CloseOutlined } from '@material-ui/icons'
 import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Row = styled.div`
   background-color: transparent;
@@ -36,7 +36,7 @@ const Column = styled.div`
 const Supported = styled.div`
   font-size: 12px;
   font-weight: 600;
-  color: #007af5;
+  color: #00a8ff;
   margin-left: 5px;
 `
 
@@ -54,6 +54,7 @@ export default function RoomModal(props) {
   const [description, setDescription] = useState('')
   const common = useSelector(state => state.common)
   const team = useSelector(state => state.team)
+  const room = useSelector(state => state.room)
   const fileRef = useRef(null)
   const dispatch = useDispatch()
   const [memberToDelete, setMemberToDelete] = useState(null)
@@ -70,9 +71,9 @@ export default function RoomModal(props) {
 
     try {
       const result = await new UploadService(e.target.files[0])
-      const { data, mime } = await result.json()
+      const { uri, mime, size, name } = await result.json()
 
-      setImage(data.Location)
+      setImage(uri)
       setLoading(false)
     } catch (e) {
       setLoading(false)
@@ -108,21 +109,7 @@ export default function RoomModal(props) {
         title="Channel"
         width={700}
         height="90%"
-        onClose={props.onClose}
-        footer={(
-          <div className="column w-100 align-items-stretch">
-            <div className="mb-20 mr-20 ml-20 row flex-1 justify-content-end">
-              <div className="flexer" />
-
-              {/* Null here means it's a channel - no user */}
-              <Button
-                size="large"
-                onClick={() => dispatch(updateRoom({ title, image, description }))}
-                text="Update"
-              />
-            </div>
-          </div>
-        )}>
+        onClose={props.onClose}>
           <Tabbed
             start={props.start || 0}
             panels={[
@@ -154,7 +141,9 @@ export default function RoomModal(props) {
                             onClick={() => fileRef.current.click()}
                           />
 
-                          <Link onClick={() => fileRef.current.click()}>Update image</Link>
+                          <Link className="button mt-10" onClick={() => fileRef.current.click()}>
+                            Update image
+                          </Link>
                         </div>
 
                         <Column className="column">
@@ -175,7 +164,7 @@ export default function RoomModal(props) {
 
                           <div className="row">
                             <DiMarkdown
-                              color="#007af5"
+                              color="#00a8ff"
                               size={18}
                             />
                             <Supported>
@@ -184,6 +173,13 @@ export default function RoomModal(props) {
                           </div>
                         </Column>
                       </Row>
+
+                      <div className="p-20">
+                        <Button
+                          onClick={() => dispatch(updateRoom(room.id, { title, image, description }))}
+                          text="Update"
+                        />
+                      </div>
                     </div>
                   </div>
                 )
@@ -202,7 +198,7 @@ export default function RoomModal(props) {
                         onOkay={() => {
                           setConfirmSelfDeleteModal(false)
                           setUserMenu(false)
-                          dispatch(deleteRoomMember(memberToDelete))
+                          dispatch(deleteRoomMember(room.id, memberToDelete))
                           onClose()
                         }}
                         onCancel={() => setConfirmSelfDeleteModal(false)}
@@ -214,11 +210,9 @@ export default function RoomModal(props) {
                     {confirmMemberDeleteModal &&
                       <ConfirmModal
                         onOkay={() => {
-                          if (members.length <= 2) return
-
                           setConfirmMemberDeleteModal(false)
                           setUserMenu(false)
-                          dispatch(deleteRoomMember(memberToDelete))
+                          dispatch(deleteRoomMember(room.id, memberToDelete))
                         }}
                         onCancel={() => setConfirmMemberDeleteModal(false)}
                         text="Are you sure you want to remove this person, it can not be undone?"
@@ -233,11 +227,17 @@ export default function RoomModal(props) {
                           image={member.user.image}
                           color={member.user.color}
                           name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                          label={`${member.user.email} ${member.admin ? "- Admin" : ""}`}>
+                          label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
                           <Button
                             size="small"
                             onClick={() => {
+                              if (members.length <= 2) {
+                                setError('There must be at least 2 people')
+                                setTimeout(() => setError(null), 2000)
+                                return
+                              }
+
                               setMemberToDelete(member.user)
 
                               if (common.user.id == member.user.id) {
@@ -253,10 +253,10 @@ export default function RoomModal(props) {
                     })}
 
                     <QuickUserComponent
-                      teamId={team.id}
+                      room={room}
                       visible={userMenu}
                       width={250}
-                      direction="right-bottom"
+                      direction="left-bottom"
                       handleDismiss={() => setUserMenu(false)}
                       handleAccept={({ user }) => {
                         // Check to see if there are already people
@@ -264,10 +264,10 @@ export default function RoomModal(props) {
                         if (members.filter(member => member.user.id == user.id).length > 0) return
 
                         // Otherwise all good - add them
-                        dispatch(createRoomMember(user))
+                        dispatch(createRoomMember(room.id, user))
                         setUserMenu(false)
                       }}>
-                      <AddButton className="row" onClick={() => setUserMenu(true)}>
+                      <AddButton className="button row" onClick={() => setUserMenu(true)}>
                         <Avatar
                           className="mr-5"
                           size="medium"
@@ -275,9 +275,10 @@ export default function RoomModal(props) {
                           image={null}
                           color="#007af5"
                           title="">
-                          <AddOutlined
-                            htmlColor="#00a8ff"
-                            fontSize="small"
+                          <FontAwesomeIcon
+                            icon={["fal", "plus"]}
+                            color="#00a8ff"
+                            size="sm"
                           />
                         </Avatar>
                         <Link className="ml-10">Add new Member</Link>

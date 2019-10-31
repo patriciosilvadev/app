@@ -1,21 +1,25 @@
-import React from 'react'
+import React, { memo } from 'react'
+import moment from 'moment'
 import { connect } from 'react-redux'
 import UploadService from '../services/upload.service'
 import '../helpers/extensions'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import GraphqlService from '../services/graphql.service'
 import EventService from '../services/event.service'
 import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
+import MessagingService from '../services/messaging.service'
 import ConfirmModal from '../modals/confirm.modal'
-import { InfoOutlined, MoreVertOutlined, MoreHorizOutlined, DeleteOutlined, AddOutlined, StarBorder, Star, CloseOutlined, CreateOutlined, GroupOutlined, Subject, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons'
-import { deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages, createRoomMessage, createRoomMessageReaction, deleteRoomMessageReaction } from '../actions'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
-import MessageComponent from '../components/message.component'
+import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, Avatar } from '@weekday/elements'
+import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
+import { Subject } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import MessagesComponent from './messages.component'
 
 const Room = styled.div`
   background: white;
@@ -24,6 +28,7 @@ const Room = styled.div`
   padding-left: 0px;
   padding-right: 0px;
   position: relative;
+  z-index: 1;
 `
 
 const Header = styled.div`
@@ -43,6 +48,7 @@ const HeaderTitle = styled.div`
   transition: opacity 0.5s;
   display: inline-block;
   margin-bottom: 2px;
+  width: max-content;
 `
 
 const HeaderText = styled.div`
@@ -75,18 +81,29 @@ const HeaderButton = styled.div`
   cursor: pointer;
 `
 
-const Messages = styled.div`
-  flex: 1;
-  overflow: scroll;
-  width: 100%;
-  background: #f8f9fa;
+const HeaderSearchContainer = styled.div`
+  border: 3px solid #f1f3f5;
   background: white;
+  border-radius: 10px;
+  padding 5px;
+  transition: width 0.5s;
+  width: ${props => (props.focus ? '300px' : '200px')};
+  margin-right: 10px;
 `
 
-const MessagesContainer = styled.div`
-  width: 100%;
-  padding: 25px;
-  height: 1px; /* Important for the height to be set here */
+const HeaderSearchInput = styled.input`
+  font-size: 14px;
+  font-weight: 400;
+  flex: 1;
+  background: transparent;
+  font-style: normal;
+  color: #212123;
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: #acb5bd;
+  }
 `
 
 const Blocked = styled.div`
@@ -94,6 +111,30 @@ const Blocked = styled.div`
   font-weight: 500;
   color: #343a40;
   padding: 10px;
+`
+
+const Typing = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  color: "#adb5bd";
+  border-bottom: 1px solid #f1f3f5;
+  padding: 10px 25px 10px 25px
+  width: 100%;
+`
+
+const MessagesContainer = styled.div`
+  position: relative;
+  flex: 1;
+  overflow: scroll;
+  width: 100%;
+  background: #f8f9fa;
+  background: white;
+`
+
+const MessagesInner = styled.div`
+  width: 100%;
+  padding: 25px;
+  height: 1px; /* Important for the height to be set here */
 `
 
 const Welcome = styled.div`
@@ -118,15 +159,6 @@ const WelcomeDescriptionUpdate = styled.div`
   font-style: italic;
 `
 
-const Typing = styled.div`
-  font-weight: 400;
-  font-size: 12px;
-  color: "#adb5bd";
-  border-bottom: 1px solid #f1f3f5;
-  padding: 10px 25px 10px 25px
-  width: 100%;
-`
-
 const WelcomeDescription = styled.div`
   font-weight: 400;
   font-size: 18px;
@@ -144,6 +176,10 @@ const WelcomeUserName = styled.div`
   padding-left: 10px;
 `
 
+const PaddingToKeepMessagesDown = styled.div`
+  height: 1500px;
+`
+
 class RoomComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -158,11 +194,16 @@ class RoomComponent extends React.Component {
       roomUpdateModal: false,
       roomUpdateModalStart: 0,
       confirmDeleteModal: false,
-      replyMessage: null,
+      message: null,
+      reply: false,
+      update: false,
       starred: false,
       visibilityMenu: false,
       lastTypingTime: 0,
       typing: '',
+      searchFocus: false,
+      searchResults: null,
+      searchQuery: '',
     }
 
     this.messagesRef = React.createRef()
@@ -173,6 +214,40 @@ class RoomComponent extends React.Component {
     this.deleteRoom = this.deleteRoom.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.composeTypingNames = this.composeTypingNames.bind(this)
+    this.fetchResults = this.fetchResults.bind(this)
+    this.onSearch = this.onSearch.bind(this)
+    this.onSearch$ = new Subject()
+    this.subscription = null
+    this.setUpdateMessage = this.setUpdateMessage.bind(this)
+    this.setReplyMessage = this.setReplyMessage.bind(this)
+  }
+
+  onSearch(e) {
+    const query = e.target.value
+    this.setState({ searchQuery: query })
+    this.onSearch$.next(query)
+  }
+
+  async fetchResults() {
+    if (this.state.searchQuery == '') return this.setState({ searchResults: null })
+
+    this.props.updateLoading(true)
+    this.props.updateError(null)
+
+    const query = this.state.searchQuery
+    const roomId = this.props.room.id
+
+    try {
+      const { data } = await GraphqlService.getInstance().searchMessages(roomId, query)
+
+      // Update our UI with our results
+      // Remove ourselves
+      this.setState({ searchResults: data.searchMessages })
+      this.props.updateLoading(false)
+    } catch (e) {
+      this.props.updateLoading(false)
+      this.props.updateError(e)
+    }
   }
 
   composeTypingNames() {
@@ -180,20 +255,29 @@ class RoomComponent extends React.Component {
     const typingUsers = this.props.room.typing.filter(t => t.userId != this.props.common.user.id)
 
     if (typingUsers.length == 0) {
-      return ""
+      return ''
     } else {
-        return typingUsers.map(t => t.userName).join(', ') + " is typing"
+      return typingUsers.map(t => t.userName).join(', ') + ' is typing'
     }
   }
 
   scrollToBottom() {
-    if (this.scrollRef) this.scrollRef.scrollTop = this.scrollRef.scrollHeight
+    // If there is no scroll ref
+    if (!this.scrollRef) return
+
+    // If the user is scrolling
+    if (this.state.manualScrolling) return
+
+    // Move it right down
+    this.scrollRef.scrollTop = this.scrollRef.scrollHeight
   }
 
   handleScrollEvent(e) {
+    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
+
     if (this.scrollRef.scrollTop == 0) this.fetchRoomMessages()
 
-    if (this.scrollRef.offsetHeight == this.scrollRef.scrollHeight - this.scrollRef.scrollTop + 1) {
+    if (this.scrollRef.offsetHeight >= offsetHeight) {
       this.setState({ manualScrolling: false })
     } else {
       this.setState({ manualScrolling: true })
@@ -201,10 +285,12 @@ class RoomComponent extends React.Component {
   }
 
   fetchRoomMessages() {
+    // Don't refetch messages every time it's triggered
+    // We need to wait if there's already a fetch in progress
     if (this.state.busy) return
 
     // Get new messages
-    this.props.fetchRoomMessages(this.state.page)
+    this.props.fetchRoomMessages(this.props.room.id, this.state.page)
 
     // Save the height of the messages area
     // Important for when we update their scroll position
@@ -214,12 +300,11 @@ class RoomComponent extends React.Component {
     })
   }
 
-  fetchedRoomMessages() {
-    this.setState({ busy: false })
-  }
-
   componentDidMount() {
     if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
+
+    // Here we handle the delay for the yser typing in the search field
+    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
 
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
@@ -227,13 +312,11 @@ class RoomComponent extends React.Component {
 
     // Keep it scrolled down if they remain at the bottom
     // and if it's not on manual
-    setInterval(() => {
-      if (!this.state.manualScrolling && this.scrollRef) this.scrollToBottom()
-    }, 500)
+    // setInterval(() => this.scrollToBottom(), 500)
 
-    // Enabling/disabling message fetches - always true
-    EventService.get().on('fetchedRoomMessages', payload => {
-      if (this.state.open) this.fetchedRoomMessages()
+    // Disblae the busy flag, so that the user can conitnue loading messages
+    EventService.get().on('successfullyFetchedMoreRoomMessages', payload => {
+      this.setState({ busy: false })
     })
   }
 
@@ -251,6 +334,7 @@ class RoomComponent extends React.Component {
 
   componentWillUnmount() {
     this.scrollRef.removeEventListener('scroll', this.handleScrollEvent)
+    if (this.subscription) this.subscription.unsubscribe()
   }
 
   updateUserStarred(starred) {
@@ -260,15 +344,30 @@ class RoomComponent extends React.Component {
     this.props.updateUserStarred(userId, roomId, starred)
   }
 
+  // { private, public }
   updateRoomVisibility(visibility) {
+    const roomId = this.props.room.id
+    const teamId = this.props.team.id
+
+    if (!visibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
+    if (visibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
+
     this.setState({ visibilityMenu: false })
-    this.props.updateRoom(visibility)
+    this.props.updateRoom(roomId, visibility)
   }
 
   deleteRoom() {
     this.setState({ confirmModal: false })
     this.props.deleteRoom(this.props.room.id)
     this.props.history.push(`/app/team/${this.props.team.id}/`)
+  }
+
+  setUpdateMessage(message) {
+    this.setState({ message, update: true, reply: false })
+  }
+
+  setReplyMessage(message) {
+    this.setState({ message, update: false, reply: true })
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -278,6 +377,8 @@ class RoomComponent extends React.Component {
     const isPublic = props.room.public
     const open = isMember || isPublic
     const starred = props.common.user.starred.indexOf(props.room.id) != -1
+    const muted = props.common.user.muted.indexOf(props.room.id) != -1
+    const archived = props.common.user.archived.indexOf(props.room.id) != -1
 
     const title = props.room.private
       ? props.room.members
@@ -330,6 +431,7 @@ class RoomComponent extends React.Component {
             </Blocked>
           }
 
+          {/* Only show the header to people who can see this room */}
           {this.state.open &&
             <Header className="row">
               <Avatar
@@ -343,6 +445,7 @@ class RoomComponent extends React.Component {
                   {this.state.title}
                 </HeaderTitle>
 
+                {/* Member header subtitle */}
                 <div className="row">
                   <HeaderText>
                     {this.props.room.members.length.numberShorthand()} &nbsp;
@@ -351,19 +454,20 @@ class RoomComponent extends React.Component {
 
                   {!this.props.room.private &&
                     <QuickUserComponent
-                      teamId={this.props.team.id}
+                      room={this.props.room}
                       visible={this.state.userMenu}
                       width={250}
-                      direction="right-bottom"
+                      direction="left-bottom"
                       handleDismiss={() => this.setState({ userMenu: false })}
-                      handleAccept={({ user }) => this.createRoomMember(user)}>
+                      handleAccept={({ user }) => this.props.createRoomMember(this.props.room.id, user)}>
                       <div
                         className="ml-10 row button"
                         onClick={() => this.setState({ userMenu:true })}>
-                        <AddOutlined
-                          htmlColor="#007af5"
-                          fontSize="small"
+                        <FontAwesomeIcon
                           className="mr-5"
+                          icon={["fal", "plus"]}
+                          color="#007af5"
+                          size="xs"
                         />
                         <HeaderLink>Add New</HeaderLink>
                       </div>
@@ -374,10 +478,59 @@ class RoomComponent extends React.Component {
 
               <div className="flexer"></div>
 
-              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)}>
-                {this.state.starred && <Star htmlColor="#EBB403" fontSize="default" />}
-                {!this.state.starred && <StarBorder htmlColor="#babec9" fontSize="default" />}
+              <HeaderSearchContainer
+                className="row"
+                focus={this.state.searchFocus}>
+                <FontAwesomeIcon
+                  icon={["far", "search"]}
+                  color="#acb5bd"
+                  size="sm"
+                  className="ml-10 mr-10"
+                />
+
+                <HeaderSearchInput
+                  placeholder="Search"
+                  value={this.state.searchQuery}
+                  onChange={this.onSearch}
+                  onFocus={() => this.setState({ searchFocus: true })}
+                  onBlur={() => this.setState({ searchFocus: false })}
+                />
+
+                {this.state.searchResults &&
+                  <FontAwesomeIcon
+                    className="button"
+                    icon={["fal", "times"]}
+                    color="#acb5bd"
+                    size="lg"
+                    onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
+                  />
+                }
+              </HeaderSearchContainer>
+
+              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-15">
+                {this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#EBB403" size="lg" />}
+                {!this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#babec9" size="lg" />}
               </HeaderButton>
+
+              {!this.props.room.private &&
+                <React.Fragment>
+                  <FontAwesomeIcon
+                    icon={["fal", "info-circle"]}
+                    color="#acb5bd"
+                    size="lg"
+                    className="mr-15 button"
+                    onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
+                  />
+
+                  <FontAwesomeIcon
+                    icon={["fal", "at"]}
+                    color="#acb5bd"
+                    size="lg"
+                    className="mr-20 button"
+                    onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
+                  />
+                </React.Fragment>
+              }
 
               <Popup
                 handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -385,99 +538,106 @@ class RoomComponent extends React.Component {
                 width={275}
                 direction="right-bottom"
                 content={
-                  <div className="column flexer">
-                    <Menu
-                      items={[
-                        { icon: <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Public to your team", label: 'Anyone in your team can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: true }) },
-                        { icon: <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Private to members", label: 'Only people you\'ve added can join', onClick: (e) => this.updateRoomVisibility({ visibilityMenu: false, private: false, public: false }) },
-                      ]}
-                    />
-                  </div>
+                  <Menu
+                    items={[
+                      { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: this.props.room.public ? 'Current' : null, onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                      { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: !this.props.room.public ? 'Current' : null, onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                      { hide: this.props.room.private, divider: true },
+                      { icon: <FontAwesomeIcon icon={["fal", "trash"]} color="#acb5bd" size="lg" />, text: "Delete", onClick: (e) => this.setState({ confirmDeleteModal: true, visibilityMenu: false }) },
+                    ]}
+                  />
                 }>
-                <HeaderButton
+                <FontAwesomeIcon
+                  icon={["fal", "ellipsis-v"]}
+                  color="#acb5bd"
+                  size="2x"
                   className="button"
-                  onClick={() => this.setState({ visibilityMenu: true })}>
-                  {this.props.room.public && <VisibilityOutlined htmlColor="#acb5bd" fontSize="default" />}
-                  {!this.props.room.public && <VisibilityOffOutlined htmlColor="#acb5bd" fontSize="default" />}
-                </HeaderButton>
+                  onClick={() => this.setState({ visibilityMenu: true })}
+                />
               </Popup>
-
-              {!this.props.room.private &&
-                <InfoOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
-                  className="ml-15 button"
-                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
-                />
-              }
-
-              {!this.props.room.private &&
-                <GroupOutlined
-                  htmlColor="#acb5bd"
-                  fontSize="default"
-                  className="ml-15 button"
-                  onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
-                />
-              }
-
-              <DeleteOutlined
-                htmlColor="#acb5bd"
-                fontSize="default"
-                className="ml-15 button"
-                onClick={() => this.setState({ confirmDeleteModal: true })}
-              />
             </Header>
           }
 
-          <Messages ref={(ref) => this.scrollRef = ref}>
-            {this.state.open &&
+          {this.props.room.public &&
+            <Notification
+              text="This team channel is public"
+            />
+          }
+
+          <MessagesContainer ref={(ref) => this.scrollRef = ref}>
+            {/* Primary message list + header */}
+            {this.state.open && !this.state.searchResults &&
               <React.Fragment>
-                <Welcome>
-                  <WelcomeUser className="row">
-                    <Avatar
-                      title={this.props.room.user.name}
-                      image={this.props.room.user.image}
-                      size="small"
-                    />
+                {this.props.room.private && <PaddingToKeepMessagesDown />}
 
-                    <WelcomeUserName>
-                      Started by {this.props.room.user.name}
-                    </WelcomeUserName>
-                  </WelcomeUser>
-
-                  <WelcomeTitle>
-                    {this.state.title}
-                  </WelcomeTitle>
-
-                  {this.props.room.description &&
-                    <WelcomeDescription>
-                      <ReactMarkdown source={this.props.room.description} />
-                    </WelcomeDescription>
-                  }
-
-                  {!this.props.room.description &&
-                    <WelcomeDescriptionUpdate
-                      className="button"
-                      onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
-                      Add some information about this chat
-                    </WelcomeDescriptionUpdate>
-                  }
-                </Welcome>
-
-                <MessagesContainer ref={(ref) => this.messagesRef = ref}>
-                  {this.props.room.messages.map((message, index) => {
-                    return (
-                      <MessageComponent
-                        key={index}
-                        message={message}
-                        setReplyMessage={() => this.setState({ replyMessage: message })}
+                {!this.props.room.private &&
+                  <Welcome>
+                    <WelcomeUser className="row">
+                      <Avatar
+                        title={this.props.room.user.name}
+                        image={this.props.room.user.image}
+                        size="small"
                       />
-                    )
-                  })}
-                </MessagesContainer>
+
+                      <WelcomeUserName>
+                        Started by {this.props.room.user.name} - {moment(this.props.room.createdAt).fromNow()}
+                      </WelcomeUserName>
+                    </WelcomeUser>
+
+                    <WelcomeTitle>
+                      {this.state.title}
+                    </WelcomeTitle>
+
+                    {this.props.room.description &&
+                      <WelcomeDescription>
+                        <ReactMarkdown source={this.props.room.description} />
+                      </WelcomeDescription>
+                    }
+
+                    {/* If there is no room description */}
+                    {/* Then give the user the option to update it */}
+                    {!this.props.room.description &&
+                      <WelcomeDescriptionUpdate
+                        className="button"
+                        onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
+                        Add some more context about this conversation here
+                      </WelcomeDescriptionUpdate>
+                    }
+                  </Welcome>
+                }
+
+                <MessagesInner ref={(ref) => this.messagesRef = ref}>
+                  <MessagesComponent
+                    highlight={this.state.searchQuery}
+                    setUpdateMessage={this.setUpdateMessage}
+                    setReplyMessage={this.setReplyMessage}
+                    messages={this.props.room.messages}
+                  />
+                </MessagesInner>
               </React.Fragment>
             }
-          </Messages>
+
+            {/* Search result display */}
+            {/* We use the welcome style do display search info */}
+            {this.state.open && this.state.searchResults &&
+              <React.Fragment>
+                <Welcome>
+                  <WelcomeDescription>
+                    <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? "message" : "messages"}`} />
+                  </WelcomeDescription>
+                </Welcome>
+
+                <MessagesInner ref={(ref) => this.messagesRef = ref}>
+                  <MessagesComponent
+                    messages={this.state.searchResults}
+                    highlight={this.state.searchQuery}
+                    setUpdateMessage={this.setUpdateMessage}
+                    setReplyMessage={this.setReplyMessage}
+                  />
+                </MessagesInner>
+              </React.Fragment>
+            }
+          </MessagesContainer>
 
           <Typing>
             {this.composeTypingNames()}
@@ -485,8 +645,10 @@ class RoomComponent extends React.Component {
 
           {this.state.open &&
             <ComposeComponent
-              replyMessage={this.state.replyMessage}
-              clearReplyMessage={() => this.setState({ replyMessage: null })}
+              reply={this.state.reply}
+              update={this.state.update}
+              message={this.state.message}
+              clearMessage={() => this.setState({ message: null, update: false, reply: false })}
             />
           }
         </Room>
@@ -505,15 +667,19 @@ RoomComponent.propTypes = {
   createRoomMember: PropTypes.func,
   updateRoom: PropTypes.func,
   updateUserStarred: PropTypes.func,
+  updateLoading: PropTypes.func,
+  updateError: PropTypes.func,
   deleteRoom: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   fetchRoom: url => fetchRoom(url),
   createRoom: (title, description, team, user) => createRoom(title, description, team, user),
-  fetchRoomMessages: page => fetchRoomMessages(page),
-  createRoomMember: user => createRoomMember(user),
-  updateRoom: updatedRoom => updateRoom(updatedRoom),
+  fetchRoomMessages: (roomId, page) => fetchRoomMessages(roomId, page),
+  createRoomMember: (roomId, user) => createRoomMember(roomId, user),
+  updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
+  updateLoading: loading => updateLoading(loading),
+  updateError: error => updateError(error),
   updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),
   deleteRoom: roomId => deleteRoom(roomId),
 }

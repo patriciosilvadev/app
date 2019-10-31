@@ -9,23 +9,28 @@ import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
-import { createRoom, fetchRooms, fetchTeam } from '../actions'
+import { createRoom, fetchRooms, fetchTeam, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { SettingsOutlined, CreateOutlined, Search, AddCircleOutline, KeyboardArrowDownOutlined } from '@material-ui/icons'
-import { GroupWorkOutlined, AddOutlined, AccountCircleOutlined, ExitToAppOutlined, HelpOutlineOutlined, AddBoxOutlined, AddToPhotosOutlined } from '@material-ui/icons'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AuthService from '../services/auth.service'
 
 const Rooms = styled.div`
   width: 300px;
-  display: flex;
   height: 100%;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   background: white;
-  background: #F8F9FA;
-  background: #040B1C;
+  background: #f8f9fa;
+  background: #040b1c;
   border-right: 1px solid #f1f3f5;
+`
+
+const RoomsContainer = styled.div`
+  flex: 1;
+  overflow: scroll;
+  width: 100%;
 `
 
 const Header = styled.div`
@@ -46,6 +51,12 @@ const HeaderTitle = styled.div`
   flex: 1;
 `
 
+const HeaderTeam = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: #475669;
+`
+
 const HeaderSubtitle = styled.div`
   font-size: 13px;
   font-weight: 600;
@@ -63,7 +74,7 @@ const AccountMenuTitle = styled.div`
   font-size: 14px;
   font-weight: 500;
   font-style: normal;
-  color: #343A40;
+  color: #343a40;
   transition: opacity 0.5s;
   display: inline-block;
   flex: 1;
@@ -73,7 +84,7 @@ const AccountMenuTitle = styled.div`
 const AccountMenuSubtitle = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #CFD4D9;
+  color: #cfd4d9;
   padding: 5px 5px 5px 5px;
 `
 
@@ -108,7 +119,7 @@ const SearchContainer = styled.div`
   border-bottom: 1px solid #0a152e;
 `
 
-const Heading = styled.div`
+const ArchivedButton = styled.div`
   padding: 25px 25px 10px 25px;
   font-size: 11px;
   font-weight: 700;
@@ -117,9 +128,13 @@ const Heading = styled.div`
   color: #475669;
 `
 
-const RoomsContainer = styled.div`
-  flex: 1;
-  width: 100%;
+const Heading = styled.div`
+  padding: 25px 25px 10px 25px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #475669;
 `
 
 class RoomsComponent extends React.Component {
@@ -133,48 +148,63 @@ class RoomsComponent extends React.Component {
       roomPopup: false,
       accountModal: false,
       accountMenu: false,
+      statusMenu: false,
+      archivedVisible: false,
       starred: [],
+      muted: [],
+      archived: [],
       public: [],
       private: [],
     }
 
     this.filterRef = React.createRef()
-    this.signout = this.signout.bind(this)
+
     this.createPrivateRoom = this.createPrivateRoom.bind(this)
     this.navigateToRoom = this.navigateToRoom.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
+
     this.onSearch$ = new Subject()
     this.subscription = null
   }
 
-  async signout() {
-    await AuthService.signout()
-    await GraphqlService.signout()
-
-    this.props.history.push('/auth')
-  }
-
   static getDerivedStateFromProps(props, state) {
     const starredRooms = props.rooms.filter((room, index) => props.common.user.starred.indexOf(room.id) != -1)
-    const privateRooms = props.rooms.filter((room, index) => room.private && props.common.user.starred.indexOf(room.id) == -1)
-    const publicRooms = props.rooms.filter((room, index) => !room.private && props.common.user.starred.indexOf(room.id) == -1)
+    const mutedRooms = props.rooms.filter((room, index) => props.common.user.muted.indexOf(room.id) != -1)
+    const archivedRooms = props.rooms.filter((room, index) => props.common.user.archived.indexOf(room.id) != -1)
+    const privateRooms = props.rooms.filter((room, index) => room.private && props.common.user.starred.indexOf(room.id) == -1 && props.common.user.archived.indexOf(room.id) == -1)
+    const publicRooms = props.rooms.filter((room, index) => !room.private && props.common.user.starred.indexOf(room.id) == -1 && props.common.user.archived.indexOf(room.id) == -1)
 
     return {
       starred: starredRooms,
+      muted: mutedRooms,
+      archived: archivedRooms,
       private: privateRooms,
       public: publicRooms,
     }
   }
 
   createPrivateRoom(user) {
-    this.props.createRoom(null, '', null, this.props.team.id, user)
+    const title = null
+    const description = null
+    const image = null
+    const teamId = this.props.team.id
+    const initialOtherUserId = user.id
+    const userId = this.props.common.user.id
+
+    this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
-  createPublicRoom() {
-    this.props.createRoom(this.state.filter, '', null, this.props.team.id, null)
+  createPublicRoom(title) {
+    const description = null
+    const image = null
+    const teamId = this.props.team.id
+    const initialOtherUserId = null
+    const userId = this.props.common.user.id
+
+    this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
@@ -247,12 +277,37 @@ class RoomsComponent extends React.Component {
     this.onSearch$.next(search)
   }
 
+  _openAccountSettings() {
+    this.setState({ accountMenu: false, accountModal: true })
+  }
+
+  _openTeamSettings() {
+    this.setState({ accountMenu: false, teamModal: true })
+  }
+
+  _signout() {
+    this.setState({ accountMenu: false }, async () => {
+      await AuthService.signout()
+      await GraphqlService.signout()
+
+      this.props.history.push('/auth')
+    })
+  }
+
+  _openUserMenu() {
+    this.setState({ accountMenu: true })
+  }
+
+  _closeUserMenu() {
+    this.setState({ accountMenu: false })
+  }
+
   // prettier-ignore
   render() {
     const { pathname } = this.props.history.location
 
     return (
-      <Rooms className="column align-items-stretch">
+      <Rooms className="column">
         {this.state.teamModal &&
           <TeamModal
             id={this.props.team.id}
@@ -275,29 +330,43 @@ class RoomsComponent extends React.Component {
             className="mr-10"
           />
 
-          <div className="column w-100">
+          <div className="column flexer pl-10">
+            <HeaderTeam>
+              {this.props.team.name}
+            </HeaderTeam>
+
             <HeaderTitle>
               {this.props.common.user.name}
             </HeaderTitle>
 
-            <HeaderSubtitle>
-              {this.props.team.name}
-            </HeaderSubtitle>
+            <QuickInputComponent
+              visible={this.state.statusMenu}
+              width={300}
+              direction="left-bottom"
+              handleDismiss={() => this.setState({ statusMenu: false })}
+              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(this.props.common.user.id, this.props.team.id, status))}
+              placeholder={this.props.common.user.status}>
+
+              <HeaderSubtitle
+                className="button"
+                onClick={() => this.setState({ statusMenu: true })}>
+                {this.props.common.user.status || "Update your status"}
+              </HeaderSubtitle>
+            </QuickInputComponent>
           </div>
 
           <Popup
-            handleDismiss={() => this.setState({ accountMenu: false })}
+            handleDismiss={this._closeUserMenu.bind(this)}
             visible={this.state.accountMenu}
             width={275}
             direction="left-bottom"
             content={
-              <div className="column flexer">
+              <React.Fragment>
                 <AccountMenuHeader className="column align-items-center">
                   <Avatar
                     size="medium"
                     image={this.props.common.user.image}
                     title={this.props.common.user.name}
-                    className="mr-10"
                   />
 
                   <AccountMenuTitle>
@@ -307,32 +376,36 @@ class RoomsComponent extends React.Component {
                   <AccountMenuSubtitle>
                     {this.props.team.name}
                   </AccountMenuSubtitle>
-
-                  {/*
-                  <Toggle
-                    on={true}
-                    onChange={(value) => {
-                      console.log('RoomsComponent', value)
-                    }}
-                  />
-                  */}
                 </AccountMenuHeader>
+
                 <Menu
                   items={[
-                    { icon: <SettingsOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Account setting", onClick: (e) => this.setState({ accountMenu: false, accountModal: true }) },
-                    { icon: <GroupWorkOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Team settings", onClick: (e) => this.setState({ accountMenu: false, teamModal: true }) },
-                    { icon: <ExitToAppOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Signout", onClick: (e) => this.setState({ accountMenu: false }, () => this.signout()) },
-                    { icon: <HelpOutlineOutlined htmlColor="#acb5bd" fontSize="default" />, text: "Help", onClick: (e) => this.setState({ accountMenu: false }) },
+                    {
+                      icon: <FontAwesomeIcon icon={["fal", "cog"]} color="#acb5bd" size="lg" />,
+                      text: "Account settings",
+                      onClick: this._openAccountSettings.bind(this)
+                    },
+                    {
+                      icon: <FontAwesomeIcon icon={["fal", "users-cog"]} color="#acb5bd" size="lg" />,
+                      text: "Team settings",
+                      onClick: this._openTeamSettings.bind(this),
+                    },
+                    {
+                      icon: <FontAwesomeIcon icon={["fal", "sign-out"]} color="#acb5bd" size="lg" />,
+                      text: "Signout",
+                      onClick: this._signout.bind(this),
+                    },
                   ]}
                 />
-              </div>
+              </React.Fragment>
             }>
             <div>
-              <KeyboardArrowDownOutlined
-                htmlColor="#475669"
-                fontSize="default"
+              <FontAwesomeIcon
+                icon={["fal", "chevron-down"]}
+                color="#475669"
+                size="sm"
                 className="button"
-                onClick={() => this.setState({ accountMenu: true })}
+                onClick={this._openUserMenu.bind(this)}
               />
             </div>
           </Popup>
@@ -340,9 +413,10 @@ class RoomsComponent extends React.Component {
 
         <SearchContainer className="row">
           <SearchInner className="row">
-            <Search
-              htmlColor="#475669"
-              fontSize="default"
+            <FontAwesomeIcon
+              icon={["far", "search"]}
+              color="#475669"
+              size="sm"
               className="ml-15"
             />
 
@@ -356,31 +430,29 @@ class RoomsComponent extends React.Component {
           </SearchInner>
         </SearchContainer>
 
-        <RoomsContainer className="column align-items-stretch scroll">
+        <RoomsContainer>
           {this.state.filter != "" &&
             <React.Fragment>
               <Heading>Results</Heading>
 
-              {this.state.results.map((result, index) => {
+              {this.state.results.map((user, index) => {
                 return (
                   <Room
-                    className="w-100"
                     key={index}
                     active={false}
                     unread={null}
-                    title={result.name}
-                    image={result.image}
-                    excerpt={result.username}
+                    title={user.name}
+                    image={user.image}
+                    excerpt={user.username}
                     public={null}
                     private={null}
-                    onClick={() => this.createPrivateRoom(result)}
+                    onClick={() => this.createPrivateRoom(user)}
                   />
                 )
               })}
 
               {this.state.results.length == 0 &&
                 <Room
-                  className="w-100"
                   active={false}
                   unread={null}
                   title={`Create channel "${this.state.filter}"`}
@@ -388,7 +460,7 @@ class RoomsComponent extends React.Component {
                   excerpt={null}
                   public={null}
                   private={null}
-                  onClick={() => this.createPublicRoom()}
+                  onClick={() => this.createPublicRoom(this.state.filter)}
                 />
               }
             </React.Fragment>
@@ -404,21 +476,27 @@ class RoomsComponent extends React.Component {
                 const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
                 const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
-                const unreadCount = unread ? unread.doc.count : null
+                const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
+                const muted = this.props.common.user.muted.indexOf(room.id) != -1
+                const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
                 return (
-                  <Link className="w-100" key={index} to={to}>
-                    <Room
-                      active={pathname.indexOf(room.id) != -1}
-                      unread={unreadCount}
-                      title={title}
-                      image={image}
-                      excerpt={room.excerpt}
-                      public={room.public}
-                      private={room.private}
-                    />
-                  </Link>
+                  <Room
+                    key={index}
+                    active={pathname.indexOf(room.id) != -1}
+                    unread={unreadCount}
+                    title={title}
+                    image={image}
+                    excerpt={room.excerpt}
+                    public={room.public}
+                    private={room.private}
+                    muted={muted}
+                    archived={archived}
+                    onClick={() => this.props.history.push(to)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                  />
                 )
               })}
             </React.Fragment>
@@ -434,11 +512,12 @@ class RoomsComponent extends React.Component {
               width={250}
               direction="right-bottom"
               handleDismiss={() => this.setState({ roomPopup: false })}
-              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.props.createRoom(name, '', null, this.props.team.id, null))}
-              placeholder="New room name">
-              <AddCircleOutline
-                htmlColor="#475669"
-                fontSize="small"
+              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.createPublicRoom(name))}
+              placeholder="New channel name">
+              <FontAwesomeIcon
+                icon={["fal", "plus-circle"]}
+                color="#475669"
+                size="lg"
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
               />
@@ -452,20 +531,26 @@ class RoomsComponent extends React.Component {
             const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
             const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
             const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
-            const unreadCount = unread ? unread.doc.count : null
+            const unreadCount = unread ? unread.doc.count : 0
+            const muted = this.props.common.user.muted.indexOf(room.id) != -1
+            const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
             return (
-              <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                <Room
-                  active={pathname.indexOf(room.id) != -1}
-                  unread={unreadCount}
-                  title={room.title}
-                  image={room.image}
-                  excerpt={room.excerpt}
-                  public={room.public}
-                  private={room.private}
-                />
-              </Link>
+              <Room
+                key={index}
+                active={pathname.indexOf(room.id) != -1}
+                unread={unreadCount}
+                title={room.title}
+                image={room.image}
+                excerpt={room.excerpt}
+                public={room.public}
+                private={room.private}
+                muted={muted}
+                archived={archived}
+                onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
+                onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+              />
             )
           })}
 
@@ -479,23 +564,84 @@ class RoomsComponent extends React.Component {
                 const title = room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "")
                 const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
-                const unreadCount = unread ? unread.doc.count : null
+                const unreadCount = unread ? unread.doc.count : 0
+                const muted = this.props.common.user.muted.indexOf(room.id) != -1
+                const archived = this.props.common.user.archived.indexOf(room.id) != -1
 
+                // Filter based on users search
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
+                // Get the other users' presence
+                const snapshot = new Date().getTime()
+                const otherMember = room.members.filter(member => member.user.id != this.props.common.user.id).flatten()
+                const otherMemberStatus = otherMember.user.status
+                const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
+                const presence = otherMemberPresence
+                                  ? ((snapshot - otherMemberPresence.userTime) > 15000)
+                                    ? "away"
+                                    : "online"
+                                  : null
+
                 return (
-                  <Link className="w-100" key={index} to={`/app/team/${room.team.id}/room/${room.id}`}>
-                    <Room
-                      active={pathname.indexOf(room.id) != -1}
-                      unread={unreadCount}
-                      title={title}
-                      image={image}
-                      icon={null}
-                      excerpt={room.excerpt}
-                      public={room.public}
-                      private={room.private}
-                    />
-                  </Link>
+                  <Room
+                    key={index}
+                    presence={presence}
+                    active={pathname.indexOf(room.id) != -1}
+                    unread={unreadCount}
+                    title={title}
+                    image={image}
+                    icon={null}
+                    excerpt={otherMemberStatus}
+                    public={room.public}
+                    private={room.private}
+                    muted={muted}
+                    archived={archived}
+                    onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                  />
+                )
+              })}
+            </React.Fragment>
+          }
+
+          {this.state.archived.length != 0 &&
+            <ArchivedButton
+              className="button"
+              onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
+              {this.state.archivedVisible ? "Hide archived" : "See archived"}
+            </ArchivedButton>
+          }
+
+          {this.state.archived.length != 0 && this.state.archivedVisible &&
+            <React.Fragment>
+              {this.state.archived.map((room, index) => {
+                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const unreadCount = unread ? unread.doc.count : 0
+                const to = `/app/team/${room.team.id}/room/${room.id}`
+                const muted = this.props.common.user.muted.indexOf(room.id) != -1
+                const archived = this.props.common.user.archived.indexOf(room.id) != -1
+
+                return (
+                  <Room
+                    key={index}
+                    active={pathname.indexOf(room.id) != -1}
+                    unread={unreadCount}
+                    title={title}
+                    image={image}
+                    excerpt={room.excerpt}
+                    public={room.public}
+                    private={room.private}
+                    muted={muted}
+                    archived={archived}
+                    onClick={() => this.props.history.push(to)}
+                    onArchivedClick={(e) => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                  />
                 )
               })}
             </React.Fragment>
@@ -512,18 +658,25 @@ RoomsComponent.propTypes = {
   room: PropTypes.any,
   rooms: PropTypes.array,
   common: PropTypes.any,
+  presences: PropTypes.any,
   teams: PropTypes.array,
   createRoom: PropTypes.func,
   fetchRooms: PropTypes.func,
   fetchStarredRooms: PropTypes.func,
   fetchTeam: PropTypes.func,
+  updateUserStatus: PropTypes.func,
+  updateUserMuted: PropTypes.func,
+  updateUserArchived: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  createRoom: (title, description, image, team, user) => createRoom(title, description, image, team, user),
+  updateUserStatus: (userId, teamId, status) => updateUserStatus(userId, teamId, status),
+  createRoom: (title, description, image, teamId, userId, initialOtherUserId) => createRoom(title, description, image, teamId, userId, initialOtherUserId),
   fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
   fetchStarredRooms: userId => fetchStarredRooms(userId),
   fetchTeam: teamId => fetchTeam(teamId),
+  updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
+  updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
 }
 
 const mapStateToProps = state => {
@@ -533,6 +686,7 @@ const mapStateToProps = state => {
     rooms: state.rooms,
     room: state.room,
     teams: state.teams,
+    presences: state.presences,
   }
 }
 

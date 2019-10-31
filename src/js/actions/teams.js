@@ -13,6 +13,10 @@ export function fetchTeams(userId) {
 
     try {
       const teams = await GraphqlService.getInstance().teams(userId)
+      const teamIds = teams.data.teams.map(team => team.id)
+
+      // Join the rooms
+      MessagingService.getInstance().joins(teamIds)
 
       dispatch(updateLoading(false))
       dispatch({

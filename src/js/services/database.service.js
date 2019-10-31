@@ -39,7 +39,7 @@ export default class DatabaseService {
             .post({
               team,
               room,
-              count: 1
+              count: 1,
             })
             .then(doc => {
               console.log('CREATE DB ROW', doc)

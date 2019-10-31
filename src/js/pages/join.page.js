@@ -25,6 +25,15 @@ const Container = styled.div`
   background: white;
 `
 
+const Link = styled.div`
+  color: #00a8ff;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+`
+
 const Text = styled.div`
   color: #202529;
   font-size: 28px;
@@ -61,15 +70,16 @@ export default props => {
       setLoading(true)
 
       try {
-        const auth = await AuthService.confirm(props.match.params.email, props.match.params.token)
+        const { userId } = await AuthService.currentAuthenticatedUser()
+        const { url } = props.match.params
+        const auth = await AuthService.join(url, userId)
 
         setLoading(false)
 
         if (auth.status != 200) setBlock(true)
         if (auth.status == 200) setConfirmed(true)
       } catch (e) {
-        setLoading(false)
-        setError('Error')
+        props.history.push('/auth')
       }
     })()
   }, [])
@@ -84,7 +94,12 @@ export default props => {
 
         {!block && !confirmed && <Text>Checking...</Text>}
         {block && <Text>Not found</Text>}
-        {confirmed && <Text>Your email has been confirmed</Text>}
+        {confirmed &&
+          <React.Fragment>
+            <Text>You have joined the team!</Text>
+            <Link className="button" onClick={() => props.history.push('/app')}>Click here to log in</Link>
+          </React.Fragment>
+        }
       </Container>
 
       <Logo>

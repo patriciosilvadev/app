@@ -11,16 +11,14 @@ export default class AuthService {
 
   static currentAuthenticatedUser() {
     return new Promise((resolve, reject) => {
-      const jwt = CookiesService.getCookie('jwt')
+      const token = CookiesService.getCookie('jwt')
 
       // Now parse the JWT
-      if (jwt) {
-        const { exp, sub } = this.parseJwt(jwt)
+      if (token) {
+        const { exp, sub, userId } = this.parseJwt(token)
 
         if (exp > Date.now() / 1000) {
-          resolve({
-            token: jwt,
-          })
+          resolve({ token, exp, sub, userId })
         } else {
           reject('Expired')
         }
@@ -38,7 +36,7 @@ export default class AuthService {
     CookiesService.setCookie('jwt', token)
   }
 
-  static confirm(token) {
+  static confirm(email, token) {
     return fetch(AUTH_HOST + '/confirm', {
       method: 'POST',
       mode: 'cors',
@@ -49,12 +47,66 @@ export default class AuthService {
       },
       redirect: 'follow',
       referrer: 'no-referrer',
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({ email, token }),
     })
   }
 
-  static update(email, password, code) {
+  static updatePassword(userId, currentPassword, newPassword) {
     return fetch(AUTH_HOST + '/password/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        currentPassword,
+        newPassword,
+      }),
+    })
+  }
+
+  static confirmEmail(email, userId) {
+    return fetch(AUTH_HOST + '/email/confirm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
+  static deleteEmail(email, userId) {
+    return fetch(AUTH_HOST + '/email/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
+  static addEmail(email, userId) {
+    return fetch(AUTH_HOST + '/email/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
+  static resetPassword(email) {
+    return fetch(AUTH_HOST + '/password/reset', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+  }
+
+  static updatePasswordReset(email, password, code) {
+    return fetch(AUTH_HOST + '/password/reset/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,16 +116,6 @@ export default class AuthService {
         code,
         password,
       }),
-    })
-  }
-
-  static reset(email) {
-    return fetch(AUTH_HOST + '/password/reset', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
     })
   }
 
@@ -111,6 +153,31 @@ export default class AuthService {
         username,
         password,
       }),
+    })
+  }
+
+  static accountDelete(userId) {
+    return fetch(AUTH_HOST + '/account/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    })
+  }
+
+  static join(url, userId) {
+    return fetch(AUTH_HOST + '/join', {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow',
+      referrer: 'no-referrer',
+      body: JSON.stringify({ url, userId }),
     })
   }
 }

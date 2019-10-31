@@ -28,12 +28,12 @@ export default class MessagingService {
     return this.instance
   }
 
-  initialize(ids) {
-    this.client.emit('initialize', { ids })
-  }
-
   sync(sync, action) {
     this.client.emit('sync', { sync, action })
+  }
+
+  joins(roomIds) {
+    this.client.emit('joins', { roomIds })
   }
 
   join(roomId) {
@@ -46,6 +46,14 @@ export default class MessagingService {
 
   joinRoom(userIds, roomId) {
     this.client.emit('joinRoom', { userIds, roomId })
+  }
+
+  leaveRoomTeam(teamId, roomId) {
+    this.client.emit('leaveRoomTeam', { teamId, roomId })
+  }
+
+  joinRoomTeam(teamId, roomId) {
+    this.client.emit('joinRoomTeam', { teamId, roomId })
   }
 
   joinTeam(userIds, teamId) {
