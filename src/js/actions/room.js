@@ -211,6 +211,9 @@ export function createRoom(title, description, image, teamId, userId, initialOth
 
       MessagingService.getInstance().join(roomId)
 
+      // If it's a private conversation - then incite the other optersons
+      if (initialOtherUserId) MessagingService.getInstance().joinRoom([initialOtherUserId], roomId)
+
       browserHistory.push(`/app/team/${teamId}/room/${roomId}`)
     } catch (e) {
       console.log(e)

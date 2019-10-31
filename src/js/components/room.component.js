@@ -21,10 +21,6 @@ import { debounceTime } from 'rxjs/operators'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MessagesComponent from './messages.component'
 
-const PaddingToKeepMessagesDown = styled.div`
-  height: 1500px;
-`
-
 const Room = styled.div`
   background: white;
   height: 100%;
@@ -32,6 +28,7 @@ const Room = styled.div`
   padding-left: 0px;
   padding-right: 0px;
   position: relative;
+  z-index: 1;
 `
 
 const Header = styled.div`
@@ -177,6 +174,10 @@ const WelcomeUserName = styled.div`
   font-size: 12px;
   color: #adb5bd;
   padding-left: 10px;
+`
+
+const PaddingToKeepMessagesDown = styled.div`
+  height: 1500px;
 `
 
 class RoomComponent extends React.Component {
@@ -348,7 +349,7 @@ class RoomComponent extends React.Component {
     const roomId = this.props.room.id
     const teamId = this.props.team.id
 
-    if (visibility.private || !visibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
+    if (!visibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
     if (visibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
 
     this.setState({ visibilityMenu: false })

@@ -20,7 +20,7 @@ const Rooms = styled.div`
   width: 300px;
   height: 100%;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   background: white;
   background: #F8F9FA;
   background: #040B1C;

@@ -106,10 +106,12 @@ export function initialize(userId) {
     MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       // If this user is already in this room, then don't do anything
-      if (!!getState().rooms.filter(r => r.id == roomId).flatten()) return
+      if (getState().rooms.filter(r => r.id == roomId).flatten()) return
 
       // Get the room data
       const room = await GraphqlService.getInstance().room(roomId)
+
+      // If there is an error
       if (!room.data.room) return
 
       // Joing the room SOCKET
@@ -128,8 +130,16 @@ export function initialize(userId) {
     })
     MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
       const userId = getState().common.user.id
-      const room = getState().rooms.filter(r => r.id == roomId)
-      const isMember = room.members.filter(m => m.user.id == userId)
+      const room = getState().rooms.filter(r => r.id == roomId).flatten()
+
+      // If they don't have this room
+      if (!room) return
+
+      // Check if they are a member
+      const { members } = room
+
+      // Check if this user is a member
+      const isMember = members.filter(m => m.user.id == userId).flatten()
 
       // If they are a member, then they have a right to be a here
       // Don't make them leave
@@ -169,7 +179,7 @@ export function initialize(userId) {
         if (isArchived || isStarred || isCurrentRoom) return
 
         // Trigger a push notification
-        showLocalPushNotification('New Message', message)
+        showLocalPushNotification('New Message', message.message)
 
         // Create an unread marker
         // Channel will be null, which is good
