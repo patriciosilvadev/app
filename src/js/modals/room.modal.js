@@ -7,7 +7,6 @@ import UploadService from '../services/upload.service'
 import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
-import { DiMarkdown } from 'react-icons/di'
 import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
@@ -163,9 +162,10 @@ export default function RoomModal(props) {
                           />
 
                           <div className="row">
-                            <DiMarkdown
+                            <FontAwesomeIcon
+                              icon={["fab", "markdown"]}
                               color="#00a8ff"
-                              size={18}
+                              size="sm"
                             />
                             <Supported>
                               Markdown supported

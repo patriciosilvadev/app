@@ -6,7 +6,6 @@ import moment from 'moment'
 import PropTypes from 'prop-types'
 import { updateLoading, updateError, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
-import { DiMarkdown } from 'react-icons/di'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -136,7 +135,7 @@ const Input = styled.textarea`
   }
 `
 
-const MentionContainer = styled.div`
+const DrawerContainer = styled.div`
   width: 100%;
   position: absolute;
   background: white;
@@ -492,12 +491,12 @@ class ComposeComponent extends React.Component {
         }
 
         {this.state.members.length != 0 &&
-          <MentionContainer>
+          <DrawerContainer>
             <Members
               members={this.state.members}
               handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
             />
-          </MentionContainer>
+          </DrawerContainer>
         }
 
         {this.props.message && this.props.reply &&
@@ -618,10 +617,11 @@ class ComposeComponent extends React.Component {
         </InputContainer>
 
         <Footer className="row">
-          <DiMarkdown
-            color="#cfd4d9"
-            size={18}
+          <FontAwesomeIcon
             className="mr-10"
+            icon={["fab", "markdown"]}
+            color="#cfd4d9"
+            size="sm"
           />
           <span>Use <strong>**markdown**</strong> to format your message</span>
         </Footer>

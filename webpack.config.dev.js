@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 module.exports = env => {
   return {
@@ -41,7 +42,8 @@ module.exports = env => {
       new WorkboxPlugin.InjectManifest({
         swSrc: './src/js/sw.pn.js',
         swDest: 'sw.pn.js'
-      })
+      }),
+      //new BundleAnalyzerPlugin()
     ],
     optimization: {
       splitChunks: {

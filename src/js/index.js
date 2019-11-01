@@ -58,6 +58,7 @@ import {
   faStar,
 } from '@fortawesome/pro-light-svg-icons'
 import { faSearch } from '@fortawesome/pro-regular-svg-icons'
+import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 
 const logger = createLogger({
   collapsed: true,
@@ -121,7 +122,8 @@ library.add(
   faQuestionCircle,
   faSignOut,
   faSyncAlt,
-  faEllipsisV
+  faEllipsisV,
+  faMarkdown
 )
 
 // prettier-ignore
