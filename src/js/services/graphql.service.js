@@ -599,6 +599,19 @@ export default class GraphqlService {
     })
   }
 
+  updateTeamUrl(teamId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTeamUrl($teamId: String) {
+          updateTeamUrl(teamId: $teamId)
+        }
+      `,
+      variables: {
+        teamId,
+      },
+    })
+  }
+
   updateTeam(teamId, payload) {
     return this.client.mutate({
       mutation: gql`

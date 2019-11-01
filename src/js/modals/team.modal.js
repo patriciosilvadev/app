@@ -50,6 +50,29 @@ export default function TeamModal(props) {
     }
   }
 
+  const updateTeamUrl = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const teamId = props.id
+      const { data } = await GraphqlService.getInstance().updateTeamUrl(teamId)
+
+      setUrl(data.updateTeamUrl)
+      setLoading(false)
+      setNotification('Succesfully updated team url')
+
+      dispatch({
+        type: 'UPDATE_TEAM',
+        payload: { url, teamId },
+        sync: teamId,
+      })
+    } catch (e) {
+      setLoading(false)
+      setError('Error updating team url')
+    }
+  }
+
   const updateTeam = async () => {
     setLoading(true)
     setError(null)
@@ -356,16 +379,23 @@ export default function TeamModal(props) {
                         <Text color="d" display="h3">Invite users</Text>
                         <Text color="m" display="p" className="mb-10">Add users email.</Text>
 
-                        <div className="mb-30">
+                        <div className="mb-5">
                           <Text
                             className="button"
                             color="highlight"
                             display="a"
                             onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/join/${url}`)}>
-                            Click here
+                            {url}
                           </Text>
                           <Text color="d" display="p"> to copy a temporary access URL that users can use to join this team</Text>
                         </div>
+
+                        <Button
+                          text="Generate a new url"
+                          onClick={updateTeamUrl}
+                          className="mt-30 mb-30"
+                          size="small"
+                        />
 
                         <Textarea
                           placeholder="Comma seperated email addresses"

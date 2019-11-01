@@ -13,7 +13,8 @@
         "dev": "npm run watch:dev | npm run serve:dev",
         "test": "jest",
         "lint": "eslint ./src",
-        "electron": "electron ."
+        "electron": "electron .",
+        "deploy": "aws s3 cp ./dist s3://app.weekday.sh --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive"
     },
     "author": "Jo du Plessis",
     "license": "ISC",
