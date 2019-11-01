@@ -178,9 +178,25 @@ export function initialize(userId) {
       dispatch({ type: 'DELETE_TEAM', payload: { teamId } })
     })
     MessagingService.getInstance().client.on('sync', ({ action }) => {
+      // Check whether this person is in our chat list first
+      if (action.type == 'ADD_PRESENCE') {
+        const existingRoom = rooms.reduce((exists, room) => {
+          if (room.public) return false
+
+          const { members } = room
+          const existingMember = members.filter(member => member.user.id == action.payload.userId).flatten()
+
+          if (existingMember) return true
+        }, false)
+
+        if (!existingRoom) return
+      }
+
+      // Update our store with the synced action
       dispatch(action)
 
       // Handle any reads/unreads here for the DB
+      // And also handle push notices
       if (action.type == 'CREATE_ROOM_MESSAGE') {
         const { roomId, teamId, message } = action.payload
         const isStarred = getState().common.user.starred.indexOf(roomId) != -1
