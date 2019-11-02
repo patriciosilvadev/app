@@ -73,9 +73,6 @@ const HeaderLink = styled.div`
 
 const HeaderButton = styled.div`
   margin-left: 15px;
-  color: #adb5bd;
-  font-size: 13px;
-  font-weight: 500;
   transition: opacity 0.5s;
   position: relative;
   cursor: pointer;
@@ -501,7 +498,7 @@ class RoomComponent extends React.Component {
                     className="button"
                     icon={["fal", "times"]}
                     color="#acb5bd"
-                    size="lg"
+                    size="sm"
                     onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
                   />
                 }
@@ -608,10 +605,10 @@ class RoomComponent extends React.Component {
 
                 <MessagesInner ref={(ref) => this.messagesRef = ref}>
                   <MessagesComponent
+                    messages={this.props.room.messages}
                     highlight={this.state.searchQuery}
                     setUpdateMessage={this.setUpdateMessage}
                     setReplyMessage={this.setReplyMessage}
-                    messages={this.props.room.messages}
                   />
                 </MessagesInner>
               </React.Fragment>

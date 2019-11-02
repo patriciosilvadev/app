@@ -13,7 +13,7 @@ const Toolbar = styled.div`
 `
 
 const IconContainer = styled.div`
-  padding: 15px;
+  padding: 20px;
 `
 
 export default function ToolbarComponent(props) {
@@ -23,6 +23,11 @@ export default function ToolbarComponent(props) {
   return (
     <Toolbar className="column">
       <IconContainer>
+        <FontAwesomeIcon
+          icon={["fal", "paperclip"]}
+          color="#acb5bd"
+          size="lg"
+        />
       </IconContainer>
     </Toolbar>
   )

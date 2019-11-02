@@ -78,13 +78,6 @@ const store = createStore(
   applyMiddleware(thunk, sync)
 )
 
-// Register our chaching service workers
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.cache.js', { scope: '/' }).catch(err => console.error('Could not register service worker', e))
-} else {
-  console.error('Service workers are not supported in this browser')
-}
-
 // Plugin framework setup
 window.__REDUX_STORE_HOOK__ = store
 window.React = React

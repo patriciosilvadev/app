@@ -35,13 +35,9 @@ module.exports = env => {
           /src\/js\/environment\.js/, 'environment.production.js'
       ),
       new WorkboxPlugin.InjectManifest({
-        swSrc: './src/js/sw.cache.js',
-        swDest: 'sw.cache.js'
-      }),
-      new WorkboxPlugin.InjectManifest({
-        swSrc: './src/js/sw.pn.js',
-        swDest: 'sw.pn.js'
-      }),
+        swSrc: './src/js/sw.js',
+        swDest: 'sw.js'
+      })
       //new BundleAnalyzerPlugin()
     ],
     optimization: {

@@ -83,9 +83,16 @@ class AppPage extends React.Component {
     this.checkPushNotification()
   }
 
-  checkPushNotification() {
+  async checkPushNotification() {
+    const pnPermissions = await navigator.permissions.query({name:'notifications'})
+
     // If they've been asked'
-    if (CookieService.getCookie('PN')) this.setState({ pushNotifications: false })
+    if (CookieService.getCookie('PN')) {
+      this.setState({ pushNotifications: false })
+      if (pnPermissions.state == 'granted') {
+        this.subscribePushNotification()
+      }
+    }
 
     // If they haven't - then ask them
     // Ideally we want to check right away
@@ -97,10 +104,45 @@ class AppPage extends React.Component {
   async subscribePushNotification() {
     if ('serviceWorker' in navigator) {
       try {
-        // Register our SW
-        const register = await navigator.serviceWorker.register('/sw.pn.js', { scope: '/' })
-        const { userId } = this.state
+        const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        let serviceWorker;
 
+        if (register.installing) {
+          serviceWorker = register.installing;
+        } else if (register.waiting) {
+          serviceWorker = register.waiting
+        } else if (register.active) {
+          serviceWorker = register.active
+        }
+
+        if (serviceWorker) {
+          if (serviceWorker.state == 'activated') {
+            this.subscribeUser()
+          }
+
+          serviceWorker.addEventListener('statechange', (e) => {
+            if (e.target.state == 'activated') {
+              this.subscribeUser()
+            }
+          })
+        }
+      } catch (e) {
+        console.error('Could not register service worker', e)
+      }
+    } else {
+      console.error('Service workers are not supported in this browser')
+    }
+  }
+
+  async subscribeUser() {
+    const { userId } = this.state
+    const registrations = await navigator.serviceWorker.getRegistrations()
+
+    registrations.map(async register => {
+      const parts = register.active.scriptURL.split('/')
+      const path = parts[parts.length - 1]
+
+      if (path == 'sw.js') {
         // Subscribe to the PNs
         const subscription = await register.pushManager.subscribe({
           userVisibleOnly: true,
@@ -119,12 +161,8 @@ class AppPage extends React.Component {
             userId,
           }),
         })
-      } catch (e) {
-        console.error('Could not register service worker', e)
       }
-    } else {
-      console.error('Service workers are not supported in this browser')
-    }
+    })
   }
 
   pushNotifications() {

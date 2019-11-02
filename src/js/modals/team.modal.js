@@ -243,8 +243,8 @@ export default function TeamModal(props) {
     <ModalPortal>
       <Modal
         title="Team"
-        width={700}
-        height="90%"
+        width={800}
+        height="80%"
         onClose={props.onClose}>
           <Tabbed
             start={props.start || 0}
