@@ -101,12 +101,12 @@ export default function AccountModal(props) {
         const { data } = await GraphqlService.getInstance().user(props.id)
         const user = data.user
 
-        setImage(user.image || '')
+        setImage(user.image)
+        setUsername(user.username)
         setName(user.name || '')
-        setUsername(user.username || '')
         setRole(user.role || '')
         setDescription(user.description || '')
-        setEmail(user.email || '')
+        setEmail(user.email)
         setLoading(false)
       } catch (e) {
         setLoading(false)

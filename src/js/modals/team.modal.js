@@ -226,8 +226,8 @@ export default function TeamModal(props) {
         const team = data.team
 
         setImage(team.image)
-        setName(team.name)
-        setDescription(team.description)
+        setName(team.name || '')
+        setDescription(team.description || '')
         setMembers(team.members)
         setUrl(team.url)
         setLoading(false)

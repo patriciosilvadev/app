@@ -91,8 +91,8 @@ export default function RoomModal(props) {
         const room = data.room
 
         setImage(room.image)
-        setTitle(room.title)
-        setDescription(room.description)
+        setTitle(room.title || '')
+        setDescription(room.description || '')
         setLoading(false)
       } catch (e) {
         setLoading(false)

@@ -36,12 +36,10 @@ const Badge = styled.span`
 `
 
 export default function DockComponent(props) {
-  const [pluginId, setPluginId] = useState(null)
   const [teamPopup, setTeamPopup] = useState(false)
   const [lastPathname, setLastPathname] = useState('')
   const [hasNotification, setHasNotification] = useState(false)
   const [notificationsMenu, setNotificationsMenu] = useState(false)
-
   const dispatch = useDispatch()
   const room = useSelector(state => state.room)
   const common = useSelector(state => state.common)
