@@ -3,6 +3,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = env => {
   return {
@@ -27,6 +28,7 @@ module.exports = env => {
       maxAssetSize: 512000
     },
     plugins: [
+      new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         socketio: 'https://websocket.weekday.sh/socket.io/socket.io.js',
