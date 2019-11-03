@@ -14,7 +14,9 @@
         "test": "jest",
         "lint": "eslint ./src",
         "electron": "electron .",
-        "deploy": "aws s3 cp ./dist s3://app.weekday.sh --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive"
+        "deploy:prepare": "aws s3 rm --recursive s3://app.weekday.sh",
+        "deploy:upload": "aws s3 cp ./dist s3://app.weekday.sh --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive",
+        "deploy": "npm run deploy:prepare && npm run deploy:upload"
     },
     "author": "Jo du Plessis",
     "license": "ISC",
