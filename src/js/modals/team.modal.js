@@ -385,7 +385,7 @@ export default function TeamModal(props) {
                             color="highlight"
                             display="a"
                             onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/join/${url}`)}>
-                            {url}
+                            Click here
                           </Text>
                           <Text color="d" display="p"> to copy a temporary access URL that users can use to join this team</Text>
                         </div>

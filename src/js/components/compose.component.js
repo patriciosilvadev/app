@@ -506,11 +506,10 @@ class ComposeComponent extends React.Component {
               <Avatar
                 image={this.props.message.user.image}
                 title={this.props.message.user.name}
-                className="mr-15"
                 size="medium"
               />
 
-              <div className="column flexer">
+              <div className="pl-10 column flexer">
                 <div className="row">
                   <ReplyName>
                     {this.props.message.user.name}

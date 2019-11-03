@@ -346,20 +346,22 @@ export default memo(props => {
                     onClick={() => setConfirmDeleteModal(true)}
                   />
 
-                  <FontAwesomeIcon
-                    icon={["fal", "pen"]}
-                    color="#CFD4D9"
-                    size="sm"
-                    className="button mr-10"
-                    onClick={props.setUpdateMessage}
-                  />
+                  {props.message.user.id == common.user.id &&
+                    <FontAwesomeIcon
+                      icon={["fal", "pen"]}
+                      color="#CFD4D9"
+                      size="sm"
+                      className="button mr-10"
+                      onClick={() => props.setUpdateMessage(props.message)}
+                    />
+                  }
 
                   <FontAwesomeIcon
                     icon={["fal", "reply"]}
                     color="#CFD4D9"
                     size="sm"
                     className="button mr-10"
-                    onClick={props.setReplyMessage}
+                    onClick={() => props.setReplyMessage(props.message)}
                   />
                 </Tools>
               }
