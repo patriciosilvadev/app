@@ -1,9 +1,9 @@
 //import * as Sentry from '@sentry/browser'
 
-export const UPLOAD_HOST = 'https://api.weekday.sh/api/upload'
-export const AUTH_HOST = 'https://api.weekday.sh/api/auth'
+export const UPLOAD_HOST = 'https://api.weekday.sh/api/v1/upload'
+export const AUTH_HOST = 'https://api.weekday.sh/api/v1/auth'
 export const GRAPHQL_HOST = 'https://api.weekday.sh/graphql'
-export const API_HOST = 'https://api.weekday.sh'
+export const API_HOST = 'https://api.weekday.sh/api/v1'
 export const SOCKETIO_HOST = 'https://websocket.weekday.sh'
 export const LOCAL_DB = 'weekday'
 export const PUBLIC_VAPID_KEY = 'BK-o1CaPiLRUYWahx8VbyocJwrdmbdAYE3qPG17rZ6kjOWduL6-P6UFu5yxfH4fw4KhGzxmnbYAMeSAVU4zshkk'
