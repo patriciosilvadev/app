@@ -31,6 +31,7 @@ export default class QuickUser extends React.Component {
       index: 0,
       members: [],
       loading: false,
+      error: false,
     }
 
     this.filterRef = React.createRef()

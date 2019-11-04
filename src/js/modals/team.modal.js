@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Text } from '../elements'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
+import { deleteTeam, updateTeam } from '../actions'
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -61,12 +62,7 @@ export default function TeamModal(props) {
       setUrl(data.updateTeamUrl)
       setLoading(false)
       setNotification('Succesfully updated team url')
-
-      dispatch({
-        type: 'UPDATE_TEAM',
-        payload: { url, teamId },
-        sync: teamId,
-      })
+      dispatch(updateTeam(teamId, { url }))
     } catch (e) {
       setLoading(false)
       setError('Error updating team url')
@@ -79,16 +75,11 @@ export default function TeamModal(props) {
 
     try {
       const teamId = props.id
-      const { data } = await GraphqlService.getInstance().updateTeam(teamId, { name, description, image })
+      await GraphqlService.getInstance().updateTeam(teamId, { name, description, image })
 
       setLoading(false)
       setNotification('Succesfully updated team')
-
-      dispatch({
-        type: 'UPDATE_TEAM',
-        payload: { name, description, image, teamId },
-        sync: teamId,
-      })
+      dispatch(updateTeam(teamId, { name, description, image }))
     } catch (e) {
       setLoading(false)
       setError('Error updating team')
@@ -104,13 +95,9 @@ export default function TeamModal(props) {
       const teamId = props.id
       const deleteTeam = await GraphqlService.getInstance().deleteTeam(teamId)
 
+      // Sync this one for everyone
+      dispatch(deleteTeam(teamId, true))
       setLoading(false)
-      dispatch({
-        type: 'DELETE_TEAM',
-        payload: { teamId },
-        sync: teamId,
-      })
-
       browserHistory.push('/app')
       props.onClose()
     } catch (e) {
@@ -173,10 +160,8 @@ export default function TeamModal(props) {
       setLoading(false)
 
       // Don't sync this one - because its just for us
-      dispatch({
-        type: 'DELETE_TEAM',
-        payload: { teamId },
-      })
+      // false is for syncing here
+      dispatch(deleteTeam(teamId, false))
 
       MessagingService.getInstance().leave(teamId)
 

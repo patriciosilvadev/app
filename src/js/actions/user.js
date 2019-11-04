@@ -117,3 +117,10 @@ export function fetchUser(userId) {
     }
   }
 }
+
+export function updateUser(updatedUser) {
+  return { 
+    type: 'UPDATE_USER',
+    payload: updatedUser
+  }
+}

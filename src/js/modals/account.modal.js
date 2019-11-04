@@ -223,8 +223,7 @@ export default function AccountModal(props) {
 
       await GraphqlService.getInstance().updateUser(userId, updatedUser)
 
-      dispatch({ type: 'UPDATE_USER', payload: updatedUser })
-
+      dispatch(updateUser(updatedUser))
       setLoading(false)
       setNotification('Succesfully updated')
     } catch (e) {

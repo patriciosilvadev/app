@@ -203,7 +203,9 @@ export default memo(props => {
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
   const [images, setImages] = useState([])
-
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  
   const handleDeleteRoomMessage = () => {
     dispatch(deleteRoomMessage(room.id, props.message.id))
     setConfirmDeleteModal(false)

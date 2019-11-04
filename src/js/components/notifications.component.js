@@ -3,7 +3,7 @@ import '../helpers/extensions'
 import moment from 'moment'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchNotifications, updateNotificationRead } from '../actions'
+import { updateNotifications, updateNotificationRead } from '../actions'
 import { Spinner } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -92,20 +92,48 @@ export default function NotificationsComponent(props) {
   const user = useSelector(state => state.user)
   const userId = user.id
   const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
-  const handleReadButtonClick = (notificationId, read) => {
-    dispatch(updateNotificationRead(notificationId, read))
+  const fetchNotifications = async userId => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const { data } = await GraphqlService.getInstance().notifications(userId, page)
+
+      dispatch(updateLoading(false))
+      dispatch(updateNotifications(data.notifications))
+    } catch (e) {
+      setLoading(false)
+      setError(e)
+    }
+  }
+
+  const handleReadButtonClick = async (notificationId, read) => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      await GraphqlService.getInstance().updateNotificationRead(notificationId, read)
+
+      dispatch(updateLoading(false))
+      dispatch(updateNotificationRead(notificationId, read))
+    } catch (e) {
+      setLoading(true)
+      setError(false)
+    }
   }
 
   const handleLoadButtonClick = () => {
     setPage(page + 1)
-    dispatch(fetchNotifications(userId, page))
+    fetchNotifications(userId)
   }
 
   // prettier-ignore
   return (
     <Container className="column">
-      {common.loading && <Spinner />}
+      {loading && <Spinner />}
 
       <Inner className="column align-items-center">
         {notifications.map((notification, index) => {

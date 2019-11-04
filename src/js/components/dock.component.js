@@ -4,13 +4,14 @@ import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import { fetchTeams, createTeam, fetchNotifications } from '../actions'
+import { updateTeams, createTeam, updateNotifications } from '../actions'
 import PropTypes from 'prop-types'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import MessagingService from '../services/messaging.service'
 
 const Dock = styled.div`
   width: 70px;
@@ -36,6 +37,8 @@ const Badge = styled.span`
 `
 
 export default function DockComponent(props) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
   const [teamPopup, setTeamPopup] = useState(false)
   const [lastPathname, setLastPathname] = useState('')
   const [hasNotification, setHasNotification] = useState(false)
@@ -49,12 +52,55 @@ export default function DockComponent(props) {
   const notifications = useSelector(state => state.notifications)
 
   // When the user creates a team from quick input component
-  const handleNewTeamAccept = name => {
+  const handleNewTeamAccept = async name => {
     setTeamPopup(false)
-    dispatch(createTeam(user.id, name))
+    setLoading(true)
+    setError(false)
+
+    try {
+      const { data } = await GraphqlService.getInstance().createTeam({
+        name,
+        description: '',
+        image: null,
+        members: [
+          {
+            user: user.id,
+            admin: true,
+          },
+        ],
+      })
+
+      setLoading(false)
+      dispatch(createTeam(team))
+
+      MessagingService.getInstance().join(data.createTeam.id)
+    } catch (e) {
+      setLoading(false)
+      setError(e)
+    }
+  }
+
+  const fetchTeams = async userId => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const { data } = await GraphqlService.getInstance().teams(userId)
+      const teamIds = data.teams.map(team => team.id)
+
+      // Join all these team rooms
+      MessagingService.getInstance().joins(teamIds)
+
+      setLoading(false)
+      dispatch(updateTeams(teams.data.teams))
+    } catch (e) {
+      setLoading(false)
+      setError(e)
+    }
   }
 
   // Important for setting highlighted team
+  // Keep watching
   useEffect(() => {
     const { pathname } = props.history.location
     const pathnameParts = pathname.split('/')
@@ -64,11 +110,8 @@ export default function DockComponent(props) {
     setLastPathname(pathnameParts[pathnameParts.length - 1])
   })
 
-  // Fetch the user details
-  useEffect(() => {
-    dispatch(fetchTeams(user.id))
-    dispatch(fetchNotifications(user.id))
-  }, [])
+  // Get all the teams
+  useEffect(() => fetchTeams(user.id), [])
 
   // prettier-ignore
   return (

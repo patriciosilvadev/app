@@ -229,6 +229,8 @@ class RoomComponent extends React.Component {
       searchFocus: false,
       searchResults: null,
       searchQuery: '',
+      loading: false,
+      error: false,
     }
 
     this.messagesRef = React.createRef()

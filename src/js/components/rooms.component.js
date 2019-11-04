@@ -9,7 +9,7 @@ import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
-import { createRoom, fetchRooms, fetchTeam, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
+import { createRoom, updateRooms, updateTeam, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
@@ -164,6 +164,8 @@ class RoomsComponent extends React.Component {
       archived: [],
       public: [],
       private: [],
+      loading: false,
+      error: false,
     }
 
     this.filterRef = React.createRef()
@@ -231,9 +233,29 @@ class RoomsComponent extends React.Component {
     const { teamId } = this.props.match.params
     const userId = this.props.user.id
 
-    // If it exists, fetch
-    this.props.fetchRooms(teamId, userId)
-    this.props.fetchTeam(teamId, userId)
+    // Fetch the team & rooms
+    this.fetchData(teamId, userId)
+  }
+
+  async fetchData(teamId, userId) {
+    this.setState({ loading: true, error: null })
+
+    try {
+      const team = await GraphqlService.getInstance().team(teamId)
+      const rooms = await GraphqlService.getInstance().rooms(teamId, userId)
+      const roomIds = rooms.data.rooms.map(room => room.id)
+
+      this.setState({ loading: false, error: null })
+
+      // Join the rooms
+      MessagingService.getInstance().joins(roomIds)
+
+      // Populate our stores
+      this.props.hydrateRooms(rooms.data.rooms)
+      this.props.hydrateTeam(team.data.team)
+    } catch (e) {
+      this.setState({ loading: false, error: e })
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -675,9 +697,8 @@ RoomsComponent.propTypes = {
   presences: PropTypes.any,
   teams: PropTypes.array,
   createRoom: PropTypes.func,
-  fetchRooms: PropTypes.func,
-  fetchStarredRooms: PropTypes.func,
-  fetchTeam: PropTypes.func,
+  hydrateRooms: PropTypes.func,
+  hydrateTeam: PropTypes.func,
   updateUserStatus: PropTypes.func,
   updateUserMuted: PropTypes.func,
   updateUserArchived: PropTypes.func,
@@ -686,9 +707,8 @@ RoomsComponent.propTypes = {
 const mapDispatchToProps = {
   updateUserStatus: (userId, teamId, status) => updateUserStatus(userId, teamId, status),
   createRoom: (title, description, image, teamId, userId, initialOtherUserId) => createRoom(title, description, image, teamId, userId, initialOtherUserId),
-  fetchRooms: (teamId, userId) => fetchRooms(teamId, userId),
-  fetchStarredRooms: userId => fetchStarredRooms(userId),
-  fetchTeam: teamId => fetchTeam(teamId),
+  hydrateRooms: rooms => hydrateRooms(rooms),
+  hydrateTeam: team => hydrateTeam(team),
   updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
   updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
 }
