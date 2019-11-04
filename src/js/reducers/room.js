@@ -9,6 +9,7 @@ const initialState = {
   private: false,
   messages: [],
   members: [],
+  apps: [],
   user: {},
   team: {},
   typing: [],

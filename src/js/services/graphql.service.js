@@ -261,6 +261,55 @@ export default class GraphqlService {
                 admin
               }
             }
+            apps {
+              active
+              app {
+                name
+                description
+                image
+                token
+                draft
+                incoming
+                outgoing
+                commands {
+                  name
+                  description
+                  action {
+                    type
+                    url
+                    name
+                    icon
+                  }
+                }
+                attachments {
+                  type
+                  url
+                  name
+                  icon
+                }
+                tools {
+                  type
+                  url
+                  name
+                  icon
+                }
+                shortcuts {
+                  type
+                  url
+                  name
+                  icon
+                }
+                message {
+                  url
+                  actions {
+                    type
+                    url
+                    name
+                    icon
+                  }
+                }
+              }
+            }
             messages {
               id
               reactions
