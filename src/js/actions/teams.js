@@ -5,7 +5,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
-export function updateTeams(teams) {
+export function hydrateTeams(teams) {
   return {
     type: 'TEAMS',
     payload: teams,

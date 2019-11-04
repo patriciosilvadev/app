@@ -9,6 +9,26 @@ import { showLocalPushNotification } from '../helpers/util'
 import { updateRoomDeleteTyping } from './room'
 import { addPresence, deletePresence } from './presences'
 
+export function updateUserStarred(userId, roomId, starred) {
+  return async (dispatch, getState) => {
+    dispatch(updateLoading(true))
+    dispatch(updateError(null))
+
+    try {
+      await GraphqlService.getInstance().updateUserStarred(userId, roomId, starred)
+
+      dispatch(updateLoading(false))
+      dispatch({
+        type: 'UPDATE_USER_STARRED',
+        payload: { roomId, starred },
+      })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+}
+
 export function updateUserMuted(userId, roomId, muted) {
   return async (dispatch, getState) => {
     dispatch(updateLoading(true))
@@ -41,26 +61,6 @@ export function updateUserArchived(userId, roomId, archived) {
       dispatch({
         type: 'UPDATE_USER_ARCHIVED',
         payload: { roomId, archived },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserStarred(userId, roomId, starred) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserStarred(userId, roomId, starred)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_STARRED',
-        payload: { roomId, starred },
       })
     } catch (e) {
       dispatch(updateLoading(false))
@@ -119,7 +119,7 @@ export function fetchUser(userId) {
 }
 
 export function updateUser(updatedUser) {
-  return { 
+  return {
     type: 'UPDATE_USER',
     payload: updatedUser
   }

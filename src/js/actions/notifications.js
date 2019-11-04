@@ -6,7 +6,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
-export function updateNotifications(notifications) {
+export function hydrateNotifications(notifications) {
   return {
     type: 'NOTIFICATIONS',
     payload: notifications,

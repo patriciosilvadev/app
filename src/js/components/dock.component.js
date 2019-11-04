@@ -4,7 +4,7 @@ import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import { updateTeams, createTeam, updateNotifications } from '../actions'
+import { hydrateTeams, createTeam, updateNotifications } from '../actions'
 import PropTypes from 'prop-types'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
@@ -92,7 +92,7 @@ export default function DockComponent(props) {
       MessagingService.getInstance().joins(teamIds)
 
       setLoading(false)
-      dispatch(updateTeams(teams.data.teams))
+      dispatch(hydrateTeams(teams.data.teams))
     } catch (e) {
       setLoading(false)
       setError(e)

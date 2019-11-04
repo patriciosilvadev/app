@@ -3,7 +3,7 @@ import '../helpers/extensions'
 import moment from 'moment'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateNotifications, updateNotificationRead } from '../actions'
+import { hydrateNotifications, updateNotificationRead } from '../actions'
 import { Spinner } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -103,7 +103,7 @@ export default function NotificationsComponent(props) {
       const { data } = await GraphqlService.getInstance().notifications(userId, page)
 
       dispatch(updateLoading(false))
-      dispatch(updateNotifications(data.notifications))
+      dispatch(hydrateNotifications(data.notifications))
     } catch (e) {
       setLoading(false)
       setError(e)
