@@ -1,5 +1,5 @@
 import CookiesService from './cookies.service'
-import { AUTH_HOST } from '../environment'
+import { API_HOST } from '../environment'
 
 export default class AuthService {
   static parseJwt(token) {
@@ -37,7 +37,7 @@ export default class AuthService {
   }
 
   static confirm(email, token) {
-    return fetch(AUTH_HOST + '/confirm', {
+    return fetch(API_HOST + '/auth/confirm', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -52,7 +52,7 @@ export default class AuthService {
   }
 
   static updatePassword(userId, currentPassword, newPassword) {
-    return fetch(AUTH_HOST + '/password/update', {
+    return fetch(API_HOST + '/auth/password/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export default class AuthService {
   }
 
   static confirmEmail(email, userId) {
-    return fetch(AUTH_HOST + '/email/confirm', {
+    return fetch(API_HOST + '/auth/email/confirm', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export default class AuthService {
   }
 
   static deleteEmail(email, userId) {
-    return fetch(AUTH_HOST + '/email/delete', {
+    return fetch(API_HOST + '/auth/email/delete', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export default class AuthService {
   }
 
   static addEmail(email, userId) {
-    return fetch(AUTH_HOST + '/email/add', {
+    return fetch(API_HOST + '/auth/email/add', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ export default class AuthService {
   }
 
   static resetPassword(email) {
-    return fetch(AUTH_HOST + '/password/reset', {
+    return fetch(API_HOST + '/auth/password/reset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default class AuthService {
   }
 
   static updatePasswordReset(email, password, code) {
-    return fetch(AUTH_HOST + '/password/reset/update', {
+    return fetch(API_HOST + '/auth/password/reset/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export default class AuthService {
   }
 
   static signup(email, username, password) {
-    return fetch(AUTH_HOST + '/signup', {
+    return fetch(API_HOST + '/auth/signup', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -139,7 +139,7 @@ export default class AuthService {
   }
 
   static signin(username, password) {
-    return fetch(AUTH_HOST + '/signin', {
+    return fetch(API_HOST + '/auth/signin', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -157,7 +157,7 @@ export default class AuthService {
   }
 
   static accountDelete(userId) {
-    return fetch(AUTH_HOST + '/account/delete', {
+    return fetch(API_HOST + '/auth/account/delete', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ export default class AuthService {
   }
 
   static join(url, userId) {
-    return fetch(AUTH_HOST + '/join', {
+    return fetch(API_HOST + '/auth/join', {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

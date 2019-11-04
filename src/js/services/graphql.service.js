@@ -5,7 +5,7 @@ import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import AuthService from './auth.service'
 import CookiesService from './cookies.service'
-import { GRAPHQL_HOST } from '../environment'
+import { API_HOST } from '../environment'
 
 export default class GraphqlService {
   static instance
@@ -40,7 +40,7 @@ export default class GraphqlService {
         authMiddleware,
         createHttpLink({
           fetch: fetch,
-          uri: GRAPHQL_HOST,
+          uri: API_HOST + '/graphql',
           onError: ({ networkError, graphQLErrors }) => {
             console.log('graphQLErrors', graphQLErrors)
             console.log('networkError', networkError)

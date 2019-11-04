@@ -49,9 +49,5 @@ export default (state = initialState, action) =>
       case 'UPDATE_LOADING':
         draft.loading = action.payload
         break
-
-      case 'REGISTER_DOCK_PLUGIN':
-        draft.plugins.dock.push(action.payload)
-        break
     }
   })

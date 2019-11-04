@@ -9,7 +9,7 @@ import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { GRAPHQL_HOST, API_HOST, PUBLIC_VAPID_KEY } from './environment'
+import { API_HOST, PUBLIC_VAPID_KEY } from './environment'
 import { sync } from './middleware/sync'
 import AuthPage from './pages/auth.page'
 import JoinPage from './pages/join.page'
@@ -84,7 +84,7 @@ window.React = React
 
 // Setup GraphQL
 const apollo = new ApolloClient({
-  link: new HttpLink({ uri: GRAPHQL_HOST }),
+  link: new HttpLink({ uri: API_HOST + '/graphql' }),
   cache: new InMemoryCache(),
 })
 

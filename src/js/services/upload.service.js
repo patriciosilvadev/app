@@ -1,4 +1,4 @@
-import { UPLOAD_HOST } from '../environment'
+import { API_HOST } from '../environment'
 
 export default class UploadService {
   constructor(file, roomId = null, messageId = null) {
@@ -10,7 +10,7 @@ export default class UploadService {
     form.append('messageId', messageId)
 
     // Make the request & return it
-    return fetch(UPLOAD_HOST, {
+    return fetch(API_HOST + '/upload', {
       method: 'POST',
       body: form,
     })

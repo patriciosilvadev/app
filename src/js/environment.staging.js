@@ -1,6 +1,3 @@
-export const UPLOAD_HOST = 'http://localhost:8181/api/v1/upload'
-export const AUTH_HOST = 'http://localhost:8181/api/v1/auth'
-export const GRAPHQL_HOST = 'http://localhost:8181/graphql'
 export const API_HOST = 'http://localhost:8181/api/v1'
 export const SOCKETIO_HOST = 'http://localhost:8000'
 export const LOCAL_DB = 'weekday'
