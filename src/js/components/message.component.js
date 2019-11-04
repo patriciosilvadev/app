@@ -199,7 +199,7 @@ export default memo(props => {
   const [emoticons, setEmoticons] = useState(false)
   const dispatch = useDispatch()
   const room = useSelector(state => state.room)
-  const common = useSelector(state => state.common)
+  const user = useSelector(state => state.user)
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
   const [images, setImages] = useState([])
@@ -213,14 +213,14 @@ export default memo(props => {
     setEmoticons(false)
 
     // Only this user can do this
-    if (reaction.split('__')[1] != common.user.id) return
+    if (reaction.split('__')[1] != user.id) return
 
     dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
   }
 
   const handleCreateRoomMessageReaction = emoticon => {
     setEmoticons(false)
-    dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${common.user.id}__${common.user.name.split(' ')[0]}`))
+    dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${user.id}__${user.name.split(' ')[0]}`))
   }
 
   const highlightMessage = (message, query) => {
@@ -346,7 +346,7 @@ export default memo(props => {
                     onClick={() => setConfirmDeleteModal(true)}
                   />
 
-                  {props.message.user.id == common.user.id &&
+                  {props.message.user.id == user.id &&
                     <FontAwesomeIcon
                       icon={["fal", "pen"]}
                       color="#CFD4D9"

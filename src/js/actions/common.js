@@ -9,95 +9,6 @@ import { showLocalPushNotification } from '../helpers/util'
 import { updateRoomDeleteTyping } from './room'
 import { addPresence, deletePresence } from './presences'
 
-export function updateUserMuted(userId, roomId, muted) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserMuted(userId, roomId, muted)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_MUTED',
-        payload: { roomId, muted },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserArchived(userId, roomId, archived) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserArchived(userId, roomId, archived)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_ARCHIVED',
-        payload: { roomId, archived },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserStarred(userId, roomId, starred) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserStarred(userId, roomId, starred)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_STARRED',
-        payload: { roomId, starred },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserStatus(userId, teamId, status) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUser(userId, { status })
-
-      dispatch(updateLoading(false))
-
-      // Update the user on our side
-      dispatch({
-        type: 'UPDATE_USER',
-        payload: { status },
-      })
-
-      // Update the room excerpt every else
-      dispatch({
-        type: 'UPDATE_ROOM_USER_STATUS',
-        payload: { userId, status },
-        sync: teamId,
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
 export function initialize(userId) {
   return async (dispatch, getState) => {
     // Join our single room for us
@@ -135,7 +46,7 @@ export function initialize(userId) {
       dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
     })
     MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
-      const userId = getState().common.user.id
+      const userId = getState().user.id
       const room = getState()
         .rooms.filter(r => r.id == roomId)
         .flatten()
@@ -199,8 +110,8 @@ export function initialize(userId) {
       // And also handle push notices
       if (action.type == 'CREATE_ROOM_MESSAGE') {
         const { roomId, teamId, message } = action.payload
-        const isStarred = getState().common.user.starred.indexOf(roomId) != -1
-        const isArchived = getState().common.user.archived.indexOf(roomId) != -1
+        const isStarred = getState().user.starred.indexOf(roomId) != -1
+        const isArchived = getState().user.archived.indexOf(roomId) != -1
         const isCurrentRoom = roomId == getState().room.id
 
         // Don't do a PN or unread increment if we are on the same room
@@ -218,9 +129,9 @@ export function initialize(userId) {
 
     // Tell our current team about our status
     setInterval(() => {
-      const { team, common } = getState()
+      const { team, user } = getState()
       const teamId = team.id
-      const userId = common.user.id
+      const userId = user.id
 
       dispatch(addPresence(teamId, userId))
     }, 5000)
@@ -258,10 +169,10 @@ export function initialize(userId) {
     DatabaseService.getInstance()
       .database.allDocs({ include_docs: true })
       .then(({ rows }) => {
-        dispatch({ type: 'UPDATE_UNREAD', payload: rows })
+        dispatch(updateUnread(rows))
       })
       .catch(err => {
-        dispatch({ type: 'UPDATE_ERROR', payload: 'allDocs DB error' })
+        dispatch(updateError('allDocs DB error'))
       })
 
     // If anything changes
@@ -275,14 +186,14 @@ export function initialize(userId) {
         DatabaseService.getInstance()
           .database.allDocs({ include_docs: true })
           .then(({ rows }) => {
-            dispatch({ type: 'UPDATE_UNREAD', payload: rows })
+            dispatch(updateUnread(rows))
           })
           .catch(err => {
-            dispatch({ type: 'UPDATE_ERROR', payload: 'allDocs DB error' })
+            dispatch(updateError('allDocs DB error'))
           })
       })
       .on('error', err => {
-        dispatch({ type: 'UPDATE_ERROR', payload: 'changes DB error' })
+        dispatch(updateError('allDocs DB error'))
       })
 
     // TODO: Debug
@@ -306,22 +217,9 @@ export function updateError(payload) {
   }
 }
 
-export function fetchUser(userId) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      const user = await GraphqlService.getInstance().user(userId)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'USER',
-        payload: user.data.user,
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
+export function updateUnread(payload) {
+  return {
+    type: 'UPDATE_UNREAD',
+    payload: payload,
   }
 }

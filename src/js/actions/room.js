@@ -37,10 +37,9 @@ export function createRoomMember(roomId, user) {
 
 export function deleteRoomMember(roomId, user) {
   return async (dispatch, getState) => {
-    const { common } = getState()
     const userId = user.id
     const userIds = [userId]
-    const currentUserId = common.user.id
+    const currentUserId = getState().user.id
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
@@ -254,14 +253,14 @@ export function fetchRoomMessages(roomId, page) {
 
 export function createRoomMessage(roomId, text, attachments, parent) {
   return async (dispatch, getState) => {
-    const { room, common } = getState()
-    const excerpt = common.user.name.toString().split(' ')[0] + ': ' + text || text
+    const { room, user } = getState()
+    const excerpt = user.name.toString().split(' ')[0] + ': ' + text || text
 
     dispatch(updateLoading(true))
     dispatch(updateError(null))
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, common.user.id, common.user.name, text, attachments, parent)
+      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, user.id, user.name, text, attachments, parent)
 
       dispatch(updateLoading(false))
 
@@ -296,10 +295,10 @@ export function createRoomMessage(roomId, text, attachments, parent) {
 
 export function updateRoomMessage(roomId, messageId, message, attachments) {
   return async (dispatch, getState) => {
-    const { room, common } = getState()
-    const excerpt = common.user.name.toString().split(' ')[0] + ': ' + message || message
-    const userName = common.user.name
-    const userId = common.user.id
+    const { room, user } = getState()
+    const excerpt = user.name.toString().split(' ')[0] + ': ' + message || message
+    const userName = user.name
+    const userId = user.id
     const teamId = room.team.id
 
     dispatch(updateLoading(true))

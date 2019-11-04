@@ -26,7 +26,7 @@ export default function TeamModal(props) {
   const [description, setDescription] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
-  const common = useSelector(state => state.common)
+  const user = useSelector(state => state.user)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
@@ -167,7 +167,7 @@ export default function TeamModal(props) {
 
     try {
       const teamId = props.id
-      const userId = common.user.id
+      const userId = user.id
       const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
 
       setLoading(false)
@@ -206,7 +206,7 @@ export default function TeamModal(props) {
   }
 
   const handleDeleteClick = member => {
-    if (member.user.id == common.user.id) {
+    if (member.user.id == user.id) {
       setConfirmSelfDeleteModal(true)
     } else {
       setConfirmMemberDeleteModal(true)
@@ -345,7 +345,7 @@ export default function TeamModal(props) {
                           key={index}
                           image={member.user.image}
                           color={member.user.color}
-                          name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
+                          name={member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
                           label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
                           <FontAwesomeIcon

@@ -55,11 +55,11 @@ class AppPage extends React.Component {
   }
 
   async componentDidUpdate(prevProps) {
-    if (!this.props.common.user) return null
-    if (!prevProps.common.user) return null
+    if (!this.props.user.id) return null
+    if (!prevProps.user.id) return null
 
-    const current = this.props.common.user.id
-    const prev = prevProps.common.user.id
+    const current = this.props.user.id
+    const prev = prevProps.user.id
 
     if (!current || !prev) return
     if (current != prev) this.fetchData(current)
@@ -187,8 +187,7 @@ class AppPage extends React.Component {
 
   // prettier-ignore
   render() {
-    if (!this.props.common.user) return <Loading show={true} />
-    if (!this.props.common.user.id) return <Loading show={true} />
+    if (!this.props.user.id) return <Loading show={true} />
 
     return (
       <AppContainer>
@@ -219,6 +218,7 @@ class AppPage extends React.Component {
 
 AppPage.propTypes = {
   common: PropTypes.any,
+  user: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
 }
@@ -231,6 +231,7 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     common: state.common,
+    user: state.user,
   }
 }
 

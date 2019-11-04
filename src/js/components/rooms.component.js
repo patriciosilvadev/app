@@ -179,11 +179,11 @@ class RoomsComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const starredRooms = props.rooms.filter((room, index) => props.common.user.starred.indexOf(room.id) != -1)
-    const mutedRooms = props.rooms.filter((room, index) => props.common.user.muted.indexOf(room.id) != -1)
-    const archivedRooms = props.rooms.filter((room, index) => props.common.user.archived.indexOf(room.id) != -1)
-    const privateRooms = props.rooms.filter((room, index) => room.private && props.common.user.starred.indexOf(room.id) == -1 && props.common.user.archived.indexOf(room.id) == -1)
-    const publicRooms = props.rooms.filter((room, index) => !room.private && props.common.user.starred.indexOf(room.id) == -1 && props.common.user.archived.indexOf(room.id) == -1)
+    const starredRooms = props.rooms.filter((room, index) => props.user.starred.indexOf(room.id) != -1)
+    const mutedRooms = props.rooms.filter((room, index) => props.user.muted.indexOf(room.id) != -1)
+    const archivedRooms = props.rooms.filter((room, index) => props.user.archived.indexOf(room.id) != -1)
+    const privateRooms = props.rooms.filter((room, index) => room.private && props.user.starred.indexOf(room.id) == -1 && props.user.archived.indexOf(room.id) == -1)
+    const publicRooms = props.rooms.filter((room, index) => !room.private && props.user.starred.indexOf(room.id) == -1 && props.user.archived.indexOf(room.id) == -1)
 
     return {
       starred: starredRooms,
@@ -200,7 +200,7 @@ class RoomsComponent extends React.Component {
     const image = null
     const teamId = this.props.team.id
     const initialOtherUserId = user.id
-    const userId = this.props.common.user.id
+    const userId = this.props.user.id
 
     this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
@@ -211,7 +211,7 @@ class RoomsComponent extends React.Component {
     const image = null
     const teamId = this.props.team.id
     const initialOtherUserId = null
-    const userId = this.props.common.user.id
+    const userId = this.props.user.id
 
     this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
@@ -229,7 +229,7 @@ class RoomsComponent extends React.Component {
 
     // Get the team ID (if any)
     const { teamId } = this.props.match.params
-    const userId = this.props.common.user.id
+    const userId = this.props.user.id
 
     // If it exists, fetch
     this.props.fetchRooms(teamId, userId)
@@ -238,7 +238,7 @@ class RoomsComponent extends React.Component {
 
   componentDidUpdate(prevProps) {
     const { teamId } = this.props.match.params
-    const userId = this.props.common.user.id
+    const userId = this.props.user.id
 
     if (teamId != prevProps.match.params.teamId) {
       this.props.fetchRooms(teamId, userId)
@@ -276,7 +276,7 @@ class RoomsComponent extends React.Component {
 
       // Update our UI with our results
       // Remove ourselves
-      this.setState({ results: results.filter(result => result.id != this.props.common.user.id) })
+      this.setState({ results: results.filter(result => result.id != this.props.user.id) })
     } catch (e) {}
   }
 
@@ -326,7 +326,7 @@ class RoomsComponent extends React.Component {
 
         {this.state.accountModal &&
           <AccountModal
-            id={this.props.common.user.id}
+            id={this.props.user.id}
             onClose={() => this.setState({ accountModal: false })}
           />
         }
@@ -334,8 +334,8 @@ class RoomsComponent extends React.Component {
         <Header className="row">
           <Avatar
             size="medium"
-            image={this.props.common.user.image}
-            title={this.props.common.user.name}
+            image={this.props.user.image}
+            title={this.props.user.name}
             className="mr-10"
           />
 
@@ -345,7 +345,7 @@ class RoomsComponent extends React.Component {
             </HeaderTeam>
 
             <HeaderTitle>
-              {this.props.common.user.name}
+              {this.props.user.name}
             </HeaderTitle>
 
             <QuickInputComponent
@@ -353,13 +353,13 @@ class RoomsComponent extends React.Component {
               width={300}
               direction="left-bottom"
               handleDismiss={() => this.setState({ statusMenu: false })}
-              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(this.props.common.user.id, this.props.team.id, status))}
-              placeholder={this.props.common.user.status}>
+              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(this.props.user.id, this.props.team.id, status))}
+              placeholder={this.props.user.status}>
 
               <HeaderSubtitle
                 className="button"
                 onClick={() => this.setState({ statusMenu: true })}>
-                {this.props.common.user.status || "Update your status"}
+                {this.props.user.status || "Update your status"}
               </HeaderSubtitle>
             </QuickInputComponent>
           </div>
@@ -374,12 +374,12 @@ class RoomsComponent extends React.Component {
                 <AccountMenuHeader className="column align-items-center">
                   <Avatar
                     size="medium"
-                    image={this.props.common.user.image}
-                    title={this.props.common.user.name}
+                    image={this.props.user.image}
+                    title={this.props.user.name}
                   />
 
                   <AccountMenuTitle>
-                    {this.props.common.user.name}
+                    {this.props.user.name}
                   </AccountMenuTitle>
 
                   <AccountMenuSubtitle>
@@ -486,13 +486,13 @@ class RoomsComponent extends React.Component {
               {this.state.starred.map((room, index) => {
                 if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
-                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
-                const muted = this.props.common.user.muted.indexOf(room.id) != -1
-                const archived = this.props.common.user.archived.indexOf(room.id) != -1
+                const muted = this.props.user.muted.indexOf(room.id) != -1
+                const archived = this.props.user.archived.indexOf(room.id) != -1
 
                 return (
                   <Room
@@ -507,8 +507,8 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
-                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
                   />
                 )
               })}
@@ -538,15 +538,15 @@ class RoomsComponent extends React.Component {
           </Heading>
 
           {this.state.public.map((room, index) => {
-            if (this.props.common.user.starred.indexOf(room.id) != -1) return
+            if (this.props.user.starred.indexOf(room.id) != -1) return
             if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-            const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
-            const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+            const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
+            const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
             const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
             const unreadCount = unread ? unread.doc.count : 0
-            const muted = this.props.common.user.muted.indexOf(room.id) != -1
-            const archived = this.props.common.user.archived.indexOf(room.id) != -1
+            const muted = this.props.user.muted.indexOf(room.id) != -1
+            const archived = this.props.user.archived.indexOf(room.id) != -1
 
             return (
               <Room
@@ -561,8 +561,8 @@ class RoomsComponent extends React.Component {
                 muted={muted}
                 archived={archived}
                 onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
-                onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
-                onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                onArchivedClick={() => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
+                onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
               />
             )
           })}
@@ -572,21 +572,21 @@ class RoomsComponent extends React.Component {
               <Heading>Private Conversations</Heading>
 
               {this.state.private.map((room, index) => {
-                if (this.props.common.user.starred.indexOf(room.id) != -1) return
+                if (this.props.user.starred.indexOf(room.id) != -1) return
 
-                const title = room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "")
-                const image = room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "")
+                const title = room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "")
+                const image = room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "")
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
-                const muted = this.props.common.user.muted.indexOf(room.id) != -1
-                const archived = this.props.common.user.archived.indexOf(room.id) != -1
+                const muted = this.props.user.muted.indexOf(room.id) != -1
+                const archived = this.props.user.archived.indexOf(room.id) != -1
 
                 // Filter based on users search
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
                 // Get the other users' presence
                 const snapshot = new Date().getTime()
-                const otherMember = room.members.filter(member => member.user.id != this.props.common.user.id).flatten()
+                const otherMember = room.members.filter(member => member.user.id != this.props.user.id).flatten()
                 const otherMemberStatus = otherMember.user.status
                 const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
                 const presence = otherMemberPresence
@@ -610,8 +610,8 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
-                    onArchivedClick={() => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
-                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                    onArchivedClick={() => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
                   />
                 )
               })}
@@ -631,13 +631,13 @@ class RoomsComponent extends React.Component {
               {this.state.archived.map((room, index) => {
                 if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.common.user.id ? title + member.user.name : title, "") : room.title
-                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.common.user.id ? image + member.user.image : image, "") : room.image
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
-                const muted = this.props.common.user.muted.indexOf(room.id) != -1
-                const archived = this.props.common.user.archived.indexOf(room.id) != -1
+                const muted = this.props.user.muted.indexOf(room.id) != -1
+                const archived = this.props.user.archived.indexOf(room.id) != -1
 
                 return (
                   <Room
@@ -652,8 +652,8 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={(e) => this.props.updateUserArchived(this.props.common.user.id, room.id, !archived)}
-                    onMutedClick={() => this.props.updateUserMuted(this.props.common.user.id, room.id, !muted)}
+                    onArchivedClick={(e) => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
+                    onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
                   />
                 )
               })}
@@ -671,6 +671,7 @@ RoomsComponent.propTypes = {
   room: PropTypes.any,
   rooms: PropTypes.array,
   common: PropTypes.any,
+  user: PropTypes.any,
   presences: PropTypes.any,
   teams: PropTypes.array,
   createRoom: PropTypes.func,
@@ -695,6 +696,7 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     common: state.common,
+    user: state.user,
     team: state.team,
     rooms: state.rooms,
     room: state.room,

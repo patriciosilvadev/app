@@ -26,6 +26,7 @@ import teams from './reducers/teams'
 import presences from './reducers/presences'
 import room from './reducers/room'
 import rooms from './reducers/rooms'
+import user from './reducers/user'
 import notifications from './reducers/notifications'
 import './environment'
 import { createLogger } from 'redux-logger'
@@ -74,6 +75,7 @@ const store = createStore(
     rooms,
     presences,
     notifications,
+    user,
   }),
   applyMiddleware(thunk, sync)
 )

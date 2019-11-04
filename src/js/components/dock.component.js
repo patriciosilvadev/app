@@ -42,6 +42,7 @@ export default function DockComponent(props) {
   const [notificationsMenu, setNotificationsMenu] = useState(false)
   const dispatch = useDispatch()
   const room = useSelector(state => state.room)
+  const user = useSelector(state => state.user)
   const common = useSelector(state => state.common)
   const teams = useSelector(state => state.teams)
   const team = useSelector(state => state.team)
@@ -50,7 +51,7 @@ export default function DockComponent(props) {
   // When the user creates a team from quick input component
   const handleNewTeamAccept = name => {
     setTeamPopup(false)
-    dispatch(createTeam(common.user.id, name))
+    dispatch(createTeam(user.id, name))
   }
 
   // Important for setting highlighted team
@@ -65,8 +66,8 @@ export default function DockComponent(props) {
 
   // Fetch the user details
   useEffect(() => {
-    dispatch(fetchTeams(common.user.id))
-    dispatch(fetchNotifications(common.user.id))
+    dispatch(fetchTeams(user.id))
+    dispatch(fetchNotifications(user.id))
   }, [])
 
   // prettier-ignore

@@ -51,7 +51,7 @@ export default function RoomModal(props) {
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [description, setDescription] = useState('')
-  const common = useSelector(state => state.common)
+  const user = useSelector(state => state.user)
   const team = useSelector(state => state.team)
   const room = useSelector(state => state.room)
   const fileRef = useRef(null)
@@ -226,7 +226,7 @@ export default function RoomModal(props) {
                           key={index}
                           image={member.user.image}
                           color={member.user.color}
-                          name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
+                          name={member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
                           label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
                           <Button
@@ -240,7 +240,7 @@ export default function RoomModal(props) {
 
                               setMemberToDelete(member.user)
 
-                              if (common.user.id == member.user.id) {
+                              if (user.id == member.user.id) {
                                 setConfirmSelfDeleteModal(true)
                               } else {
                                 setConfirmMemberDeleteModal(true)

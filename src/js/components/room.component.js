@@ -282,7 +282,7 @@ class RoomComponent extends React.Component {
 
   composeTypingNames() {
     // Don't include ourselves
-    const typingUsers = this.props.room.typing.filter(t => t.userId != this.props.common.user.id)
+    const typingUsers = this.props.room.typing.filter(t => t.userId != this.props.user.id)
 
     if (typingUsers.length == 0) {
       return ''
@@ -368,7 +368,7 @@ class RoomComponent extends React.Component {
   }
 
   updateUserStarred(starred) {
-    const userId = this.props.common.user.id
+    const userId = this.props.user.id
     const roomId = this.props.room.id
 
     this.props.updateUserStarred(userId, roomId, starred)
@@ -403,24 +403,24 @@ class RoomComponent extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (props.room.id == undefined || props.room.id == '') return null
 
-    const isMember = !!props.room.members.filter(member => member.user.id == props.common.user.id).flatten()
+    const isMember = !!props.room.members.filter(member => member.user.id == props.user.id).flatten()
     const isPublic = props.room.public
     const open = isMember || isPublic
-    const starred = props.common.user.starred.indexOf(props.room.id) != -1
-    const muted = props.common.user.muted.indexOf(props.room.id) != -1
-    const archived = props.common.user.archived.indexOf(props.room.id) != -1
+    const starred = props.user.starred.indexOf(props.room.id) != -1
+    const muted = props.user.muted.indexOf(props.room.id) != -1
+    const archived = props.user.archived.indexOf(props.room.id) != -1
 
     const title = props.room.private
       ? props.room.members
           .map(member => member.user.name)
-          .filter(name => name != props.common.user.name)
+          .filter(name => name != props.user.name)
           .flatten()
       : props.room.title
 
     const image = props.room.private
       ? props.room.members
           .map(member => member.user.image)
-          .filter(image => image != props.common.user.image)
+          .filter(image => image != props.user.image)
           .flatten()
       : props.room.image
 
@@ -708,7 +708,7 @@ class RoomComponent extends React.Component {
 RoomComponent.propTypes = {
   team: PropTypes.any,
   room: PropTypes.any,
-  common: PropTypes.any,
+  user: PropTypes.any,
   fetchRoom: PropTypes.func,
   createRoom: PropTypes.func,
   fetchRoomMessages: PropTypes.func,
@@ -734,8 +734,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => {
   return {
-    common: state.common,
     team: state.team,
+    user: state.user,
     room: state.room,
   }
 }

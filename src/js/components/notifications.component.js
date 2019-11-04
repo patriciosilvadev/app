@@ -89,7 +89,8 @@ export default function NotificationsComponent(props) {
   const [page, setPage] = useState(1)
   const notifications = useSelector(state => state.notifications)
   const common = useSelector(state => state.common)
-  const userId = common.user.id
+  const user = useSelector(state => state.user)
+  const userId = user.id
   const dispatch = useDispatch()
 
   const handleReadButtonClick = (notificationId, read) => {

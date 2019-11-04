@@ -281,7 +281,7 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing
-    this.props.updateRoomAddTyping(this.props.room.id, this.props.common.user.name, this.props.common.user.id)
+    this.props.updateRoomAddTyping(this.props.room.id, this.props.user.name, this.props.user.id)
   }
 
   handleComposeChange(e) {
@@ -633,7 +633,7 @@ ComposeComponent.propTypes = {
   room: PropTypes.any,
   team: PropTypes.any,
   teams: PropTypes.any,
-  common: PropTypes.any,
+  user: PropTypes.any,
   message: PropTypes.any,
   reply: PropTypes.bool,
   update: PropTypes.bool,
@@ -652,7 +652,7 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     room: state.room,
-    common: state.common,
+    user: state.user,
     team: state.team,
     teams: state.teams,
   }
