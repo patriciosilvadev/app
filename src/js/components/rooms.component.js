@@ -15,6 +15,7 @@ import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AuthService from '../services/auth.service'
+import { version } from '../../../package.json'
 
 const Rooms = styled.div`
   width: 300px;
@@ -86,6 +87,14 @@ const AccountMenuSubtitle = styled.div`
   font-weight: 600;
   color: #cfd4d9;
   padding: 5px 5px 5px 5px;
+`
+
+const AccountMenuBuild = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #cfd4d9;
+  padding: 10px;
+  border-top: 1px solid #f1f3f5;
 `
 
 const HeaderSubtitleLink = styled.div`
@@ -397,6 +406,10 @@ class RoomsComponent extends React.Component {
                     },
                   ]}
                 />
+
+                <AccountMenuBuild>
+                  Build {version}
+                </AccountMenuBuild>
               </React.Fragment>
             }>
             <div>

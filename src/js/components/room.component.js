@@ -160,6 +160,12 @@ const WelcomeDescription = styled.div`
   font-weight: 400;
   font-size: 18px;
   color: #adb5bd;
+
+  * {
+    font-weight: 400;
+    font-size: 18px;
+    color: #adb5bd;
+  }
 `
 
 const WelcomeUser = styled.div`
