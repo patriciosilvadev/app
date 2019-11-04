@@ -177,6 +177,28 @@ const PaddingToKeepMessagesDown = styled.div`
   height: 1500px;
 `
 
+const AppIconContainer = styled.div`
+  padding: 5px;
+  margin-left: 15px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const AppIconImage = styled.div`
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center center;
+  background-color: transparent;
+  background-image: url(${props => props.image});
+`
+
 class RoomComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -217,6 +239,11 @@ class RoomComponent extends React.Component {
     this.subscription = null
     this.setUpdateMessage = this.setUpdateMessage.bind(this)
     this.setReplyMessage = this.setReplyMessage.bind(this)
+    this.handleActionClick = this.handleActionClick.bind(this)
+  }
+
+  handleActionClick(action) {
+    console.log('Action handler')
   }
 
   onSearch(e) {
@@ -503,6 +530,24 @@ class RoomComponent extends React.Component {
                   />
                 }
               </HeaderSearchContainer>
+
+              {this.props.room.apps.map((app, index) => {
+                if (!app.active) return
+                if (!app.app.shortcuts) return
+                if (app.app.shortcuts.length == 0) return
+
+                return (
+                  <React.Fragment key={index}>
+                    {app.app.shortcuts.map((action, i) => {
+                      return (
+                        <AppIconContainer key={i} onClick={() => this.handleActionClick(action)}>
+                          <AppIconImage image={action.icon} />
+                        </AppIconContainer>
+                      )
+                    })}
+                  </React.Fragment>
+                )
+              })}
 
               <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-15">
                 {this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#EBB403" size="lg" />}
