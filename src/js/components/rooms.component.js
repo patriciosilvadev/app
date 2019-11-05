@@ -171,11 +171,10 @@ class RoomsComponent extends React.Component {
     this.filterRef = React.createRef()
 
     this.createPrivateRoom = this.createPrivateRoom.bind(this)
-    this.navigateToRoom = this.navigateToRoom.bind(this)
+    this.createPublicRoom = this.createPublicRoom.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
-
     this.updateUserMuted = this.updateUserMuted.bind(this)
     this.updateUserArchived = this.updateUserArchived.bind(this)
     this.updateUserStatus = this.updateUserStatus.bind(this)
@@ -236,7 +235,7 @@ class RoomsComponent extends React.Component {
     const initialOtherUserId = user.id
     const userId = this.props.user.id
 
-    this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
+    this.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
@@ -247,12 +246,57 @@ class RoomsComponent extends React.Component {
     const initialOtherUserId = null
     const userId = this.props.user.id
 
-    this.props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
+    this.createRoom(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
-  navigateToRoom(room) {
-    this.setState({ filter: '', showFilter: false }, () => this.props.history.push(`/team/${this.props.team.id}/room/${room.id}`))
+  async createRoom(title, description, image, teamId, userId, initialOtherUserId) {
+    try {
+      // 1. Find rooms where there rae only 2 members
+      // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
+      const room = initialOtherUserId
+        ? this.props.rooms
+            .filter(room => room.members.length == 2 && room.private)
+            .filter(room => room.members.filter(member => member.user.id == initialOtherUserId).length == 1)
+            .flatten()
+        : null
+
+      // 3. If it's found - then go there
+      if (room) return this.props.history.push(`/app/team/${teamId}/room/${room.id}`)
+
+      // Create the default member array
+      // If user isn't null - then it's a private room
+      const members = initialOtherUserId ? [{ user: initialOtherUserId }, { user: userId }] : [{ user: userId }]
+
+      // Otherwise create the new room
+      // 1) Create the room object based on an open room or private
+      // 2) Default public room is always members only
+      const { data } = await GraphqlService.getInstance().createRoom({
+        title,
+        description,
+        image,
+        members,
+        team: teamId,
+        user: userId,
+        messages: [],
+        public: false,
+        private: initialOtherUserId ? true : false,
+      })
+
+      const roomData = data.createRoom
+      const roomId = roomData.id
+
+      this.props.createRoom(roomData)
+
+      // Join this room ourselves
+      MessagingService.getInstance().join(roomId)
+
+      // If it's a private conversation - then incite the other optersons
+      if (initialOtherUserId) MessagingService.getInstance().joinRoom([initialOtherUserId], roomId)
+
+      // Navigate there
+      browserHistory.push(`/app/team/${teamId}/room/${roomId}`)
+    } catch (e) {}
   }
 
   componentDidMount() {
@@ -741,7 +785,7 @@ const mapDispatchToProps = {
   updateRoomUserStatus: (userId, teamId, status) => updateRoomUserStatus(userId, teamId, status),
   updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
   updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
-  createRoom: (title, description, image, teamId, userId, initialOtherUserId) => createRoom(title, description, image, teamId, userId, initialOtherUserId),
+  createRoom: room => createRoom(room),
   hydrateRooms: rooms => hydrateRooms(rooms),
   hydrateTeam: team => hydrateTeam(team),
 }

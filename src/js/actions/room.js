@@ -8,60 +8,7 @@ import { updateLoading, updateError } from './'
 
 
 
-export function createRoom(title, description, image, teamId, userId, initialOtherUserId) {
-  return async (dispatch, getState) => {
-    try {
-      // 1. Find rooms where there rae only 2 members
-      // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
-      const room = initialOtherUserId
-        ? getState()
-            .rooms.filter(room => room.members.length == 2 && room.private)
-            .filter(room => room.members.filter(member => member.user.id == initialOtherUserId).length == 1)
-            .flatten()
-        : null
-
-      // 3. If it's found - then go there
-      if (room) return browserHistory.push(`/app/team/${teamId}/room/${room.id}`)
-
-      // Create the default member array
-      // If user isn't null - then it's a private room
-      const members = initialOtherUserId ? [{ user: initialOtherUserId }, { user: userId }] : [{ user: userId }]
-
-      // Otherwise create the new room
-      // 1) Create the room object based on an open room or private
-      // 2) Default public room is always members only
-      const { data } = await GraphqlService.getInstance().createRoom({
-        title,
-        description,
-        image,
-        members,
-        team: teamId,
-        user: userId,
-        messages: [],
-        public: false,
-        private: initialOtherUserId ? true : false,
-      })
-
-      const roomData = data.createRoom
-      const roomId = roomData.id
-
-      dispatch({
-        type: 'CREATE_ROOM',
-        payload: roomData,
-      })
-
-      MessagingService.getInstance().join(roomId)
-
-      // If it's a private conversation - then incite the other optersons
-      if (initialOtherUserId) MessagingService.getInstance().joinRoom([initialOtherUserId], roomId)
-
-      browserHistory.push(`/app/team/${teamId}/room/${roomId}`)
-    } catch (e) {
-      console.log(e)
-      dispatch(updateError(e))
-    }
-  }
-}
+// Compose
 
 export function createRoomMessage(roomId, text, attachments, parent) {
   return async (dispatch, getState) => {
@@ -151,6 +98,7 @@ export function updateRoomMessage(roomId, messageId, message, attachments) {
   }
 }
 
+// Message
 
 export function deleteRoomMessage(roomId, messageId) {
   return async (dispatch, getState) => {
@@ -207,6 +155,12 @@ export function deleteRoomMessageReaction(roomId, messageId, reaction) {
 
 
 
+export function createRoom(room) {
+  return {
+    type: 'CREATE_ROOM',
+    payload: room,
+  }
+}
 
 export function createRoomMember(roomId, member) {
   return {
