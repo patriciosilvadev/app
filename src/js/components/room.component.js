@@ -13,7 +13,7 @@ import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
-import { updateLoading, updateError, deleteRoom, updateUserStarred, hydrateRoom, createRoomMember, updateRoom, hydrateRoomMessages } from '../actions'
+import { appAction, updateLoading, updateError, deleteRoom, updateUserStarred, hydrateRoom, createRoomMember, updateRoom, hydrateRoomMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
@@ -251,8 +251,8 @@ class RoomComponent extends React.Component {
     this.subscription = null
   }
 
-  handleActionClick(action) {
-    console.log('Action handler')
+  handleActionClick(action, payload = null) {
+    this.props.appAction(action, payload)
   }
 
   onSearch(e) {
@@ -703,6 +703,7 @@ RoomComponent.propTypes = {
   hydrateRoomMessages: PropTypes.func,
   updateRoom: PropTypes.func,
   updateUserStarred: PropTypes.func,
+  appAction: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -710,6 +711,7 @@ const mapDispatchToProps = {
   hydrateRoomMessages: messages => hydrateRoomMessages(messages),
   updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
   updateUserStarred: (roomId, starred) => updateUserStarred(roomId, starred),
+  appAction: (action, payload) => appAction(action, payload),
 }
 
 const mapStateToProps = state => {

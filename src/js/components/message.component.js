@@ -10,7 +10,7 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage } from '../actions'
+import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage, appAction } from '../actions'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser } from '../helpers/util'
@@ -207,6 +207,10 @@ export default memo(props => {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+
+  const handleActionClick = async (action, payload = null) => {
+    dispatch(appAction(action, payload))
+  }
 
   const handleDeleteRoomMessage = async () => {
     try {

@@ -8,6 +8,12 @@ import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
 import { createTeam, leaveTeam, createRoom, deleteRoom, updateRoomDeleteTyping, addPresence, deletePresence } from './'
 
+export function appAction(action, payload = null) {
+  return (dispatch, getState) => {
+    console.log('App action', action, payload)
+  }
+}
+
 export function initialize(userId) {
   return async (dispatch, getState) => {
     // Join our single room for us

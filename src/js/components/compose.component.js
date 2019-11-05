@@ -4,7 +4,7 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoom, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
+import { appAction, updateLoading, updateError, updateRoom, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -151,6 +151,63 @@ const DrawerContainer = styled.div`
   z-index: 100000;
 `
 
+const AppIconContainer = styled.div`
+  padding: 5px;
+  margin-left: 15px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const AppIconImage = styled.div`
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center center;
+  background-color: transparent;
+  background-image: url(${props => props.image});
+`
+
+const CommandContainer = styled.div`
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+`
+
+const CommandRow = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+  padding-right: 25px;
+  padding-left: 25px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+`
+
+const CommandDescription = styled.div`
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const CommandName = styled.div`
+  font-weight: 500;
+  font-style: normal;
+  font-size: 12px;
+  color: #151b26;
+  padding-right: 10px;
+`
+
 class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -181,6 +238,7 @@ class ComposeComponent extends React.Component {
       mention: null,
       position: 0,
       members: [],
+      commands: [],
       shift: false,
       error: null,
       loading: null,
@@ -203,30 +261,65 @@ class ComposeComponent extends React.Component {
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
     this.onDragOver = this.onDragOver.bind(this)
+    this.handleActionClick = this.handleActionClick.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
     this.onDrop = this.onDrop.bind(this)
     this.clearMessage = this.clearMessage.bind(this)
   }
 
+  handleActionClick(action, payload = null) {
+    this.props.appAction(action, payload)
+  }
+
   onSend() {
     if (this.state.text == '') return
 
-    const id = this.props.message ? this.props.message.id : null
-    const text = this.state.text
-    const attachments = this.state.attachments
-    const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
+    // If this message is an app command
+    if (this.state.text[0] == '/') {
+      const textToMatch = this.state.text.slice(1).split(' ')[0].toLowerCase()
 
-    // If it's a reply OR create
-    if (!this.props.update) this.createRoomMessage(this.props.room.id, text, attachments, parent)
+      // Reset our view
+      // Members is just to be sure here - no other reason
+      this.clearMessage()
 
-    // If it's an update
-    if (this.props.update) this.updateRoomMessage(this.props.room.id, id, text, attachments)
+      // Iterate over all the apps that have these action commands
+      this.props.room.apps.map(app => {
+        if (!app.active) return
 
-    // Reset the message
-    this.clearMessage()
+        // Now iterate over all the commands
+        app.app.commands.map(command => {
+          // If there is a match of a command
+          // DO NOT USE REGEX HERE
+          // We want to match the whole word
+          if (command.name.toLowerCase() == textToMatch) {
+            // We rmeove the first word (which is the command name)
+            const payload = this.state.text.split(' ').slice(1)
+            const { action } = command
 
-    // And then resize our input textarea to default
-    this.composeRef.style.height = '25px'
+            // And call our action creator
+            this.handleActionClick(action, payload)
+          }
+        })
+      })
+    // Otherwise carry on as normal
+    } else {
+      const id = this.props.message ? this.props.message.id : null
+      const text = this.state.text
+      const attachments = this.state.attachments
+      const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
+
+      // If it's a reply OR create
+      if (!this.props.update) this.createRoomMessage(this.props.room.id, text, attachments, parent)
+
+      // If it's an update
+      if (this.props.update) this.updateRoomMessage(this.props.room.id, id, text, attachments)
+
+      // Reset the message
+      this.clearMessage()
+
+      // And then resize our input textarea to default
+      this.composeRef.style.height = '25px'
+    }
   }
 
   async createRoomMessage(roomId, message, attachments, parent) {
@@ -281,7 +374,7 @@ class ComposeComponent extends React.Component {
     this.props.clearMessage()
 
     // Reset our state
-    this.setState({ id: null, text: '', members: [], attachments: [] })
+    this.setState({ id: null, text: '', members: [], attachments: [], commands: [] })
   }
 
   async handleFileChange(e) {
@@ -312,12 +405,7 @@ class ComposeComponent extends React.Component {
     )
   }
 
-  handleKeyUp(e) {
-    this.updateComposeHeight()
-
-    if (e.keyCode == 16) this.setState({ shift: false })
-  }
-
+  // Fire first
   handleKeyDown(e) {
     // Enter
     if (e.keyCode == 13) e.preventDefault()
@@ -335,10 +423,16 @@ class ComposeComponent extends React.Component {
     this.props.updateRoomAddTyping(this.props.room.id, this.props.user.name, this.props.user.id)
   }
 
+  // Fires second
   handleComposeChange(e) {
     const text = e.target.value
 
     this.setState({ text }, () => {
+      // If the first word is the command shorthand
+      // Then pass only the first word to look for available commands
+      // First also remove the slash
+      if (text[0] == '/') return this.populateCommands(text)
+
       const { selectionStart } = this.composeRef
       const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
       const word = this.composeRef.value.split(' ')[wordArray - 1]
@@ -347,6 +441,32 @@ class ComposeComponent extends React.Component {
       if (firstLetter == '@') this.filterMembers(word)
       if (firstLetter != '@') this.setState({ members: [] })
     })
+  }
+
+  populateCommands(text) {
+    const commands = []
+    const textToMatch = text.slice(1).split(' ')[0].toLowerCase()
+
+    // Find all active apps
+    this.props.room.apps.map(app => {
+      if (!app.active) return
+
+      // and see if they have commands to list for the user
+      app.app.commands.map(command => {
+        if (command.name.toLowerCase().match(new RegExp(textToMatch + ".*"))) {
+          commands.push(command)
+        }
+      })
+    })
+
+    this.setState({ commands })
+  }
+
+  // Fires 3rd
+  handleKeyUp(e) {
+    this.updateComposeHeight()
+
+    if (e.keyCode == 16) this.setState({ shift: false })
   }
 
   filterMembers(name) {
@@ -550,6 +670,21 @@ class ComposeComponent extends React.Component {
           </DrawerContainer>
         }
 
+        {this.state.commands.length != 0 &&
+          <DrawerContainer>
+            <CommandContainer>
+              {this.state.commands.map((command, index) => {
+                return (
+                  <CommandRow key={index}>
+                    <CommandName>/{command.name}</CommandName>
+                    <CommandDescription>{command.description}</CommandDescription>
+                  </CommandRow>
+                )
+              })}
+            </CommandContainer>
+          </DrawerContainer>
+        }
+
         {this.props.message && this.props.reply &&
           <ReplyPadding className="column align-items-stretch flexer">
             <ReplyText>Replying to:</ReplyText>
@@ -626,6 +761,24 @@ class ComposeComponent extends React.Component {
             />
           </Popup>
 
+          {this.props.room.apps.map((app, index) => {
+            if (!app.active) return
+            if (!app.app.attachments) return
+            if (app.app.attachments.length == 0) return
+
+            return (
+              <React.Fragment key={index}>
+                {app.app.attachments.map((action, i) => {
+                  return (
+                    <AppIconContainer key={i} onClick={() => this.handleActionClick(action)}>
+                      <AppIconImage image={action.icon} />
+                    </AppIconContainer>
+                  )
+                })}
+              </React.Fragment>
+            )
+          })}
+
           <FontAwesomeIcon
             className="ml-15 button"
             icon={["fal", "paperclip"]}
@@ -693,6 +846,7 @@ ComposeComponent.propTypes = {
   updateRoom: PropTypes.func,
   updateRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
+  appAction: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -700,6 +854,7 @@ const mapDispatchToProps = {
   updateRoomMessage: (roomId, roomMessage) => updateRoomMessage(roomId, roomMessage),
   updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
   updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
+  appAction: (action, payload) => appAction(action, payload),
 }
 
 const mapStateToProps = state => {
