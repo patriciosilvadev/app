@@ -6,8 +6,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
-import { updateRoomDeleteTyping } from './room'
-import { addPresence, deletePresence } from './presences'
+import { createTeam, leaveTeam, createRoom, deleteRoom, updateRoomDeleteTyping, addPresence, deletePresence } from './'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -36,14 +35,14 @@ export function initialize(userId) {
 
       // Create the room in the store
       // They may or may not be a member of it (irrelevant if it's public)
-      dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
+      dispatch(createRoom(room.data.room))
     })
     MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
       // Unsub from this SOCKET
       MessagingService.getInstance().leave(roomId)
 
-      // And then remove it
-      dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
+      // And then remove it - but just for us
+      dispatch(deleteRoom(roomId, false))
     })
     MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
       const userId = getState().user.id
@@ -67,8 +66,8 @@ export function initialize(userId) {
       // Unsub from this SOCKET
       MessagingService.getInstance().leave(roomId)
 
-      // And then remove it
-      dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
+      // And then remove it - just for us
+      dispatch(deleteRoom(roomId, false))
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       // If this user is already in this team, then don't do anything
@@ -82,11 +81,11 @@ export function initialize(userId) {
       const team = await GraphqlService.getInstance().team(teamId)
       if (!team.data.team) return
       MessagingService.getInstance().join(teamId)
-      dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
+      dispatch(createTeam(team.data.team))
     })
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
       MessagingService.getInstance().leave(teamId)
-      dispatch({ type: 'DELETE_TEAM', payload: { teamId } })
+      dispatch(deleteTeam(teamId, false))
     })
     MessagingService.getInstance().client.on('sync', ({ action }) => {
       // Check whether this person is in our chat list first

@@ -5,62 +5,40 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
-
-
 export function deleteRoomMessage(roomId, messageId) {
-  return async (dispatch, getState) => {
-    try {
-      await GraphqlService.getInstance().deleteRoomMessage(messageId)
-
-      dispatch({
-        type: 'DELETE_ROOM_MESSAGE',
-        payload: {
-          roomId,
-          messageId,
-        },
-        sync: roomId,
-      })
-    } catch (e) {}
+  return {
+    type: 'DELETE_ROOM_MESSAGE',
+    payload: {
+      roomId,
+      messageId,
+    },
+    sync: roomId,
   }
 }
 
 export function createRoomMessageReaction(roomId, messageId, reaction) {
-  return async (dispatch, getState) => {
-    try {
-      await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
-
-      dispatch({
-        type: 'CREATE_ROOM_MESSAGE_REACTION',
-        payload: {
-          roomId,
-          messageId,
-          reaction,
-        },
-        sync: roomId,
-      })
-    } catch (e) {}
+  return {
+    type: 'CREATE_ROOM_MESSAGE_REACTION',
+    payload: {
+      roomId,
+      messageId,
+      reaction,
+    },
+    sync: roomId,
   }
 }
 
 export function deleteRoomMessageReaction(roomId, messageId, reaction) {
-  return async (dispatch, getState) => {
-    try {
-      await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
-
-      dispatch({
-        type: 'DELETE_ROOM_MESSAGE_REACTION',
-        payload: {
-          roomId,
-          messageId,
-          reaction,
-        },
-        sync: roomId,
-      })
-    } catch (e) {}
+  return {
+    type: 'DELETE_ROOM_MESSAGE_REACTION',
+    payload: {
+      roomId,
+      messageId,
+      reaction,
+    },
+    sync: roomId,
   }
 }
-
-
 
 export function createRoomMessage(roomId, roomMessage) {
   return {
@@ -70,7 +48,7 @@ export function createRoomMessage(roomId, roomMessage) {
   }
 }
 
-export function updateRoomMessage(roomId, messageId, message, attachments) {
+export function updateRoomMessage(roomId, roomMessage) {
   return {
     type: 'UPDATE_ROOM_MESSAGE',
     payload: roomMessage,
@@ -99,7 +77,10 @@ export function createRoomMember(roomId, member) {
 export function deleteRoomMember(roomId, userId) {
   return {
     type: 'DELETE_ROOM_MEMBER',
-    payload: { userId, roomId },
+    payload: {
+      userId,
+      roomId,
+    },
     sync: roomId,
   }
 }
@@ -131,7 +112,10 @@ export function hydrateRoom(room) {
 export function updateRoom(roomId, updatedRoom) {
   return {
     type: 'UPDATE_ROOM',
-    payload: { ...updatedRoom, roomId },
+    payload: {
+      ...updatedRoom,
+      roomId,
+    },
     sync: roomId,
   }
 }

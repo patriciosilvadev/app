@@ -205,24 +205,35 @@ export default memo(props => {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  
+
   const handleDeleteRoomMessage = () => {
-    dispatch(deleteRoomMessage(room.id, props.message.id))
-    setConfirmDeleteModal(false)
+    try {
+      await GraphqlService.getInstance().deleteRoomMessage(messageId)
+
+      dispatch(deleteRoomMessage(room.id, props.message.id))
+      setConfirmDeleteModal(false)
+    } catch (e) {}
   }
 
   const handleDeleteRoomMessageReaction = reaction => {
-    setEmoticons(false)
-
     // Only this user can do this
     if (reaction.split('__')[1] != user.id) return
 
-    dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
+    try {
+      await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
+
+      setEmoticons(false)
+      dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
+    } catch (e) {}
   }
 
   const handleCreateRoomMessageReaction = emoticon => {
-    setEmoticons(false)
-    dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${user.id}__${user.name.split(' ')[0]}`))
+    try {
+      await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
+
+      setEmoticons(false)
+      dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${user.id}__${user.name.split(' ')[0]}`))
+    } catch (e) {}
   }
 
   const highlightMessage = (message, query) => {
