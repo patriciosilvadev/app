@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import UploadService from '../services/upload.service'
 import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
-import { updateRoom, createRoomMember, deleteRoomMember } from '../actions'
+import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../actions'
 import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
@@ -60,7 +60,88 @@ export default function RoomModal(props) {
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
-  const members = props.members || []
+  const [members, setMembers] = useState([])
+
+  const createRoomMember = async (user) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const userId = user.id
+      const userIds = [userId]
+      const roomId = room.id
+      const member = { user }
+      const { data } = await GraphqlService.getInstance().createRoomMember(roomId, userId)
+
+      setLoading(false)
+      setMembers([ ...members, member ])
+      dispatch(createRoomMember(roomId, member))
+
+      MessagingService.getInstance().joinRoom(userIds, roomId)
+    } catch (e) {
+      setLoading(false)
+      setError('Error adding channel member')
+    }
+  }
+
+  const deleteRoomMember = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const roomId = room.id
+      const teamId = team.id
+      const userId = memberDeleteId
+      const userIds = [userId]
+
+      await GraphqlService.getInstance().deleteRoomMember(teamId, userId)
+
+      // Revoke access to people
+      dispatch(deleteRoomMember(roomId, userId))
+
+      setMemberDeleteId('')
+      setLoading(false)
+      setConfirmMemberDeleteModal(false)
+      setMembers(members.filter(member => member.user.id != userId))
+
+      // Tell this person to leave this room - send to team
+      MessagingService.getInstance().leaveRoom(userIds, teamId)
+    } catch (e) {
+      setLoading(false)
+      setError('Error deleting channel member')
+    }
+  }
+
+  const deleteRoomMemberSelf = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const roomId = props.id
+      const userId = user.id
+      const teamId = team.id
+
+      await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
+
+      // Stop loading the spinners
+      setLoading(false)
+
+      // Don't sync this one - because its just for us
+      // false is for syncing here
+      dispatch(deleteRoomMember(roomId, userId))
+      dispatch(deleteRoom(roomId, false))
+
+      // Unsub frem receiving messages here
+      MessagingService.getInstance().leave(roomId)
+
+      // Redirect the user back to the landing page
+      browserHistory.push(`/app/team/${teamId}/`)
+      props.onClose()
+    } catch (e) {
+      setLoading(false)
+      setError('Error deleting self')
+    }
+  }
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -80,6 +161,25 @@ export default function RoomModal(props) {
     }
   }
 
+  const deleteRoom = async () => {
+    setLoading(true)
+    setError(null)
+    setConfirmDeleteModal(false)
+
+    try {
+      await GraphqlService.getInstance().deleteRoom(props.id)
+
+      // Sync this one for everyone
+      dispatch(deleteRoom(teamId, true))
+      setLoading(false)
+      browserHistory.push(`/app/team/${team.id}/`)
+      props.onClose()
+    } catch (e) {
+      setLoading(false)
+      setError('Error deleting team')
+    }
+  }
+
   useEffect(() => {
     ;(async () => {
       try {
@@ -94,6 +194,7 @@ export default function RoomModal(props) {
         setTitle(room.title || '')
         setDescription(room.description || '')
         setLoading(false)
+        setMembers(room.members)
       } catch (e) {
         setLoading(false)
         setError('Error getting data')
@@ -197,9 +298,7 @@ export default function RoomModal(props) {
                       <ConfirmModal
                         onOkay={() => {
                           setConfirmSelfDeleteModal(false)
-                          setUserMenu(false)
-                          dispatch(deleteRoomMember(room.id, memberToDelete))
-                          onClose()
+                          deleteRoomMemberSelf()
                         }}
                         onCancel={() => setConfirmSelfDeleteModal(false)}
                         text="Are you sure you want to leave this room?"
@@ -211,8 +310,7 @@ export default function RoomModal(props) {
                       <ConfirmModal
                         onOkay={() => {
                           setConfirmMemberDeleteModal(false)
-                          setUserMenu(false)
-                          dispatch(deleteRoomMember(room.id, memberToDelete))
+                          deleteRoomMember()
                         }}
                         onCancel={() => setConfirmMemberDeleteModal(false)}
                         text="Are you sure you want to remove this person, it can not be undone?"
@@ -232,8 +330,8 @@ export default function RoomModal(props) {
                           <Button
                             size="small"
                             onClick={() => {
-                              if (members.length <= 2) {
-                                setError('There must be at least 2 people')
+                              if (members.length == 1) {
+                                setError('There must be at least 1 person in a channel')
                                 setTimeout(() => setError(null), 2000)
                                 return
                               }
@@ -264,7 +362,7 @@ export default function RoomModal(props) {
                         if (members.filter(member => member.user.id == user.id).length > 0) return
 
                         // Otherwise all good - add them
-                        dispatch(createRoomMember(room.id, user))
+                        createRoomMember(user)
                         setUserMenu(false)
                       }}>
                       <AddButton className="button row" onClick={() => setUserMenu(true)}>
@@ -287,6 +385,34 @@ export default function RoomModal(props) {
                   </div>
                 )
               }
+              {
+                title: 'Danger zone',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+
+                      {confirmDeleteModal &&
+                        <ConfirmModal
+                          onOkay={deleteRoom}
+                          onCancel={() => setConfirmDeleteModal(false)}
+                          text="Are you sure you want to delete this room, it can not be undone?"
+                          title="Are you sure?"
+                        />
+                      }
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <Text color="d" display="h3">Here be dragons!</Text>
+                        <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+
+                        <Button
+                          text="Delete"
+                          onClick={() => setConfirmDeleteModal(true)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
             ]}
           />
       </Modal>

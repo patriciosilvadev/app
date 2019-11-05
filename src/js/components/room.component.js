@@ -11,8 +11,9 @@ import { Button } from '@weekday/elements'
 import RoomModal from '../modals/room.modal'
 import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
+import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
-import { updateLoading, updateError, deleteRoom, updateUserStarred, fetchRoom, createRoomMember, updateRoom, fetchRoomMessages } from '../actions'
+import { updateLoading, updateError, deleteRoom, updateUserStarred, hydrateRoom, createRoomMember, updateRoom, hydrateRoomMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
@@ -212,13 +213,12 @@ class RoomComponent extends React.Component {
     this.state = {
       manualScrolling: false,
       busy: false,
-      page: 0,
+      page: 1,
       open: true,
       title: '',
       image: '',
       roomUpdateModal: false,
       roomUpdateModalStart: 0,
-      confirmDeleteModal: false,
       message: null,
       reply: false,
       update: false,
@@ -248,6 +248,7 @@ class RoomComponent extends React.Component {
     this.setUpdateMessage = this.setUpdateMessage.bind(this)
     this.setReplyMessage = this.setReplyMessage.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
+    this.updateUserStarred = this.updateUserStarred.bind(this)
   }
 
   handleActionClick(action) {
@@ -263,9 +264,6 @@ class RoomComponent extends React.Component {
   async fetchResults() {
     if (this.state.searchQuery == '') return this.setState({ searchResults: null })
 
-    this.props.updateLoading(true)
-    this.props.updateError(null)
-
     const query = this.state.searchQuery
     const roomId = this.props.room.id
 
@@ -275,11 +273,7 @@ class RoomComponent extends React.Component {
       // Update our UI with our results
       // Remove ourselves
       this.setState({ searchResults: data.searchMessages })
-      this.props.updateLoading(false)
-    } catch (e) {
-      this.props.updateLoading(false)
-      this.props.updateError(e)
-    }
+    } catch (e) {}
   }
 
   composeTypingNames() {
@@ -316,24 +310,47 @@ class RoomComponent extends React.Component {
     }
   }
 
-  fetchRoomMessages() {
+  async fetchRoom(roomId) {
+    try {
+      const { data } = await GraphqlService.getInstance().room(roomId)
+
+      // Populate our room - this will fetch page 0 of messages
+      this.props.hydrateRoom(data.room)
+
+      // Clear all the markers for read/unread
+      DatabaseService.getInstance().read(roomId)
+    } catch (e) {}
+  }
+
+  async fetchRoomMessages() {
     // Don't refetch messages every time it's triggered
     // We need to wait if there's already a fetch in progress
     if (this.state.busy) return
 
-    // Get new messages
-    this.props.fetchRoomMessages(this.props.room.id, this.state.page)
+    // Set it as busy to not allow more messages to be fetch
+    this.setState({ busy: true })
 
-    // Save the height of the messages area
-    // Important for when we update their scroll position
-    this.setState({
-      page: this.state.page + 1,
-      busy: true,
-    })
+    // Get new messages - start from page 1
+    // populating the room always fetches from page 0
+    const roomId = this.props.room.id
+    const { page } = this.state
+
+    try {
+      const { data } = await GraphqlService.getInstance().roomMessages(roomId, page)
+
+      // Add the new messages to the room
+      this.props.hydrateRoomMessages(data.roomMessages)
+
+      // Increase the next page & open the scroll event for more messages fetches
+      this.setState({
+        page: this.state.page + 1,
+        busy: false,
+      })
+    } catch (e) {}
   }
 
   componentDidMount() {
-    if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
+    if (this.state.open) this.fetchRoom(this.props.match.params.roomId)
 
     // Here we handle the delay for the yser typing in the search field
     this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
@@ -341,15 +358,6 @@ class RoomComponent extends React.Component {
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
     this.setState({ manualScrolling: false })
-
-    // Keep it scrolled down if they remain at the bottom
-    // and if it's not on manual
-    // setInterval(() => this.scrollToBottom(), 500)
-
-    // Disblae the busy flag, so that the user can conitnue loading messages
-    EventService.get().on('successfullyFetchedMoreRoomMessages', payload => {
-      this.setState({ busy: false })
-    })
   }
 
   componentDidUpdate(prevProps) {
@@ -357,7 +365,7 @@ class RoomComponent extends React.Component {
     // if (this.state.scrollHeight != this.scrollRef.scrollHeight) this.scrollRef.scrollTop = this.scrollRef.scrollHeight - this.state.scrollHeight
     // If the room ID updates - then refetch all the data
     if (this.props.match.params.roomId != prevProps.match.params.roomId) {
-      if (this.state.open) this.props.fetchRoom(this.props.match.params.roomId)
+      if (this.state.open) this.fetchRoom(this.props.match.params.roomId)
     }
 
     // Scroll down
@@ -369,29 +377,31 @@ class RoomComponent extends React.Component {
     if (this.subscription) this.subscription.unsubscribe()
   }
 
-  updateUserStarred(starred) {
+  async updateUserStarred(starred) {
     const userId = this.props.user.id
     const roomId = this.props.room.id
 
-    this.props.updateUserStarred(userId, roomId, starred)
+    try {
+      await GraphqlService.getInstance().updateUserStarred(userId, roomId, starred)
+
+      this.props.updateUserStarred(roomId, starred)
+    } catch (e) {}
   }
 
-  // { private, public }
-  updateRoomVisibility(visibility) {
+  async updateRoomVisibility(updatedRoomVisibility) {
     const roomId = this.props.room.id
     const teamId = this.props.team.id
 
-    if (!visibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
-    if (visibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
+    // These messages have to be sent to the team
+    if (!updatedRoomVisibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
+    if (updatedRoomVisibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
 
-    this.setState({ visibilityMenu: false })
-    this.props.updateRoom(roomId, visibility)
-  }
+    try {
+      await GraphqlService.getInstance().updateRoom(roomId, updatedRoomVisibility)
 
-  deleteRoom() {
-    this.setState({ confirmModal: false })
-    this.props.deleteRoom(this.props.room.id)
-    this.props.history.push(`/app/team/${this.props.team.id}/`)
+      this.setState({ visibilityMenu: false })
+      this.props.updateRoom(roomId, updatedRoomVisibility)
+    } catch (e) {}
   }
 
   setUpdateMessage(message) {
@@ -447,15 +457,6 @@ class RoomComponent extends React.Component {
           />
         }
 
-        {this.state.confirmDeleteModal &&
-          <ConfirmModal
-            onOkay={this.deleteRoom}
-            onCancel={() => this.setState({ confirmDeleteModal: false })}
-            text="Are you sure you want to delete this room?"
-            title="Are you sure?"
-          />
-        }
-
         <Room className="column flexer align-items-center align-items-stretch">
           {!this.state.open &&
             <Blocked>
@@ -485,25 +486,17 @@ class RoomComponent extends React.Component {
                   </HeaderText>
 
                   {!this.props.room.private &&
-                    <QuickUserComponent
-                      room={this.props.room}
-                      visible={this.state.userMenu}
-                      width={250}
-                      direction="left-bottom"
-                      handleDismiss={() => this.setState({ userMenu: false })}
-                      handleAccept={({ user }) => this.props.createRoomMember(this.props.room.id, user)}>
-                      <div
-                        className="ml-10 row button"
-                        onClick={() => this.setState({ userMenu:true })}>
-                        <FontAwesomeIcon
-                          className="mr-5"
-                          icon={["fal", "plus"]}
-                          color="#007af5"
-                          size="xs"
-                        />
-                        <HeaderLink>Add New</HeaderLink>
-                      </div>
-                    </QuickUserComponent>
+                    <div
+                      className="ml-10 row button"
+                      onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}>
+                      <FontAwesomeIcon
+                        className="mr-5"
+                        icon={["fal", "plus"]}
+                        color="#007af5"
+                        size="xs"
+                      />
+                      <HeaderLink>Add New</HeaderLink>
+                    </div>
                   }
                 </div>
               </div>
@@ -579,32 +572,27 @@ class RoomComponent extends React.Component {
                     className="mr-20 button"
                     onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
                   />
+
+                  <Popup
+                    handleDismiss={() => this.setState({ visibilityMenu: false })}
+                    visible={this.state.visibilityMenu}
+                    width={275}
+                    direction="right-bottom"
+                    content={
+                      <Menu
+                        items={[
+                          { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                          { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private", label: 'Only members of this channel have access', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                        ]}
+                      />
+                    }>
+                    <HeaderButton onClick={() => this.setState({ visibilityMenu: true })} className="mr-15">
+                      {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#EBB403" size="lg" />}
+                      {!this.props.room.public && <FontAwesomeIcon icon={["fal", "low-vision"]} color="#babec9" size="lg" />}
+                    </HeaderButton>
+                  </Popup>
                 </React.Fragment>
               }
-
-              <Popup
-                handleDismiss={() => this.setState({ visibilityMenu: false })}
-                visible={this.state.visibilityMenu}
-                width={275}
-                direction="right-bottom"
-                content={
-                  <Menu
-                    items={[
-                      { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public to your team", label: this.props.room.public ? 'Current' : null, onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                      { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private to members", label: !this.props.room.public ? 'Current' : null, onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
-                      { hide: this.props.room.private, divider: true },
-                      { icon: <FontAwesomeIcon icon={["fal", "trash"]} color="#acb5bd" size="lg" />, text: "Delete", onClick: (e) => this.setState({ confirmDeleteModal: true, visibilityMenu: false }) },
-                    ]}
-                  />
-                }>
-                <FontAwesomeIcon
-                  icon={["fal", "ellipsis-v"]}
-                  color="#acb5bd"
-                  size="2x"
-                  className="button"
-                  onClick={() => this.setState({ visibilityMenu: true })}
-                />
-              </Popup>
             </Header>
           }
 
@@ -711,27 +699,17 @@ RoomComponent.propTypes = {
   team: PropTypes.any,
   room: PropTypes.any,
   user: PropTypes.any,
-  fetchRoom: PropTypes.func,
-  createRoom: PropTypes.func,
-  fetchRoomMessages: PropTypes.func,
-  createRoomMember: PropTypes.func,
+  hydrateRoom: PropTypes.func,
+  hydrateRoomMessages: PropTypes.func,
   updateRoom: PropTypes.func,
   updateUserStarred: PropTypes.func,
-  updateLoading: PropTypes.func,
-  updateError: PropTypes.func,
-  deleteRoom: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  fetchRoom: url => fetchRoom(url),
-  createRoom: (title, description, team, user) => createRoom(title, description, team, user),
-  fetchRoomMessages: (roomId, page) => fetchRoomMessages(roomId, page),
-  createRoomMember: (roomId, user) => createRoomMember(roomId, user),
+  hydrateRoom: room => hydrateRoom(room),
+  hydrateRoomMessages: messages => hydrateRoomMessages(messages),
   updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
-  updateLoading: loading => updateLoading(loading),
-  updateError: error => updateError(error),
-  updateUserStarred: (userId, roomId, starred) => updateUserStarred(userId, roomId, starred),
-  deleteRoom: roomId => deleteRoom(roomId),
+  updateUserStarred: (roomId, starred) => updateUserStarred(roomId, starred),
 }
 
 const mapStateToProps = state => {

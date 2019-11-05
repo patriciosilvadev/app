@@ -9,7 +9,7 @@ import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import PropTypes from 'prop-types'
-import { createRoom, updateRooms, updateTeam, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
+import { createRoom, updateRooms, updateTeam, updateRoomUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
@@ -176,8 +176,40 @@ class RoomsComponent extends React.Component {
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
 
+    this.updateUserMuted = this.updateUserMuted.bind(this)
+    this.updateUserArchived = this.updateUserArchived.bind(this)
+    this.updateUserStatus = this.updateUserStatus.bind(this)
+
     this.onSearch$ = new Subject()
     this.subscription = null
+  }
+
+  async updateUserStatus(userId, teamId, status) {
+    try {
+      await GraphqlService.getInstance().updateUser(userId, { status })
+
+      this.props.updateUserStatus(status)
+      this.props.updateRoomUserStatus(userId, teamId, status)
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
+  }
+
+  async updateUserArchived(userId, roomId, archived) {
+    try {
+      await GraphqlService.getInstance().updateUserArchived(userId, roomId, archived)
+
+      this.props.updateUserArchived(userId, roomId, archived)
+    } catch (e) {}
+  }
+
+  async updateUserMuted() {
+    try {
+      await GraphqlService.getInstance().updateUserMuted(userId, roomId, muted)
+
+      this.props.updateUserMuted(userId, roomId, muted)
+    } catch (e) {}
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -375,7 +407,7 @@ class RoomsComponent extends React.Component {
               width={300}
               direction="left-bottom"
               handleDismiss={() => this.setState({ statusMenu: false })}
-              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.props.updateUserStatus(this.props.user.id, this.props.team.id, status))}
+              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
               placeholder={this.props.user.status}>
 
               <HeaderSubtitle
@@ -529,8 +561,8 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={() => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
-                    onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
+                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, room.id, !archived)}
+                    onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
                   />
                 )
               })}
@@ -583,8 +615,8 @@ class RoomsComponent extends React.Component {
                 muted={muted}
                 archived={archived}
                 onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
-                onArchivedClick={() => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
-                onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
+                onArchivedClick={() => this.updateUserArchived(this.props.user.id, room.id, !archived)}
+                onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
               />
             )
           })}
@@ -632,8 +664,8 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
-                    onArchivedClick={() => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
-                    onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
+                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, room.id, !archived)}
+                    onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
                   />
                 )
               })}
@@ -674,8 +706,8 @@ class RoomsComponent extends React.Component {
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={(e) => this.props.updateUserArchived(this.props.user.id, room.id, !archived)}
-                    onMutedClick={() => this.props.updateUserMuted(this.props.user.id, room.id, !muted)}
+                    onArchivedClick={(e) => this.updateUserArchived(this.props.user.id, room.id, !archived)}
+                    onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
                   />
                 )
               })}
@@ -705,12 +737,13 @@ RoomsComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  updateUserStatus: (userId, teamId, status) => updateUserStatus(userId, teamId, status),
+  updateUserStatus: (status) => updateUserStatus(status),
+  updateRoomUserStatus: (userId, teamId, status) => updateRoomUserStatus(userId, teamId, status),
+  updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
+  updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
   createRoom: (title, description, image, teamId, userId, initialOtherUserId) => createRoom(title, description, image, teamId, userId, initialOtherUserId),
   hydrateRooms: rooms => hydrateRooms(rooms),
   hydrateTeam: team => hydrateTeam(team),
-  updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
-  updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
 }
 
 const mapStateToProps = state => {
