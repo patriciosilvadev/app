@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import ModalPortal from '../portals/modal.portal'
 import GraphqlService from '../services/graphql.service'
+import MessagingService from '../services/messaging.service'
 import styled from 'styled-components'
 import UploadService from '../services/upload.service'
 import PropTypes from 'prop-types'
@@ -11,6 +12,7 @@ import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Text } from '../elements'
 
 const Row = styled.div`
   background-color: transparent;
@@ -62,7 +64,7 @@ export default function RoomModal(props) {
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
   const [members, setMembers] = useState([])
 
-  const createRoomMember = async (user) => {
+  const handleCreateRoomMember = async (user) => {
     setLoading(true)
     setError(null)
 
@@ -84,7 +86,7 @@ export default function RoomModal(props) {
     }
   }
 
-  const deleteRoomMember = async () => {
+  const handleDeleteRoomMember = async () => {
     setLoading(true)
     setError(null)
 
@@ -112,7 +114,7 @@ export default function RoomModal(props) {
     }
   }
 
-  const deleteRoomMemberSelf = async () => {
+  const handleDeleteRoomMemberSelf = async () => {
     setLoading(true)
     setError(null)
 
@@ -161,7 +163,7 @@ export default function RoomModal(props) {
     }
   }
 
-  const deleteRoom = async () => {
+  const handleDeleteRoom = async () => {
     setLoading(true)
     setError(null)
     setConfirmDeleteModal(false)
@@ -177,6 +179,22 @@ export default function RoomModal(props) {
     } catch (e) {
       setLoading(false)
       setError('Error deleting team')
+    }
+  }
+
+  const handleUpdateRoom = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      await GraphqlService.getInstance().updateRoom(room.id, { title, image, description })
+
+      dispatch(updateRoom(room.id, { title, image, description }))
+      setLoading(false)
+      setNotification('Successfully updated')
+    } catch (e) {
+      setLoading(false)
+      setError('Error updating room')
     }
   }
 
@@ -277,7 +295,7 @@ export default function RoomModal(props) {
 
                       <div className="p-20">
                         <Button
-                          onClick={() => dispatch(updateRoom(room.id, { title, image, description }))}
+                          onClick={handleUpdateRoom}
                           text="Update"
                         />
                       </div>
@@ -298,7 +316,7 @@ export default function RoomModal(props) {
                       <ConfirmModal
                         onOkay={() => {
                           setConfirmSelfDeleteModal(false)
-                          deleteRoomMemberSelf()
+                          handleDeleteRoomMemberSelf()
                         }}
                         onCancel={() => setConfirmSelfDeleteModal(false)}
                         text="Are you sure you want to leave this room?"
@@ -310,7 +328,7 @@ export default function RoomModal(props) {
                       <ConfirmModal
                         onOkay={() => {
                           setConfirmMemberDeleteModal(false)
-                          deleteRoomMember()
+                          handleDeleteRoomMember()
                         }}
                         onCancel={() => setConfirmMemberDeleteModal(false)}
                         text="Are you sure you want to remove this person, it can not be undone?"
@@ -362,7 +380,7 @@ export default function RoomModal(props) {
                         if (members.filter(member => member.user.id == user.id).length > 0) return
 
                         // Otherwise all good - add them
-                        createRoomMember(user)
+                        handleCreateRoomMember(user)
                         setUserMenu(false)
                       }}>
                       <AddButton className="button row" onClick={() => setUserMenu(true)}>
@@ -384,7 +402,7 @@ export default function RoomModal(props) {
                     </QuickUserComponent>
                   </div>
                 )
-              }
+              },
               {
                 title: 'Danger zone',
                 show: true,
@@ -394,12 +412,13 @@ export default function RoomModal(props) {
 
                       {confirmDeleteModal &&
                         <ConfirmModal
-                          onOkay={deleteRoom}
+                          onOkay={handleDeleteRoom}
                           onCancel={() => setConfirmDeleteModal(false)}
-                          text="Are you sure you want to delete this room, it can not be undone?"
+                          text="Are you sure you want to delete this channel, it can not be undone?"
                           title="Are you sure?"
                         />
                       }
+
                       <div className="column p-20 flex-1 scroll w-100">
                         <Text color="d" display="h3">Here be dragons!</Text>
                         <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>

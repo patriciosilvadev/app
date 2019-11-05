@@ -73,7 +73,6 @@ const HeaderLink = styled.div`
 `
 
 const HeaderButton = styled.div`
-  margin-left: 15px;
   transition: opacity 0.5s;
   position: relative;
   cursor: pointer;
@@ -235,20 +234,21 @@ class RoomComponent extends React.Component {
 
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
+
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.updateRoomVisibility = this.updateRoomVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
-    this.deleteRoom = this.deleteRoom.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.composeTypingNames = this.composeTypingNames.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
-    this.onSearch$ = new Subject()
-    this.subscription = null
     this.setUpdateMessage = this.setUpdateMessage.bind(this)
     this.setReplyMessage = this.setReplyMessage.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
+
+    this.onSearch$ = new Subject()
+    this.subscription = null
   }
 
   handleActionClick(action) {
@@ -550,7 +550,7 @@ class RoomComponent extends React.Component {
                 )
               })}
 
-              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-15">
+              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-15 ml-15">
                 {this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#EBB403" size="lg" />}
                 {!this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#babec9" size="lg" />}
               </HeaderButton>
@@ -569,7 +569,7 @@ class RoomComponent extends React.Component {
                     icon={["fal", "at"]}
                     color="#acb5bd"
                     size="lg"
-                    className="mr-20 button"
+                    className="mr-15 button"
                     onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
                   />
 
@@ -586,8 +586,8 @@ class RoomComponent extends React.Component {
                         ]}
                       />
                     }>
-                    <HeaderButton onClick={() => this.setState({ visibilityMenu: true })} className="mr-15">
-                      {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#EBB403" size="lg" />}
+                    <HeaderButton onClick={() => this.setState({ visibilityMenu: true })}>
+                      {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#babec9" size="lg" />}
                       {!this.props.room.public && <FontAwesomeIcon icon={["fal", "low-vision"]} color="#babec9" size="lg" />}
                     </HeaderButton>
                   </Popup>

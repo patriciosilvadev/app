@@ -14,6 +14,8 @@ import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage
 import { Attachment, Popup, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser } from '../helpers/util'
+import GraphqlService from '../services/graphql.service'
+import MessagingService from '../services/messaging.service'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -206,7 +208,7 @@ export default memo(props => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
 
-  const handleDeleteRoomMessage = () => {
+  const handleDeleteRoomMessage = async () => {
     try {
       await GraphqlService.getInstance().deleteRoomMessage(messageId)
 
@@ -215,7 +217,7 @@ export default memo(props => {
     } catch (e) {}
   }
 
-  const handleDeleteRoomMessageReaction = reaction => {
+  const handleDeleteRoomMessageReaction = async reaction => {
     // Only this user can do this
     if (reaction.split('__')[1] != user.id) return
 
@@ -227,7 +229,7 @@ export default memo(props => {
     } catch (e) {}
   }
 
-  const handleCreateRoomMessageReaction = emoticon => {
+  const handleCreateRoomMessageReaction = async emoticon => {
     try {
       await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
 

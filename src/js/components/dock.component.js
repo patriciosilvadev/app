@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import '../helpers/extensions'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
+import GraphqlService from '../services/graphql.service'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { hydrateTeams, createTeam, updateNotifications } from '../actions'
 import PropTypes from 'prop-types'
@@ -92,8 +93,9 @@ export default function DockComponent(props) {
       MessagingService.getInstance().joins(teamIds)
 
       setLoading(false)
-      dispatch(hydrateTeams(teams.data.teams))
+      dispatch(hydrateTeams(data.teams))
     } catch (e) {
+      console.log(e)
       setLoading(false)
       setError(e)
     }
@@ -111,7 +113,9 @@ export default function DockComponent(props) {
   })
 
   // Get all the teams
-  useEffect(() => fetchTeams(user.id), [])
+  useEffect(() => {
+    if (user.id) fetchTeams(user.id)
+  }, [user.id])
 
   // prettier-ignore
   return (

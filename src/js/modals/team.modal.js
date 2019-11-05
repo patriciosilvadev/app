@@ -51,7 +51,7 @@ export default function TeamModal(props) {
     }
   }
 
-  const updateTeamUrl = async () => {
+  const handleUpdateTeamUrl = async () => {
     setLoading(true)
     setError(null)
 
@@ -69,7 +69,7 @@ export default function TeamModal(props) {
     }
   }
 
-  const updateTeam = async () => {
+  const handleUpdateTeam = async () => {
     setLoading(true)
     setError(null)
 
@@ -86,7 +86,7 @@ export default function TeamModal(props) {
     }
   }
 
-  const deleteTeam = async () => {
+  const handleDeleteTeam = async () => {
     setLoading(true)
     setError(null)
     setConfirmDeleteModal(false)
@@ -289,7 +289,7 @@ export default function TeamModal(props) {
                         />
 
                         <Button
-                          onClick={updateTeam}
+                          onClick={handleUpdateTeam}
                           text="Save"
                         />
                       </div>
@@ -377,7 +377,7 @@ export default function TeamModal(props) {
 
                         <Button
                           text="Generate a new url"
-                          onClick={updateTeamUrl}
+                          onClick={handleUpdateTeamUrl}
                           className="mt-30 mb-30"
                           size="small"
                         />
@@ -406,7 +406,7 @@ export default function TeamModal(props) {
 
                       {confirmDeleteModal &&
                         <ConfirmModal
-                          onOkay={deleteTeam}
+                          onOkay={handleDeleteTeam}
                           onCancel={() => setConfirmDeleteModal(false)}
                           text="Are you sure you want to delete this team, it can not be undone?"
                           title="Are you sure?"

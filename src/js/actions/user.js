@@ -6,8 +6,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
-import { updateRoomDeleteTyping } from './room'
-import { addPresence, deletePresence } from './presences'
+import { updateLoading, updateError, addPresence, deletePresence, updateRoomDeleteTyping } from './'
 
 export function updateUserStarred(roomId, starred) {
   return {

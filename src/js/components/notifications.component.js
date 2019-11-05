@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { hydrateNotifications, updateNotificationRead } from '../actions'
 import { Spinner } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import GraphqlService from '../services/graphql.service'
+import MessagingService from '../services/messaging.service'
 
 const Container = styled.div`
   width: 100%;
