@@ -334,7 +334,6 @@ class ComposeComponent extends React.Component {
       // The extra values are used for processing other info
       const roomMessage = {
         message: data.createRoomMessage,
-        excerpt,
         roomId,
         teamId,
       }
@@ -356,7 +355,6 @@ class ComposeComponent extends React.Component {
       const roomMessage = {
         message: data.updateRoomMessage,
         messageId,
-        excerpt,
         roomId,
         teamId,
       }
