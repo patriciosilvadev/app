@@ -7,99 +7,6 @@ import { updateLoading, updateError } from './'
 
 
 
-
-// Compose
-
-export function createRoomMessage(roomId, text, attachments, parent) {
-  return async (dispatch, getState) => {
-    const { room, user } = getState()
-    const excerpt = user.name.toString().split(' ')[0] + ': ' + text || text
-
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, user.id, user.name, text, attachments, parent)
-
-      dispatch(updateLoading(false))
-
-      // Create the message
-      dispatch({
-        type: 'CREATE_ROOM_MESSAGE',
-        payload: {
-          message: data.createRoomMessage,
-          excerpt,
-          roomId: roomId,
-          teamId: room.team.id,
-        },
-        sync: roomId,
-      })
-
-      // Update the room excerpt
-      dispatch({
-        type: 'UPDATE_ROOM',
-        payload: {
-          excerpt,
-          roomId: roomId,
-          teamId: room.team.id,
-        },
-        sync: roomId,
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateRoomMessage(roomId, messageId, message, attachments) {
-  return async (dispatch, getState) => {
-    const { room, user } = getState()
-    const excerpt = user.name.toString().split(' ')[0] + ': ' + message || message
-    const userName = user.name
-    const userId = user.id
-    const teamId = room.team.id
-
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      const { data } = await GraphqlService.getInstance().updateRoomMessage(roomId, userId, userName, messageId, message, attachments)
-
-      dispatch(updateLoading(false))
-
-      // Create the message
-      dispatch({
-        type: 'UPDATE_ROOM_MESSAGE',
-        payload: {
-          messageId,
-          excerpt,
-          roomId,
-          teamId,
-          message: data.updateRoomMessage,
-        },
-        sync: roomId,
-      })
-
-      // Update the room excerpt
-      dispatch({
-        type: 'UPDATE_ROOM',
-        payload: {
-          excerpt,
-          roomId,
-          teamId,
-        },
-        sync: roomId,
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-// Message
-
 export function deleteRoomMessage(roomId, messageId) {
   return async (dispatch, getState) => {
     try {
@@ -154,6 +61,22 @@ export function deleteRoomMessageReaction(roomId, messageId, reaction) {
 }
 
 
+
+export function createRoomMessage(roomId, roomMessage) {
+  return {
+    type: 'CREATE_ROOM_MESSAGE',
+    payload: roomMessage,
+    sync: roomId,
+  }
+}
+
+export function updateRoomMessage(roomId, messageId, message, attachments) {
+  return {
+    type: 'UPDATE_ROOM_MESSAGE',
+    payload: roomMessage,
+    sync: roomId,
+  }
+}
 
 export function createRoom(room) {
   return {

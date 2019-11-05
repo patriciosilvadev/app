@@ -4,7 +4,7 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { updateLoading, updateError, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
+import { updateLoading, updateError, updateRoom, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
@@ -190,6 +190,8 @@ class ComposeComponent extends React.Component {
     this.fileRef = React.createRef()
     this.dropZone = React.createRef()
 
+    this.createRoomMessage = this.createRoomMessage.bind(this)
+    this.updateRoomMessage = this.updateRoomMessage.bind(this)
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
@@ -213,16 +215,63 @@ class ComposeComponent extends React.Component {
     const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
 
     // If it's a reply OR create
-    if (!this.props.update) this.props.createRoomMessage(this.props.room.id, text, attachments, parent)
+    if (!this.props.update) this.createRoomMessage(this.props.room.id, text, attachments, parent)
 
     // If it's an update
-    if (this.props.update) this.props.updateRoomMessage(this.props.room.id, id, text, attachments)
+    if (this.props.update) this.updateRoomMessage(this.props.room.id, id, text, attachments)
 
     // Reset the message
     this.clearMessage()
 
     // And then resize our input textarea to default
     this.composeRef.style.height = '25px'
+  }
+
+  async createRoomMessage(roomId, message, attachments, parent) {
+    const userName = this.props.user.name
+    const userId = this.props.user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
+    const teamId = this.props.team.id
+
+    try {
+      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, userId, userName, message, attachments, parent)
+
+      // The extra values are used for processing other info
+      const roomMessage = {
+        message: data.createRoomMessage,
+        excerpt,
+        roomId,
+        teamId,
+      }
+
+      // Create the message
+      this.props.createRoomMessage(roomId, roomMessage)
+      this.props.updateRoom(roomId, { excerpt })
+    } catch (e) {}
+  }
+
+  async updateRoomMessage(roomId, messageId, message, attachments) {
+    const userName = this.props.user.name
+    const userId = this.props.user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
+    const teamId = this.props.team.id
+
+    try {
+      const { data } = await GraphqlService.getInstance().updateRoomMessage(roomId, userId, userName, messageId, message, attachments)
+      const roomMessage = {
+        message: data.updateRoomMessage,
+        messageId,
+        excerpt,
+        roomId,
+        teamId,
+      }
+
+      this.props.updateRoomMessage(roomId, roomMessage)
+      this.props.updateRoom(roomId, { excerpt })
+    } catch (e) {
+      dispatch(updateLoading(false))
+      dispatch(updateError(e))
+    }
   }
 
   clearMessage() {
@@ -639,14 +688,16 @@ ComposeComponent.propTypes = {
   update: PropTypes.bool,
   clearMessage: PropTypes.any,
   createRoomMessage: PropTypes.func,
+  updateRoom: PropTypes.func,
   updateRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  createRoomMessage: (roomId, text, attachments, parent) => createRoomMessage(roomId, text, attachments, parent),
-  updateRoomMessage: (roomId, messageId, message, attachments) => updateRoomMessage(roomId, messageId, message, attachments),
+  createRoomMessage: (roomId, roomMessage) => createRoomMessage(roomId, roomMessage),
+  updateRoomMessage: (roomId, roomMessage) => updateRoomMessage(roomId, roomMessage),
   updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
+  updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
 }
 
 const mapStateToProps = state => {
