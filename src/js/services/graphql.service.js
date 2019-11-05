@@ -855,11 +855,11 @@ export default class GraphqlService {
     })
   }
 
-  updateRoomMessage(roomId, userId, userName, messageId, message, attachments) {
+  updateRoomMessage(roomId, userId, messageId, message, attachments) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoomMessage($roomId: String, $userId: String, $userName: String, $messageId: String, $message: String, $attachments: [AttachmentInput]) {
-          updateRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, messageId: $messageId, message: $message, attachments: $attachments) {
+        mutation updateRoomMessage($roomId: String, $userId: String, $messageId: String, $message: String, $attachments: [AttachmentInput]) {
+          updateRoomMessage(roomId: $roomId, userId: $userId, messageId: $messageId, message: $message, attachments: $attachments) {
             id
             user {
               id
@@ -897,7 +897,6 @@ export default class GraphqlService {
       variables: {
         roomId,
         userId,
-        userName,
         messageId,
         message,
         attachments,
@@ -905,11 +904,11 @@ export default class GraphqlService {
     })
   }
 
-  createRoomMessage(roomId, userId, userName, message, attachments, parentId) {
+  createRoomMessage(roomId, userId, message, attachments, parentId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessage($roomId: String, $userId: String, $userName: String, $message: String, $attachments: [AttachmentInput], $parentId: String) {
-          createRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, message: $message, attachments: $attachments, parentId: $parentId) {
+        mutation createRoomMessage($roomId: String, $userId: String, $message: String, $attachments: [AttachmentInput], $parentId: String) {
+          createRoomMessage(roomId: $roomId, userId: $userId, message: $message, attachments: $attachments, parentId: $parentId) {
             id
             user {
               id
@@ -947,7 +946,6 @@ export default class GraphqlService {
       variables: {
         roomId,
         userId,
-        userName,
         message,
         attachments,
         parentId,
