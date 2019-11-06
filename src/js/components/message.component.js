@@ -39,7 +39,6 @@ const Tools = styled.div`
 `
 
 const Meta = styled.div`
-  margin-left: 10px;
   font-size: 12px;
   font-weight: 600;
   color: #adb5bd;
@@ -48,14 +47,15 @@ const Meta = styled.div`
 
 const User = styled.div`
   color: #343a40;
-  font-weight: 600;
+  font-weight: 700;
   font-style: normal;
   font-size: 12px;
+  margin-right: 10px;
 `
 
 const Text = styled.div`
   font-size: 14px;
-  color: #212123;
+  color: #333a40;
   font-weight: 400;
   line-height: 1.4;
   padding-top: 5px;
@@ -123,9 +123,8 @@ const ParentPadding = styled.div`
 `
 
 const ParentContainer = styled.div`
-  border: 1px solid #cbd4db;
-  padding: 15px;
-  border-radius: 10px;
+  border-left: 3px solid #007af5;
+  padding: 0px 0px 0px 15px;
   margin-bottom: 5px;
   margin-top: 5px;
 `
@@ -134,16 +133,33 @@ const ParentMessage = styled.div`
   font-weight: 400;
   font-size: 14px;
   font-style: normal;
-  color: #151b26;
+  color: #868E95;
   display: inline-block;
+  margin-top: 10px;
+
+  strong {
+    font-weight: bold;
+  }
+
+  p {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  code {
+    display :none;
+  }
+
+  pre {
+    display :none;
+  }
 `
 
 const ParentName = styled.div`
-  font-weight: 500;
+  color: #343a40;
+  font-weight: 700;
   font-style: normal;
   font-size: 12px;
-  color: #151b26;
-  display: inline-block;
 `
 
 const ParentText = styled.div`
@@ -159,7 +175,7 @@ const ParentText = styled.div`
 const ParentMeta = styled.div`
   margin-left: 10px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
 `
@@ -195,12 +211,12 @@ const PreviewImage = styled.div`
 
 const App = styled.div`
   background: #f0f3f5;
-  margin-left: 10px;
   border-radius: 3px;
-  font-size: 10px;
   padding: 3px 6px 3px 6px;
-  font-weight: 600;
   color: #b8c4ce;
+  margin-right: 10px;
+  font-size: 10px;
+  font-weight: 600;
 `
 
 const AppUrl = styled.div`
@@ -246,6 +262,11 @@ const AppActionImage = styled.div`
   background-position: center center;
   background-color: transparent;
   background-image: url(${props => props.image});
+`
+
+const AvatarBlank = styled.div`
+  width: 30px;
+  height: 30px;
 `
 
 export default memo(props => {
@@ -411,16 +432,20 @@ export default memo(props => {
       }
 
       <div className="row align-items-start w-100">
-        <Avatar
-          image={senderImage}
-          title={senderImage}
-          size="medium"
-        />
+        {!props.hideUser &&
+          <Avatar
+            image={senderImage}
+            title={senderImage}
+            size="medium"
+          />
+        }
+
+        {props.hideUser && <AvatarBlank />}
 
         <div className="column flexer pl-15">
           <Bubble className="column">
             <div className="row w-100 relative">
-              <User>{senderName}</User>
+              {!props.hideUser && <User>{senderName}</User>}
               {props.message.app && <App>App</App>}
               <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
 
@@ -599,31 +624,6 @@ export default memo(props => {
               )
             })}
 
-            {props.message.reactions &&
-              <React.Fragment>
-                {props.message.reactions.length != 0 &&
-                  <Reactions className="row">
-                    {props.message.reactions.map((reaction, index) => {
-                      const reactionParts = reaction.split('__')
-                      const emoticon = reactionParts[0]
-                      const userName = reactionParts[2]
-
-                      return (
-                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
-                          <Emoji
-                            emoji={emoticon}
-                            size={16}
-                            set='emojione'
-                          />
-                          <span className="name">{userName}</span>
-                        </div>
-                      )
-                    })}
-                  </Reactions>
-                }
-              </React.Fragment>
-            }
-
             {url &&
               <AppUrl>
                 <iframe
@@ -650,6 +650,32 @@ export default memo(props => {
                 })}
               </AppActions>
             }
+
+            {props.message.reactions &&
+              <React.Fragment>
+                {props.message.reactions.length != 0 &&
+                  <Reactions className="row">
+                    {props.message.reactions.map((reaction, index) => {
+                      const reactionParts = reaction.split('__')
+                      const emoticon = reactionParts[0]
+                      const userName = reactionParts[2]
+
+                      return (
+                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
+                          <Emoji
+                            emoji={emoticon}
+                            size={16}
+                            set='emojione'
+                          />
+                          <span className="name">{userName}</span>
+                        </div>
+                      )
+                    })}
+                  </Reactions>
+                }
+              </React.Fragment>
+            }
+
           </Bubble>
         </div>
       </div>

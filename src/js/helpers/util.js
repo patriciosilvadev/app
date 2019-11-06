@@ -84,5 +84,6 @@ export const copyToClipboard = value => {
 }
 
 export const logger = (log) => {
-  console.log(`%c ≡ ${log}`, 'background: #007AF5; color: white')
+  //console.log(`%c ≡ ${JSON.stringify(log)}`, 'color: #007AF5')
+  console.log(log)
 }
