@@ -82,10 +82,6 @@ const store = createStore(
   applyMiddleware(thunk, sync)
 )
 
-// Plugin framework setup
-window.__REDUX_STORE_HOOK__ = store
-window.React = React
-
 // Setup GraphQL
 const apollo = new ApolloClient({
   link: new HttpLink({ uri: API_HOST + '/graphql' }),
