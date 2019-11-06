@@ -10,10 +10,10 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage, appAction } from '../actions'
+import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage,openApp } from '../actions'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { youtubeUrlParser, vimeoUrlParser, imageUrlParser } from '../helpers/util'
+import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 
@@ -268,7 +268,7 @@ export default memo(props => {
   const [url, setUrl] = useState(null)
 
   const handleActionClick = async (action, payload = null) => {
-    dispatch(appAction(action, payload))
+    dispatch(openApp(action, payload))
   }
 
   const handleDeleteRoomMessage = async () => {
@@ -277,7 +277,9 @@ export default memo(props => {
 
       dispatch(deleteRoomMessage(room.id, props.message.id))
       setConfirmDeleteModal(false)
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
   const handleDeleteRoomMessageReaction = async reaction => {
@@ -285,20 +287,26 @@ export default memo(props => {
     if (reaction.split('__')[1] != user.id) return
 
     try {
-      await GraphqlService.getInstance().deleteRoomMessageReaction(messageId, reaction)
+      await GraphqlService.getInstance().deleteRoomMessageReaction(props.message.id, reaction)
 
       setEmoticons(false)
       dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
   const handleCreateRoomMessageReaction = async emoticon => {
     try {
-      await GraphqlService.getInstance().createRoomMessageReaction(messageId, reaction)
+      const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
+
+      await GraphqlService.getInstance().createRoomMessageReaction(props.message.id, reaction)
 
       setEmoticons(false)
-      dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${user.id}__${user.name.split(' ')[0]}`))
-    } catch (e) {}
+      dispatch(createRoomMessageReaction(room.id, props.message.id, reaction))
+    } catch (e) {
+      logger(e)
+    }
   }
 
   const highlightMessage = (message, query) => {
@@ -484,7 +492,7 @@ export default memo(props => {
                   <div className="column flexer">
                     <div className="row">
                       <ParentName>
-                        {props.message.parent.user.name}
+                        {props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}
                       </ParentName>
                       <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
                     </div>

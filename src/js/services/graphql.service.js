@@ -6,6 +6,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import AuthService from './auth.service'
 import CookiesService from './cookies.service'
 import { API_HOST } from '../environment'
+import { logger } from '../helpers/util'
 
 export default class GraphqlService {
   static instance
@@ -42,8 +43,8 @@ export default class GraphqlService {
           fetch: fetch,
           uri: API_HOST + '/graphql',
           onError: ({ networkError, graphQLErrors }) => {
-            console.log('graphQLErrors', graphQLErrors)
-            console.log('networkError', networkError)
+            logger('graphQLErrors', graphQLErrors)
+            logger('networkError', networkError)
           },
         })
       ),
@@ -321,6 +322,11 @@ export default class GraphqlService {
                   username
                   color
                 }
+                app {
+                  id
+                  name
+                  image
+                }
                 message
                 createdAt
               }
@@ -469,6 +475,11 @@ export default class GraphqlService {
             id
             reactions
             parent {
+              app {
+                id
+                name
+                image
+              }
               user {
                 id
                 name

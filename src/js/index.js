@@ -25,6 +25,7 @@ import team from './reducers/team'
 import teams from './reducers/teams'
 import presences from './reducers/presences'
 import room from './reducers/room'
+import app from './reducers/app'
 import rooms from './reducers/rooms'
 import user from './reducers/user'
 import notifications from './reducers/notifications'
@@ -76,6 +77,7 @@ const store = createStore(
     presences,
     notifications,
     user,
+    app,
   }),
   applyMiddleware(thunk, sync)
 )

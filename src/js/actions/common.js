@@ -5,14 +5,8 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
-import { showLocalPushNotification } from '../helpers/util'
+import { showLocalPushNotification, logger } from '../helpers/util'
 import { createTeam, leaveTeam, createRoom, deleteRoom, updateRoomDeleteTyping, addPresence, deletePresence } from './'
-
-export function appAction(action, payload = null) {
-  return (dispatch, getState) => {
-    console.log('App action', action, payload)
-  }
-}
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -20,7 +14,7 @@ export function initialize(userId) {
     MessagingService.getInstance().join(userId)
 
     // Handle incoming messages
-    MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
+    MessagingService.getInstance().client.on('system', system =>  logger('SYSTEM: ', system))
     MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
       // If this user is already in this room, then don't do anything
       if (

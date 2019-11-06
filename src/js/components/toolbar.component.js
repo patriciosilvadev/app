@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { appAction } from '../actions'
+import { openApp } from '../actions'
 
 const Toolbar = styled.div`
   display: flex;
@@ -43,7 +43,7 @@ export default function ToolbarComponent(props) {
   const dispatch = useDispatch()
 
   const handleActionClick = async (action, payload = null) => {
-    dispatch(appAction(action, payload))
+    dispatch(openApp(action, payload))
   }
 
   // Load all our toolbar actions

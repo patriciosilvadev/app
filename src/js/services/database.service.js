@@ -1,5 +1,6 @@
 import PouchDB from 'pouchdb'
 import { LOCAL_DB } from '../environment'
+import { logger } from '../helpers/util'
 
 export default class DatabaseService {
   static instance
@@ -10,7 +11,7 @@ export default class DatabaseService {
 
     // Get DB info
     this.database.info().then(info => {
-      console.log('DB CONNECTED')
+      logger('DB CONNECTED')
     })
   }
 
@@ -42,10 +43,10 @@ export default class DatabaseService {
               count: 1,
             })
             .then(doc => {
-              console.log('CREATE DB ROW', doc)
+              logger('CREATE DB ROW', doc)
             })
             .catch(err => {
-              console.log('DB ERROR', err)
+              logger('DB ERROR', err)
             })
         }
       })
@@ -60,16 +61,16 @@ export default class DatabaseService {
             this.database
               .remove(row.doc)
               .catch(res => {
-                console.log('DB REMOVE', res)
+                logger('DB REMOVE', res)
               })
               .catch(err => {
-                console.error('DB ERROR', err)
+                logger('DB ERROR', err)
               })
           }
         })
       })
       .catch(err => {
-        console.log('DB ERROR', err)
+        logger('DB ERROR', err)
       })
   }
 

@@ -82,3 +82,7 @@ export const copyToClipboard = value => {
   document.execCommand('copy')
   document.body.removeChild(tempInput)
 }
+
+export const logger = (log) => {
+  console.log(`%c ≡ ${log}`, 'background: #007AF5; color: white')
+}

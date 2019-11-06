@@ -1,4 +1,5 @@
 import { SOCKETIO_HOST } from '../environment'
+import { logger } from '../helpers/util'
 
 export default class MessagingService {
   static instance
@@ -8,15 +9,15 @@ export default class MessagingService {
     this.client = io.connect(SOCKETIO_HOST)
 
     this.client.on('connect', data => {
-      console.log('WS:CONNECTED')
+      logger('WS:CONNECTED')
     })
 
     this.client.on('error', data => {
-      console.log('WS:ERROR')
+      logger('WS:ERROR')
     })
 
     this.client.on('connect_failed', data => {
-      console.log('WS:FAILED')
+      logger('WS:FAILED')
     })
   }
 

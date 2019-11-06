@@ -7,6 +7,7 @@ import GraphqlService from '../services/graphql.service'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { hydrateTeams, createTeam, updateNotifications } from '../actions'
 import PropTypes from 'prop-types'
+import { logger } from '../helpers/util'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
@@ -95,7 +96,7 @@ export default function DockComponent(props) {
       setLoading(false)
       dispatch(hydrateTeams(data.teams))
     } catch (e) {
-      console.log(e)
+      logger(e)
       setLoading(false)
       setError(e)
     }

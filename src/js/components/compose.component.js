@@ -4,7 +4,7 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { appAction, updateLoading, updateError, updateRoom, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
+import { openApp, updateLoading, updateError, updateRoom, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -268,7 +268,7 @@ class ComposeComponent extends React.Component {
   }
 
   handleActionClick(action, payload = null) {
-    this.props.appAction(action, payload)
+    this.props.openApp(action, payload)
   }
 
   onSend() {
@@ -687,16 +687,10 @@ class ComposeComponent extends React.Component {
           <ReplyPadding className="column align-items-stretch flexer">
             <ReplyText>Replying to:</ReplyText>
             <ReplyContainer className="row justify-content-center">
-              <Avatar
-                image={this.props.message.user.image}
-                title={this.props.message.user.name}
-                size="medium"
-              />
-
               <div className="pl-10 column flexer">
                 <div className="row">
                   <ReplyName>
-                    {this.props.message.user.name}
+                    {this.props.message.app ? this.props.message.app.name : this.props.message.user.name}
                   </ReplyName>
                   <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
                 </div>
@@ -844,7 +838,7 @@ ComposeComponent.propTypes = {
   updateRoom: PropTypes.func,
   updateRoomMessage: PropTypes.func,
   updateRoomAddTyping: PropTypes.func,
-  appAction: PropTypes.func,
+  openApp: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -852,7 +846,7 @@ const mapDispatchToProps = {
   updateRoomMessage: (roomId, roomMessage) => updateRoomMessage(roomId, roomMessage),
   updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
   updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
-  appAction: (action, payload) => appAction(action, payload),
+  openApp: (action, payload) => openApp(action, payload),
 }
 
 const mapStateToProps = state => {

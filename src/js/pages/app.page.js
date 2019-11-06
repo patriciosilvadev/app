@@ -5,13 +5,15 @@ import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { initialize, fetchUser } from '../actions'
+import { initialize, fetchUser, closeApp } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import CookieService from '../services/cookies.service'
 import { Avatar, Loading, Error, Notification } from '@weekday/elements'
 import { API_HOST, PUBLIC_VAPID_KEY } from '../environment'
 import RoomsComponent from '../components/rooms.component'
 import RoomComponent from '../components/room.component'
+import AppComponent from '../components/app.component'
+import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from '../helpers/util'
@@ -194,6 +196,19 @@ class AppPage extends React.Component {
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
 
+        {this.props.app.action &&
+          <React.Fragment>
+            {this.props.app.action.type == 'modal' &&
+              <AppModal
+                title={this.props.app.action.name}
+                url={this.props.app.action.url}
+                payload={this.props.app.payload}
+                onClose={this.props.closeApp}
+              />
+            }
+          </React.Fragment>
+        }
+
         {this.state.pushNotifications &&
           <Notification
             text="Push notifications are disabled."
@@ -208,6 +223,22 @@ class AppPage extends React.Component {
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={RoomsComponent} />
             <Route path="/app/team/:teamId/room/:roomId" component={RoomComponent} />
+            <Route
+              path="/app/team/:teamId/room/:roomId"
+              render={props => {
+                if (!this.props.app.action) return null
+                if (this.props.app.action.type == 'panel') {
+                  return (
+                    <AppComponent
+                      title={this.props.app.action.name}
+                      url={this.props.app.action.url}
+                      payload={this.props.app.payload}
+                      onClose={this.props.closeApp}
+                    />
+                  )
+                }
+              }}
+            />
             <Route path="/app/team/:teamId/room/:roomId" component={ToolbarComponent} />
           </App>
         </Router>
@@ -219,19 +250,23 @@ class AppPage extends React.Component {
 AppPage.propTypes = {
   common: PropTypes.any,
   user: PropTypes.any,
+  app: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
+  closeApp: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   initialize: userId => initialize(userId),
   fetchUser: userId => fetchUser(userId),
+  closeApp: () => closeApp(),
 }
 
 const mapStateToProps = state => {
   return {
     common: state.common,
     user: state.user,
+    app: state.app,
   }
 }
 
