@@ -342,6 +342,54 @@ export default class GraphqlService {
                 createdAt
               }
               createdAt
+              app {
+                name
+                description
+                image
+                token
+                draft
+                incoming
+                outgoing
+                commands {
+                  name
+                  description
+                  action {
+                    type
+                    url
+                    name
+                    icon
+                  }
+                }
+                attachments {
+                  type
+                  url
+                  name
+                  icon
+                }
+                tools {
+                  type
+                  url
+                  name
+                  icon
+                }
+                shortcuts {
+                  type
+                  url
+                  name
+                  icon
+                }
+                message {
+                  url
+                  width
+                  height
+                  actions {
+                    type
+                    url
+                    name
+                    icon
+                  }
+                }
+              }
             }
             members {
               user {
@@ -452,6 +500,54 @@ export default class GraphqlService {
               createdAt
             }
             createdAt
+            app {
+              name
+              description
+              image
+              token
+              draft
+              incoming
+              outgoing
+              commands {
+                name
+                description
+                action {
+                  type
+                  url
+                  name
+                  icon
+                }
+              }
+              attachments {
+                type
+                url
+                name
+                icon
+              }
+              tools {
+                type
+                url
+                name
+                icon
+              }
+              shortcuts {
+                type
+                url
+                name
+                icon
+              }
+              message {
+                url
+                width
+                height
+                actions {
+                  type
+                  url
+                  name
+                  icon
+                }
+              }
+            }
           }
         }
       `,

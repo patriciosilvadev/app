@@ -193,6 +193,61 @@ const PreviewImage = styled.div`
   border-radius: 5px;
 `
 
+const App = styled.div`
+  background: #f0f3f5;
+  margin-left: 10px;
+  border-radius: 3px;
+  font-size: 10px;
+  padding: 3px 6px 3px 6px;
+  font-weight: 600;
+  color: #b8c4ce;
+`
+
+const AppUrl = styled.div`
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
+  margin-bottom: 10px;
+  border: 1px solid #e1e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+
+  iframe {
+    border: none;
+  }
+`
+
+const AppActions = styled.div`
+`
+
+const AppActionContainer = styled.div`
+  padding: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const AppActionText = styled.div`
+  font-weight: 600;
+  color: #b8c4ce;
+  font-size: 10px;
+`
+
+const AppActionImage = styled.div`
+  width: 15px;
+  height: 15px;
+  overflow: hidden;
+  margin-right: 5px;
+  background-size: contain;
+  background-position: center center;
+  background-color: transparent;
+  background-image: url(${props => props.image});
+`
+
 export default memo(props => {
   const [message, setMessage] = useState(false)
   const [preview, setPreview] = useState(null)
@@ -207,6 +262,10 @@ export default memo(props => {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [senderName, setSenderName] = useState(null)
+  const [senderImage, setSenderImage] = useState(null)
+  const [actions, setActions] = useState([])
+  const [url, setUrl] = useState(null)
 
   const handleActionClick = async (action, payload = null) => {
     dispatch(appAction(action, payload))
@@ -255,6 +314,32 @@ export default memo(props => {
     setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
     setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
 
+    // Get the connected app
+    setSenderImage(props.message.app ? props.message.app.image : props.message.user.image)
+    setSenderName(props.message.app ? props.message.app.name : props.message.user.name)
+
+    // Get the message IFRAME URL
+    const messageUrl = props.message.app
+                        ? props.message.app.message
+                          ? props.message.app.message.url
+                          : null
+                        : null
+
+    // Only update our state if there are any
+    if (messageUrl) setUrl(messageUrl)
+
+    // Get all the message actions
+    const messageActions = props.message.app
+                            ? props.message.app.message
+                              ? props.message.app.message.actions
+                                ? props.message.app.message.actions
+                                : null
+                              : null
+                            : null
+
+    // Only update our state if there are any
+    if (messageActions) setActions(messageActions)
+
     // Here we start processing the markdown
     const htmlMessage = marked(props.message.message)
     const compiledMessage = props.highlight
@@ -298,6 +383,7 @@ export default memo(props => {
 
     if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
+    // Finally set the message after processnig
     setMessage(partsOfTheMessageText.join(''))
   }, [props.highlight, props.message])
 
@@ -318,15 +404,16 @@ export default memo(props => {
 
       <div className="row align-items-start w-100">
         <Avatar
-          image={props.message.user.image}
-          title={props.message.user.name}
+          image={senderImage}
+          title={senderImage}
           size="medium"
         />
 
         <div className="column flexer pl-15">
           <Bubble className="column">
             <div className="row w-100 relative">
-              <User>{props.message.user.name}</User>
+              <User>{senderName}</User>
+              {props.message.app && <App>App</App>}
               <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
 
               {over &&
@@ -365,14 +452,18 @@ export default memo(props => {
                     onClick={() => setConfirmDeleteModal(true)}
                   />
 
-                  {props.message.user.id == user.id &&
-                    <FontAwesomeIcon
-                      icon={["fal", "pen"]}
-                      color="#CFD4D9"
-                      size="sm"
-                      className="button mr-10"
-                      onClick={() => props.setUpdateMessage(props.message)}
-                    />
+                  {!props.message.app &&
+                    <React.Fragment>
+                      {props.message.user.id == user.id &&
+                        <FontAwesomeIcon
+                          icon={["fal", "pen"]}
+                          color="#CFD4D9"
+                          size="sm"
+                          className="button mr-10"
+                          onClick={() => props.setUpdateMessage(props.message)}
+                        />
+                      }
+                    </React.Fragment>
                   }
 
                   <FontAwesomeIcon
@@ -523,6 +614,33 @@ export default memo(props => {
                   </Reactions>
                 }
               </React.Fragment>
+            }
+
+            {url &&
+              <AppUrl>
+                <iframe
+                  border="0"
+                  src={url}
+                  width={props.message.app.message.width}
+                  height={props.message.app.message.height}>
+                </iframe>
+              </AppUrl>
+            }
+
+            {actions.length != 0 &&
+              <AppActions className="row">
+                {actions.map((action, index) => {
+                  return (
+                    <AppActionContainer
+                      key={index}
+                      className="row"
+                      onClick={() => handleActionClick(action)}>
+                      <AppActionImage image={action.icon} />
+                      <AppActionText>{action.name}</AppActionText>
+                    </AppActionContainer>
+                  )
+                })}
+              </AppActions>
             }
           </Bubble>
         </div>
