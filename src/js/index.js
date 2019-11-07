@@ -31,36 +31,6 @@ import user from './reducers/user'
 import notifications from './reducers/notifications'
 import './environment'
 import { createLogger } from 'redux-logger'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import {
-  faEye,
-  faLowVision,
-  faInfoCircle,
-  faUserFriends,
-  faTrashAlt,
-  faTrash,
-  faSmile,
-  faPaperclip,
-  faPaperPlane,
-  faAt,
-  faPlusCircle,
-  faPlus,
-  faCheck,
-  faTimes,
-  faBell,
-  faPen,
-  faReply,
-  faChevronDown,
-  faUsersCog,
-  faCog,
-  faQuestionCircle,
-  faSignOut,
-  faSyncAlt,
-  faEllipsisV,
-  faStar,
-} from '@fortawesome/pro-light-svg-icons'
-import { faSearch } from '@fortawesome/pro-regular-svg-icons'
-import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 
 const logger = createLogger({
   collapsed: true,
@@ -88,67 +58,37 @@ const apollo = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-// Font awesome lib
-library.add(
-  faStar,
-  faEye,
-  faLowVision,
-  faInfoCircle,
-  faUserFriends,
-  faTrashAlt,
-  faTrash,
-  faSmile,
-  faPaperclip,
-  faPaperPlane,
-  faAt,
-  faPlusCircle,
-  faPlus,
-  faCheck,
-  faTimes,
-  faSearch,
-  faBell,
-  faPen,
-  faReply,
-  faChevronDown,
-  faUsersCog,
-  faCog,
-  faQuestionCircle,
-  faSignOut,
-  faSyncAlt,
-  faEllipsisV,
-  faMarkdown
-)
-
 // prettier-ignore
 ReactDOM.render(
-    <Provider store={store}>
-      <ApolloProvider client={apollo}>
-        <Router history={browserHistory}>
-          {/* Check if user is logged in */}
-          {/* Direct to the right place */}
-          <Route
-            path="/"
-            render={props => {
-              if (window.location.pathname == '/') {
-                AuthService
-                .currentAuthenticatedUser()
-                .then(res => {
-                  const { token } = res
-                  const { sub } = AuthService.parseJwt(token)
+  <Provider store={store}>
+    <ApolloProvider client={apollo}>
+      <Router history={browserHistory}>
+        {/* Check if user is logged in */}
+        {/* Direct to the right place */}
+        <Route
+          path="/"
+          render={props => {
+            if (window.location.pathname == '/') {
+              AuthService
+              .currentAuthenticatedUser()
+              .then(res => {
+                const { token } = res
+                const { sub } = AuthService.parseJwt(token)
 
-                  props.history.push('/app')
-                })
-                .catch(err => {
-                  props.history.push('/auth')
-                })
-              }
-            }}
-          />
+                props.history.push('/app')
+              })
+              .catch(err => {
+                props.history.push('/auth')
+              })
+            }
+          }}
+        />
 
-          <Route path="/auth" component={AuthPage} />
-          <Route path="/confirm/:email/:token" component={ConfirmPage} />
-          <Route path="/join/:url" component={JoinPage} />
-          <Route path="/app" component={AppPage} />
-        </Router>
-      </ApolloProvider>
-    </Provider>, document.getElementById("root"))
+        <Route path="/auth" component={AuthPage} />
+        <Route path="/confirm/:email/:token" component={ConfirmPage} />
+        <Route path="/join/:url" component={JoinPage} />
+        <Route path="/app" component={AppPage} />
+      </Router>
+    </ApolloProvider>
+  </Provider>, document.getElementById("root")
+)

@@ -11,7 +11,7 @@ import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../a
 import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { IconComponent } from '../components/icon.component'
 import { Text } from '../elements'
 
 const Row = styled.div`
@@ -281,10 +281,10 @@ export default function RoomModal(props) {
                           />
 
                           <div className="row">
-                            <FontAwesomeIcon
-                              icon={["fab", "markdown"]}
+                            <IconComponent
+                              icon="markdown"
+                              size={20}
                               color="#00a8ff"
-                              size="sm"
                             />
                             <Supported>
                               Markdown supported
@@ -391,10 +391,10 @@ export default function RoomModal(props) {
                           image={null}
                           color="#007af5"
                           title="">
-                          <FontAwesomeIcon
-                            icon={["fal", "plus"]}
+                          <IconComponent
+                            icon="plus"
+                            size={20}
                             color="#00a8ff"
-                            size="sm"
                           />
                         </Avatar>
                         <Link className="ml-10">Add new Member</Link>

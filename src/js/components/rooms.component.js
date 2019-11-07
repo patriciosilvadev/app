@@ -9,12 +9,12 @@ import RoomModal from '../modals/room.modal'
 import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+import { IconComponent } from './icon.component'
 import PropTypes from 'prop-types'
 import { createRoom, hydrateRooms, hydrateTeam, updateRoomUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 
@@ -489,17 +489,17 @@ class RoomsComponent extends React.Component {
                 <Menu
                   items={[
                     {
-                      icon: <FontAwesomeIcon icon={["fal", "cog"]} color="#acb5bd" size="lg" />,
+                      icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
                       text: "Account settings",
                       onClick: this._openAccountSettings.bind(this)
                     },
                     {
-                      icon: <FontAwesomeIcon icon={["fal", "users-cog"]} color="#acb5bd" size="lg" />,
+                      icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
                       text: "Team settings",
                       onClick: this._openTeamSettings.bind(this),
                     },
                     {
-                      icon: <FontAwesomeIcon icon={["fal", "sign-out"]} color="#acb5bd" size="lg" />,
+                      icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
                       text: "Signout",
                       onClick: this._signout.bind(this),
                     },
@@ -511,24 +511,24 @@ class RoomsComponent extends React.Component {
                 </AccountMenuBuild>
               </React.Fragment>
             }>
-            <div>
-              <FontAwesomeIcon
-                icon={["fal", "chevron-down"]}
-                color="#475669"
-                size="sm"
-                className="button"
-                onClick={this._openUserMenu.bind(this)}
-              />
-            </div>
+            <IconComponent
+              icon="chevron-down"
+              size={20}
+              thickness={2}
+              color="#475669"
+              className="button"
+              onClick={this._openUserMenu.bind(this)}
+            />
           </Popup>
         </Header>
 
         <SearchContainer className="row">
           <SearchInner className="row">
-            <FontAwesomeIcon
-              icon={["far", "search"]}
+            <IconComponent
+              icon="search"
+              size={15}
               color="#475669"
-              size="sm"
+              thickness={2}
               className="ml-15"
             />
 
@@ -626,10 +626,11 @@ class RoomsComponent extends React.Component {
               handleDismiss={() => this.setState({ roomPopup: false })}
               handleAccept={(name) => this.setState({ roomPopup: false }, () => this.createPublicRoom(name))}
               placeholder="New channel name">
-              <FontAwesomeIcon
-                icon={["fal", "plus-circle"]}
+              <IconComponent
+                icon="plus-circle"
+                size={15}
                 color="#475669"
-                size="lg"
+                thickness={2}
                 className="button"
                 onClick={() => this.setState({ roomPopup: true })}
               />

@@ -19,8 +19,9 @@ import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MessagesComponent from './messages.component'
+import { IconComponent } from './icon.component'
+import VisibilitySharpIcon from '@material-ui/icons/VisibilitySharp'
 
 const Room = styled.div`
   background: white;
@@ -165,6 +166,8 @@ const WelcomeDescription = styled.div`
     font-weight: 400;
     font-size: 18px;
     color: #adb5bd;
+    padding: 0px;
+    margin: 0px;
   }
 `
 
@@ -489,11 +492,12 @@ class RoomComponent extends React.Component {
                     <div
                       className="ml-10 row button"
                       onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}>
-                      <FontAwesomeIcon
-                        className="mr-5"
-                        icon={["fal", "plus"]}
+                      <IconComponent
+                        icon="plus"
+                        size={15}
                         color="#007af5"
-                        size="xs"
+                        thickness={2}
+                        className="mr-5"
                       />
                       <HeaderLink>Add New</HeaderLink>
                     </div>
@@ -506,11 +510,13 @@ class RoomComponent extends React.Component {
               <HeaderSearchContainer
                 className="row"
                 focus={this.state.searchFocus}>
-                <FontAwesomeIcon
-                  icon={["far", "search"]}
+                <IconComponent
+                  icon="search"
+                  size={15}
                   color="#acb5bd"
-                  size="sm"
+                  thickness={2}
                   className="ml-10 mr-10"
+                  onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
                 />
 
                 <HeaderSearchInput
@@ -522,11 +528,12 @@ class RoomComponent extends React.Component {
                 />
 
                 {this.state.searchResults &&
-                  <FontAwesomeIcon
-                    className="button"
-                    icon={["fal", "times"]}
+                  <IconComponent
+                    icon="x"
+                    size={15}
+                    thickness={2}
                     color="#acb5bd"
-                    size="sm"
+                    className="button"
                     onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
                   />
                 }
@@ -550,26 +557,32 @@ class RoomComponent extends React.Component {
                 )
               })}
 
-              <HeaderButton onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-15 ml-15">
-                {this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#EBB403" size="lg" />}
-                {!this.state.starred && <FontAwesomeIcon icon={["fal", "star"]} color="#babec9" size="lg" />}
-              </HeaderButton>
+              <IconComponent
+                icon="star"
+                size={20}
+                thickness={1.5}
+                color={this.state.starred ? "#acb5bd" : "#babec9"}
+                onClick={() => this.updateUserStarred(!this.state.starred)}
+                className="ml-15 button"
+              />
 
               {!this.props.room.private &&
                 <React.Fragment>
-                  <FontAwesomeIcon
-                    icon={["fal", "info-circle"]}
+                  <IconComponent
+                    icon="info"
+                    size={20}
                     color="#acb5bd"
-                    size="lg"
-                    className="mr-15 button"
+                    thickness={1.5}
+                    className="ml-15 button"
                     onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
                   />
 
-                  <FontAwesomeIcon
-                    icon={["fal", "at"]}
+                  <IconComponent
+                    icon="users"
+                    size={26}
+                    thickness={0}
                     color="#acb5bd"
-                    size="lg"
-                    className="mr-15 button"
+                    className="ml-15 button"
                     onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
                   />
 
@@ -581,15 +594,19 @@ class RoomComponent extends React.Component {
                     content={
                       <Menu
                         items={[
-                          { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "eye"]} color="#acb5bd" size="lg" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                          { hide: this.props.room.private, icon: <FontAwesomeIcon icon={["fal", "low-vision"]} color="#acb5bd" size="lg" />, text: "Private", label: 'Only members of this channel have access', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                          { hide: this.props.room.private, icon: <IconComponent icon="eye" size={20} color="#acb5bd" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
+                          { hide: this.props.room.private, icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />, text: "Private", label: 'Members of this channel only', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
                         ]}
                       />
                     }>
-                    <HeaderButton onClick={() => this.setState({ visibilityMenu: true })}>
-                      {this.props.room.public && <FontAwesomeIcon icon={["fal", "eye"]} color="#babec9" size="lg" />}
-                      {!this.props.room.public && <FontAwesomeIcon icon={["fal", "low-vision"]} color="#babec9" size="lg" />}
-                    </HeaderButton>
+                    <IconComponent
+                      icon={this.props.room.public ? "eye" : "eye-off"}
+                      size={20}
+                      thickness={1.5}
+                      color="#acb5bd"
+                      className="ml-15 button"
+                      onClick={() => this.setState({ visibilityMenu: true })}
+                    />
                   </Popup>
                 </React.Fragment>
               }

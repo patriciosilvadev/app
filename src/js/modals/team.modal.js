@@ -9,7 +9,7 @@ import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { IconComponent } from '../components/icon.component'
 import { Text } from '../elements'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
@@ -332,11 +332,10 @@ export default function TeamModal(props) {
                           color={member.user.color}
                           name={member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
                           label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
-
-                          <FontAwesomeIcon
-                            icon={["fal", "trash-alt"]}
+                          <IconComponent
+                            icon="delete"
+                            size={25}
                             color="#007af5"
-                            size="lg"
                             onClick={() => handleDeleteClick(member)}
                             className="button"
                           />

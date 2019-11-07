@@ -11,7 +11,6 @@ import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Text } from '../elements'
 
 const MailTable = styled.table`

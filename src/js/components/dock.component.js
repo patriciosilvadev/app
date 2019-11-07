@@ -12,7 +12,7 @@ import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 
 const Dock = styled.div`
@@ -155,21 +155,21 @@ export default function DockComponent(props) {
           dark
           className="button"
           onClick={(e) => setTeamPopup(true)}>
-          <FontAwesomeIcon
-            icon={["fal", "plus"]}
+          <IconComponent
+            icon="plus"
+            size={20}
             color="#007af5"
-            size="sm"
           />
         </Avatar>
       </QuickInputComponent>
 
-      <div className="flexer"></div>
+      <div style={{ height: 20 }} />
 
       <Popup
         handleDismiss={() => setNotificationsMenu(false)}
         visible={notificationsMenu}
         width={275}
-        direction="left-top"
+        direction="left-bottom"
         content={
           <NotificationsComponent />
         }>
@@ -177,14 +177,17 @@ export default function DockComponent(props) {
           className="button"
           onClick={(e) => setNotificationsMenu(true)}>
           {hasNotification && <Badge />}
-          <FontAwesomeIcon
-            icon={["fal", "bell"]}
-            color="white"
-            size="lg"
-            style={{ opacity: hasNotification ? 1 : 0.5}}
+          <IconComponent
+            icon="bell"
+            size={20}
+            color={hasNotification ? "white" : "#475669"}
           />
         </div>
       </Popup>
+
+      <div className="flexer"></div>
+
+      <img src="logo.svg" width="30" style={{ marginTop: 20 }}/>
     </Dock>
   )
 }

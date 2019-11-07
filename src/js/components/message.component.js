@@ -12,10 +12,10 @@ import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage,openApp } from '../actions'
 import { Attachment, Popup, Avatar } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
+import { IconComponent } from './icon.component'
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -467,20 +467,19 @@ export default memo(props => {
                         onSelect={(emoji) => handleCreateRoomMessageReaction(emoji.colons)}
                       />
                     }>
-
-                    <FontAwesomeIcon
-                      icon={["fal", "smile"]}
+                    <IconComponent
+                      icon="smile"
+                      size={15}
                       color="#CFD4D9"
-                      size="sm"
                       className="button mr-10"
                       onClick={() => setEmoticons(true)}
                     />
                   </Popup>
 
-                  <FontAwesomeIcon
-                    icon={["fal", "trash-alt"]}
+                  <IconComponent
+                    icon="delete"
+                    size={15}
                     color="#CFD4D9"
-                    size="sm"
                     className="button mr-10"
                     onClick={() => setConfirmDeleteModal(true)}
                   />
@@ -488,10 +487,10 @@ export default memo(props => {
                   {!props.message.app &&
                     <React.Fragment>
                       {props.message.user.id == user.id &&
-                        <FontAwesomeIcon
-                          icon={["fal", "pen"]}
+                        <IconComponent
+                          icon="pen"
+                          size={15}
                           color="#CFD4D9"
-                          size="sm"
                           className="button mr-10"
                           onClick={() => props.setUpdateMessage(props.message)}
                         />
@@ -499,11 +498,11 @@ export default memo(props => {
                     </React.Fragment>
                   }
 
-                  <FontAwesomeIcon
-                    icon={["fal", "reply"]}
+                  <IconComponent
+                    icon="reply"
+                    size={15}
                     color="#CFD4D9"
-                    size="sm"
-                    className="button mr-10"
+                    className="button"
                     onClick={() => props.setReplyMessage(props.message)}
                   />
                 </Tools>
@@ -535,10 +534,10 @@ export default memo(props => {
               <ModalPortal>
                 <PreviewContainer className="row justify-content-center">
                   <PreviewClose>
-                    <FontAwesomeIcon
-                      icon={["fal", "times"]}
+                    <IconComponent
+                      icon="x"
+                      size={25}
                       color="#8DA2A5"
-                      size="2x"
                       className="button"
                       onClick={() => setPreview(null)}
                     />

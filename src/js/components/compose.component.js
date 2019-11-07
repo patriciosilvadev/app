@@ -10,8 +10,8 @@ import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { bytesToSize } from '../helpers/util'
+import { IconComponent } from './icon.component'
 
 const UpdateContainer = styled.div`
   position: absolute;
@@ -698,11 +698,11 @@ class ComposeComponent extends React.Component {
                   {this.props.message.message}
                 </ReplyMessage>
               </div>
-              <FontAwesomeIcon
-                className="ml-15 button"
-                icon={["fal", "times"]}
+              <IconComponent
+                icon="x"
+                size={20}
                 color="#565456"
-                size="lg"
+                className="ml-15 button"
                 onClick={this.props.clearMessage}
               />
             </ReplyContainer>
@@ -728,31 +728,6 @@ class ComposeComponent extends React.Component {
             onChange={this.handleComposeChange}
           />
 
-          <Popup
-            handleDismiss={() => this.setState({ emoticonMenu: false })}
-            visible={this.state.emoticonMenu}
-            width={350}
-            direction="right-top"
-            content={
-              <Picker
-                style={{ width: 350 }}
-                set='emojione'
-                title=""
-                emoji=""
-                showPreview={false}
-                showSkinTones={false}
-                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-              />
-            }>
-            <FontAwesomeIcon
-              className="ml-15 button"
-              icon={["fal", "smile"]}
-              color="#565456"
-              size="lg"
-              onClick={() => this.setState({ emoticonMenu: true })}
-            />
-          </Popup>
-
           {this.props.room.apps.map((app, index) => {
             if (!app.active) return
             if (!app.app.attachments) return
@@ -771,52 +746,66 @@ class ComposeComponent extends React.Component {
             )
           })}
 
-          <FontAwesomeIcon
-            className="ml-15 button"
-            icon={["fal", "paperclip"]}
+
+          <Popup
+            handleDismiss={() => this.setState({ emoticonMenu: false })}
+            visible={this.state.emoticonMenu}
+            width={350}
+            direction="right-top"
+            content={
+              <Picker
+                style={{ width: 350 }}
+                set='emojione'
+                title=""
+                emoji=""
+                showPreview={false}
+                showSkinTones={false}
+                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
+              />
+            }>
+            <IconComponent
+              icon="smile"
+              size={20}
+              color="#565456"
+              className="ml-15 button"
+              onClick={() => this.setState({ emoticonMenu: true })}
+            />
+          </Popup>
+
+          <IconComponent
+            icon="attachment"
+            size={20}
             color="#565456"
-            size="lg"
+            className="ml-15 button"
             onClick={() => this.fileRef.click()}
           />
 
-          <FontAwesomeIcon
-            className="ml-15 button"
-            icon={["fal", "at"]}
+          <IconComponent
+            icon="at"
+            size={20}
             color="#565456"
-            size="lg"
+            className="ml-15 button"
             onClick={() => {
               this.insertAtCursor("@")
               this.filterMembers("")
             }}
           />
 
-          {!this.props.update &&
-            <FontAwesomeIcon
-              className="ml-15 button"
-              icon={["fal", "paper-plane"]}
-              color="#565456"
-              size="lg"
-              onClick={this.onSend}
-            />
-          }
-
-          {this.props.update &&
-            <FontAwesomeIcon
-              className="ml-15 button"
-              icon={["fal", "check"]}
-              color="#565456"
-              size="lg"
-              onClick={this.onSend}
-            />
-          }
+          <IconComponent
+            icon="send"
+            size={20}
+            color="#565456"
+            className="ml-15 button"
+            onClick={this.onSend}
+          />
         </InputContainer>
 
         <Footer className="row">
-          <FontAwesomeIcon
-            className="mr-10"
-            icon={["fab", "markdown"]}
+          <IconComponent
+            icon="markdown"
+            size={20}
             color="#cfd4d9"
-            size="sm"
+            className="mr-10"
           />
           <span>Use <strong>**markdown**</strong> to format your message</span>
         </Footer>

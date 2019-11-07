@@ -5,9 +5,9 @@ import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import { hydrateNotifications, updateNotificationRead } from '../actions'
 import { Spinner } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
+import { IconComponent } from './icon.component'
 
 const Container = styled.div`
   width: 100%;
@@ -170,10 +170,10 @@ export default function NotificationsComponent(props) {
         <LoadContainer
           onClick={() => handleLoadButtonClick()}
           className="button row justify-content-center">
-          <FontAwesomeIcon
-            icon={["fal", "sync-alt"]}
-            color="#adb5bd"
-            size="sm"
+          <IconComponent
+            icon="refresh"
+            size={15}
+            color="#acb5bd"
             className="mt-5 mb-5"
           />
         <LoadText>Refresh</LoadText>

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import { Button, Modal } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { IconComponent } from './icon.component'
 
 const Iframe = styled.iframe`
   border: none;
@@ -46,12 +46,12 @@ export default function AppComponent(props) {
         <HeaderTitle>
           {props.title}
         </HeaderTitle>
-        <FontAwesomeIcon
-          onClick={props.onClose}
-          className="mr-5 button"
-          icon={["fal", "times"]}
+        <IconComponent
+          icon="x"
+          size={25}
           color="#040b1c"
-          size="2x"
+          className="mr-5 button"
+          onClick={props.onClose}
         />
       </Header>
       <Iframe
