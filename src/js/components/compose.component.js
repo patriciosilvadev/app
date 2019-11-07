@@ -169,6 +169,7 @@ const AppIconImage = styled.div`
   overflow: hidden;
   background-size: contain;
   background-position: center center;
+  background-repeat: no-repeat;
   background-color: transparent;
   background-image: url(${props => props.image});
 `
