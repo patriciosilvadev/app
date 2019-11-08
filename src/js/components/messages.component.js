@@ -72,7 +72,7 @@ export default memo(props => {
 
             <MessageComponent
               message={message}
-              hideUser={hideUser}
+              hideUser={hideUser && !showDate}
               highlight={props.highlight}
               setUpdateMessage={props.setUpdateMessage}
               setReplyMessage={props.setReplyMessage}

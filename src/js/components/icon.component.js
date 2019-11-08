@@ -1,37 +1,36 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-
-import { Eye } from '../icons/Eye'
-import { EyeOff } from '../icons/EyeOff'
-import { Info } from '../icons/Info'
-import { Send } from '../icons/Send'
-import { AtSign } from '../icons/AtSign'
-import { Star} from '../icons/Star'
-import { Smile } from '../icons/Smile'
-import { Paperclip } from '../icons/Paperclip'
-//import { Users } from '../icons/Users'
-import { Trash2 } from '../icons/Trash2'
-import { PlusCircle } from '../icons/PlusCircle'
-import { Plus } from '../icons/Plus'
-import { X } from '../icons/X'
-import { Check } from '../icons/Check'
-import { Bell } from '../icons/Bell'
-import { BellOff } from '../icons/BellOff'
-import { Edit2 } from '../icons/Edit2'
-import { Settings } from '../icons/Settings'
-import { HelpCircle } from '../icons/HelpCircle'
-import { LogOut } from '../icons/LogOut'
-import { ChevronDown } from '../icons/ChevronDown'
-import { RefreshCcw } from '../icons/RefreshCcw'
-import { MoreVertical } from '../icons/MoreVertical'
-import { MoreHorizontal } from '../icons/MoreHorizontal'
-import { Search } from '../icons/Search'
-
-import { Users } from '../icons-custom/Users'
-import { Markdown } from '../icons-custom/Markdown'
-import { Reply } from '../icons-custom/Reply'
-import { Profile } from '../icons-custom/Profile'
+import {
+  Eye,
+  EyeOff,
+  Info,
+  Send,
+  AtSign,
+  Star,
+  Smile,
+  Paperclip,
+  Trash2,
+  PlusCircle,
+  Plus,
+  X,
+  Check,
+  Bell,
+  BellOff,
+  Edit2,
+  Settings,
+  HelpCircle,
+  LogOut,
+  ChevronDown,
+  RefreshCcw,
+  MoreVertical,
+  MoreHorizontal,
+  Search
+} from 'react-feather'
+import { Users } from '../icons/Users'
+import { Markdown } from '../icons/Markdown'
+import { Reply } from '../icons/Reply'
+import { Profile } from '../icons/Profile'
 
 export function IconComponent({ size, color, icon, thickness, className, onClick }) {
   const defaultThickness = 1.25

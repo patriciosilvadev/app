@@ -21,7 +21,6 @@ import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
 import { IconComponent } from './icon.component'
-import VisibilitySharpIcon from '@material-ui/icons/VisibilitySharp'
 
 const Room = styled.div`
   background: white;
