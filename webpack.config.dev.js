@@ -92,7 +92,7 @@ module.exports = env => {
               loader: 'file-loader',
               options: {
                 name: '[name].[ext]',
-                outputPath: 'images'
+                outputPath: ''
               },
             },
           ],

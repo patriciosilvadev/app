@@ -40,23 +40,23 @@ export default memo(props => {
   return (
     <React.Fragment>
       {props.messages.map((message, index) => {
-        let hideUser = false
+        let append = false
         let showDate = false
         const previousIndex = index - 1
-        const currentDate = moment(props.messages[index].createdAt).format('DDD')
+        const currentDate = moment(props.messages[index].createdAt)
         const currentUserId = props.messages[index].user ? props.messages[index].user.id : null
         let previousDate = null
         let previousUserId = null
 
         if (previousIndex >= 0) {
-          previousDate = moment(props.messages[previousIndex].createdAt).format('DDD')
+          previousDate = moment(props.messages[previousIndex].createdAt)
           previousUserId = props.messages[previousIndex].user ? props.messages[previousIndex].user.id : null
 
           if (previousUserId != null && currentUserId != null) {
-            if (previousUserId == currentUserId) hideUser = true
+            if (previousUserId == currentUserId && (currentDate.format('X') - previousDate.format('X')) <= 60) append = true
           }
 
-          if (currentDate != previousDate) {
+          if (currentDate.format('DDD') != previousDate.format('DDD')) {
             showDate = true
           }
         }
@@ -72,7 +72,7 @@ export default memo(props => {
 
             <MessageComponent
               message={message}
-              hideUser={hideUser && !showDate}
+              append={append && !showDate}
               highlight={props.highlight}
               setUpdateMessage={props.setUpdateMessage}
               setReplyMessage={props.setReplyMessage}

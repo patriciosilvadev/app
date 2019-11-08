@@ -90,7 +90,7 @@ export function initialize(userId) {
     MessagingService.getInstance().client.on('sync', ({ action }) => {
       // Check whether this person is in our chat list first
       if (action.type == 'ADD_PRESENCE') {
-        const existingRoom = rooms.reduce((exists, room) => {
+        const existingRoom = getState().rooms.reduce((exists, room) => {
           if (room.public) return false
 
           const { members } = room

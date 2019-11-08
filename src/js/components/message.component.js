@@ -32,6 +32,7 @@ const Tools = styled.div`
   padding: 10px;
   background: white;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f3f5;
   border-radius: 5px;
   position: absolute;
   right: 0px;
@@ -433,7 +434,7 @@ export default memo(props => {
       }
 
       <div className="row align-items-start w-100">
-        {!props.hideUser &&
+        {!props.append &&
           <Avatar
             image={senderImage}
             title={senderImage}
@@ -441,14 +442,18 @@ export default memo(props => {
           />
         }
 
-        {props.hideUser && <AvatarBlank />}
+        {props.append && <AvatarBlank />}
 
         <div className="column flexer pl-15">
           <Bubble className="column">
             <div className="row w-100 relative">
-              {!props.hideUser && <User>{senderName}</User>}
-              {props.message.app && <App>App</App>}
-              <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
+              {!props.append &&
+                <React.Fragment>
+                  <User>{senderName}</User>
+                  {props.message.app && <App>App</App>}
+                  <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
+                </React.Fragment>
+              }
 
               {over &&
                 <Tools className="row">
