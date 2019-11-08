@@ -90,6 +90,7 @@ export default class GraphqlService {
             archived
             description
             status
+            timezone
             image
             createdAt
             updatedAt

@@ -9,10 +9,9 @@ import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../actions'
 import ConfirmModal from './confirm.modal'
-import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
+import { Text, User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
-import { Text } from '../elements'
 
 const Row = styled.div`
   background-color: transparent;
