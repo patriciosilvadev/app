@@ -17,6 +17,7 @@ import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
+import { logger } from '../helpers/util'
 
 const Rooms = styled.div`
   width: 300px;
@@ -191,8 +192,7 @@ class RoomsComponent extends React.Component {
       this.props.updateUserStatus(status)
       this.props.updateRoomUserStatus(userId, teamId, status)
     } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
+      logger(e)
     }
   }
 
@@ -201,15 +201,19 @@ class RoomsComponent extends React.Component {
       await GraphqlService.getInstance().updateUserArchived(userId, roomId, archived)
 
       this.props.updateUserArchived(userId, roomId, archived)
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
-  async updateUserMuted() {
+  async updateUserMuted(userId, roomId, muted) {
     try {
       await GraphqlService.getInstance().updateUserMuted(userId, roomId, muted)
 
       this.props.updateUserMuted(userId, roomId, muted)
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
   static getDerivedStateFromProps(props, state) {

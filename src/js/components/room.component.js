@@ -561,7 +561,7 @@ class RoomComponent extends React.Component {
                 icon="star"
                 size={20}
                 thickness={1.5}
-                color={this.state.starred ? "#acb5bd" : "#babec9"}
+                color={this.state.starred ? "#edd264" : "#babec9"}
                 onClick={() => this.updateUserStarred(!this.state.starred)}
                 className="ml-15 button"
               />
