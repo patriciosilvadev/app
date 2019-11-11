@@ -286,7 +286,7 @@ export default function AccountModal(props) {
                         circle
                       />
 
-                    <div className="column pl-10">
+                      <div className="column pl-10">
                         <div className="row pb-5">
                           <Text color="d" display="h3">{name}</Text>
                         </div>

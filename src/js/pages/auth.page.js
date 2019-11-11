@@ -621,13 +621,14 @@ class AuthPage extends React.Component {
                       {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
                       <Spacer />
+                      
                       <Button
                         size="large"
                         type="submit"
                         disabled={isSubmitting}
                         text="Sign in"
                       />
-                    <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
+                      <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
                         I've lost my password
                       </SmallTextButton>
                       <SmallTextButton onClick={() => this.setState({ view: 'signup', error: null })} className="mt-10">
