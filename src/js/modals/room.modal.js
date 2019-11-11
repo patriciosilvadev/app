@@ -9,9 +9,11 @@ import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
 import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../actions'
 import ConfirmModal from './confirm.modal'
-import { Text, User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
+import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
+
+const Text = styled.div``
 
 const Row = styled.div`
   background-color: transparent;
@@ -419,8 +421,8 @@ export default function RoomModal(props) {
                       }
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Here be dragons!</Text>
-                        <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+                        <Text className="color-d2 h5 mb-10">Here be dragons!</Text>
+                        <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                         <Button
                           text="Delete"

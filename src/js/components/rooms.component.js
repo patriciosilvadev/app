@@ -75,18 +75,18 @@ const AccountMenuHeader = styled.div`
 
 const AccountMenuTitle = styled.div`
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   font-style: normal;
   color: #343a40;
   transition: opacity 0.5s;
   display: inline-block;
   flex: 1;
-  padding: 5px;
+  padding: 10px 5px 0px 5px;
 `
 
 const AccountMenuSubtitle = styled.div`
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: #cfd4d9;
   padding: 5px 5px 5px 5px;
 `

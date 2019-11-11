@@ -10,7 +10,9 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Text, Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
+
+const Text = styled.div``
 
 const MailTable = styled.table`
   margin-bottom: 50px;
@@ -288,11 +290,10 @@ export default function AccountModal(props) {
 
                       <div className="column pl-10">
                         <div className="row pb-5">
-                          <Text color="d" display="h3">{name}</Text>
+                          <Text className="h5 color-d2">{name}</Text>
                         </div>
                         <div className="row">
-                          <Text color="m" display="p" className="mr-10">{role}</Text>
-                          <Text color="highlight" display="a" className="button" onClick={() => fileRef.current.click()}>Update profile image</Text>
+                          <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
                         </div>
                       </div>
                     </div>
@@ -347,8 +348,8 @@ export default function AccountModal(props) {
                     {notification && <Notification text={notification} />}
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text color="d" display="h3">Connected email addresses</Text>
-                      <Text color="m" display="p" className="mb-30">Use your Weekday account with more than just 1 email address.</Text>
+                      <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
+                      <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
 
                       <MailTable width="100%">
                         <tbody>
@@ -389,8 +390,8 @@ export default function AccountModal(props) {
                     {notification && <Notification text={notification} />}
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text color="d" display="h3">Change & update your password</Text>
-                      <Text color="m" display="p" className="mb-30">You need to know your old password.</Text>
+                      <Text className="color-d2 h5 mb-10">Change & update your password</Text>
+                      <Text className="color-d0 p mb-30">You need to know your old password.</Text>
 
                       <Input
                         label="Current password"
@@ -447,8 +448,8 @@ export default function AccountModal(props) {
                     }
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text color="d" display="h3">Here be dragons!</Text>
-                      <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+                      <Text className="color-d2 h5 mb-10">Here be dragons!</Text>
+                      <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                       <Button
                         text="Delete"

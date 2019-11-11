@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Loading, Error, Text, Input, Button, Notification, Avatar } from '@weekday/elements'
+import { Loading, Error, Input, Button, Notification, Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 
 const Container = styled.div`
@@ -32,8 +32,8 @@ const Inputs = styled.div`
 const Inner = styled.div`
   background: white;
   position: relative;
-  height: 600px;
-  width: 500px;
+  height: 650px;
+  width: 550px;
   border-radius: 30px;
   display: flex;
   align-items: center;
@@ -64,6 +64,8 @@ const LogoText = styled.div`
   font-weight: 400;
   font-family: 'hk_groteskmedium', helvetica;
 `
+
+const Text = styled.div``
 
 export default props => {
   const [error, setError] = useState(null)
@@ -139,12 +141,13 @@ export default props => {
               className="mb-20"
               size="xx-large"
             />
-            <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
-            <Text display="h3" color="xxd" className="mb-10 pl-20 pr-20 center">Please enter the shortcode to join this team</Text>
-            <Text display="h5" color="xd">Contact your team admin if you do not know the shortcode</Text>
+            <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
+            <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
+            <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
             <Inputs>
               <Input
                 placeholder="Enter shortcode here"
+                inputSize="large"
                 className="mt-30"
                 value={shortcode}
                 onChange={e => setShortcode(e.target.value)}
@@ -166,9 +169,9 @@ export default props => {
               className="mb-20"
               size="xx-large"
             />
-          <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
-            <Text display="h3" color="xxd" className="mb-10">Congratulations</Text>
-            <Text display="h5" color="xd" className="mb-30">You have successfully joined this team. Click on the button to start.</Text>
+            <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
+            <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations</Text>
+            <Text className="h5 color-d0">You have successfully joined this team. Click on the button to start.</Text>
             <Inputs>
               <Button
                 onClick={() => props.history.push('/app')}

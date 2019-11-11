@@ -8,11 +8,13 @@ import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
-import { Text, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
+import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
 import { IconComponent } from '../components/icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
+
+const Text = styled.div``
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -278,13 +280,13 @@ export default function TeamModal(props) {
 
                         <div className="column flexer header pl-10">
                           <div className="row pb-5">
-                            <Text color="d" display="h3">{name}</Text>
+                            <Text className="h5 color-d2">{name}</Text>
                           </div>
                           <div className="row">
                             {props.id &&
-                              <Text color="m" display="p" className="mr-10">{members.length} members</Text>
+                              <Text className="p color-d0 button bold mr-10">{members.length} members</Text>
                             }
-                            <Text color="highlight" display="a" className="button" onClick={() => fileRef.current.click()}>Update profile image</Text>
+                            <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
                           </div>
                         </div>
                       </div>
@@ -377,8 +379,8 @@ export default function TeamModal(props) {
                     <div className="column w-100">
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Outside access</Text>
-                        <Text color="m" display="p" className="mb-30">
+                        <Text className="color-d2 h5 mb-10">Outside access</Text>
+                        <Text className="color-d0 p mb-30">
                           {`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}
                         </Text>
 
@@ -425,8 +427,8 @@ export default function TeamModal(props) {
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Invite users</Text>
-                        <Text color="m" display="p" className="mb-10">Add users email.</Text>
+                        <Text className="color-d2 h5 mb-10">Invite users</Text>
+                        <Text className="color-d0 p mb-30">Add users email.</Text>
 
                         <Textarea
                           placeholder="Comma seperated email addresses"
@@ -459,8 +461,8 @@ export default function TeamModal(props) {
                         />
                       }
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Here be dragons!</Text>
-                        <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+                        <Text className="color-d2 h5 mb-10">Here be dragons!</Text>
+                        <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                         <Button
                           text="Delete"
