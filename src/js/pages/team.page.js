@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Loading, Error, Text, Input, Button, Notification } from '@weekday/elements'
+import { Loading, Error, Text, Input, Button, Notification, Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 
 const Container = styled.div`
@@ -69,6 +69,8 @@ export default props => {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [joined, setJoined] = useState(false)
+  const [image, setImage] = useState('')
+  const [name, setName] = useState('')
   const [notification, setNotification] = useState(false)
   const [shortcode, setShortcode] = useState('')
 
@@ -103,6 +105,23 @@ export default props => {
     }
   }
 
+  useEffect(() => {
+    ;(async () => {
+      try {
+        setLoading(true)
+
+        const { data } = await GraphqlService.getInstance().teamSlug(props.match.params.slug)
+
+        setImage(data.teamSlug.image)
+        setName(data.teamSlug.name)
+        setLoading(false)
+      } catch (e) {
+        setLoading(false)
+        setError('This team does not exist')
+      }
+    })()
+  }, [])
+
   // prettier-ignore
   return (
     <React.Fragment>
@@ -114,7 +133,14 @@ export default props => {
 
         {!joined &&
           <Inner>
-            <Text display="h3" color="xxd" className="mb-10">Please the shortcode to join this team</Text>
+            <Avatar
+              image={image}
+              title={name}
+              className="mb-20"
+              size="xx-large"
+            />
+            <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
+            <Text display="h3" color="xxd" className="mb-10">Please enter the shortcode to join this team</Text>
             <Text display="h5" color="xd">Contact your team admin if you do not know the shortcode</Text>
             <Inputs>
               <Input
@@ -134,6 +160,13 @@ export default props => {
 
         {joined &&
           <Inner>
+            <Avatar
+              image={image}
+              title={name}
+              className="mb-20"
+              size="xx-large"
+            />
+            <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
             <Text display="h3" color="xxd" className="mb-10">Congratulations</Text>
             <Text display="h5" color="xd" className="mb-30">You have successfully joined this team. Click on the button to start.</Text>
             <Inputs>

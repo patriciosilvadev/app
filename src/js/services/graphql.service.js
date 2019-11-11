@@ -120,6 +120,24 @@ export default class GraphqlService {
     })
   }
 
+  teamSlug(slug) {
+    return this.client.query({
+      query: gql`
+        query teamSlug($slug: String) {
+          teamSlug(slug: $slug) {
+            id
+            name
+            description
+            image
+          }
+        }
+      `,
+      variables: {
+        slug,
+      },
+    })
+  }
+
   team(teamId, userId) {
     return this.client.query({
       query: gql`
