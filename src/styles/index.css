@@ -3,32 +3,16 @@
   outline: none;
   text-decoration: none;
   box-sizing: border-box;
-}
-
-.MuiSvgIcon-root, .MuiSvgIcon-root.MuiSvgIcon-fontSizeInherit { font-size: 22px !important; }
-.MuiSvgIcon-root.MuiSvgIcon-fontSizeSmall { font-size: 16px !important; }
-.MuiSvgIcon-root.MuiSvgIcon-fontSizeLarge { font-size: 25px !important; }
-
-.emoji-mart-search {
-  display: none;
-}
-
-* {
   font-size: 0.9rem;
 }
 
-*:focus {
-  outline: none;
-}
-
+*:focus { outline: none; }
 a { color: #007af5; }
 a:visited { color: #007af5; }
-
 .hide { display: none !important }
 
-.emoji-mart-bar {
-  margin-bottom: 10px;
-}
+.emoji-mart-search { display: none; }
+.emoji-mart-bar { margin-bottom: 10px; }
 
 video {
   background: black;
@@ -79,15 +63,8 @@ body {
 
 /* Paddings & margins */
 
-.p-40 { padding: 40px; }
-.p-30 { padding: 30px; }
-.p-20 { padding: 20px; }
-.p-15 { padding: 15px; }
-.p-10 { padding: 10px; }
-.p-5 { padding: 5px; }
-.p-0 { padding: 0px; }
-
 .m-30 { margin: 30px; }
+.m-25 { margin: 25px; }
 .m-20 { margin: 20px; }
 .m-15 { margin: 15px; }
 .m-10 { margin: 10px; }
@@ -119,10 +96,8 @@ body {
 .mr-15 { margin-right: 15px; }
 .mr-10 { margin-right: 10px; }
 .mr-5 { margin-right: 5px; }
-
-/* Just for Avatar on thread component */
-
 .mr-7 { margin-right: 7px; }
+
 .ml-40 { margin-left: 40px; }
 .ml-30 { margin-left: 30px; }
 .ml-25 { margin-left: 25px; }
@@ -162,7 +137,13 @@ body {
 .pb-30 { padding-bottom: 30px; }
 
 .p-0 { padding: 0px; }
+.p-5 { padding: 5px; }
+.p-10 { padding: 10px; }
+.p-15 { padding: 15px; }
 .p-20 { padding: 20px; }
+.p-25 { padding: 25px; }
+.p-30 { padding: 30px; }
+.p-40 { padding: 40px; }
 
 /* Heights & widths */
 
@@ -226,6 +207,7 @@ body {
 .justify-content-between { display: flex; justify-content: space-between; }
 
 .wrap { flex-wrap: wrap; }
+
 .flexer { flex: 1 }
 
 /* Text sizes & weights */
@@ -238,9 +220,15 @@ body {
 .p { font-size: 12px; font-weight: 400; }
 .small { font-size: 10px; font-weight: 400; }
 
+.xx-light { font-weight: 100; }
+.x-light { font-weight: 200; }
+.light { font-weight: 300; }
+.regular { font-weight: 400; }
+.medium { font-weight: 500; }
 .bold { font-weight: 600; }
 .x-bold { font-weight: 700; }
 .xx-bold { font-weight: 800; }
+.xxx-bold { font-weight: 900; }
 
 /* Text colors */
 
