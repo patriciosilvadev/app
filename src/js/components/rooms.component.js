@@ -92,8 +92,8 @@ const AccountMenuSubtitle = styled.div`
 `
 
 const AccountMenuBuild = styled.div`
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 400;
   color: #cfd4d9;
   padding: 10px;
   border-top: 1px solid #f1f3f5;

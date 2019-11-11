@@ -298,6 +298,8 @@ export default function RoomModal(props) {
                         <Button
                           onClick={handleUpdateRoom}
                           text="Update"
+                          theme="blue-border"
+                          size="small"
                         />
                       </div>
                     </div>
@@ -347,6 +349,7 @@ export default function RoomModal(props) {
                           label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
                           <Button
+                            theme="blue-border"
                             size="small"
                             onClick={() => {
                               if (members.length == 1) {
@@ -398,6 +401,7 @@ export default function RoomModal(props) {
                             color="#00a8ff"
                           />
                         </Avatar>
+
                         <Link className="ml-10">Add new Member</Link>
                       </AddButton>
                     </QuickUserComponent>
@@ -421,11 +425,12 @@ export default function RoomModal(props) {
                       }
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text className="color-d2 h5 mb-10">Here be dragons!</Text>
+                        <Text className="color-red h5 mb-10">Here be dragons!</Text>
                         <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                         <Button
                           text="Delete"
+                          theme="red"
                           onClick={() => setConfirmDeleteModal(true)}
                         />
                       </div>

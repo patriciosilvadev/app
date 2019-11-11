@@ -310,6 +310,8 @@ export default function TeamModal(props) {
                         <Button
                           onClick={handleUpdateTeam}
                           text="Save"
+                          theme="blue-border"
+                          size="small"
                         />
                       </div>
                     </div>
@@ -360,6 +362,7 @@ export default function TeamModal(props) {
                           />
 
                           <Button
+                            theme="blue-border"
                             size="small"
                             className="ml-20"
                             onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
@@ -394,10 +397,14 @@ export default function TeamModal(props) {
                         <div className="row mb-30">
                           <Button
                             onClick={handleUpdateTeamShortcode}
-                            text="Save"
+                            text="Update shortcode"
+                            theme="blue-border"
+                            size="small"
                           />
 
                           <Button
+                            theme="blue-border"
+                            size="small"
                             onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)}
                             text="Copy URL"
                             className="ml-5"
@@ -412,8 +419,10 @@ export default function TeamModal(props) {
                         />
 
                         <Button
+                          theme="blue-border"
+                          size="small"
                           onClick={handleUpdateTeamSlug}
-                          text="Save"
+                          text="Update slug"
                         />
                       </div>
                     </div>
@@ -439,6 +448,8 @@ export default function TeamModal(props) {
                         <Button
                           text="Invite users"
                           onClick={inviteTeamMembers}
+                          theme="blue-border"
+                          size="small"
                         />
                       </div>
                     </div>
@@ -461,11 +472,12 @@ export default function TeamModal(props) {
                         />
                       }
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text className="color-d2 h5 mb-10">Here be dragons!</Text>
+                        <Text className="color-red h5 mb-10">Here be dragons!</Text>
                         <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                         <Button
                           text="Delete"
+                          theme="red"
                           onClick={() => setConfirmDeleteModal(true)}
                         />
                       </div>

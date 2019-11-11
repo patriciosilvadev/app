@@ -119,10 +119,10 @@ export default function NotificationsComponent(props) {
     try {
       await GraphqlService.getInstance().updateNotificationRead(notificationId, read)
 
-      dispatch(updateLoading(false))
+      setLoading(false)
       dispatch(updateNotificationRead(notificationId, read))
     } catch (e) {
-      setLoading(true)
+      setLoading(false)
       setError(false)
     }
   }

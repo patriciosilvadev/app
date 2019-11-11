@@ -16,7 +16,7 @@ const Text = styled.div``
 
 const MailTable = styled.table`
   margin-bottom: 50px;
-  margin-top: 50px;
+  margin-top: 20px;
 `
 
 const MailTableCell = styled.td`
@@ -329,6 +329,8 @@ export default function AccountModal(props) {
                       />
 
                       <Button
+                        theme="blue-border"
+                        size="small"
                         onClick={handleSubmit}
                         text="Save"
                       />
@@ -370,8 +372,11 @@ export default function AccountModal(props) {
                         onChange={e => setNewEmailAddress(e.target.value)}
                         placeholder="Enter your email"
                       />
+
                       <Button
                         text="Add"
+                        theme="blue-border"
+                        size="small"
                         onClick={handleNewEmailAddressAdd}
                       />
                     </div>
@@ -419,8 +424,11 @@ export default function AccountModal(props) {
                         type="password"
                         autocomplete="no"
                       />
+
                       <Button
                         text="Update"
+                        theme="blue-border"
+                        size="small"
                         onClick={handlePasswordUpdate}
                       />
                     </div>
@@ -448,10 +456,11 @@ export default function AccountModal(props) {
                     }
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text className="color-d2 h5 mb-10">Here be dragons!</Text>
+                      <Text className="color-red h5 mb-10">Here be dragons!</Text>
                       <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                       <Button
+                        theme="red"
                         text="Delete"
                         onClick={() => setConfirmAccountDeleteModal(true)}
                       />
