@@ -140,7 +140,7 @@ export default props => {
               size="xx-large"
             />
             <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
-            <Text display="h3" color="xxd" className="mb-10">Please enter the shortcode to join this team</Text>
+            <Text display="h3" color="xxd" className="mb-10 pl-20 pr-20 center">Please enter the shortcode to join this team</Text>
             <Text display="h5" color="xd">Contact your team admin if you do not know the shortcode</Text>
             <Inputs>
               <Input
@@ -166,7 +166,7 @@ export default props => {
               className="mb-20"
               size="xx-large"
             />
-            <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
+          <Text display="h1" color="xxd" className="mb-30 mt-10">{name}</Text>
             <Text display="h3" color="xxd" className="mb-10">Congratulations</Text>
             <Text display="h5" color="xd" className="mb-30">You have successfully joined this team. Click on the button to start.</Text>
             <Inputs>

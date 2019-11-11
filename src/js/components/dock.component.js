@@ -5,7 +5,7 @@ import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import GraphqlService from '../services/graphql.service'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import { hydrateTeams, createTeam, updateNotifications } from '../actions'
+import { hydrateTeams, createTeam, updateNotifications, hydrateNotifications,  } from '../actions'
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
@@ -82,19 +82,21 @@ export default function DockComponent(props) {
     }
   }
 
-  const fetchTeams = async userId => {
+  const fetchTeamsAndNotifications = async userId => {
     setLoading(true)
     setError(false)
 
     try {
-      const { data } = await GraphqlService.getInstance().teams(userId)
-      const teamIds = data.teams.map(team => team.id)
+      const teams = await GraphqlService.getInstance().teams(userId)
+      const notifications = await GraphqlService.getInstance().notifications(userId, 0)
+      const teamIds = teams.data.teams.map(team => team.id)
 
       // Join all these team rooms
       MessagingService.getInstance().joins(teamIds)
 
       setLoading(false)
-      dispatch(hydrateTeams(data.teams))
+      dispatch(hydrateTeams(teams.data.teams))
+      dispatch(hydrateNotifications(notifications.data.notifications))
     } catch (e) {
       logger(e)
       setLoading(false)
@@ -115,7 +117,7 @@ export default function DockComponent(props) {
 
   // Get all the teams
   useEffect(() => {
-    if (user.id) fetchTeams(user.id)
+    if (user.id) fetchTeamsAndNotifications(user.id)
   }, [user.id])
 
   // prettier-ignore
