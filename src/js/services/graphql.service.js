@@ -127,7 +127,8 @@ export default class GraphqlService {
           team(teamId: $teamId, userId: $userId) {
             id
             name
-            url
+            shortcode
+            slug
             description
             image
             rooms(userId: $userId) {
@@ -746,7 +747,6 @@ export default class GraphqlService {
             id
             name
             image
-            url
           }
         }
       `,
@@ -756,15 +756,30 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamUrl(teamId) {
+  updateTeamShortcode(teamId, shortcode) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamUrl($teamId: String) {
-          updateTeamUrl(teamId: $teamId)
+        mutation updateTeamShortcode($teamId: String, $shortcode: String) {
+          updateTeamShortcode(teamId: $teamId, shortcode: $shortcode)
         }
       `,
       variables: {
         teamId,
+        shortcode,
+      },
+    })
+  }
+
+  updateTeamSlug(teamId, slug) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTeamSlug($teamId: String, $slug: String) {
+          updateTeamSlug(teamId: $teamId, slug: $slug)
+        }
+      `,
+      variables: {
+        teamId,
+        slug,
       },
     })
   }
@@ -811,16 +826,17 @@ export default class GraphqlService {
     })
   }
 
-  inviteTeamMembers(teamName, teamUrl, emails) {
+  inviteTeamMembers(teamName, teamSlug, teamShortcode, emails) {
     return this.client.mutate({
       mutation: gql`
-        mutation inviteTeamMembers($teamName: String, $teamUrl: String, $emails: String) {
-          inviteTeamMembers(teamName: $teamName, teamUrl: $teamUrl, emails: $emails)
+        mutation inviteTeamMembers($teamName: String, $teamSlug: String, $teamShortcode: String, $emails: String) {
+          inviteTeamMembers(teamName: $teamName, teamSlug: $teamSlug, teamShortcode: $teamShortcode, emails: $emails)
         }
       `,
       variables: {
         teamName,
-        teamUrl,
+        teamSlug,
+        teamShortcode,
         emails,
       },
     })

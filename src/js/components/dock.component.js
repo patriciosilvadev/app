@@ -63,7 +63,7 @@ export default function DockComponent(props) {
       const { data } = await GraphqlService.getInstance().createTeam({
         name,
         description: '',
-        image: null,
+        image: '',
         members: [
           {
             user: user.id,
@@ -73,7 +73,7 @@ export default function DockComponent(props) {
       })
 
       setLoading(false)
-      dispatch(createTeam(team))
+      dispatch(createTeam(data.createTeam))
 
       MessagingService.getInstance().join(data.createTeam.id)
     } catch (e) {

@@ -20,7 +20,8 @@ export default function TeamModal(props) {
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
-  const [url, setUrl] = useState('')
+  const [slug, setSlug] = useState('')
+  const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
   const [description, setDescription] = useState('')
@@ -50,21 +51,37 @@ export default function TeamModal(props) {
     }
   }
 
-  const handleUpdateTeamUrl = async () => {
+  const handleUpdateTeamSlug = async () => {
     setLoading(true)
     setError(null)
 
     try {
       const teamId = props.id
-      const { data } = await GraphqlService.getInstance().updateTeamUrl(teamId)
+      const { data } = await GraphqlService.getInstance().updateTeamSlug(teamId, slug)
 
-      setUrl(data.updateTeamUrl)
       setLoading(false)
-      setNotification('Succesfully updated team url')
-      dispatch(updateTeam(teamId, { url }))
+      setNotification('Succesfully updated team slug')
+      dispatch(updateTeam(teamId, { slug }))
     } catch (e) {
       setLoading(false)
-      setError('Error updating team url')
+      setError('Error updating team slug')
+    }
+  }
+
+  const handleUpdateTeamShortcode = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const teamId = props.id
+      const { data } = await GraphqlService.getInstance().updateTeamShortcode(teamId, shortcode)
+
+      setLoading(false)
+      setNotification('Succesfully updated team shortcode')
+      dispatch(updateTeam(teamId, { shortcode }))
+    } catch (e) {
+      setLoading(false)
+      setError('Error updating team shortcode')
     }
   }
 
@@ -110,7 +127,7 @@ export default function TeamModal(props) {
       setLoading(true)
       setError(null)
 
-      await GraphqlService.getInstance().inviteTeamMembers(name, url, emails)
+      await GraphqlService.getInstance().inviteTeamMembers(name, slug, shortcode, emails)
 
       setLoading(false)
       setEmails('')
@@ -213,7 +230,8 @@ export default function TeamModal(props) {
         setName(team.name || '')
         setDescription(team.description || '')
         setMembers(team.members)
-        setUrl(team.url)
+        setShortcode(team.shortcode)
+        setSlug(team.slug)
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -352,33 +370,63 @@ export default function TeamModal(props) {
                 )
               },
               {
-                title: 'Invite & share',
+                title: 'Access',
                 show: true,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Invite users</Text>
-                        <Text color="m" display="p" className="mb-10">Add users email.</Text>
+                        <Text color="d" display="h3">Outside access</Text>
+                        <Text color="m" display="p" className="mb-30">
+                          {`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}
+                        </Text>
 
-                        <div className="mb-5">
-                          <Text
-                            className="button"
-                            color="highlight"
-                            display="a"
-                            onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/join/${url}`)}>
-                            Click here
-                          </Text>
-                          <Text color="d" display="p"> to copy a temporary access URL that users can use to join this team</Text>
+                        <Input
+                          label="Update your team shortcode"
+                          value={shortcode}
+                          onChange={e => setShortcode(e.target.value)}
+                          placeholder="Enter shortcode"
+                        />
+
+                        <div className="row mb-30">
+                          <Button
+                            onClick={handleUpdateTeamShortcode}
+                            text="Save"
+                          />
+
+                          <Button
+                            onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)}
+                            text="Copy URL"
+                            className="ml-5"
+                          />
                         </div>
 
-                        <Button
-                          text="Generate a new url"
-                          onClick={handleUpdateTeamUrl}
-                          className="mt-30 mb-30"
-                          size="small"
+                        <Input
+                          label="Update your team slug"
+                          value={slug}
+                          onChange={e => setSlug(e.target.value)}
+                          placeholder="Enter Slug"
                         />
+
+                        <Button
+                          onClick={handleUpdateTeamSlug}
+                          text="Save"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                title: 'Invite & share',
+                show: true,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <Text color="d" display="h3">Invite users</Text>
+                        <Text color="m" display="p" className="mb-10">Add users email.</Text>
 
                         <Textarea
                           placeholder="Comma seperated email addresses"
