@@ -666,6 +666,21 @@ export default class GraphqlService {
    * Mutations
    */
 
+  joinTeam(slug, userId, shortcode) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation joinTeam($slug: String, $userId: String, $shortcode: String) {
+          joinTeam(slug: $slug, userId: $userId, shortcode: $shortcode)
+        }
+      `,
+      variables: {
+        slug,
+        userId,
+        shortcode,
+      },
+    })
+  }
+
   updateNotificationRead(notificationId, read) {
     return this.client.mutate({
       mutation: gql`

@@ -2,109 +2,155 @@ import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Loading, Error } from '@weekday/elements'
-
-const Confirm = styled.div`
-  height: 100%;
-  width: 100%;
-  background: #f5f4f1;
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  z-index: 100;
-  background-image: url(https://mir-s3-cdn-cf.behance.net/project_modules/2800_opt_1/36a4b478530457.5ca746a72e431.jpg);
-  background-size: contain;
-`
+import { Loading, Error, Text, Input, Button, Notification } from '@weekday/elements'
+import GraphqlService from '../services/graphql.service'
 
 const Container = styled.div`
-  width: 400px;
-  overflow: hidden;
-  height: 650px;
-  margin: auto;
-  border-radius: 10px;
+  background: #f3f3f3;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+`
+
+const Inputs = styled.div`
+  position: relative;
+  width: 300px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+`
+
+const Inner = styled.div`
   background: white;
-`
-
-const Link = styled.div`
-  color: #00a8ff;
-  font-size: 20px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-  width: 100%;
-`
-
-const Text = styled.div`
-  color: #202529;
-  font-size: 28px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-  width: 100%;
+  position: relative;
+  height: 600px;
+  width: 500px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
 `
 
 const Logo = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #0f081f;
-  border-radius: 100px;
+  top: 40px;
+  left: 40px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  margin-right: auto;
 `
 
 const LogoText = styled.div`
-  padding: 10px 15px 10px 15px;
+  padding-left: 5px;
+  position: relative;
+  bottom: 2px;
   color: #007af5;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 400;
+  font-family: 'hk_groteskmedium', helvetica;
 `
 
 export default props => {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [confirmed, setConfirmed] = useState(false)
-  const [block, setBlock] = useState(false)
+  const [joined, setJoined] = useState(false)
+  const [notification, setNotification] = useState(false)
+  const [shortcode, setShortcode] = useState('')
 
-  useEffect(() => {
-    // VVV wtf is this - Prettier requires the ";"
-    ;(async () => {
-      setLoading(true)
+  const handleTeamJoin = async () => {
+    setLoading(true)
+    setError(false)
+    setNotification(false)
 
-      try {
-        const { userId } = await AuthService.currentAuthenticatedUser()
-        const { url } = props.match.params
-        const auth = await AuthService.join(url, userId)
+    if (shortcode == '') {
+      setError('Please enter a shortcode')
+      setLoading(false)
 
-        setLoading(false)
+      return
+    }
 
-        if (auth.status != 200) setBlock(true)
-        if (auth.status == 200) setConfirmed(true)
-      } catch (e) {
-        props.history.push('/auth')
+    try {
+      const { userId } = await AuthService.currentAuthenticatedUser()
+      const { slug } = props.match.params
+      const { data } = await GraphqlService.getInstance().joinTeam(slug, userId, shortcode)
+
+      setLoading(false)
+
+      if (!data.joinTeam) setError('Could not join team')
+      if (data.joinTeam) {
+        setJoined(true)
+        setNotification('successfully joined team')
       }
-    })()
-  }, [])
+    } catch (e) {
+      setLoading(false)
+      setNotification(false)
+      setError('Could not join team')
+    }
+  }
 
   // prettier-ignore
   return (
-    <Confirm className="row">
-      <Loading show={loading} />
+    <React.Fragment>
+      <Error message={error} />
+      <Notification text={notification} />
 
-      <Container className="column justify-content-center align-content-center">
-        <Error message={error} />
+      <Container className="column">
+        <Loading show={loading} />
 
-        {!block && !confirmed && <Text>Checking...</Text>}
-        {block && <Text>Not found</Text>}
-        {confirmed &&
-          <React.Fragment>
-            <Text>You have joined the team!</Text>
-            <Link className="button" onClick={() => props.history.push('/app')}>Click here to log in</Link>
-          </React.Fragment>
+        {!joined &&
+          <Inner>
+            <Text display="h3" color="xxd" className="mb-10">Please the shortcode to join this team</Text>
+            <Text display="h5" color="xd">Contact your team admin if you do not know the shortcode</Text>
+            <Inputs>
+              <Input
+                placeholder="Enter shortcode here"
+                className="mt-30"
+                value={shortcode}
+                onChange={e => setShortcode(e.target.value)}
+              />
+              <Button
+                onClick={handleTeamJoin}
+                size="large"
+                text="Join Now"
+              />
+            </Inputs>
+          </Inner>
         }
-      </Container>
 
-      <Logo>
-        <LogoText>weekday</LogoText>
-      </Logo>
-    </Confirm>
+        {joined &&
+          <Inner>
+            <Text display="h3" color="xxd" className="mb-10">Congratulations</Text>
+            <Text display="h5" color="xd" className="mb-30">You have successfully joined this team. Click on the button to start.</Text>
+            <Inputs>
+              <Button
+                onClick={() => props.history.push('/app')}
+                size="large"
+                text="Start"
+              />
+            </Inputs>
+          </Inner>
+        }
+
+        <Logo>
+          <img src="./logo.png" height="20" alt="Weekday"/>
+          <LogoText>weekday</LogoText>
+        </Logo>
+      </Container>
+    </React.Fragment>
   )
 }
