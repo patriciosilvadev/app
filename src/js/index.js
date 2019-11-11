@@ -12,8 +12,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import { API_HOST, PUBLIC_VAPID_KEY } from './environment'
 import { sync } from './middleware/sync'
 import AuthPage from './pages/auth.page'
-import JoinPage from './pages/join.page'
-import ConfirmPage from './pages/confirm.page'
+import TeamPage from './pages/team.page'
 import AppPage from './pages/app.page'
 import AuthService from './services/auth.service'
 import common from './reducers/common'
@@ -87,8 +86,7 @@ ReactDOM.render(
         />
 
         <Route path="/auth" component={AuthPage} />
-        <Route path="/confirm/:email/:token" component={ConfirmPage} />
-        <Route path="/join/:url" component={JoinPage} />
+        <Route path="/t/:slug" component={TeamPage} />
         <Route path="/app" component={AppPage} />
       </Router>
     </ApolloProvider>
