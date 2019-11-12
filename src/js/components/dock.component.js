@@ -92,12 +92,18 @@ export default function DockComponent(props) {
   // Get all the teams
   useEffect(() => {
     if (user.id) fetchTeamsAndNotifications(user.id)
+
+    // If the user has signed up (this query string will be present)
+    if (props.history.location.search) {
+      if (props.history.location.search.split('=')[1] == 'true') {
+        setTeamOnboardingModal(true)
+      }
+    }
   }, [user.id])
 
   // prettier-ignore
   return (
     <Dock className="column align-items-center">
-
       {teamOnboardingModal &&
         <TeamOnboardingModal
           onOkay={() => setTeamOnboardingModal(false)}

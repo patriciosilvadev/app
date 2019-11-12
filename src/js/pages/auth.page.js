@@ -15,21 +15,26 @@ const Auth = styled.div`
   position: fixed;
   top: 0px;
   left: 0px;
-  z-index: 100;
-  background: #08111d;
-  background-image: url(https://weekday-app.s3-us-west-2.amazonaws.com/pattern.png);
-  background-size: 800px;
-  background-repeat: no-repeat;
-  background-position: center center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  background: #f3f3f3;
+  position: relative;
 `
 
 const Container = styled.div`
-  width: 400px;
-  overflow: hidden;
-  height: 650px;
-  margin: auto;
-  border-radius: 10px;
   background: white;
+  position: relative;
+  height: 90%;
+  width: 550px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
 `
 
 const Content = styled.div`
@@ -153,18 +158,26 @@ const Members = styled.div`
 `
 
 const Logo = styled.div`
-  position: relative;
-  margin-bottom: 40px;
+  position: absolute;
+  top: 40px;
+  left: 40px;
   z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  margin-right: auto;
 `
 
 const LogoText = styled.div`
-  padding-left: 10px;
+  padding-left: 5px;
   position: relative;
   bottom: 2px;
   color: #007af5;
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 400;
+  font-family: 'hk_groteskmedium', helvetica;
 `
 
 const Form = styled.form`
@@ -173,6 +186,11 @@ const Form = styled.form`
 
 const Spacer = styled.div`
   height: 20px;
+`
+
+const InputContainer = styled.div`
+  width: 80%;
+  padding: 5px;
 `
 
 class AuthPage extends React.Component {
@@ -184,6 +202,7 @@ class AuthPage extends React.Component {
       verify: false,
       error: null,
       loading: null,
+      onboarding: false,
     }
 
     this.signin = this.signin.bind(this)
@@ -206,6 +225,7 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
+      onboarding: false,
     })
 
     try {
@@ -215,7 +235,7 @@ class AuthPage extends React.Component {
 
       if (auth.status == 500) return this.setState({ error: 'Internal error' })
       if (auth.status == 401) return this.setState({ error: 'Username or email not available' })
-      if (auth.status == 200) return this.setState({ view: 'signin' })
+      if (auth.status == 200) return this.setState({ view: 'signin', onboarding: true })
     } catch (e) {
       this.setState({
         loading: false,
@@ -228,6 +248,7 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
+      onboarding: false,
     })
 
     try {
@@ -239,11 +260,11 @@ class AuthPage extends React.Component {
       if (auth.status != 200) return this.setState({ error: 'Incorrect details' })
       if (auth.status == 200) {
         const { token, userId } = data
+        const route = this.state.onboarding ? '/app?onboarding=true' : '/app'
 
         AuthService.saveToken(token)
-
         this.props.fetchUser(userId)
-        this.props.history.push('/app')
+        this.props.history.push(route)
       }
     } catch (e) {
       this.setState({
@@ -257,6 +278,7 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
+      onboarding: false,
     })
 
     try {
@@ -279,6 +301,7 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
+      onboarding: false,
     })
 
     try {
@@ -300,22 +323,18 @@ class AuthPage extends React.Component {
   // prettier-ignore
   render() {
     return(
-      <Auth className="row">
+      <Auth>
+        <Logo>
+          <img src="./logo.png" height="20" alt="Weekday"/>
+          <LogoText>weekday</LogoText>
+        </Logo>
+
+        <Loading show={this.state.loading} />
+        <Error message={this.state.error} />
+
         <Container className="column justify-content-center align-content-center align-items-stretch">
-          <Logo className="row justify-content-center align-content-center align-items-center">
-            <img src="https://weekday-app.s3-us-west-2.amazonaws.com/logo.png" height="30"/>
-            <LogoText>weekday</LogoText>
-          </Logo>
-
-          <Loading show={this.state.loading} />
-          <Error message={this.state.error} />
-
           {this.state.view == "password" &&
             <React.Fragment>
-              <SmallText>
-                Enter your email address and we'll send you a verification code to reset your password.
-              </SmallText>
-
               {!this.state.verify &&
                 <React.Fragment>
                   <Formik
@@ -342,15 +361,22 @@ class AuthPage extends React.Component {
 
                       return (
                         <Form onSubmit={handleSubmit} className="column align-items-center">
-                          <Input
-                            type="text"
-                            name="email"
-                            value={values.email}
-                            placeholder="Email"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.email && touched.email ? 'error' : null}
-                          />
+                          <div className="h4 p-30 color-d3 text-center">
+                            Enter your email address and we'll send you a verification code to reset your password.
+                          </div>
+
+                          <InputContainer>
+                            <Input
+                              type="text"
+                              name="email"
+                              value={values.email}
+                              inputSize="large"
+                              placeholder="Email"
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={errors.email && touched.email ? 'error' : null}
+                            />
+                          </InputContainer>
 
                           {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
@@ -400,39 +426,52 @@ class AuthPage extends React.Component {
 
                       return (
                         <Form onSubmit={handleSubmit} className="column align-items-center">
-                          <Input
-                            type="text"
-                            name="email"
-                            value={values.email}
-                            placeholder="Email"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.email && touched.email ? 'error' : null}
-                          />
+                          <div className="h4 p-30 color-d3 text-center">
+                            Enter your email address and we'll send you a verification code to reset your password.
+                          </div>
+
+                          <InputContainer>
+                            <Input
+                              type="text"
+                              name="email"
+                              inputSize="large"
+                              value={values.email}
+                              placeholder="Email"
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={errors.email && touched.email ? 'error' : null}
+                            />
+                          </InputContainer>
 
                           {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
-                          <Input
-                            type="password"
-                            name="password"
-                            value={values.password}
-                            placeholder="New Password"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.password && touched.password ? 'error' : null}
-                          />
+                          <InputContainer>
+                            <Input
+                              type="password"
+                              name="password"
+                              inputSize="large"
+                              value={values.password}
+                              placeholder="New Password"
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={errors.password && touched.password ? 'error' : null}
+                            />
+                          </InputContainer>
 
                           {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
-                          <Input
-                            type="text"
-                            name="code"
-                            value={values.code}
-                            placeholder="Confirm code"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.code && touched.code ? 'error' : null}
-                          />
+                          <InputContainer>
+                            <Input
+                              type="text"
+                              name="code"
+                              inputSize="large"
+                              value={values.code}
+                              placeholder="Confirm code"
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={errors.code && touched.code ? 'error' : null}
+                            />
+                          </InputContainer>
 
                           {errors.code && touched.code && <ErrorText>{errors.code}</ErrorText>}
 
@@ -489,56 +528,70 @@ class AuthPage extends React.Component {
                   } = props;
 
                   return (
-                    <Form onSubmit={handleSubmit} className="column align-items-center">
-                      <Input
-                        type="text"
-                        name="username"
-                        autocomplete="off"
-                        value={values.username}
-                        placeholder="Username"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={errors.username && touched.username ? 'error' : null}
-                      />
+                    <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                      <div className="h1 mb-30 mt-30 color-d3">Create an account</div>
+
+                      <InputContainer>
+                        <Input
+                          type="text"
+                          name="username"
+                          inputSize="large"
+                          autocomplete="off"
+                          value={values.username}
+                          placeholder="Username"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={errors.username && touched.username ? 'error' : null}
+                        />
+                      </InputContainer>
 
                       {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
 
-                      <Input
-                        type="text"
-                        name="email"
-                        autocomplete="off"
-                        value={values.email}
-                        placeholder="Email"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={errors.email && touched.email ? 'error' : null}
-                      />
+                      <InputContainer>
+                        <Input
+                          type="text"
+                          name="email"
+                          inputSize="large"
+                          autocomplete="off"
+                          value={values.email}
+                          placeholder="Email"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={errors.email && touched.email ? 'error' : null}
+                        />
+                      </InputContainer>
 
                       {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
-                      <Input
-                        type="password"
-                        name="password"
-                        autocomplete="off"
-                        value={values.password}
-                        placeholder="Password"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={errors.password && touched.password ? 'error' : null}
-                      />
+                      <InputContainer>
+                        <Input
+                          type="password"
+                          name="password"
+                          inputSize="large"
+                          autocomplete="off"
+                          value={values.password}
+                          placeholder="Password"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={errors.password && touched.password ? 'error' : null}
+                        />
+                      </InputContainer>
 
                       {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
-                      <Input
-                        type="password"
-                        name="confirm"
-                        autocomplete="off"
-                        value={values.confirm}
-                        placeholder="Confirm password"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={errors.confirm && touched.confirm ? 'error' : null}
-                      />
+                      <InputContainer>
+                        <Input
+                          type="password"
+                          name="confirm"
+                          inputSize="large"
+                          autocomplete="off"
+                          value={values.confirm}
+                          placeholder="Confirm password"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={errors.confirm && touched.confirm ? 'error' : null}
+                        />
+                      </InputContainer>
 
                       {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
 
@@ -552,9 +605,9 @@ class AuthPage extends React.Component {
                         <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                           Go back to sign in
                         </SmallTextButton>
-                        <SmallTextButton className="mt-10">
+                        <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
                           By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
-                        </SmallTextButton>
+                        </a>
                       </Footer>
                     </Form>
                   );
@@ -565,9 +618,11 @@ class AuthPage extends React.Component {
 
           {this.state.view == "signin" &&
             <React.Fragment>
-              <SmallTextFaded>
-                Please log in using your <br/>username & password
-              </SmallTextFaded>
+              <div className="h1 mb-30 mt-30 color-d3">Sign in</div>
+
+              <div className="h5 color-d0">
+                Please log in using your username & password
+              </div>
 
               <Formik
                 initialValues={{ username: '', password: '' }}
@@ -593,35 +648,41 @@ class AuthPage extends React.Component {
                   } = props;
 
                   return (
-                    <Form onSubmit={handleSubmit} className="column align-items-center">
-                      <Input
-                        name="username"
-                        type="text"
-                        placeholder="Username"
-                        autocomplete="off"
-                        value={values.username}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={errors.username && touched.username ? 'error' : null}
-                      />
+                    <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                      <InputContainer>
+                        <Input
+                          name="username"
+                          type="text"
+                          inputSize="large"
+                          placeholder="Username"
+                          autocomplete="off"
+                          value={values.username}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={errors.username && touched.username ? 'error' : null}
+                        />
+                      </InputContainer>
 
                       {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
 
-                      <Input
-                        name="password"
-                        type="password"
-                        placeholder="Password"
-                        autocomplete="off"
-                        value={values.password}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={errors.password && touched.password ? 'error' : null}
-                      />
+                      <InputContainer>
+                        <Input
+                          name="password"
+                          type="password"
+                          placeholder="Password"
+                          inputSize="large"
+                          autocomplete="off"
+                          value={values.password}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={errors.password && touched.password ? 'error' : null}
+                        />
+                      </InputContainer>
 
                       {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
 
                       <Spacer />
-                      
+
                       <Button
                         size="large"
                         type="submit"
