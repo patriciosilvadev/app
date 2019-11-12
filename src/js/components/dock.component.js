@@ -5,7 +5,7 @@ import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import GraphqlService from '../services/graphql.service'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import { hydrateTeams, createTeam, updateNotifications, hydrateNotifications,  } from '../actions'
+import { hydrateTeams, updateNotifications, hydrateNotifications } from '../actions'
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
 import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
@@ -42,7 +42,7 @@ const Badge = styled.span`
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [teamPopup, setTeamPopup] = useState(false)
+  const [teamOnboardingModal, setTeamOnboardingModal] = useState(true)
   const [lastPathname, setLastPathname] = useState('')
   const [hasNotification, setHasNotification] = useState(false)
   const [notificationsMenu, setNotificationsMenu] = useState(false)
@@ -55,33 +55,6 @@ export default function DockComponent(props) {
   const notifications = useSelector(state => state.notifications)
 
   // When the user creates a team from quick input component
-  const handleNewTeamAccept = async name => {
-    setTeamPopup(false)
-    setLoading(true)
-    setError(false)
-
-    try {
-      const { data } = await GraphqlService.getInstance().createTeam({
-        name,
-        description: '',
-        image: '',
-        members: [
-          {
-            user: user.id,
-            admin: true,
-          },
-        ],
-      })
-
-      setLoading(false)
-      dispatch(createTeam(data.createTeam))
-
-      MessagingService.getInstance().join(data.createTeam.id)
-    } catch (e) {
-      setLoading(false)
-      setError(e)
-    }
-  }
 
   const fetchTeamsAndNotifications = async userId => {
     setLoading(true)
@@ -125,10 +98,12 @@ export default function DockComponent(props) {
   return (
     <Dock className="column align-items-center">
 
-      <TeamOnboardingModal
-        onOkay={() => console.log('Okay')}
-        onCancel={() => console.log('Cancel')}
-      />
+      {teamOnboardingModal &&
+        <TeamOnboardingModal
+          onOkay={() => setTeamOnboardingModal(false)}
+          onCancel={() => setTeamOnboardingModal(false)}
+        />
+      }
 
       {teams.map((t, index) => {
         const unread = !!common.unread.filter((row) => t.id == row.doc.team).flatten()
@@ -153,24 +128,16 @@ export default function DockComponent(props) {
         )
       })}
 
-      <QuickInputComponent
-        visible={teamPopup}
-        width={250}
-        direction="left-bottom"
-        placeholder="New team name"
-        handleDismiss={() => setTeamPopup(false)}
-        handleAccept={handleNewTeamAccept}>
-        <Avatar
-          dark
-          className="button"
-          onClick={(e) => setTeamPopup(true)}>
-          <IconComponent
-            icon="plus"
-            size={20}
-            color="#007af5"
-          />
-        </Avatar>
-      </QuickInputComponent>
+      <Avatar
+        dark
+        className="button"
+        onClick={(e) => setTeamOnboardingModal(true)}>
+        <IconComponent
+          icon="plus"
+          size={20}
+          color="#007af5"
+        />
+      </Avatar>
 
       <div style={{ height: 20 }} />
 

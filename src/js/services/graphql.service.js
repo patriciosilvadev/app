@@ -779,6 +779,8 @@ export default class GraphqlService {
           createTeam(payload: $payload) {
             id
             name
+            slug
+            shortcode
             image
           }
         }
