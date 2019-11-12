@@ -130,22 +130,14 @@ const SearchContainer = styled.div`
   border-bottom: 1px solid #0a152e;
 `
 
-const ArchivedButton = styled.div`
-  padding: 25px 25px 10px 25px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: #475669;
-`
-
 const Heading = styled.div`
-  padding: 25px 25px 10px 25px;
+  margin: 20px 25px 20px 25px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
+  flex: 1;
 `
 
 class RoomsComponent extends React.Component {
@@ -618,10 +610,10 @@ class RoomsComponent extends React.Component {
             </React.Fragment>
           }
 
-          <Heading className="row">
-            <span className="flexer">
+          <div className="row pr-25">
+            <Heading>
               Channels
-            </span>
+            </Heading>
 
             <QuickInputComponent
               visible={this.state.roomPopup}
@@ -639,7 +631,7 @@ class RoomsComponent extends React.Component {
                 onClick={() => this.setState({ roomPopup: true })}
               />
             </QuickInputComponent>
-          </Heading>
+          </div>
 
           {this.state.public.map((room, index) => {
             if (this.props.user.starred.indexOf(room.id) != -1) return
@@ -723,11 +715,9 @@ class RoomsComponent extends React.Component {
           }
 
           {this.state.archived.length != 0 &&
-            <ArchivedButton
-              className="button"
-              onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
+            <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
               {this.state.archivedVisible ? "Hide archived" : "See archived"}
-            </ArchivedButton>
+            </Heading>
           }
 
           {this.state.archived.length != 0 && this.state.archivedVisible &&

@@ -14,6 +14,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
+import TeamOnboardingModal from '../modals/team-onboarding.modal'
 
 const Dock = styled.div`
   width: 70px;
@@ -123,6 +124,12 @@ export default function DockComponent(props) {
   // prettier-ignore
   return (
     <Dock className="column align-items-center">
+
+      <TeamOnboardingModal
+        onOkay={() => console.log('Okay')}
+        onCancel={() => console.log('Cancel')}
+      />
+
       {teams.map((t, index) => {
         const unread = !!common.unread.filter((row) => t.id == row.doc.team).flatten()
 
