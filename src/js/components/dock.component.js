@@ -42,7 +42,7 @@ const Badge = styled.span`
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [teamOnboardingModal, setTeamOnboardingModal] = useState(true)
+  const [teamOnboardingModal, setTeamOnboardingModal] = useState(false)
   const [lastPathname, setLastPathname] = useState('')
   const [hasNotification, setHasNotification] = useState(false)
   const [notificationsMenu, setNotificationsMenu] = useState(false)

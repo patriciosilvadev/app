@@ -8,6 +8,7 @@ import UploadService from '../services/upload.service'
 import { Button, Modal, Input, Textarea, Avatar, Notification, Spinner, Error } from '@weekday/elements'
 import { validEmail, logger } from '../helpers/util'
 import { createTeam } from '../actions'
+import MessagingService from '../services/messaging.service'
 
 const Container = styled.div`
   width: 100%;
@@ -100,7 +101,7 @@ export default function TeamOnboardingModal(props) {
     }
   }
 
-  const handleNewTeamCreate = async name => {
+  const handleNewTeamCreate = async () => {
     setLoading(true)
     setError(false)
 

@@ -335,10 +335,7 @@ class RoomsComponent extends React.Component {
     const { teamId } = this.props.match.params
     const userId = this.props.user.id
 
-    if (teamId != prevProps.match.params.teamId) {
-      this.props.fetchRooms(teamId, userId)
-      this.props.fetchTeam(teamId, userId)
-    }
+    if (teamId != prevProps.match.params.teamId) this.fetchData(teamId, userId)
   }
 
   componentWillUnmount() {
