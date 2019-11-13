@@ -326,7 +326,7 @@ export default function TeamOnboardingModal(props) {
               }
             </Inner>
 
-            <Logo className="hide">
+            <Logo>
               <img src="./logo.png" height="20" alt="Weekday"/>
               <LogoText>weekday</LogoText>
             </Logo>
