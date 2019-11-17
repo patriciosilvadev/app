@@ -11,8 +11,8 @@ import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage, openApp, createRoomMessage, updateRoom } from '../actions'
-import { Attachment, Popup, Avatar, Menu } from '@weekday/elements'
-import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger } from '../helpers/util'
+import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
+import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
@@ -36,6 +36,8 @@ export default memo(props => {
   const [error, setError] = useState(false)
   const [senderName, setSenderName] = useState(null)
   const [senderImage, setSenderImage] = useState(null)
+  const [senderTimezone, setSenderTimezone] = useState('')
+  const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
   const [actions, setActions] = useState([])
   const [url, setUrl] = useState(null)
 
@@ -130,6 +132,15 @@ export default memo(props => {
     // Get the connected app
     setSenderImage(props.message.app ? props.message.app.image : props.message.user.image)
     setSenderName(props.message.app ? props.message.app.name : props.message.user.name)
+    setSenderTimezone(props.message.user ? props.message.user.timezone ? props.message.user.timezone : "No timezone set" : "No timezone set")
+
+    // Only set this for non apps & valid timezones
+    if (!props.message.app && props.message.user.timezone) {
+      const offsetMinutes = window.now.tz(props.message.user.timezone).utcOffset() / 60
+
+      if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
+      if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
+    }
 
     // Get the message IFRAME URL
     const messageUrl = props.message.app
@@ -221,11 +232,13 @@ export default memo(props => {
 
       <div className="row align-items-start w-100">
         {!props.append &&
-          <Avatar
-            image={senderImage}
-            title={senderImage}
-            size="medium"
-          />
+          <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
+            <Avatar
+              image={senderImage}
+              title={senderImage}
+              size="medium"
+            />
+          </Tooltip>
         }
 
         {props.append && <AvatarBlank />}
@@ -237,7 +250,9 @@ export default memo(props => {
                 <React.Fragment>
                   <User>{senderName}</User>
                   {props.message.app && <App>App</App>}
-                  <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
+                  <Meta>
+                    {moment(props.message.createdAt).tz(user.timezone).fromNow()}
+                  </Meta>
                 </React.Fragment>
               }
 
@@ -320,7 +335,7 @@ export default memo(props => {
                         />
                       </React.Fragment>
                     }>
-                    <div >
+                    <div>
                       <IconComponent
                         icon="forward"
                         size={15}

@@ -13,7 +13,7 @@ import { IconComponent } from './icon.component'
 import PropTypes from 'prop-types'
 import { createRoom, hydrateRooms, hydrateTeam, updateRoomUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Room, Tooltip } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
@@ -28,7 +28,7 @@ class RoomsComponent extends React.Component {
       results: [],
       teamModal: false,
       roomPopup: false,
-      accountModal: true,
+      accountModal: false,
       accountMenu: false,
       statusMenu: false,
       archivedVisible: false,
@@ -558,6 +558,7 @@ class RoomsComponent extends React.Component {
                 const snapshot = new Date().getTime()
                 const otherMember = room.members.filter(member => member.user.id != this.props.user.id).flatten()
                 const otherMemberStatus = otherMember.user.status
+                const otherMemberTimezone = otherMember.user.timezone
                 const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
                 const presence = otherMemberPresence
                                   ? ((snapshot - otherMemberPresence.userTime) > 15000)
@@ -598,8 +599,8 @@ class RoomsComponent extends React.Component {
               {this.state.archived.map((room, index) => {
                 if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-                // const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
-                // const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
+                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
+                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
                 const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
                 const to = `/app/team/${room.team.id}/room/${room.id}`
@@ -611,8 +612,8 @@ class RoomsComponent extends React.Component {
                     key={index}
                     active={pathname.indexOf(room.id) != -1}
                     unread={unreadCount}
-                    title={room.displayTitle}
-                    image={room.displayImage}
+                    title={title}
+                    image={image}
                     excerpt={room.excerpt}
                     public={room.public}
                     private={room.private}

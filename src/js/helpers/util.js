@@ -92,3 +92,10 @@ export const validEmail = (email) => {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
 }
+
+export const decimalToMinutes = (minutes) => {
+ var sign = minutes < 0 ? "-" : "";
+ var min = Math.floor(Math.abs(minutes));
+ var sec = Math.floor((Math.abs(minutes) * 60) % 60);
+ return sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
+}

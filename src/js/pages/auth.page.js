@@ -439,6 +439,7 @@ class AuthPage extends React.Component {
 
                         <InputContainer>
                           <Select
+                            label="Your timezone"
                             onSelect={(index) => this.setState({ timezone: index })}
                             selected={this.state.timezone}
                             size="large"

@@ -297,10 +297,8 @@ export default function AccountModal(props) {
                       />
 
                       <div className="mb-20 w-100">
-                        <TimezoneLabel>
-                          Timezone
-                        </TimezoneLabel>
                         <Select
+                          label="Your timezone"
                           onSelect={(index) => setTimezone(index)}
                           selected={timezone}
                           options={moment.tz.names().map((timezone, index) => {
@@ -469,13 +467,6 @@ AccountModal.propTypes = {
 }
 
 const Text = styled.div``
-
-const TimezoneLabel = styled.div`
-  color: #858e96;
-  font-size: 11px;
-  font-weight: 500;
-  padding-bottom: 5px;
-`
 
 const MailTable = styled.table`
   margin-bottom: 50px;

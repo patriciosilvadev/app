@@ -25,6 +25,7 @@ import rooms from './reducers/rooms'
 import user from './reducers/user'
 import notifications from './reducers/notifications'
 import { createLogger } from 'redux-logger'
+import moment from 'moment'
 import './environment'
 import './helpers/extensions'
 import '../assets/logo.png'
@@ -34,6 +35,10 @@ import '../styles/index.css'
 import '../../node_modules/emoji-mart/css/emoji-mart.css'
 import '../.htaccess'
 
+// These are for messages
+window.now = moment()
+
+// Redux logger
 const logger = createLogger({
   collapsed: true,
 })

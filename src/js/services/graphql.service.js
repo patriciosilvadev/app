@@ -81,6 +81,7 @@ export default class GraphqlService {
             }
             color
             username
+            timezone
             password
             name
             role
@@ -165,6 +166,7 @@ export default class GraphqlService {
                 }
                 color
                 username
+                timezone
                 image
               }
               excerpt
@@ -178,6 +180,7 @@ export default class GraphqlService {
                   }
                   color
                   username
+                  timezone
                   image
                 }
               }
@@ -195,6 +198,7 @@ export default class GraphqlService {
                 }
                 color
                 username
+                timezone
                 image
                 createdAt
               }
@@ -246,6 +250,7 @@ export default class GraphqlService {
               id
               name
               username
+              timezone
               image
             }
             team {
@@ -262,6 +267,7 @@ export default class GraphqlService {
                   }
                   color
                   username
+                  timezone
                   role
                   image
                 }
@@ -331,6 +337,7 @@ export default class GraphqlService {
                   image
                   username
                   color
+                  timezone
                 }
                 app {
                   id
@@ -343,6 +350,7 @@ export default class GraphqlService {
               user {
                 id
                 username
+                timezone
                 name
                 image
               }
@@ -417,6 +425,7 @@ export default class GraphqlService {
                 }
                 color
                 username
+                timezone
                 role
                 image
               }
@@ -449,6 +458,7 @@ export default class GraphqlService {
               id
               name
               username
+              timezone
               image
               status
             }
@@ -458,6 +468,7 @@ export default class GraphqlService {
                 image
                 name
                 status
+                timezone
               }
             }
             team {
@@ -495,6 +506,7 @@ export default class GraphqlService {
                 name
                 image
                 username
+                timezone
                 status
                 color
               }
@@ -508,6 +520,7 @@ export default class GraphqlService {
               status
               username
               color
+              timezone
             }
             message
             attachments {
@@ -592,6 +605,7 @@ export default class GraphqlService {
                 name
                 image
                 username
+                timezone
                 status
                 color
               }
@@ -604,6 +618,7 @@ export default class GraphqlService {
               image
               status
               username
+              timezone
               color
             }
             message
@@ -638,6 +653,7 @@ export default class GraphqlService {
             image
             role
             username
+            timezone
           }
         }
       `,
@@ -904,6 +920,7 @@ export default class GraphqlService {
                 color
                 role
                 username
+                timezone
                 image
               }
             }
@@ -913,6 +930,7 @@ export default class GraphqlService {
               status
               role
               username
+              timezone
               image
             }
           }
@@ -1015,6 +1033,7 @@ export default class GraphqlService {
               name
               image
               username
+              timezone
             }
             message
             reactions
@@ -1034,6 +1053,7 @@ export default class GraphqlService {
                 name
                 image
                 username
+                timezone
                 color
               }
               message
@@ -1061,6 +1081,7 @@ export default class GraphqlService {
               name
               image
               username
+              timezone
             }
             message
             reactions
@@ -1080,6 +1101,7 @@ export default class GraphqlService {
                 name
                 image
                 username
+                timezone
                 color
               }
               message
