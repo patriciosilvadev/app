@@ -8,7 +8,8 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
-import { Loading, Button, Error, Input, Textarea } from '@weekday/elements'
+import { Loading, Button, Error, Input, Textarea, Select } from '@weekday/elements'
+const moment = require('moment-timezone')
 
 class AuthPage extends React.Component {
   constructor(props) {
@@ -19,13 +20,43 @@ class AuthPage extends React.Component {
       verify: false,
       error: null,
       loading: null,
-      onboarding: false,
+      timezone: 0,
+      userId: '',
     }
 
     this.signin = this.signin.bind(this)
     this.signup = this.signup.bind(this)
+    this.signupOnboarding = this.signupOnboarding.bind(this)
     this.resetPassword = this.resetPassword.bind(this)
     this.updatePassword = this.updatePassword.bind(this)
+  }
+
+  async signupOnboarding(payload) {
+    const { userId, timezone, token } = this.state
+
+    this.setState({
+      loading: true,
+      error: null,
+    })
+
+    try {
+      const request = await AccountService.accountUpdate(userId, { ...payload, timezone: moment.tz.names()[timezone] })
+      const result = await request.json()
+
+      this.setState({ loading: false })
+
+      if (request.status == 500) return this.setState({ error: 'Internal error' })
+      if (request.status == 401) return this.setState({ error: 'Error' })
+      if (request.status == 200) {
+        this.props.fetchUser(this.state.userId)
+        this.props.history.push('/app?onboarding=true')
+      }
+    } catch (e) {
+      this.setState({
+        loading: false,
+        error: 'Username not available',
+      })
+    }
   }
 
   async componentDidMount() {
@@ -35,6 +66,7 @@ class AuthPage extends React.Component {
 
       this.props.fetchUser(sub)
       this.props.history.push('/app')
+      this.setState({ timezones: moment.tz.names() })
     } catch (e) {}
   }
 
@@ -42,17 +74,28 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
-      onboarding: false,
     })
 
     try {
-      const auth = await AccountService.signup(email, username, password)
+      const request = await AccountService.signup(email, username, password)
+      const result = await request.json()
 
       this.setState({ loading: false })
 
-      if (auth.status == 500) return this.setState({ error: 'Internal error' })
-      if (auth.status == 401) return this.setState({ error: 'Username or email not available' })
-      if (auth.status == 200) return this.setState({ view: 'signin', onboarding: true })
+      if (request.status == 500) return this.setState({ error: 'Internal error' })
+      if (request.status == 401) return this.setState({ error: 'Username or email not available' })
+      if (request.status == 200) {
+        const { user, token } = result
+
+        // Save our token
+        AuthService.saveToken(token)
+
+        // And then let the user onboard
+        this.setState({
+          view: 'signin-onboarding',
+          userId: user._id,
+        })
+      }
     } catch (e) {
       this.setState({
         loading: false,
@@ -65,7 +108,6 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
-      onboarding: false,
     })
 
     try {
@@ -77,11 +119,10 @@ class AuthPage extends React.Component {
       if (auth.status != 200) return this.setState({ error: 'Incorrect details' })
       if (auth.status == 200) {
         const { token, userId } = data
-        const route = this.state.onboarding ? '/app?onboarding=true' : '/app'
 
         AuthService.saveToken(token)
         this.props.fetchUser(userId)
-        this.props.history.push(route)
+        this.props.history.push('/app')
       }
     } catch (e) {
       this.setState({
@@ -95,7 +136,6 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
-      onboarding: false,
     })
 
     try {
@@ -118,7 +158,6 @@ class AuthPage extends React.Component {
     this.setState({
       loading: true,
       error: null,
-      onboarding: false,
     })
 
     try {
@@ -311,6 +350,125 @@ class AuthPage extends React.Component {
                     </Formik>
                   </React.Fragment>
                 }
+              </React.Fragment>
+            }
+
+            {this.state.view == "signup-onboarding" &&
+              <React.Fragment>
+                <Formik
+                  initialValues={{
+                    name: 'Joseph',
+                    description: 'Coolness',
+                    role: 'ed',
+                  }}
+                  onSubmit={(values, actions) => {
+                    actions.resetForm()
+                    this.signupOnboarding(values)
+                  }}
+                  validationSchema={Yup.object().shape({
+                    name: Yup.string().required('Required'),
+                    description: Yup.string().required('Required'),
+                    role: Yup.string().required('Required'),
+                  })}>
+                  {props => {
+                    const {
+                      values,
+                      touched,
+                      errors,
+                      dirty,
+                      isSubmitting,
+                      handleChange,
+                      handleBlur,
+                      handleSubmit,
+                      handleReset,
+                    } = props;
+
+                    return (
+                      <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                        <div className="h1 mt-30 color-d3 text-center">Tell us a bit about yourself</div>
+                        <div className="h4 mb-30 mt-20 color-d0 text-center">Add some more detail about yourself</div>
+
+                        <InputContainer>
+                          <Input
+                            type="text"
+                            name="name"
+                            inputSize="large"
+                            autocomplete="off"
+                            value={values.name}
+                            placeholder="Full name"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            className={errors.name && touched.name ? 'error' : null}
+                          />
+                        </InputContainer>
+
+                        {errors.name && touched.name && <ErrorText>{errors.name}</ErrorText>}
+
+                        <InputContainer>
+                          <Input
+                            type="text"
+                            name="role"
+                            inputSize="large"
+                            autocomplete="off"
+                            value={values.role}
+                            placeholder="Current role"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            className={errors.role && touched.role ? 'error' : null}
+                          />
+                        </InputContainer>
+
+                        {errors.role && touched.role && <ErrorText>{errors.role}</ErrorText>}
+
+                        <InputContainer>
+                          <Textarea
+                            rows={3}
+                            type="password"
+                            name="description"
+                            textareaSize="large"
+                            autocomplete="off"
+                            value={values.description}
+                            placeholder="Bio"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            className={errors.description && touched.description ? 'error' : null}
+                          />
+                        </InputContainer>
+
+                        {errors.description && touched.description && <ErrorText>{errors.description}</ErrorText>}
+
+                        <InputContainer>
+                          <Select
+                            onSelect={(index) => this.setState({ timezone: index })}
+                            selected={this.state.timezone}
+                            size="large"
+                            options={moment.tz.names().map((timezone, index) => {
+                              return {
+                                option: timezone.replace("_", " "),
+                                value: timezone,
+                              }
+                            })}
+                          />
+                        </InputContainer>
+
+                        <Footer className="column align-items-center">
+                          <Button
+                            size="large"
+                            type="submit"
+                            disabled={isSubmitting}
+                            text="Complete"
+                          />
+                          <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                            Just let me sign in already
+                          </SmallTextButton>
+                          <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
+                            By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
+                          </a>
+                        </Footer>
+                      </Form>
+                    );
+                  }}
+                </Formik>
               </React.Fragment>
             }
 

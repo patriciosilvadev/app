@@ -271,6 +271,7 @@ export default function RoomModal(props) {
                             value={title}
                             onChange={e => setTitle(e.target.value)}
                             placeholder="New channel title"
+                            className="mb-20"
                           />
 
                           <Textarea
@@ -279,6 +280,7 @@ export default function RoomModal(props) {
                             onChange={e => setDescription(e.target.value)}
                             placeholder="Add a description"
                             rows={8}
+                            className="mb-20"
                           />
 
                           <div className="row">

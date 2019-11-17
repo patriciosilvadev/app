@@ -19,127 +19,6 @@ import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger } from '../helpers/util'
 
-const Rooms = styled.div`
-  width: 300px;
-  height: 100%;
-  position: relative;
-  z-index: 2;
-  background: white;
-  background: #f8f9fa;
-  background: #040b1c;
-  border-right: 1px solid #f1f3f5;
-`
-
-const RoomsContainer = styled.div`
-  flex: 1;
-  overflow: scroll;
-  width: 100%;
-`
-
-const Header = styled.div`
-  background-color: transparent;
-  width: 100%;
-  padding 25px;
-  border-bottom: 1px solid #0a152e;
-  transition: background-color 0.5s;
-`
-
-const HeaderTitle = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  font-style: normal;
-  color: white;
-  transition: opacity 0.5s;
-  display: inline-block;
-  flex: 1;
-`
-
-const HeaderTeam = styled.div`
-  font-size: 11px;
-  font-weight: 600;
-  color: #475669;
-`
-
-const HeaderSubtitle = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  color: #475669;
-`
-
-const AccountMenuHeader = styled.div`
-  padding: 20px;
-  width: 100%;
-  flex: 1;
-  border-bottom: 1px solid #f1f3f5;
-`
-
-const AccountMenuTitle = styled.div`
-  font-size: 14px;
-  font-weight: 400;
-  font-style: normal;
-  color: #343a40;
-  transition: opacity 0.5s;
-  display: inline-block;
-  flex: 1;
-  padding: 10px 5px 0px 5px;
-`
-
-const AccountMenuSubtitle = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: #cfd4d9;
-  padding: 5px 5px 5px 5px;
-`
-
-const AccountMenuBuild = styled.div`
-  font-size: 11px;
-  font-weight: 400;
-  color: #cfd4d9;
-  padding: 10px;
-  border-top: 1px solid #f1f3f5;
-`
-
-const HeaderSubtitleLink = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  color: #007af5;
-`
-
-const SearchInput = styled.input`
-  font-size: 14px;
-  border: none;
-  width: 100%;
-  padding: 5px;
-  color: white;
-  font-weight: 500;
-  background: transparent;
-
-  &::placeholder {
-    color: #324057;
-  }
-`
-
-const SearchInner = styled.div`
-  border-radius: 3px;
-  flex: 1;
-  margin: 10px;
-`
-
-const SearchContainer = styled.div`
-  width: 100%;
-  border-bottom: 1px solid #0a152e;
-`
-
-const Heading = styled.div`
-  margin: 20px 25px 20px 25px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: #475669;
-  flex: 1;
-`
-
 class RoomsComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -149,7 +28,7 @@ class RoomsComponent extends React.Component {
       results: [],
       teamModal: false,
       roomPopup: false,
-      accountModal: false,
+      accountModal: true,
       accountMenu: false,
       statusMenu: false,
       archivedVisible: false,
@@ -796,3 +675,124 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(RoomsComponent)
+
+const Rooms = styled.div`
+  width: 300px;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  background: white;
+  background: #f8f9fa;
+  background: #040b1c;
+  border-right: 1px solid #f1f3f5;
+`
+
+const RoomsContainer = styled.div`
+  flex: 1;
+  overflow: scroll;
+  width: 100%;
+`
+
+const Header = styled.div`
+  background-color: transparent;
+  width: 100%;
+  padding 25px;
+  border-bottom: 1px solid #0a152e;
+  transition: background-color 0.5s;
+`
+
+const HeaderTitle = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  font-style: normal;
+  color: white;
+  transition: opacity 0.5s;
+  display: inline-block;
+  flex: 1;
+`
+
+const HeaderTeam = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: #475669;
+`
+
+const HeaderSubtitle = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #475669;
+`
+
+const AccountMenuHeader = styled.div`
+  padding: 20px;
+  width: 100%;
+  flex: 1;
+  border-bottom: 1px solid #f1f3f5;
+`
+
+const AccountMenuTitle = styled.div`
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  color: #343a40;
+  transition: opacity 0.5s;
+  display: inline-block;
+  flex: 1;
+  padding: 10px 5px 0px 5px;
+`
+
+const AccountMenuSubtitle = styled.div`
+  font-size: 13px;
+  font-weight: 500;
+  color: #cfd4d9;
+  padding: 5px 5px 5px 5px;
+`
+
+const AccountMenuBuild = styled.div`
+  font-size: 11px;
+  font-weight: 400;
+  color: #cfd4d9;
+  padding: 10px;
+  border-top: 1px solid #f1f3f5;
+`
+
+const HeaderSubtitleLink = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #007af5;
+`
+
+const SearchInput = styled.input`
+  font-size: 14px;
+  border: none;
+  width: 100%;
+  padding: 5px;
+  color: white;
+  font-weight: 500;
+  background: transparent;
+
+  &::placeholder {
+    color: #324057;
+  }
+`
+
+const SearchInner = styled.div`
+  border-radius: 3px;
+  flex: 1;
+  margin: 10px;
+`
+
+const SearchContainer = styled.div`
+  width: 100%;
+  border-bottom: 1px solid #0a152e;
+`
+
+const Heading = styled.div`
+  margin: 20px 25px 20px 25px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #475669;
+  flex: 1;
+`

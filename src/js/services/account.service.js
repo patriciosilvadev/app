@@ -116,7 +116,7 @@ export default class AuthService {
   }
 
   static accountUpdate(userId, payload) {
-    return fetch(`${API_HOST}/account/${userId}/delete`, {
+    return fetch(`${API_HOST}/account/${userId}/update`, {
       method: 'PUT',
       mode: 'cors',
       cache: 'no-cache',

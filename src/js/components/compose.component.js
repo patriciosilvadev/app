@@ -366,12 +366,6 @@ class ComposeComponent extends React.Component {
     )
   }
 
-  componentWillUnmount() {
-    this.dropZone.removeEventListener('dragover', this.onDragOver)
-    this.dropZone.removeEventListener('dragend', this.onDragEnd)
-    this.dropZone.removeEventListener('drop', this.onDrop)
-  }
-
   static getDerivedStateFromProps(props, state) {
     if (!props.update) return null
 

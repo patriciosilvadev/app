@@ -293,10 +293,11 @@ export default function TeamModal(props) {
 
                       <div className="column p-20 flex-1 scroll w-100">
                         <Input
-                          label="Full name"
+                          label="Team name"
                           value={name}
                           onChange={e => setName(e.target.value)}
                           placeholder="Enter full name"
+                          className="mb-20"
                         />
 
                         <Textarea
@@ -305,6 +306,7 @@ export default function TeamModal(props) {
                           onChange={e => setDescription(e.target.value)}
                           placeholder="Add a description"
                           rows={8}
+                          className="mb-20"
                         />
 
                         <Button
@@ -392,6 +394,7 @@ export default function TeamModal(props) {
                           value={shortcode}
                           onChange={e => setShortcode(e.target.value)}
                           placeholder="Enter shortcode"
+                          className="mb-20"
                         />
 
                         <div className="row mb-30">
@@ -416,6 +419,7 @@ export default function TeamModal(props) {
                           value={slug}
                           onChange={e => setSlug(e.target.value)}
                           placeholder="Enter Slug"
+                          className="mb-20"
                         />
 
                         <Button

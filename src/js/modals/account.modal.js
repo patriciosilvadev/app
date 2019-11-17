@@ -11,47 +11,8 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
-
-const Text = styled.div``
-
-const MailTable = styled.table`
-  margin-bottom: 50px;
-  margin-top: 20px;
-`
-
-const MailTableCell = styled.td`
-  border-bottom: 1px solid #edf0f2;
-  height: 30px;
-`
-
-const MailButtonConfirm = styled.span`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const MailButtonDelete = styled.span`
-  color: #d93025;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const MailAddress = styled.div`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 600;
-`
-
-const MailStatus = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-`
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@weekday/elements'
+const moment = require('moment-timezone')
 
 const EmailAddress = props => {
   const [over, setOver] = useState(false)
@@ -85,6 +46,7 @@ export default function AccountModal(props) {
   const [username, setUsername] = useState('')
   const [role, setRole] = useState('')
   const [description, setDescription] = useState('')
+  const [timezone, setTimezone] = useState(0)
   const [email, setEmail] = useState([])
   const [newEmailAddress, setNewEmailAddress] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
@@ -108,6 +70,7 @@ export default function AccountModal(props) {
         setRole(user.role || '')
         setDescription(user.description || '')
         setEmail(user.email)
+        setTimezone(moment.tz.names().indexOf(user.timezone))
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -219,7 +182,7 @@ export default function AccountModal(props) {
     setError(false)
 
     try {
-      const updatedUser = { name, role, description, username, image }
+      const updatedUser = { name, role, description, username, image, timezone: moment.tz.names()[timezone] }
       const userId = props.id
 
       await GraphqlService.getInstance().updateUser(userId, updatedUser)
@@ -305,6 +268,7 @@ export default function AccountModal(props) {
                         value={name}
                         onChange={e => setName(e.target.value)}
                         placeholder="Enter full name"
+                        className="mb-20"
                       />
 
                       <Input
@@ -312,6 +276,7 @@ export default function AccountModal(props) {
                         value={role}
                         onChange={e => setRole(e.target.value)}
                         placeholder="Enter your role"
+                        className="mb-20"
                       />
 
                       <Input
@@ -319,6 +284,7 @@ export default function AccountModal(props) {
                         value={username}
                         onChange={e => setUsername(e.target.value)}
                         placeholder="Username"
+                        className="mb-20"
                       />
 
                       <Textarea
@@ -326,8 +292,25 @@ export default function AccountModal(props) {
                         value={description}
                         onChange={e => setDescription(e.target.value)}
                         placeholder="Enter bio"
+                        className="mb-20"
                         rows={2}
                       />
+
+                      <div className="mb-20 w-100">
+                        <TimezoneLabel>
+                          Timezone
+                        </TimezoneLabel>
+                        <Select
+                          onSelect={(index) => setTimezone(index)}
+                          selected={timezone}
+                          options={moment.tz.names().map((timezone, index) => {
+                            return {
+                              option: timezone.replace("_", " "),
+                              value: timezone,
+                            }
+                          })}
+                        />
+                      </div>
 
                       <Button
                         theme="blue-border"
@@ -406,6 +389,7 @@ export default function AccountModal(props) {
                         placeholder=""
                         type="password"
                         autocomplete="no"
+                        className="mb-20"
                       />
 
                       <Input
@@ -415,6 +399,7 @@ export default function AccountModal(props) {
                         placeholder=""
                         type="password"
                         autocomplete="no"
+                        className="mb-20"
                       />
 
                       <Input
@@ -424,6 +409,7 @@ export default function AccountModal(props) {
                         placeholder=""
                         type="password"
                         autocomplete="no"
+                        className="mb-20"
                       />
 
                       <Button
@@ -481,3 +467,50 @@ AccountModal.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
 }
+
+const Text = styled.div``
+
+const TimezoneLabel = styled.div`
+  color: #858e96;
+  font-size: 11px;
+  font-weight: 500;
+  padding-bottom: 5px;
+`
+
+const MailTable = styled.table`
+  margin-bottom: 50px;
+  margin-top: 20px;
+`
+
+const MailTableCell = styled.td`
+  border-bottom: 1px solid #edf0f2;
+  height: 30px;
+`
+
+const MailButtonConfirm = styled.span`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const MailButtonDelete = styled.span`
+  color: #d93025;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const MailAddress = styled.div`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 600;
+`
+
+const MailStatus = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
+`

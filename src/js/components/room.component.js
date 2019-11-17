@@ -235,6 +235,11 @@ class RoomComponent extends React.Component {
 
   componentWillUnmount() {
     this.scrollRef.removeEventListener('scroll', this.handleScrollEvent)
+    this.dropZone.removeEventListener('dragover', this.onDragOver)
+    this.dropMask.removeEventListener('dragleave', this.onDragEnd)
+    this.dropMask.removeEventListener('dragend', this.onDragEnd)
+    this.dropMask.removeEventListener('drop', this.onDrop)
+
     if (this.subscription) this.subscription.unsubscribe()
   }
 
@@ -320,9 +325,9 @@ class RoomComponent extends React.Component {
 
         <Room ref={ref => this.dropZone = ref} className="column flexer align-items-center align-items-stretch">
           <Dropzone active={this.state.isDragging} ref={ref => this.dropMask = ref}>
-            <svg 
-              enableBackground="new 0 0 511.999 511.999" 
-              height={100} 
+            <svg
+              enableBackground="new 0 0 511.999 511.999"
+              height={100}
               width={100}
               viewBox="0 0 511.999 511.999">
                 <g>
@@ -338,7 +343,7 @@ class RoomComponent extends React.Component {
               <div className="h2 color-d4 mt-30">Drop Files</div>
               <div className="h5 color-d1 mt-30">Drop your files here to upload</div>
           </Dropzone>
-          
+
           {!this.state.open &&
             <Blocked>
               Sorry, you are not allowed to view this channel
@@ -629,7 +634,7 @@ const Dropzone = styled.div`
   z-index: 10;
   position: absolute;
   top: 0px;
-  left: 0px;  
+  left: 0px;
   display: ${props => props.active ? 'flex' : 'none'};
   flex-direction: column;
   align-items: center;
