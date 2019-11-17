@@ -13,202 +13,6 @@ import { Attachment, Popup, User, Members, Spinner, Error, Notification, Message
 import { bytesToSize } from '../helpers/util'
 import { IconComponent } from './icon.component'
 
-const UpdateContainer = styled.div`
-  position: absolute;
-  transform: translateY(-100%);
-  background: #f8f9fa;
-  border-top: 1px solid #e1e7eb;
-  border-bottom: 1px solid #e1e7eb;
-  width: 100%;
-`
-
-const UpdateText = styled.div`
-  padding: 5px 10px 5px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #adb5bd;
-  font-weight: regular;
-`
-
-const UpdateCancel = styled.div`
-  padding: 5px 10px 5px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #007af5;
-  font-weight: regular;
-`
-
-const ReplyPadding = styled.div`
-  padding: 25px;
-`
-
-const ReplyContainer = styled.div`
-  border: 1px solid #cbd4db;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 5px;
-  margin-right: 5px;
-`
-
-const ReplyMessage = styled.div`
-  font-weight: 500;
-  font-size: 16px;
-  font-style: normal;
-  color: #151b26;
-  display: inline-block;
-`
-
-const ReplyText = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: #adb5bd;
-  font-weight: regular;
-  margin-bottom: 10px;
-  display: inline-block;
-`
-
-const ReplyName = styled.div`
-  font-weight: 700;
-  font-style: normal;
-  font-size: 12px;
-  color: #151b26;
-  display: inline-block;
-`
-
-const ReplyMeta = styled.div`
-  margin-left: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #adb5bd;
-  font-weight: regular;
-`
-
-const Compose = styled.div`
-  width: 100%;
-  padding: 0px;
-  border-sizing: box-border;
-  z-index: 2;
-  border: ${props => (props.active ? '2px solid #007af5' : 'none')};
-`
-
-const InputContainer = styled.div`
-  flex: 1;
-  padding: 25px 25px 0px 25px;
-`
-
-const Attachments = styled.div`
-  width: 100%;
-  padding: 20px;
-  background: #ffffff;
-  border-top: 1px solid #ecf0f2;
-  position: absolute;
-  top: -1px;
-  left: 0px;
-  transform: translateY(-100%);
-`
-
-const Footer = styled.div`
-  padding-top: 0px;
-  padding: 25px;
-  font-size: 12px;
-  font-weight: 400;
-  color: #cfd4d9;
-
-  strong {
-    font-weight: 700;
-  }
-`
-
-const Input = styled.textarea`
-  width: 100%;
-  word-wrap: break-word;
-  border: none;
-  resize: none;
-  overflow-y: scroll;
-  transition: height 0.05s linear;
-  display: block;
-  background: transparent;
-  color: #212123;
-  font-size: 20px;
-  font-weight: 400;
-
-  &::placeholder {
-    color: #cfd4d9;
-  }
-`
-
-const DrawerContainer = styled.div`
-  width: 100%;
-  position: absolute;
-  background: white;
-  top: 0px;
-  right: 0px;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  transform: translateY(-100%);
-  border-top: 1px solid #ebedef;
-  overflow: hidden;
-  z-index: 100000;
-`
-
-const AppIconContainer = styled.div`
-  padding: 5px;
-  margin-left: 15px;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 0.25s;
-
-  &:hover {
-    opacity: 0.8;
-  }
-`
-
-const AppIconImage = styled.div`
-  width: 20px;
-  height: 20px;
-  overflow: hidden;
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  background-image: url(${props => props.image});
-`
-
-const CommandContainer = styled.div`
-  width: 100%;
-  padding-top: 10px;
-  padding-bottom: 10px;
-`
-
-const CommandRow = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  align-items: stretch;
-  align-content: center;
-  justify-content: center;
-  padding-right: 25px;
-  padding-left: 25px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-`
-
-const CommandDescription = styled.div`
-  flex: 1;
-  font-size: 12px;
-  font-weight: 500;
-  color: #adb5bd;
-  font-weight: regular;
-`
-
-const CommandName = styled.div`
-  font-weight: 500;
-  font-style: normal;
-  font-size: 12px;
-  color: #151b26;
-  padding-right: 10px;
-`
-
 class ComposeComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -249,7 +53,6 @@ class ComposeComponent extends React.Component {
 
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
-    this.dropZone = React.createRef()
 
     this.createRoomMessage = this.createRoomMessage.bind(this)
     this.updateRoomMessage = this.updateRoomMessage.bind(this)
@@ -261,10 +64,7 @@ class ComposeComponent extends React.Component {
     this.updateComposeHeight = this.updateComposeHeight.bind(this)
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
-    this.onDragOver = this.onDragOver.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
-    this.onDragEnd = this.onDragEnd.bind(this)
-    this.onDrop = this.onDrop.bind(this)
     this.clearMessage = this.clearMessage.bind(this)
   }
 
@@ -526,43 +326,8 @@ class ComposeComponent extends React.Component {
     this.composeRef.focus()
   }
 
-  onDragOver(e) {
-    e.stopPropagation()
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'copy'
-
-    this.setState({ isDragging: true })
-  }
-
-  onDragEnd(e) {
-    e.stopPropagation()
-    e.preventDefault()
-
-    this.setState({ isDragging: false })
-  }
-
-  onDrop(e) {
-    e.stopPropagation()
-    e.preventDefault()
-
-    this.setState({ isDragging: false })
-
-    const files = e.dataTransfer.files || []
-
-    if (files.length == 0) return
-
-    for (let file of files) {
-      Keg.keg('compose').refill('uploads', file)
-    }
-  }
-
   componentDidMount() {
     this.composeRef.focus()
-
-    // Drag event listeners
-    this.dropZone.addEventListener('dragover', this.onDragOver)
-    this.dropZone.addEventListener('dragend', this.onDragEnd)
-    this.dropZone.addEventListener('drop', this.onDrop)
 
     // Resize compose initiallyl
     this.updateComposeHeight()
@@ -626,9 +391,7 @@ class ComposeComponent extends React.Component {
   // prettier-ignore
   render() {
     return (
-      <Compose
-        active={this.state.isDragging}
-        ref={ref => this.dropZone = ref} className="column align-items-stretch">
+      <Compose className="column align-items-stretch">
         {this.state.error && <Error message={this.state.error} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} />}
@@ -862,3 +625,199 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ComposeComponent)
+
+const UpdateContainer = styled.div`
+  position: absolute;
+  transform: translateY(-100%);
+  background: #f8f9fa;
+  border-top: 1px solid #e1e7eb;
+  border-bottom: 1px solid #e1e7eb;
+  width: 100%;
+`
+
+const UpdateText = styled.div`
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const UpdateCancel = styled.div`
+  padding: 5px 10px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #007af5;
+  font-weight: regular;
+`
+
+const ReplyPadding = styled.div`
+  padding: 25px;
+`
+
+const ReplyContainer = styled.div`
+  border: 1px solid #cbd4db;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+`
+
+const ReplyMessage = styled.div`
+  font-weight: 500;
+  font-size: 16px;
+  font-style: normal;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ReplyText = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+  margin-bottom: 10px;
+  display: inline-block;
+`
+
+const ReplyName = styled.div`
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12px;
+  color: #151b26;
+  display: inline-block;
+`
+
+const ReplyMeta = styled.div`
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const Compose = styled.div`
+  width: 100%;
+  padding: 0px;
+  border-sizing: box-border;
+  z-index: 2;
+  border: ${props => (props.active ? '2px solid #007af5' : 'none')};
+`
+
+const InputContainer = styled.div`
+  flex: 1;
+  padding: 25px 25px 0px 25px;
+`
+
+const Attachments = styled.div`
+  width: 100%;
+  padding: 20px;
+  background: #ffffff;
+  border-top: 1px solid #ecf0f2;
+  position: absolute;
+  top: -1px;
+  left: 0px;
+  transform: translateY(-100%);
+`
+
+const Footer = styled.div`
+  padding-top: 0px;
+  padding: 25px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #cfd4d9;
+
+  strong {
+    font-weight: 700;
+  }
+`
+
+const Input = styled.textarea`
+  width: 100%;
+  word-wrap: break-word;
+  border: none;
+  resize: none;
+  overflow-y: scroll;
+  transition: height 0.05s linear;
+  display: block;
+  background: transparent;
+  color: #212123;
+  font-size: 20px;
+  font-weight: 400;
+
+  &::placeholder {
+    color: #cfd4d9;
+  }
+`
+
+const DrawerContainer = styled.div`
+  width: 100%;
+  position: absolute;
+  background: white;
+  top: 0px;
+  right: 0px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  transform: translateY(-100%);
+  border-top: 1px solid #ebedef;
+  overflow: hidden;
+  z-index: 100000;
+`
+
+const AppIconContainer = styled.div`
+  padding: 5px;
+  margin-left: 15px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const AppIconImage = styled.div`
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-image: url(${props => props.image});
+`
+
+const CommandContainer = styled.div`
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+`
+
+const CommandRow = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+  padding-right: 25px;
+  padding-left: 25px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+`
+
+const CommandDescription = styled.div`
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const CommandName = styled.div`
+  font-weight: 500;
+  font-style: normal;
+  font-size: 12px;
+  color: #151b26;
+  padding-right: 10px;
+`
