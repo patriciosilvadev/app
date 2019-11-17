@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import AuthService from '../services/auth.service'
+import AccountService from '../services/account.service'
 import styled from 'styled-components'
 import { Formik } from 'formik'
 import ConfirmModal from './confirm.modal'
@@ -121,7 +122,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      await AuthService.accountDelete(userId)
+      await AccountService.accountDelete(userId)
       AuthService.signout()
       window.location.reload()
     } catch (e) {
@@ -138,7 +139,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.updatePassword(userId, currentPassword, newPassword)
+      const auth = await AccountService.updatePassword(userId, currentPassword, newPassword)
 
       if (auth.status == 401) {
         setError('Wrong password')
@@ -159,7 +160,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.confirmEmail(emailAddress, userId)
+      const auth = await AccountService.confirmEmail(emailAddress, userId)
 
       setLoading(false)
       setNotification('We have sent you a confirmation email')
@@ -177,7 +178,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.deleteEmail(emailAddress, userId)
+      const auth = await AccountService.deleteEmail(emailAddress, userId)
 
       setLoading(false)
       setNotification('Succesfully removed email')
@@ -196,7 +197,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.addEmail(newEmailAddress, userId)
+      const auth = await AccountService.addEmail(newEmailAddress, userId)
 
       if (auth.status == 401) {
         setError('Email is already taken')

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import AuthService from '../services/auth.service'
+import AccountService from '../services/account.service'
 import { connect } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
@@ -8,190 +9,6 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
 import { Loading, Button, Error, Input, Textarea } from '@weekday/elements'
-
-const Auth = styled.div`
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  background: #f3f3f3;
-  position: relative;
-`
-
-const Container = styled.div`
-  background: white;
-  position: relative;
-  height: 90%;
-  width: 550px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  flex-direction: column;
-`
-
-const Content = styled.div`
-  flex: 1;
-  width: 100%;
-`
-
-const ErrorText = styled.div`
-  width: 100%;
-  color: red;
-  padding: 0px 0px 10px 0px;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 700;
-`
-
-const Text = styled.div`
-  color: #202529;
-  font-size: 28px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-`
-
-const SmallText = styled.div`
-  color: #202529;
-  font-size: 20px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-`
-
-const SmallTextFaded = styled.div`
-  color: #cfd4d9;
-  font-size: 20px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-`
-
-const Header = styled.div`
-  border-bottom: 1px solid #f1f3f5;
-  width: 100%;
-`
-
-const Footer = styled.div`
-  width: 100%;
-  padding: 20px;
-`
-
-const Avatar = styled.div`
-  padding: 50px;
-  width: 100%;
-`
-
-const Usernames = styled.div`
-  width: 100%;
-  border-top: 1px solid #f1f3f5;
-
-  &::placeholder {
-    color: #ebedef;
-  }
-`
-
-const UsernamesInput = styled.input`
-  color: #202529;
-  font-size: 14px;
-  font-weight: 400;
-  padding: 20px;
-  width: 100%;
-  text-align: left;
-  flex: 1;
-  border: none;
-
-  &::placeholder {
-    color: #ebedef;
-  }
-`
-
-const UpdateButton = styled.div`
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: white;
-  border-radius: 100px;
-  width: 30px;
-  height: 30px;
-  z-index: 10;
-  cursor: pointer;
-  transition: background 0.25s;
-
-  &:hover {
-    background: #0f081f;
-  }
-
-  svg {
-    transition: fill 0.25s;
-  }
-
-  &:hover svg {
-    fill: #007af5 !important;
-  }
-`
-
-const SmallTextButton = styled.div`
-  color: #adb5bd;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  text-align: center;
-
-  &:hover {
-    color: #007af5;
-  }
-`
-
-const Members = styled.div`
-  padding: 0px 50px 0px 50px;
-  border-top: 1px solid #f1f3f5;
-`
-
-const Logo = styled.div`
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: center;
-  align-items: center;
-  margin-right: auto;
-`
-
-const LogoText = styled.div`
-  padding-left: 5px;
-  position: relative;
-  bottom: 2px;
-  color: #007af5;
-  font-size: 22px;
-  font-weight: 400;
-  font-family: 'hk_groteskmedium', helvetica;
-`
-
-const Form = styled.form`
-  padding: 20px;
-`
-
-const Spacer = styled.div`
-  height: 20px;
-`
-
-const InputContainer = styled.div`
-  width: 80%;
-  padding: 5px;
-`
 
 class AuthPage extends React.Component {
   constructor(props) {
@@ -229,7 +46,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AuthService.signup(email, username, password)
+      const auth = await AccountService.signup(email, username, password)
 
       this.setState({ loading: false })
 
@@ -252,7 +69,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AuthService.signin(username, password)
+      const auth = await AccountService.signin(username, password)
       const data = await auth.json()
 
       this.setState({ loading: false })
@@ -282,7 +99,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AuthService.resetPassword(email)
+      const auth = await AccountService.resetPassword(email)
       const data = await auth.json()
 
       this.setState({ loading: false })
@@ -305,7 +122,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AuthService.updatePasswordReset(email, password, code)
+      const auth = await AccountService.updatePasswordReset(email, password, code)
       const data = await auth.json()
 
       this.setState({ loading: false })
@@ -722,3 +539,187 @@ export default connect(
   null,
   mapDispatchToProps
 )(AuthPage)
+
+const Auth = styled.div`
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  background: #f3f3f3;
+  position: relative;
+`
+
+const Container = styled.div`
+  background: white;
+  position: relative;
+  height: 90%;
+  width: 550px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+`
+
+const Content = styled.div`
+  flex: 1;
+  width: 100%;
+`
+
+const ErrorText = styled.div`
+  width: 100%;
+  color: red;
+  padding: 0px 0px 10px 0px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+`
+
+const Text = styled.div`
+  color: #202529;
+  font-size: 28px;
+  font-weight: 600;
+  padding: 20px;
+  text-align: center;
+`
+
+const SmallText = styled.div`
+  color: #202529;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 20px;
+  text-align: center;
+`
+
+const SmallTextFaded = styled.div`
+  color: #cfd4d9;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 20px;
+  text-align: center;
+`
+
+const Header = styled.div`
+  border-bottom: 1px solid #f1f3f5;
+  width: 100%;
+`
+
+const Footer = styled.div`
+  width: 100%;
+  padding: 20px;
+`
+
+const Avatar = styled.div`
+  padding: 50px;
+  width: 100%;
+`
+
+const Usernames = styled.div`
+  width: 100%;
+  border-top: 1px solid #f1f3f5;
+
+  &::placeholder {
+    color: #ebedef;
+  }
+`
+
+const UsernamesInput = styled.input`
+  color: #202529;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 20px;
+  width: 100%;
+  text-align: left;
+  flex: 1;
+  border: none;
+
+  &::placeholder {
+    color: #ebedef;
+  }
+`
+
+const UpdateButton = styled.div`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: white;
+  border-radius: 100px;
+  width: 30px;
+  height: 30px;
+  z-index: 10;
+  cursor: pointer;
+  transition: background 0.25s;
+
+  &:hover {
+    background: #0f081f;
+  }
+
+  svg {
+    transition: fill 0.25s;
+  }
+
+  &:hover svg {
+    fill: #007af5 !important;
+  }
+`
+
+const SmallTextButton = styled.div`
+  color: #adb5bd;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    color: #007af5;
+  }
+`
+
+const Members = styled.div`
+  padding: 0px 50px 0px 50px;
+  border-top: 1px solid #f1f3f5;
+`
+
+const Logo = styled.div`
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  margin-right: auto;
+`
+
+const LogoText = styled.div`
+  padding-left: 5px;
+  position: relative;
+  bottom: 2px;
+  color: #007af5;
+  font-size: 22px;
+  font-weight: 400;
+  font-family: 'hk_groteskmedium', helvetica;
+`
+
+const Form = styled.form`
+  padding: 20px;
+`
+
+const Spacer = styled.div`
+  height: 20px;
+`
+
+const InputContainer = styled.div`
+  width: 80%;
+  padding: 5px;
+`

@@ -1,4 +1,4 @@
-export const API_HOST = 'http://localhost:8181/api/v1'
+export const API_HOST = 'http://localhost:8181/v1'
 export const SOCKETIO_HOST = 'http://localhost:8000'
 export const LOCAL_DB = 'weekday'
 export const PUBLIC_VAPID_KEY = 'BK-o1CaPiLRUYWahx8VbyocJwrdmbdAYE3qPG17rZ6kjOWduL6-P6UFu5yxfH4fw4KhGzxmnbYAMeSAVU4zshkk'
