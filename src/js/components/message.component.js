@@ -10,7 +10,7 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage,openApp } from '../actions'
+import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage, openApp, createRoomMessage, updateRoom } from '../actions'
 import { Attachment, Popup, Avatar, Menu } from '@weekday/elements'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
@@ -23,7 +23,7 @@ export default memo(props => {
   const [over, setOver] = useState(false)
   const [forwardMenu, setForwardMenu] = useState(false)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const [emoticons, setEmoticons] = useState(false)
+  const [emoticonMenu, setEmoticonMenu] = useState(false)
   const dispatch = useDispatch()
   const room = useSelector(state => state.room)
   const team = useSelector(state => state.team)
@@ -44,14 +44,20 @@ export default memo(props => {
 
     const userName = user.name
     const userId = user.id
-    const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
+    const excerpt = userName.toString().split(' ')[0] + ': ' + props.message.message || props.message.message
     const teamId = team.id
     const forwardedMessageContents = props.message.message
     const forwardedMessageAttachments = props.message.attachments
     const parentId = props.message.id
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, userId, forwardedMessageContents, forwardedMessageAttachments, parentId)
+      const { data } = await GraphqlService.getInstance().createRoomMessage({
+        room: roomId,
+        user: userId,
+        parent: parentId,
+        message: forwardedMessageContents,
+        attachments: forwardedMessageAttachments,
+      })
 
       // The extra values are used for processing other info
       const roomMessage = {
@@ -61,8 +67,8 @@ export default memo(props => {
       }
 
       // Create the message
-      this.props.createRoomMessage(roomId, roomMessage)
-      this.props.updateRoom(roomId, { excerpt })
+      dispatch(createRoomMessage(roomId, roomMessage))
+      dispatch(updateRoom(roomId, { excerpt }))
     } catch (e) {}
   }
 
@@ -88,7 +94,7 @@ export default memo(props => {
     try {
       await GraphqlService.getInstance().deleteRoomMessageReaction(props.message.id, reaction)
 
-      setEmoticons(false)
+      setEmoticonMenu(false)
       dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
     } catch (e) {
       logger(e)
@@ -101,7 +107,7 @@ export default memo(props => {
 
       await GraphqlService.getInstance().createRoomMessageReaction(props.message.id, reaction)
 
-      setEmoticons(false)
+      setEmoticonMenu(false)
       dispatch(createRoomMessageReaction(room.id, props.message.id, reaction))
     } catch (e) {
       logger(e)
@@ -199,7 +205,11 @@ export default memo(props => {
     <Message
       className="column"
       onMouseEnter={() => setOver(true)}
-      onMouseLeave={() => setOver(false)}>
+      onMouseLeave={() => {
+        setOver(false)
+        setForwardMenu(false)
+        setEmoticonMenu(false)
+      }}>
       {confirmDeleteModal &&
         <ConfirmModal
           onOkay={handleDeleteRoomMessage}
@@ -234,8 +244,8 @@ export default memo(props => {
               {over &&
                 <Tools className="row">
                   <Popup
-                    handleDismiss={() => setEmoticons(false)}
-                    visible={emoticons}
+                    handleDismiss={() => setEmoticonMenu(false)}
+                    visible={emoticonMenu}
                     width={350}
                     direction="right-top"
                     content={
@@ -254,7 +264,7 @@ export default memo(props => {
                       size={15}
                       color="#CFD4D9"
                       className="button mr-10"
-                      onClick={() => setEmoticons(true)}
+                      onClick={() => setEmoticonMenu(true)}
                     />
                   </Popup>
 
@@ -290,9 +300,9 @@ export default memo(props => {
 
                   <Popup
                     handleDismiss={() => setForwardMenu(false)}
-                    visible={forwardMenu && over}
+                    visible={forwardMenu}
                     width={275}
-                    direction="right-bottom"
+                    direction="right-top"
                     content={
                       <React.Fragment>
                         <div className="color-d2 h5 pl-15 pt-15 bold">
@@ -326,7 +336,9 @@ export default memo(props => {
 
             {props.message.parent &&
               <ParentPadding className="column align-items-stretch flexer">
-                <ParentText>Replying to:</ParentText>
+                <ParentText>
+                  {props.message.parent.room.id == room.id ? `Replying to:` : `Forwarded from ${props.message.parent.room.title}: `}
+                </ParentText>
                 <ParentContainer className="row justify-content-center">
                   <div className="column flexer">
                     <div className="row">

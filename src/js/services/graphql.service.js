@@ -219,20 +219,6 @@ export default class GraphqlService {
             name
             description
             image
-            members {
-              user {
-                id
-                name
-                email {
-                  address
-                  confirmed
-                }
-                color
-                username
-                image
-              }
-              admin
-            }
             createdAt
             updatedAt
           }
@@ -335,6 +321,10 @@ export default class GraphqlService {
               id
               reactions
               parent {
+                room {
+                  title
+                  id
+                }
                 user {
                   id
                   name
@@ -1014,11 +1004,11 @@ export default class GraphqlService {
     })
   }
 
-  updateRoomMessage(roomId, userId, messageId, message, attachments) {
+  updateRoomMessage(messageId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoomMessage($roomId: String, $userId: String, $messageId: String, $message: String, $attachments: [AttachmentInput]) {
-          updateRoomMessage(roomId: $roomId, userId: $userId, messageId: $messageId, message: $message, attachments: $attachments) {
+        mutation updateRoomMessage($messageId: String, $payload: String) {
+            updateRoomMessage(messageId: $messageId, payload: $payload) {
             id
             user {
               id
@@ -1054,20 +1044,17 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
-        userId,
         messageId,
-        message,
-        attachments,
+        payload: JSON.stringify(payload),
       },
     })
   }
 
-  createRoomMessage(roomId, userId, message, attachments, parentId) {
+  createRoomMessage(payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessage($roomId: String, $userId: String, $message: String, $attachments: [AttachmentInput], $parentId: String) {
-          createRoomMessage(roomId: $roomId, userId: $userId, message: $message, attachments: $attachments, parentId: $parentId) {
+        mutation createRoomMessage($payload: String) {
+          createRoomMessage(payload: $payload) {
             id
             user {
               id
@@ -1103,11 +1090,7 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
-        userId,
-        message,
-        attachments,
-        parentId,
+        payload: JSON.stringify(payload),
       },
     })
   }

@@ -330,7 +330,13 @@ class ComposeComponent extends React.Component {
     const teamId = this.props.team.id
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, userId, message, attachments, parentId)
+      const { data } = await GraphqlService.getInstance().createRoomMessage({
+        room: roomId,
+        user: userId,
+        parent: parentId,
+        message,
+        attachments
+      })
 
       // The extra values are used for processing other info
       const roomMessage = {
@@ -352,9 +358,16 @@ class ComposeComponent extends React.Component {
     const teamId = this.props.team.id
 
     try {
-      const { data } = await GraphqlService.getInstance().updateRoomMessage(roomId, userId, messageId, message, attachments)
+      const { data } = await GraphqlService.getInstance().updateRoomMessage(
+        messageId,
+        {
+          message,
+          attachments,
+        }
+      )
+
       const roomMessage = {
-        message: data.updateRoomMessage,
+        message: { message, attachments },
         messageId,
         roomId,
         teamId,
@@ -362,10 +375,7 @@ class ComposeComponent extends React.Component {
 
       this.props.updateRoomMessage(roomId, roomMessage)
       this.props.updateRoom(roomId, { excerpt })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
+    } catch (e) {}
   }
 
   clearMessage() {
