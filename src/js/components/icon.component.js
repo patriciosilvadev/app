@@ -30,6 +30,7 @@ import {
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
 import { Reply } from '../icons/Reply'
+import { Forward } from '../icons/Forward'
 import { Profile } from '../icons/Profile'
 
 export function IconComponent({ size, color, icon, thickness, className, onClick }) {
@@ -54,6 +55,7 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
       case 'bell-off': return <BellOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'pen': return <Edit2 width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'reply': return <Reply width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'forward': return <Forward width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'chevron-down': return <ChevronDown width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'profile': return <Profile width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'settings': return <Settings width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />

@@ -11,11 +11,491 @@ import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
 import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage,openApp } from '../actions'
-import { Attachment, Popup, Avatar } from '@weekday/elements'
+import { Attachment, Popup, Avatar, Menu } from '@weekday/elements'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
+
+export default memo(props => {
+  const [message, setMessage] = useState(false)
+  const [preview, setPreview] = useState(null)
+  const [over, setOver] = useState(false)
+  const [forwardMenu, setForwardMenu] = useState(false)
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
+  const [emoticons, setEmoticons] = useState(false)
+  const dispatch = useDispatch()
+  const room = useSelector(state => state.room)
+  const team = useSelector(state => state.team)
+  const rooms = useSelector(state => state.rooms)
+  const user = useSelector(state => state.user)
+  const [youtubeVideos, setYoutubeVideos] = useState([])
+  const [vimeoVideos, setVimeoVideos] = useState([])
+  const [images, setImages] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [senderName, setSenderName] = useState(null)
+  const [senderImage, setSenderImage] = useState(null)
+  const [actions, setActions] = useState([])
+  const [url, setUrl] = useState(null)
+
+  const handleForwardMessage = async(roomId) => {
+    setForwardMenu(false)
+
+    const userName = user.name
+    const userId = user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
+    const teamId = team.id
+    const forwardedMessageContents = props.message.message
+    const forwardedMessageAttachments = props.message.attachments
+    const parentId = props.message.id
+
+    try {
+      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, userId, forwardedMessageContents, forwardedMessageAttachments, parentId)
+
+      // The extra values are used for processing other info
+      const roomMessage = {
+        message: data.createRoomMessage,
+        roomId,
+        teamId,
+      }
+
+      // Create the message
+      this.props.createRoomMessage(roomId, roomMessage)
+      this.props.updateRoom(roomId, { excerpt })
+    } catch (e) {}
+  }
+
+  const handleActionClick = async (action, payload = null) => {
+    dispatch(openApp(action, payload))
+  }
+
+  const handleDeleteRoomMessage = async () => {
+    try {
+      await GraphqlService.getInstance().deleteRoomMessage(messageId)
+
+      dispatch(deleteRoomMessage(room.id, props.message.id))
+      setConfirmDeleteModal(false)
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleDeleteRoomMessageReaction = async reaction => {
+    // Only this user can do this
+    if (reaction.split('__')[1] != user.id) return
+
+    try {
+      await GraphqlService.getInstance().deleteRoomMessageReaction(props.message.id, reaction)
+
+      setEmoticons(false)
+      dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleCreateRoomMessageReaction = async emoticon => {
+    try {
+      const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
+
+      await GraphqlService.getInstance().createRoomMessageReaction(props.message.id, reaction)
+
+      setEmoticons(false)
+      dispatch(createRoomMessageReaction(room.id, props.message.id, reaction))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const highlightMessage = (message, query) => {
+    var reg = new RegExp(query, 'gi')
+    return message.replace(reg, str => {
+      return `<strong>${str}<strong>`
+    })
+  }
+
+  // prettier-ignore
+  useEffect(() => {
+    setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
+    setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
+    setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
+
+    // Get the connected app
+    setSenderImage(props.message.app ? props.message.app.image : props.message.user.image)
+    setSenderName(props.message.app ? props.message.app.name : props.message.user.name)
+
+    // Get the message IFRAME URL
+    const messageUrl = props.message.app
+                        ? props.message.app.message
+                          ? props.message.app.message.url
+                          : null
+                        : null
+
+    // Only update our state if there are any
+    if (messageUrl) setUrl(messageUrl)
+
+    // Get all the message actions
+    const messageActions = props.message.app
+                            ? props.message.app.message
+                              ? props.message.app.message.actions
+                                ? props.message.app.message.actions
+                                : null
+                              : null
+                            : null
+
+    // Only update our state if there are any
+    if (messageActions) setActions(messageActions)
+
+    // Here we start processing the markdown
+    const htmlMessage = marked(props.message.message)
+    const compiledMessage = props.highlight
+                                ? props.highlight != ""
+                                  ? highlightMessage(htmlMessage, props.highlight)
+                                  : htmlMessage
+                                : htmlMessage
+
+    // What we do here is replace the emoji symbol with one from EmojiOne
+    const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
+    const partsOfTheMessageText = []
+    let matchArr
+    let lastOffset = 0
+
+    // Match all instances of the emoji
+    while ((matchArr = regex.exec(compiledMessage)) !== null) {
+      const previousText = compiledMessage.substring(lastOffset, matchArr.index)
+      if (previousText.length) partsOfTheMessageText.push(previousText)
+
+      lastOffset = matchArr.index + matchArr[0].length
+
+      const emoji = ReactDOMServer.renderToStaticMarkup(
+        <Emoji
+          emoji={matchArr[0]}
+          set="emojione"
+          size={22}
+          fallback={(em, props) => {
+            return em ? `:${em.short_names[0]}:` : props.emoji
+          }}
+        />
+      )
+
+      if (emoji) {
+        partsOfTheMessageText.push(emoji)
+      } else {
+        partsOfTheMessageText.push(matchArr[0])
+      }
+    }
+
+    const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+
+    if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
+
+    // Finally set the message after processnig
+    setMessage(partsOfTheMessageText.join(''))
+  }, [props.highlight, props.message])
+
+  // prettier-ignore
+  return (
+    <Message
+      className="column"
+      onMouseEnter={() => setOver(true)}
+      onMouseLeave={() => setOver(false)}>
+      {confirmDeleteModal &&
+        <ConfirmModal
+          onOkay={handleDeleteRoomMessage}
+          onCancel={() => setConfirmDeleteModal(false)}
+          text="Are you sure you want to delete this?"
+          title="Are you sure?"
+        />
+      }
+
+      <div className="row align-items-start w-100">
+        {!props.append &&
+          <Avatar
+            image={senderImage}
+            title={senderImage}
+            size="medium"
+          />
+        }
+
+        {props.append && <AvatarBlank />}
+
+        <div className="column flexer pl-15">
+          <Bubble className="column">
+            <div className="row w-100 relative">
+              {!props.append &&
+                <React.Fragment>
+                  <User>{senderName}</User>
+                  {props.message.app && <App>App</App>}
+                  <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
+                </React.Fragment>
+              }
+
+              {over &&
+                <Tools className="row">
+                  <Popup
+                    handleDismiss={() => setEmoticons(false)}
+                    visible={emoticons}
+                    width={350}
+                    direction="right-top"
+                    content={
+                      <Picker
+                        style={{ width: 350 }}
+                        set='emojione'
+                        title=""
+                        emoji=""
+                        showPreview={false}
+                        showSkinTones={false}
+                        onSelect={(emoji) => handleCreateRoomMessageReaction(emoji.colons)}
+                      />
+                    }>
+                    <IconComponent
+                      icon="smile"
+                      size={15}
+                      color="#CFD4D9"
+                      className="button mr-10"
+                      onClick={() => setEmoticons(true)}
+                    />
+                  </Popup>
+
+                  <IconComponent
+                    icon="delete"
+                    size={15}
+                    color="#CFD4D9"
+                    className="button mr-10"
+                    onClick={() => setConfirmDeleteModal(true)}
+                  />
+
+                  {!props.message.app &&
+                    <React.Fragment>
+                      {props.message.user.id == user.id &&
+                        <IconComponent
+                          icon="pen"
+                          size={15}
+                          color="#CFD4D9"
+                          className="button mr-10"
+                          onClick={() => props.setUpdateMessage(props.message)}
+                        />
+                      }
+                    </React.Fragment>
+                  }
+
+                  <IconComponent
+                    icon="reply"
+                    size={15}
+                    color="#CFD4D9"
+                    className="button mr-10"
+                    onClick={() => props.setReplyMessage(props.message)}
+                  />
+
+                  <Popup
+                    handleDismiss={() => setForwardMenu(false)}
+                    visible={forwardMenu && over}
+                    width={275}
+                    direction="right-bottom"
+                    content={
+                      <React.Fragment>
+                        <div className="color-d2 h5 pl-15 pt-15 bold">
+                          Forward to room:
+                        </div>
+                        <Menu
+                          items={rooms.map((room) => {
+                            const text = room.private ? room.members.reduce((title, member) => member.user.id != user.id ? title + member.user.name : title, "") : room.title
+
+                            return {
+                              text,
+                              onClick: (e) => handleForwardMessage(room.id),
+                            }
+                          })}
+                        />
+                      </React.Fragment>
+                    }>
+                    <div >
+                      <IconComponent
+                        icon="forward"
+                        size={15}
+                        color="#CFD4D9"
+                        className="button"
+                        onClick={() => setForwardMenu(true)}
+                      />
+                    </div>
+                  </Popup>
+                </Tools>
+              }
+            </div>
+
+            {props.message.parent &&
+              <ParentPadding className="column align-items-stretch flexer">
+                <ParentText>Replying to:</ParentText>
+                <ParentContainer className="row justify-content-center">
+                  <div className="column flexer">
+                    <div className="row">
+                      <ParentName>
+                        {props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}
+                      </ParentName>
+                      <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
+                    </div>
+                    <ParentMessage>
+                      <ReactMarkdown source={props.message.parent.message} />
+                    </ParentMessage>
+                  </div>
+                </ParentContainer>
+              </ParentPadding>
+            }
+
+            <Text dangerouslySetInnerHTML={{__html: message}} />
+
+            {preview &&
+              <ModalPortal>
+                <PreviewContainer className="row justify-content-center">
+                  <PreviewClose>
+                    <IconComponent
+                      icon="x"
+                      size={25}
+                      color="#8DA2A5"
+                      className="button"
+                      onClick={() => setPreview(null)}
+                    />
+                  </PreviewClose>
+                  <PreviewImage
+                    image={preview}
+                  />
+                </PreviewContainer>
+              </ModalPortal>
+            }
+
+            {props.message.attachments &&
+              <React.Fragment>
+                {props.message.attachments.length != 0 &&
+                  <Attachments>
+                    {props.message.attachments.map((attachment, index) => {
+                      const isImage = attachment.mime.split('/')[0]
+
+                      return (
+                        <Attachment
+                          key={index}
+                          layout="message"
+                          size={attachment.size}
+                          mime={attachment.mime}
+                          preview={attachment.preview}
+                          uri={attachment.uri}
+                          name={attachment.name}
+                          createdAt={attachment.createdAt}
+                          onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
+                        />
+                      )
+                    })}
+                  </Attachments>
+                }
+              </React.Fragment>
+            }
+
+            {images.map((image, index) => {
+              const name = image.split('/')[image.split('/').length - 1]
+              const extension = image.split('.')[image.split('.').length - 1]
+              const mime = `image/${extension}`
+
+              return (
+                <Attachment
+                  key={index}
+                  layout="message"
+                  size={null}
+                  mime={mime}
+                  preview={image}
+                  uri={image}
+                  name={name}
+                  createdAt={props.message.createdAt}
+                  onPreviewClick={() => setPreview(image)}
+                />
+              )
+            })}
+
+            {youtubeVideos.map((youtubeVideo, index) => {
+              return (
+                <iframe
+                  key={index}
+                  width={560}
+                  height={300}
+                  src={`https://www.youtube.com/embed/${youtubeVideo}`}
+                  frameBorder={0}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen>
+                </iframe>
+              )
+            })}
+
+            {vimeoVideos.map((vimeoVideo, index) => {
+              return (
+                <iframe
+                  key={index}
+                  width={560}
+                  height={300}
+                  src={`https://player.vimeo.com/video/${vimeoVideo}`}
+                  frameBorder={0}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen>
+                </iframe>
+              )
+            })}
+
+            {url &&
+              <AppUrl>
+                <iframe
+                  border="0"
+                  src={url}
+                  width={props.message.app.message.width}
+                  height={props.message.app.message.height}>
+                </iframe>
+              </AppUrl>
+            }
+
+            {actions.length != 0 &&
+              <AppActions className="row">
+                {actions.map((action, index) => {
+                  return (
+                    <AppActionContainer
+                      key={index}
+                      className="row"
+                      onClick={() => handleActionClick(action)}>
+                      <AppActionImage image={action.icon} />
+                      <AppActionText>{action.name}</AppActionText>
+                    </AppActionContainer>
+                  )
+                })}
+              </AppActions>
+            }
+
+            {props.message.reactions &&
+              <React.Fragment>
+                {props.message.reactions.length != 0 &&
+                  <Reactions className="row">
+                    {props.message.reactions.map((reaction, index) => {
+                      const reactionParts = reaction.split('__')
+                      const emoticon = reactionParts[0]
+                      const userName = reactionParts[2]
+
+                      return (
+                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
+                          <Emoji
+                            emoji={emoticon}
+                            size={16}
+                            set='emojione'
+                          />
+                          <span className="name">{userName}</span>
+                        </div>
+                      )
+                    })}
+                  </Reactions>
+                }
+              </React.Fragment>
+            }
+
+          </Bubble>
+        </div>
+      </div>
+    </Message>
+  )
+})
 
 const Message = styled.div`
   margin-bottom: 20px;
@@ -270,420 +750,3 @@ const AvatarBlank = styled.div`
   width: 30px;
   height: 30px;
 `
-
-export default memo(props => {
-  const [message, setMessage] = useState(false)
-  const [preview, setPreview] = useState(null)
-  const [over, setOver] = useState(false)
-  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const [emoticons, setEmoticons] = useState(false)
-  const dispatch = useDispatch()
-  const room = useSelector(state => state.room)
-  const user = useSelector(state => state.user)
-  const [youtubeVideos, setYoutubeVideos] = useState([])
-  const [vimeoVideos, setVimeoVideos] = useState([])
-  const [images, setImages] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const [senderName, setSenderName] = useState(null)
-  const [senderImage, setSenderImage] = useState(null)
-  const [actions, setActions] = useState([])
-  const [url, setUrl] = useState(null)
-
-  const handleActionClick = async (action, payload = null) => {
-    dispatch(openApp(action, payload))
-  }
-
-  const handleDeleteRoomMessage = async () => {
-    try {
-      await GraphqlService.getInstance().deleteRoomMessage(messageId)
-
-      dispatch(deleteRoomMessage(room.id, props.message.id))
-      setConfirmDeleteModal(false)
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  const handleDeleteRoomMessageReaction = async reaction => {
-    // Only this user can do this
-    if (reaction.split('__')[1] != user.id) return
-
-    try {
-      await GraphqlService.getInstance().deleteRoomMessageReaction(props.message.id, reaction)
-
-      setEmoticons(false)
-      dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  const handleCreateRoomMessageReaction = async emoticon => {
-    try {
-      const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
-
-      await GraphqlService.getInstance().createRoomMessageReaction(props.message.id, reaction)
-
-      setEmoticons(false)
-      dispatch(createRoomMessageReaction(room.id, props.message.id, reaction))
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  const highlightMessage = (message, query) => {
-    var reg = new RegExp(query, 'gi')
-    return message.replace(reg, str => {
-      return `<strong>${str}<strong>`
-    })
-  }
-
-  // prettier-ignore
-  useEffect(() => {
-    setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
-    setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
-    setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
-
-    // Get the connected app
-    setSenderImage(props.message.app ? props.message.app.image : props.message.user.image)
-    setSenderName(props.message.app ? props.message.app.name : props.message.user.name)
-
-    // Get the message IFRAME URL
-    const messageUrl = props.message.app
-                        ? props.message.app.message
-                          ? props.message.app.message.url
-                          : null
-                        : null
-
-    // Only update our state if there are any
-    if (messageUrl) setUrl(messageUrl)
-
-    // Get all the message actions
-    const messageActions = props.message.app
-                            ? props.message.app.message
-                              ? props.message.app.message.actions
-                                ? props.message.app.message.actions
-                                : null
-                              : null
-                            : null
-
-    // Only update our state if there are any
-    if (messageActions) setActions(messageActions)
-
-    // Here we start processing the markdown
-    const htmlMessage = marked(props.message.message)
-    const compiledMessage = props.highlight
-                                ? props.highlight != ""
-                                  ? highlightMessage(htmlMessage, props.highlight)
-                                  : htmlMessage
-                                : htmlMessage
-
-    // What we do here is replace the emoji symbol with one from EmojiOne
-    const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
-    const partsOfTheMessageText = []
-    let matchArr
-    let lastOffset = 0
-
-    // Match all instances of the emoji
-    while ((matchArr = regex.exec(compiledMessage)) !== null) {
-      const previousText = compiledMessage.substring(lastOffset, matchArr.index)
-      if (previousText.length) partsOfTheMessageText.push(previousText)
-
-      lastOffset = matchArr.index + matchArr[0].length
-
-      const emoji = ReactDOMServer.renderToStaticMarkup(
-        <Emoji
-          emoji={matchArr[0]}
-          set="emojione"
-          size={22}
-          fallback={(em, props) => {
-            return em ? `:${em.short_names[0]}:` : props.emoji
-          }}
-        />
-      )
-
-      if (emoji) {
-        partsOfTheMessageText.push(emoji)
-      } else {
-        partsOfTheMessageText.push(matchArr[0])
-      }
-    }
-
-    const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
-
-    if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
-
-    // Finally set the message after processnig
-    setMessage(partsOfTheMessageText.join(''))
-  }, [props.highlight, props.message])
-
-  // prettier-ignore
-  return (
-    <Message
-      className="column"
-      onMouseEnter={() => setOver(true)}
-      onMouseLeave={() => setOver(false)}>
-      {confirmDeleteModal &&
-        <ConfirmModal
-          onOkay={handleDeleteRoomMessage}
-          onCancel={() => setConfirmDeleteModal(false)}
-          text="Are you sure you want to delete this?"
-          title="Are you sure?"
-        />
-      }
-
-      <div className="row align-items-start w-100">
-        {!props.append &&
-          <Avatar
-            image={senderImage}
-            title={senderImage}
-            size="medium"
-          />
-        }
-
-        {props.append && <AvatarBlank />}
-
-        <div className="column flexer pl-15">
-          <Bubble className="column">
-            <div className="row w-100 relative">
-              {!props.append &&
-                <React.Fragment>
-                  <User>{senderName}</User>
-                  {props.message.app && <App>App</App>}
-                  <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
-                </React.Fragment>
-              }
-
-              {over &&
-                <Tools className="row">
-                  <Popup
-                    handleDismiss={() => setEmoticons(false)}
-                    visible={emoticons}
-                    width={350}
-                    direction="right-top"
-                    content={
-                      <Picker
-                        style={{ width: 350 }}
-                        set='emojione'
-                        title=""
-                        emoji=""
-                        showPreview={false}
-                        showSkinTones={false}
-                        onSelect={(emoji) => handleCreateRoomMessageReaction(emoji.colons)}
-                      />
-                    }>
-                    <IconComponent
-                      icon="smile"
-                      size={15}
-                      color="#CFD4D9"
-                      className="button mr-10"
-                      onClick={() => setEmoticons(true)}
-                    />
-                  </Popup>
-
-                  <IconComponent
-                    icon="delete"
-                    size={15}
-                    color="#CFD4D9"
-                    className="button mr-10"
-                    onClick={() => setConfirmDeleteModal(true)}
-                  />
-
-                  {!props.message.app &&
-                    <React.Fragment>
-                      {props.message.user.id == user.id &&
-                        <IconComponent
-                          icon="pen"
-                          size={15}
-                          color="#CFD4D9"
-                          className="button mr-10"
-                          onClick={() => props.setUpdateMessage(props.message)}
-                        />
-                      }
-                    </React.Fragment>
-                  }
-
-                  <IconComponent
-                    icon="reply"
-                    size={15}
-                    color="#CFD4D9"
-                    className="button"
-                    onClick={() => props.setReplyMessage(props.message)}
-                  />
-                </Tools>
-              }
-            </div>
-
-            {props.message.parent &&
-              <ParentPadding className="column align-items-stretch flexer">
-                <ParentText>Replying to:</ParentText>
-                <ParentContainer className="row justify-content-center">
-                  <div className="column flexer">
-                    <div className="row">
-                      <ParentName>
-                        {props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}
-                      </ParentName>
-                      <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
-                    </div>
-                    <ParentMessage>
-                      <ReactMarkdown source={props.message.parent.message} />
-                    </ParentMessage>
-                  </div>
-                </ParentContainer>
-              </ParentPadding>
-            }
-
-            <Text dangerouslySetInnerHTML={{__html: message}} />
-
-            {preview &&
-              <ModalPortal>
-                <PreviewContainer className="row justify-content-center">
-                  <PreviewClose>
-                    <IconComponent
-                      icon="x"
-                      size={25}
-                      color="#8DA2A5"
-                      className="button"
-                      onClick={() => setPreview(null)}
-                    />
-                  </PreviewClose>
-                  <PreviewImage
-                    image={preview}
-                  />
-                </PreviewContainer>
-              </ModalPortal>
-            }
-
-            {props.message.attachments &&
-              <React.Fragment>
-                {props.message.attachments.length != 0 &&
-                  <Attachments>
-                    {props.message.attachments.map((attachment, index) => {
-                      const isImage = attachment.mime.split('/')[0]
-
-                      return (
-                        <Attachment
-                          key={index}
-                          layout="message"
-                          size={attachment.size}
-                          mime={attachment.mime}
-                          preview={attachment.preview}
-                          uri={attachment.uri}
-                          name={attachment.name}
-                          createdAt={attachment.createdAt}
-                          onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
-                        />
-                      )
-                    })}
-                  </Attachments>
-                }
-              </React.Fragment>
-            }
-
-            {images.map((image, index) => {
-              const name = image.split('/')[image.split('/').length - 1]
-              const extension = image.split('.')[image.split('.').length - 1]
-              const mime = `image/${extension}`
-
-              return (
-                <Attachment
-                  key={index}
-                  layout="message"
-                  size={null}
-                  mime={mime}
-                  preview={image}
-                  uri={image}
-                  name={name}
-                  createdAt={props.message.createdAt}
-                  onPreviewClick={() => setPreview(image)}
-                />
-              )
-            })}
-
-            {youtubeVideos.map((youtubeVideo, index) => {
-              return (
-                <iframe
-                  key={index}
-                  width={560}
-                  height={300}
-                  src={`https://www.youtube.com/embed/${youtubeVideo}`}
-                  frameBorder={0}
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen>
-                </iframe>
-              )
-            })}
-
-            {vimeoVideos.map((vimeoVideo, index) => {
-              return (
-                <iframe
-                  key={index}
-                  width={560}
-                  height={300}
-                  src={`https://player.vimeo.com/video/${vimeoVideo}`}
-                  frameBorder={0}
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen>
-                </iframe>
-              )
-            })}
-
-            {url &&
-              <AppUrl>
-                <iframe
-                  border="0"
-                  src={url}
-                  width={props.message.app.message.width}
-                  height={props.message.app.message.height}>
-                </iframe>
-              </AppUrl>
-            }
-
-            {actions.length != 0 &&
-              <AppActions className="row">
-                {actions.map((action, index) => {
-                  return (
-                    <AppActionContainer
-                      key={index}
-                      className="row"
-                      onClick={() => handleActionClick(action)}>
-                      <AppActionImage image={action.icon} />
-                      <AppActionText>{action.name}</AppActionText>
-                    </AppActionContainer>
-                  )
-                })}
-              </AppActions>
-            }
-
-            {props.message.reactions &&
-              <React.Fragment>
-                {props.message.reactions.length != 0 &&
-                  <Reactions className="row">
-                    {props.message.reactions.map((reaction, index) => {
-                      const reactionParts = reaction.split('__')
-                      const emoticon = reactionParts[0]
-                      const userName = reactionParts[2]
-
-                      return (
-                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
-                          <Emoji
-                            emoji={emoticon}
-                            size={16}
-                            set='emojione'
-                          />
-                          <span className="name">{userName}</span>
-                        </div>
-                      )
-                    })}
-                  </Reactions>
-                }
-              </React.Fragment>
-            }
-
-          </Bubble>
-        </div>
-      </div>
-    </Message>
-  )
-})

@@ -633,9 +633,7 @@ class RoomsComponent extends React.Component {
           {this.state.public.map((room, index) => {
             if (this.props.user.starred.indexOf(room.id) != -1) return
             if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-            const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
-            const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
+            
             const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
             const unreadCount = unread ? unread.doc.count : 0
             const muted = this.props.user.muted.indexOf(room.id) != -1

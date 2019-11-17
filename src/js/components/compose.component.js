@@ -323,14 +323,14 @@ class ComposeComponent extends React.Component {
     }
   }
 
-  async createRoomMessage(roomId, message, attachments, parent) {
+  async createRoomMessage(roomId, message, attachments, parentId) {
     const userName = this.props.user.name
     const userId = this.props.user.id
     const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
     const teamId = this.props.team.id
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, userId, message, attachments, parent)
+      const { data } = await GraphqlService.getInstance().createRoomMessage(roomId, userId, message, attachments, parentId)
 
       // The extra values are used for processing other info
       const roomMessage = {
