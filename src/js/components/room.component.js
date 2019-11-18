@@ -49,6 +49,7 @@ class RoomComponent extends React.Component {
       loading: false,
       error: false,
       isDragging: false,
+      permissible: false,
     }
 
     this.messagesRef = React.createRef()
@@ -287,6 +288,7 @@ class RoomComponent extends React.Component {
     const starred = props.user.starred.indexOf(props.room.id) != -1
     const muted = props.user.muted.indexOf(props.room.id) != -1
     const archived = props.user.archived.indexOf(props.room.id) != -1
+    const permissible = props.team.role == 'ADMIN' || props.room.user.id == props.user.id
 
     const title = props.room.private
       ? props.room.members
@@ -307,6 +309,7 @@ class RoomComponent extends React.Component {
       title,
       image,
       starred,
+      permissible,
     }
   }
 
@@ -316,6 +319,7 @@ class RoomComponent extends React.Component {
       <React.Fragment>
         {this.state.roomUpdateModal &&
           <RoomModal
+            permissible={this.state.permissible}
             id={this.props.room.id}
             members={this.props.room.members}
             start={this.state.roomUpdateModalStart}
@@ -371,7 +375,7 @@ class RoomComponent extends React.Component {
                     {this.props.room.members.length == 1 ? "member" : "members"}
                   </HeaderText>
 
-                  {!this.props.room.private &&
+                  {!this.props.room.private && this.state.permissible &&
                     <div
                       className="ml-10 row button"
                       onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}>
@@ -488,7 +492,7 @@ class RoomComponent extends React.Component {
                       thickness={1.5}
                       color="#acb5bd"
                       className="ml-15 button"
-                      onClick={() => this.setState({ visibilityMenu: true })}
+                      onClick={() => this.state.permissible ? this.setState({ visibilityMenu: true }) : null}
                     />
                   </Popup>
                 </React.Fragment>
@@ -497,9 +501,7 @@ class RoomComponent extends React.Component {
           }
 
           {(this.props.room.public && !this.props.room.public) &&
-            <Notification
-              text="This team channel is public"
-            />
+            <Notification text="This team channel is public" />
           }
 
           <MessagesContainer ref={(ref) => this.scrollRef = ref}>
@@ -534,7 +536,8 @@ class RoomComponent extends React.Component {
 
                     {/* If there is no room description */}
                     {/* Then give the user the option to update it */}
-                    {!this.props.room.description &&
+                    {/* But only if they can */}
+                    {!this.props.room.description && this.state.permissible &&
                       <WelcomeDescriptionUpdate
                         className="button"
                         onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>

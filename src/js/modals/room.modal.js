@@ -257,12 +257,13 @@ export default function RoomModal(props) {
                             image={image}
                             className="mr-20 mb-20"
                             size="xx-large"
-                            onClick={() => fileRef.current.click()}
                           />
 
-                          <Link className="button mt-10" onClick={() => fileRef.current.click()}>
-                            Update image
-                          </Link>
+                          {props.permissible &&
+                            <Link className="button mt-10" onClick={() => fileRef.current.click()}>
+                              Update image
+                            </Link>
+                          }
                         </div>
 
                         <Column className="column">
@@ -272,6 +273,7 @@ export default function RoomModal(props) {
                             onChange={e => setTitle(e.target.value)}
                             placeholder="New channel title"
                             className="mb-20"
+                            disable={!props.permissible}
                           />
 
                           <Textarea
@@ -281,6 +283,7 @@ export default function RoomModal(props) {
                             placeholder="Add a description"
                             rows={8}
                             className="mb-20"
+                            disable={!props.permissible}
                           />
 
                           <div className="row">
@@ -296,14 +299,16 @@ export default function RoomModal(props) {
                         </Column>
                       </Row>
 
-                      <div className="p-20">
-                        <Button
-                          onClick={handleUpdateRoom}
-                          text="Update"
-                          theme="blue-border"
-                          size="small"
-                        />
-                      </div>
+                      {props.permissible &&
+                        <div className="p-20">
+                          <Button
+                            onClick={handleUpdateRoom}
+                            text="Update"
+                            theme="blue-border"
+                            size="small"
+                          />
+                        </div>
+                      }
                     </div>
                   </div>
                 )
@@ -350,69 +355,74 @@ export default function RoomModal(props) {
                           name={member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
                           label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
 
-                          <Button
-                            theme="blue-border"
-                            size="small"
-                            onClick={() => {
-                              if (members.length == 1) {
-                                setError('There must be at least 1 person in a channel')
-                                setTimeout(() => setError(null), 2000)
-                                return
-                              }
+                          {props.permissible &&
+                            <Button
+                              theme="blue-border"
+                              size="small"
+                              onClick={() => {
+                                if (members.length == 1) {
+                                  setError('There must be at least 1 person in a channel')
+                                  setTimeout(() => setError(null), 2000)
+                                  return
+                                }
 
-                              setMemberToDelete(member.user)
+                                setMemberToDelete(member.user)
 
-                              if (user.id == member.user.id) {
-                                setConfirmSelfDeleteModal(true)
-                              } else {
-                                setConfirmMemberDeleteModal(true)
-                              }
-                            }}
-                            text="Delete Member"
-                          />
+                                if (user.id == member.user.id) {
+                                  setConfirmSelfDeleteModal(true)
+                                } else {
+                                  setConfirmMemberDeleteModal(true)
+                                }
+                              }}
+                              text="Delete Member"
+                            />
+                          }
                         </User>
                       )
                     })}
 
-                    <QuickUserComponent
-                      room={room}
-                      visible={userMenu}
-                      width={250}
-                      direction="left-bottom"
-                      handleDismiss={() => setUserMenu(false)}
-                      handleAccept={({ user }) => {
-                        // Check to see if there are already people
-                        // Don't re-add people
-                        if (members.filter(member => member.user.id == user.id).length > 0) return
+                    {props.permissible &&
+                      <QuickUserComponent
+                        room={room}
+                        visible={userMenu}
+                        width={250}
+                        direction="left-bottom"
+                        handleDismiss={() => setUserMenu(false)}
+                        handleAccept={({ user }) => {
+                          // Check to see if there are already people
+                          // Don't re-add people
+                          if (members.filter(member => member.user.id == user.id).length > 0) return
 
-                        // Otherwise all good - add them
-                        handleCreateRoomMember(user)
-                        setUserMenu(false)
-                      }}>
-                      <AddButton className="button row" onClick={() => setUserMenu(true)}>
-                        <Avatar
-                          className="mr-5"
-                          size="medium"
-                          circle
-                          image={null}
-                          color="#007af5"
-                          title="">
-                          <IconComponent
-                            icon="plus"
-                            size={20}
-                            color="#00a8ff"
-                          />
-                        </Avatar>
+                          // Otherwise all good - add them
+                          handleCreateRoomMember(user)
+                          setUserMenu(false)
+                        }}>
+                        <AddButton className="button row" onClick={() => setUserMenu(true)}>
+                          <Avatar
+                            className="mr-5"
+                            size="medium"
+                            circle
+                            image={null}
+                            color="#007af5"
+                            title="">
+                            <IconComponent
+                              icon="plus"
+                              size={20}
+                              color="#00a8ff"
+                            />
+                          </Avatar>
 
-                        <Link className="ml-10">Add new Member</Link>
-                      </AddButton>
-                    </QuickUserComponent>
+                          <Link className="ml-10">Add new Member</Link>
+                        </AddButton>
+                      </QuickUserComponent>
+                    }
                   </div>
                 )
               },
               {
                 title: 'Danger zone',
                 show: true,
+                hide: !props.permissible,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
@@ -452,4 +462,5 @@ RoomModal.propTypes = {
   start: PropTypes.number,
   members: PropTypes.array,
   onClose: PropTypes.func,
+  permissible: PropTypes.boolean,
 }

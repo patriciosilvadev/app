@@ -75,7 +75,7 @@ const TableRow = (props) => {
             }>
             <span
               className="color-blue button bold underline"
-              onClick={() => setRoles(true)}>
+              onClick={() => props.admin ? setRoles(true) : null}>
               {member.role.toTitleCase()}
             </span>
           </Popup>
@@ -95,13 +95,13 @@ const TableRow = (props) => {
               <Menu
                 items={[
                   {
-                    hide: member.user.id != user.id,
+                    hide: (member.user.id != user.id),
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
                     text: "Leave team",
                     onClick: () => setConfirmSelfDeleteModal(true),
                   },
                   {
-                    hide: member.user.id == user.id,
+                    hide: ((member.user.id == user.id) || (!props.admin)),
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
                     text: "Remove person from team",
                     onClick: () => setConfirmMemberDeleteModal(true),
@@ -222,6 +222,7 @@ export default function MembersTeamComponent(props) {
   }
 
   useEffect(() => {
+    console.log(props.admin)
     setMembers(props.members)
     setPages(Math.ceil(props.members.length / limit))
   }, [props.members])
@@ -291,6 +292,7 @@ export default function MembersTeamComponent(props) {
 
               return (
                 <TableRow
+                  admin={props.admin}
                   key={index}
                   member={member}
                   user={user}
@@ -313,6 +315,7 @@ MembersTeamComponent.propTypes = {
   createRoom: PropTypes.func,
   onClose: PropTypes.func,
   id: PropTypes.string,
+  admin: PropTypes.bool,
 }
 
 const Buttons = styled.div`

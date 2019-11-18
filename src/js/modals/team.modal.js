@@ -32,6 +32,7 @@ export default function TeamModal(props) {
   const fileRef = useRef(null)
   const user = useSelector(state => state.user)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
+  const [admin, setAdmin] = useState(false)
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -154,7 +155,7 @@ export default function TeamModal(props) {
 
         setLoading(true)
 
-        const { data } = await GraphqlService.getInstance().team(props.id)
+        const { data } = await GraphqlService.getInstance().team(props.id, user.id)
         const team = data.team
 
         setImage(team.image)
@@ -163,6 +164,7 @@ export default function TeamModal(props) {
         setMembers(team.members)
         setShortcode(team.shortcode)
         setSlug(team.slug)
+        setAdmin(team.role == 'ADMIN')
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -215,7 +217,14 @@ export default function TeamModal(props) {
                             {props.id &&
                               <Text className="p color-d0 button bold mr-10">{members.length} members</Text>
                             }
-                            <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
+
+                            {admin &&
+                              <Text
+                                className="p color-blue button bold"
+                                onClick={() => fileRef.current.click()}>
+                                Update profile image
+                              </Text>
+                            }
                           </div>
                         </div>
                       </div>
@@ -227,6 +236,7 @@ export default function TeamModal(props) {
                           onChange={e => setName(e.target.value)}
                           placeholder="Enter full name"
                           className="mb-20"
+                          disabled={!admin}
                         />
 
                         <Textarea
@@ -236,14 +246,17 @@ export default function TeamModal(props) {
                           placeholder="Add a description"
                           rows={8}
                           className="mb-20"
+                          disabled={!admin}
                         />
 
-                        <Button
-                          onClick={handleUpdateTeam}
-                          text="Save"
-                          theme="blue-border"
-                          size="small"
-                        />
+                        {admin &&
+                          <Button
+                            onClick={handleUpdateTeam}
+                            text="Save"
+                            theme="blue-border"
+                            size="small"
+                          />
+                        }
                       </div>
                     </div>
                   </div>
@@ -255,6 +268,7 @@ export default function TeamModal(props) {
                 content: (
                   <div className="column flex-1 w-100 h-100">
                     <MembersTeamComponent
+                      admin={admin}
                       id={props.id}
                       createRoom={props.createRoom}
                       onClose={props.onClose}
@@ -265,7 +279,7 @@ export default function TeamModal(props) {
               },
               {
                 title: 'Access',
-                show: true,
+                show: admin,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
@@ -322,7 +336,7 @@ export default function TeamModal(props) {
               },
               {
                 title: 'Invite & share',
-                show: true,
+                show: admin,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
@@ -349,7 +363,7 @@ export default function TeamModal(props) {
               },
               {
                 title: 'Danger zone',
-                show: true,
+                show: admin,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">

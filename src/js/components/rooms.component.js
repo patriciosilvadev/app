@@ -507,22 +507,24 @@ class RoomsComponent extends React.Component {
               Channels
             </Heading>
 
-            <QuickInputComponent
-              visible={this.state.roomPopup}
-              width={250}
-              direction="right-bottom"
-              handleDismiss={() => this.setState({ roomPopup: false })}
-              handleAccept={(name) => this.setState({ roomPopup: false }, () => this.createPublicRoom(name))}
-              placeholder="New channel name">
-              <IconComponent
-                icon="plus-circle"
-                size={15}
-                color="#475669"
-                thickness={2}
-                className="button"
-                onClick={() => this.setState({ roomPopup: true })}
-              />
-            </QuickInputComponent>
+            {(this.props.team.role != 'GUEST') &&
+              <QuickInputComponent
+                visible={this.state.roomPopup}
+                width={250}
+                direction="right-bottom"
+                handleDismiss={() => this.setState({ roomPopup: false })}
+                handleAccept={(name) => this.setState({ roomPopup: false }, () => this.createPublicRoom(name))}
+                placeholder="New channel name">
+                <IconComponent
+                  icon="plus-circle"
+                  size={15}
+                  color="#475669"
+                  thickness={2}
+                  className="button"
+                  onClick={() => this.setState({ roomPopup: true })}
+                />
+              </QuickInputComponent>
+            }
           </div>
 
           {this.state.public.map((room, index) => {
