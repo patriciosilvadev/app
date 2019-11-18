@@ -13,6 +13,7 @@ import { IconComponent } from '../components/icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
+import MembersComponent from '../components/members.component'
 
 const Text = styled.div``
 
@@ -251,7 +252,7 @@ export default function TeamModal(props) {
         height="80%"
         onClose={props.onClose}>
           <Tabbed
-            start={props.start || 0}
+            start={props.start}
             panels={[
               {
                 title: 'Profile',
@@ -347,32 +348,9 @@ export default function TeamModal(props) {
                       />
                     }
 
-                    {members.map((member, index) => {
-                      return (
-                        <User
-                          key={index}
-                          image={member.user.image}
-                          color={member.user.color}
-                          name={member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
-                          label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
-                          <IconComponent
-                            icon="delete"
-                            size={25}
-                            color="#007af5"
-                            onClick={() => handleDeleteClick(member)}
-                            className="button"
-                          />
-
-                          <Button
-                            theme="blue-border"
-                            size="small"
-                            className="ml-20"
-                            onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
-                            text={member.admin ? 'Remove Admin' : 'Make Admin'}
-                          />
-                        </User>
-                      )
-                    })}
+                    <MembersComponent
+                      members={members}
+                    />
                   </div>
                 )
               },

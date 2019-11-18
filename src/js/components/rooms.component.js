@@ -26,7 +26,8 @@ class RoomsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: false,
+      teamModal: true,
+      teamModalStart: 1,
       roomPopup: false,
       accountModal: false,
       accountMenu: false,
@@ -262,7 +263,11 @@ class RoomsComponent extends React.Component {
   }
 
   _openTeamSettings() {
-    this.setState({ accountMenu: false, teamModal: true })
+    this.setState({ accountMenu: false, teamModal: true, teamModalStart: 0 })
+  }
+
+  _openTeamDirectory() {
+    this.setState({ accountMenu: false, teamModal: true, teamModalStart: 1 })
   }
 
   _signout() {
@@ -290,6 +295,7 @@ class RoomsComponent extends React.Component {
       <Rooms className="column">
         {this.state.teamModal &&
           <TeamModal
+            start={this.state.teamModalStart}
             id={this.props.team.id}
             onClose={() => this.setState({ teamModal: false })}
           />
@@ -369,6 +375,11 @@ class RoomsComponent extends React.Component {
                       icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
                       text: "Team settings",
                       onClick: this._openTeamSettings.bind(this),
+                    },
+                    {
+                      icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
+                      text: "Team directory",
+                      onClick: this._openTeamDirectory.bind(this),
                     },
                     {
                       icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,

@@ -25,7 +25,8 @@ import {
   RefreshCcw,
   MoreVertical,
   MoreHorizontal,
-  Search
+  Search,
+  List,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -38,6 +39,7 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'list': return <List width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'eye': return <Eye width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'eye-off': return <EyeOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'info': return <Info width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
