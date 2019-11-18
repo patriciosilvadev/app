@@ -1,5 +1,5 @@
-import React from 'react'
-import { connect } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
@@ -39,6 +39,10 @@ const HeaderTitle = styled.div`
 `
 
 export default function AppComponent(props) {
+  const user = useSelector(state => state.user)
+  const room = useSelector(state => state.room)
+  const dispatch = useDispatch()
+
   // prettier-ignore
   return (
     <Container className="column">
@@ -56,7 +60,7 @@ export default function AppComponent(props) {
       </Header>
       <Iframe
         border="0"
-        src={`${props.url}?payload=${btoa(JSON.stringify(props.payload))}`}
+        src={`${props.url}?channelId=${room.id}&userId=${user.id}`}
         width="100%"
         height="100%">
       </Iframe>

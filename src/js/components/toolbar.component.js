@@ -37,9 +37,9 @@ const AppIconImage = styled.div`
 `
 
 export default function ToolbarComponent(props) {
-  const room = useSelector(state => state.room)
   const [actions, setActions] = useState([])
   const user = useSelector(state => state.user)
+  const room = useSelector(state => state.room)
   const dispatch = useDispatch()
 
   const handleActionClick = async (action, payload = null) => {

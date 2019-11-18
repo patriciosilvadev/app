@@ -1,4 +1,5 @@
-import React, { useState, useEffect, memo } from 'react'
+import React, { useState, useEffect, memo, useRef } from 'react'
+import ReactDOM from 'react-dom'
 import moment from 'moment'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
@@ -38,8 +39,11 @@ export default memo(props => {
   const [senderImage, setSenderImage] = useState(null)
   const [senderTimezone, setSenderTimezone] = useState('')
   const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
-  const [actions, setActions] = useState([])
-  const [url, setUrl] = useState(null)
+  const [appActions, setAppActions] = useState([])
+  const [appPayload, setAppPayload] = useState('')
+  const [appUrl, setAppUrl] = useState(null)
+  const [appIframeHeight, setAppIframeHeight] = useState(50)
+  const iframeRef = useRef(null)
 
   const handleForwardMessage = async(roomId) => {
     setForwardMenu(false)
@@ -130,8 +134,8 @@ export default memo(props => {
     setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
 
     // Get the connected app
-    setSenderImage(props.message.app ? props.message.app.image : props.message.user.image)
-    setSenderName(props.message.app ? props.message.app.name : props.message.user.name)
+    setSenderImage(props.message.app ? props.message.app.app.image : props.message.user.image)
+    setSenderName(props.message.app ? props.message.app.app.name : props.message.user.name)
     setSenderTimezone(props.message.user ? props.message.user.timezone ? props.message.user.timezone : "No timezone set" : "No timezone set")
 
     // Only set this for non apps & valid timezones
@@ -142,27 +146,14 @@ export default memo(props => {
       if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
     }
 
-    // Get the message IFRAME URL
-    const messageUrl = props.message.app
-                        ? props.message.app.message
-                          ? props.message.app.message.url
-                          : null
-                        : null
-
     // Only update our state if there are any
-    if (messageUrl) setUrl(messageUrl)
-
-    // Get all the message actions
-    const messageActions = props.message.app
-                            ? props.message.app.message
-                              ? props.message.app.message.actions
-                                ? props.message.app.message.actions
-                                : null
-                              : null
-                            : null
-
-    // Only update our state if there are any
-    if (messageActions) setActions(messageActions)
+    if (props.message.app) {
+      if (props.message.app.app.message) {
+        setAppUrl(props.message.app.app.message.url)
+        setAppActions(props.message.app.app.message.actions)
+        setAppPayload(props.message.app.payload)
+      }
+    }
 
     // Here we start processing the markdown
     const htmlMessage = marked(props.message.message)
@@ -465,20 +456,27 @@ export default memo(props => {
               )
             })}
 
-            {url &&
+            {appUrl &&
               <AppUrl>
                 <iframe
                   border="0"
-                  src={url}
-                  width={props.message.app.message.width}
-                  height={props.message.app.message.height}>
+                  onLoad={() => {
+                      //const obj = ReactDOM.findDOMNode(this)
+                      //setAppIframeHeight(obj.contentWindow.document.body.scrollHeight)
+                      //
+                      console.log(iframeRef.current.contentWindow)
+                  }}
+                  ref={iframeRef}
+                  src={`${appUrl}?channelId=${room.id}&userId=${user.id}&payload=${appPayload}`}
+                  width={500}
+                  height={appIframeHeight}>
                 </iframe>
               </AppUrl>
             }
 
-            {actions.length != 0 &&
+            {appActions.length != 0 &&
               <AppActions className="row">
-                {actions.map((action, index) => {
+                {appActions.map((action, index) => {
                   return (
                     <AppActionContainer
                       key={index}

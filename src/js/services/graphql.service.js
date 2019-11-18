@@ -339,9 +339,12 @@ export default class GraphqlService {
                   timezone
                 }
                 app {
-                  id
-                  name
-                  image
+                  payload
+                  app {
+                    id
+                    name
+                    image
+                  }
                 }
                 message
                 createdAt
@@ -366,50 +369,25 @@ export default class GraphqlService {
               }
               createdAt
               app {
-                name
-                description
-                image
-                token
-                draft
-                incoming
-                outgoing
-                commands {
+                payload
+                app {
                   name
                   description
-                  action {
-                    type
+                  image
+                  token
+                  draft
+                  incoming
+                  outgoing
+                  message {
                     url
-                    name
-                    icon
-                  }
-                }
-                attachments {
-                  type
-                  url
-                  name
-                  icon
-                }
-                tools {
-                  type
-                  url
-                  name
-                  icon
-                }
-                shortcuts {
-                  type
-                  url
-                  name
-                  icon
-                }
-                message {
-                  url
-                  width
-                  height
-                  actions {
-                    type
-                    url
-                    name
-                    icon
+                    width
+                    height
+                    actions {
+                      type
+                      url
+                      name
+                      icon
+                    }
                   }
                 }
               }
@@ -496,9 +474,12 @@ export default class GraphqlService {
             reactions
             parent {
               app {
-                id
-                name
-                image
+                payload
+                app {
+                  id
+                  name
+                  image
+                }
               }
               user {
                 id
@@ -534,50 +515,25 @@ export default class GraphqlService {
             }
             createdAt
             app {
-              name
-              description
-              image
-              token
-              draft
-              incoming
-              outgoing
-              commands {
+              payload
+              app {
                 name
                 description
-                action {
-                  type
+                image
+                token
+                draft
+                incoming
+                outgoing
+                message {
                   url
-                  name
-                  icon
-                }
-              }
-              attachments {
-                type
-                url
-                name
-                icon
-              }
-              tools {
-                type
-                url
-                name
-                icon
-              }
-              shortcuts {
-                type
-                url
-                name
-                icon
-              }
-              message {
-                url
-                width
-                height
-                actions {
-                  type
-                  url
-                  name
-                  icon
+                  width
+                  height
+                  actions {
+                    type
+                    url
+                    name
+                    icon
+                  }
                 }
               }
             }
