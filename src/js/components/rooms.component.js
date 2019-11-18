@@ -195,17 +195,20 @@ class RoomsComponent extends React.Component {
     this.setState({ loading: true, error: null })
 
     try {
-      const team = await GraphqlService.getInstance().team(teamId)
-      const rooms = await GraphqlService.getInstance().rooms(teamId, userId)
-      const roomIds = rooms.data.rooms.map(room => room.id)
+      // await GraphqlService.getInstance().rooms(teamId, userId)
+      // Not sure why I was using the above to seperate the calls
+      const team = await GraphqlService.getInstance().team(teamId, userId)
+      const rooms = team.data.team.rooms
+      const roomIds = rooms.map(room => room.id)
 
+      // Kill the loading
       this.setState({ loading: false, error: null })
 
       // Join the rooms
       MessagingService.getInstance().joins(roomIds)
 
       // Populate our stores
-      this.props.hydrateRooms(rooms.data.rooms)
+      this.props.hydrateRooms(rooms)
       this.props.hydrateTeam(team.data.team)
     } catch (e) {
       this.setState({ loading: false, error: e })

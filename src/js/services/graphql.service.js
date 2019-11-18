@@ -150,39 +150,37 @@ export default class GraphqlService {
             slug
             description
             image
+            role(userId: $userId)
             rooms(userId: $userId) {
               id
               title
               description
+              url
               image
               public
+              excerpt
               private
               user {
                 id
                 name
-                email {
-                  address
-                  confirmed
-                }
-                color
                 username
                 timezone
                 image
+                status
               }
-              excerpt
               members {
                 user {
                   id
-                  name
-                  email {
-                    address
-                    confirmed
-                  }
-                  color
-                  username
-                  timezone
                   image
+                  name
+                  status
+                  timezone
                 }
+              }
+              team {
+                id
+                name
+                image
               }
               createdAt
               updatedAt
@@ -225,6 +223,7 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
+            role(userId: $userId)
           }
         }
       `,
