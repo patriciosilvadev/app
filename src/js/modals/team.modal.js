@@ -13,7 +13,7 @@ import { IconComponent } from '../components/icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
-import MembersComponent from '../components/members.component'
+import MembersTeamComponent from '../components/members-team.component'
 
 const Text = styled.div``
 
@@ -32,9 +32,6 @@ export default function TeamModal(props) {
   const fileRef = useRef(null)
   const user = useSelector(state => state.user)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
-  const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
-  const [memberDeleteId, setMemberDeleteId] = useState('')
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -125,7 +122,7 @@ export default function TeamModal(props) {
     }
   }
 
-  const inviteTeamMembers = async () => {
+  const handleInviteTeamMembers = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -137,75 +134,6 @@ export default function TeamModal(props) {
     } catch (e) {
       setLoading(false)
       setError('Error creating team member')
-    }
-  }
-
-  const deleteTeamMember = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const userId = memberDeleteId
-      const userIds = [userId]
-      const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
-      const updatedMembers = members.filter(member => member.user.id != userId)
-
-      setLoading(false)
-
-      // Revoke access to people
-      // MessagingService.getInstance().revoke(team, [user])
-      // Update the UI
-      setMemberDeleteId('')
-      setConfirmMemberDeleteModal(false)
-      setMembers(updatedMembers)
-
-      MessagingService.getInstance().leaveTeam(userIds, teamId)
-    } catch (e) {
-      setLoading(false)
-      setError('Error deleting team member')
-    }
-  }
-
-  const deleteTeamMemberSelf = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const userId = user.id
-      const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
-
-      setLoading(false)
-
-      // Don't sync this one - because its just for us
-      // false is for syncing here
-      dispatch(deleteTeam(teamId, false))
-
-      MessagingService.getInstance().leave(teamId)
-
-      // Redirect the user back to the landing page
-      browserHistory.push('/app')
-      props.onClose()
-    } catch (e) {
-      setLoading(false)
-      setError('Error deleting self')
-    }
-  }
-
-  const updateTeamMemberAdmin = async (userId, admin) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const updateTeamMemberAdmin = await GraphqlService.getInstance().updateTeamMemberAdmin(teamId, userId, admin)
-
-      setLoading(false)
-      setMembers(members.map(member => (member.user.id == userId ? { ...member, admin } : member)))
-    } catch (e) {
-      setLoading(false)
-      setError('Error setting admin')
     }
   }
 
@@ -326,29 +254,10 @@ export default function TeamModal(props) {
                 show: true,
                 content: (
                   <div className="column flex-1 w-100 h-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    {confirmSelfDeleteModal &&
-                      <ConfirmModal
-                        onOkay={deleteTeamMemberSelf}
-                        onCancel={() => setConfirmSelfDeleteModal(false)}
-                        text="Are you sure you want to leave this team?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    {confirmMemberDeleteModal &&
-                      <ConfirmModal
-                        onOkay={deleteTeamMember}
-                        onCancel={() => setConfirmMemberDeleteModal(false)}
-                        text="Are you sure you want to remove this person, it can not be undone?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    <MembersComponent
+                    <MembersTeamComponent
+                      id={props.id}
+                      createRoom={props.createRoom}
+                      onClose={props.onClose}
                       members={members}
                     />
                   </div>
@@ -429,7 +338,7 @@ export default function TeamModal(props) {
 
                         <Button
                           text="Invite users"
-                          onClick={inviteTeamMembers}
+                          onClick={handleInviteTeamMembers}
                           theme="blue-border"
                           size="small"
                         />
@@ -479,4 +388,5 @@ TeamModal.propTypes = {
   start: PropTypes.number,
   id: PropTypes.string,
   history: PropTypes.any,
+  createRoom: PropTypes.func,
 }

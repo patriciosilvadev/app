@@ -10,6 +10,7 @@
 a { color: #007af5; }
 a:visited { color: #007af5; }
 .hide { display: none !important }
+.underline { text-decoration: underline; }
 
 .emoji-mart-search { display: none; }
 .emoji-mart-bar { margin-bottom: 10px; }

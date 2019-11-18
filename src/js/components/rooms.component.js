@@ -26,8 +26,8 @@ class RoomsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: true,
-      teamModalStart: 1,
+      teamModal: false,
+      teamModalStart: 0,
       roomPopup: false,
       accountModal: false,
       accountMenu: false,
@@ -44,6 +44,7 @@ class RoomsComponent extends React.Component {
 
     this.filterRef = React.createRef()
 
+    this.createRoom = this.createRoom.bind(this)
     this.createPrivateRoom = this.createPrivateRoom.bind(this)
     this.createPublicRoom = this.createPublicRoom.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
@@ -295,6 +296,7 @@ class RoomsComponent extends React.Component {
       <Rooms className="column">
         {this.state.teamModal &&
           <TeamModal
+            createRoom={this.createRoom}
             start={this.state.teamModalStart}
             id={this.props.team.id}
             onClose={() => this.setState({ teamModal: false })}

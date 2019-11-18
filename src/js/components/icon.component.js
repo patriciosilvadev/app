@@ -27,6 +27,9 @@ import {
   MoreHorizontal,
   Search,
   List,
+  MessageCircle,
+  UserMinus,
+  Shield,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -39,6 +42,9 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'shield': return <Shield width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'user-minus': return <UserMinus width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'message-circle': return <MessageCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'list': return <List width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'eye': return <Eye width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'eye-off': return <EyeOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />

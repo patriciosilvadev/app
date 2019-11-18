@@ -202,7 +202,7 @@ export default class GraphqlService {
                 image
                 createdAt
               }
-              admin
+              role
             }
           }
         }
@@ -271,7 +271,7 @@ export default class GraphqlService {
                   role
                   image
                 }
-                admin
+                role
               }
             }
             apps {
@@ -852,17 +852,17 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamMemberAdmin(teamId, userId, admin) {
+  updateTeamMemberRole(teamId, userId, role) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMemberAdmin($teamId: String, $userId: String, $admin: Boolean) {
-          updateTeamMemberAdmin(teamId: $teamId, userId: $userId, admin: $admin)
+        mutation updateTeamMemberRole($teamId: String, $userId: String, $role: String) {
+          updateTeamMemberRole(teamId: $teamId, userId: $userId, role: $role)
         }
       `,
       variables: {
         teamId,
         userId,
-        admin,
+        role,
       },
     })
   }

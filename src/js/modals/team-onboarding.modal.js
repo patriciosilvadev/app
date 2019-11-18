@@ -113,7 +113,7 @@ export default function TeamOnboardingModal(props) {
         members: [
           {
             user: user.id,
-            admin: true,
+            role: 'ADMIN',
           },
         ],
       })

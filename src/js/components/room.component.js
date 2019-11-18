@@ -496,7 +496,7 @@ class RoomComponent extends React.Component {
             </Header>
           }
 
-          {this.props.room.public &&
+          {(this.props.room.public && !this.props.room.public) &&
             <Notification
               text="This team channel is public"
             />
