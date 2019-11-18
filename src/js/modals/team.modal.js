@@ -185,7 +185,7 @@ export default function TeamModal(props) {
             start={props.start}
             panels={[
               {
-                title: 'Profile',
+                title: 'Overview',
                 show: true,
                 content: (
                   <div className="row align-items-start w-100">

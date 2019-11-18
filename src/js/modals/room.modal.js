@@ -12,39 +12,7 @@ import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
-
-const Text = styled.div``
-
-const Row = styled.div`
-  background-color: transparent;
-  width: 100%;
-  padding: 25px;
-  border-bottom: 0px solid rgba(255, 255, 255, 0.05);
-  transition: background-color 0.5s;
-`
-
-const Link = styled.div`
-  color: #00a8ff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-`
-
-const Column = styled.div`
-  flex: 1;
-  padding-left: 20px;
-`
-
-const Supported = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: #00a8ff;
-  margin-left: 5px;
-`
-
-const AddButton = styled.div`
-  padding: 20px;
-`
+import MembersRoomComponent from '../components/members-room.component'
 
 export default function RoomModal(props) {
   const [loading, setLoading] = useState(null)
@@ -59,10 +27,7 @@ export default function RoomModal(props) {
   const room = useSelector(state => state.room)
   const fileRef = useRef(null)
   const dispatch = useDispatch()
-  const [memberToDelete, setMemberToDelete] = useState(null)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
-  const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
   const [members, setMembers] = useState([])
 
   const handleCreateRoomMember = async (user) => {
@@ -84,65 +49,6 @@ export default function RoomModal(props) {
     } catch (e) {
       setLoading(false)
       setError('Error adding channel member')
-    }
-  }
-
-  const handleDeleteRoomMember = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const roomId = room.id
-      const teamId = team.id
-      const userId = memberDeleteId
-      const userIds = [userId]
-
-      await GraphqlService.getInstance().deleteRoomMember(teamId, userId)
-
-      // Revoke access to people
-      dispatch(deleteRoomMember(roomId, userId))
-
-      setMemberDeleteId('')
-      setLoading(false)
-      setConfirmMemberDeleteModal(false)
-      setMembers(members.filter(member => member.user.id != userId))
-
-      // Tell this person to leave this room - send to team
-      MessagingService.getInstance().leaveRoom(userIds, teamId)
-    } catch (e) {
-      setLoading(false)
-      setError('Error deleting channel member')
-    }
-  }
-
-  const handleDeleteRoomMemberSelf = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const roomId = props.id
-      const userId = user.id
-      const teamId = team.id
-
-      await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
-
-      // Stop loading the spinners
-      setLoading(false)
-
-      // Don't sync this one - because its just for us
-      // false is for syncing here
-      dispatch(deleteRoomMember(roomId, userId))
-      dispatch(deleteRoom(roomId, false))
-
-      // Unsub frem receiving messages here
-      MessagingService.getInstance().leave(roomId)
-
-      // Redirect the user back to the landing page
-      browserHistory.push(`/app/team/${teamId}/`)
-      props.onClose()
-    } catch (e) {
-      setLoading(false)
-      setError('Error deleting self')
     }
   }
 
@@ -233,7 +139,7 @@ export default function RoomModal(props) {
             start={props.start || 0}
             panels={[
               {
-                title: 'Profile',
+                title: 'Overview',
                 show: true,
                 content: (
                   <div className="row align-items-start w-100">
@@ -318,75 +224,20 @@ export default function RoomModal(props) {
                 show: members.length != 0,
                 content: (
                   <div className="column flex-1 w-100 h-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    {confirmSelfDeleteModal &&
-                      <ConfirmModal
-                        onOkay={() => {
-                          setConfirmSelfDeleteModal(false)
-                          handleDeleteRoomMemberSelf()
-                        }}
-                        onCancel={() => setConfirmSelfDeleteModal(false)}
-                        text="Are you sure you want to leave this room?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    {confirmMemberDeleteModal &&
-                      <ConfirmModal
-                        onOkay={() => {
-                          setConfirmMemberDeleteModal(false)
-                          handleDeleteRoomMember()
-                        }}
-                        onCancel={() => setConfirmMemberDeleteModal(false)}
-                        text="Are you sure you want to remove this person, it can not be undone?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    {members.map((member, index) => {
-                      return (
-                        <User
-                          key={index}
-                          image={member.user.image}
-                          color={member.user.color}
-                          name={member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
-                          label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
-
-                          {props.permissible &&
-                            <Button
-                              theme="blue-border"
-                              size="small"
-                              onClick={() => {
-                                if (members.length == 1) {
-                                  setError('There must be at least 1 person in a channel')
-                                  setTimeout(() => setError(null), 2000)
-                                  return
-                                }
-
-                                setMemberToDelete(member.user)
-
-                                if (user.id == member.user.id) {
-                                  setConfirmSelfDeleteModal(true)
-                                } else {
-                                  setConfirmMemberDeleteModal(true)
-                                }
-                              }}
-                              text="Delete Member"
-                            />
-                          }
-                        </User>
-                      )
-                    })}
+                    <MembersRoomComponent
+                      permissible={props.permissible}
+                      id={props.id}
+                      team={props.team}
+                      onClose={props.onClose}
+                      members={members}
+                    />
 
                     {props.permissible &&
                       <QuickUserComponent
                         room={room}
                         visible={userMenu}
                         width={250}
-                        direction="left-bottom"
+                        direction="left-top"
                         handleDismiss={() => setUserMenu(false)}
                         handleAccept={({ user }) => {
                           // Check to see if there are already people
@@ -462,5 +313,38 @@ RoomModal.propTypes = {
   start: PropTypes.number,
   members: PropTypes.array,
   onClose: PropTypes.func,
-  permissible: PropTypes.boolean,
+  permissible: PropTypes.bool,
 }
+
+const Text = styled.div``
+
+const Row = styled.div`
+  background-color: transparent;
+  width: 100%;
+  padding: 25px;
+  border-bottom: 0px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.5s;
+`
+
+const Link = styled.div`
+  color: #00a8ff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+`
+
+const Column = styled.div`
+  flex: 1;
+  padding-left: 20px;
+`
+
+const Supported = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #00a8ff;
+  margin-left: 5px;
+`
+
+const AddButton = styled.div`
+  padding: 20px;
+`

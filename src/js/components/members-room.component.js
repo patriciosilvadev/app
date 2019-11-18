@@ -13,6 +13,7 @@ import { IconComponent } from './icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
+import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../actions'
 
 const TableRow = (props) => {
   const { member, user } = props
@@ -28,7 +29,7 @@ const TableRow = (props) => {
         <ConfirmModal
           onOkay={() => props.onLeave()}
           onCancel={() => setConfirmSelfDeleteModal(false)}
-          text="Are you sure you want to leave this team?"
+          text="Are you sure you want to leave this room?"
           title="Are you sure?"
         />
       }
@@ -59,28 +60,6 @@ const TableRow = (props) => {
           </div>
         </Td>
         <Td>
-          <Popup
-            handleDismiss={() => setRoles(false)}
-            visible={roles}
-            width={200}
-            direction="right-bottom"
-            content={
-              <Menu
-                items={[
-                  { text: `Admin ${member.role == 'ADMIN' ? '(current)' : ''}`, onClick: () => props.onRoleChange(member.user.id, "ADMIN") },
-                  { text: `Member ${member.role == 'MEMBER' ? '(current)' : ''}`, onClick: () => props.onRoleChange(member.user.id, "MEMBER") },
-                  { text: `Guest ${member.role == 'GUEST' ? '(current)' : ''}`, onClick: () => props.onRoleChange(member.user.id, "GUEST") },
-                ]}
-              />
-            }>
-            <span
-              className="color-blue button bold underline"
-              onClick={() => props.admin ? setRoles(true) : null}>
-              {member.role.toTitleCase()}
-            </span>
-          </Popup>
-        </Td>
-        <Td>
           <span className="">
             {member.user.timezone ? member.user.timezone.replace('_', ' ') : "Not set yet"}
           </span>
@@ -101,15 +80,10 @@ const TableRow = (props) => {
                     onClick: () => setConfirmSelfDeleteModal(true),
                   },
                   {
-                    hide: ((member.user.id == user.id) || (!props.admin)),
+                    hide: ((member.user.id == user.id) || (!props.permissible)),
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
                     text: "Remove person from team",
                     onClick: () => setConfirmMemberDeleteModal(true),
-                  },
-                  {
-                    icon: <IconComponent icon="message-circle" size={20} color="#acb5bd" />,
-                    text: "Start conversation",
-                    onClick: () => props.onConversationStart(member.user.id),
                   },
                 ]}
               />
@@ -129,7 +103,7 @@ const TableRow = (props) => {
   )
 }
 
-export default function MembersTeamComponent(props) {
+export default function MembersRoomComponent(props) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(null)
   const [notification, setNotification] = useState(null)
@@ -141,84 +115,59 @@ export default function MembersTeamComponent(props) {
   const user = useSelector(state => state.user)
   const limit = 10
 
-  const handleTeamMemberRoleChange = async (userId, role) => {
+  const handleRoomMemberDelete = async (userId) => {
     setLoading(true)
     setError(null)
 
     try {
-      const teamId = props.id
-      const updateTeamMemberRole = await GraphqlService.getInstance().updateTeamMemberRole(teamId, userId, role)
-
-      setLoading(false)
-      setMembers(members.map(member => (member.user.id == userId ? { ...member, role } : member)))
-    } catch (e) {
-      setLoading(false)
-      setError('Error setting admin')
-    }
-  }
-
-  const handleTeamMemberDelete = async (userId) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const userId = memberDeleteId
+      const roomId = room.id
+      const teamId = props.team.id
       const userIds = [userId]
-      const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
+      const deleteRoomMember = await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
       const updatedMembers = members.filter(member => member.user.id != userId)
 
-      setLoading(false)
-
       // Revoke access to people
-      // MessagingService.getInstance().revoke(team, [user])
-      // Update the UI
-      setMemberDeleteId('')
+      dispatch(deleteRoomMember(roomId, userId))
+      setLoading(false)
       setConfirmMemberDeleteModal(false)
       setMembers(updatedMembers)
 
-      MessagingService.getInstance().leaveTeam(userIds, teamId)
+      // Tell this person to leave this room - send to team
+      MessagingService.getInstance().leaveRoom(userIds, teamId)
     } catch (e) {
       setLoading(false)
-      setError('Error deleting team member')
+      setError('Error deleting channel member')
     }
   }
 
-  const handleTeamLeave = async () => {
+  const handleRoomLeave = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      const teamId = props.id
+      const roomId = props.id
       const userId = user.id
-      const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
+      const teamId = props.team.id
+      const deleteRoomMembe = await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
 
+      // Stop loading the spinners
       setLoading(false)
 
       // Don't sync this one - because its just for us
       // false is for syncing here
-      dispatch(deleteTeam(teamId, false))
+      dispatch(deleteRoomMember(roomId, userId))
+      dispatch(deleteRoom(roomId, false))
 
-      MessagingService.getInstance().leave(teamId)
+      // Unsub frem receiving messages here
+      MessagingService.getInstance().leave(roomId)
 
       // Redirect the user back to the landing page
-      browserHistory.push('/app')
+      browserHistory.push(`/app/team/${teamId}/`)
       props.onClose()
     } catch (e) {
       setLoading(false)
       setError('Error deleting self')
     }
-  }
-
-  const handleTeamMemberConversationStart = async (initialOtherUserId) => {
-    const title = null
-    const description = null
-    const image = null
-    const teamId = props.id
-    const userId = user.id
-
-    props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
-    props.onClose()
   }
 
   useEffect(() => {
@@ -278,7 +227,6 @@ export default function MembersTeamComponent(props) {
             <tr>
               <Th></Th>
               <Th>Name</Th>
-              <Th>Role</Th>
               <Th>Timezone</Th>
               <Th></Th>
             </tr>
@@ -291,14 +239,12 @@ export default function MembersTeamComponent(props) {
 
               return (
                 <TableRow
-                  admin={props.admin}
+                  permissible={props.permissible}
                   key={index}
                   member={member}
                   user={user}
-                  onLeave={handleTeamLeave}
-                  onDelete={handleTeamMemberDelete}
-                  onConversationStart={handleTeamMemberConversationStart}
-                  onRoleChange={handleTeamMemberRoleChange}
+                  onLeave={handleRoomLeave}
+                  onDelete={handleRoomMemberDelete}
                 />
               )
             })}
@@ -309,8 +255,9 @@ export default function MembersTeamComponent(props) {
   )
 }
 
-MembersTeamComponent.propTypes = {
+MembersRoomComponent.propTypes = {
   members: PropTypes.array,
+  team: PropTypes.any,
   createRoom: PropTypes.func,
   onClose: PropTypes.func,
   id: PropTypes.string,
