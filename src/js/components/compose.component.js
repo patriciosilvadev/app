@@ -68,8 +68,8 @@ class ComposeComponent extends React.Component {
     this.clearMessage = this.clearMessage.bind(this)
   }
 
-  handleActionClick(action, payload = null) {
-    this.props.openApp(action, payload)
+  handleActionClick(action) {
+    this.props.openApp(action)
   }
 
   onSend() {
@@ -603,7 +603,7 @@ const mapDispatchToProps = {
   updateRoomMessage: (roomId, roomMessage) => updateRoomMessage(roomId, roomMessage),
   updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
   updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
-  openApp: (action, payload) => openApp(action, payload),
+  openApp: (action) => openApp(action),
 }
 
 const mapStateToProps = state => {

@@ -219,9 +219,7 @@ class AppPage extends React.Component {
 
         {this.props.app.modal &&
           <AppModal
-            title={this.props.app.modal.action.name}
-            url={this.props.app.modal.action.url}
-            payload={this.props.app.modal.payload}
+            action={this.props.app.modal}
             onClose={this.props.closeAppModal}
           />
         }
@@ -247,9 +245,7 @@ class AppPage extends React.Component {
 
                 return (
                   <AppComponent
-                    title={this.props.app.panel.action.name}
-                    url={this.props.app.panel.action.url}
-                    payload={this.props.app.panel.payload}
+                    action={this.props.app.panel}
                     onClose={this.props.closeAppPanel}
                   />
                 )

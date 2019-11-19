@@ -14,14 +14,14 @@ export default function AppModal(props) {
   const user = useSelector(state => state.user)
   const room = useSelector(state => state.room)
   const dispatch = useDispatch()
-  const [url, setUrl] = useState(props.url)
+  const [url, setUrl] = useState(props.action.url)
 
   useEffect(() => {
     // If the user has already added a query string
-    if (props.url.indexOf('?') == -1) {
-      setUrl(`${props.url}?channelId=${room.id}&userId=${user.id}`)
+    if (props.action.url.indexOf('?') == -1) {
+      setUrl(`${props.action.url}?channelId=${room.id}&userId=${user.id}`)
     } else {
-      setUrl(`${props.url}&channelId=${room.id}&userId=${user.id}`)
+      setUrl(`${props.action.url}&channelId=${room.id}&userId=${user.id}`)
     }
   })
 
@@ -29,7 +29,7 @@ export default function AppModal(props) {
   return (
     <ModalPortal>
       <Modal
-        title={props.title}
+        title={props.action.title}
         width="75%"
         height="75%"
         onClose={props.onClose}>
@@ -46,7 +46,5 @@ export default function AppModal(props) {
 
 AppModal.propTypes = {
   onClose: PropTypes.func,
-  url: PropTypes.string,
-  title: PropTypes.string,
-  payload: PropTypes.any,
+  action: PropTypes.any,
 }

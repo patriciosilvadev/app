@@ -82,8 +82,8 @@ export default memo(props => {
     } catch (e) {}
   }
 
-  const handleActionClick = async (action, payload = null) => {
-    dispatch(openApp(action, payload))
+  const handleActionClick = async (action) => {
+    dispatch(openApp(action))
   }
 
   const handleDeleteRoomMessage = async () => {
@@ -133,10 +133,13 @@ export default memo(props => {
 
   useEffect(() => {
     EventService.getInstance().on('AUTO_ADJUST_MESSAGE_HEIGHT', data => {
+      console.log('AUTO_ADJUST_MESSAGE_HEIGHT → ', data)
+
+      // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
+      // weekdayId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
+      // Only adjust this specific height when received
       if (data.weekdayId == weekdayId) {
-        if (data.scrollHeight) {
-          setAppHeight(parseInt(data.scrollHeight))
-        }
+        if (data.scrollHeight) setAppHeight(parseInt(data.scrollHeight))
       }
     });
   }, [props.message, weekdayId])

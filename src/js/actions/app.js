@@ -1,9 +1,18 @@
 
-export function openApp(action, payload = null, name = null) {
+export function openApp(action) {
   return (dispatch, getState) => {
     switch (action.type) {
       case 'web':
-        fetch(action.url, {
+        let url
+        const { user, room } = getState()
+
+        if (action.url.indexOf('?') == -1) {
+          url = `${action.url}?channelId=${room.id}&userId=${user.id}`
+        } else {
+          url = `${action.url}&channelId=${room.id}&userId=${user.id}`
+        }
+
+        fetch(url, {
           method: 'POST',
           mode: 'cors',
           cache: 'no-cache',
@@ -12,27 +21,21 @@ export function openApp(action, payload = null, name = null) {
           },
           redirect: 'follow',
           referrer: 'no-referrer',
-          body: JSON.stringify({ action, payload }),
+          body: JSON.stringify(action),
         })
         break
 
       case 'modal':
         dispatch({
           type: 'APP_MODAL',
-          payload: {
-            action,
-            payload,
-          }
+          payload: action
         })
         break
 
       case 'panel':
         dispatch({
           type: 'APP_PANEL',
-          payload: {
-            action,
-            payload,
-          }
+          payload: action
         })
         break
     }

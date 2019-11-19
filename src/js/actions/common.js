@@ -12,17 +12,28 @@ export function initialize(userId) {
   return async (dispatch, getState) => {
     // General dispatch orientated
     EventService.getInstance().on('DISPATCH_APP_ACTION', data => {
+      console.log('DISPATCH_APP_ACTION → ', data)
+
       if (!data.action) return
       if (!data.action.type) return
 
-      console.log('Received message: ', data)
+      /**
+       * Action types need to conform to:
+       * {
+       *  type,
+       *  name,
+       *  url,
+       *  icon,
+       * }
+       */
+      const { type, icon, name, url } = data.action
 
       switch (data.action.type) {
         case 'modal':
-          dispatch(openApp(data.action))
+          dispatch(openApp({ type, icon, name, url }))
           break
         case 'panel':
-          dispatch(openApp(data.action))
+          dispatch(openApp({ type, icon, name, url }))
           break
         case 'modal-panel':
           dispatch(closeAppPanel())
@@ -31,7 +42,6 @@ export function initialize(userId) {
           dispatch(closeAppModal())
           break
       }
-
     });
 
     // Join our single room for us

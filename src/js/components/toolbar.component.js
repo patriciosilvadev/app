@@ -42,8 +42,8 @@ export default function ToolbarComponent(props) {
   const room = useSelector(state => state.room)
   const dispatch = useDispatch()
 
-  const handleActionClick = async (action, payload = null) => {
-    dispatch(openApp(action, payload))
+  const handleActionClick = async (action) => {
+    dispatch(openApp(action))
   }
 
   // Load all our toolbar actions

@@ -77,8 +77,8 @@ class RoomComponent extends React.Component {
     this.subscription = null
   }
 
-  handleActionClick(action, payload = null) {
-    this.props.openApp(action, payload)
+  handleActionClick(action) {
+    this.props.openApp(action)
   }
 
   onSearch(e) {
@@ -614,7 +614,7 @@ const mapDispatchToProps = {
   hydrateRoomMessages: messages => hydrateRoomMessages(messages),
   updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
   updateUserStarred: (roomId, starred) => updateUserStarred(roomId, starred),
-  openApp: (action, payload) => openApp(action, payload),
+  openApp: (action) => openApp(action),
 }
 
 const mapStateToProps = state => {
