@@ -17,6 +17,8 @@ import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinu
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
+import EventService from '../services/event.service'
+import uuidv1 from 'uuid/v1'
 
 export default memo(props => {
   const [message, setMessage] = useState(false)
@@ -42,7 +44,9 @@ export default memo(props => {
   const [appActions, setAppActions] = useState([])
   const [appPayload, setAppPayload] = useState('')
   const [appUrl, setAppUrl] = useState(null)
-  const [appIframeHeight, setAppIframeHeight] = useState(50)
+  const [appHeight, setAppHeight] = useState(0)
+  const [appWidth, setAppWidth] = useState(200)
+  const [weekdayId, setWeekdayId] = useState(null)
   const iframeRef = useRef(null)
 
   const handleForwardMessage = async(roomId) => {
@@ -127,7 +131,16 @@ export default memo(props => {
     })
   }
 
-  // prettier-ignore
+  useEffect(() => {
+    EventService.getInstance().on('APP_WINDOW_MESSAGE', data => {
+      if (data.weekdayId == weekdayId) {
+        if (data.scrollHeight) {
+          setAppHeight(parseInt(data.scrollHeight))
+        }
+      }
+    });
+  }, [props.message, weekdayId])
+
   useEffect(() => {
     setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
     setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
@@ -152,10 +165,16 @@ export default memo(props => {
         setAppUrl(props.message.app.app.message.url)
         setAppActions(props.message.app.app.message.actions)
         setAppPayload(props.message.app.payload)
+        setAppHeight(props.message.app.app.message.height)
+        setAppWidth(props.message.app.app.message.width)
+        setWeekdayId(uuidv1())
       }
     }
+  }, [props.message])
 
-    // Here we start processing the markdown
+  // Here we start processing the markdown
+  // prettier-ignore
+  useEffect(() => {
     const htmlMessage = marked(props.message.message)
     const compiledMessage = props.highlight
                                 ? props.highlight != ""
@@ -460,16 +479,10 @@ export default memo(props => {
               <AppUrl>
                 <iframe
                   border="0"
-                  onLoad={() => {
-                      //const obj = ReactDOM.findDOMNode(this)
-                      //setAppIframeHeight(obj.contentWindow.document.body.scrollHeight)
-                      //
-                      console.log(iframeRef.current.contentWindow)
-                  }}
                   ref={iframeRef}
-                  src={`${appUrl}?channelId=${room.id}&userId=${user.id}&payload=${appPayload}`}
-                  width={500}
-                  height={appIframeHeight}>
+                  src={`${appUrl}?channelId=${room.id}&userId=${user.id}&payload=${appPayload}&weekdayId=${weekdayId}`}
+                  width={appWidth}
+                  height={appHeight}>
                 </iframe>
               </AppUrl>
             }

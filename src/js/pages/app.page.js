@@ -17,6 +17,7 @@ import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from '../helpers/util'
+import EventService from '../services/event.service'
 
 const AppContainer = styled.div`
   background-color: white;
@@ -54,6 +55,8 @@ class AppPage extends React.Component {
       userId: null,
       pushNotifications: false,
     }
+
+    this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -74,9 +77,23 @@ class AppPage extends React.Component {
 
       this.setState({ userId })
       this.fetchData(userId)
+      window.addEventListener('message', this.onAppMessageReceived, false)
     } catch (e) {
       this.props.history.push('/auth')
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.onAppMessageReceived, false)
+  }
+
+  onAppMessageReceived(event) {
+    if (!event.data) return
+    if (!event.data.type) return
+    if (!event.data.payload) return
+    if (event.data.type != 'weekday') return
+
+    EventService.getInstance().emit('APP_WINDOW_MESSAGE', event.data.payload)
   }
 
   async fetchData(userId) {
