@@ -132,7 +132,7 @@ export default memo(props => {
   }
 
   useEffect(() => {
-    EventService.getInstance().on('APP_WINDOW_MESSAGE', data => {
+    EventService.getInstance().on('AUTO_ADJUST_MESSAGE_HEIGHT', data => {
       if (data.weekdayId == weekdayId) {
         if (data.scrollHeight) {
           setAppHeight(parseInt(data.scrollHeight))

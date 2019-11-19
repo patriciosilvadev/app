@@ -42,6 +42,16 @@ export default function AppComponent(props) {
   const user = useSelector(state => state.user)
   const room = useSelector(state => state.room)
   const dispatch = useDispatch()
+  const [url, setUrl] = useState(props.url)
+
+  useEffect(() => {
+    // If the user has already added a query string
+    if (props.url.indexOf('?') == -1) {
+      setUrl(`${props.url}?channelId=${room.id}&userId=${user.id}`)
+    } else {
+      setUrl(`${props.url}&channelId=${room.id}&userId=${user.id}`)
+    }
+  })
 
   // prettier-ignore
   return (
@@ -60,7 +70,7 @@ export default function AppComponent(props) {
       </Header>
       <Iframe
         border="0"
-        src={`${props.url}?channelId=${room.id}&userId=${user.id}`}
+        src={url}
         width="100%"
         height="100%">
       </Iframe>

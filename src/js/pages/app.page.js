@@ -5,7 +5,7 @@ import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { initialize, fetchUser, closeApp } from '../actions'
+import { initialize, fetchUser, closeAppModal, closeAppPanel } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import CookieService from '../services/cookies.service'
 import { Avatar, Loading, Error, Notification } from '@weekday/elements'
@@ -90,10 +90,14 @@ class AppPage extends React.Component {
   onAppMessageReceived(event) {
     if (!event.data) return
     if (!event.data.type) return
-    if (!event.data.payload) return
     if (event.data.type != 'weekday') return
+    if (!event.data.payload) return
+    if (!event.data.payload.type) return
 
-    EventService.getInstance().emit('APP_WINDOW_MESSAGE', event.data.payload)
+    // AUTO_ADJUST_MESSAGE_HEIGHT -> message.component
+    // OPEN_APP_PANEL -> common (action)
+    // OPEN_APP_MODAL -> common (action)
+    EventService.getInstance().emit(event.data.payload.type, event.data.payload)
   }
 
   async fetchData(userId) {
@@ -213,17 +217,13 @@ class AppPage extends React.Component {
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
 
-        {this.props.app.action &&
-          <React.Fragment>
-            {this.props.app.action.type == 'modal' &&
-              <AppModal
-                title={this.props.app.action.name}
-                url={this.props.app.action.url}
-                payload={this.props.app.payload}
-                onClose={this.props.closeApp}
-              />
-            }
-          </React.Fragment>
+        {this.props.app.modal &&
+          <AppModal
+            title={this.props.app.modal.action.name}
+            url={this.props.app.modal.action.url}
+            payload={this.props.app.modal.payload}
+            onClose={this.props.closeAppModal}
+          />
         }
 
         {this.state.pushNotifications &&
@@ -243,17 +243,16 @@ class AppPage extends React.Component {
             <Route
               path="/app/team/:teamId/room/:roomId"
               render={props => {
-                if (!this.props.app.action) return null
-                if (this.props.app.action.type == 'panel') {
-                  return (
-                    <AppComponent
-                      title={this.props.app.action.name}
-                      url={this.props.app.action.url}
-                      payload={this.props.app.payload}
-                      onClose={this.props.closeApp}
-                    />
-                  )
-                }
+                if (!this.props.app.panel) return null
+
+                return (
+                  <AppComponent
+                    title={this.props.app.panel.action.name}
+                    url={this.props.app.panel.action.url}
+                    payload={this.props.app.panel.payload}
+                    onClose={this.props.closeAppPanel}
+                  />
+                )
               }}
             />
             <Route path="/app/team/:teamId/room/:roomId" component={ToolbarComponent} />
@@ -270,13 +269,15 @@ AppPage.propTypes = {
   app: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
-  closeApp: PropTypes.func,
+  closeAppModal: PropTypes.func,
+  closeAppPanel: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   initialize: userId => initialize(userId),
   fetchUser: userId => fetchUser(userId),
-  closeApp: () => closeApp(),
+  closeAppModal: () => closeAppModal(),
+  closeAppPanel: () => closeAppPanel(),
 }
 
 const mapStateToProps = state => {

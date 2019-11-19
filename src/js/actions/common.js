@@ -6,10 +6,34 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification, logger } from '../helpers/util'
-import { createTeam, leaveTeam, createRoom, deleteRoom, updateRoomDeleteTyping, addPresence, deletePresence } from './'
+import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createRoom, deleteRoom, updateRoomDeleteTyping, addPresence, deletePresence } from './'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
+    // General dispatch orientated
+    EventService.getInstance().on('DISPATCH_APP_ACTION', data => {
+      if (!data.action) return
+      if (!data.action.type) return
+
+      console.log('Received message: ', data)
+
+      switch (data.action.type) {
+        case 'modal':
+          dispatch(openApp(data.action))
+          break
+        case 'panel':
+          dispatch(openApp(data.action))
+          break
+        case 'modal-panel':
+          dispatch(closeAppPanel())
+          break
+        case 'modal-close':
+          dispatch(closeAppModal())
+          break
+      }
+
+    });
+
     // Join our single room for us
     MessagingService.getInstance().join(userId)
 
