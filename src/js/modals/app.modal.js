@@ -30,8 +30,8 @@ export default function AppModal(props) {
     <ModalPortal>
       <Modal
         title={props.action.title}
-        width="75%"
-        height="75%"
+        width={props.action.width || "75%"}
+        height={props.action.height || "75%"}
         onClose={props.onClose}>
         <Iframe
           border="0"

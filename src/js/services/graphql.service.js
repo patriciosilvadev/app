@@ -291,6 +291,8 @@ export default class GraphqlService {
                     url
                     name
                     icon
+                    width
+                    height
                   }
                 }
                 attachments {
@@ -298,18 +300,24 @@ export default class GraphqlService {
                   url
                   name
                   icon
+                  width
+                  height
                 }
                 tools {
                   type
                   url
                   name
                   icon
+                  width
+                  height
                 }
                 shortcuts {
                   type
                   url
                   name
                   icon
+                  width
+                  height
                 }
                 message {
                   url
@@ -318,6 +326,8 @@ export default class GraphqlService {
                     url
                     name
                     icon
+                    width
+                    height
                   }
                 }
               }
@@ -387,6 +397,8 @@ export default class GraphqlService {
                       url
                       name
                       icon
+                      width
+                      height
                     }
                   }
                 }
@@ -533,6 +545,8 @@ export default class GraphqlService {
                     url
                     name
                     icon
+                    width
+                    height
                   }
                 }
               }
