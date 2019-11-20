@@ -8,12 +8,12 @@ import PropTypes from 'prop-types'
 import GraphqlService from '../services/graphql.service'
 import EventService from '../services/event.service'
 import { Button } from '@weekday/elements'
-import RoomModal from '../modals/room.modal'
+import ChannelModal from '../modals/channel.modal'
 import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
-import { openApp, updateLoading, updateError, deleteRoom, updateUserStarred, hydrateRoom, createRoomMember, updateRoom, hydrateRoomMessages } from '../actions'
+import { openApp, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
@@ -23,7 +23,7 @@ import MessagesComponent from './messages.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
 
-class RoomComponent extends React.Component {
+class ChannelComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -34,8 +34,8 @@ class RoomComponent extends React.Component {
       open: true,
       title: '',
       image: '',
-      roomUpdateModal: false,
-      roomUpdateModalStart: 0,
+      channelUpdateModal: false,
+      channelUpdateModalStart: 0,
       message: null,
       reply: false,
       update: false,
@@ -58,7 +58,7 @@ class RoomComponent extends React.Component {
     this.dropMask = React.createRef()
 
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
-    this.updateRoomVisibility = this.updateRoomVisibility.bind(this)
+    this.updateChannelVisibility = this.updateChannelVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.composeTypingNames = this.composeTypingNames.bind(this)
@@ -91,10 +91,10 @@ class RoomComponent extends React.Component {
     if (this.state.searchQuery == '') return this.setState({ searchResults: null })
 
     const query = this.state.searchQuery
-    const roomId = this.props.room.id
+    const channelId = this.props.channel.id
 
     try {
-      const { data } = await GraphqlService.getInstance().searchMessages(roomId, query)
+      const { data } = await GraphqlService.getInstance().searchMessages(channelId, query)
 
       // Update our UI with our results
       // Remove ourselves
@@ -104,7 +104,7 @@ class RoomComponent extends React.Component {
 
   composeTypingNames() {
     // Don't include ourselves
-    const typingUsers = this.props.room.typing.filter(t => t.userId != this.props.user.id)
+    const typingUsers = this.props.channel.typing.filter(t => t.userId != this.props.user.id)
 
     if (typingUsers.length == 0) {
       return ''
@@ -127,7 +127,7 @@ class RoomComponent extends React.Component {
   handleScrollEvent(e) {
     const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
 
-    if (this.scrollRef.scrollTop == 0) this.fetchRoomMessages()
+    if (this.scrollRef.scrollTop == 0) this.fetchChannelMessages()
 
     if (this.scrollRef.offsetHeight >= offsetHeight) {
       this.setState({ manualScrolling: false })
@@ -136,19 +136,19 @@ class RoomComponent extends React.Component {
     }
   }
 
-  async fetchRoom(roomId) {
+  async fetchChannel(channelId) {
     try {
-      const { data } = await GraphqlService.getInstance().room(roomId)
+      const { data } = await GraphqlService.getInstance().channel(channelId)
 
-      // Populate our room - this will fetch page 0 of messages
-      this.props.hydrateRoom(data.room)
+      // Populate our channel - this will fetch page 0 of messages
+      this.props.hydrateChannel(data.channel)
 
       // Clear all the markers for read/unread
-      DatabaseService.getInstance().read(roomId)
+      DatabaseService.getInstance().read(channelId)
     } catch (e) {}
   }
 
-  async fetchRoomMessages() {
+  async fetchChannelMessages() {
     // Don't refetch messages every time it's triggered
     // We need to wait if there's already a fetch in progress
     if (this.state.busy) return
@@ -157,15 +157,15 @@ class RoomComponent extends React.Component {
     this.setState({ busy: true })
 
     // Get new messages - start from page 1
-    // populating the room always fetches from page 0
-    const roomId = this.props.room.id
+    // populating the channel always fetches from page 0
+    const channelId = this.props.channel.id
     const { page } = this.state
 
     try {
-      const { data } = await GraphqlService.getInstance().roomMessages(roomId, page)
+      const { data } = await GraphqlService.getInstance().channelMessages(channelId, page)
 
-      // Add the new messages to the room
-      this.props.hydrateRoomMessages(data.roomMessages)
+      // Add the new messages to the channel
+      this.props.hydrateChannelMessages(data.channelMessages)
 
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({
@@ -206,7 +206,7 @@ class RoomComponent extends React.Component {
   }
 
   componentDidMount() {
-    if (this.state.open) this.fetchRoom(this.props.match.params.roomId)
+    if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
 
     // Here we handle the delay for the yser typing in the search field
     this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
@@ -223,11 +223,11 @@ class RoomComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    // Scroll to the correct position after fetchRoomMessages
+    // Scroll to the correct position after fetchChannelMessages
     // if (this.state.scrollHeight != this.scrollRef.scrollHeight) this.scrollRef.scrollTop = this.scrollRef.scrollHeight - this.state.scrollHeight
-    // If the room ID updates - then refetch all the data
-    if (this.props.match.params.roomId != prevProps.match.params.roomId) {
-      if (this.state.open) this.fetchRoom(this.props.match.params.roomId)
+    // If the channel ID updates - then refetch all the data
+    if (this.props.match.params.channelId != prevProps.match.params.channelId) {
+      if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
     }
 
     // Scroll down
@@ -246,28 +246,28 @@ class RoomComponent extends React.Component {
 
   async updateUserStarred(starred) {
     const userId = this.props.user.id
-    const roomId = this.props.room.id
+    const channelId = this.props.channel.id
 
     try {
-      await GraphqlService.getInstance().updateUserStarred(userId, roomId, starred)
+      await GraphqlService.getInstance().updateUserStarred(userId, channelId, starred)
 
-      this.props.updateUserStarred(roomId, starred)
+      this.props.updateUserStarred(channelId, starred)
     } catch (e) {}
   }
 
-  async updateRoomVisibility(updatedRoomVisibility) {
-    const roomId = this.props.room.id
+  async updateChannelVisibility(updatedChannelVisibility) {
+    const channelId = this.props.channel.id
     const teamId = this.props.team.id
 
     // These messages have to be sent to the team
-    if (!updatedRoomVisibility.public) MessagingService.getInstance().leaveRoomTeam(teamId, roomId)
-    if (updatedRoomVisibility.public) MessagingService.getInstance().joinRoomTeam(teamId, roomId)
+    if (!updatedChannelVisibility.public) MessagingService.getInstance().leaveChannelTeam(teamId, channelId)
+    if (updatedChannelVisibility.public) MessagingService.getInstance().joinChannelTeam(teamId, channelId)
 
     try {
-      await GraphqlService.getInstance().updateRoom(roomId, updatedRoomVisibility)
+      await GraphqlService.getInstance().updateChannel(channelId, updatedChannelVisibility)
 
       this.setState({ visibilityMenu: false })
-      this.props.updateRoom(roomId, updatedRoomVisibility)
+      this.props.updateChannel(channelId, updatedChannelVisibility)
     } catch (e) {}
   }
 
@@ -280,29 +280,29 @@ class RoomComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.room.id == undefined || props.room.id == '') return null
+    if (props.channel.id == undefined || props.channel.id == '') return null
 
-    const isMember = !!props.room.members.filter(member => member.user.id == props.user.id).flatten()
-    const isPublic = props.room.public
+    const isMember = !!props.channel.members.filter(member => member.user.id == props.user.id).flatten()
+    const isPublic = props.channel.public
     const open = isMember || isPublic
-    const starred = props.user.starred.indexOf(props.room.id) != -1
-    const muted = props.user.muted.indexOf(props.room.id) != -1
-    const archived = props.user.archived.indexOf(props.room.id) != -1
-    const permissible = props.team.role == 'ADMIN' || props.room.user.id == props.user.id
+    const starred = props.user.starred.indexOf(props.channel.id) != -1
+    const muted = props.user.muted.indexOf(props.channel.id) != -1
+    const archived = props.user.archived.indexOf(props.channel.id) != -1
+    const permissible = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
 
-    const title = props.room.private
-      ? props.room.members
+    const title = props.channel.private
+      ? props.channel.members
           .map(member => member.user.name)
           .filter(name => name != props.user.name)
           .flatten()
-      : props.room.title
+      : props.channel.title
 
-    const image = props.room.private
-      ? props.room.members
+    const image = props.channel.private
+      ? props.channel.members
           .map(member => member.user.image)
           .filter(image => image != props.user.image)
           .flatten()
-      : props.room.image
+      : props.channel.image
 
     return {
       open,
@@ -317,17 +317,17 @@ class RoomComponent extends React.Component {
   render() {
     return (
       <React.Fragment>
-        {this.state.roomUpdateModal &&
-          <RoomModal
+        {this.state.channelUpdateModal &&
+          <ChannelModal
             permissible={this.state.permissible}
-            id={this.props.room.id}
-            members={this.props.room.members}
-            start={this.state.roomUpdateModalStart}
-            onClose={() => this.setState({ roomUpdateModal: false })}
+            id={this.props.channel.id}
+            members={this.props.channel.members}
+            start={this.state.channelUpdateModalStart}
+            onClose={() => this.setState({ channelUpdateModal: false })}
           />
         }
 
-        <Room ref={ref => this.dropZone = ref} className="column flexer align-items-center align-items-stretch">
+        <Channel ref={ref => this.dropZone = ref} className="column flexer align-items-center align-items-stretch">
           <Dropzone active={this.state.isDragging} ref={ref => this.dropMask = ref}>
             <svg
               enableBackground="new 0 0 511.999 511.999"
@@ -350,11 +350,11 @@ class RoomComponent extends React.Component {
 
           {!this.state.open &&
             <Blocked>
-              Sorry, you are not allowed to view this channel
+              Sorry, you are not allowed to view this
             </Blocked>
           }
 
-          {/* Only show the header to people who can see this room */}
+          {/* Only show the header to people who can see this channel */}
           {this.state.open &&
             <Header className="row">
               <Avatar
@@ -371,14 +371,14 @@ class RoomComponent extends React.Component {
                 {/* Member header subtitle */}
                 <div className="row">
                   <HeaderText>
-                    {this.props.room.members.length.numberShorthand()} &nbsp;
-                    {this.props.room.members.length == 1 ? "member" : "members"}
+                    {this.props.channel.members.length.numberShorthand()} &nbsp;
+                    {this.props.channel.members.length == 1 ? "member" : "members"}
                   </HeaderText>
 
-                  {!this.props.room.private && this.state.permissible &&
+                  {!this.props.channel.private && this.state.permissible &&
                     <div
                       className="ml-10 row button"
-                      onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}>
+                      onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}>
                       <IconComponent
                         icon="plus"
                         size={15}
@@ -426,7 +426,7 @@ class RoomComponent extends React.Component {
                 }
               </HeaderSearchContainer>
 
-              {this.props.room.apps.map((app, index) => {
+              {this.props.channel.apps.map((app, index) => {
                 if (!app.active) return
                 if (!app.app.shortcuts) return
                 if (app.app.shortcuts.length == 0) return
@@ -453,7 +453,7 @@ class RoomComponent extends React.Component {
                 className="ml-15 button"
               />
 
-              {!this.props.room.private &&
+              {!this.props.channel.private &&
                 <React.Fragment>
                   <IconComponent
                     icon="info"
@@ -461,7 +461,7 @@ class RoomComponent extends React.Component {
                     color="#acb5bd"
                     thickness={1.5}
                     className="ml-15 button"
-                    onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}
+                    onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}
                   />
 
                   <IconComponent
@@ -470,7 +470,7 @@ class RoomComponent extends React.Component {
                     thickness={0}
                     color="#acb5bd"
                     className="ml-15 button"
-                    onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 1 })}
+                    onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}
                   />
 
                   <Popup
@@ -481,13 +481,13 @@ class RoomComponent extends React.Component {
                     content={
                       <Menu
                         items={[
-                          { hide: this.props.room.private, icon: <IconComponent icon="eye" size={20} color="#acb5bd" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateRoomVisibility({ private: false, public: true }) },
-                          { hide: this.props.room.private, icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />, text: "Private", label: 'Members of this channel only', onClick: (e) => this.updateRoomVisibility({ private: false, public: false }) },
+                          { hide: this.props.channel.private, icon: <IconComponent icon="eye" size={20} color="#acb5bd" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateChannelVisibility({ private: false, public: true }) },
+                          { hide: this.props.channel.private, icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />, text: "Private", label: 'Members of this channel only', onClick: (e) => this.updateChannelVisibility({ private: false, public: false }) },
                         ]}
                       />
                     }>
                     <IconComponent
-                      icon={this.props.room.public ? "eye" : "eye-off"}
+                      icon={this.props.channel.public ? "eye" : "eye-off"}
                       size={20}
                       thickness={1.5}
                       color="#acb5bd"
@@ -500,7 +500,7 @@ class RoomComponent extends React.Component {
             </Header>
           }
 
-          {(this.props.room.public && !this.props.room.public) &&
+          {(this.props.channel.public && !this.props.channel.public) &&
             <Notification text="This team channel is public" />
           }
 
@@ -508,19 +508,19 @@ class RoomComponent extends React.Component {
             {/* Primary message list + header */}
             {this.state.open && !this.state.searchResults &&
               <React.Fragment>
-                {this.props.room.private && <PaddingToKeepMessagesDown />}
+                {this.props.channel.private && <PaddingToKeepMessagesDown />}
 
-                {!this.props.room.private &&
+                {!this.props.channel.private &&
                   <Welcome>
                     <WelcomeUser className="row">
                       <Avatar
-                        title={this.props.room.user.name}
-                        image={this.props.room.user.image}
+                        title={this.props.channel.user.name}
+                        image={this.props.channel.user.image}
                         size="small"
                       />
 
                       <WelcomeUserName>
-                        Started by {this.props.room.user.name} - {moment(this.props.room.createdAt).fromNow()}
+                        Started by {this.props.channel.user.name} - {moment(this.props.channel.createdAt).fromNow()}
                       </WelcomeUserName>
                     </WelcomeUser>
 
@@ -528,19 +528,19 @@ class RoomComponent extends React.Component {
                       {this.state.title}
                     </WelcomeTitle>
 
-                    {this.props.room.description &&
+                    {this.props.channel.description &&
                       <WelcomeDescription>
-                        <ReactMarkdown source={this.props.room.description} />
+                        <ReactMarkdown source={this.props.channel.description} />
                       </WelcomeDescription>
                     }
 
-                    {/* If there is no room description */}
+                    {/* If there is no channel description */}
                     {/* Then give the user the option to update it */}
                     {/* But only if they can */}
-                    {!this.props.room.description && this.state.permissible &&
+                    {!this.props.channel.description && this.state.permissible &&
                       <WelcomeDescriptionUpdate
                         className="button"
-                        onClick={() => this.setState({ roomUpdateModal: true, roomUpdateModalStart: 0 })}>
+                        onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}>
                         Add some more context about this conversation here
                       </WelcomeDescriptionUpdate>
                     }
@@ -549,7 +549,7 @@ class RoomComponent extends React.Component {
 
                 <MessagesInner ref={(ref) => this.messagesRef = ref}>
                   <MessagesComponent
-                    messages={this.props.room.messages}
+                    messages={this.props.channel.messages}
                     highlight={this.state.searchQuery}
                     setUpdateMessage={this.setUpdateMessage}
                     setReplyMessage={this.setReplyMessage}
@@ -592,28 +592,28 @@ class RoomComponent extends React.Component {
               clearMessage={() => this.setState({ message: null, update: false, reply: false })}
             />
           }
-        </Room>
+        </Channel>
       </React.Fragment>
     )
   }
 }
 
-RoomComponent.propTypes = {
+ChannelComponent.propTypes = {
   team: PropTypes.any,
-  room: PropTypes.any,
+  channel: PropTypes.any,
   user: PropTypes.any,
-  hydrateRoom: PropTypes.func,
-  hydrateRoomMessages: PropTypes.func,
-  updateRoom: PropTypes.func,
+  hydrateChannel: PropTypes.func,
+  hydrateChannelMessages: PropTypes.func,
+  updateChannel: PropTypes.func,
   updateUserStarred: PropTypes.func,
   openApp: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  hydrateRoom: room => hydrateRoom(room),
-  hydrateRoomMessages: messages => hydrateRoomMessages(messages),
-  updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
-  updateUserStarred: (roomId, starred) => updateUserStarred(roomId, starred),
+  hydrateChannel: channel => hydrateChannel(channel),
+  hydrateChannelMessages: messages => hydrateChannelMessages(messages),
+  updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
+  updateUserStarred: (channelId, starred) => updateUserStarred(channelId, starred),
   openApp: (action) => openApp(action),
 }
 
@@ -621,14 +621,14 @@ const mapStateToProps = state => {
   return {
     team: state.team,
     user: state.user,
-    room: state.room,
+    channel: state.channel,
   }
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RoomComponent)
+)(ChannelComponent)
 
 const Dropzone = styled.div`
   background: rgba(255, 255, 255, 0.8);
@@ -645,7 +645,7 @@ const Dropzone = styled.div`
   justify-content: center;
 `
 
-const Room = styled.div`
+const Channel = styled.div`
   background: white;
   height: 100%;
   flex: 1;

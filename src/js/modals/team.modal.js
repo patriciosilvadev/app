@@ -270,7 +270,7 @@ export default function TeamModal(props) {
                     <MembersTeamComponent
                       admin={admin}
                       id={props.id}
-                      createRoom={props.createRoom}
+                      createChannel={props.createChannel}
                       onClose={props.onClose}
                       members={members}
                     />
@@ -402,5 +402,5 @@ TeamModal.propTypes = {
   start: PropTypes.number,
   id: PropTypes.string,
   history: PropTypes.any,
-  createRoom: PropTypes.func,
+  createChannel: PropTypes.func,
 }

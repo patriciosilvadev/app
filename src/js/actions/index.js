@@ -1,5 +1,5 @@
-export * from './rooms'
-export * from './room'
+export * from './channels'
+export * from './channel'
 export * from './teams'
 export * from './team'
 export * from './common'

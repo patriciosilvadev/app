@@ -17,33 +17,33 @@ const initialState = {
 
 export default (state = initialState, action) =>
   produce(state, draft => {
-    if (action.type == 'ROOM') return action.payload
+    if (action.type == 'CHANNEL') return action.payload
 
     // Only if these are valid
-    // We only process messages that are for the current room
+    // We only process messages that are for the current channel
     if (!action.payload) return
-    if (!action.payload.roomId) return
-    if (state.id != action.payload.roomId) return
+    if (!action.payload.channelId) return
+    if (state.id != action.payload.channelId) return
 
-    // These are actions that get dispatched against the laoded room
+    // These are actions that get dispatched against the laoded channel
     // They come from the user or the SocketIO server
     switch (action.type) {
-      case 'ROOM':
+      case 'CHANNEL':
         return action.payload
 
-      case 'UPDATE_ROOM':
+      case 'UPDATE_CHANNEL':
         draft = Object.assign(draft, action.payload)
         break
 
-      case 'UPDATE_ROOM_ADD_MESSAGES':
+      case 'UPDATE_CHANNEL_ADD_MESSAGES':
         draft.messages = [...state.messages, action.payload.messages]
         break
 
-      case 'CREATE_ROOM_MESSAGE':
+      case 'CREATE_CHANNEL_MESSAGE':
         draft.messages = [...state.messages, action.payload.message]
         break
 
-      case 'UPDATE_ROOM_MESSAGE':
+      case 'UPDATE_CHANNEL_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
             return {
@@ -57,11 +57,11 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'DELETE_ROOM_MESSAGE':
+      case 'DELETE_CHANNEL_MESSAGE':
         draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
         break
 
-      case 'UPDATE_ROOM_ADD_TYPING':
+      case 'UPDATE_CHANNEL_ADD_TYPING':
         // If it's already there
         if (state.typing.filter(t => t.userId == action.payload.userId).flatten()) {
           draft.typing = state.typing.map(t => {
@@ -88,10 +88,10 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'UPDATE_ROOM_DELETE_TYPING':
+      case 'UPDATE_CHANNEL_DELETE_TYPING':
         return { ...state, typing: state.typing.filter(t => t.userId != action.payload.userId) }
 
-      case 'UPDATE_ROOM_MESSAGE_ATTACHMENT_PREVIEW':
+      case 'UPDATE_CHANNEL_MESSAGE_ATTACHMENT_PREVIEW':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
             return {
@@ -116,7 +116,7 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'CREATE_ROOM_MESSAGE_REACTION':
+      case 'CREATE_CHANNEL_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
             return {
@@ -129,7 +129,7 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'DELETE_ROOM_MESSAGE_REACTION':
+      case 'DELETE_CHANNEL_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
             return {
@@ -142,11 +142,11 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'CREATE_ROOM_MEMBER':
+      case 'CREATE_CHANNEL_MEMBER':
         draft.members = [...state.members, action.payload.member]
         break
 
-      case 'DELETE_ROOM_MEMBER':
+      case 'DELETE_CHANNEL_MEMBER':
         draft.members = state.members.filter(member => member.user.id != action.payload.userId)
         break
     }

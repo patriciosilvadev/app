@@ -7,14 +7,14 @@ import styled from 'styled-components'
 import UploadService from '../services/upload.service'
 import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
-import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../actions'
+import { updateChannel, deleteChannel, createChannelMember, deleteChannelMember } from '../actions'
 import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
-import MembersRoomComponent from '../components/members-room.component'
+import MembersChannelComponent from '../components/members-channel.component'
 
-export default function RoomModal(props) {
+export default function ChannelModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
@@ -24,28 +24,28 @@ export default function RoomModal(props) {
   const [description, setDescription] = useState('')
   const user = useSelector(state => state.user)
   const team = useSelector(state => state.team)
-  const room = useSelector(state => state.room)
+  const channel = useSelector(state => state.channel)
   const fileRef = useRef(null)
   const dispatch = useDispatch()
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [members, setMembers] = useState([])
 
-  const handleCreateRoomMember = async (user) => {
+  const handleCreateChannelMember = async (user) => {
     setLoading(true)
     setError(null)
 
     try {
       const userId = user.id
       const userIds = [userId]
-      const roomId = room.id
+      const channelId = channel.id
       const member = { user }
-      const { data } = await GraphqlService.getInstance().createRoomMember(roomId, userId)
+      const { data } = await GraphqlService.getInstance().createChannelMember(channelId, userId)
 
       setLoading(false)
       setMembers([ ...members, member ])
-      dispatch(createRoomMember(roomId, member))
+      dispatch(createChannelMember(channelId, member))
 
-      MessagingService.getInstance().joinRoom(userIds, roomId)
+      MessagingService.getInstance().joinChannel(userIds, channelId)
     } catch (e) {
       setLoading(false)
       setError('Error adding channel member')
@@ -70,16 +70,16 @@ export default function RoomModal(props) {
     }
   }
 
-  const handleDeleteRoom = async () => {
+  const handleDeleteChannel = async () => {
     setLoading(true)
     setError(null)
     setConfirmDeleteModal(false)
 
     try {
-      await GraphqlService.getInstance().deleteRoom(props.id)
+      await GraphqlService.getInstance().deleteChannel(props.id)
 
       // Sync this one for everyone
-      dispatch(deleteRoom(teamId, true))
+      dispatch(deleteChannel(teamId, true))
       setLoading(false)
       browserHistory.push(`/app/team/${team.id}/`)
       props.onClose()
@@ -89,19 +89,19 @@ export default function RoomModal(props) {
     }
   }
 
-  const handleUpdateRoom = async () => {
+  const handleUpdateChannel = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      await GraphqlService.getInstance().updateRoom(room.id, { title, image, description })
+      await GraphqlService.getInstance().updateChannel(channel.id, { title, image, description })
 
-      dispatch(updateRoom(room.id, { title, image, description }))
+      dispatch(updateChannel(channel.id, { title, image, description }))
       setLoading(false)
       setNotification('Successfully updated')
     } catch (e) {
       setLoading(false)
-      setError('Error updating room')
+      setError('Error updating channel')
     }
   }
 
@@ -112,14 +112,14 @@ export default function RoomModal(props) {
 
         setLoading(true)
 
-        const { data } = await GraphqlService.getInstance().room(props.id)
-        const room = data.room
+        const { data } = await GraphqlService.getInstance().channel(props.id)
+        const channel = data.channel
 
-        setImage(room.image)
-        setTitle(room.title || '')
-        setDescription(room.description || '')
+        setImage(channel.image)
+        setTitle(channel.title || '')
+        setDescription(channel.description || '')
         setLoading(false)
-        setMembers(room.members)
+        setMembers(channel.members)
       } catch (e) {
         setLoading(false)
         setError('Error getting data')
@@ -208,7 +208,7 @@ export default function RoomModal(props) {
                       {props.permissible &&
                         <div className="p-20">
                           <Button
-                            onClick={handleUpdateRoom}
+                            onClick={handleUpdateChannel}
                             text="Update"
                             theme="blue-border"
                             size="small"
@@ -224,7 +224,7 @@ export default function RoomModal(props) {
                 show: members.length != 0,
                 content: (
                   <div className="column flex-1 w-100 h-100">
-                    <MembersRoomComponent
+                    <MembersChannelComponent
                       permissible={props.permissible}
                       id={props.id}
                       team={props.team}
@@ -234,7 +234,7 @@ export default function RoomModal(props) {
 
                     {props.permissible &&
                       <QuickUserComponent
-                        room={room}
+                        channel={channel}
                         visible={userMenu}
                         width={250}
                         direction="left-top"
@@ -245,7 +245,7 @@ export default function RoomModal(props) {
                           if (members.filter(member => member.user.id == user.id).length > 0) return
 
                           // Otherwise all good - add them
-                          handleCreateRoomMember(user)
+                          handleCreateChannelMember(user)
                           setUserMenu(false)
                         }}>
                         <AddButton className="button row" onClick={() => setUserMenu(true)}>
@@ -280,7 +280,7 @@ export default function RoomModal(props) {
 
                       {confirmDeleteModal &&
                         <ConfirmModal
-                          onOkay={handleDeleteRoom}
+                          onOkay={handleDeleteChannel}
                           onCancel={() => setConfirmDeleteModal(false)}
                           text="Are you sure you want to delete this channel, it can not be undone?"
                           title="Are you sure?"
@@ -308,7 +308,7 @@ export default function RoomModal(props) {
   )
 }
 
-RoomModal.propTypes = {
+ChannelModal.propTypes = {
   team: PropTypes.any,
   start: PropTypes.number,
   members: PropTypes.array,

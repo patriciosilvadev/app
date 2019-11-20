@@ -151,7 +151,7 @@ export default class GraphqlService {
             description
             image
             role(userId: $userId)
-            rooms(userId: $userId) {
+            channels(userId: $userId) {
               id
               title
               description
@@ -233,11 +233,11 @@ export default class GraphqlService {
     })
   }
 
-  room(roomId) {
+  channel(channelId) {
     return this.client.query({
       query: gql`
-        query room($roomId: String!) {
-          room(roomId: $roomId) {
+        query channel($channelId: String!) {
+          channel(channelId: $channelId) {
             id
             title
             url
@@ -336,7 +336,7 @@ export default class GraphqlService {
               id
               reactions
               parent {
-                room {
+                channel {
                   title
                   id
                 }
@@ -425,16 +425,16 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
+        channelId,
       },
     })
   }
 
-  rooms(teamId, userId) {
+  channels(teamId, userId) {
     return this.client.query({
       query: gql`
-        query rooms($teamId: String, $userId: String!) {
-          rooms(teamId: $teamId, userId: $userId) {
+        query channels($teamId: String, $userId: String!) {
+          channels(teamId: $teamId, userId: $userId) {
             id
             title
             description
@@ -477,11 +477,11 @@ export default class GraphqlService {
     })
   }
 
-  roomMessages(roomId, page) {
+  channelMessages(channelId, page) {
     return this.client.query({
       query: gql`
-        query roomMessages($roomId: String!, $page: Float) {
-          roomMessages(roomId: $roomId, page: $page) {
+        query channelMessages($channelId: String!, $page: Float) {
+          channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
             parent {
@@ -555,17 +555,17 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
+        channelId,
         page,
       },
     })
   }
 
-  searchMessages(roomId, query) {
+  searchMessages(channelId, query) {
     return this.client.query({
       query: gql`
-        query searchMessages($roomId: String, $query: String) {
-          searchMessages(roomId: $roomId, query: $query) {
+        query searchMessages($channelId: String, $query: String) {
+          searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
             parent {
@@ -606,7 +606,7 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
+        channelId,
         query,
       },
     })
@@ -702,46 +702,46 @@ export default class GraphqlService {
     })
   }
 
-  updateUserMuted(userId, roomId, muted) {
+  updateUserMuted(userId, channelId, muted) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserMuted($userId: String, $roomId: String, $muted: Boolean) {
-          updateUserMuted(userId: $userId, roomId: $roomId, muted: $muted)
+        mutation updateUserMuted($userId: String, $channelId: String, $muted: Boolean) {
+          updateUserMuted(userId: $userId, channelId: $channelId, muted: $muted)
         }
       `,
       variables: {
         userId,
-        roomId,
+        channelId,
         muted,
       },
     })
   }
 
-  updateUserArchived(userId, roomId, archived) {
+  updateUserArchived(userId, channelId, archived) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserArchived($userId: String, $roomId: String, $archived: Boolean) {
-          updateUserArchived(userId: $userId, roomId: $roomId, archived: $archived)
+        mutation updateUserArchived($userId: String, $channelId: String, $archived: Boolean) {
+          updateUserArchived(userId: $userId, channelId: $channelId, archived: $archived)
         }
       `,
       variables: {
         userId,
-        roomId,
+        channelId,
         archived,
       },
     })
   }
 
-  updateUserStarred(userId, roomId, starred) {
+  updateUserStarred(userId, channelId, starred) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserStarred($userId: String, $roomId: String, $starred: Boolean) {
-          updateUserStarred(userId: $userId, roomId: $roomId, starred: $starred)
+        mutation updateUserStarred($userId: String, $channelId: String, $starred: Boolean) {
+          updateUserStarred(userId: $userId, channelId: $channelId, starred: $starred)
         }
       `,
       variables: {
         userId,
-        roomId,
+        channelId,
         starred,
       },
     })
@@ -866,11 +866,11 @@ export default class GraphqlService {
     })
   }
 
-  createRoom(payload) {
+  createChannel(payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoom($payload: String) {
-          createRoom(payload: $payload) {
+        mutation createChannel($payload: String) {
+          createChannel(payload: $payload) {
             id
             title
             description
@@ -911,11 +911,11 @@ export default class GraphqlService {
     })
   }
 
-  updateRoom(roomId, payload) {
+  updateChannel(channelId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoom($roomId: String, $payload: String) {
-          updateRoom(roomId: $roomId, payload: $payload) {
+        mutation updateChannel($channelId: String, $payload: String) {
+          updateChannel(channelId: $channelId, payload: $payload) {
             id
             title
             description
@@ -931,44 +931,44 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
+        channelId,
         payload: JSON.stringify(payload),
       },
     })
   }
 
-  deleteRoom(roomId) {
+  deleteChannel(channelId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoom($roomId: String) {
-          deleteRoom(roomId: $roomId)
+        mutation deleteChannel($channelId: String) {
+          deleteChannel(channelId: $channelId)
         }
       `,
       variables: {
-        roomId,
+        channelId,
       },
     })
   }
 
-  createRoomMember(roomId, userId) {
+  createChannelMember(channelId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMember($roomId: String, $userId: String) {
-          createRoomMember(roomId: $roomId, userId: $userId)
+        mutation createChannelMember($channelId: String, $userId: String) {
+          createChannelMember(channelId: $channelId, userId: $userId)
         }
       `,
       variables: {
-        roomId,
+        channelId,
         userId,
       },
     })
   }
 
-  deleteRoomMessage(messageId) {
+  deleteChannelMessage(messageId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMessage($messageId: String) {
-          deleteRoomMessage(messageId: $messageId)
+        mutation deleteChannelMessage($messageId: String) {
+          deleteChannelMessage(messageId: $messageId)
         }
       `,
       variables: {
@@ -977,25 +977,25 @@ export default class GraphqlService {
     })
   }
 
-  deleteRoomMember(roomId, userId) {
+  deleteChannelMember(channelId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMember($roomId: String, $userId: String) {
-          deleteRoomMember(roomId: $roomId, userId: $userId)
+        mutation deleteChannelMember($channelId: String, $userId: String) {
+          deleteChannelMember(channelId: $channelId, userId: $userId)
         }
       `,
       variables: {
-        roomId,
+        channelId,
         userId,
       },
     })
   }
 
-  updateRoomMessage(messageId, payload) {
+  updateChannelMessage(messageId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoomMessage($messageId: String, $payload: String) {
-            updateRoomMessage(messageId: $messageId, payload: $payload) {
+        mutation updateChannelMessage($messageId: String, $payload: String) {
+            updateChannelMessage(messageId: $messageId, payload: $payload) {
             id
             user {
               id
@@ -1039,11 +1039,11 @@ export default class GraphqlService {
     })
   }
 
-  createRoomMessage(payload) {
+  createChannelMessage(payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessage($payload: String) {
-          createRoomMessage(payload: $payload) {
+        mutation createChannelMessage($payload: String) {
+          createChannelMessage(payload: $payload) {
             id
             user {
               id
@@ -1086,11 +1086,11 @@ export default class GraphqlService {
     })
   }
 
-  createRoomMessageReaction(messageId, reaction) {
+  createChannelMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessageReaction($messageId: String, $reaction: String) {
-          createRoomMessageReaction(messageId: $messageId, reaction: $reaction)
+        mutation createChannelMessageReaction($messageId: String, $reaction: String) {
+          createChannelMessageReaction(messageId: $messageId, reaction: $reaction)
         }
       `,
       variables: {
@@ -1100,11 +1100,11 @@ export default class GraphqlService {
     })
   }
 
-  deleteRoomMessageReaction(messageId, reaction) {
+  deleteChannelMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMessageReaction($messageId: String, $reaction: String) {
-          deleteRoomMessageReaction(messageId: $messageId, reaction: $reaction)
+        mutation deleteChannelMessageReaction($messageId: String, $reaction: String) {
+          deleteChannelMessageReaction(messageId: $messageId, reaction: $reaction)
         }
       `,
       variables: {

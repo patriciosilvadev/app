@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { hydrateTeams, updateNotifications, hydrateNotifications } from '../actions'
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
-import { Toggle, Popup, Menu, Avatar, Room } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Channel } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
@@ -47,7 +47,7 @@ export default function DockComponent(props) {
   const [hasNotification, setHasNotification] = useState(false)
   const [notificationsMenu, setNotificationsMenu] = useState(false)
   const dispatch = useDispatch()
-  const room = useSelector(state => state.room)
+  const channel = useSelector(state => state.channel)
   const user = useSelector(state => state.user)
   const common = useSelector(state => state.common)
   const teams = useSelector(state => state.teams)
@@ -65,7 +65,7 @@ export default function DockComponent(props) {
       const notifications = await GraphqlService.getInstance().notifications(userId, 0)
       const teamIds = teams.data.teams.map(team => team.id)
 
-      // Join all these team rooms
+      // Join all these team channels
       MessagingService.getInstance().joins(teamIds)
 
       setLoading(false)

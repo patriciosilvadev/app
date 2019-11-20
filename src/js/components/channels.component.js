@@ -5,21 +5,21 @@ import MessagingService from '../services/messaging.service'
 import '../helpers/extensions'
 import styled from 'styled-components'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import RoomModal from '../modals/room.modal'
+import ChannelModal from '../modals/channel.modal'
 import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { IconComponent } from './icon.component'
 import PropTypes from 'prop-types'
-import { createRoom, hydrateRooms, hydrateTeam, updateRoomUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
+import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Room, Tooltip } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Channel, Tooltip } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger } from '../helpers/util'
 
-class RoomsComponent extends React.Component {
+class ChannelsComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -28,7 +28,7 @@ class RoomsComponent extends React.Component {
       results: [],
       teamModal: false,
       teamModalStart: 0,
-      roomPopup: false,
+      channelPopup: false,
       accountModal: false,
       accountMenu: false,
       statusMenu: false,
@@ -44,9 +44,9 @@ class RoomsComponent extends React.Component {
 
     this.filterRef = React.createRef()
 
-    this.createRoom = this.createRoom.bind(this)
-    this.createPrivateRoom = this.createPrivateRoom.bind(this)
-    this.createPublicRoom = this.createPublicRoom.bind(this)
+    this.createChannel = this.createChannel.bind(this)
+    this.createPrivateChannel = this.createPrivateChannel.bind(this)
+    this.createPublicChannel = this.createPublicChannel.bind(this)
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
@@ -63,49 +63,49 @@ class RoomsComponent extends React.Component {
       await GraphqlService.getInstance().updateUser(userId, { status })
 
       this.props.updateUserStatus(status)
-      this.props.updateRoomUserStatus(userId, teamId, status)
+      this.props.updateChannelUserStatus(userId, teamId, status)
     } catch (e) {
       logger(e)
     }
   }
 
-  async updateUserArchived(userId, roomId, archived) {
+  async updateUserArchived(userId, channelId, archived) {
     try {
-      await GraphqlService.getInstance().updateUserArchived(userId, roomId, archived)
+      await GraphqlService.getInstance().updateUserArchived(userId, channelId, archived)
 
-      this.props.updateUserArchived(userId, roomId, archived)
+      this.props.updateUserArchived(userId, channelId, archived)
     } catch (e) {
       logger(e)
     }
   }
 
-  async updateUserMuted(userId, roomId, muted) {
+  async updateUserMuted(userId, channelId, muted) {
     try {
-      await GraphqlService.getInstance().updateUserMuted(userId, roomId, muted)
+      await GraphqlService.getInstance().updateUserMuted(userId, channelId, muted)
 
-      this.props.updateUserMuted(userId, roomId, muted)
+      this.props.updateUserMuted(userId, channelId, muted)
     } catch (e) {
       logger(e)
     }
   }
 
   static getDerivedStateFromProps(props, state) {
-    const starredRooms = props.rooms.filter((room, index) => props.user.starred.indexOf(room.id) != -1)
-    const mutedRooms = props.rooms.filter((room, index) => props.user.muted.indexOf(room.id) != -1)
-    const archivedRooms = props.rooms.filter((room, index) => props.user.archived.indexOf(room.id) != -1)
-    const privateRooms = props.rooms.filter((room, index) => room.private && props.user.starred.indexOf(room.id) == -1 && props.user.archived.indexOf(room.id) == -1)
-    const publicRooms = props.rooms.filter((room, index) => !room.private && props.user.starred.indexOf(room.id) == -1 && props.user.archived.indexOf(room.id) == -1)
+    const starredChannels = props.channels.filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
+    const mutedChannels = props.channels.filter((channel, index) => props.user.muted.indexOf(channel.id) != -1)
+    const archivedChannels = props.channels.filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
+    const privateChannels = props.channels.filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
+    const publicChannels = props.channels.filter((channel, index) => !channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
 
     return {
-      starred: starredRooms,
-      muted: mutedRooms,
-      archived: archivedRooms,
-      private: privateRooms,
-      public: publicRooms,
+      starred: starredChannels,
+      muted: mutedChannels,
+      archived: archivedChannels,
+      private: privateChannels,
+      public: publicChannels,
     }
   }
 
-  createPrivateRoom(user) {
+  createPrivateChannel(user) {
     const title = null
     const description = null
     const image = null
@@ -113,43 +113,43 @@ class RoomsComponent extends React.Component {
     const initialOtherUserId = user.id
     const userId = this.props.user.id
 
-    this.createRoom(title, description, image, teamId, userId, initialOtherUserId)
+    this.createChannel(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
-  createPublicRoom(title) {
+  createPublicChannel(title) {
     const description = null
     const image = null
     const teamId = this.props.team.id
     const initialOtherUserId = null
     const userId = this.props.user.id
 
-    this.createRoom(title, description, image, teamId, userId, initialOtherUserId)
+    this.createChannel(title, description, image, teamId, userId, initialOtherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
-  async createRoom(title, description, image, teamId, userId, initialOtherUserId) {
+  async createChannel(title, description, image, teamId, userId, initialOtherUserId) {
     try {
-      // 1. Find rooms where there rae only 2 members
+      // 1. Find channels where there rae only 2 members
       // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
-      const room = initialOtherUserId
-        ? this.props.rooms
-            .filter(room => room.members.length == 2 && room.private)
-            .filter(room => room.members.filter(member => member.user.id == initialOtherUserId).length == 1)
+      const channel = initialOtherUserId
+        ? this.props.channels
+            .filter(channel => channel.members.length == 2 && channel.private)
+            .filter(channel => channel.members.filter(member => member.user.id == initialOtherUserId).length == 1)
             .flatten()
         : null
 
       // 3. If it's found - then go there
-      if (room) return this.props.history.push(`/app/team/${teamId}/room/${room.id}`)
+      if (channel) return this.props.history.push(`/app/team/${teamId}/channel/${channel.id}`)
 
       // Create the default member array
-      // If user isn't null - then it's a private room
+      // If user isn't null - then it's a private channel
       const members = initialOtherUserId ? [{ user: initialOtherUserId }, { user: userId }] : [{ user: userId }]
 
-      // Otherwise create the new room
-      // 1) Create the room object based on an open room or private
-      // 2) Default public room is always members only
-      const { data } = await GraphqlService.getInstance().createRoom({
+      // Otherwise create the new channel
+      // 1) Create the channel object based on an open channel or private
+      // 2) Default public channel is always members only
+      const { data } = await GraphqlService.getInstance().createChannel({
         title,
         description,
         image,
@@ -161,19 +161,19 @@ class RoomsComponent extends React.Component {
         private: initialOtherUserId ? true : false,
       })
 
-      const roomData = data.createRoom
-      const roomId = roomData.id
+      const channelData = data.createChannel
+      const channelId = channelData.id
 
-      this.props.createRoom(roomData)
+      this.props.createChannel(channelData)
 
-      // Join this room ourselves
-      MessagingService.getInstance().join(roomId)
+      // Join this channel ourselves
+      MessagingService.getInstance().join(channelId)
 
       // If it's a private conversation - then incite the other optersons
-      if (initialOtherUserId) MessagingService.getInstance().joinRoom([initialOtherUserId], roomId)
+      if (initialOtherUserId) MessagingService.getInstance().joinChannel([initialOtherUserId], channelId)
 
       // Navigate there
-      browserHistory.push(`/app/team/${teamId}/room/${roomId}`)
+      browserHistory.push(`/app/team/${teamId}/channel/${channelId}`)
     } catch (e) {}
   }
 
@@ -187,7 +187,7 @@ class RoomsComponent extends React.Component {
     const { teamId } = this.props.match.params
     const userId = this.props.user.id
 
-    // Fetch the team & rooms
+    // Fetch the team & channels
     this.fetchData(teamId, userId)
   }
 
@@ -195,20 +195,20 @@ class RoomsComponent extends React.Component {
     this.setState({ loading: true, error: null })
 
     try {
-      // await GraphqlService.getInstance().rooms(teamId, userId)
+      // await GraphqlService.getInstance().channels(teamId, userId)
       // Not sure why I was using the above to seperate the calls
       const team = await GraphqlService.getInstance().team(teamId, userId)
-      const rooms = team.data.team.rooms
-      const roomIds = rooms.map(room => room.id)
+      const channels = team.data.team.channels
+      const channelIds = channels.map(channel => channel.id)
 
       // Kill the loading
       this.setState({ loading: false, error: null })
 
-      // Join the rooms
-      MessagingService.getInstance().joins(roomIds)
+      // Join the channels
+      MessagingService.getInstance().joins(channelIds)
 
       // Populate our stores
-      this.props.hydrateRooms(rooms)
+      this.props.hydrateChannels(channels)
       this.props.hydrateTeam(team.data.team)
     } catch (e) {
       this.setState({ loading: false, error: e })
@@ -296,10 +296,10 @@ class RoomsComponent extends React.Component {
     const { pathname } = this.props.history.location
 
     return (
-      <Rooms className="column">
+      <Channels className="column">
         {this.state.teamModal &&
           <TeamModal
-            createRoom={this.createRoom}
+            createChannel={this.createChannel}
             start={this.state.teamModalStart}
             id={this.props.team.id}
             onClose={() => this.setState({ teamModal: false })}
@@ -430,14 +430,14 @@ class RoomsComponent extends React.Component {
           </SearchInner>
         </SearchContainer>
 
-        <RoomsContainer>
+        <ChannelsContainer>
           {this.state.filter != "" &&
             <React.Fragment>
               <Heading>Results</Heading>
 
               {this.state.results.map((user, index) => {
                 return (
-                  <Room
+                  <Channel
                     key={index}
                     active={false}
                     unread={null}
@@ -446,13 +446,13 @@ class RoomsComponent extends React.Component {
                     excerpt={user.username}
                     public={null}
                     private={null}
-                    onClick={() => this.createPrivateRoom(user)}
+                    onClick={() => this.createPrivateChannel(user)}
                   />
                 )
               })}
 
               {this.state.results.length == 0 &&
-                <Room
+                <Channel
                   active={false}
                   unread={null}
                   title={`Create '${this.state.filter}'`}
@@ -460,7 +460,7 @@ class RoomsComponent extends React.Component {
                   excerpt={null}
                   public={null}
                   private={null}
-                  onClick={() => this.createPublicRoom(this.state.filter)}
+                  onClick={() => this.createPublicChannel(this.state.filter)}
                 />
               }
             </React.Fragment>
@@ -470,32 +470,32 @@ class RoomsComponent extends React.Component {
             <React.Fragment>
               <Heading>Favourites</Heading>
 
-              {this.state.starred.map((room, index) => {
-                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+              {this.state.starred.map((channel, index) => {
+                if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
-                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
-                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
+                const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
+                const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
-                const to = `/app/team/${room.team.id}/room/${room.id}`
-                const muted = this.props.user.muted.indexOf(room.id) != -1
-                const archived = this.props.user.archived.indexOf(room.id) != -1
+                const to = `/app/team/${channel.team.id}/channel/${channel.id}`
+                const muted = this.props.user.muted.indexOf(channel.id) != -1
+                const archived = this.props.user.archived.indexOf(channel.id) != -1
 
                 return (
-                  <Room
+                  <Channel
                     key={index}
-                    active={pathname.indexOf(room.id) != -1}
+                    active={pathname.indexOf(channel.id) != -1}
                     unread={unreadCount}
                     title={title}
                     image={image}
-                    excerpt={room.excerpt}
-                    public={room.public}
-                    private={room.private}
+                    excerpt={channel.excerpt}
+                    public={channel.public}
+                    private={channel.private}
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, room.id, !archived)}
-                    onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
+                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+                    onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
                   />
                 )
               })}
@@ -509,11 +509,11 @@ class RoomsComponent extends React.Component {
 
             {(this.props.team.role != 'GUEST') &&
               <QuickInputComponent
-                visible={this.state.roomPopup}
+                visible={this.state.channelPopup}
                 width={250}
                 direction="right-bottom"
-                handleDismiss={() => this.setState({ roomPopup: false })}
-                handleAccept={(name) => this.setState({ roomPopup: false }, () => this.createPublicRoom(name))}
+                handleDismiss={() => this.setState({ channelPopup: false })}
+                handleAccept={(name) => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
                 placeholder="New channel name">
                 <IconComponent
                   icon="plus-circle"
@@ -521,36 +521,36 @@ class RoomsComponent extends React.Component {
                   color="#475669"
                   thickness={2}
                   className="button"
-                  onClick={() => this.setState({ roomPopup: true })}
+                  onClick={() => this.setState({ channelPopup: true })}
                 />
               </QuickInputComponent>
             }
           </div>
 
-          {this.state.public.map((room, index) => {
-            if (this.props.user.starred.indexOf(room.id) != -1) return
-            if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+          {this.state.public.map((channel, index) => {
+            if (this.props.user.starred.indexOf(channel.id) != -1) return
+            if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-            const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+            const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
             const unreadCount = unread ? unread.doc.count : 0
-            const muted = this.props.user.muted.indexOf(room.id) != -1
-            const archived = this.props.user.archived.indexOf(room.id) != -1
+            const muted = this.props.user.muted.indexOf(channel.id) != -1
+            const archived = this.props.user.archived.indexOf(channel.id) != -1
 
             return (
-              <Room
+              <Channel
                 key={index}
-                active={pathname.indexOf(room.id) != -1}
+                active={pathname.indexOf(channel.id) != -1}
                 unread={unreadCount}
-                title={room.title}
-                image={room.image}
-                excerpt={room.excerpt}
-                public={room.public}
-                private={room.private}
+                title={channel.title}
+                image={channel.image}
+                excerpt={channel.excerpt}
+                public={channel.public}
+                private={channel.private}
                 muted={muted}
                 archived={archived}
-                onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
-                onArchivedClick={() => this.updateUserArchived(this.props.user.id, room.id, !archived)}
-                onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
+                onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
+                onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+                onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
               />
             )
           })}
@@ -559,22 +559,22 @@ class RoomsComponent extends React.Component {
             <React.Fragment>
               <Heading>Private Conversations</Heading>
 
-              {this.state.private.map((room, index) => {
-                if (this.props.user.starred.indexOf(room.id) != -1) return
+              {this.state.private.map((channel, index) => {
+                if (this.props.user.starred.indexOf(channel.id) != -1) return
 
-                const title = room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "")
-                const image = room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "")
-                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const title = channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "")
+                const image = channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "")
+                const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
-                const muted = this.props.user.muted.indexOf(room.id) != -1
-                const archived = this.props.user.archived.indexOf(room.id) != -1
+                const muted = this.props.user.muted.indexOf(channel.id) != -1
+                const archived = this.props.user.archived.indexOf(channel.id) != -1
 
                 // Filter based on users search
                 if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
                 // Get the other users' presence
                 const snapshot = new Date().getTime()
-                const otherMember = room.members.filter(member => member.user.id != this.props.user.id).flatten()
+                const otherMember = channel.members.filter(member => member.user.id != this.props.user.id).flatten()
                 const otherMemberStatus = otherMember.user.status
                 const otherMemberTimezone = otherMember.user.timezone
                 const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
@@ -585,21 +585,21 @@ class RoomsComponent extends React.Component {
                                   : null
 
                 return (
-                  <Room
+                  <Channel
                     key={index}
                     presence={presence}
-                    active={pathname.indexOf(room.id) != -1}
+                    active={pathname.indexOf(channel.id) != -1}
                     unread={unreadCount}
                     title={title}
                     image={image}
                     excerpt={otherMemberStatus}
-                    public={room.public}
-                    private={room.private}
+                    public={channel.public}
+                    private={channel.private}
                     muted={muted}
                     archived={archived}
-                    onClick={() => this.props.history.push(`/app/team/${room.team.id}/room/${room.id}`)}
-                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, room.id, !archived)}
-                    onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
+                    onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
+                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+                    onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
                   />
                 )
               })}
@@ -614,54 +614,54 @@ class RoomsComponent extends React.Component {
 
           {this.state.archived.length != 0 && this.state.archivedVisible &&
             <React.Fragment>
-              {this.state.archived.map((room, index) => {
-                if (this.state.filter != "" && !room.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+              {this.state.archived.map((channel, index) => {
+                if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
 
-                const title = room.private ? room.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : room.title
-                const image = room.private ? room.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : room.image
-                const unread = this.props.common.unread.filter((row) => room.id == row.doc.room).flatten()
+                const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
+                const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
+                const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
                 const unreadCount = unread ? unread.doc.count : 0
-                const to = `/app/team/${room.team.id}/room/${room.id}`
-                const muted = this.props.user.muted.indexOf(room.id) != -1
-                const archived = this.props.user.archived.indexOf(room.id) != -1
+                const to = `/app/team/${channel.team.id}/channel/${channel.id}`
+                const muted = this.props.user.muted.indexOf(channel.id) != -1
+                const archived = this.props.user.archived.indexOf(channel.id) != -1
 
                 return (
-                  <Room
+                  <Channel
                     key={index}
-                    active={pathname.indexOf(room.id) != -1}
+                    active={pathname.indexOf(channel.id) != -1}
                     unread={unreadCount}
                     title={title}
                     image={image}
-                    excerpt={room.excerpt}
-                    public={room.public}
-                    private={room.private}
+                    excerpt={channel.excerpt}
+                    public={channel.public}
+                    private={channel.private}
                     muted={muted}
                     archived={archived}
                     onClick={() => this.props.history.push(to)}
-                    onArchivedClick={(e) => this.updateUserArchived(this.props.user.id, room.id, !archived)}
-                    onMutedClick={() => this.updateUserMuted(this.props.user.id, room.id, !muted)}
+                    onArchivedClick={(e) => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+                    onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
                   />
                 )
               })}
             </React.Fragment>
           }
-        </RoomsContainer>
-      </Rooms>
+        </ChannelsContainer>
+      </Channels>
     )
   }
 }
 
-RoomsComponent.propTypes = {
+ChannelsComponent.propTypes = {
   starred: PropTypes.bool,
   team: PropTypes.any,
-  room: PropTypes.any,
-  rooms: PropTypes.array,
+  channel: PropTypes.any,
+  channels: PropTypes.array,
   common: PropTypes.any,
   user: PropTypes.any,
   presences: PropTypes.any,
   teams: PropTypes.array,
-  createRoom: PropTypes.func,
-  hydrateRooms: PropTypes.func,
+  createChannel: PropTypes.func,
+  hydrateChannels: PropTypes.func,
   hydrateTeam: PropTypes.func,
   updateUserStatus: PropTypes.func,
   updateUserMuted: PropTypes.func,
@@ -670,11 +670,11 @@ RoomsComponent.propTypes = {
 
 const mapDispatchToProps = {
   updateUserStatus: (status) => updateUserStatus(status),
-  updateRoomUserStatus: (userId, teamId, status) => updateRoomUserStatus(userId, teamId, status),
-  updateUserMuted: (userId, roomId, muted) => updateUserMuted(userId, roomId, muted),
-  updateUserArchived: (userId, roomId, archived) => updateUserArchived(userId, roomId, archived),
-  createRoom: room => createRoom(room),
-  hydrateRooms: rooms => hydrateRooms(rooms),
+  updateChannelUserStatus: (userId, teamId, status) => updateChannelUserStatus(userId, teamId, status),
+  updateUserMuted: (userId, channelId, muted) => updateUserMuted(userId, channelId, muted),
+  updateUserArchived: (userId, channelId, archived) => updateUserArchived(userId, channelId, archived),
+  createChannel: channel => createChannel(channel),
+  hydrateChannels: channels => hydrateChannels(channels),
   hydrateTeam: team => hydrateTeam(team),
 }
 
@@ -683,8 +683,8 @@ const mapStateToProps = state => {
     common: state.common,
     user: state.user,
     team: state.team,
-    rooms: state.rooms,
-    room: state.room,
+    channels: state.channels,
+    channel: state.channel,
     teams: state.teams,
     presences: state.presences,
   }
@@ -693,9 +693,9 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RoomsComponent)
+)(ChannelsComponent)
 
-const Rooms = styled.div`
+const Channels = styled.div`
   width: 300px;
   height: 100%;
   position: relative;
@@ -706,7 +706,7 @@ const Rooms = styled.div`
   border-right: 1px solid #f1f3f5;
 `
 
-const RoomsContainer = styled.div`
+const ChannelsContainer = styled.div`
   flex: 1;
   overflow: scroll;
   width: 100%;

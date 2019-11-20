@@ -10,8 +10,8 @@ import GraphqlService from '../services/graphql.service'
 import CookieService from '../services/cookies.service'
 import { Avatar, Loading, Error, Notification } from '@weekday/elements'
 import { API_HOST, PUBLIC_VAPID_KEY } from '../environment'
-import RoomsComponent from '../components/rooms.component'
-import RoomComponent from '../components/room.component'
+import ChannelsComponent from '../components/channels.component'
+import ChannelComponent from '../components/channel.component'
 import AppComponent from '../components/app.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
@@ -236,10 +236,10 @@ class AppPage extends React.Component {
         <Router history={browserHistory}>
           <App className="row">
             <Route path="/app" component={DockComponent} />
-            <Route path="/app/team/:teamId" component={RoomsComponent} />
-            <Route path="/app/team/:teamId/room/:roomId" component={RoomComponent} />
+            <Route path="/app/team/:teamId" component={ChannelsComponent} />
+            <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
             <Route
-              path="/app/team/:teamId/room/:roomId"
+              path="/app/team/:teamId/channel/:channelId"
               render={props => {
                 if (!this.props.app.panel) return null
 
@@ -251,7 +251,7 @@ class AppPage extends React.Component {
                 )
               }}
             />
-            <Route path="/app/team/:teamId/room/:roomId" component={ToolbarComponent} />
+            <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
           </App>
         </Router>
       </AppContainer>

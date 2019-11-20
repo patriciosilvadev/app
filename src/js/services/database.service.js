@@ -15,13 +15,13 @@ export default class DatabaseService {
     })
   }
 
-  unread(team, room) {
+  unread(team, channel) {
     this.database
       .query(
         (doc, emit) => {
-          emit([doc.team, doc.room])
+          emit([doc.team, doc.channel])
         },
-        { key: [team, room] }
+        { key: [team, channel] }
       )
       .then(result => {
         const record = result.rows.flatten()
@@ -39,7 +39,7 @@ export default class DatabaseService {
           this.database
             .post({
               team,
-              room,
+              channel,
               count: 1,
             })
             .then(doc => {
@@ -52,12 +52,12 @@ export default class DatabaseService {
       })
   }
 
-  read(room) {
+  read(channel) {
     this.database
       .allDocs({ include_docs: true })
       .then(({ rows }) => {
         rows.map(row => {
-          if (row.doc.room == room) {
+          if (row.doc.channel == channel) {
             this.database
               .remove(row.doc)
               .catch(res => {

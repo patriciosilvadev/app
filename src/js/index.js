@@ -19,9 +19,9 @@ import common from './reducers/common'
 import team from './reducers/team'
 import teams from './reducers/teams'
 import presences from './reducers/presences'
-import room from './reducers/room'
+import channel from './reducers/channel'
 import app from './reducers/app'
-import rooms from './reducers/rooms'
+import channels from './reducers/channels'
 import user from './reducers/user'
 import notifications from './reducers/notifications'
 import { createLogger } from 'redux-logger'
@@ -49,8 +49,8 @@ const store = createStore(
     common,
     team,
     teams,
-    room,
-    rooms,
+    channel,
+    channels,
     presences,
     notifications,
     user,

@@ -4,7 +4,7 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { openApp, updateLoading, updateError, updateRoom, updateRoomAddTyping, createRoomMessage, updateRoomMessage } from '../actions'
+import { openApp, updateLoading, updateError, updateChannel, updateChannelAddTyping, createChannelMessage, updateChannelMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -54,8 +54,8 @@ class ComposeComponent extends React.Component {
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
 
-    this.createRoomMessage = this.createRoomMessage.bind(this)
-    this.updateRoomMessage = this.updateRoomMessage.bind(this)
+    this.createChannelMessage = this.createChannelMessage.bind(this)
+    this.updateChannelMessage = this.updateChannelMessage.bind(this)
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
@@ -84,7 +84,7 @@ class ComposeComponent extends React.Component {
       this.clearMessage()
 
       // Iterate over all the apps that have these action commands
-      this.props.room.apps.map(app => {
+      this.props.channel.apps.map(app => {
         if (!app.active) return
 
         // Now iterate over all the commands
@@ -110,10 +110,10 @@ class ComposeComponent extends React.Component {
       const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
 
       // If it's a reply OR create
-      if (!this.props.update) this.createRoomMessage(this.props.room.id, text, attachments, parent)
+      if (!this.props.update) this.createChannelMessage(this.props.channel.id, text, attachments, parent)
 
       // If it's an update
-      if (this.props.update) this.updateRoomMessage(this.props.room.id, id, text, attachments)
+      if (this.props.update) this.updateChannelMessage(this.props.channel.id, id, text, attachments)
 
       // Reset the message
       this.clearMessage()
@@ -123,15 +123,15 @@ class ComposeComponent extends React.Component {
     }
   }
 
-  async createRoomMessage(roomId, message, attachments, parentId) {
+  async createChannelMessage(channelId, message, attachments, parentId) {
     const userName = this.props.user.name
     const userId = this.props.user.id
     const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
     const teamId = this.props.team.id
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage({
-        room: roomId,
+      const { data } = await GraphqlService.getInstance().createChannelMessage({
+        channel: channelId,
         user: userId,
         parent: parentId,
         message,
@@ -139,26 +139,26 @@ class ComposeComponent extends React.Component {
       })
 
       // The extra values are used for processing other info
-      const roomMessage = {
-        message: data.createRoomMessage,
-        roomId,
+      const channelMessage = {
+        message: data.createChannelMessage,
+        channelId,
         teamId,
       }
 
       // Create the message
-      this.props.createRoomMessage(roomId, roomMessage)
-      this.props.updateRoom(roomId, { excerpt })
+      this.props.createChannelMessage(channelId, channelMessage)
+      this.props.updateChannel(channelId, { excerpt })
     } catch (e) {}
   }
 
-  async updateRoomMessage(roomId, messageId, message, attachments) {
+  async updateChannelMessage(channelId, messageId, message, attachments) {
     const userName = this.props.user.name
     const userId = this.props.user.id
     const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
     const teamId = this.props.team.id
 
     try {
-      const { data } = await GraphqlService.getInstance().updateRoomMessage(
+      const { data } = await GraphqlService.getInstance().updateChannelMessage(
         messageId,
         {
           message,
@@ -166,15 +166,15 @@ class ComposeComponent extends React.Component {
         }
       )
 
-      const roomMessage = {
+      const channelMessage = {
         message: { message, attachments },
         messageId,
-        roomId,
+        channelId,
         teamId,
       }
 
-      this.props.updateRoomMessage(roomId, roomMessage)
-      this.props.updateRoom(roomId, { excerpt })
+      this.props.updateChannelMessage(channelId, channelMessage)
+      this.props.updateChannel(channelId, { excerpt })
     } catch (e) {}
   }
 
@@ -229,7 +229,7 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing
-    this.props.updateRoomAddTyping(this.props.room.id, this.props.user.name, this.props.user.id)
+    this.props.updateChannelAddTyping(this.props.channel.id, this.props.user.name, this.props.user.id)
   }
 
   // Fires second
@@ -257,7 +257,7 @@ class ComposeComponent extends React.Component {
     const textToMatch = text.slice(1).split(' ')[0].toLowerCase()
 
     // Find all active apps
-    this.props.room.apps.map(app => {
+    this.props.channel.apps.map(app => {
       if (!app.active) return
 
       // and see if they have commands to list for the user
@@ -289,8 +289,8 @@ class ComposeComponent extends React.Component {
     // Cap them at 5
     const members =
       username == ''
-        ? this.props.room.members.filter((member, index) => index < 5)
-        : this.props.room.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
+        ? this.props.channel.members.filter((member, index) => index < 5)
+        : this.props.channel.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
 
     // Create the brand the state object the component should use
     this.setState({ members })
@@ -496,7 +496,7 @@ class ComposeComponent extends React.Component {
             onChange={this.handleComposeChange}
           />
 
-          {this.props.room.apps.map((app, index) => {
+          {this.props.channel.apps.map((app, index) => {
             if (!app.active) return
             if (!app.app.attachments) return
             if (app.app.attachments.length == 0) return
@@ -583,7 +583,7 @@ class ComposeComponent extends React.Component {
 }
 
 ComposeComponent.propTypes = {
-  room: PropTypes.any,
+  channel: PropTypes.any,
   team: PropTypes.any,
   teams: PropTypes.any,
   user: PropTypes.any,
@@ -591,24 +591,24 @@ ComposeComponent.propTypes = {
   reply: PropTypes.bool,
   update: PropTypes.bool,
   clearMessage: PropTypes.any,
-  createRoomMessage: PropTypes.func,
-  updateRoom: PropTypes.func,
-  updateRoomMessage: PropTypes.func,
-  updateRoomAddTyping: PropTypes.func,
+  createChannelMessage: PropTypes.func,
+  updateChannel: PropTypes.func,
+  updateChannelMessage: PropTypes.func,
+  updateChannelAddTyping: PropTypes.func,
   openApp: PropTypes.func,
 }
 
 const mapDispatchToProps = {
-  createRoomMessage: (roomId, roomMessage) => createRoomMessage(roomId, roomMessage),
-  updateRoomMessage: (roomId, roomMessage) => updateRoomMessage(roomId, roomMessage),
-  updateRoomAddTyping: (roomId, userName, userId) => updateRoomAddTyping(roomId, userName, userId),
-  updateRoom: (roomId, updatedRoom) => updateRoom(roomId, updatedRoom),
+  createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
+  updateChannelMessage: (channelId, channelMessage) => updateChannelMessage(channelId, channelMessage),
+  updateChannelAddTyping: (channelId, userName, userId) => updateChannelAddTyping(channelId, userName, userId),
+  updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
   openApp: (action) => openApp(action),
 }
 
 const mapStateToProps = state => {
   return {
-    room: state.room,
+    channel: state.channel,
     user: state.user,
     team: state.team,
     teams: state.teams,

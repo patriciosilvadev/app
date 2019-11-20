@@ -13,7 +13,7 @@ import { IconComponent } from './icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
-import { updateRoom, deleteRoom, createRoomMember, deleteRoomMember } from '../actions'
+import { updateChannel, deleteChannel, createChannelMember, deleteChannelMember } from '../actions'
 
 const TableRow = (props) => {
   const { member, user } = props
@@ -29,7 +29,7 @@ const TableRow = (props) => {
         <ConfirmModal
           onOkay={() => props.onLeave()}
           onCancel={() => setConfirmSelfDeleteModal(false)}
-          text="Are you sure you want to leave this room?"
+          text="Are you sure you want to leave this channel?"
           title="Are you sure?"
         />
       }
@@ -103,7 +103,7 @@ const TableRow = (props) => {
   )
 }
 
-export default function MembersRoomComponent(props) {
+export default function MembersChannelComponent(props) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(null)
   const [notification, setNotification] = useState(null)
@@ -115,51 +115,51 @@ export default function MembersRoomComponent(props) {
   const user = useSelector(state => state.user)
   const limit = 10
 
-  const handleRoomMemberDelete = async (userId) => {
+  const handleChannelMemberDelete = async (userId) => {
     setLoading(true)
     setError(null)
 
     try {
-      const roomId = room.id
+      const channelId = channel.id
       const teamId = props.team.id
       const userIds = [userId]
-      const deleteRoomMember = await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
+      const deleteChannelMember = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
       const updatedMembers = members.filter(member => member.user.id != userId)
 
       // Revoke access to people
-      dispatch(deleteRoomMember(roomId, userId))
+      dispatch(deleteChannelMember(channelId, userId))
       setLoading(false)
       setConfirmMemberDeleteModal(false)
       setMembers(updatedMembers)
 
-      // Tell this person to leave this room - send to team
-      MessagingService.getInstance().leaveRoom(userIds, teamId)
+      // Tell this person to leave this channel - send to team
+      MessagingService.getInstance().leaveChannel(userIds, teamId)
     } catch (e) {
       setLoading(false)
-      setError('Error deleting channel member')
+      setError('Error deleting member')
     }
   }
 
-  const handleRoomLeave = async () => {
+  const handleChannelLeave = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      const roomId = props.id
+      const channelId = props.id
       const userId = user.id
       const teamId = props.team.id
-      const deleteRoomMembe = await GraphqlService.getInstance().deleteRoomMember(roomId, userId)
+      const deleteChannelMembe = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
 
       // Stop loading the spinners
       setLoading(false)
 
       // Don't sync this one - because its just for us
       // false is for syncing here
-      dispatch(deleteRoomMember(roomId, userId))
-      dispatch(deleteRoom(roomId, false))
+      dispatch(deleteChannelMember(channelId, userId))
+      dispatch(deleteChannel(channelId, false))
 
       // Unsub frem receiving messages here
-      MessagingService.getInstance().leave(roomId)
+      MessagingService.getInstance().leave(channelId)
 
       // Redirect the user back to the landing page
       browserHistory.push(`/app/team/${teamId}/`)
@@ -243,8 +243,8 @@ export default function MembersRoomComponent(props) {
                   key={index}
                   member={member}
                   user={user}
-                  onLeave={handleRoomLeave}
-                  onDelete={handleRoomMemberDelete}
+                  onLeave={handleChannelLeave}
+                  onDelete={handleChannelMemberDelete}
                 />
               )
             })}
@@ -255,10 +255,10 @@ export default function MembersRoomComponent(props) {
   )
 }
 
-MembersRoomComponent.propTypes = {
+MembersChannelComponent.propTypes = {
   members: PropTypes.array,
   team: PropTypes.any,
-  createRoom: PropTypes.func,
+  createChannel: PropTypes.func,
   onClose: PropTypes.func,
   id: PropTypes.string,
   admin: PropTypes.bool,

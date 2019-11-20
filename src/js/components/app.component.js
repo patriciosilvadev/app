@@ -40,16 +40,16 @@ const HeaderTitle = styled.div`
 
 export default function AppComponent(props) {
   const user = useSelector(state => state.user)
-  const room = useSelector(state => state.room)
+  const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
   const [url, setUrl] = useState(props.action.url)
 
   useEffect(() => {
     // If the user has already added a query string
     if (props.action.url.indexOf('?') == -1) {
-      setUrl(`${props.action.url}?channelId=${room.id}&userId=${user.id}`)
+      setUrl(`${props.action.url}?channelId=${channel.id}&userId=${user.id}`)
     } else {
-      setUrl(`${props.action.url}&channelId=${room.id}&userId=${user.id}`)
+      setUrl(`${props.action.url}&channelId=${channel.id}&userId=${user.id}`)
     }
   })
 

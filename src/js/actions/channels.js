@@ -6,9 +6,9 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './common'
 
-export function hydrateRooms(rooms) {
+export function hydrateChannels(channels) {
   return {
-    type: 'ROOMS',
-    payload: rooms,
+    type: 'CHANNELS',
+    payload: channels,
   }
 }

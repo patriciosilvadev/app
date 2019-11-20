@@ -11,7 +11,7 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage, openApp, createRoomMessage, updateRoom } from '../actions'
+import { createChannelMessageReaction, deleteChannelMessageReaction, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
@@ -28,9 +28,9 @@ export default memo(props => {
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [emoticonMenu, setEmoticonMenu] = useState(false)
   const dispatch = useDispatch()
-  const room = useSelector(state => state.room)
+  const channel = useSelector(state => state.channel)
   const team = useSelector(state => state.team)
-  const rooms = useSelector(state => state.rooms)
+  const channels = useSelector(state => state.channels)
   const user = useSelector(state => state.user)
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
@@ -49,7 +49,7 @@ export default memo(props => {
   const [weekdayId, setWeekdayId] = useState(null)
   const iframeRef = useRef(null)
 
-  const handleForwardMessage = async(roomId) => {
+  const handleForwardMessage = async(channelId) => {
     setForwardMenu(false)
 
     const userName = user.name
@@ -61,8 +61,8 @@ export default memo(props => {
     const parentId = props.message.id
 
     try {
-      const { data } = await GraphqlService.getInstance().createRoomMessage({
-        room: roomId,
+      const { data } = await GraphqlService.getInstance().createChannelMessage({
+        channel: channelId,
         user: userId,
         parent: parentId,
         message: forwardedMessageContents,
@@ -70,15 +70,15 @@ export default memo(props => {
       })
 
       // The extra values are used for processing other info
-      const roomMessage = {
-        message: data.createRoomMessage,
-        roomId,
+      const channelMessage = {
+        message: data.createChannelMessage,
+        channelId,
         teamId,
       }
 
       // Create the message
-      dispatch(createRoomMessage(roomId, roomMessage))
-      dispatch(updateRoom(roomId, { excerpt }))
+      dispatch(createChannelMessage(channelId, channelMessage))
+      dispatch(updateChannel(channelId, { excerpt }))
     } catch (e) {}
   }
 
@@ -86,39 +86,39 @@ export default memo(props => {
     dispatch(openApp(action))
   }
 
-  const handleDeleteRoomMessage = async () => {
+  const handleDeleteChannelMessage = async () => {
     try {
-      await GraphqlService.getInstance().deleteRoomMessage(messageId)
+      await GraphqlService.getInstance().deleteChannelMessage(messageId)
 
-      dispatch(deleteRoomMessage(room.id, props.message.id))
+      dispatch(deleteChannelMessage(channel.id, props.message.id))
       setConfirmDeleteModal(false)
     } catch (e) {
       logger(e)
     }
   }
 
-  const handleDeleteRoomMessageReaction = async reaction => {
+  const handleDeleteChannelMessageReaction = async reaction => {
     // Only this user can do this
     if (reaction.split('__')[1] != user.id) return
 
     try {
-      await GraphqlService.getInstance().deleteRoomMessageReaction(props.message.id, reaction)
+      await GraphqlService.getInstance().deleteChannelMessageReaction(props.message.id, reaction)
 
       setEmoticonMenu(false)
-      dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
+      dispatch(deleteChannelMessageReaction(channel.id, props.message.id, reaction))
     } catch (e) {
       logger(e)
     }
   }
 
-  const handleCreateRoomMessageReaction = async emoticon => {
+  const handleCreateChannelMessageReaction = async emoticon => {
     try {
       const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
 
-      await GraphqlService.getInstance().createRoomMessageReaction(props.message.id, reaction)
+      await GraphqlService.getInstance().createChannelMessageReaction(props.message.id, reaction)
 
       setEmoticonMenu(false)
-      dispatch(createRoomMessageReaction(room.id, props.message.id, reaction))
+      dispatch(createChannelMessageReaction(channel.id, props.message.id, reaction))
     } catch (e) {
       logger(e)
     }
@@ -241,7 +241,7 @@ export default memo(props => {
       }}>
       {confirmDeleteModal &&
         <ConfirmModal
-          onOkay={handleDeleteRoomMessage}
+          onOkay={handleDeleteChannelMessage}
           onCancel={() => setConfirmDeleteModal(false)}
           text="Are you sure you want to delete this?"
           title="Are you sure?"
@@ -289,7 +289,7 @@ export default memo(props => {
                         emoji=""
                         showPreview={false}
                         showSkinTones={false}
-                        onSelect={(emoji) => handleCreateRoomMessageReaction(emoji.colons)}
+                        onSelect={(emoji) => handleCreateChannelMessageReaction(emoji.colons)}
                       />
                     }>
                     <IconComponent
@@ -339,15 +339,15 @@ export default memo(props => {
                     content={
                       <React.Fragment>
                         <div className="color-d2 h5 pl-15 pt-15 bold">
-                          Forward to room:
+                          Forward to channel:
                         </div>
                         <Menu
-                          items={rooms.map((room) => {
-                            const text = room.private ? room.members.reduce((title, member) => member.user.id != user.id ? title + member.user.name : title, "") : room.title
+                          items={channels.map((channel) => {
+                            const text = channel.private ? channel.members.reduce((title, member) => member.user.id != user.id ? title + member.user.name : title, "") : channel.title
 
                             return {
                               text,
-                              onClick: (e) => handleForwardMessage(room.id),
+                              onClick: (e) => handleForwardMessage(channel.id),
                             }
                           })}
                         />
@@ -370,7 +370,7 @@ export default memo(props => {
             {props.message.parent &&
               <ParentPadding className="column align-items-stretch flexer">
                 <ParentText>
-                  {props.message.parent.room.id == room.id ? `Replying to:` : `Forwarded from ${props.message.parent.room.title}: `}
+                  {props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}
                 </ParentText>
                 <ParentContainer className="row justify-content-center">
                   <div className="column flexer">
@@ -488,7 +488,7 @@ export default memo(props => {
                 <iframe
                   border="0"
                   ref={iframeRef}
-                  src={`${appUrl}?channelId=${room.id}&userId=${user.id}&payload=${appPayload}&weekdayId=${weekdayId}`}
+                  src={`${appUrl}?channelId=${channel.id}&userId=${user.id}&payload=${appPayload}&weekdayId=${weekdayId}`}
                   width={appWidth}
                   height={appHeight}>
                 </iframe>
@@ -521,7 +521,7 @@ export default memo(props => {
                       const userName = reactionParts[2]
 
                       return (
-                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
+                        <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
                           <Emoji
                             emoji={emoticon}
                             size={16}

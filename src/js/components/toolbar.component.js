@@ -39,7 +39,7 @@ const AppIconImage = styled.div`
 export default function ToolbarComponent(props) {
   const [actions, setActions] = useState([])
   const user = useSelector(state => state.user)
-  const room = useSelector(state => state.room)
+  const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
 
   const handleActionClick = async (action) => {
@@ -48,14 +48,14 @@ export default function ToolbarComponent(props) {
 
   // Load all our toolbar actions
   useEffect(() => {
-    room.apps.map(app => {
+    channel.apps.map(app => {
       if (!app.active) return
       if (!app.app.tools) return
       if (app.app.tools.length == 0) return
 
       setActions(app.app.tools)
     })
-  }, [room.apps])
+  }, [channel.apps])
 
   // prettier-ignore
   return (

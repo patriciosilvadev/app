@@ -6,7 +6,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification, logger } from '../helpers/util'
-import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createRoom, deleteRoom, updateRoomDeleteTyping, addPresence, deletePresence } from './'
+import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createChannel, deleteChannel, updateChannelDeleteTyping, addPresence, deletePresence } from './'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -44,51 +44,51 @@ export function initialize(userId) {
       }
     });
 
-    // Join our single room for us
+    // Join our single channel for us
     MessagingService.getInstance().join(userId)
 
     // Handle incoming messages
     MessagingService.getInstance().client.on('system', system =>  logger('SYSTEM: ', system))
-    MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
-      // If this user is already in this room, then don't do anything
+    MessagingService.getInstance().client.on('joinChannel', async ({ channelId }) => {
+      // If this user is already in this channel, then don't do anything
       if (
         getState()
-          .rooms.filter(r => r.id == roomId)
+          .channels.filter(r => r.id == channelId)
           .flatten()
       )
         return
 
-      // Get the room data
-      const room = await GraphqlService.getInstance().room(roomId)
+      // Get the channel data
+      const channel = await GraphqlService.getInstance().channel(channelId)
 
       // If there is an error
-      if (!room.data.room) return
+      if (!channel.data.channel) return
 
-      // Joing the room SOCKET
-      MessagingService.getInstance().join(roomId)
+      // Joing the channel SOCKET
+      MessagingService.getInstance().join(channelId)
 
-      // Create the room in the store
+      // Create the channel in the store
       // They may or may not be a member of it (irrelevant if it's public)
-      dispatch(createRoom(room.data.room))
+      dispatch(createChannel(channel.data.channel))
     })
-    MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
+    MessagingService.getInstance().client.on('leaveChannel', ({ channelId }) => {
       // Unsub from this SOCKET
-      MessagingService.getInstance().leave(roomId)
+      MessagingService.getInstance().leave(channelId)
 
       // And then remove it - but just for us
-      dispatch(deleteRoom(roomId, false))
+      dispatch(deleteChannel(channelId, false))
     })
-    MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
+    MessagingService.getInstance().client.on('leaveChannelTeam', ({ channelId }) => {
       const userId = getState().user.id
-      const room = getState()
-        .rooms.filter(r => r.id == roomId)
+      const channel = getState()
+        .channels.filter(r => r.id == channelId)
         .flatten()
 
-      // If they don't have this room
-      if (!room) return
+      // If they don't have this channel
+      if (!channel) return
 
       // Check if they are a member
-      const { members } = room
+      const { members } = channel
 
       // Check if this user is a member
       const isMember = members.filter(m => m.user.id == userId).flatten()
@@ -98,10 +98,10 @@ export function initialize(userId) {
       if (isMember) return
 
       // Unsub from this SOCKET
-      MessagingService.getInstance().leave(roomId)
+      MessagingService.getInstance().leave(channelId)
 
       // And then remove it - just for us
-      dispatch(deleteRoom(roomId, false))
+      dispatch(deleteChannel(channelId, false))
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       // If this user is already in this team, then don't do anything
@@ -122,18 +122,18 @@ export function initialize(userId) {
       dispatch(deleteTeam(teamId, false))
     })
     MessagingService.getInstance().client.on('sync', ({ action }) => {
-      // Check whether this person is in our chat list first
+      // Check whether this person is in our channels list first
       if (action.type == 'ADD_PRESENCE') {
-        const existingRoom = getState().rooms.reduce((exists, room) => {
-          if (room.public) return false
+        const existingChannel = getState().channels.reduce((exists, channel) => {
+          if (channel.public) return false
 
-          const { members } = room
+          const { members } = channel
           const existingMember = members.filter(member => member.user.id == action.payload.userId).flatten()
 
           if (existingMember) return true
         }, false)
 
-        if (!existingRoom) return
+        if (!existingChannel) return
       }
 
       // Update our store with the synced action
@@ -141,22 +141,22 @@ export function initialize(userId) {
 
       // Handle any reads/unreads here for the DB
       // And also handle push notices
-      if (action.type == 'CREATE_ROOM_MESSAGE') {
-        const { roomId, teamId, message } = action.payload
-        const isStarred = getState().user.starred.indexOf(roomId) != -1
-        const isArchived = getState().user.archived.indexOf(roomId) != -1
-        const isCurrentRoom = roomId == getState().room.id
+      if (action.type == 'CREATE_CHANNEL_MESSAGE') {
+        const { channelId, teamId, message } = action.payload
+        const isStarred = getState().user.starred.indexOf(channelId) != -1
+        const isArchived = getState().user.archived.indexOf(channelId) != -1
+        const isCurrentChannel = channelId == getState().channel.id
 
-        // Don't do a PN or unread increment if we are on the same room
+        // Don't do a PN or unread increment if we are on the same channel
         // as the message
-        if (isArchived || isStarred || isCurrentRoom) return
+        if (isArchived || isStarred || isCurrentChannel) return
 
         // Trigger a push notification
         showLocalPushNotification('New Message', message.message)
 
         // Create an unread marker
         // Channel will be null, which is good
-        DatabaseService.getInstance().unread(teamId, roomId)
+        DatabaseService.getInstance().unread(teamId, channelId)
       }
     })
 
@@ -183,17 +183,17 @@ export function initialize(userId) {
     }, 5000)
 
     // Check if the typing array is valid every 1 second
-    // Iterage over the current room's typing array
+    // Iterage over the current channel's typing array
     // If it's too old - then remove it and notify everyone else
     setInterval(() => {
-      const { room } = getState()
-      const roomId = room.id
+      const { channel } = getState()
+      const channelId = channel.id
       const snapshot = new Date().getTime()
 
       // Remove after 1 second
-      room.typing.map(t => {
+      channel.typing.map(t => {
         if (snapshot - t.userTime > 1000) {
-          dispatch(updateRoomDeleteTyping(roomId, t.userId))
+          dispatch(updateChannelDeleteTyping(channelId, t.userId))
         }
       })
     }, 2500)
@@ -209,7 +209,7 @@ export function initialize(userId) {
       })
 
     // If anything changes
-    // Update the rooms list
+    // Update the channels list
     DatabaseService.getInstance()
       .database.changes({
         live: true,

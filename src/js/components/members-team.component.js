@@ -217,7 +217,7 @@ export default function MembersTeamComponent(props) {
     const teamId = props.id
     const userId = user.id
 
-    props.createRoom(title, description, image, teamId, userId, initialOtherUserId)
+    props.createChannel(title, description, image, teamId, userId, initialOtherUserId)
     props.onClose()
   }
 
@@ -311,7 +311,7 @@ export default function MembersTeamComponent(props) {
 
 MembersTeamComponent.propTypes = {
   members: PropTypes.array,
-  createRoom: PropTypes.func,
+  createChannel: PropTypes.func,
   onClose: PropTypes.func,
   id: PropTypes.string,
   admin: PropTypes.bool,

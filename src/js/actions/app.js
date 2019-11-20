@@ -4,12 +4,12 @@ export function openApp(action) {
     switch (action.type) {
       case 'web':
         let url
-        const { user, room } = getState()
+        const { user, channel } = getState()
 
         if (action.url.indexOf('?') == -1) {
-          url = `${action.url}?channelId=${room.id}&userId=${user.id}`
+          url = `${action.url}?channelId=${channel.id}&userId=${user.id}`
         } else {
-          url = `${action.url}&channelId=${room.id}&userId=${user.id}`
+          url = `${action.url}&channelId=${channel.id}&userId=${user.id}`
         }
 
         fetch(url, {

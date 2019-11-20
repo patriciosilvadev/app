@@ -6,26 +6,26 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification } from '../helpers/util'
-import { updateLoading, updateError, addPresence, deletePresence, updateRoomDeleteTyping } from './'
+import { updateLoading, updateError, addPresence, deletePresence, updateChannelDeleteTyping } from './'
 
-export function updateUserStarred(roomId, starred) {
+export function updateUserStarred(channelId, starred) {
   return {
     type: 'UPDATE_USER_STARRED',
-    payload: { roomId, starred },
+    payload: { channelId, starred },
   }
 }
 
-export function updateUserMuted(userId, roomId, muted) {
+export function updateUserMuted(userId, channelId, muted) {
   return {
     type: 'UPDATE_USER_MUTED',
-    payload: { roomId, muted },
+    payload: { channelId, muted },
   }
 }
 
-export function updateUserArchived(userId, roomId, archived) {
+export function updateUserArchived(userId, channelId, archived) {
   return {
     type: 'UPDATE_USER_ARCHIVED',
-    payload: { roomId, archived },
+    payload: { channelId, archived },
   }
 }
 
@@ -36,9 +36,9 @@ export function updateUserStatus(status) {
   }
 }
 
-export function updateRoomUserStatus(userId, teamId, status) {
+export function updateChannelUserStatus(userId, teamId, status) {
   return {
-    type: 'UPDATE_ROOM_USER_STATUS',
+    type: 'UPDATE_CHANNEL_USER_STATUS',
     payload: { userId, status },
     sync: teamId,
   }
