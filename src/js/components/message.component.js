@@ -139,7 +139,12 @@ export default memo(props => {
       // weekdayId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
       // Only adjust this specific height when received
       if (data.weekdayId == weekdayId) {
-        if (data.scrollHeight) setAppHeight(parseInt(data.scrollHeight))
+        if (data.payload) {
+          if (data.payload.scrollHeight) {
+            const { scrollHeight } = data.payload
+            setAppHeight(parseInt(scrollHeight))
+          }
+        }
       }
     });
   }, [props.message, weekdayId])
