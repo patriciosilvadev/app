@@ -169,7 +169,7 @@ export default function DockComponent(props) {
 
       <div className="flexer"></div>
 
-      <img src="logo.png" width="30" style={{ marginTop: 20 }}/>
+      <img src="logo.svg" width="30" style={{ marginTop: 20 }}/>
     </Dock>
   )
 }

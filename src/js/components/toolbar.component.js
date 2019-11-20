@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { openApp } from '../actions'
+import { IconComponent } from '../components/icon.component'
 
 const Toolbar = styled.div`
   display: flex;
@@ -42,6 +43,10 @@ export default function ToolbarComponent(props) {
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
 
+  const handleAppStoreClick = async () => {
+
+  }
+
   const handleActionClick = async (action) => {
     dispatch(openApp(action))
   }
@@ -67,6 +72,14 @@ export default function ToolbarComponent(props) {
           </AppIconContainer>
         )
       })}
+      <div className="flexer" />
+      <AppIconContainer onClick={handleAppStoreClick}>
+        <IconComponent
+          icon="weekday"
+          size={20}
+          color="#666"
+        />
+      </AppIconContainer>
     </Toolbar>
   )
 }

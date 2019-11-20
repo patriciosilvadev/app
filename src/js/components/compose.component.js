@@ -759,7 +759,6 @@ const DrawerContainer = styled.div`
 `
 
 const AppIconContainer = styled.div`
-  padding: 5px;
   margin-left: 15px;
   cursor: pointer;
   opacity: 1;

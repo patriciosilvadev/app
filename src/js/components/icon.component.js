@@ -36,12 +36,14 @@ import { Markdown } from '../icons/Markdown'
 import { Reply } from '../icons/Reply'
 import { Forward } from '../icons/Forward'
 import { Profile } from '../icons/Profile'
+import { Weekday } from '../icons/Weekday'
 
 export function IconComponent({ size, color, icon, thickness, className, onClick }) {
   const defaultThickness = 1.25
 
   const getIcon = () => {
     switch (icon) {
+      case 'weekday': return <Weekday width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'shield': return <Shield width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'user-minus': return <UserMinus width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'message-circle': return <MessageCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
