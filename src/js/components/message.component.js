@@ -488,7 +488,7 @@ export default memo(props => {
                 <iframe
                   border="0"
                   ref={iframeRef}
-                  src={`${appUrl}?channelId=${channel.id}&userId=${user.id}&payload=${appPayload}&weekdayId=${weekdayId}`}
+                  src={`${appUrl}?channelId=${channel.id}&channelId=${channel.team.id}&userId=${user.id}&payload=${appPayload}&weekdayId=${weekdayId}`}
                   width={appWidth}
                   height={appHeight}>
                 </iframe>
