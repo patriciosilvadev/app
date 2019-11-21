@@ -98,7 +98,9 @@ class ComposeComponent extends React.Component {
             const { action } = command
 
             // And call our action creator
-            this.handleActionClick(action, payload)
+            // If the user has add a WEB action type, then they can
+            // get the text part as part of the body JSON pacakge
+            this.handleActionClick({ ...action, payload })
           }
         })
       })
@@ -503,10 +505,10 @@ class ComposeComponent extends React.Component {
 
             return (
               <React.Fragment key={index}>
-                {app.app.attachments.map((action, i) => {
+                {app.app.attachments.map((button, i) => {
                   return (
-                    <AppIconContainer key={i} onClick={() => this.handleActionClick(action)}>
-                      <AppIconImage image={action.icon} />
+                    <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                      <AppIconImage image={button.icon} />
                     </AppIconContainer>
                   )
                 })}

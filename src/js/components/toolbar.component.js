@@ -38,13 +38,12 @@ const AppIconImage = styled.div`
 `
 
 export default function ToolbarComponent(props) {
-  const [actions, setActions] = useState([])
+  const [buttons, setButtons] = useState([])
   const user = useSelector(state => state.user)
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
 
   const handleAppStoreClick = async () => {
-
   }
 
   const handleActionClick = async (action) => {
@@ -58,17 +57,17 @@ export default function ToolbarComponent(props) {
       if (!app.app.tools) return
       if (app.app.tools.length == 0) return
 
-      setActions(app.app.tools)
+      setButtons(app.app.tools)
     })
   }, [channel.apps])
 
   // prettier-ignore
   return (
     <Toolbar className="column">
-      {actions.map((action, index) => {
+      {buttons.map((button, index) => {
         return (
-          <AppIconContainer key={index} onClick={() => handleActionClick(action)}>
-            <AppIconImage image={action.icon} />
+          <AppIconContainer key={index} onClick={() => handleActionClick(button.action)}>
+            <AppIconImage image={button.icon} />
           </AppIconContainer>
         )
       })}

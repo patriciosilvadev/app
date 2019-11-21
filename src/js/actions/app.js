@@ -7,9 +7,9 @@ export function openApp(action) {
         const { user, channel } = getState()
 
         if (action.url.indexOf('?') == -1) {
-          url = `${action.url}?channelId=${channel.id}&userId=${user.id}`
+          url = `${action.url}?token=${channel.app.token}&userId=${user.id}`
         } else {
-          url = `${action.url}&channelId=${channel.id}&userId=${user.id}`
+          url = `${action.url}&token=${channel.app.token}&userId=${user.id}`
         }
 
         fetch(url, {

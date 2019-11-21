@@ -289,46 +289,69 @@ export default class GraphqlService {
                   description
                   action {
                     type
-                    url
                     name
-                    icon
-                    width
-                    height
+                    payload {
+                      url
+                      width
+                      height
+                    }
                   }
                 }
                 attachments {
-                  type
-                  url
-                  name
                   icon
-                  width
-                  height
+                  text
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
                 }
                 tools {
-                  type
-                  url
-                  name
                   icon
-                  width
-                  height
+                  text
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
                 }
                 shortcuts {
-                  type
-                  url
-                  name
                   icon
-                  width
-                  height
+                  text
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
                 }
                 message {
                   url
-                  actions {
-                    type
-                    url
-                    name
+                  width
+                  height
+                  buttons {
                     icon
-                    width
-                    height
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
                   }
                 }
               }
@@ -393,13 +416,18 @@ export default class GraphqlService {
                     url
                     width
                     height
-                    actions {
-                      type
-                      url
-                      name
+                    buttons {
                       icon
-                      width
-                      height
+                      text
+                      action {
+                        type
+                        name
+                        payload {
+                          url
+                          width
+                          height
+                        }
+                      }
                     }
                   }
                 }
@@ -541,13 +569,18 @@ export default class GraphqlService {
                   url
                   width
                   height
-                  actions {
-                    type
-                    url
-                    name
+                  buttons {
                     icon
-                    width
-                    height
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
                   }
                 }
               }

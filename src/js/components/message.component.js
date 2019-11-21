@@ -41,7 +41,7 @@ export default memo(props => {
   const [senderImage, setSenderImage] = useState(null)
   const [senderTimezone, setSenderTimezone] = useState('')
   const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
-  const [appActions, setAppActions] = useState([])
+  const [appButtons, setAppButtons] = useState([])
   const [appPayload, setAppPayload] = useState('')
   const [appUrl, setAppUrl] = useState(null)
   const [appHeight, setAppHeight] = useState(0)
@@ -165,7 +165,7 @@ export default memo(props => {
     // Only update our state if there are any
     if (props.message.app) {
       if (props.message.app.app.message) {
-        setAppActions(props.message.app.app.message.actions)
+        setAppButtons(props.message.app.app.message.buttons)
         setAppPayload(props.message.app.payload)
         setAppHeight(props.message.app.app.message.height)
         setAppWidth(props.message.app.app.message.width)
@@ -500,16 +500,16 @@ export default memo(props => {
               </AppUrl>
             }
 
-            {appActions.length != 0 &&
+            {appButtons.length != 0 &&
               <AppActions className="row">
-                {appActions.map((action, index) => {
+                {appButtons.map((button, index) => {
                   return (
                     <AppActionContainer
                       key={index}
                       className="row"
-                      onClick={() => handleActionClick(action)}>
-                      <AppActionImage image={action.icon} />
-                      <AppActionText>{action.name}</AppActionText>
+                      onClick={() => handleActionClick(button.action)}>
+                      <AppActionImage image={button.icon} />
+                      <AppActionText>{button.text}</AppActionText>
                     </AppActionContainer>
                   )
                 })}
