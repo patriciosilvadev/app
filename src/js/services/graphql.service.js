@@ -275,12 +275,13 @@ export default class GraphqlService {
             }
             apps {
               active
+              token
               app {
                 name
                 description
                 image
                 token
-                draft
+                published
                 incoming
                 outgoing
                 commands {
@@ -385,7 +386,7 @@ export default class GraphqlService {
                   description
                   image
                   token
-                  draft
+                  published
                   incoming
                   outgoing
                   message {
@@ -533,7 +534,7 @@ export default class GraphqlService {
                 description
                 image
                 token
-                draft
+                published
                 incoming
                 outgoing
                 message {

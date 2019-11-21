@@ -46,7 +46,7 @@ export default memo(props => {
   const [appUrl, setAppUrl] = useState(null)
   const [appHeight, setAppHeight] = useState(0)
   const [appWidth, setAppWidth] = useState(200)
-  const [weekdayId, setWeekdayId] = useState(null)
+  const [resizeId, setResizeId] = useState(null)
   const iframeRef = useRef(null)
 
   const handleForwardMessage = async(channelId) => {
@@ -136,18 +136,13 @@ export default memo(props => {
       console.log('AUTO_ADJUST_MESSAGE_HEIGHT → ', data)
 
       // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
-      // weekdayId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
+      // resizeId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
       // Only adjust this specific height when received
-      if (data.weekdayId == weekdayId) {
-        if (data.payload) {
-          if (data.payload.scrollHeight) {
-            const { scrollHeight } = data.payload
-            setAppHeight(parseInt(scrollHeight))
-          }
-        }
+      if (data.resizeId == resizeId) {
+        if (data.payload) setAppHeight(parseInt(data.payload))
       }
     });
-  }, [props.message, weekdayId])
+  }, [props.message, resizeId])
 
   useEffect(() => {
     setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
@@ -170,12 +165,22 @@ export default memo(props => {
     // Only update our state if there are any
     if (props.message.app) {
       if (props.message.app.app.message) {
-        setAppUrl(props.message.app.app.message.url)
         setAppActions(props.message.app.app.message.actions)
         setAppPayload(props.message.app.payload)
         setAppHeight(props.message.app.app.message.height)
         setAppWidth(props.message.app.app.message.width)
-        setWeekdayId(uuidv1())
+        setResizeId(uuidv1())
+
+        const { url } = props.message.app.app.message
+
+        // If the user has already added a query string
+        if (url.indexOf('?') == -1) {
+          setUrl(`${url}?token=${channel.app.token}&userId=${user.id}&payload=${appPayload}&resizeId=${resizeId}`)
+        } else {
+          setUrl(`${url}&token=${channel.app.token}&userId=${user.id}&payload=${appPayload}&resizeId=${resizeId}`)
+        }
+
+        setAppUrl(url)
       }
     }
   }, [props.message])
@@ -488,7 +493,7 @@ export default memo(props => {
                 <iframe
                   border="0"
                   ref={iframeRef}
-                  src={`${appUrl}?channelId=${channel.id}&channelId=${channel.team.id}&userId=${user.id}&payload=${appPayload}&weekdayId=${weekdayId}`}
+                  src={appUrl}
                   width={appWidth}
                   height={appHeight}>
                 </iframe>

@@ -19,9 +19,9 @@ export default function AppModal(props) {
   useEffect(() => {
     // If the user has already added a query string
     if (props.action.url.indexOf('?') == -1) {
-      setUrl(`${props.action.url}?channelId=${channel.id}&channelId=${channel.team.id}&userId=${user.id}`)
+      setUrl(`${props.action.url}?token=${channel.app.token}&userId=${user.id}`)
     } else {
-      setUrl(`${props.action.url}&channelId=${channel.id}&channelId=${channel.team.id}&userId=${user.id}`)
+      setUrl(`${props.action.url}&token=${channel.app.token}&userId=${user.id}`)
     }
   })
 
