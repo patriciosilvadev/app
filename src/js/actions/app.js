@@ -2,14 +2,16 @@
 export function openApp(action) {
   return (dispatch, getState) => {
     switch (action.type) {
-      case 'web':
+      case 'webhook':
         let url
         const { user, channel } = getState()
 
-        if (action.url.indexOf('?') == -1) {
-          url = `${action.url}?token=${channel.app.token}&userId=${user.id}`
+        // If a user has submitted a command
+        // then this will be attached to the webhook, panel or modal
+        if (action.payload.url.indexOf('?') == -1) {
+          url = `${action.payload.url}?token=${channel.app.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
         } else {
-          url = `${action.url}&token=${channel.app.token}&userId=${user.id}`
+          url = `${action.payload.url}&token=${channel.app.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
         }
 
         fetch(url, {

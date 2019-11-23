@@ -93,14 +93,13 @@ class ComposeComponent extends React.Component {
           // DO NOT USE REGEX HERE
           // We want to match the whole word
           if (command.name.toLowerCase() == textToMatch) {
-            // We rmeove the first word (which is the command name)
-            const payload = this.state.text.split(' ').slice(1)
-            const { action } = command
-
             // And call our action creator
             // If the user has add a WEB action type, then they can
             // get the text part as part of the body JSON pacakge
-            this.handleActionClick({ ...action, payload })
+            this.handleActionClick({ 
+              ...command.action, 
+              userCommand: this.state.text,
+            })
           }
         })
       })

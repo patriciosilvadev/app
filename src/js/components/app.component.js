@@ -42,14 +42,16 @@ export default function AppComponent(props) {
   const user = useSelector(state => state.user)
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
-  const [url, setUrl] = useState(props.action.url)
+  const [url, setUrl] = useState(props.action.payload.url)
 
+  // If a user has submitted a command
+  // then this will be attached to the webhook, panel or modal
   useEffect(() => {
     // If the user has already added a query string
     if (props.action.url.indexOf('?') == -1) {
-      setUrl(`${props.action.url}?token=${channel.app.token}&userId=${user.id}`)
+      setUrl(`${props.action.payload.url}?token=${channel.app.token}&userId=${user.id}${props.action.userCommand ? '&userCommand='+props.action.userCommand : ''}`)
     } else {
-      setUrl(`${props.action.url}&token=${channel.app.token}&userId=${user.id}`)
+      setUrl(`${props.action.payload.url}&token=${channel.app.token}&userId=${user.id}${props.action.userCommand ? '&userCommand='+props.action.userCommand : ''}`)
     }
   })
 
