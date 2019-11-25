@@ -282,7 +282,6 @@ export default class GraphqlService {
                 image
                 token
                 published
-                incoming
                 outgoing
                 commands {
                   name
@@ -410,7 +409,6 @@ export default class GraphqlService {
                   image
                   token
                   published
-                  incoming
                   outgoing
                   message {
                     url
@@ -563,7 +561,6 @@ export default class GraphqlService {
                 image
                 token
                 published
-                incoming
                 outgoing
                 message {
                   url
