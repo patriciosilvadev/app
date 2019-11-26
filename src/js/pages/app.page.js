@@ -9,7 +9,7 @@ import { initialize, fetchUser, closeAppModal, closeAppPanel } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import CookieService from '../services/cookies.service'
 import { Avatar, Loading, Error, Notification } from '@weekday/elements'
-import { API_HOST, PUBLIC_VAPID_KEY } from '../environment'
+import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
 import AppComponent from '../components/app.component'
@@ -110,7 +110,7 @@ class AppPage extends React.Component {
     const pnPermissions = await navigator.permissions.query({name:'notifications'})
 
     // If they've been asked'
-    if (CookieService.getCookie('PN')) {
+    if (CookieService.getCookie(PN)) {
       this.setState({ pushNotifications: false })
       if (pnPermissions.state == 'granted') {
         this.subscribePushNotification()
@@ -121,7 +121,7 @@ class AppPage extends React.Component {
     // Ideally we want to check right away
     // But Google LightHouse will moan about first having to
     // reposnd to a user gesture - so always show them the UI
-    if (!CookieService.getCookie('PN')) this.setState({ pushNotifications: true })
+    if (!CookieService.getCookie(PN)) this.setState({ pushNotifications: true })
   }
 
   async subscribePushNotification() {

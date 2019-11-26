@@ -1,5 +1,5 @@
 import CookiesService from './cookies.service'
-import { API_HOST } from '../environment'
+import { API_HOST, JWT } from '../environment'
 
 export default class AuthService {
   static parseJwt(token) {

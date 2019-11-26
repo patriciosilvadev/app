@@ -5,14 +5,14 @@ import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import AuthService from './auth.service'
 import CookiesService from './cookies.service'
-import { API_HOST } from '../environment'
+import { API_HOST, JWT } from '../environment'
 import { logger } from '../helpers/util'
 
 export default class GraphqlService {
   static instance
   client
 
-  constructor(token) {
+  constructor() {
     const defaultOptions = {
       watchQuery: {
         fetchPolicy: 'network-only',
@@ -24,6 +24,7 @@ export default class GraphqlService {
       },
     }
 
+    const token = CookiesService.getCookie(JWT)
     const authMiddleware = new ApolloLink((operation, forward) => {
       operation.setContext({
         headers: {
@@ -54,9 +55,7 @@ export default class GraphqlService {
   static getInstance() {
     if (this.instance) return this.instance
 
-    const token = CookiesService.getCookie('jwt')
-
-    this.instance = new GraphqlService(token)
+    this.instance = new GraphqlService()
 
     return this.instance
   }
