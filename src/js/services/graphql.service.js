@@ -371,7 +371,7 @@ export default class GraphqlService {
                   timezone
                 }
                 app {
-                  payload
+                  resourceId
                   app {
                     id
                     name
@@ -401,7 +401,7 @@ export default class GraphqlService {
               }
               createdAt
               app {
-                payload
+                resourceId
                 app {
                   name
                   description
@@ -553,7 +553,7 @@ export default class GraphqlService {
             }
             createdAt
             app {
-              payload
+              resourceId
               app {
                 name
                 description
@@ -630,6 +630,35 @@ export default class GraphqlService {
               preview
               mime
               createdAt
+            }
+            app {
+              resourceId
+              app {
+                name
+                description
+                image
+                token
+                published
+                outgoing
+                message {
+                  url
+                  width
+                  height
+                  buttons {
+                    icon
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
             }
             createdAt
           }
@@ -1025,7 +1054,7 @@ export default class GraphqlService {
     return this.client.mutate({
       mutation: gql`
         mutation updateChannelMessage($messageId: String, $payload: String) {
-            updateChannelMessage(messageId: $messageId, payload: $payload) {
+          updateChannelMessage(messageId: $messageId, payload: $payload) {
             id
             user {
               id

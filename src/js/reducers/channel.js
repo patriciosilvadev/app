@@ -46,11 +46,20 @@ export default (state = initialState, action) =>
       case 'UPDATE_CHANNEL_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
-            return {
+            // This is the base of the new message object
+            // attachments/message will always be there
+            let updatedMessage = {
               ...message,
               attachments: action.payload.message.attachments,
               message: action.payload.message.message,
             }
+
+            // If the app is being updated, then add it
+            // It won't always be there
+            if (action.payload.message.app) updatedMessage.app = action.payload.message.app
+
+            // Now return the new updated message
+            return updatedMessage
           } else {
             return message
           }

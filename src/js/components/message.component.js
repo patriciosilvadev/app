@@ -42,7 +42,7 @@ export default memo(props => {
   const [senderTimezone, setSenderTimezone] = useState('')
   const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
   const [appButtons, setAppButtons] = useState([])
-  const [appPayload, setAppPayload] = useState('')
+  const [appResourceId, setAppResourceId] = useState('')
   const [appUrl, setAppUrl] = useState(null)
   const [appHeight, setAppHeight] = useState(0)
   const [appWidth, setAppWidth] = useState(200)
@@ -166,7 +166,7 @@ export default memo(props => {
     if (props.message.app) {
       if (props.message.app.app.message) {
         setAppButtons(props.message.app.app.message.buttons)
-        setAppPayload(props.message.app.payload)
+        setAppResourceId(props.message.app.resourceId)
         setAppHeight(props.message.app.app.message.height)
         setAppWidth(props.message.app.app.message.width)
         setResizeId(uuidv1())
@@ -175,9 +175,9 @@ export default memo(props => {
 
         // If the user has already added a query string
         if (url.indexOf('?') == -1) {
-          setUrl(`${url}?token=${channel.app.token}&userId=${user.id}&payload=${appPayload}&resizeId=${resizeId}`)
+          setUrl(`${url}?token=${channel.app.token}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
         } else {
-          setUrl(`${url}&token=${channel.app.token}&userId=${user.id}&payload=${appPayload}&resizeId=${resizeId}`)
+          setUrl(`${url}&token=${channel.app.token}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
         }
 
         setAppUrl(url)
