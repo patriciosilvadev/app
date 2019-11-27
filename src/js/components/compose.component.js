@@ -341,8 +341,12 @@ class ComposeComponent extends React.Component {
         this.setState({ error: null })
 
         try {
-          const result = await new UploadService(file)
-          const { uri, mime, size, name } = await result.json()
+          const { name, type, size } = file
+          const raw = await UploadService.getUploadUrl(name, type)
+          const { url } = await raw.json()
+          const upload = await UploadService.uploadFile(url, file, type)
+          const uri = upload.url.split('?')[0]
+          const mime = type
 
           // Add the new files & increase the index
           // And pour again to process the next file

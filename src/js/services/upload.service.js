@@ -20,7 +20,7 @@ export default class UploadService {
     })
   }
 
-  getUploadUrl(filename, mime) {
+  static getUploadUrl(filename, mime) {
     const token = CookiesService.getCookie(JWT)
 
     return fetch(`${API_HOST}/upload/url`, {
@@ -33,7 +33,7 @@ export default class UploadService {
     })
   }
   
-  uploadFile (url, file, mime) {
+  static uploadFile(url, file, mime) {
     return fetch(url, {
       method: 'PUT',
       headers: {
