@@ -48,15 +48,40 @@ export default (state = initialState, action) =>
           if (message.id == action.payload.messageId) {
             // This is the base of the new message object
             // attachments/message will always be there
-            let updatedMessage = {
-              ...message,
-              attachments: action.payload.message.attachments,
-              message: action.payload.message.message,
-            }
+            let updatedMessage = message
 
-            // If the app is being updated, then add it
-            // It won't always be there
+            // Because these aren\t guaranteed            
+            if (action.payload.message.message) updatedMessage.message = action.payload.message.message
+            if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
             if (action.payload.message.app) updatedMessage.app = action.payload.message.app
+
+            // Now return the new updated message
+            return updatedMessage
+          } else {
+            return message
+          }
+        })
+        break
+
+      case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
+        draft.messages = state.messages.map((message, _) => {
+          if (action.payload.messageIds.indexOf(message.id) != -1) {
+            // This is the base of the new message object
+            // attachments/message will always be there
+            let updatedMessage = message
+
+            // Because these aren\t guaranteed                           
+            if (action.payload.message.message) updatedMessage.message = action.payload.message.message
+            if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
+
+            // If there is an app - there should be - but in case
+            // If the app is being updated, then add it 
+            // Just change the RESOURCE ID (not app.app)
+            if (updatedMessage.app) {
+              if (action.payload.message.app) {
+                updatedMessage.app.resourceId = action.payload.message.app.resourceId
+              }
+            }
 
             // Now return the new updated message
             return updatedMessage
