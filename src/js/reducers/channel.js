@@ -91,6 +91,10 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'DELETE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
+        draft.messages = state.messages.filter(message => action.payload.messageIds.indexOf(message.id) != -1)
+        break
+
       case 'DELETE_CHANNEL_MESSAGE':
         draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
         break
