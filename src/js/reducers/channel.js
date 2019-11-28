@@ -50,7 +50,7 @@ export default (state = initialState, action) =>
             // attachments/message will always be there
             let updatedMessage = message
 
-            // Because these aren\t guaranteed            
+            // Because these aren\t guaranteed
             if (action.payload.message.message) updatedMessage.message = action.payload.message.message
             if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
             if (action.payload.message.app) updatedMessage.app = action.payload.message.app
@@ -70,12 +70,12 @@ export default (state = initialState, action) =>
             // attachments/message will always be there
             let updatedMessage = message
 
-            // Because these aren\t guaranteed                           
+            // Because these aren\t guaranteed
             if (action.payload.message.message) updatedMessage.message = action.payload.message.message
             if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
 
             // If there is an app - there should be - but in case
-            // If the app is being updated, then add it 
+            // If the app is being updated, then add it
             // Just change the RESOURCE ID (not app.app)
             if (updatedMessage.app) {
               if (action.payload.message.app) {
@@ -186,6 +186,40 @@ export default (state = initialState, action) =>
 
       case 'DELETE_CHANNEL_MEMBER':
         draft.members = state.members.filter(member => member.user.id != action.payload.userId)
+        break
+
+      case 'CREATE_CHANNEL_APP':
+        draft.apps = [...state.apps, action.payload.app]
+        break
+
+      case 'DELETE_CHANNEL_APP':
+        draft.apps = state.apps.filter(app => app.app.id != action.payload.appId)
+        break
+
+      case 'UPDATE_CHANNEL_APP_APP':
+        draft.apps = state.apps.map((app, _) => {
+          if (app.app.id == action.payload.appId) {
+            return {
+              ...app,
+              app: action.payload.app,
+            }
+          } else {
+            return app
+          }
+        })
+        break
+
+      case 'UPDATE_CHANNEL_APP_ACTIVE':
+        draft.apps = state.apps.map((app, _) => {
+          if (app.app.id == action.payload.appId) {
+            return {
+              ...app,
+              active: action.payload.active,
+            }
+          } else {
+            return app
+          }
+        })
         break
     }
   })
