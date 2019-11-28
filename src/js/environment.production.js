@@ -6,6 +6,7 @@ export const NODE_ENV = 'production'
 export const LINK_URL_PREFIX = 'https://app.weekday.sh'
 export const JWT = 'JWT'
 export const PN = 'PN'
+export const STORE_URL = ''
 // Gets used for copying & pasting links
 //import * as Sentry from '@sentry/browser'
 // Set up Sentry
