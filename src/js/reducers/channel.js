@@ -201,7 +201,9 @@ export default (state = initialState, action) =>
           if (app.app.id == action.payload.appId) {
             return {
               ...app,
-              app: action.payload.app,
+              app: {
+                ...action.payload.app
+              },
             }
           } else {
             return app
