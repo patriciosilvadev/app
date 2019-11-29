@@ -150,9 +150,9 @@ export default memo(props => {
     setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
 
     // Get the connected app
-    setSenderImage(props.message.app ? props.message.app.app.image : props.message.user.image)
-    setSenderName(props.message.app ? props.message.app.app.name : props.message.user.name)
-    setSenderTimezone(props.message.user ? props.message.user.timezone ? props.message.user.timezone : "No timezone set" : "No timezone set")
+    setSenderImage(props.message.system ? "" : props.message.app ? props.message.app.app.image : props.message.user.image)
+    setSenderName(props.message.system ? "" : props.message.app ? props.message.app.app.name : props.message.user.name)
+    setSenderTimezone(props.message.user ? props.message.user.timezone ? props.message.user.timezone : "Your timezone" : "Your timezone")
 
     // Only set this for non apps & valid timezones
     if (!props.message.app && props.message.user.timezone) {
@@ -254,7 +254,7 @@ export default memo(props => {
       }
 
       <div className="row align-items-start w-100">
-        {!props.append &&
+        {(!props.append && !props.message.system) &&
           <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
             <Avatar
               image={senderImage}
@@ -264,15 +264,16 @@ export default memo(props => {
           </Tooltip>
         }
 
-        {props.append && <AvatarBlank />}
+        {(props.append || props.message.system) && <AvatarBlank />}
 
         <div className="column flexer pl-15">
           <Bubble className="column">
             <div className="row w-100 relative">
               {!props.append &&
                 <React.Fragment>
-                  <User>{senderName}</User>
+                  {!props.message.system && <User>{senderName}</User>}
                   {props.message.app && <App>App</App>}
+
                   <Meta>
                     {moment(props.message.createdAt).tz(user.timezone).fromNow()}
                   </Meta>

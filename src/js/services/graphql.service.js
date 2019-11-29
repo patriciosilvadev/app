@@ -357,6 +357,7 @@ export default class GraphqlService {
             messages {
               id
               reactions
+              system
               parent {
                 channel {
                   title
@@ -510,6 +511,7 @@ export default class GraphqlService {
           channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
+            system
             parent {
               app {
                 payload
@@ -598,6 +600,7 @@ export default class GraphqlService {
           searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
+            system
             parent {
               user {
                 id
@@ -1075,6 +1078,7 @@ export default class GraphqlService {
               createdAt
               size
             }
+            system
             parent {
               user {
                 id
@@ -1123,6 +1127,7 @@ export default class GraphqlService {
               createdAt
               size
             }
+            system
             parent {
               user {
                 id
