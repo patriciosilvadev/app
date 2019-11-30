@@ -138,8 +138,8 @@ export default memo(props => {
       // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
       // resizeId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
       // Only adjust this specific height when received
-      if (data.resizeId == resizeId) {
-        if (data.payload) setAppHeight(parseInt(data.payload))
+      if (data.payload.resizeId == resizeId) {
+        if (data.payload.resizeHeight) setAppHeight(parseInt(data.payload.resizeHeight))
       }
     });
   }, [props.message, resizeId])
@@ -161,7 +161,7 @@ export default memo(props => {
       if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
       if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
     }
-    
+
     // Find the corresponding app ont he channel (needs to be active)
     const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
 

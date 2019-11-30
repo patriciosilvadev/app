@@ -77,7 +77,7 @@ class AppPage extends React.Component {
 
       this.setState({ userId })
       this.fetchData(userId)
-      
+
       window.addEventListener('message', this.onAppMessageReceived, false)
     } catch (e) {
       this.props.history.push('/auth')

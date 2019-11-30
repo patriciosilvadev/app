@@ -10,22 +10,11 @@ import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createCha
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
-    // General dispatch orientated
     EventService.getInstance().on('DISPATCH_APP_ACTION', data => {
-      console.log('DISPATCH_APP_ACTION → ', data)
+      console.log('DISPATCH_APP_ACTION → ', data.type)
 
       if (!data.action) return
       if (!data.action.type) return
-
-      /**
-       * Action types need to conform to:
-       * {
-       *  type,
-       *  name,
-       *  url,
-       *  icon,
-       * }
-       */
 
       switch (data.action.type) {
         case 'modal':
