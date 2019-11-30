@@ -72,7 +72,16 @@ export default function ToolbarComponent(props) {
       if (!app.app.tools) return
       if (app.app.tools.length == 0) return
 
-      setButtons(app.app.tools)
+      // Add the channel app details to each button so we can
+      // pass them to the action _ for meta data
+      setButtons(app.app.tools.map(tool => {
+        return {
+          ...tool,
+          action: {
+            ...tool.action,
+            token: app.token, 
+          }
+      }))
     })
   }, [channel.apps])
 

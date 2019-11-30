@@ -26,14 +26,13 @@ export function initialize(userId) {
        *  icon,
        * }
        */
-      const { type, icon, name, url } = data.action
 
       switch (data.action.type) {
         case 'modal':
-          dispatch(openApp({ type, icon, name, url }))
+          dispatch(openApp(data.action))
           break
         case 'panel':
-          dispatch(openApp({ type, icon, name, url }))
+          dispatch(openApp(data.action))
           break
         case 'modal-panel':
           dispatch(closeAppPanel())

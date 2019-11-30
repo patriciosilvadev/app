@@ -11,7 +11,7 @@ export default class AuthService {
 
   static currentAuthenticatedUser() {
     return new Promise((resolve, reject) => {
-      const token = CookiesService.getCookie('jwt')
+      const token = CookiesService.getCookie(JWT)
 
       // Now parse the JWT
       if (token) {
@@ -29,10 +29,10 @@ export default class AuthService {
   }
 
   static signout() {
-    CookiesService.deleteCookie('jwt')
+    CookiesService.deleteCookie(JWT)
   }
 
   static saveToken(token) {
-    CookiesService.setCookie('jwt', token)
+    CookiesService.setCookie(JWT, token)
   }
 }

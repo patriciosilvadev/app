@@ -48,12 +48,12 @@ export default function AppComponent(props) {
   // then this will be attached to the webhook, panel or modal
   useEffect(() => {
     // If the user has already added a query string
-    if (props.action.url.indexOf('?') == -1) {
-      setUrl(`${props.action.payload.url}?token=${channel.app.token}&userId=${user.id}${props.action.userCommand ? '&userCommand='+props.action.userCommand : ''}`)
+    if (props.action.payload.url.indexOf('?') == -1) {
+      setUrl(`${props.action.payload.url}?token=${props.token}&userId=${user.id}${props.action.userCommand ? '&userCommand='+props.action.userCommand : ''}`)
     } else {
-      setUrl(`${props.action.payload.url}&token=${channel.app.token}&userId=${user.id}${props.action.userCommand ? '&userCommand='+props.action.userCommand : ''}`)
+      setUrl(`${props.action.payload.url}&token=${props.token}&userId=${user.id}${props.action.userCommand ? '&userCommand='+props.action.userCommand : ''}`)
     }
-  })
+  }, [])
 
   // prettier-ignore
   return (

@@ -96,8 +96,9 @@ class ComposeComponent extends React.Component {
             // And call our action creator
             // If the user has add a WEB action type, then they can
             // get the text part as part of the body JSON pacakge
-            this.handleActionClick({ 
-              ...command.action, 
+            this.handleActionClick({
+              ...command.action,
+              token: app.token,
               userCommand: this.state.text,
             })
           }

@@ -9,9 +9,9 @@ export function openApp(action) {
         // If a user has submitted a command
         // then this will be attached to the webhook, panel or modal
         if (action.payload.url.indexOf('?') == -1) {
-          url = `${action.payload.url}?token=${channel.app.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
+          url = `${action.payload.url}?token=${action.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
         } else {
-          url = `${action.payload.url}&token=${channel.app.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
+          url = `${action.payload.url}&token=${action.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
         }
 
         fetch(url, {

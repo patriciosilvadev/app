@@ -435,7 +435,10 @@ class ChannelComponent extends React.Component {
                   <React.Fragment key={index}>
                     {app.app.shortcuts.map((button, i) => {
                       return (
-                        <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                        <AppIconContainer key={i} onClick={() => this.handleActionClick({
+                            ...button.action,
+                            token: app.token,
+                          })}>
                           <AppIconImage image={button.icon} />
                         </AppIconContainer>
                       )

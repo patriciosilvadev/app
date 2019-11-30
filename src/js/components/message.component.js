@@ -161,23 +161,32 @@ export default memo(props => {
       if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
       if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
     }
+    
+    // Find the corresponding app ont he channel (needs to be active)
+    const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
 
     // Only update our state if there are any
-    if (props.message.app) {
+    if (props.message.app && channelApp) {
       if (props.message.app.app.message) {
-        setAppButtons(props.message.app.app.message.buttons)
         setAppResourceId(props.message.app.resourceId)
         setAppHeight(props.message.app.app.message.height)
         setAppWidth(props.message.app.app.message.width)
         setResizeId(uuidv1())
+        setAppButtons(props.message.app.app.message.buttons.map(button => {
+          ...button,
+          action: {
+            ...button.action,
+            token: channelApp.token,
+          }
+        }),
 
         const { url } = props.message.app.app.message
 
         // If the user has already added a query string
         if (url.indexOf('?') == -1) {
-          setUrl(`${url}?token=${channel.app.token}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+          setAppUrl(`${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
         } else {
-          setUrl(`${url}&token=${channel.app.token}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+          setAppUrl(`${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
         }
 
         setAppUrl(url)
