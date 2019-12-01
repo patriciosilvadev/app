@@ -138,8 +138,8 @@ export default memo(props => {
       // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
       // resizeId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
       // Only adjust this specific height when received
-      if (data.payload.resizeId == resizeId) {
-        if (data.payload.resizeHeight) setAppHeight(parseInt(data.payload.resizeHeight))
+      if (data.resizeId == resizeId) {
+        if (data.resizeHeight) setAppHeight(parseInt(data.resizeHeight))
       }
     });
   }, [props.message, resizeId])

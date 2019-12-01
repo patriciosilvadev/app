@@ -1,17 +1,17 @@
 
-export function openApp(action) {
+export function openApp(appAction) {
   return (dispatch, getState) => {
-    switch (action.type) {
+    switch (appAction.type) {
       case 'webhook':
         let url
         const { user, channel } = getState()
 
         // If a user has submitted a command
         // then this will be attached to the webhook, panel or modal
-        if (action.payload.url.indexOf('?') == -1) {
-          url = `${action.payload.url}?token=${action.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
+        if (appAction.payload.url.indexOf('?') == -1) {
+          url = `${appAction.payload.url}?token=${appAction.token}&userId=${user.id}${appAction.userCommand ? '&userCommand='+appAction.userCommand : ''}`
         } else {
-          url = `${action.payload.url}&token=${action.token}&userId=${user.id}${action.userCommand ? '&userCommand='+action.userCommand : ''}`
+          url = `${appAction.payload.url}&token=${appAction.token}&userId=${user.id}${appAction.userCommand ? '&userCommand='+appAction.userCommand : ''}`
         }
 
         fetch(url, {
@@ -23,21 +23,21 @@ export function openApp(action) {
           },
           redirect: 'follow',
           referrer: 'no-referrer',
-          body: JSON.stringify(action),
+          body: JSON.stringify(appAction),
         })
         break
 
       case 'modal':
         dispatch({
           type: 'APP_MODAL',
-          payload: action
+          payload: appAction
         })
         break
 
       case 'panel':
         dispatch({
           type: 'APP_PANEL',
-          payload: action
+          payload: appAction
         })
         break
     }

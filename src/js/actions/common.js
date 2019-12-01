@@ -11,11 +11,10 @@ import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createCha
 export function initialize(userId) {
   return async (dispatch, getState) => {
     EventService.getInstance().on('DISPATCH_APP_ACTION', data => {
-      console.log('DISPATCH_APP_ACTION → ', data.type)
+      console.log('DISPATCH_APP_ACTION → ', data)
 
-      if (!data.action) return
-      if (!data.action.type) return
-
+      // These are APP ACTIONS
+      // Not Redux actions
       switch (data.action.type) {
         case 'modal':
           dispatch(openApp(data.action))

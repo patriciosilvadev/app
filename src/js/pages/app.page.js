@@ -91,14 +91,12 @@ class AppPage extends React.Component {
   onAppMessageReceived(event) {
     if (!event.data) return
     if (!event.data.type) return
-    if (event.data.type != 'weekday') return
-    if (!event.data.payload) return
-    if (!event.data.payload.type) return
+    if (!event.data.content) return
 
     // AUTO_ADJUST_MESSAGE_HEIGHT -> message.component
     // OPEN_APP_PANEL -> common (action)
     // OPEN_APP_MODAL -> common (action)
-    EventService.getInstance().emit(event.data.payload.type, event.data.payload)
+    EventService.getInstance().emit(event.data.type, event.data.content)
   }
 
   async fetchData(userId) {
