@@ -154,11 +154,13 @@ export default memo(props => {
     setSenderTimezone(props.message.user ? props.message.user.timezone ? props.message.user.timezone : "Your timezone" : "Your timezone")
 
     // Only set this for non apps & valid timezones
-    if (!props.message.app && props.message.user.timezone) {
-      const offsetMinutes = window.now.tz(props.message.user.timezone).utcOffset() / 60
+    if (!props.message.app && props.message.user) {
+      if (props.message.user.timezone) {
+        const offsetMinutes = window.now.tz(props.message.user.timezone).utcOffset() / 60
 
-      if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
-      if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
+        if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
+        if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
+      }
     }
 
     // Only update our state if there are any
@@ -294,13 +296,15 @@ export default memo(props => {
                   {!props.message.system && <User>{senderName}</User>}
                   {props.message.app && <App>App</App>}
 
-                  <Meta>
+                  <Date>
+                    {props.message.system && <span>{props.message.message} - </span>}
+
                     {moment(props.message.createdAt).tz(user.timezone).fromNow()}
-                  </Meta>
+                  </Date>
                 </React.Fragment>
               }
 
-              {over &&
+              {over && !props.message.system &&
                 <Tools className="row">
                   <Popup
                     handleDismiss={() => setEmoticonMenu(false)}
@@ -404,7 +408,7 @@ export default memo(props => {
                       <ParentName>
                         {props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}
                       </ParentName>
-                      <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
+                      <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
                     </div>
                     <ParentMessage>
                       <ReactMarkdown source={props.message.parent.message} />
@@ -414,7 +418,9 @@ export default memo(props => {
               </ParentPadding>
             }
 
-            <Text dangerouslySetInnerHTML={{__html: message}} />
+            {!props.message.system &&
+              <Text dangerouslySetInnerHTML={{__html: message}} />
+            }
 
             {preview &&
               <ModalPortal>
@@ -591,7 +597,7 @@ const Tools = styled.div`
   top: 0px;
 `
 
-const Meta = styled.div`
+const Date = styled.div`
   font-size: 12px;
   font-weight: 600;
   color: #adb5bd;
@@ -725,7 +731,7 @@ const ParentText = styled.div`
   display: inline-block;
 `
 
-const ParentMeta = styled.div`
+const ParentDate = styled.div`
   margin-left: 10px;
   font-size: 12px;
   font-weight: 600;
