@@ -4,7 +4,7 @@ import { API_HOST, JWT } from '../environment'
 export default class AuthService {
   static confirmEmail(email, userId) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(`${API_HOST}/account/${userId}/email/confirm`, {
       method: 'PUT',
       headers: {
@@ -17,7 +17,7 @@ export default class AuthService {
 
   static addEmail(email, userId) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(`${API_HOST}/account/${userId}/email/add`, {
       method: 'PUT',
       headers: {
@@ -30,7 +30,7 @@ export default class AuthService {
 
   static deleteEmail(email, userId) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(`${API_HOST}/account/${userId}/email/delete`, {
       method: 'PUT',
       headers: {
@@ -43,7 +43,7 @@ export default class AuthService {
 
   static updatePassword(userId, currentPassword, newPassword) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(`${API_HOST}/account/${userId}/password/update`, {
       method: 'PUT',
       headers: {
@@ -59,7 +59,7 @@ export default class AuthService {
 
   static resetPassword(email) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(API_HOST + '/account/password/reset', {
       method: 'PUT',
       headers: {
@@ -72,7 +72,7 @@ export default class AuthService {
 
   static updatePasswordReset(email, password, code) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(API_HOST + '/account/password/reset/update', {
       method: 'PUT',
       headers: {
@@ -89,7 +89,7 @@ export default class AuthService {
 
   static signup(email, username, password) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(API_HOST + '/account/signup', {
       method: 'POST',
       mode: 'cors',
@@ -111,7 +111,7 @@ export default class AuthService {
 
   static signin(username, password) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(API_HOST + '/account/signin', {
       method: 'POST',
       mode: 'cors',
@@ -132,7 +132,7 @@ export default class AuthService {
 
   static accountDelete(userId) {
     const token = CookiesService.getCookie(JWT)
-    
+
     return fetch(`${API_HOST}/account/${userId}/delete`, {
       method: 'DELETE',
       headers: {

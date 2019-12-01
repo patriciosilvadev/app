@@ -202,7 +202,7 @@ export default (state = initialState, action) =>
             return {
               ...app,
               app: {
-                ...action.payload.app
+                ...action.payload.app,
               },
             }
           } else {

@@ -41,6 +41,7 @@ import { Weekday } from '../icons/Weekday'
 export function IconComponent({ size, color, icon, thickness, className, onClick }) {
   const defaultThickness = 1.25
 
+  // prettier-ignore
   const getIcon = () => {
     switch (icon) {
       case 'weekday': return <Weekday width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />

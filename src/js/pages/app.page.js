@@ -106,7 +106,7 @@ class AppPage extends React.Component {
   }
 
   async checkPushNotification() {
-    const pnPermissions = await navigator.permissions.query({name:'notifications'})
+    const pnPermissions = await navigator.permissions.query({ name: 'notifications' })
 
     // If they've been asked'
     if (CookieService.getCookie(PN)) {
@@ -127,10 +127,10 @@ class AppPage extends React.Component {
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        let serviceWorker;
+        let serviceWorker
 
         if (register.installing) {
-          serviceWorker = register.installing;
+          serviceWorker = register.installing
         } else if (register.waiting) {
           serviceWorker = register.waiting
         } else if (register.active) {
@@ -142,7 +142,7 @@ class AppPage extends React.Component {
             this.subscribeUser()
           }
 
-          serviceWorker.addEventListener('statechange', (e) => {
+          serviceWorker.addEventListener('statechange', e => {
             if (e.target.state == 'activated') {
               this.subscribeUser()
             }

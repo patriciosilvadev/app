@@ -139,23 +139,23 @@ export default function TeamOnboardingModal(props) {
       // Check all our 4 email addresses here
       // If they are not black then they must be valid
       // Otherwise don't add them to be invited
-      if (email1 != "") {
-        if (!validEmail(email1)) return setError("Only valid emails are accepted")
+      if (email1 != '') {
+        if (!validEmail(email1)) return setError('Only valid emails are accepted')
         emails.push(email1)
       }
 
-      if (email2 != "") {
-        if (!validEmail(email2)) return setError("Only valid emails are accepted")
+      if (email2 != '') {
+        if (!validEmail(email2)) return setError('Only valid emails are accepted')
         emails.push(email2)
       }
 
-      if (email3 != "") {
-        if (!validEmail(email3)) return setError("Only valid emails are accepted")
+      if (email3 != '') {
+        if (!validEmail(email3)) return setError('Only valid emails are accepted')
         emails.push(email3)
       }
 
-      if (email4 != "") {
-        if (!validEmail(email4)) return setError("Only valid emails are accepted")
+      if (email4 != '') {
+        if (!validEmail(email4)) return setError('Only valid emails are accepted')
         emails.push(email4)
       }
 

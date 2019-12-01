@@ -29,17 +29,17 @@ export default class UploadService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token,
       },
-      body: JSON.stringify({ filename, mime })
+      body: JSON.stringify({ filename, mime }),
     })
   }
-  
+
   static uploadFile(url, file, mime) {
     return fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': mime,
       },
-      body: file
+      body: file,
     })
   }
 }

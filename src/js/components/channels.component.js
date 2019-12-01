@@ -669,7 +669,7 @@ ChannelsComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  updateUserStatus: (status) => updateUserStatus(status),
+  updateUserStatus: status => updateUserStatus(status),
   updateChannelUserStatus: (userId, teamId, status) => updateChannelUserStatus(userId, teamId, status),
   updateUserMuted: (userId, channelId, muted) => updateUserMuted(userId, channelId, muted),
   updateUserArchived: (userId, channelId, archived) => updateUserArchived(userId, channelId, archived),

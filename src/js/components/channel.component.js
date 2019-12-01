@@ -617,7 +617,7 @@ const mapDispatchToProps = {
   hydrateChannelMessages: messages => hydrateChannelMessages(messages),
   updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
   updateUserStarred: (channelId, starred) => updateUserStarred(channelId, starred),
-  openApp: (action) => openApp(action),
+  openApp: action => openApp(action),
 }
 
 const mapStateToProps = state => {
@@ -641,7 +641,7 @@ const Dropzone = styled.div`
   position: absolute;
   top: 0px;
   left: 0px;
-  display: ${props => props.active ? 'flex' : 'none'};
+  display: ${props => (props.active ? 'flex' : 'none')};
   flex-direction: column;
   align-items: center;
   align-content: center;

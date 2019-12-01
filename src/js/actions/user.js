@@ -47,7 +47,7 @@ export function updateChannelUserStatus(userId, teamId, status) {
 export function updateUser(updatedUser) {
   return {
     type: 'UPDATE_USER',
-    payload: updatedUser
+    payload: updatedUser,
   }
 }
 

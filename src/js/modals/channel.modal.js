@@ -30,7 +30,7 @@ export default function ChannelModal(props) {
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [members, setMembers] = useState([])
 
-  const handleCreateChannelMember = async (user) => {
+  const handleCreateChannelMember = async user => {
     setLoading(true)
     setError(null)
 
@@ -42,7 +42,7 @@ export default function ChannelModal(props) {
       const { data } = await GraphqlService.getInstance().createChannelMember(channelId, userId)
 
       setLoading(false)
-      setMembers([ ...members, member ])
+      setMembers([...members, member])
       dispatch(createChannelMember(channelId, member))
 
       MessagingService.getInstance().joinChannel(userIds, channelId)

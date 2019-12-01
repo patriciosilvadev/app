@@ -2,7 +2,7 @@ import produce from 'immer'
 
 const initialState = {
   modal: null,
-  panel: null
+  panel: null,
 }
 
 export default (state = initialState, action) =>

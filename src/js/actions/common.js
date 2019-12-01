@@ -29,13 +29,13 @@ export function initialize(userId) {
           dispatch(closeAppModal())
           break
       }
-    });
+    })
 
     // Join our single channel for us
     MessagingService.getInstance().join(userId)
 
     // Handle incoming messages
-    MessagingService.getInstance().client.on('system', system =>  logger('SYSTEM: ', system))
+    MessagingService.getInstance().client.on('system', system => logger('SYSTEM: ', system))
     MessagingService.getInstance().client.on('joinChannel', async ({ channelId }) => {
       // If this user is already in this channel, then don't do anything
       if (
