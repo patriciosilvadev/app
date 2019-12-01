@@ -42,7 +42,6 @@ export default memo(props => {
   const [senderTimezone, setSenderTimezone] = useState('')
   const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
   const [appButtons, setAppButtons] = useState([])
-  const [appResourceId, setAppResourceId] = useState('')
   const [appUrl, setAppUrl] = useState(null)
   const [appHeight, setAppHeight] = useState(0)
   const [appWidth, setAppWidth] = useState(200)
@@ -162,23 +161,35 @@ export default memo(props => {
       if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
     }
 
-    // Find the corresponding app ont he channel (needs to be active)
-    const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
-
     // Only update our state if there are any
-    if (props.message.app && channelApp) {
+    if (props.message.app) {
+      // Find the corresponding app ont he channel (needs to be active)
+      const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
+      const channelAppToken = channelApp.token
+
+      // This might be null
+      const channelAppMessageButtons = props.message.app.app.message.buttons || []
+      const appResourceId = props.message.app.resourceId
+
+      // resourceId is what we use to ID the resource on the app's server
+      // This could be an ID - when a user creates a message they add this
+      // so we can just feed it back to them
       if (props.message.app.app.message) {
-        setAppResourceId(props.message.app.resourceId)
         setAppHeight(props.message.app.app.message.height)
         setAppWidth(props.message.app.app.message.width)
         setResizeId(uuidv1())
-        setAppButtons(props.message.app.app.message.buttons.map(button => {
-          ...button,
-          action: {
-            ...button.action,
-            token: channelApp.token,
+
+        // Important that we add the channel token to the appAction.payload
+        // This action is attached to all buttons - so we can assume this structure:
+        setAppButtons(channelAppMessageButtons.map(button => {
+          return {
+            ...button,
+            action: {
+              ...button.action,
+              token: channelApp.token,
+            },
           }
-        }),
+        }))
 
         const { url } = props.message.app.app.message
 

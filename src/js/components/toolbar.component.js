@@ -79,8 +79,9 @@ export default function ToolbarComponent(props) {
           ...tool,
           action: {
             ...tool.action,
-            token: app.token, 
-          }
+            token: app.token,
+          },
+        }
       }))
     })
   }, [channel.apps])
