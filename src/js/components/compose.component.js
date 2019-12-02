@@ -77,7 +77,10 @@ class ComposeComponent extends React.Component {
 
     // If this message is an app command
     if (this.state.text[0] == '/') {
-      const textToMatch = this.state.text.slice(1).split(' ')[0].toLowerCase()
+      const textToMatch = this.state.text
+        .slice(1)
+        .split(' ')[0]
+        .toLowerCase()
 
       // Reset our view
       // Members is just to be sure here - no other reason
@@ -104,7 +107,6 @@ class ComposeComponent extends React.Component {
           }
         })
       })
-    // Otherwise carry on as normal
     } else {
       const id = this.props.message ? this.props.message.id : null
       const text = this.state.text
@@ -137,7 +139,7 @@ class ComposeComponent extends React.Component {
         user: userId,
         parent: parentId,
         message,
-        attachments
+        attachments,
       })
 
       // The extra values are used for processing other info
@@ -160,13 +162,10 @@ class ComposeComponent extends React.Component {
     const teamId = this.props.team.id
 
     try {
-      const { data } = await GraphqlService.getInstance().updateChannelMessage(
-        messageId,
-        {
-          message,
-          attachments,
-        }
-      )
+      const { data } = await GraphqlService.getInstance().updateChannelMessage(messageId, {
+        message,
+        attachments,
+      })
 
       const channelMessage = {
         message: { message, attachments },
@@ -256,7 +255,10 @@ class ComposeComponent extends React.Component {
 
   populateCommands(text) {
     const commands = []
-    const textToMatch = text.slice(1).split(' ')[0].toLowerCase()
+    const textToMatch = text
+      .slice(1)
+      .split(' ')[0]
+      .toLowerCase()
 
     // Find all active apps
     this.props.channel.apps.map(app => {
@@ -264,7 +266,7 @@ class ComposeComponent extends React.Component {
 
       // and see if they have commands to list for the user
       app.app.commands.map(command => {
-        if (command.name.toLowerCase().match(new RegExp(textToMatch + ".*"))) {
+        if (command.name.toLowerCase().match(new RegExp(textToMatch + '.*'))) {
           commands.push(command)
         }
       })
@@ -609,7 +611,7 @@ const mapDispatchToProps = {
   updateChannelMessage: (channelId, channelMessage) => updateChannelMessage(channelId, channelMessage),
   updateChannelAddTyping: (channelId, userName, userId) => updateChannelAddTyping(channelId, userName, userId),
   updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
-  openApp: (action) => openApp(action),
+  openApp: action => openApp(action),
 }
 
 const mapStateToProps = state => {

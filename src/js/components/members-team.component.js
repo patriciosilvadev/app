@@ -14,7 +14,7 @@ import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 
-const TableRow = (props) => {
+const TableRow = props => {
   const { member, user } = props
   const [menu, setMenu] = useState(false)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
@@ -22,6 +22,7 @@ const TableRow = (props) => {
   const [roles, setRoles] = useState(false)
   const [memberDeleteId, setMemberDeleteId] = useState('')
 
+  // prettier-ignore
   return (
     <React.Fragment>
       {confirmSelfDeleteModal &&
@@ -157,7 +158,7 @@ export default function MembersTeamComponent(props) {
     }
   }
 
-  const handleTeamMemberDelete = async (userId) => {
+  const handleTeamMemberDelete = async userId => {
     setLoading(true)
     setError(null)
 
@@ -210,7 +211,7 @@ export default function MembersTeamComponent(props) {
     }
   }
 
-  const handleTeamMemberConversationStart = async (initialOtherUserId) => {
+  const handleTeamMemberConversationStart = async initialOtherUserId => {
     const title = null
     const description = null
     const image = null
@@ -327,7 +328,7 @@ const Th = styled.th`
   text-align: left;
   padding: 7px;
   font-weight: 500;
-  color: #AEB5BC;
+  color: #aeb5bc;
   font-size: 12px;
 `
 
@@ -335,7 +336,7 @@ const Td = styled.th`
   text-align: left;
   padding: 7px;
   font-weight: 400;
-  color: #343A40;
+  color: #343a40;
   font-size: 14px;
-  border-top: 1px solid #E9EDEF;
+  border-top: 1px solid #e9edef;
 `

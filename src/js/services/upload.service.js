@@ -14,7 +14,7 @@ export default class UploadService {
     return fetch(API_HOST + '/upload', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + token,
+        Authorization: 'Bearer ' + token,
       },
       body: form,
     })

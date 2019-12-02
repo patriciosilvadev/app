@@ -48,7 +48,7 @@ export default memo(props => {
   const [resizeId, setResizeId] = useState(null)
   const iframeRef = useRef(null)
 
-  const handleForwardMessage = async(channelId) => {
+  const handleForwardMessage = async channelId => {
     setForwardMenu(false)
 
     const userName = user.name
@@ -81,7 +81,7 @@ export default memo(props => {
     } catch (e) {}
   }
 
-  const handleActionClick = async (action) => {
+  const handleActionClick = async action => {
     dispatch(openApp(action))
   }
 
@@ -140,18 +140,33 @@ export default memo(props => {
       if (data.resizeId == resizeId) {
         if (data.resizeHeight) setAppHeight(parseInt(data.resizeHeight))
       }
-    });
+    })
   }, [props.message, resizeId])
 
   useEffect(() => {
-    setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
-    setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
-    setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
+    setImages(
+      props.message.message
+        .split(' ')
+        .filter(p => imageUrlParser(p))
+        .map(p => imageUrlParser(p))
+    )
+    setYoutubeVideos(
+      props.message.message
+        .split(' ')
+        .filter(p => youtubeUrlParser(p))
+        .map(p => youtubeUrlParser(p))
+    )
+    setVimeoVideos(
+      props.message.message
+        .split(' ')
+        .filter(p => vimeoUrlParser(p))
+        .map(p => vimeoUrlParser(p))
+    )
 
     // Get the connected app
-    setSenderImage(props.message.system ? "" : props.message.app ? props.message.app.app.image : props.message.user.image)
-    setSenderName(props.message.system ? "" : props.message.app ? props.message.app.app.name : props.message.user.name)
-    setSenderTimezone(props.message.user ? props.message.user.timezone ? props.message.user.timezone : "Your timezone" : "Your timezone")
+    setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
+    setSenderName(props.message.system ? '' : props.message.app ? props.message.app.app.name : props.message.user.name)
+    setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
 
     // Only set this for non apps & valid timezones
     if (!props.message.app && props.message.user) {
@@ -183,15 +198,17 @@ export default memo(props => {
 
         // Important that we add the channel token to the appAction.payload
         // This action is attached to all buttons - so we can assume this structure:
-        setAppButtons(channelAppMessageButtons.map(button => {
-          return {
-            ...button,
-            action: {
-              ...button.action,
-              token: channelApp.token,
-            },
-          }
-        }))
+        setAppButtons(
+          channelAppMessageButtons.map(button => {
+            return {
+              ...button,
+              action: {
+                ...button.action,
+                token: channelApp.token,
+              },
+            }
+          })
+        )
 
         const { url } = props.message.app.app.message
 
@@ -208,17 +225,12 @@ export default memo(props => {
   }, [props.message])
 
   // Here we start processing the markdown
-  // prettier-ignore
   useEffect(() => {
     const htmlMessage = marked(props.message.message)
-    const compiledMessage = props.highlight
-                                ? props.highlight != ""
-                                  ? highlightMessage(htmlMessage, props.highlight)
-                                  : htmlMessage
-                                : htmlMessage
+    const compiledMessage = props.highlight ? (props.highlight != '' ? highlightMessage(htmlMessage, props.highlight) : htmlMessage) : htmlMessage
 
     // What we do here is replace the emoji symbol with one from EmojiOne
-    const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
+    const regex = new RegExp('(:[a-zA-Z0-9-_+]+:(:skin-tone-[2-6]:)?)', 'g')
     const partsOfTheMessageText = []
     let matchArr
     let lastOffset = 0
@@ -692,7 +704,7 @@ const ParentMessage = styled.div`
   font-weight: 400;
   font-size: 14px;
   font-style: normal;
-  color: #868E95;
+  color: #868e95;
   display: inline-block;
   margin-top: 10px;
 
@@ -706,11 +718,11 @@ const ParentMessage = styled.div`
   }
 
   code {
-    display :none;
+    display: none;
   }
 
   pre {
-    display :none;
+    display: none;
   }
 `
 
@@ -791,8 +803,7 @@ const AppUrl = styled.div`
   }
 `
 
-const AppActions = styled.div`
-`
+const AppActions = styled.div``
 
 const AppActionContainer = styled.div`
   padding: 5px;

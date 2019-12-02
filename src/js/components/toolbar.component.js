@@ -61,7 +61,7 @@ export default function ToolbarComponent(props) {
     setUrl(`${STORE_URL}?userId=${user.id}&teamId=${team.id}&channelId=${team.id}&jwt=${token}`)
   }
 
-  const handleActionClick = async (action) => {
+  const handleActionClick = async action => {
     dispatch(openApp(action))
   }
 
@@ -74,15 +74,17 @@ export default function ToolbarComponent(props) {
 
       // Add the channel app details to each button so we can
       // pass them to the action _ for meta data
-      setButtons(app.app.tools.map(tool => {
-        return {
-          ...tool,
-          action: {
-            ...tool.action,
-            token: app.token,
-          },
-        }
-      }))
+      setButtons(
+        app.app.tools.map(tool => {
+          return {
+            ...tool,
+            action: {
+              ...tool.action,
+              token: app.token,
+            },
+          }
+        })
+      )
     })
   }, [channel.apps])
 
