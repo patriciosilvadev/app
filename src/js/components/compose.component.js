@@ -504,8 +504,7 @@ class ComposeComponent extends React.Component {
             onChange={this.handleComposeChange}
           />
 
-          {this.props.channel.apps.map((app, index) => {
-            if (!app.active) return
+          {this.props.channel.apps.filter(app => app.active).map((app, index) => {
             if (!app.app.attachments) return
             if (app.app.attachments.length == 0) return
 

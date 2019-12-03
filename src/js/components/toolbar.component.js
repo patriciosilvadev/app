@@ -58,7 +58,7 @@ export default function ToolbarComponent(props) {
     const { token } = await AuthService.currentAuthenticatedUser()
 
     setStore(true)
-    setUrl(`${STORE_URL}?userId=${user.id}&teamId=${team.id}&channelId=${team.id}&jwt=${token}`)
+    setUrl(`${STORE_URL}?userId=${user.id}&teamId=${team.id}&channelId=${channel.id}&jwt=${token}`)
   }
 
   const handleActionClick = async action => {
@@ -67,8 +67,10 @@ export default function ToolbarComponent(props) {
 
   // Load all our toolbar actions
   useEffect(() => {
-    channel.apps.map(app => {
-      if (!app.active) return
+    handleAppStoreClick()
+    setButtons([])
+
+    channel.apps.filter(app => app.active).map(app => {
       if (!app.app.tools) return
       if (app.app.tools.length == 0) return
 

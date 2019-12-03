@@ -276,6 +276,7 @@ export default class GraphqlService {
               active
               token
               app {
+                id
                 name
                 description
                 image
@@ -404,6 +405,7 @@ export default class GraphqlService {
               app {
                 resourceId
                 app {
+                  id
                   name
                   description
                   image
@@ -557,6 +559,7 @@ export default class GraphqlService {
             app {
               resourceId
               app {
+                id
                 name
                 description
                 image
@@ -637,6 +640,7 @@ export default class GraphqlService {
             app {
               resourceId
               app {
+                id
                 name
                 description
                 image

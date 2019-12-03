@@ -182,6 +182,11 @@ export default memo(props => {
     if (props.message.app) {
       // Find the corresponding app ont he channel (needs to be active)
       const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
+
+      // Only if there is an app
+      if (!channelApp) return
+
+      // Otherwise carry on 
       const channelAppToken = channelApp.token
 
       // This might be null

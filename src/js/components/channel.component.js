@@ -426,7 +426,7 @@ class ChannelComponent extends React.Component {
                 }
               </HeaderSearchContainer>
 
-              {this.props.channel.apps.map((app, index) => {
+              {this.props.channel.apps.filter(app => app.active).map((app, index) => {
                 if (!app.active) return
                 if (!app.app.shortcuts) return
                 if (app.app.shortcuts.length == 0) return
