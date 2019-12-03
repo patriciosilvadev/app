@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import { debounceTime } from 'rxjs/operators'
 import GraphqlService from '../services/graphql.service'
 import { Popup, User, Members, Spinner } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Filter = styled.input`
   border: none;
@@ -31,6 +30,7 @@ export default class QuickUser extends React.Component {
       index: 0,
       members: [],
       loading: false,
+      error: false,
     }
 
     this.filterRef = React.createRef()
@@ -63,13 +63,13 @@ export default class QuickUser extends React.Component {
     this.setState({ loading: true })
 
     try {
-      const { data } = await GraphqlService.getInstance().search(this.props.room.team.id, this.state.filter)
+      const { data } = await GraphqlService.getInstance().search(this.props.channel.team.id, this.state.filter)
       const members = []
 
       // Create a results object for the users
       // Dedupe existing users
       data.search
-        .filter(user => !this.props.room.members.filter(member => member.user.id == user.id).flatten())
+        .filter(user => !this.props.channel.members.filter(member => member.user.id == user.id).flatten())
         .map(user => {
           members.push({
             user: {
@@ -137,7 +137,7 @@ QuickUser.propTypes = {
   visible: PropTypes.bool,
   width: PropTypes.number,
   direction: PropTypes.string,
-  room: PropTypes.object,
+  channel: PropTypes.object,
   handleAccept: PropTypes.func,
   handleDismiss: PropTypes.func,
   children: PropTypes.any,

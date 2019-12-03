@@ -2,7 +2,7 @@ import produce from 'immer'
 
 const initialState = {
   members: [],
-  rooms: [
+  channels: [
     {
       team: {},
       members: [],

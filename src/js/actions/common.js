@@ -5,146 +5,77 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
-import { showLocalPushNotification } from '../helpers/util'
-import { updateRoomDeleteTyping } from './room'
-import { addPresence, deletePresence } from './presences'
-
-export function updateUserMuted(userId, roomId, muted) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserMuted(userId, roomId, muted)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_MUTED',
-        payload: { roomId, muted },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserArchived(userId, roomId, archived) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserArchived(userId, roomId, archived)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_ARCHIVED',
-        payload: { roomId, archived },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserStarred(userId, roomId, starred) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUserStarred(userId, roomId, starred)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'UPDATE_USER_STARRED',
-        payload: { roomId, starred },
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
-
-export function updateUserStatus(userId, teamId, status) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      await GraphqlService.getInstance().updateUser(userId, { status })
-
-      dispatch(updateLoading(false))
-
-      // Update the user on our side
-      dispatch({
-        type: 'UPDATE_USER',
-        payload: { status },
-      })
-
-      // Update the room excerpt every else
-      dispatch({
-        type: 'UPDATE_ROOM_USER_STATUS',
-        payload: { userId, status },
-        sync: teamId,
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
-  }
-}
+import { showLocalPushNotification, logger } from '../helpers/util'
+import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createChannel, deleteChannel, updateChannelDeleteTyping, addPresence, deletePresence } from './'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
-    // Join our single room for us
+    EventService.getInstance().on('DISPATCH_APP_ACTION', data => {
+      console.log('DISPATCH_APP_ACTION → ', data)
+
+      // These are APP ACTIONS
+      // Not Redux actions
+      switch (data.action.type) {
+        case 'modal':
+          dispatch(openApp(data.action))
+          break
+        case 'panel':
+          dispatch(openApp(data.action))
+          break
+        case 'modal-panel':
+          dispatch(closeAppPanel())
+          break
+        case 'modal-close':
+          dispatch(closeAppModal())
+          break
+      }
+    })
+
+    // Join our single channel for us
     MessagingService.getInstance().join(userId)
 
     // Handle incoming messages
-    MessagingService.getInstance().client.on('system', system => console.log('SYSTEM: ', system))
-    MessagingService.getInstance().client.on('joinRoom', async ({ roomId }) => {
-      // If this user is already in this room, then don't do anything
+    MessagingService.getInstance().client.on('system', system => logger('SYSTEM: ', system))
+    MessagingService.getInstance().client.on('joinChannel', async ({ channelId }) => {
+      // If this user is already in this channel, then don't do anything
       if (
         getState()
-          .rooms.filter(r => r.id == roomId)
+          .channels.filter(r => r.id == channelId)
           .flatten()
       )
         return
 
-      // Get the room data
-      const room = await GraphqlService.getInstance().room(roomId)
+      // Get the channel data
+      const channel = await GraphqlService.getInstance().channel(channelId)
 
       // If there is an error
-      if (!room.data.room) return
+      if (!channel.data.channel) return
 
-      // Joing the room SOCKET
-      MessagingService.getInstance().join(roomId)
+      // Joing the channel SOCKET
+      MessagingService.getInstance().join(channelId)
 
-      // Create the room in the store
+      // Create the channel in the store
       // They may or may not be a member of it (irrelevant if it's public)
-      dispatch({ type: 'CREATE_ROOM', payload: room.data.room })
+      dispatch(createChannel(channel.data.channel))
     })
-    MessagingService.getInstance().client.on('leaveRoom', ({ roomId }) => {
+    MessagingService.getInstance().client.on('leaveChannel', ({ channelId }) => {
       // Unsub from this SOCKET
-      MessagingService.getInstance().leave(roomId)
+      MessagingService.getInstance().leave(channelId)
 
-      // And then remove it
-      dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
+      // And then remove it - but just for us
+      dispatch(deleteChannel(channelId, false))
     })
-    MessagingService.getInstance().client.on('leaveRoomTeam', ({ roomId }) => {
-      const userId = getState().common.user.id
-      const room = getState()
-        .rooms.filter(r => r.id == roomId)
+    MessagingService.getInstance().client.on('leaveChannelTeam', ({ channelId }) => {
+      const userId = getState().user.id
+      const channel = getState()
+        .channels.filter(r => r.id == channelId)
         .flatten()
 
-      // If they don't have this room
-      if (!room) return
+      // If they don't have this channel
+      if (!channel) return
 
       // Check if they are a member
-      const { members } = room
+      const { members } = channel
 
       // Check if this user is a member
       const isMember = members.filter(m => m.user.id == userId).flatten()
@@ -154,10 +85,10 @@ export function initialize(userId) {
       if (isMember) return
 
       // Unsub from this SOCKET
-      MessagingService.getInstance().leave(roomId)
+      MessagingService.getInstance().leave(channelId)
 
-      // And then remove it
-      dispatch({ type: 'DELETE_ROOM', payload: { roomId } })
+      // And then remove it - just for us
+      dispatch(deleteChannel(channelId, false))
     })
     MessagingService.getInstance().client.on('joinTeam', async ({ teamId }) => {
       // If this user is already in this team, then don't do anything
@@ -171,25 +102,25 @@ export function initialize(userId) {
       const team = await GraphqlService.getInstance().team(teamId)
       if (!team.data.team) return
       MessagingService.getInstance().join(teamId)
-      dispatch({ type: 'CREATE_TEAM', payload: team.data.team })
+      dispatch(createTeam(team.data.team))
     })
     MessagingService.getInstance().client.on('leaveTeam', ({ teamId }) => {
       MessagingService.getInstance().leave(teamId)
-      dispatch({ type: 'DELETE_TEAM', payload: { teamId } })
+      dispatch(deleteTeam(teamId, false))
     })
     MessagingService.getInstance().client.on('sync', ({ action }) => {
-      // Check whether this person is in our chat list first
+      // Check whether this person is in our channels list first
       if (action.type == 'ADD_PRESENCE') {
-        const existingRoom = rooms.reduce((exists, room) => {
-          if (room.public) return false
+        const existingChannel = getState().channels.reduce((exists, channel) => {
+          if (channel.public) return false
 
-          const { members } = room
+          const { members } = channel
           const existingMember = members.filter(member => member.user.id == action.payload.userId).flatten()
 
           if (existingMember) return true
         }, false)
 
-        if (!existingRoom) return
+        if (!existingChannel) return
       }
 
       // Update our store with the synced action
@@ -197,30 +128,30 @@ export function initialize(userId) {
 
       // Handle any reads/unreads here for the DB
       // And also handle push notices
-      if (action.type == 'CREATE_ROOM_MESSAGE') {
-        const { roomId, teamId, message } = action.payload
-        const isStarred = getState().common.user.starred.indexOf(roomId) != -1
-        const isArchived = getState().common.user.archived.indexOf(roomId) != -1
-        const isCurrentRoom = roomId == getState().room.id
+      if (action.type == 'CREATE_CHANNEL_MESSAGE') {
+        const { channelId, teamId, message } = action.payload
+        const isStarred = getState().user.starred.indexOf(channelId) != -1
+        const isArchived = getState().user.archived.indexOf(channelId) != -1
+        const isCurrentChannel = channelId == getState().channel.id
 
-        // Don't do a PN or unread increment if we are on the same room
+        // Don't do a PN or unread increment if we are on the same channel
         // as the message
-        if (isArchived || isStarred || isCurrentRoom) return
+        if (isArchived || isStarred || isCurrentChannel) return
 
         // Trigger a push notification
         showLocalPushNotification('New Message', message.message)
 
         // Create an unread marker
         // Channel will be null, which is good
-        DatabaseService.getInstance().unread(teamId, roomId)
+        DatabaseService.getInstance().unread(teamId, channelId)
       }
     })
 
     // Tell our current team about our status
     setInterval(() => {
-      const { team, common } = getState()
+      const { team, user } = getState()
       const teamId = team.id
-      const userId = common.user.id
+      const userId = user.id
 
       dispatch(addPresence(teamId, userId))
     }, 5000)
@@ -239,17 +170,17 @@ export function initialize(userId) {
     }, 5000)
 
     // Check if the typing array is valid every 1 second
-    // Iterage over the current room's typing array
+    // Iterage over the current channel's typing array
     // If it's too old - then remove it and notify everyone else
     setInterval(() => {
-      const { room } = getState()
-      const roomId = room.id
+      const { channel } = getState()
+      const channelId = channel.id
       const snapshot = new Date().getTime()
 
       // Remove after 1 second
-      room.typing.map(t => {
+      channel.typing.map(t => {
         if (snapshot - t.userTime > 1000) {
-          dispatch(updateRoomDeleteTyping(roomId, t.userId))
+          dispatch(updateChannelDeleteTyping(channelId, t.userId))
         }
       })
     }, 2500)
@@ -258,14 +189,14 @@ export function initialize(userId) {
     DatabaseService.getInstance()
       .database.allDocs({ include_docs: true })
       .then(({ rows }) => {
-        dispatch({ type: 'UPDATE_UNREAD', payload: rows })
+        dispatch(updateUnread(rows))
       })
       .catch(err => {
-        dispatch({ type: 'UPDATE_ERROR', payload: 'allDocs DB error' })
+        dispatch(updateError('allDocs DB error'))
       })
 
     // If anything changes
-    // Update the rooms list
+    // Update the channels list
     DatabaseService.getInstance()
       .database.changes({
         live: true,
@@ -275,14 +206,14 @@ export function initialize(userId) {
         DatabaseService.getInstance()
           .database.allDocs({ include_docs: true })
           .then(({ rows }) => {
-            dispatch({ type: 'UPDATE_UNREAD', payload: rows })
+            dispatch(updateUnread(rows))
           })
           .catch(err => {
-            dispatch({ type: 'UPDATE_ERROR', payload: 'allDocs DB error' })
+            dispatch(updateError('allDocs DB error'))
           })
       })
       .on('error', err => {
-        dispatch({ type: 'UPDATE_ERROR', payload: 'changes DB error' })
+        dispatch(updateError('allDocs DB error'))
       })
 
     // TODO: Debug
@@ -306,22 +237,9 @@ export function updateError(payload) {
   }
 }
 
-export function fetchUser(userId) {
-  return async (dispatch, getState) => {
-    dispatch(updateLoading(true))
-    dispatch(updateError(null))
-
-    try {
-      const user = await GraphqlService.getInstance().user(userId)
-
-      dispatch(updateLoading(false))
-      dispatch({
-        type: 'USER',
-        payload: user.data.user,
-      })
-    } catch (e) {
-      dispatch(updateLoading(false))
-      dispatch(updateError(e))
-    }
+export function updateUnread(payload) {
+  return {
+    type: 'UPDATE_UNREAD',
+    payload: payload,
   }
 }

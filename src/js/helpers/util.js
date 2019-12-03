@@ -1,4 +1,3 @@
-// prettier-ignore
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
   if (bytes == 0) return '0 Byte'
@@ -6,26 +5,22 @@ export const bytesToSize = bytes => {
   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i]
 }
 
-// prettier-ignore
 export const imageUrlParser = url => {
   const match = url.match(/(http[s]?:\/\/.*\.(?:png|jpg|svg|jpeg|gif))/i)
   return match ? match[1] : false
 }
 
-// prettier-ignore
 export const vimeoUrlParser = url => {
   const match = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i)
   return match ? match[1] : false
 }
 
-// prettier-ignore
 export const youtubeUrlParser = url => {
   const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/
   const match = url.match(regExp)
-  return (match && match[7].length == 11) ? match[7] : false
+  return match && match[7].length == 11 ? match[7] : false
 }
 
-// prettier-ignore
 export const askPushNotificationPermission = () => {
   return new Promise((resolve, reject) => {
     const permissionResult = Notification.requestPermission(result => {
@@ -35,20 +30,16 @@ export const askPushNotificationPermission = () => {
     if (permissionResult) {
       permissionResult.then(resolve, reject)
     }
-  })
-  .then(function(permissionResult) {
+  }).then(function(permissionResult) {
     if (permissionResult !== 'granted') {
-      throw new Error('We weren\'t granted permission.')
+      throw new Error("We weren't granted permission.")
     }
   })
 }
 
-// prettier-ignore
 export const urlBase64ToUint8Array = base64String => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/')
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/')
 
   const rawData = window.atob(base64)
   const outputArray = new Uint8Array(rawData.length)
@@ -81,4 +72,20 @@ export const copyToClipboard = value => {
   tempInput.select()
   document.execCommand('copy')
   document.body.removeChild(tempInput)
+}
+
+export const logger = log => {
+  console.log(log)
+}
+
+export const validEmail = email => {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return re.test(String(email).toLowerCase())
+}
+
+export const decimalToMinutes = minutes => {
+  var sign = minutes < 0 ? '-' : ''
+  var min = Math.floor(Math.abs(minutes))
+  var sec = Math.floor((Math.abs(minutes) * 60) % 60)
+  return sign + (min < 10 ? '0' : '') + min + ':' + (sec < 10 ? '0' : '') + sec
 }

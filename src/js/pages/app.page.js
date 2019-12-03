@@ -5,16 +5,19 @@ import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { initialize, fetchUser } from '../actions'
+import { initialize, fetchUser, closeAppModal, closeAppPanel } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import CookieService from '../services/cookies.service'
 import { Avatar, Loading, Error, Notification } from '@weekday/elements'
-import { API_HOST, PUBLIC_VAPID_KEY } from '../environment'
-import RoomsComponent from '../components/rooms.component'
-import RoomComponent from '../components/room.component'
+import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
+import ChannelsComponent from '../components/channels.component'
+import ChannelComponent from '../components/channel.component'
+import AppComponent from '../components/app.component'
+import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from '../helpers/util'
+import EventService from '../services/event.service'
 
 const AppContainer = styled.div`
   background-color: white;
@@ -52,14 +55,16 @@ class AppPage extends React.Component {
       userId: null,
       pushNotifications: false,
     }
+
+    this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
-    if (!this.props.common.user) return null
-    if (!prevProps.common.user) return null
+    if (!this.props.user.id) return null
+    if (!prevProps.user.id) return null
 
-    const current = this.props.common.user.id
-    const prev = prevProps.common.user.id
+    const current = this.props.user.id
+    const prev = prevProps.user.id
 
     if (!current || !prev) return
     if (current != prev) this.fetchData(current)
@@ -72,9 +77,26 @@ class AppPage extends React.Component {
 
       this.setState({ userId })
       this.fetchData(userId)
+
+      window.addEventListener('message', this.onAppMessageReceived, false)
     } catch (e) {
       this.props.history.push('/auth')
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.onAppMessageReceived, false)
+  }
+
+  onAppMessageReceived(event) {
+    if (!event.data) return
+    if (!event.data.type) return
+    if (!event.data.content) return
+
+    // AUTO_ADJUST_MESSAGE_HEIGHT -> message.component
+    // OPEN_APP_PANEL -> common (action)
+    // OPEN_APP_MODAL -> common (action)
+    EventService.getInstance().emit(event.data.type, event.data.content)
   }
 
   async fetchData(userId) {
@@ -84,10 +106,10 @@ class AppPage extends React.Component {
   }
 
   async checkPushNotification() {
-    const pnPermissions = await navigator.permissions.query({name:'notifications'})
+    const pnPermissions = await navigator.permissions.query({ name: 'notifications' })
 
     // If they've been asked'
-    if (CookieService.getCookie('PN')) {
+    if (CookieService.getCookie(PN)) {
       this.setState({ pushNotifications: false })
       if (pnPermissions.state == 'granted') {
         this.subscribePushNotification()
@@ -98,17 +120,17 @@ class AppPage extends React.Component {
     // Ideally we want to check right away
     // But Google LightHouse will moan about first having to
     // reposnd to a user gesture - so always show them the UI
-    if (!CookieService.getCookie('PN')) this.setState({ pushNotifications: true })
+    if (!CookieService.getCookie(PN)) this.setState({ pushNotifications: true })
   }
 
   async subscribePushNotification() {
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        let serviceWorker;
+        let serviceWorker
 
         if (register.installing) {
-          serviceWorker = register.installing;
+          serviceWorker = register.installing
         } else if (register.waiting) {
           serviceWorker = register.waiting
         } else if (register.active) {
@@ -120,7 +142,7 @@ class AppPage extends React.Component {
             this.subscribeUser()
           }
 
-          serviceWorker.addEventListener('statechange', (e) => {
+          serviceWorker.addEventListener('statechange', e => {
             if (e.target.state == 'activated') {
               this.subscribeUser()
             }
@@ -187,13 +209,19 @@ class AppPage extends React.Component {
 
   // prettier-ignore
   render() {
-    if (!this.props.common.user) return <Loading show={true} />
-    if (!this.props.common.user.id) return <Loading show={true} />
+    if (!this.props.user.id) return <Loading show={true} />
 
     return (
       <AppContainer>
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
+
+        {this.props.app.modal &&
+          <AppModal
+            action={this.props.app.modal}
+            onClose={this.props.closeAppModal}
+          />
+        }
 
         {this.state.pushNotifications &&
           <Notification
@@ -207,9 +235,22 @@ class AppPage extends React.Component {
         <Router history={browserHistory}>
           <App className="row">
             <Route path="/app" component={DockComponent} />
-            <Route path="/app/team/:teamId" component={RoomsComponent} />
-            <Route path="/app/team/:teamId/room/:roomId" component={RoomComponent} />
-            <Route path="/app/team/:teamId/room/:roomId" component={ToolbarComponent} />
+            <Route path="/app/team/:teamId" component={ChannelsComponent} />
+            <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
+            <Route
+              path="/app/team/:teamId/channel/:channelId"
+              render={props => {
+                if (!this.props.app.panel) return null
+
+                return (
+                  <AppComponent
+                    action={this.props.app.panel}
+                    onClose={this.props.closeAppPanel}
+                  />
+                )
+              }}
+            />
+            <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
           </App>
         </Router>
       </AppContainer>
@@ -219,18 +260,26 @@ class AppPage extends React.Component {
 
 AppPage.propTypes = {
   common: PropTypes.any,
+  user: PropTypes.any,
+  app: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
+  closeAppModal: PropTypes.func,
+  closeAppPanel: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   initialize: userId => initialize(userId),
   fetchUser: userId => fetchUser(userId),
+  closeAppModal: () => closeAppModal(),
+  closeAppPanel: () => closeAppPanel(),
 }
 
 const mapStateToProps = state => {
   return {
     common: state.common,
+    user: state.user,
+    app: state.app,
   }
 }
 

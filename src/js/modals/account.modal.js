@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import AuthService from '../services/auth.service'
+import AccountService from '../services/account.service'
 import styled from 'styled-components'
 import { Formik } from 'formik'
 import ConfirmModal from './confirm.modal'
@@ -10,47 +11,8 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Text } from '../elements'
-
-const MailTable = styled.table`
-  margin-bottom: 50px;
-  margin-top: 50px;
-`
-
-const MailTableCell = styled.td`
-  border-bottom: 1px solid #edf0f2;
-  height: 30px;
-`
-
-const MailButtonConfirm = styled.span`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const MailButtonDelete = styled.span`
-  color: #d93025;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const MailAddress = styled.div`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 600;
-`
-
-const MailStatus = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-`
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@weekday/elements'
+const moment = require('moment-timezone')
 
 const EmailAddress = props => {
   const [over, setOver] = useState(false)
@@ -84,6 +46,7 @@ export default function AccountModal(props) {
   const [username, setUsername] = useState('')
   const [role, setRole] = useState('')
   const [description, setDescription] = useState('')
+  const [timezone, setTimezone] = useState(0)
   const [email, setEmail] = useState([])
   const [newEmailAddress, setNewEmailAddress] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
@@ -101,12 +64,13 @@ export default function AccountModal(props) {
         const { data } = await GraphqlService.getInstance().user(props.id)
         const user = data.user
 
-        setImage(user.image || '')
+        setImage(user.image)
+        setUsername(user.username)
         setName(user.name || '')
-        setUsername(user.username || '')
         setRole(user.role || '')
         setDescription(user.description || '')
-        setEmail(user.email || '')
+        setEmail(user.email)
+        setTimezone(moment.tz.names().indexOf(user.timezone))
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -121,7 +85,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      await AuthService.accountDelete(userId)
+      await AccountService.accountDelete(userId)
       AuthService.signout()
       window.location.reload()
     } catch (e) {
@@ -138,7 +102,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.updatePassword(userId, currentPassword, newPassword)
+      const auth = await AccountService.updatePassword(userId, currentPassword, newPassword)
 
       if (auth.status == 401) {
         setError('Wrong password')
@@ -159,7 +123,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.confirmEmail(emailAddress, userId)
+      const auth = await AccountService.confirmEmail(emailAddress, userId)
 
       setLoading(false)
       setNotification('We have sent you a confirmation email')
@@ -177,7 +141,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.deleteEmail(emailAddress, userId)
+      const auth = await AccountService.deleteEmail(emailAddress, userId)
 
       setLoading(false)
       setNotification('Succesfully removed email')
@@ -196,7 +160,7 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AuthService.addEmail(newEmailAddress, userId)
+      const auth = await AccountService.addEmail(newEmailAddress, userId)
 
       if (auth.status == 401) {
         setError('Email is already taken')
@@ -218,13 +182,12 @@ export default function AccountModal(props) {
     setError(false)
 
     try {
-      const updatedUser = { name, role, description, username, image }
+      const updatedUser = { name, role, description, username, image, timezone: moment.tz.names()[timezone] }
       const userId = props.id
 
       await GraphqlService.getInstance().updateUser(userId, updatedUser)
 
-      dispatch({ type: 'UPDATE_USER', payload: updatedUser })
-
+      dispatch(updateUser(updatedUser))
       setLoading(false)
       setNotification('Succesfully updated')
     } catch (e) {
@@ -289,13 +252,12 @@ export default function AccountModal(props) {
                         circle
                       />
 
-                    <div className="column pl-10">
+                      <div className="column pl-10">
                         <div className="row pb-5">
-                          <Text color="d" display="h3">{name}</Text>
+                          <Text className="h5 color-d2">{name}</Text>
                         </div>
                         <div className="row">
-                          <Text color="m" display="p" className="mr-10">{role}</Text>
-                          <Text color="highlight" display="a" className="button" onClick={() => fileRef.current.click()}>Update profile image</Text>
+                          <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
                         </div>
                       </div>
                     </div>
@@ -306,6 +268,7 @@ export default function AccountModal(props) {
                         value={name}
                         onChange={e => setName(e.target.value)}
                         placeholder="Enter full name"
+                        className="mb-20"
                       />
 
                       <Input
@@ -313,6 +276,7 @@ export default function AccountModal(props) {
                         value={role}
                         onChange={e => setRole(e.target.value)}
                         placeholder="Enter your role"
+                        className="mb-20"
                       />
 
                       <Input
@@ -320,6 +284,7 @@ export default function AccountModal(props) {
                         value={username}
                         onChange={e => setUsername(e.target.value)}
                         placeholder="Username"
+                        className="mb-20"
                       />
 
                       <Textarea
@@ -327,10 +292,27 @@ export default function AccountModal(props) {
                         value={description}
                         onChange={e => setDescription(e.target.value)}
                         placeholder="Enter bio"
+                        className="mb-20"
                         rows={2}
                       />
 
+                      <div className="mb-20 w-100">
+                        <Select
+                          label="Your timezone"
+                          onSelect={(index) => setTimezone(index)}
+                          selected={timezone}
+                          options={moment.tz.names().map((timezone, index) => {
+                            return {
+                              option: timezone.replace("_", " "),
+                              value: timezone,
+                            }
+                          })}
+                        />
+                      </div>
+
                       <Button
+                        theme="blue-border"
+                        size="small"
                         onClick={handleSubmit}
                         text="Save"
                       />
@@ -350,8 +332,8 @@ export default function AccountModal(props) {
                     {notification && <Notification text={notification} />}
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text color="d" display="h3">Connected email addresses</Text>
-                      <Text color="m" display="p" className="mb-30">Use your Weekday account with more than just 1 email address.</Text>
+                      <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
+                      <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
 
                       <MailTable width="100%">
                         <tbody>
@@ -372,8 +354,11 @@ export default function AccountModal(props) {
                         onChange={e => setNewEmailAddress(e.target.value)}
                         placeholder="Enter your email"
                       />
+
                       <Button
                         text="Add"
+                        theme="blue-border"
+                        size="small"
                         onClick={handleNewEmailAddressAdd}
                       />
                     </div>
@@ -392,8 +377,8 @@ export default function AccountModal(props) {
                     {notification && <Notification text={notification} />}
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text color="d" display="h3">Change & update your password</Text>
-                      <Text color="m" display="p" className="mb-30">You need to know your old password.</Text>
+                      <Text className="color-d2 h5 mb-10">Change & update your password</Text>
+                      <Text className="color-d0 p mb-30">You need to know your old password.</Text>
 
                       <Input
                         label="Current password"
@@ -402,6 +387,7 @@ export default function AccountModal(props) {
                         placeholder=""
                         type="password"
                         autocomplete="no"
+                        className="mb-20"
                       />
 
                       <Input
@@ -411,6 +397,7 @@ export default function AccountModal(props) {
                         placeholder=""
                         type="password"
                         autocomplete="no"
+                        className="mb-20"
                       />
 
                       <Input
@@ -420,9 +407,13 @@ export default function AccountModal(props) {
                         placeholder=""
                         type="password"
                         autocomplete="no"
+                        className="mb-20"
                       />
+
                       <Button
                         text="Update"
+                        theme="blue-border"
+                        size="small"
                         onClick={handlePasswordUpdate}
                       />
                     </div>
@@ -450,10 +441,11 @@ export default function AccountModal(props) {
                     }
 
                     <div className="column p-20 flex-1 scroll w-100">
-                      <Text color="d" display="h3">Here be dragons!</Text>
-                      <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+                      <Text className="color-red h5 mb-10">Here be dragons!</Text>
+                      <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                       <Button
+                        theme="red"
                         text="Delete"
                         onClick={() => setConfirmAccountDeleteModal(true)}
                       />
@@ -473,3 +465,43 @@ AccountModal.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
 }
+
+const Text = styled.div``
+
+const MailTable = styled.table`
+  margin-bottom: 50px;
+  margin-top: 20px;
+`
+
+const MailTableCell = styled.td`
+  border-bottom: 1px solid #edf0f2;
+  height: 30px;
+`
+
+const MailButtonConfirm = styled.span`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const MailButtonDelete = styled.span`
+  color: #d93025;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const MailAddress = styled.div`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 600;
+`
+
+const MailStatus = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
+`

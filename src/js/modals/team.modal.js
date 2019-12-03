@@ -9,10 +9,13 @@ import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Text } from '../elements'
+import { IconComponent } from '../components/icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
+import { deleteTeam, updateTeam } from '../actions'
+import MembersTeamComponent from '../components/members-team.component'
+
+const Text = styled.div``
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -20,17 +23,16 @@ export default function TeamModal(props) {
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
-  const [url, setUrl] = useState('')
+  const [slug, setSlug] = useState('')
+  const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
   const [description, setDescription] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
-  const common = useSelector(state => state.common)
+  const user = useSelector(state => state.user)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
-  const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
-  const [memberDeleteId, setMemberDeleteId] = useState('')
+  const [admin, setAdmin] = useState(false)
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -50,52 +52,58 @@ export default function TeamModal(props) {
     }
   }
 
-  const updateTeamUrl = async () => {
+  const handleUpdateTeamSlug = async () => {
     setLoading(true)
     setError(null)
 
     try {
       const teamId = props.id
-      const { data } = await GraphqlService.getInstance().updateTeamUrl(teamId)
+      const { data } = await GraphqlService.getInstance().updateTeamSlug(teamId, slug)
 
-      setUrl(data.updateTeamUrl)
       setLoading(false)
-      setNotification('Succesfully updated team url')
-
-      dispatch({
-        type: 'UPDATE_TEAM',
-        payload: { url, teamId },
-        sync: teamId,
-      })
+      setNotification('Succesfully updated team slug')
+      dispatch(updateTeam(teamId, { slug }))
     } catch (e) {
       setLoading(false)
-      setError('Error updating team url')
+      setError('Error updating team slug')
     }
   }
 
-  const updateTeam = async () => {
+  const handleUpdateTeamShortcode = async () => {
     setLoading(true)
     setError(null)
 
     try {
       const teamId = props.id
-      const { data } = await GraphqlService.getInstance().updateTeam(teamId, { name, description, image })
+      const { data } = await GraphqlService.getInstance().updateTeamShortcode(teamId, shortcode)
+
+      setLoading(false)
+      setNotification('Succesfully updated team shortcode')
+      dispatch(updateTeam(teamId, { shortcode }))
+    } catch (e) {
+      setLoading(false)
+      setError('Error updating team shortcode')
+    }
+  }
+
+  const handleUpdateTeam = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const teamId = props.id
+      await GraphqlService.getInstance().updateTeam(teamId, { name, description, image })
 
       setLoading(false)
       setNotification('Succesfully updated team')
-
-      dispatch({
-        type: 'UPDATE_TEAM',
-        payload: { name, description, image, teamId },
-        sync: teamId,
-      })
+      dispatch(updateTeam(teamId, { name, description, image }))
     } catch (e) {
       setLoading(false)
       setError('Error updating team')
     }
   }
 
-  const deleteTeam = async () => {
+  const handleDeleteTeam = async () => {
     setLoading(true)
     setError(null)
     setConfirmDeleteModal(false)
@@ -104,13 +112,9 @@ export default function TeamModal(props) {
       const teamId = props.id
       const deleteTeam = await GraphqlService.getInstance().deleteTeam(teamId)
 
+      // Sync this one for everyone
+      dispatch(deleteTeam(teamId, true))
       setLoading(false)
-      dispatch({
-        type: 'DELETE_TEAM',
-        payload: { teamId },
-        sync: teamId,
-      })
-
       browserHistory.push('/app')
       props.onClose()
     } catch (e) {
@@ -119,12 +123,12 @@ export default function TeamModal(props) {
     }
   }
 
-  const inviteTeamMembers = async () => {
+  const handleInviteTeamMembers = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      await GraphqlService.getInstance().inviteTeamMembers(name, url, emails)
+      await GraphqlService.getInstance().inviteTeamMembers(name, slug, shortcode, emails)
 
       setLoading(false)
       setEmails('')
@@ -134,79 +138,8 @@ export default function TeamModal(props) {
     }
   }
 
-  const deleteTeamMember = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const userId = memberDeleteId
-      const userIds = [userId]
-      const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
-      const updatedMembers = members.filter(member => member.user.id != userId)
-
-      setLoading(false)
-
-      // Revoke access to people
-      // MessagingService.getInstance().revoke(team, [user])
-      // Update the UI
-      setMemberDeleteId('')
-      setConfirmMemberDeleteModal(false)
-      setMembers(updatedMembers)
-
-      MessagingService.getInstance().leaveTeam(userIds, teamId)
-    } catch (e) {
-      setLoading(false)
-      setError('Error deleting team member')
-    }
-  }
-
-  const deleteTeamMemberSelf = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const userId = common.user.id
-      const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
-
-      setLoading(false)
-
-      // Don't sync this one - because its just for us
-      dispatch({
-        type: 'DELETE_TEAM',
-        payload: { teamId },
-      })
-
-      MessagingService.getInstance().leave(teamId)
-
-      // Redirect the user back to the landing page
-      browserHistory.push('/app')
-      props.onClose()
-    } catch (e) {
-      setLoading(false)
-      setError('Error deleting self')
-    }
-  }
-
-  const updateTeamMemberAdmin = async (userId, admin) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const updateTeamMemberAdmin = await GraphqlService.getInstance().updateTeamMemberAdmin(teamId, userId, admin)
-
-      setLoading(false)
-      setMembers(members.map(member => (member.user.id == userId ? { ...member, admin } : member)))
-    } catch (e) {
-      setLoading(false)
-      setError('Error setting admin')
-    }
-  }
-
   const handleDeleteClick = member => {
-    if (member.user.id == common.user.id) {
+    if (member.user.id == user.id) {
       setConfirmSelfDeleteModal(true)
     } else {
       setConfirmMemberDeleteModal(true)
@@ -222,14 +155,16 @@ export default function TeamModal(props) {
 
         setLoading(true)
 
-        const { data } = await GraphqlService.getInstance().team(props.id)
+        const { data } = await GraphqlService.getInstance().team(props.id, user.id)
         const team = data.team
 
         setImage(team.image)
-        setName(team.name)
-        setDescription(team.description)
+        setName(team.name || '')
+        setDescription(team.description || '')
         setMembers(team.members)
-        setUrl(team.url)
+        setShortcode(team.shortcode)
+        setSlug(team.slug)
+        setAdmin(team.role == 'ADMIN')
         setLoading(false)
       } catch (e) {
         setLoading(false)
@@ -247,10 +182,10 @@ export default function TeamModal(props) {
         height="80%"
         onClose={props.onClose}>
           <Tabbed
-            start={props.start || 0}
+            start={props.start}
             panels={[
               {
-                title: 'Profile',
+                title: 'Overview',
                 show: true,
                 content: (
                   <div className="row align-items-start w-100">
@@ -276,23 +211,32 @@ export default function TeamModal(props) {
 
                         <div className="column flexer header pl-10">
                           <div className="row pb-5">
-                            <Text color="d" display="h3">{name}</Text>
+                            <Text className="h5 color-d2">{name}</Text>
                           </div>
                           <div className="row">
                             {props.id &&
-                              <Text color="m" display="p" className="mr-10">{members.length} members</Text>
+                              <Text className="p color-d0 button bold mr-10">{members.length} members</Text>
                             }
-                            <Text color="highlight" display="a" className="button" onClick={() => fileRef.current.click()}>Update profile image</Text>
+
+                            {admin &&
+                              <Text
+                                className="p color-blue button bold"
+                                onClick={() => fileRef.current.click()}>
+                                Update profile image
+                              </Text>
+                            }
                           </div>
                         </div>
                       </div>
 
                       <div className="column p-20 flex-1 scroll w-100">
                         <Input
-                          label="Full name"
+                          label="Team name"
                           value={name}
                           onChange={e => setName(e.target.value)}
                           placeholder="Enter full name"
+                          className="mb-20"
+                          disabled={!admin}
                         />
 
                         <Textarea
@@ -301,12 +245,18 @@ export default function TeamModal(props) {
                           onChange={e => setDescription(e.target.value)}
                           placeholder="Add a description"
                           rows={8}
+                          className="mb-20"
+                          disabled={!admin}
                         />
 
-                        <Button
-                          onClick={updateTeam}
-                          text="Save"
-                        />
+                        {admin &&
+                          <Button
+                            onClick={handleUpdateTeam}
+                            text="Save"
+                            theme="blue-border"
+                            size="small"
+                          />
+                        }
                       </div>
                     </div>
                   </div>
@@ -317,85 +267,82 @@ export default function TeamModal(props) {
                 show: true,
                 content: (
                   <div className="column flex-1 w-100 h-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    {confirmSelfDeleteModal &&
-                      <ConfirmModal
-                        onOkay={deleteTeamMemberSelf}
-                        onCancel={() => setConfirmSelfDeleteModal(false)}
-                        text="Are you sure you want to leave this team?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    {confirmMemberDeleteModal &&
-                      <ConfirmModal
-                        onOkay={deleteTeamMember}
-                        onCancel={() => setConfirmMemberDeleteModal(false)}
-                        text="Are you sure you want to remove this person, it can not be undone?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    {members.map((member, index) => {
-                      return (
-                        <User
-                          key={index}
-                          image={member.user.image}
-                          color={member.user.color}
-                          name={member.user.id == common.user.id ? member.user.name + " (You)" : member.user.name}
-                          label={`${member.user.username} ${member.admin ? "- Admin" : ""}`}>
-
-                          <FontAwesomeIcon
-                            icon={["fal", "trash-alt"]}
-                            color="#007af5"
-                            size="lg"
-                            onClick={() => handleDeleteClick(member)}
-                            className="button"
-                          />
-
-                          <Button
-                            size="small"
-                            className="ml-20"
-                            onClick={() => updateTeamMemberAdmin(member.user.id, !member.admin)}
-                            text={member.admin ? 'Remove Admin' : 'Make Admin'}
-                          />
-                        </User>
-                      )
-                    })}
+                    <MembersTeamComponent
+                      admin={admin}
+                      id={props.id}
+                      createChannel={props.createChannel}
+                      onClose={props.onClose}
+                      members={members}
+                    />
                   </div>
                 )
               },
               {
-                title: 'Invite & share',
-                show: true,
+                title: 'Access',
+                show: admin,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
 
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Invite users</Text>
-                        <Text color="m" display="p" className="mb-10">Add users email.</Text>
+                        <Text className="color-d2 h5 mb-10">Outside access</Text>
+                        <Text className="color-d0 p mb-30">
+                          {`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}
+                        </Text>
 
-                        <div className="mb-5">
-                          <Text
-                            className="button"
-                            color="highlight"
-                            display="a"
-                            onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/join/${url}`)}>
-                            {url}
-                          </Text>
-                          <Text color="d" display="p"> to copy a temporary access URL that users can use to join this team</Text>
+                        <Input
+                          label="Update your team shortcode"
+                          value={shortcode}
+                          onChange={e => setShortcode(e.target.value)}
+                          placeholder="Enter shortcode"
+                          className="mb-20"
+                        />
+
+                        <div className="row mb-30">
+                          <Button
+                            onClick={handleUpdateTeamShortcode}
+                            text="Update shortcode"
+                            theme="blue-border"
+                            size="small"
+                          />
+
+                          <Button
+                            theme="blue-border"
+                            size="small"
+                            onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)}
+                            text="Copy URL"
+                            className="ml-5"
+                          />
                         </div>
 
-                        <Button
-                          text="Generate a new url"
-                          onClick={updateTeamUrl}
-                          className="mt-30 mb-30"
-                          size="small"
+                        <Input
+                          label="Update your team slug"
+                          value={slug}
+                          onChange={e => setSlug(e.target.value)}
+                          placeholder="Enter Slug"
+                          className="mb-20"
                         />
+
+                        <Button
+                          theme="blue-border"
+                          size="small"
+                          onClick={handleUpdateTeamSlug}
+                          text="Update slug"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                title: 'Invite & share',
+                show: admin,
+                content: (
+                  <div className="row align-items-start w-100">
+                    <div className="column w-100">
+                      <div className="column p-20 flex-1 scroll w-100">
+                        <Text className="color-d2 h5 mb-10">Invite users</Text>
+                        <Text className="color-d0 p mb-30">Add users email.</Text>
 
                         <Textarea
                           placeholder="Comma seperated email addresses"
@@ -405,7 +352,9 @@ export default function TeamModal(props) {
 
                         <Button
                           text="Invite users"
-                          onClick={inviteTeamMembers}
+                          onClick={handleInviteTeamMembers}
+                          theme="blue-border"
+                          size="small"
                         />
                       </div>
                     </div>
@@ -414,25 +363,26 @@ export default function TeamModal(props) {
               },
               {
                 title: 'Danger zone',
-                show: true,
+                show: admin,
                 content: (
                   <div className="row align-items-start w-100">
                     <div className="column w-100">
 
                       {confirmDeleteModal &&
                         <ConfirmModal
-                          onOkay={deleteTeam}
+                          onOkay={handleDeleteTeam}
                           onCancel={() => setConfirmDeleteModal(false)}
                           text="Are you sure you want to delete this team, it can not be undone?"
                           title="Are you sure?"
                         />
                       }
                       <div className="column p-20 flex-1 scroll w-100">
-                        <Text color="d" display="h3">Here be dragons!</Text>
-                        <Text color="m" display="p" className="mb-30">This cannot be undone.</Text>
+                        <Text className="color-red h5 mb-10">Here be dragons!</Text>
+                        <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
                         <Button
                           text="Delete"
+                          theme="red"
                           onClick={() => setConfirmDeleteModal(true)}
                         />
                       </div>
@@ -452,4 +402,5 @@ TeamModal.propTypes = {
   start: PropTypes.number,
   id: PropTypes.string,
   history: PropTypes.any,
+  createChannel: PropTypes.func,
 }

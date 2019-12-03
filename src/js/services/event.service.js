@@ -3,7 +3,7 @@ import EventEmitter from 'eventemitter3'
 export default class EventService {
   ee = null
 
-  static get() {
+  static getInstance() {
     if (this.ee == null) {
       this.ee = new EventEmitter()
     }

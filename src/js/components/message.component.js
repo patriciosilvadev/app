@@ -1,4 +1,5 @@
-import React, { useState, useEffect, memo } from 'react'
+import React, { useState, useEffect, memo, useRef } from 'react'
+import ReactDOM from 'react-dom'
 import moment from 'moment'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
@@ -10,217 +11,116 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createRoomMessageReaction, deleteRoomMessageReaction, deleteRoomMessage } from '../actions'
-import { Attachment, Popup, Avatar } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { youtubeUrlParser, vimeoUrlParser, imageUrlParser } from '../helpers/util'
-
-const Message = styled.div`
-  margin-bottom: 20px;
-  width: 100%;
-`
-
-const Bubble = styled.div`
-  flex: 1;
-  /*min-width: 30%;*/
-  width: 100%;
-`
-
-const Tools = styled.div`
-  padding: 10px;
-  background: white;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
-  position: absolute;
-  right: 0px;
-  top: 0px;
-`
-
-const Meta = styled.div`
-  margin-left: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #adb5bd;
-  font-weight: regular;
-`
-
-const User = styled.div`
-  color: #343a40;
-  font-weight: 600;
-  font-style: normal;
-  font-size: 12px;
-`
-
-const Text = styled.div`
-  font-size: 14px;
-  color: #212123;
-  font-weight: 400;
-  line-height: 1.4;
-  padding-top: 5px;
-  padding-bottom: 5px;
-
-  strong {
-    font-weight: bold;
-  }
-
-  p {
-    padding: 0px;
-    margin: 0px;
-  }
-
-  code {
-    background: white;
-    border: 1px solid #eaeaea;
-    border-left: 5px solid #007af5;
-    color: #495057;
-    border-radius: 2px;
-    page-break-inside: avoid;
-    font-family: Menlo, monospace;
-    font-size: 10px;
-    margin-top: 5px;
-    line-height: 1.6;
-    max-width: 100%;
-    overflow: auto;
-    padding: 1em 1.5em;
-    display: block;
-    word-wrap: break-word;
-  }
-
-  pre {
-  }
-`
-
-const Compose = styled.div`
-  margin-top: 20px;
-  width: 100%;
-`
-
-const Reactions = styled.div`
-  padding-top: 5px;
-  padding-bottom: 10px;
-
-  .reaction {
-    padding: 3px;
-    margin-right: 2px;
-
-    .name {
-      font-size: 12px;
-      font-weight: 800;
-      color: #212123;
-      padding-left: 5px;
-    }
-  }
-`
-
-const Attachments = styled.div`
-  padding-top: 5px;
-`
-
-const ParentPadding = styled.div`
-  padding: 0px;
-`
-
-const ParentContainer = styled.div`
-  border: 1px solid #cbd4db;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 5px;
-  margin-top: 5px;
-`
-
-const ParentMessage = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  font-style: normal;
-  color: #151b26;
-  display: inline-block;
-`
-
-const ParentName = styled.div`
-  font-weight: 500;
-  font-style: normal;
-  font-size: 12px;
-  color: #151b26;
-  display: inline-block;
-`
-
-const ParentText = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  color: #adb5bd;
-  font-weight: regular;
-  margin-bottom: 10px;
-  margin-top: 10px;
-  display: inline-block;
-`
-
-const ParentMeta = styled.div`
-  margin-left: 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #adb5bd;
-  font-weight: regular;
-`
-
-const PreviewContainer = styled.div`
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  background-color: rgba(4, 11, 28, 0.75);
-`
-
-const PreviewClose = styled.div`
-  position: fixed;
-  top: 0px;
-  right: 0px;
-  width: max-content;
-  height: max-content;
-  z-index: 1;
-  padding: 20px;
-`
-
-const PreviewImage = styled.div`
-  width: 80%;
-  height: 80%;
-  background-position: center center;
-  background-image: url(${props => props.image});
-  background-size: contain;
-  border-radius: 5px;
-`
+import { createChannelMessageReaction, deleteChannelMessageReaction, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
+import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
+import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes } from '../helpers/util'
+import GraphqlService from '../services/graphql.service'
+import MessagingService from '../services/messaging.service'
+import { IconComponent } from './icon.component'
+import EventService from '../services/event.service'
+import uuidv1 from 'uuid/v1'
 
 export default memo(props => {
   const [message, setMessage] = useState(false)
   const [preview, setPreview] = useState(null)
   const [over, setOver] = useState(false)
+  const [forwardMenu, setForwardMenu] = useState(false)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const [emoticons, setEmoticons] = useState(false)
+  const [emoticonMenu, setEmoticonMenu] = useState(false)
   const dispatch = useDispatch()
-  const room = useSelector(state => state.room)
-  const common = useSelector(state => state.common)
+  const channel = useSelector(state => state.channel)
+  const team = useSelector(state => state.team)
+  const channels = useSelector(state => state.channels)
+  const user = useSelector(state => state.user)
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
   const [images, setImages] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [senderName, setSenderName] = useState(null)
+  const [senderImage, setSenderImage] = useState(null)
+  const [senderTimezone, setSenderTimezone] = useState('')
+  const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
+  const [appButtons, setAppButtons] = useState([])
+  const [appUrl, setAppUrl] = useState(null)
+  const [appHeight, setAppHeight] = useState(0)
+  const [appWidth, setAppWidth] = useState(200)
+  const [resizeId, setResizeId] = useState(null)
+  const iframeRef = useRef(null)
 
-  const handleDeleteRoomMessage = () => {
-    dispatch(deleteRoomMessage(room.id, props.message.id))
-    setConfirmDeleteModal(false)
+  const handleForwardMessage = async channelId => {
+    setForwardMenu(false)
+
+    const userName = user.name
+    const userId = user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + props.message.message || props.message.message
+    const teamId = team.id
+    const forwardedMessageContents = props.message.message
+    const forwardedMessageAttachments = props.message.attachments
+    const parentId = props.message.id
+
+    try {
+      const { data } = await GraphqlService.getInstance().createChannelMessage({
+        channel: channelId,
+        user: userId,
+        parent: parentId,
+        message: forwardedMessageContents,
+        attachments: forwardedMessageAttachments,
+      })
+
+      // The extra values are used for processing other info
+      const channelMessage = {
+        message: data.createChannelMessage,
+        channelId,
+        teamId,
+      }
+
+      // Create the message
+      dispatch(createChannelMessage(channelId, channelMessage))
+      dispatch(updateChannel(channelId, { excerpt }))
+    } catch (e) {}
   }
 
-  const handleDeleteRoomMessageReaction = reaction => {
-    setEmoticons(false)
+  const handleActionClick = async action => {
+    dispatch(openApp(action))
+  }
 
+  const handleDeleteChannelMessage = async () => {
+    try {
+      await GraphqlService.getInstance().deleteChannelMessage(messageId)
+
+      dispatch(deleteChannelMessage(channel.id, props.message.id))
+      setConfirmDeleteModal(false)
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleDeleteChannelMessageReaction = async reaction => {
     // Only this user can do this
-    if (reaction.split('__')[1] != common.user.id) return
+    if (reaction.split('__')[1] != user.id) return
 
-    dispatch(deleteRoomMessageReaction(room.id, props.message.id, reaction))
+    try {
+      await GraphqlService.getInstance().deleteChannelMessageReaction(props.message.id, reaction)
+
+      setEmoticonMenu(false)
+      dispatch(deleteChannelMessageReaction(channel.id, props.message.id, reaction))
+    } catch (e) {
+      logger(e)
+    }
   }
 
-  const handleCreateRoomMessageReaction = emoticon => {
-    setEmoticons(false)
-    dispatch(createRoomMessageReaction(room.id, props.message.id, `${emoticon}__${common.user.id}__${common.user.name.split(' ')[0]}`))
+  const handleCreateChannelMessageReaction = async emoticon => {
+    try {
+      const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
+
+      await GraphqlService.getInstance().createChannelMessageReaction(props.message.id, reaction)
+
+      setEmoticonMenu(false)
+      dispatch(createChannelMessageReaction(channel.id, props.message.id, reaction))
+    } catch (e) {
+      logger(e)
+    }
   }
 
   const highlightMessage = (message, query) => {
@@ -230,22 +130,112 @@ export default memo(props => {
     })
   }
 
-  // prettier-ignore
   useEffect(() => {
-    setImages(props.message.message.split(' ').filter(p => imageUrlParser(p)).map(p => imageUrlParser(p)))
-    setYoutubeVideos(props.message.message.split(' ').filter(p => youtubeUrlParser(p)).map(p => youtubeUrlParser(p)))
-    setVimeoVideos(props.message.message.split(' ').filter(p => vimeoUrlParser(p)).map(p => vimeoUrlParser(p)))
+    EventService.getInstance().on('AUTO_ADJUST_MESSAGE_HEIGHT', data => {
+      console.log('AUTO_ADJUST_MESSAGE_HEIGHT → ', data)
 
-    // Here we start processing the markdown
+      // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
+      // resizeId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
+      // Only adjust this specific height when received
+      if (data.resizeId == resizeId) {
+        if (data.resizeHeight) setAppHeight(parseInt(data.resizeHeight))
+      }
+    })
+  }, [props.message, resizeId])
+
+  useEffect(() => {
+    setImages(
+      props.message.message
+        .split(' ')
+        .filter(p => imageUrlParser(p))
+        .map(p => imageUrlParser(p))
+    )
+    setYoutubeVideos(
+      props.message.message
+        .split(' ')
+        .filter(p => youtubeUrlParser(p))
+        .map(p => youtubeUrlParser(p))
+    )
+    setVimeoVideos(
+      props.message.message
+        .split(' ')
+        .filter(p => vimeoUrlParser(p))
+        .map(p => vimeoUrlParser(p))
+    )
+
+    // Get the connected app
+    setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
+    setSenderName(props.message.system ? '' : props.message.app ? props.message.app.app.name : props.message.user.name)
+    setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
+
+    // Only set this for non apps & valid timezones
+    if (!props.message.app && props.message.user) {
+      if (props.message.user.timezone) {
+        const offsetMinutes = window.now.tz(props.message.user.timezone).utcOffset() / 60
+
+        if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
+        if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
+      }
+    }
+
+    // Only update our state if there are any
+    if (props.message.app) {
+      // Find the corresponding app ont he channel (needs to be active)
+      const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
+
+      // Only if there is an app
+      if (!channelApp) return
+
+      // Otherwise carry on 
+      const channelAppToken = channelApp.token
+
+      // This might be null
+      const channelAppMessageButtons = props.message.app.app.message.buttons || []
+      const appResourceId = props.message.app.resourceId
+
+      // resourceId is what we use to ID the resource on the app's server
+      // This could be an ID - when a user creates a message they add this
+      // so we can just feed it back to them
+      if (props.message.app.app.message) {
+        setAppHeight(props.message.app.app.message.height)
+        setAppWidth(props.message.app.app.message.width)
+        setResizeId(uuidv1())
+
+        // Important that we add the channel token to the appAction.payload
+        // This action is attached to all buttons - so we can assume this structure:
+        setAppButtons(
+          channelAppMessageButtons.map(button => {
+            return {
+              ...button,
+              action: {
+                ...button.action,
+                token: channelApp.token,
+              },
+            }
+          })
+        )
+
+        const { url } = props.message.app.app.message
+
+        // If the user has already added a query string
+        if (url.indexOf('?') == -1) {
+          setAppUrl(`${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+        } else {
+          setAppUrl(`${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+        }
+
+        setAppUrl(url)
+      }
+    }
+  }, [props.message])
+
+  // Here we start processing the markdown
+  useEffect(() => {
     const htmlMessage = marked(props.message.message)
-    const compiledMessage = props.highlight
-                                ? props.highlight != ""
-                                  ? highlightMessage(htmlMessage, props.highlight)
-                                  : htmlMessage
-                                : htmlMessage
+    const compiledMessage = props.highlight ? (props.highlight != '' ? highlightMessage(htmlMessage, props.highlight) : htmlMessage) : htmlMessage
 
     // What we do here is replace the emoji symbol with one from EmojiOne
-    const regex = new RegExp('(\:[a-zA-Z0-9-_+]+\:(\:skin-tone-[2-6]\:)?)', 'g')
+    const regex = new RegExp('(:[a-zA-Z0-9-_+]+:(:skin-tone-[2-6]:)?)', 'g')
     const partsOfTheMessageText = []
     let matchArr
     let lastOffset = 0
@@ -279,6 +269,7 @@ export default memo(props => {
 
     if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
+    // Finally set the message after processnig
     setMessage(partsOfTheMessageText.join(''))
   }, [props.highlight, props.message])
 
@@ -287,10 +278,14 @@ export default memo(props => {
     <Message
       className="column"
       onMouseEnter={() => setOver(true)}
-      onMouseLeave={() => setOver(false)}>
+      onMouseLeave={() => {
+        setOver(false)
+        setForwardMenu(false)
+        setEmoticonMenu(false)
+      }}>
       {confirmDeleteModal &&
         <ConfirmModal
-          onOkay={handleDeleteRoomMessage}
+          onOkay={handleDeleteChannelMessage}
           onCancel={() => setConfirmDeleteModal(false)}
           text="Are you sure you want to delete this?"
           title="Are you sure?"
@@ -298,23 +293,39 @@ export default memo(props => {
       }
 
       <div className="row align-items-start w-100">
-        <Avatar
-          image={props.message.user.image}
-          title={props.message.user.name}
-          size="medium"
-        />
+        {(!props.append && !props.message.system) &&
+          <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
+            <Avatar
+              image={senderImage}
+              title={senderImage}
+              size="medium"
+            />
+          </Tooltip>
+        }
+
+        {(props.append || props.message.system) && <AvatarBlank />}
 
         <div className="column flexer pl-15">
           <Bubble className="column">
             <div className="row w-100 relative">
-              <User>{props.message.user.name}</User>
-              <Meta>{moment(props.message.createdAt).fromNow()}</Meta>
+              {!props.append &&
+                <React.Fragment>
+                  {!props.message.system && <User>{senderName}</User>}
+                  {props.message.app && <App>App</App>}
 
-              {over &&
+                  <Date>
+                    {props.message.system && <span>{props.message.message} - </span>}
+
+                    {moment(props.message.createdAt).tz(user.timezone).fromNow()}
+                  </Date>
+                </React.Fragment>
+              }
+
+              {over && !props.message.system &&
                 <Tools className="row">
                   <Popup
-                    handleDismiss={() => setEmoticons(false)}
-                    visible={emoticons}
+                    handleDismiss={() => setEmoticonMenu(false)}
+                    visible={emoticonMenu}
                     width={350}
                     direction="right-top"
                     content={
@@ -325,56 +336,96 @@ export default memo(props => {
                         emoji=""
                         showPreview={false}
                         showSkinTones={false}
-                        onSelect={(emoji) => handleCreateRoomMessageReaction(emoji.colons)}
+                        onSelect={(emoji) => handleCreateChannelMessageReaction(emoji.colons)}
                       />
                     }>
-
-                    <FontAwesomeIcon
-                      icon={["fal", "smile"]}
+                    <IconComponent
+                      icon="smile"
+                      size={15}
                       color="#CFD4D9"
-                      size="sm"
                       className="button mr-10"
-                      onClick={() => setEmoticons(true)}
+                      onClick={() => setEmoticonMenu(true)}
                     />
                   </Popup>
 
-                  <FontAwesomeIcon
-                    icon={["fal", "trash-alt"]}
+                  <IconComponent
+                    icon="delete"
+                    size={15}
                     color="#CFD4D9"
-                    size="sm"
                     className="button mr-10"
                     onClick={() => setConfirmDeleteModal(true)}
                   />
 
-                  <FontAwesomeIcon
-                    icon={["fal", "pen"]}
+                  {!props.message.app &&
+                    <React.Fragment>
+                      {props.message.user.id == user.id &&
+                        <IconComponent
+                          icon="pen"
+                          size={15}
+                          color="#CFD4D9"
+                          className="button mr-10"
+                          onClick={() => props.setUpdateMessage(props.message)}
+                        />
+                      }
+                    </React.Fragment>
+                  }
+
+                  <IconComponent
+                    icon="reply"
+                    size={15}
                     color="#CFD4D9"
-                    size="sm"
                     className="button mr-10"
-                    onClick={props.setUpdateMessage}
+                    onClick={() => props.setReplyMessage(props.message)}
                   />
 
-                  <FontAwesomeIcon
-                    icon={["fal", "reply"]}
-                    color="#CFD4D9"
-                    size="sm"
-                    className="button mr-10"
-                    onClick={props.setReplyMessage}
-                  />
+                  <Popup
+                    handleDismiss={() => setForwardMenu(false)}
+                    visible={forwardMenu}
+                    width={275}
+                    direction="right-top"
+                    content={
+                      <React.Fragment>
+                        <div className="color-d2 h5 pl-15 pt-15 bold">
+                          Forward to channel:
+                        </div>
+                        <Menu
+                          items={channels.map((channel) => {
+                            const text = channel.private ? channel.members.reduce((title, member) => member.user.id != user.id ? title + member.user.name : title, "") : channel.title
+
+                            return {
+                              text,
+                              onClick: (e) => handleForwardMessage(channel.id),
+                            }
+                          })}
+                        />
+                      </React.Fragment>
+                    }>
+                    <div>
+                      <IconComponent
+                        icon="forward"
+                        size={15}
+                        color="#CFD4D9"
+                        className="button"
+                        onClick={() => setForwardMenu(true)}
+                      />
+                    </div>
+                  </Popup>
                 </Tools>
               }
             </div>
 
             {props.message.parent &&
               <ParentPadding className="column align-items-stretch flexer">
-                <ParentText>Replying to:</ParentText>
+                <ParentText>
+                  {props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}
+                </ParentText>
                 <ParentContainer className="row justify-content-center">
                   <div className="column flexer">
                     <div className="row">
                       <ParentName>
-                        {props.message.parent.user.name}
+                        {props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}
                       </ParentName>
-                      <ParentMeta>{moment(props.message.parent.createdAt).fromNow()}</ParentMeta>
+                      <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
                     </div>
                     <ParentMessage>
                       <ReactMarkdown source={props.message.parent.message} />
@@ -384,16 +435,18 @@ export default memo(props => {
               </ParentPadding>
             }
 
-            <Text dangerouslySetInnerHTML={{__html: message}} />
+            {!props.message.system &&
+              <Text dangerouslySetInnerHTML={{__html: message}} />
+            }
 
             {preview &&
               <ModalPortal>
                 <PreviewContainer className="row justify-content-center">
                   <PreviewClose>
-                    <FontAwesomeIcon
-                      icon={["fal", "times"]}
+                    <IconComponent
+                      icon="x"
+                      size={25}
                       color="#8DA2A5"
-                      size="2x"
                       className="button"
                       onClick={() => setPreview(null)}
                     />
@@ -479,6 +532,34 @@ export default memo(props => {
               )
             })}
 
+            {appUrl &&
+              <AppUrl>
+                <iframe
+                  border="0"
+                  ref={iframeRef}
+                  src={appUrl}
+                  width={appWidth}
+                  height={appHeight}>
+                </iframe>
+              </AppUrl>
+            }
+
+            {appButtons.length != 0 &&
+              <AppActions className="row">
+                {appButtons.map((button, index) => {
+                  return (
+                    <AppActionContainer
+                      key={index}
+                      className="row"
+                      onClick={() => handleActionClick(button.action)}>
+                      <AppActionImage image={button.icon} />
+                      <AppActionText>{button.text}</AppActionText>
+                    </AppActionContainer>
+                  )
+                })}
+              </AppActions>
+            }
+
             {props.message.reactions &&
               <React.Fragment>
                 {props.message.reactions.length != 0 &&
@@ -489,7 +570,7 @@ export default memo(props => {
                       const userName = reactionParts[2]
 
                       return (
-                        <div key={index} className="row button reaction" onClick={() => handleDeleteRoomMessageReaction(reaction)}>
+                        <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
                           <Emoji
                             emoji={emoticon}
                             size={16}
@@ -503,9 +584,263 @@ export default memo(props => {
                 }
               </React.Fragment>
             }
+
           </Bubble>
         </div>
       </div>
     </Message>
   )
 })
+
+const Message = styled.div`
+  margin-bottom: 20px;
+  width: 100%;
+`
+
+const Bubble = styled.div`
+  flex: 1;
+  /*min-width: 30%;*/
+  width: 100%;
+`
+
+const Tools = styled.div`
+  padding: 10px;
+  background: white;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f3f5;
+  border-radius: 5px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+`
+
+const Date = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const User = styled.div`
+  color: #343a40;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12px;
+  margin-right: 10px;
+`
+
+const Text = styled.div`
+  font-size: 14px;
+  color: #333a40;
+  font-weight: 400;
+  line-height: 1.4;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  strong {
+    font-weight: bold;
+  }
+
+  p {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  code {
+    background: white;
+    border: 1px solid #eaeaea;
+    border-left: 5px solid #007af5;
+    color: #495057;
+    border-radius: 2px;
+    page-break-inside: avoid;
+    font-family: Menlo, monospace;
+    font-size: 10px;
+    margin-top: 5px;
+    line-height: 1.6;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1em 1.5em;
+    display: block;
+    word-wrap: break-word;
+  }
+
+  pre {
+  }
+`
+
+const Compose = styled.div`
+  margin-top: 20px;
+  width: 100%;
+`
+
+const Reactions = styled.div`
+  padding-top: 5px;
+  padding-bottom: 10px;
+
+  .reaction {
+    padding: 3px;
+    margin-right: 2px;
+
+    .name {
+      font-size: 12px;
+      font-weight: 800;
+      color: #212123;
+      padding-left: 5px;
+    }
+  }
+`
+
+const Attachments = styled.div`
+  padding-top: 5px;
+`
+
+const ParentPadding = styled.div`
+  padding: 0px;
+`
+
+const ParentContainer = styled.div`
+  border-left: 3px solid #007af5;
+  padding: 0px 0px 0px 15px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+`
+
+const ParentMessage = styled.div`
+  font-weight: 400;
+  font-size: 14px;
+  font-style: normal;
+  color: #868e95;
+  display: inline-block;
+  margin-top: 10px;
+
+  strong {
+    font-weight: bold;
+  }
+
+  p {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  code {
+    display: none;
+  }
+
+  pre {
+    display: none;
+  }
+`
+
+const ParentName = styled.div`
+  color: #343a40;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12px;
+`
+
+const ParentText = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  color: #adb5bd;
+  font-weight: regular;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  display: inline-block;
+`
+
+const ParentDate = styled.div`
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const PreviewContainer = styled.div`
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: rgba(4, 11, 28, 0.75);
+`
+
+const PreviewClose = styled.div`
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  width: max-content;
+  height: max-content;
+  z-index: 1;
+  padding: 20px;
+`
+
+const PreviewImage = styled.div`
+  width: 80%;
+  height: 80%;
+  background-position: center center;
+  background-image: url(${props => props.image});
+  background-size: contain;
+  border-radius: 5px;
+`
+
+const App = styled.div`
+  background: #f0f3f5;
+  border-radius: 3px;
+  padding: 3px 6px 3px 6px;
+  color: #b8c4ce;
+  margin-right: 10px;
+  font-size: 10px;
+  font-weight: 600;
+`
+
+const AppUrl = styled.div`
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
+  margin-bottom: 10px;
+  border: 1px solid #e1e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+
+  iframe {
+    border: none;
+  }
+`
+
+const AppActions = styled.div``
+
+const AppActionContainer = styled.div`
+  padding: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const AppActionText = styled.div`
+  font-weight: 600;
+  color: #b8c4ce;
+  font-size: 10px;
+`
+
+const AppActionImage = styled.div`
+  width: 15px;
+  height: 15px;
+  overflow: hidden;
+  margin-right: 5px;
+  background-size: contain;
+  background-position: center center;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-image: url(${props => props.image});
+`
+
+const AvatarBlank = styled.div`
+  width: 30px;
+  height: 30px;
+`

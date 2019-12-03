@@ -5,13 +5,14 @@ import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import AuthService from './auth.service'
 import CookiesService from './cookies.service'
-import { GRAPHQL_HOST } from '../environment'
+import { API_HOST, JWT } from '../environment'
+import { logger } from '../helpers/util'
 
 export default class GraphqlService {
   static instance
   client
 
-  constructor(token) {
+  constructor() {
     const defaultOptions = {
       watchQuery: {
         fetchPolicy: 'network-only',
@@ -23,6 +24,7 @@ export default class GraphqlService {
       },
     }
 
+    const token = CookiesService.getCookie(JWT)
     const authMiddleware = new ApolloLink((operation, forward) => {
       operation.setContext({
         headers: {
@@ -40,10 +42,10 @@ export default class GraphqlService {
         authMiddleware,
         createHttpLink({
           fetch: fetch,
-          uri: GRAPHQL_HOST,
+          uri: API_HOST + '/graphql',
           onError: ({ networkError, graphQLErrors }) => {
-            console.log('graphQLErrors', graphQLErrors)
-            console.log('networkError', networkError)
+            logger('graphQLErrors', graphQLErrors)
+            logger('networkError', networkError)
           },
         })
       ),
@@ -53,9 +55,7 @@ export default class GraphqlService {
   static getInstance() {
     if (this.instance) return this.instance
 
-    const token = CookiesService.getCookie('jwt')
-
-    this.instance = new GraphqlService(token)
+    this.instance = new GraphqlService()
 
     return this.instance
   }
@@ -80,6 +80,7 @@ export default class GraphqlService {
             }
             color
             username
+            timezone
             password
             name
             role
@@ -89,6 +90,7 @@ export default class GraphqlService {
             archived
             description
             status
+            timezone
             image
             createdAt
             updatedAt
@@ -118,6 +120,24 @@ export default class GraphqlService {
     })
   }
 
+  teamSlug(slug) {
+    return this.client.query({
+      query: gql`
+        query teamSlug($slug: String) {
+          teamSlug(slug: $slug) {
+            id
+            name
+            description
+            image
+          }
+        }
+      `,
+      variables: {
+        slug,
+      },
+    })
+  }
+
   team(teamId, userId) {
     return this.client.query({
       query: gql`
@@ -125,40 +145,41 @@ export default class GraphqlService {
           team(teamId: $teamId, userId: $userId) {
             id
             name
-            url
+            shortcode
+            slug
             description
             image
-            rooms(userId: $userId) {
+            role(userId: $userId)
+            channels(userId: $userId) {
               id
               title
               description
+              url
               image
               public
+              excerpt
               private
               user {
                 id
                 name
-                email {
-                  address
-                  confirmed
-                }
-                color
                 username
+                timezone
                 image
+                status
               }
-              excerpt
               members {
                 user {
                   id
-                  name
-                  email {
-                    address
-                    confirmed
-                  }
-                  color
-                  username
                   image
+                  name
+                  status
+                  timezone
                 }
+              }
+              team {
+                id
+                name
+                image
               }
               createdAt
               updatedAt
@@ -174,10 +195,11 @@ export default class GraphqlService {
                 }
                 color
                 username
+                timezone
                 image
                 createdAt
               }
-              admin
+              role
             }
           }
         }
@@ -198,22 +220,9 @@ export default class GraphqlService {
             name
             description
             image
-            members {
-              user {
-                id
-                name
-                email {
-                  address
-                  confirmed
-                }
-                color
-                username
-                image
-              }
-              admin
-            }
             createdAt
             updatedAt
+            role(userId: $userId)
           }
         }
       `,
@@ -223,11 +232,11 @@ export default class GraphqlService {
     })
   }
 
-  room(roomId) {
+  channel(channelId) {
     return this.client.query({
       query: gql`
-        query room($roomId: String!) {
-          room(roomId: $roomId) {
+        query channel($channelId: String!) {
+          channel(channelId: $channelId) {
             id
             title
             url
@@ -239,6 +248,7 @@ export default class GraphqlService {
               id
               name
               username
+              timezone
               image
             }
             team {
@@ -255,22 +265,120 @@ export default class GraphqlService {
                   }
                   color
                   username
+                  timezone
                   role
                   image
                 }
-                admin
+                role
+              }
+            }
+            apps {
+              active
+              token
+              app {
+                id
+                name
+                description
+                image
+                token
+                published
+                outgoing
+                commands {
+                  name
+                  description
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+                attachments {
+                  icon
+                  text
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+                tools {
+                  icon
+                  text
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+                shortcuts {
+                  icon
+                  text
+                  action {
+                    type
+                    name
+                    payload {
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+                message {
+                  url
+                  width
+                  height
+                  buttons {
+                    icon
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
               }
             }
             messages {
               id
               reactions
+              system
               parent {
+                channel {
+                  title
+                  id
+                }
                 user {
                   id
                   name
                   image
                   username
                   color
+                  timezone
+                }
+                app {
+                  resourceId
+                  app {
+                    id
+                    name
+                    image
+                  }
                 }
                 message
                 createdAt
@@ -278,6 +386,7 @@ export default class GraphqlService {
               user {
                 id
                 username
+                timezone
                 name
                 image
               }
@@ -293,6 +402,36 @@ export default class GraphqlService {
                 createdAt
               }
               createdAt
+              app {
+                resourceId
+                app {
+                  id
+                  name
+                  description
+                  image
+                  token
+                  published
+                  outgoing
+                  message {
+                    url
+                    width
+                    height
+                    buttons {
+                      icon
+                      text
+                      action {
+                        type
+                        name
+                        payload {
+                          url
+                          width
+                          height
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
             members {
               user {
@@ -304,6 +443,7 @@ export default class GraphqlService {
                 }
                 color
                 username
+                timezone
                 role
                 image
               }
@@ -314,16 +454,16 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
+        channelId,
       },
     })
   }
 
-  rooms(teamId, userId) {
+  channels(teamId, userId) {
     return this.client.query({
       query: gql`
-        query rooms($teamId: String, $userId: String!) {
-          rooms(teamId: $teamId, userId: $userId) {
+        query channels($teamId: String, $userId: String!) {
+          channels(teamId: $teamId, userId: $userId) {
             id
             title
             description
@@ -336,6 +476,7 @@ export default class GraphqlService {
               id
               name
               username
+              timezone
               image
               status
             }
@@ -345,6 +486,7 @@ export default class GraphqlService {
                 image
                 name
                 status
+                timezone
               }
             }
             team {
@@ -364,19 +506,29 @@ export default class GraphqlService {
     })
   }
 
-  roomMessages(roomId, page) {
+  channelMessages(channelId, page) {
     return this.client.query({
       query: gql`
-        query roomMessages($roomId: String!, $page: Float) {
-          roomMessages(roomId: $roomId, page: $page) {
+        query channelMessages($channelId: String!, $page: Float) {
+          channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
+            system
             parent {
+              app {
+                payload
+                app {
+                  id
+                  name
+                  image
+                }
+              }
               user {
                 id
                 name
                 image
                 username
+                timezone
                 status
                 color
               }
@@ -390,6 +542,7 @@ export default class GraphqlService {
               status
               username
               color
+              timezone
             }
             message
             attachments {
@@ -403,29 +556,61 @@ export default class GraphqlService {
               createdAt
             }
             createdAt
+            app {
+              resourceId
+              app {
+                id
+                name
+                description
+                image
+                token
+                published
+                outgoing
+                message {
+                  url
+                  width
+                  height
+                  buttons {
+                    icon
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       `,
       variables: {
-        roomId,
+        channelId,
         page,
       },
     })
   }
 
-  searchMessages(roomId, query) {
+  searchMessages(channelId, query) {
     return this.client.query({
       query: gql`
-        query searchMessages($roomId: String, $query: String) {
-          searchMessages(roomId: $roomId, query: $query) {
+        query searchMessages($channelId: String, $query: String) {
+          searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
+            system
             parent {
               user {
                 id
                 name
                 image
                 username
+                timezone
                 status
                 color
               }
@@ -438,6 +623,7 @@ export default class GraphqlService {
               image
               status
               username
+              timezone
               color
             }
             message
@@ -451,12 +637,42 @@ export default class GraphqlService {
               mime
               createdAt
             }
+            app {
+              resourceId
+              app {
+                id
+                name
+                description
+                image
+                token
+                published
+                outgoing
+                message {
+                  url
+                  width
+                  height
+                  buttons {
+                    icon
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
             createdAt
           }
         }
       `,
       variables: {
-        roomId,
+        channelId,
         query,
       },
     })
@@ -472,6 +688,7 @@ export default class GraphqlService {
             image
             role
             username
+            timezone
           }
         }
       `,
@@ -508,6 +725,21 @@ export default class GraphqlService {
    * Mutations
    */
 
+  joinTeam(slug, userId, shortcode) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation joinTeam($slug: String, $userId: String, $shortcode: String) {
+          joinTeam(slug: $slug, userId: $userId, shortcode: $shortcode)
+        }
+      `,
+      variables: {
+        slug,
+        userId,
+        shortcode,
+      },
+    })
+  }
+
   updateNotificationRead(notificationId, read) {
     return this.client.mutate({
       mutation: gql`
@@ -536,46 +768,46 @@ export default class GraphqlService {
     })
   }
 
-  updateUserMuted(userId, roomId, muted) {
+  updateUserMuted(userId, channelId, muted) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserMuted($userId: String, $roomId: String, $muted: Boolean) {
-          updateUserMuted(userId: $userId, roomId: $roomId, muted: $muted)
+        mutation updateUserMuted($userId: String, $channelId: String, $muted: Boolean) {
+          updateUserMuted(userId: $userId, channelId: $channelId, muted: $muted)
         }
       `,
       variables: {
         userId,
-        roomId,
+        channelId,
         muted,
       },
     })
   }
 
-  updateUserArchived(userId, roomId, archived) {
+  updateUserArchived(userId, channelId, archived) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserArchived($userId: String, $roomId: String, $archived: Boolean) {
-          updateUserArchived(userId: $userId, roomId: $roomId, archived: $archived)
+        mutation updateUserArchived($userId: String, $channelId: String, $archived: Boolean) {
+          updateUserArchived(userId: $userId, channelId: $channelId, archived: $archived)
         }
       `,
       variables: {
         userId,
-        roomId,
+        channelId,
         archived,
       },
     })
   }
 
-  updateUserStarred(userId, roomId, starred) {
+  updateUserStarred(userId, channelId, starred) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserStarred($userId: String, $roomId: String, $starred: Boolean) {
-          updateUserStarred(userId: $userId, roomId: $roomId, starred: $starred)
+        mutation updateUserStarred($userId: String, $channelId: String, $starred: Boolean) {
+          updateUserStarred(userId: $userId, channelId: $channelId, starred: $starred)
         }
       `,
       variables: {
         userId,
-        roomId,
+        channelId,
         starred,
       },
     })
@@ -588,8 +820,9 @@ export default class GraphqlService {
           createTeam(payload: $payload) {
             id
             name
+            slug
+            shortcode
             image
-            url
           }
         }
       `,
@@ -599,15 +832,30 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamUrl(teamId) {
+  updateTeamShortcode(teamId, shortcode) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamUrl($teamId: String) {
-          updateTeamUrl(teamId: $teamId)
+        mutation updateTeamShortcode($teamId: String, $shortcode: String) {
+          updateTeamShortcode(teamId: $teamId, shortcode: $shortcode)
         }
       `,
       variables: {
         teamId,
+        shortcode,
+      },
+    })
+  }
+
+  updateTeamSlug(teamId, slug) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTeamSlug($teamId: String, $slug: String) {
+          updateTeamSlug(teamId: $teamId, slug: $slug)
+        }
+      `,
+      variables: {
+        teamId,
+        slug,
       },
     })
   }
@@ -639,31 +887,32 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamMemberAdmin(teamId, userId, admin) {
+  updateTeamMemberRole(teamId, userId, role) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMemberAdmin($teamId: String, $userId: String, $admin: Boolean) {
-          updateTeamMemberAdmin(teamId: $teamId, userId: $userId, admin: $admin)
+        mutation updateTeamMemberRole($teamId: String, $userId: String, $role: String) {
+          updateTeamMemberRole(teamId: $teamId, userId: $userId, role: $role)
         }
       `,
       variables: {
         teamId,
         userId,
-        admin,
+        role,
       },
     })
   }
 
-  inviteTeamMembers(teamName, teamUrl, emails) {
+  inviteTeamMembers(teamName, teamSlug, teamShortcode, emails) {
     return this.client.mutate({
       mutation: gql`
-        mutation inviteTeamMembers($teamName: String, $teamUrl: String, $emails: String) {
-          inviteTeamMembers(teamName: $teamName, teamUrl: $teamUrl, emails: $emails)
+        mutation inviteTeamMembers($teamName: String, $teamSlug: String, $teamShortcode: String, $emails: String) {
+          inviteTeamMembers(teamName: $teamName, teamSlug: $teamSlug, teamShortcode: $teamShortcode, emails: $emails)
         }
       `,
       variables: {
         teamName,
-        teamUrl,
+        teamSlug,
+        teamShortcode,
         emails,
       },
     })
@@ -683,11 +932,11 @@ export default class GraphqlService {
     })
   }
 
-  createRoom(payload) {
+  createChannel(payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoom($payload: String) {
-          createRoom(payload: $payload) {
+        mutation createChannel($payload: String) {
+          createChannel(payload: $payload) {
             id
             title
             description
@@ -706,6 +955,7 @@ export default class GraphqlService {
                 color
                 role
                 username
+                timezone
                 image
               }
             }
@@ -715,6 +965,7 @@ export default class GraphqlService {
               status
               role
               username
+              timezone
               image
             }
           }
@@ -726,11 +977,11 @@ export default class GraphqlService {
     })
   }
 
-  updateRoom(roomId, payload) {
+  updateChannel(channelId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoom($roomId: String, $payload: String) {
-          updateRoom(roomId: $roomId, payload: $payload) {
+        mutation updateChannel($channelId: String, $payload: String) {
+          updateChannel(channelId: $channelId, payload: $payload) {
             id
             title
             description
@@ -746,44 +997,44 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
+        channelId,
         payload: JSON.stringify(payload),
       },
     })
   }
 
-  deleteRoom(roomId) {
+  deleteChannel(channelId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoom($roomId: String) {
-          deleteRoom(roomId: $roomId)
+        mutation deleteChannel($channelId: String) {
+          deleteChannel(channelId: $channelId)
         }
       `,
       variables: {
-        roomId,
+        channelId,
       },
     })
   }
 
-  createRoomMember(roomId, userId) {
+  createChannelMember(channelId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMember($roomId: String, $userId: String) {
-          createRoomMember(roomId: $roomId, userId: $userId)
+        mutation createChannelMember($channelId: String, $userId: String) {
+          createChannelMember(channelId: $channelId, userId: $userId)
         }
       `,
       variables: {
-        roomId,
+        channelId,
         userId,
       },
     })
   }
 
-  deleteRoomMessage(messageId) {
+  deleteChannelMessage(messageId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMessage($messageId: String) {
-          deleteRoomMessage(messageId: $messageId)
+        mutation deleteChannelMessage($messageId: String) {
+          deleteChannelMessage(messageId: $messageId)
         }
       `,
       variables: {
@@ -792,31 +1043,32 @@ export default class GraphqlService {
     })
   }
 
-  deleteRoomMember(roomId, userId) {
+  deleteChannelMember(channelId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMember($roomId: String, $userId: String) {
-          deleteRoomMember(roomId: $roomId, userId: $userId)
+        mutation deleteChannelMember($channelId: String, $userId: String) {
+          deleteChannelMember(channelId: $channelId, userId: $userId)
         }
       `,
       variables: {
-        roomId,
+        channelId,
         userId,
       },
     })
   }
 
-  updateRoomMessage(roomId, userId, userName, messageId, message, attachments) {
+  updateChannelMessage(messageId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateRoomMessage($roomId: String, $userId: String, $userName: String, $messageId: String, $message: String, $attachments: [AttachmentInput]) {
-          updateRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, messageId: $messageId, message: $message, attachments: $attachments) {
+        mutation updateChannelMessage($messageId: String, $payload: String) {
+          updateChannelMessage(messageId: $messageId, payload: $payload) {
             id
             user {
               id
               name
               image
               username
+              timezone
             }
             message
             reactions
@@ -830,12 +1082,14 @@ export default class GraphqlService {
               createdAt
               size
             }
+            system
             parent {
               user {
                 id
                 name
                 image
                 username
+                timezone
                 color
               }
               message
@@ -846,27 +1100,24 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
-        userId,
-        userName,
         messageId,
-        message,
-        attachments,
+        payload: JSON.stringify(payload),
       },
     })
   }
 
-  createRoomMessage(roomId, userId, userName, message, attachments, parentId) {
+  createChannelMessage(payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessage($roomId: String, $userId: String, $userName: String, $message: String, $attachments: [AttachmentInput], $parentId: String) {
-          createRoomMessage(roomId: $roomId, userId: $userId, userName: $userName, message: $message, attachments: $attachments, parentId: $parentId) {
+        mutation createChannelMessage($payload: String) {
+          createChannelMessage(payload: $payload) {
             id
             user {
               id
               name
               image
               username
+              timezone
             }
             message
             reactions
@@ -880,12 +1131,14 @@ export default class GraphqlService {
               createdAt
               size
             }
+            system
             parent {
               user {
                 id
                 name
                 image
                 username
+                timezone
                 color
               }
               message
@@ -896,21 +1149,16 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        roomId,
-        userId,
-        userName,
-        message,
-        attachments,
-        parentId,
+        payload: JSON.stringify(payload),
       },
     })
   }
 
-  createRoomMessageReaction(messageId, reaction) {
+  createChannelMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation createRoomMessageReaction($messageId: String, $reaction: String) {
-          createRoomMessageReaction(messageId: $messageId, reaction: $reaction)
+        mutation createChannelMessageReaction($messageId: String, $reaction: String) {
+          createChannelMessageReaction(messageId: $messageId, reaction: $reaction)
         }
       `,
       variables: {
@@ -920,11 +1168,11 @@ export default class GraphqlService {
     })
   }
 
-  deleteRoomMessageReaction(messageId, reaction) {
+  deleteChannelMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteRoomMessageReaction($messageId: String, $reaction: String) {
-          deleteRoomMessageReaction(messageId: $messageId, reaction: $reaction)
+        mutation deleteChannelMessageReaction($messageId: String, $reaction: String) {
+          deleteChannelMessageReaction(messageId: $messageId, reaction: $reaction)
         }
       `,
       variables: {

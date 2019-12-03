@@ -10,8 +10,8 @@ export const sync = store => next => action => {
   // Delete it so it doesn't loop
   delete mutableAction.sync
 
-  // This sends this action to the sync room in SO
-  // So everybody that is subscribed to that room
+  // This sends this action to the sync channel in SO
+  // So everybody that is subscribed to that channel
   // will receive this action
   if (sync) MessagingService.getInstance().sync(sync, mutableAction)
 

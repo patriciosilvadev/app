@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import { Button, Modal } from '@weekday/elements'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function ConfirmModal({ onOkay, onCancel, text, title }) {
   // prettier-ignore
@@ -15,15 +14,15 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
         width={450}
         height={300}
         onClose={onCancel}>
-          <div className="row justify-content-center pt-30">
-            <div className="h5 pl-30 pr-30 center w-light color-dark-0">
-              {text}
-            </div>
+        <div className="row justify-content-center pt-30">
+          <div className="h5 pl-30 pr-30 center w-light color-dark-0">
+            {text}
           </div>
-          <div className="row justify-content-center pt-30 pb-30">
-            <Button size="large" onClick={onOkay} text="Yes" className="mr-10" />
-            <Button size="large" onClick={onCancel} text="No" />
-          </div>
+        </div>
+        <div className="row justify-content-center pt-30 pb-30">
+          <Button size="large" onClick={onOkay} text="Yes" className="mr-10" />
+          <Button size="large" onClick={onCancel} text="No" />
+        </div>
       </Modal>
     </ModalPortal>
   )

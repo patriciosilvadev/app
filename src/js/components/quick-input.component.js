@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import GraphqlService from '../services/graphql.service'
 import { Popup } from '@weekday/elements'
 import PropTypes from 'prop-types'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Filter = styled.input`
   border: none;

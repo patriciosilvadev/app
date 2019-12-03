@@ -1,4 +1,5 @@
 import { SOCKETIO_HOST } from '../environment'
+import { logger } from '../helpers/util'
 
 export default class MessagingService {
   static instance
@@ -8,15 +9,15 @@ export default class MessagingService {
     this.client = io.connect(SOCKETIO_HOST)
 
     this.client.on('connect', data => {
-      console.log('WS:CONNECTED')
+      logger('WS:CONNECTED')
     })
 
     this.client.on('error', data => {
-      console.log('WS:ERROR')
+      logger('WS:ERROR')
     })
 
     this.client.on('connect_failed', data => {
-      console.log('WS:FAILED')
+      logger('WS:FAILED')
     })
   }
 
@@ -32,36 +33,36 @@ export default class MessagingService {
     this.client.emit('sync', { sync, action })
   }
 
-  joins(roomIds) {
-    this.client.emit('joins', { roomIds })
+  joins(channelIds) {
+    this.client.emit('joins', { channelIds })
   }
 
-  join(roomId) {
-    this.client.emit('join', { roomId })
+  join(channelId) {
+    this.client.emit('join', { channelId })
   }
 
-  leave(roomId) {
-    this.client.emit('leave', { roomId })
+  leave(channelId) {
+    this.client.emit('leave', { channelId })
   }
 
-  joinRoom(userIds, roomId) {
-    this.client.emit('joinRoom', { userIds, roomId })
+  joinChannel(userIds, channelId) {
+    this.client.emit('joinChannel', { userIds, channelId })
   }
 
-  leaveRoomTeam(teamId, roomId) {
-    this.client.emit('leaveRoomTeam', { teamId, roomId })
+  leaveChannelTeam(teamId, channelId) {
+    this.client.emit('leaveChannelTeam', { teamId, channelId })
   }
 
-  joinRoomTeam(teamId, roomId) {
-    this.client.emit('joinRoomTeam', { teamId, roomId })
+  joinChannelTeam(teamId, channelId) {
+    this.client.emit('joinChannelTeam', { teamId, channelId })
   }
 
   joinTeam(userIds, teamId) {
     this.client.emit('joinTeam', { userIds, teamId })
   }
 
-  leaveRoom(userIds, roomId) {
-    this.client.emit('leaveRoom', { userIds, roomId })
+  leaveChannel(userIds, channelId) {
+    this.client.emit('leaveChannel', { userIds, channelId })
   }
 
   leaveTeam(userIds, teamId) {

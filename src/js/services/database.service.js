@@ -1,5 +1,6 @@
 import PouchDB from 'pouchdb'
 import { LOCAL_DB } from '../environment'
+import { logger } from '../helpers/util'
 
 export default class DatabaseService {
   static instance
@@ -10,17 +11,17 @@ export default class DatabaseService {
 
     // Get DB info
     this.database.info().then(info => {
-      console.log('DB CONNECTED')
+      logger('DB CONNECTED')
     })
   }
 
-  unread(team, room) {
+  unread(team, channel) {
     this.database
       .query(
         (doc, emit) => {
-          emit([doc.team, doc.room])
+          emit([doc.team, doc.channel])
         },
-        { key: [team, room] }
+        { key: [team, channel] }
       )
       .then(result => {
         const record = result.rows.flatten()
@@ -38,38 +39,38 @@ export default class DatabaseService {
           this.database
             .post({
               team,
-              room,
+              channel,
               count: 1,
             })
             .then(doc => {
-              console.log('CREATE DB ROW', doc)
+              logger('CREATE DB ROW', doc)
             })
             .catch(err => {
-              console.log('DB ERROR', err)
+              logger('DB ERROR', err)
             })
         }
       })
   }
 
-  read(room) {
+  read(channel) {
     this.database
       .allDocs({ include_docs: true })
       .then(({ rows }) => {
         rows.map(row => {
-          if (row.doc.room == room) {
+          if (row.doc.channel == channel) {
             this.database
               .remove(row.doc)
               .catch(res => {
-                console.log('DB REMOVE', res)
+                logger('DB REMOVE', res)
               })
               .catch(err => {
-                console.error('DB ERROR', err)
+                logger('DB ERROR', err)
               })
           }
         })
       })
       .catch(err => {
-        console.log('DB ERROR', err)
+        logger('DB ERROR', err)
       })
   }
 
