@@ -70,24 +70,26 @@ export default function ToolbarComponent(props) {
     handleAppStoreClick()
     setButtons([])
 
-    channel.apps.filter(app => app.active).map(app => {
-      if (!app.app.tools) return
-      if (app.app.tools.length == 0) return
+    channel.apps
+      .filter(app => app.active)
+      .map(app => {
+        if (!app.app.tools) return
+        if (app.app.tools.length == 0) return
 
-      // Add the channel app details to each button so we can
-      // pass them to the action _ for meta data
-      setButtons(
-        app.app.tools.map(tool => {
-          return {
-            ...tool,
-            action: {
-              ...tool.action,
-              token: app.token,
-            },
-          }
-        })
-      )
-    })
+        // Add the channel app details to each button so we can
+        // pass them to the action _ for meta data
+        setButtons(
+          app.app.tools.map(tool => {
+            return {
+              ...tool,
+              action: {
+                ...tool.action,
+                token: app.token,
+              },
+            }
+          })
+        )
+      })
   }, [channel.apps])
 
   // prettier-ignore

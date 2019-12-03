@@ -186,7 +186,7 @@ export default memo(props => {
       // Only if there is an app
       if (!channelApp) return
 
-      // Otherwise carry on 
+      // Otherwise carry on
       const channelAppToken = channelApp.token
 
       // This might be null
