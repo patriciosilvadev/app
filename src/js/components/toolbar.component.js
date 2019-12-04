@@ -67,7 +67,6 @@ export default function ToolbarComponent(props) {
 
   // Load all our toolbar actions
   useEffect(() => {
-    handleAppStoreClick()
     setButtons([])
 
     channel.apps
