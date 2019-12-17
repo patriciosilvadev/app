@@ -321,12 +321,12 @@ class ChannelsComponent extends React.Component {
             className="mr-10"
           />
 
-          <div className="column flexer pl-10">
+          <HeaderTitles className="column">
             <HeaderTeam>
               {this.props.team.name}
             </HeaderTeam>
 
-            <HeaderTitle>
+            <HeaderTitle className="align-items-center">
               {this.props.user.name}
             </HeaderTitle>
 
@@ -337,14 +337,13 @@ class ChannelsComponent extends React.Component {
               handleDismiss={() => this.setState({ statusMenu: false })}
               handleAccept={(status) => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
               placeholder={this.props.user.status}>
-
               <HeaderSubtitle
                 className="button"
                 onClick={() => this.setState({ statusMenu: true })}>
                 {this.props.user.status || "Update your status"}
               </HeaderSubtitle>
             </QuickInputComponent>
-          </div>
+          </HeaderTitles>
 
           <Popup
             handleDismiss={this._closeUserMenu.bind(this)}
@@ -720,6 +719,11 @@ const Header = styled.div`
   transition: background-color 0.5s;
 `
 
+const HeaderTitles = styled.div`
+  flex: 1;
+  padding-left: 10px;
+`
+
 const HeaderTitle = styled.div`
   font-size: 14px;
   font-weight: 500;
@@ -727,7 +731,9 @@ const HeaderTitle = styled.div`
   color: white;
   transition: opacity 0.5s;
   display: inline-block;
-  flex: 1;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  height: 20px;
 `
 
 const HeaderTeam = styled.div`

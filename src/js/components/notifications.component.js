@@ -4,10 +4,11 @@ import moment from 'moment'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import { hydrateNotifications, updateNotificationRead } from '../actions'
-import { Spinner } from '@weekday/elements'
+import { Spinner, Popup } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
+import { logger } from '../helpers/util'
 
 export default function NotificationsComponent(props) {
   const [page, setPage] = useState(0)
@@ -28,7 +29,7 @@ export default function NotificationsComponent(props) {
     try {
       const { data } = await GraphqlService.getInstance().notifications(userId, page)
 
-      dispatch(updateLoading(false))
+      setLoading(false)
       dispatch(hydrateNotifications(data.notifications))
     } catch (e) {
       logger(e)
@@ -56,6 +57,11 @@ export default function NotificationsComponent(props) {
     setPage(page + 1)
     fetchNotifications(userId)
   }
+
+  // Get all the teams
+  useEffect(() => {
+    if (user.id) fetchNotifications(user.id)
+  }, [user.id])
 
   // prettier-ignore
   return (
@@ -113,6 +119,7 @@ export default function NotificationsComponent(props) {
         </Container>
       }>
       <div
+        style={{...props.style}}
         className="button"
         onClick={(e) => setNotificationsMenu(true)}>
         {hasNotification && <Badge />}

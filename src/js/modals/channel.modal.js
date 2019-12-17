@@ -196,7 +196,7 @@ export default function ChannelModal(props) {
                             <IconComponent
                               icon="markdown"
                               size={20}
-                              color="#00a8ff"
+                              color="#007af5"
                             />
                             <Supported>
                               Markdown supported
@@ -259,7 +259,7 @@ export default function ChannelModal(props) {
                             <IconComponent
                               icon="plus"
                               size={20}
-                              color="#00a8ff"
+                              color="#007af5"
                             />
                           </Avatar>
 
@@ -327,7 +327,7 @@ const Row = styled.div`
 `
 
 const Link = styled.div`
-  color: #00a8ff;
+  color: #007af5;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -341,7 +341,7 @@ const Column = styled.div`
 const Supported = styled.div`
   font-size: 12px;
   font-weight: 600;
-  color: #00a8ff;
+  color: #007af5;
   margin-left: 5px;
 `
 
