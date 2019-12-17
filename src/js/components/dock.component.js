@@ -16,36 +16,10 @@ import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
 
-const Dock = styled.div`
-  width: 70px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  display: flex;
-  height: 100%;
-  position: relative;
-  background: white;
-  background: #040b1c;
-  border-right: 1px solid #0a152e;
-`
-
-const Badge = styled.span`
-  position: absolute;
-  right: -3px;
-  bottom: -3px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background-color: #007af5;
-  border: 2px solid #040b1c;
-`
-
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [teamOnboardingModal, setTeamOnboardingModal] = useState(false)
-  const [lastPathname, setLastPathname] = useState('')
-  const [hasNotification, setHasNotification] = useState(false)
-  const [notificationsMenu, setNotificationsMenu] = useState(false)
   const dispatch = useDispatch()
   const channel = useSelector(state => state.channel)
   const user = useSelector(state => state.user)
@@ -55,22 +29,19 @@ export default function DockComponent(props) {
   const notifications = useSelector(state => state.notifications)
 
   // When the user creates a team from quick input component
-
-  const fetchTeamsAndNotifications = async userId => {
+  const fetchTeams = async userId => {
     setLoading(true)
     setError(false)
 
     try {
       const teams = await GraphqlService.getInstance().teams(userId)
-      const notifications = await GraphqlService.getInstance().notifications(userId, 0)
       const teamIds = teams.data.teams.map(team => team.id)
-
-      // Join all these team channels
-      MessagingService.getInstance().joins(teamIds)
 
       setLoading(false)
       dispatch(hydrateTeams(teams.data.teams))
-      dispatch(hydrateNotifications(notifications.data.notifications))
+
+      // Join all these team channels
+      MessagingService.getInstance().joins(teamIds)
     } catch (e) {
       logger(e)
       setLoading(false)
@@ -79,19 +50,13 @@ export default function DockComponent(props) {
   }
 
   // Important for setting highlighted team
-  // Keep watching
-  useEffect(() => {
-    const { pathname } = props.history.location
-    const pathnameParts = pathname.split('/')
-    const unreadNotifications = notifications.filter(n => !n.read).length > 0
-
-    setHasNotification(unreadNotifications)
-    setLastPathname(pathnameParts[pathnameParts.length - 1])
-  })
+  const { pathname } = props.history.location
+  const pathnameParts = pathname.split('/')
+  const lastPathname = pathnameParts[pathnameParts.length - 1]
 
   // Get all the teams
   useEffect(() => {
-    if (user.id) fetchTeamsAndNotifications(user.id)
+    if (user.id) fetchTeams(user.id)
 
     // If the user has signed up (this query string will be present)
     if (props.history.location.search) {
@@ -145,27 +110,7 @@ export default function DockComponent(props) {
         />
       </Avatar>
 
-      <div style={{ height: 20 }} />
-
-      <Popup
-        handleDismiss={() => setNotificationsMenu(false)}
-        visible={notificationsMenu}
-        width={275}
-        direction="left-bottom"
-        content={
-          <NotificationsComponent />
-        }>
-        <div
-          className="button"
-          onClick={(e) => setNotificationsMenu(true)}>
-          {hasNotification && <Badge />}
-          <IconComponent
-            icon="bell"
-            size={20}
-            color={hasNotification ? "white" : "#475669"}
-          />
-        </div>
-      </Popup>
+      <NotificationsComponent style={{ marginTop: 20 }} />
 
       <div className="flexer"></div>
 
@@ -175,3 +120,15 @@ export default function DockComponent(props) {
 }
 
 DockComponent.propTypes = {}
+
+const Dock = styled.div`
+  width: 70px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  display: flex;
+  height: 100%;
+  position: relative;
+  background: white;
+  background: #040b1c;
+  border-right: 1px solid #0a152e;
+`

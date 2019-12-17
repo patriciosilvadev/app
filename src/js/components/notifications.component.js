@@ -9,6 +9,136 @@ import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
 
+export default function NotificationsComponent(props) {
+  const [page, setPage] = useState(0)
+  const notifications = useSelector(state => state.notifications)
+  const common = useSelector(state => state.common)
+  const user = useSelector(state => state.user)
+  const userId = user.id
+  const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [notificationsMenu, setNotificationsMenu] = useState(false)
+  const hasNotification = notifications.filter(n => !n.read).length > 0
+
+  const fetchNotifications = async userId => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const { data } = await GraphqlService.getInstance().notifications(userId, page)
+
+      dispatch(updateLoading(false))
+      dispatch(hydrateNotifications(data.notifications))
+    } catch (e) {
+      logger(e)
+      setLoading(false)
+      setError(e)
+    }
+  }
+
+  const handleReadButtonClick = async (notificationId, read) => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      await GraphqlService.getInstance().updateNotificationRead(notificationId, read)
+
+      setLoading(false)
+      dispatch(updateNotificationRead(notificationId, read))
+    } catch (e) {
+      setLoading(false)
+      setError(false)
+    }
+  }
+
+  const handleLoadButtonClick = () => {
+    setPage(page + 1)
+    fetchNotifications(userId)
+  }
+
+  // prettier-ignore
+  return (
+    <Popup
+      handleDismiss={() => setNotificationsMenu(false)}
+      visible={notificationsMenu}
+      width={275}
+      direction="left-bottom"
+      content={
+        <Container className="column">
+          {loading && <Spinner />}
+
+          <Inner className="column align-items-center">
+            {notifications.map((notification, index) => {
+              return (
+                <Row key={index} className="row">
+                  <div className="flexer column">
+                    <div className="row w-100 flexer">
+                      <Title read={notification.read}>{notification.title}</Title>
+                      <Created>{moment(notification.createdAt).fromNow()}</Created>
+                    </div>
+                    <Body read={notification.read}>{notification.body}</Body>
+                    <div className="row">
+                      <Button
+                        className="button"
+                        onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
+                        {notification.read ? "Mark as unread" : "Mark as read"}
+                      </Button>
+                    </div>
+                  </div>
+                </Row>
+              )
+            })}
+
+            {notifications.length == 0 &&
+              <React.Fragment>
+                <img src="https://weekday-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
+                <TitleText>Whoops</TitleText>
+                <SubtitleText>You have no notifications</SubtitleText>
+              </React.Fragment>
+            }
+
+            <LoadContainer
+              onClick={() => handleLoadButtonClick()}
+              className="button row justify-content-center">
+              <IconComponent
+                icon="refresh"
+                size={15}
+                color="#acb5bd"
+                className="mt-5 mb-5"
+              />
+            <LoadText>Refresh</LoadText>
+            </LoadContainer>
+          </Inner>
+        </Container>
+      }>
+      <div
+        className="button"
+        onClick={(e) => setNotificationsMenu(true)}>
+        {hasNotification && <Badge />}
+        <IconComponent
+          icon="bell"
+          size={20}
+          color={hasNotification ? "white" : "#475669"}
+        />
+      </div>
+    </Popup>
+  )
+}
+
+NotificationsComponent.propTypes = {}
+
+const Badge = styled.span`
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background-color: #007af5;
+  border: 2px solid #040b1c;
+`
+
 const Container = styled.div`
   width: 100%;
   height: 500px;
@@ -86,101 +216,3 @@ const SubtitleText = styled.div`
   font-size: 12px;
   font-weight: 400;
 `
-
-export default function NotificationsComponent(props) {
-  const [page, setPage] = useState(1)
-  const notifications = useSelector(state => state.notifications)
-  const common = useSelector(state => state.common)
-  const user = useSelector(state => state.user)
-  const userId = user.id
-  const dispatch = useDispatch()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-
-  const fetchNotifications = async userId => {
-    setLoading(true)
-    setError(false)
-
-    try {
-      const { data } = await GraphqlService.getInstance().notifications(userId, page)
-
-      dispatch(updateLoading(false))
-      dispatch(hydrateNotifications(data.notifications))
-    } catch (e) {
-      setLoading(false)
-      setError(e)
-    }
-  }
-
-  const handleReadButtonClick = async (notificationId, read) => {
-    setLoading(true)
-    setError(false)
-
-    try {
-      await GraphqlService.getInstance().updateNotificationRead(notificationId, read)
-
-      setLoading(false)
-      dispatch(updateNotificationRead(notificationId, read))
-    } catch (e) {
-      setLoading(false)
-      setError(false)
-    }
-  }
-
-  const handleLoadButtonClick = () => {
-    setPage(page + 1)
-    fetchNotifications(userId)
-  }
-
-  // prettier-ignore
-  return (
-    <Container className="column">
-      {loading && <Spinner />}
-
-      <Inner className="column align-items-center">
-        {notifications.map((notification, index) => {
-          return (
-            <Row key={index} className="row">
-              <div className="flexer column">
-                <div className="row w-100 flexer">
-                  <Title read={notification.read}>{notification.title}</Title>
-                  <Created>{moment(notification.createdAt).fromNow()}</Created>
-                </div>
-                <Body read={notification.read}>{notification.body}</Body>
-                <div className="row">
-                  <Button
-                    className="button"
-                    onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
-                    {notification.read ? "Mark as unread" : "Mark as read"}
-                  </Button>
-                </div>
-              </div>
-            </Row>
-          )
-        })}
-
-        {notifications.length == 0 &&
-          <React.Fragment>
-            <img src="https://weekday-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
-            <TitleText>Whoops</TitleText>
-            <SubtitleText>You have no notifications</SubtitleText>
-          </React.Fragment>
-        }
-
-        <LoadContainer
-          onClick={() => handleLoadButtonClick()}
-          className="button row justify-content-center">
-          <IconComponent
-            icon="refresh"
-            size={15}
-            color="#acb5bd"
-            className="mt-5 mb-5"
-          />
-        <LoadText>Refresh</LoadText>
-        </LoadContainer>
-      </Inner>
-    </Container>
-  )
-}
-
-NotificationsComponent.propTypes = {}
