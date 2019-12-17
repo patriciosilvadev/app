@@ -29,6 +29,12 @@ class AuthPage extends React.Component {
     this.signupOnboarding = this.signupOnboarding.bind(this)
     this.resetPassword = this.resetPassword.bind(this)
     this.updatePassword = this.updatePassword.bind(this)
+
+    this.renderPasswordReset = this.renderPasswordReset.bind(this)
+    this.renderPasswordUpdate = this.renderPasswordUpdate.bind(this)
+    this.renderSignupOnboarding = this.renderSignupOnboarding.bind(this)
+    this.renderSignup = this.renderSignup.bind(this)
+    this.renderSignin = this.renderSignin.bind(this)
   }
 
   async signupOnboarding(payload) {
@@ -176,6 +182,515 @@ class AuthPage extends React.Component {
     }
   }
 
+  // Render functions for the auth page
+  // Making it easier (to read)
+  renderPasswordReset() {
+    if (!this.state.verify && this.state.view == "password") {
+      return (
+        <Formik
+          initialValues={{ email: '' }}
+          onSubmit={(values, actions) => {
+            actions.resetForm()
+            this.resetPassword(values.email)
+          }}
+          validationSchema={Yup.object().shape({
+            email: Yup.string().email().required('Required'),
+          })}>
+          {props => {
+            const {
+              values,
+              touched,
+              errors,
+              dirty,
+              isSubmitting,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              handleReset,
+            } = props;
+
+            return (
+              <Form onSubmit={handleSubmit} className="column align-items-center">
+                <div className="h4 p-30 color-d3 text-center">
+                  Enter your email address and we'll send you a verification code to reset your password.
+                </div>
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="email"
+                    value={values.email}
+                    inputSize="large"
+                    placeholder="Email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.email && touched.email ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
+
+                <Footer className="column align-items-center">
+                  <Button
+                    size="large"
+                    type="submit"
+                    disabled={isSubmitting}
+                    text="Send me a code"
+                  />
+                  <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                    Go back to sign in
+                  </SmallTextButton>
+                </Footer>
+              </Form>
+            );
+          }}
+        </Formik>
+      )
+    }
+
+    return null
+  }
+
+  renderPasswordUpdate() {
+    if (this.state.verify && this.state.view == "password") {
+      return (
+        <Formik
+          initialValues={{ email: '', password: '', code: '' }}
+          onSubmit={(values, actions) => {
+            actions.resetForm()
+            this.updatePassword(values.email, values.password, values.code)
+          }}
+          validationSchema={Yup.object().shape({
+            password: Yup.string().required('Required'),
+            email: Yup.string().email().required('Required'),
+            code: Yup.string().required('Required'),
+          })}>
+          {props => {
+            const {
+              values,
+              touched,
+              errors,
+              dirty,
+              isSubmitting,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              handleReset,
+            } = props;
+
+            return (
+              <Form onSubmit={handleSubmit} className="column align-items-center">
+                <div className="h4 p-30 color-d3 text-center">
+                  Enter your verification code & new password.
+                </div>
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="email"
+                    inputSize="large"
+                    value={values.email}
+                    placeholder="Email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.email && touched.email ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
+
+                <InputContainer>
+                  <Input
+                    type="password"
+                    name="password"
+                    inputSize="large"
+                    value={values.password}
+                    placeholder="New Password"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.password && touched.password ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="code"
+                    inputSize="large"
+                    value={values.code}
+                    placeholder="Confirm code"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.code && touched.code ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.code && touched.code && <ErrorText>{errors.code}</ErrorText>}
+
+                <Footer className="column align-items-center">
+                  <Button
+                    size="large"
+                    type="submit"
+                    disabled={isSubmitting}
+                    text="Update Password"
+                  />
+                  <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
+                    Get another code
+                  </SmallTextButton>
+                </Footer>
+              </Form>
+            );
+          }}
+        </Formik>
+      )
+    }
+
+    return null
+  }
+
+  renderSignupOnboarding() {
+    if (this.state.view == "signup-onboarding") {
+      return (
+        <Formik
+          initialValues={{
+            name: 'Joseph',
+            description: 'Coolness',
+            role: 'ed',
+          }}
+          onSubmit={(values, actions) => {
+            actions.resetForm()
+            this.signupOnboarding(values)
+          }}
+          validationSchema={Yup.object().shape({
+            name: Yup.string().required('Required'),
+            description: Yup.string().required('Required'),
+            role: Yup.string().required('Required'),
+          })}>
+          {props => {
+            const {
+              values,
+              touched,
+              errors,
+              dirty,
+              isSubmitting,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              handleReset,
+            } = props;
+
+            return (
+              <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                <div className="h1 mt-30 color-d3 text-center">Tell us a bit about yourself</div>
+                <div className="h4 mb-30 mt-20 color-d0 text-center">Add some more detail about yourself</div>
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="name"
+                    inputSize="large"
+                    autocomplete="off"
+                    value={values.name}
+                    placeholder="Full name"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.name && touched.name ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.name && touched.name && <ErrorText>{errors.name}</ErrorText>}
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="role"
+                    inputSize="large"
+                    autocomplete="off"
+                    value={values.role}
+                    placeholder="Current role"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.role && touched.role ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.role && touched.role && <ErrorText>{errors.role}</ErrorText>}
+
+                <InputContainer>
+                  <Textarea
+                    rows={3}
+                    type="password"
+                    name="description"
+                    textareaSize="large"
+                    autocomplete="off"
+                    value={values.description}
+                    placeholder="Bio"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.description && touched.description ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.description && touched.description && <ErrorText>{errors.description}</ErrorText>}
+
+                <InputContainer>
+                  <Select
+                    label="Your timezone"
+                    onSelect={(index) => this.setState({ timezone: index })}
+                    selected={this.state.timezone}
+                    size="large"
+                    options={moment.tz.names().map((timezone, index) => {
+                      return {
+                        option: timezone.replace("_", " "),
+                        value: timezone,
+                      }
+                    })}
+                  />
+                </InputContainer>
+
+                <Footer className="column align-items-center">
+                  <Button
+                    size="large"
+                    type="submit"
+                    disabled={isSubmitting}
+                    text="Complete"
+                  />
+                  <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                    Just let me sign in already
+                  </SmallTextButton>
+                  <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
+                    By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
+                  </a>
+                </Footer>
+              </Form>
+            );
+          }}
+        </Formik>
+      )
+    }
+
+    return null
+  }
+
+  renderSignup() {
+    if (this.state.view == "signup") {
+      return (
+        <Formik
+          initialValues={{
+            username: '',
+            email: '',
+            password: '',
+            confirm: '',
+          }}
+          onSubmit={(values, actions) => {
+            actions.resetForm()
+            this.signup(values.username, values.email, values.password, values.confirm)
+          }}
+          validationSchema={Yup.object().shape({
+            username: Yup.string().required('Required'),
+            email: Yup.string().email().required('Required'),
+            password: Yup.string().required('Required'),
+            confirm: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match')
+          })}>
+          {props => {
+            const {
+              values,
+              touched,
+              errors,
+              dirty,
+              isSubmitting,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              handleReset,
+            } = props;
+
+            return (
+              <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                <div className="h1 mb-30 mt-30 color-d3">Create an account</div>
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="username"
+                    inputSize="large"
+                    autocomplete="off"
+                    value={values.username}
+                    placeholder="Username"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.username && touched.username ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
+
+                <InputContainer>
+                  <Input
+                    type="text"
+                    name="email"
+                    inputSize="large"
+                    autocomplete="off"
+                    value={values.email}
+                    placeholder="Email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.email && touched.email ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
+
+                <InputContainer>
+                  <Input
+                    type="password"
+                    name="password"
+                    inputSize="large"
+                    autocomplete="off"
+                    value={values.password}
+                    placeholder="Password"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.password && touched.password ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
+
+                <InputContainer>
+                  <Input
+                    type="password"
+                    name="confirm"
+                    inputSize="large"
+                    autocomplete="off"
+                    value={values.confirm}
+                    placeholder="Confirm password"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={errors.confirm && touched.confirm ? 'error' : null}
+                  />
+                </InputContainer>
+
+                {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
+
+                <Footer className="column align-items-center">
+                  <Button
+                    size="large"
+                    type="submit"
+                    disabled={isSubmitting}
+                    text="Sign up"
+                  />
+                  <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                    Go back to sign in
+                  </SmallTextButton>
+                  <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
+                    By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
+                  </a>
+                </Footer>
+              </Form>
+            );
+          }}
+        </Formik>
+      )
+    }
+
+    return null
+  }
+
+  renderSignin() {
+    if (this.state.view == "signin") {
+      return (
+        <React.Fragment>
+          <div className="h1 mb-30 mt-30 color-d3">Sign in</div>
+
+          <div className="h5 color-d0">
+            Please log in using your username & password
+          </div>
+
+          <Formik
+            initialValues={{ username: '', password: '' }}
+            onSubmit={(values, actions) => {
+              actions.resetForm()
+              this.signin(values.username, values.password)
+            }}
+            validationSchema={Yup.object().shape({
+              username: Yup.string().required('Required'),
+              password: Yup.string().required('Required'),
+            })}>
+            {props => {
+              const {
+                values,
+                touched,
+                errors,
+                dirty,
+                isSubmitting,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                handleReset,
+              } = props;
+
+              return (
+                <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                  <InputContainer>
+                    <Input
+                      name="username"
+                      type="text"
+                      inputSize="large"
+                      placeholder="Username"
+                      autocomplete="off"
+                      value={values.username}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={errors.username && touched.username ? 'error' : null}
+                    />
+                  </InputContainer>
+
+                  {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
+
+                  <InputContainer>
+                    <Input
+                      name="password"
+                      type="password"
+                      placeholder="Password"
+                      inputSize="large"
+                      autocomplete="off"
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={errors.password && touched.password ? 'error' : null}
+                    />
+                  </InputContainer>
+
+                  {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
+
+                  <Spacer />
+
+                  <Button
+                    size="large"
+                    type="submit"
+                    disabled={isSubmitting}
+                    text="Sign in"
+                  />
+                  <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
+                    I've lost my password
+                  </SmallTextButton>
+                  <SmallTextButton onClick={() => this.setState({ view: 'signup', error: null })} className="mt-10">
+                    Create an account
+                  </SmallTextButton>
+                </Form>
+              );
+            }}
+          </Formik>
+        </React.Fragment>
+      )
+    }
+
+    return null
+  }
+
   // prettier-ignore
   render() {
     return(
@@ -193,492 +708,14 @@ class AuthPage extends React.Component {
           <Container className="column justify-content-center align-content-center align-items-stretch">
             {this.state.view == "password" &&
               <React.Fragment>
-                {!this.state.verify &&
-                  <React.Fragment>
-                    <Formik
-                      initialValues={{ email: '' }}
-                      onSubmit={(values, actions) => {
-                        actions.resetForm()
-                        this.resetPassword(values.email)
-                      }}
-                      validationSchema={Yup.object().shape({
-                        email: Yup.string().email().required('Required'),
-                      })}>
-                      {props => {
-                        const {
-                          values,
-                          touched,
-                          errors,
-                          dirty,
-                          isSubmitting,
-                          handleChange,
-                          handleBlur,
-                          handleSubmit,
-                          handleReset,
-                        } = props;
-
-                        return (
-                          <Form onSubmit={handleSubmit} className="column align-items-center">
-                            <div className="h4 p-30 color-d3 text-center">
-                              Enter your email address and we'll send you a verification code to reset your password.
-                            </div>
-
-                            <InputContainer>
-                              <Input
-                                type="text"
-                                name="email"
-                                value={values.email}
-                                inputSize="large"
-                                placeholder="Email"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={errors.email && touched.email ? 'error' : null}
-                              />
-                            </InputContainer>
-
-                            {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
-
-                            <Footer className="column align-items-center">
-                              <Button
-                                size="large"
-                                type="submit"
-                                disabled={isSubmitting}
-                                text="Send me a code"
-                              />
-                              <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
-                                Go back to sign in
-                              </SmallTextButton>
-                            </Footer>
-                          </Form>
-                        );
-                      }}
-                    </Formik>
-                  </React.Fragment>
-                }
-
-                {this.state.verify &&
-                  <React.Fragment>
-                    <Formik
-                      initialValues={{ email: '', password: '', code: '' }}
-                      onSubmit={(values, actions) => {
-                        actions.resetForm()
-                        this.updatePassword(values.email, values.password, values.code)
-                      }}
-                      validationSchema={Yup.object().shape({
-                        password: Yup.string().required('Required'),
-                        email: Yup.string().email().required('Required'),
-                        code: Yup.string().required('Required'),
-                      })}>
-                      {props => {
-                        const {
-                          values,
-                          touched,
-                          errors,
-                          dirty,
-                          isSubmitting,
-                          handleChange,
-                          handleBlur,
-                          handleSubmit,
-                          handleReset,
-                        } = props;
-
-                        return (
-                          <Form onSubmit={handleSubmit} className="column align-items-center">
-                            <div className="h4 p-30 color-d3 text-center">
-                              Enter your email address and we'll send you a verification code to reset your password.
-                            </div>
-
-                            <InputContainer>
-                              <Input
-                                type="text"
-                                name="email"
-                                inputSize="large"
-                                value={values.email}
-                                placeholder="Email"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={errors.email && touched.email ? 'error' : null}
-                              />
-                            </InputContainer>
-
-                            {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
-
-                            <InputContainer>
-                              <Input
-                                type="password"
-                                name="password"
-                                inputSize="large"
-                                value={values.password}
-                                placeholder="New Password"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={errors.password && touched.password ? 'error' : null}
-                              />
-                            </InputContainer>
-
-                            {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
-
-                            <InputContainer>
-                              <Input
-                                type="text"
-                                name="code"
-                                inputSize="large"
-                                value={values.code}
-                                placeholder="Confirm code"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={errors.code && touched.code ? 'error' : null}
-                              />
-                            </InputContainer>
-
-                            {errors.code && touched.code && <ErrorText>{errors.code}</ErrorText>}
-
-                            <Footer className="column align-items-center">
-                              <Button
-                                size="large"
-                                type="submit"
-                                disabled={isSubmitting}
-                                text="Update Password"
-                              />
-                              <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
-                                Get another code
-                              </SmallTextButton>
-                            </Footer>
-                          </Form>
-                        );
-                      }}
-                    </Formik>
-                  </React.Fragment>
-                }
+                {this.renderPasswordReset()}
+                {this.renderPasswordUpdate()}
               </React.Fragment>
             }
 
-            {this.state.view == "signup-onboarding" &&
-              <React.Fragment>
-                <Formik
-                  initialValues={{
-                    name: 'Joseph',
-                    description: 'Coolness',
-                    role: 'ed',
-                  }}
-                  onSubmit={(values, actions) => {
-                    actions.resetForm()
-                    this.signupOnboarding(values)
-                  }}
-                  validationSchema={Yup.object().shape({
-                    name: Yup.string().required('Required'),
-                    description: Yup.string().required('Required'),
-                    role: Yup.string().required('Required'),
-                  })}>
-                  {props => {
-                    const {
-                      values,
-                      touched,
-                      errors,
-                      dirty,
-                      isSubmitting,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit,
-                      handleReset,
-                    } = props;
-
-                    return (
-                      <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                        <div className="h1 mt-30 color-d3 text-center">Tell us a bit about yourself</div>
-                        <div className="h4 mb-30 mt-20 color-d0 text-center">Add some more detail about yourself</div>
-
-                        <InputContainer>
-                          <Input
-                            type="text"
-                            name="name"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.name}
-                            placeholder="Full name"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.name && touched.name ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.name && touched.name && <ErrorText>{errors.name}</ErrorText>}
-
-                        <InputContainer>
-                          <Input
-                            type="text"
-                            name="role"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.role}
-                            placeholder="Current role"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.role && touched.role ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.role && touched.role && <ErrorText>{errors.role}</ErrorText>}
-
-                        <InputContainer>
-                          <Textarea
-                            rows={3}
-                            type="password"
-                            name="description"
-                            textareaSize="large"
-                            autocomplete="off"
-                            value={values.description}
-                            placeholder="Bio"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.description && touched.description ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.description && touched.description && <ErrorText>{errors.description}</ErrorText>}
-
-                        <InputContainer>
-                          <Select
-                            label="Your timezone"
-                            onSelect={(index) => this.setState({ timezone: index })}
-                            selected={this.state.timezone}
-                            size="large"
-                            options={moment.tz.names().map((timezone, index) => {
-                              return {
-                                option: timezone.replace("_", " "),
-                                value: timezone,
-                              }
-                            })}
-                          />
-                        </InputContainer>
-
-                        <Footer className="column align-items-center">
-                          <Button
-                            size="large"
-                            type="submit"
-                            disabled={isSubmitting}
-                            text="Complete"
-                          />
-                          <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
-                            Just let me sign in already
-                          </SmallTextButton>
-                          <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
-                            By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
-                          </a>
-                        </Footer>
-                      </Form>
-                    );
-                  }}
-                </Formik>
-              </React.Fragment>
-            }
-
-            {this.state.view == "signup" &&
-              <React.Fragment>
-                <Formik
-                  initialValues={{
-                    username: '',
-                    email: '',
-                    password: '',
-                    confirm: '',
-                  }}
-                  onSubmit={(values, actions) => {
-                    actions.resetForm()
-                    this.signup(values.username, values.email, values.password, values.confirm)
-                  }}
-                  validationSchema={Yup.object().shape({
-                    username: Yup.string().required('Required'),
-                    email: Yup.string().email().required('Required'),
-                    password: Yup.string().required('Required'),
-                    confirm: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match')
-                  })}>
-                  {props => {
-                    const {
-                      values,
-                      touched,
-                      errors,
-                      dirty,
-                      isSubmitting,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit,
-                      handleReset,
-                    } = props;
-
-                    return (
-                      <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                        <div className="h1 mb-30 mt-30 color-d3">Create an account</div>
-
-                        <InputContainer>
-                          <Input
-                            type="text"
-                            name="username"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.username}
-                            placeholder="Username"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.username && touched.username ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
-
-                        <InputContainer>
-                          <Input
-                            type="text"
-                            name="email"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.email}
-                            placeholder="Email"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.email && touched.email ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
-
-                        <InputContainer>
-                          <Input
-                            type="password"
-                            name="password"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.password}
-                            placeholder="Password"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.password && touched.password ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
-
-                        <InputContainer>
-                          <Input
-                            type="password"
-                            name="confirm"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.confirm}
-                            placeholder="Confirm password"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.confirm && touched.confirm ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
-
-                        <Footer className="column align-items-center">
-                          <Button
-                            size="large"
-                            type="submit"
-                            disabled={isSubmitting}
-                            text="Sign up"
-                          />
-                          <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
-                            Go back to sign in
-                          </SmallTextButton>
-                          <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
-                            By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
-                          </a>
-                        </Footer>
-                      </Form>
-                    );
-                  }}
-                </Formik>
-              </React.Fragment>
-            }
-
-            {this.state.view == "signin" &&
-              <React.Fragment>
-                <div className="h1 mb-30 mt-30 color-d3">Sign in</div>
-
-                <div className="h5 color-d0">
-                  Please log in using your username & password
-                </div>
-
-                <Formik
-                  initialValues={{ username: '', password: '' }}
-                  onSubmit={(values, actions) => {
-                    actions.resetForm()
-                    this.signin(values.username, values.password)
-                  }}
-                  validationSchema={Yup.object().shape({
-                    username: Yup.string().required('Required'),
-                    password: Yup.string().required('Required'),
-                  })}>
-                  {props => {
-                    const {
-                      values,
-                      touched,
-                      errors,
-                      dirty,
-                      isSubmitting,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit,
-                      handleReset,
-                    } = props;
-
-                    return (
-                      <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                        <InputContainer>
-                          <Input
-                            name="username"
-                            type="text"
-                            inputSize="large"
-                            placeholder="Username"
-                            autocomplete="off"
-                            value={values.username}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.username && touched.username ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.username && touched.username && <ErrorText>{errors.username}</ErrorText>}
-
-                        <InputContainer>
-                          <Input
-                            name="password"
-                            type="password"
-                            placeholder="Password"
-                            inputSize="large"
-                            autocomplete="off"
-                            value={values.password}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={errors.password && touched.password ? 'error' : null}
-                          />
-                        </InputContainer>
-
-                        {errors.password && touched.password && <ErrorText>{errors.password}</ErrorText>}
-
-                        <Spacer />
-
-                        <Button
-                          size="large"
-                          type="submit"
-                          disabled={isSubmitting}
-                          text="Sign in"
-                        />
-                        <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
-                          I've lost my password
-                        </SmallTextButton>
-                        <SmallTextButton onClick={() => this.setState({ view: 'signup', error: null })} className="mt-10">
-                          Create an account
-                        </SmallTextButton>
-                      </Form>
-                    );
-                  }}
-                </Formik>
-              </React.Fragment>
-            }
+            {this.renderSignupOnboarding()}
+            {this.renderSignup()}
+            {this.renderSignin()}
           </Container>
         </Auth>
       </React.Fragment>

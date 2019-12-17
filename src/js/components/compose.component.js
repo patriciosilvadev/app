@@ -66,6 +66,14 @@ class ComposeComponent extends React.Component {
     this.onSend = this.onSend.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
     this.clearMessage = this.clearMessage.bind(this)
+
+    this.renderMembers = this.renderMembers.bind(this)
+    this.renderUpdate = this.renderUpdate.bind(this)
+    this.renderAttachments = this.renderAttachments.bind(this)
+    this.renderCommands = this.renderCommands.bind(this)
+    this.renderReplyMessage = this.renderReplyMessage.bind(this)
+    this.renderInput = this.renderInput.bind(this)
+    this.renderFooter = this.renderFooter.bind(this)
   }
 
   handleActionClick(action) {
@@ -390,6 +398,226 @@ class ComposeComponent extends React.Component {
     return null
   }
 
+  // Render functions for the compose.component
+  // Readability
+  renderUpdate() {
+    if (this.props.update) {
+      return (
+        <UpdateContainer className="row">
+          <UpdateText>
+            Updating message
+
+            {this.props.message.parent &&
+              <span> - replying to {this.props.message.parent.user.name}</span>
+            }
+          </UpdateText>
+          <div className="flexer"></div>
+          <UpdateCancel className="button" onClick={this.clearMessage}>
+            Cancel
+          </UpdateCancel>
+        </UpdateContainer>
+      )
+    }
+
+    return null
+  }
+
+  renderAttachments() {
+    if (this.state.attachments.length == 0) return null
+
+    return (
+      <Attachments className="row">
+        {this.state.attachments.map((attachment, index) => {
+          return (
+            <Attachment
+              key={index}
+              layout="compose"
+              uri={attachment.uri}
+              mime={attachment.mime}
+              size={attachment.size}
+              name={attachment.name}
+              createdAt={null}
+              onDeleteClick={() => this.setState({ attachments: this.state.attachments.filter((a, _) => {
+                return attachment.uri != a.uri
+              })})}
+            />
+          )
+        })}
+      </Attachments>
+    )
+  }
+
+  renderMembers() {
+    if (this.state.members.length == 0) return null
+
+    return (
+      <DrawerContainer>
+        <Members
+          members={this.state.members}
+          handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
+        />
+      </DrawerContainer>
+    )
+  }
+
+  renderCommands() {
+    if (this.state.commands.length == 0) return null
+
+    return (
+      <DrawerContainer>
+        <CommandContainer>
+          {this.state.commands.map((command, index) => {
+            return (
+              <CommandRow key={index}>
+                <CommandName>/{command.name}</CommandName>
+                <CommandDescription>{command.description}</CommandDescription>
+              </CommandRow>
+            )
+          })}
+        </CommandContainer>
+      </DrawerContainer>
+    )
+  }
+
+  renderReplyMessage() {
+    if (this.props.message && this.props.reply) {
+      return (
+        <ReplyPadding className="column align-items-stretch flexer">
+          <ReplyText>Replying to:</ReplyText>
+          <ReplyContainer className="row justify-content-center">
+            <div className="pl-10 column flexer">
+              <div className="row">
+                <ReplyName>
+                  {this.props.message.app ? this.props.message.app.name : this.props.message.user.name}
+                </ReplyName>
+                <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
+              </div>
+              <ReplyMessage>
+                {this.props.message.message}
+              </ReplyMessage>
+            </div>
+            <IconComponent
+              icon="x"
+              size={20}
+              color="#565456"
+              className="ml-15 button"
+              onClick={this.props.clearMessage}
+            />
+          </ReplyContainer>
+        </ReplyPadding>
+      )
+    }
+
+    return null
+  }
+
+  renderInput() {
+    return (
+      <InputContainer className="row">
+        <input
+          className="hide"
+          ref={(ref) => this.fileRef = ref}
+          type="file"
+          multiple
+          onChange={this.handleFileChange}
+        />
+
+        <Input
+          style={{ height: this.state.height }}
+          ref={(ref) => this.composeRef = ref}
+          placeholder="Say something"
+          value={this.state.text}
+          onKeyUp={this.handleKeyUp}
+          onKeyDown={this.handleKeyDown}
+          onChange={this.handleComposeChange}
+        />
+
+        {this.props.channel.apps.filter(app => app.active).map((app, index) => {
+          if (!app.app.attachments) return
+          if (app.app.attachments.length == 0) return
+
+          return (
+            <React.Fragment key={index}>
+              {app.app.attachments.map((button, i) => {
+                return (
+                  <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                    <AppIconImage image={button.icon} />
+                  </AppIconContainer>
+                )
+              })}
+            </React.Fragment>
+          )
+        })}
+
+        <Popup
+          handleDismiss={() => this.setState({ emoticonMenu: false })}
+          visible={this.state.emoticonMenu}
+          width={350}
+          direction="right-top"
+          content={
+            <Picker
+              style={{ width: 350 }}
+              set='emojione'
+              title=""
+              emoji=""
+              showPreview={false}
+              showSkinTones={false}
+              onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
+            />
+          }>
+          <IconComponent
+            icon="smile"
+            size={20}
+            color="#565456"
+            className="ml-15 button"
+            onClick={() => this.setState({ emoticonMenu: true })}
+          />
+        </Popup>
+
+        <IconComponent
+          icon="attachment"
+          size={20}
+          color="#565456"
+          className="ml-15 button"
+          onClick={() => this.fileRef.click()}
+        />
+
+        <IconComponent
+          icon="at"
+          size={20}
+          color="#565456"
+          className="ml-15 button"
+          onClick={() => {
+            this.insertAtCursor("@")
+            this.filterMembers("")
+          }}
+        />
+
+        <IconComponent
+          icon="send"
+          size={20}
+          color="#565456"
+          className="ml-15 button"
+          onClick={this.onSend}
+        />
+      </InputContainer>
+    )
+  }
+
+  renderFooter() {
+    return (
+      <Footer className="row">
+        <IconComponent
+          icon="markdown"
+          size={20}
+          color="#cfd4d9"
+          className="mr-10"
+        />
+        <span>Use <strong>**markdown**</strong> to format your message</span>
+      </Footer>
+    )
+  }
+
   // prettier-ignore
   render() {
     return (
@@ -398,191 +626,13 @@ class ComposeComponent extends React.Component {
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} />}
 
-        {this.props.update &&
-          <UpdateContainer className="row">
-            <UpdateText>
-              Updating message
-
-              {this.props.message.parent &&
-                <span> - replying to {this.props.message.parent.user.name}</span>
-              }
-            </UpdateText>
-            <div className="flexer"></div>
-            <UpdateCancel className="button" onClick={this.clearMessage}>
-              Cancel
-            </UpdateCancel>
-          </UpdateContainer>
-        }
-
-        {this.state.attachments.length != 0 &&
-          <Attachments className="row">
-            {this.state.attachments.map((attachment, index) => {
-              return (
-                <Attachment
-                  key={index}
-                  layout="compose"
-                  uri={attachment.uri}
-                  mime={attachment.mime}
-                  size={attachment.size}
-                  name={attachment.name}
-                  createdAt={null}
-                  onDeleteClick={() => this.setState({ attachments: this.state.attachments.filter((a, _) => {
-                    return attachment.uri != a.uri
-                  })})}
-                />
-              )
-            })}
-          </Attachments>
-        }
-
-        {this.state.members.length != 0 &&
-          <DrawerContainer>
-            <Members
-              members={this.state.members}
-              handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
-            />
-          </DrawerContainer>
-        }
-
-        {this.state.commands.length != 0 &&
-          <DrawerContainer>
-            <CommandContainer>
-              {this.state.commands.map((command, index) => {
-                return (
-                  <CommandRow key={index}>
-                    <CommandName>/{command.name}</CommandName>
-                    <CommandDescription>{command.description}</CommandDescription>
-                  </CommandRow>
-                )
-              })}
-            </CommandContainer>
-          </DrawerContainer>
-        }
-
-        {this.props.message && this.props.reply &&
-          <ReplyPadding className="column align-items-stretch flexer">
-            <ReplyText>Replying to:</ReplyText>
-            <ReplyContainer className="row justify-content-center">
-              <div className="pl-10 column flexer">
-                <div className="row">
-                  <ReplyName>
-                    {this.props.message.app ? this.props.message.app.name : this.props.message.user.name}
-                  </ReplyName>
-                  <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
-                </div>
-                <ReplyMessage>
-                  {this.props.message.message}
-                </ReplyMessage>
-              </div>
-              <IconComponent
-                icon="x"
-                size={20}
-                color="#565456"
-                className="ml-15 button"
-                onClick={this.props.clearMessage}
-              />
-            </ReplyContainer>
-          </ReplyPadding>
-        }
-
-        <InputContainer className="row">
-          <input
-            className="hide"
-            ref={(ref) => this.fileRef = ref}
-            type="file"
-            multiple
-            onChange={this.handleFileChange}
-          />
-
-          <Input
-            style={{ height: this.state.height }}
-            ref={(ref) => this.composeRef = ref}
-            placeholder="Say something"
-            value={this.state.text}
-            onKeyUp={this.handleKeyUp}
-            onKeyDown={this.handleKeyDown}
-            onChange={this.handleComposeChange}
-          />
-
-          {this.props.channel.apps.filter(app => app.active).map((app, index) => {
-            if (!app.app.attachments) return
-            if (app.app.attachments.length == 0) return
-
-            return (
-              <React.Fragment key={index}>
-                {app.app.attachments.map((button, i) => {
-                  return (
-                    <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
-                      <AppIconImage image={button.icon} />
-                    </AppIconContainer>
-                  )
-                })}
-              </React.Fragment>
-            )
-          })}
-
-          <Popup
-            handleDismiss={() => this.setState({ emoticonMenu: false })}
-            visible={this.state.emoticonMenu}
-            width={350}
-            direction="right-top"
-            content={
-              <Picker
-                style={{ width: 350 }}
-                set='emojione'
-                title=""
-                emoji=""
-                showPreview={false}
-                showSkinTones={false}
-                onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-              />
-            }>
-            <IconComponent
-              icon="smile"
-              size={20}
-              color="#565456"
-              className="ml-15 button"
-              onClick={() => this.setState({ emoticonMenu: true })}
-            />
-          </Popup>
-
-          <IconComponent
-            icon="attachment"
-            size={20}
-            color="#565456"
-            className="ml-15 button"
-            onClick={() => this.fileRef.click()}
-          />
-
-          <IconComponent
-            icon="at"
-            size={20}
-            color="#565456"
-            className="ml-15 button"
-            onClick={() => {
-              this.insertAtCursor("@")
-              this.filterMembers("")
-            }}
-          />
-
-          <IconComponent
-            icon="send"
-            size={20}
-            color="#565456"
-            className="ml-15 button"
-            onClick={this.onSend}
-          />
-        </InputContainer>
-
-        <Footer className="row">
-          <IconComponent
-            icon="markdown"
-            size={20}
-            color="#cfd4d9"
-            className="mr-10"
-          />
-          <span>Use <strong>**markdown**</strong> to format your message</span>
-        </Footer>
+        {this.renderUpdate()}
+        {this.renderAttachments()}
+        {this.renderMembers()}
+        {this.renderCommands()}
+        {this.renderReplyMessage()}
+        {this.renderInput()}
+        {this.renderFooter()}
       </Compose>
     )
   }
