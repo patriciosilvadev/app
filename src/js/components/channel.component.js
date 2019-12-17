@@ -13,7 +13,7 @@ import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
-import { openApp, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
+import { openApp, closeAppPanel, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
 import QuickUserComponent from '../components/quick-user.component'
@@ -416,8 +416,14 @@ class ChannelComponent extends React.Component {
           size={20}
           thickness={1.5}
           color="#babec9"
-          onClick={() => console.log('Show attachments')}
           className="ml-15 button"
+          onClick={() => {
+            // Close the app panel first
+            this.props.closeAppPanel()
+
+            // Open the attachments panel
+            this.props.history.push(`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/attachments`)
+          }}
         />
 
         {!this.props.channel.private &&
@@ -633,6 +639,7 @@ ChannelComponent.propTypes = {
   updateChannel: PropTypes.func,
   updateUserStarred: PropTypes.func,
   openApp: PropTypes.func,
+  closeAppPanel: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -641,6 +648,7 @@ const mapDispatchToProps = {
   updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
   updateUserStarred: (channelId, starred) => updateUserStarred(channelId, starred),
   openApp: action => openApp(action),
+  closeAppPanel: () => closeAppPanel(),
 }
 
 const mapStateToProps = state => {

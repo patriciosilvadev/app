@@ -12,7 +12,8 @@ import { Avatar, Loading, Error, Notification } from '@weekday/elements'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
-import AppPanelComponent from '../components/app-panel.component'
+import PanelAppComponent from '../components/panel-app.component'
+import PanelAttachmentsComponent from '../components/panel-attachments.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
@@ -243,13 +244,14 @@ class AppPage extends React.Component {
                 if (!this.props.app.panel) return null
 
                 return (
-                  <AppPanelComponent
+                  <PanelAppComponent
                     action={this.props.app.panel}
                     onClose={this.props.closeAppPanel}
                   />
                 )
               }}
             />
+            <Route path="/app/team/:teamId/channel/:channelId/attachments" component={PanelAttachmentsComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
           </App>
         </Router>
