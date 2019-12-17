@@ -403,20 +403,20 @@ class ChannelComponent extends React.Component {
         })}
 
         <IconComponent
-          icon="attachment"
-          size={20}
-          thickness={1.5}
-          color="#babec9"
-          onClick={() => console.log('Show attachments')}
-          className="ml-15 button"
-        />
-
-        <IconComponent
           icon="star"
           size={20}
           thickness={1.5}
           color={this.state.starred ? "#edd264" : "#babec9"}
           onClick={() => this.updateUserStarred(!this.state.starred)}
+          className="ml-15 button"
+        />
+
+        <IconComponent
+          icon="attachment"
+          size={20}
+          thickness={1.5}
+          color="#babec9"
+          onClick={() => console.log('Show attachments')}
           className="ml-15 button"
         />
 
