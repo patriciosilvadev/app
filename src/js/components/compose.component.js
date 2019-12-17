@@ -521,7 +521,6 @@ class ComposeComponent extends React.Component {
             )
           })}
 
-
           <Popup
             handleDismiss={() => this.setState({ emoticonMenu: false })}
             visible={this.state.emoticonMenu}

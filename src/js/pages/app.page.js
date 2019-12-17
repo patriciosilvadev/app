@@ -12,7 +12,7 @@ import { Avatar, Loading, Error, Notification } from '@weekday/elements'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
-import AppComponent from '../components/app.component'
+import AppPanelComponent from '../components/app-panel.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
@@ -243,7 +243,7 @@ class AppPage extends React.Component {
                 if (!this.props.app.panel) return null
 
                 return (
-                  <AppComponent
+                  <AppPanelComponent
                     action={this.props.app.panel}
                     onClose={this.props.closeAppPanel}
                   />

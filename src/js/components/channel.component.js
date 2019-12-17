@@ -61,7 +61,6 @@ class ChannelComponent extends React.Component {
     this.updateChannelVisibility = this.updateChannelVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
-    this.composeTypingNames = this.composeTypingNames.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.onSearch = this.onSearch.bind(this)
     this.setUpdateMessage = this.setUpdateMessage.bind(this)
@@ -75,6 +74,12 @@ class ChannelComponent extends React.Component {
 
     this.onSearch$ = new Subject()
     this.subscription = null
+
+    this.renderHeader = this.renderHeader.bind(this)
+    this.renderMessages = this.renderMessages.bind(this)
+    this.renderSearchResults = this.renderSearchResults.bind(this)
+    this.renderNotification = this.renderNotification.bind(this)
+    this.renderTypingNames = this.renderTypingNames.bind(this)
   }
 
   handleActionClick(action) {
@@ -100,17 +105,6 @@ class ChannelComponent extends React.Component {
       // Remove ourselves
       this.setState({ searchResults: data.searchMessages })
     } catch (e) {}
-  }
-
-  composeTypingNames() {
-    // Don't include ourselves
-    const typingUsers = this.props.channel.typing.filter(t => t.userId != this.props.user.id)
-
-    if (typingUsers.length == 0) {
-      return ''
-    } else {
-      return typingUsers.map(t => t.userName).join(', ') + ' is typing'
-    }
   }
 
   scrollToBottom() {
@@ -313,6 +307,264 @@ class ChannelComponent extends React.Component {
     }
   }
 
+  renderHeader() {
+    if (!this.state.open) return null
+
+    return (
+      <Header className="row">
+        <Avatar
+          image={this.state.image}
+          title={this.state.title}
+          size="medium"
+        />
+
+        <div className="column ml-10">
+          <HeaderTitle>
+            {this.state.title}
+          </HeaderTitle>
+
+          {/* Member header subtitle */}
+          <div className="row">
+            <HeaderText>
+              {this.props.channel.members.length.numberShorthand()} &nbsp;
+              {this.props.channel.members.length == 1 ? "member" : "members"}
+            </HeaderText>
+
+            {!this.props.channel.private && this.state.permissible &&
+              <div
+                className="ml-10 row button"
+                onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}>
+                <IconComponent
+                  icon="plus"
+                  size={15}
+                  color="#007af5"
+                  thickness={2}
+                  className="mr-5"
+                />
+                <HeaderLink>Add New</HeaderLink>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div className="flexer"></div>
+
+        <HeaderSearchContainer
+          className="row"
+          focus={this.state.searchFocus}>
+          <IconComponent
+            icon="search"
+            size={15}
+            color="#acb5bd"
+            thickness={2}
+            className="ml-10 mr-10"
+            onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
+          />
+
+          <HeaderSearchInput
+            placeholder="Search"
+            value={this.state.searchQuery}
+            onChange={this.onSearch}
+            onFocus={() => this.setState({ searchFocus: true })}
+            onBlur={() => this.setState({ searchFocus: false })}
+          />
+
+          {this.state.searchResults &&
+            <IconComponent
+              icon="x"
+              size={15}
+              thickness={2}
+              color="#acb5bd"
+              className="button"
+              onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
+            />
+          }
+        </HeaderSearchContainer>
+
+        {this.props.channel.apps.filter(app => app.active).map((app, index) => {
+          if (!app.active) return
+          if (!app.app.shortcuts) return
+          if (app.app.shortcuts.length == 0) return
+
+          return (
+            <React.Fragment key={index}>
+              {app.app.shortcuts.map((button, i) => {
+                return (
+                  <AppIconContainer key={i} onClick={() => this.handleActionClick({
+                      ...button.action,
+                      token: app.token,
+                    })}>
+                    <AppIconImage image={button.icon} />
+                  </AppIconContainer>
+                )
+              })}
+            </React.Fragment>
+          )
+        })}
+
+        <IconComponent
+          icon="attachment"
+          size={20}
+          thickness={1.5}
+          color="#babec9"
+          onClick={() => console.log('Show attachments')}
+          className="ml-15 button"
+        />
+
+        <IconComponent
+          icon="star"
+          size={20}
+          thickness={1.5}
+          color={this.state.starred ? "#edd264" : "#babec9"}
+          onClick={() => this.updateUserStarred(!this.state.starred)}
+          className="ml-15 button"
+        />
+
+        {!this.props.channel.private &&
+          <React.Fragment>
+            <IconComponent
+              icon="info"
+              size={20}
+              color="#acb5bd"
+              thickness={1.5}
+              className="ml-15 button"
+              onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}
+            />
+
+            <IconComponent
+              icon="users"
+              size={26}
+              thickness={0}
+              color="#acb5bd"
+              className="ml-15 button"
+              onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}
+            />
+
+            <Popup
+              handleDismiss={() => this.setState({ visibilityMenu: false })}
+              visible={this.state.visibilityMenu}
+              width={275}
+              direction="right-bottom"
+              content={
+                <Menu
+                  items={[
+                    { hide: this.props.channel.private, icon: <IconComponent icon="eye" size={20} color="#acb5bd" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateChannelVisibility({ private: false, public: true }) },
+                    { hide: this.props.channel.private, icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />, text: "Private", label: 'Members of this channel only', onClick: (e) => this.updateChannelVisibility({ private: false, public: false }) },
+                  ]}
+                />
+              }>
+              <IconComponent
+                icon={this.props.channel.public ? "eye" : "eye-off"}
+                size={20}
+                thickness={1.5}
+                color="#acb5bd"
+                className="ml-15 button"
+                onClick={() => this.state.permissible ? this.setState({ visibilityMenu: true }) : null}
+              />
+            </Popup>
+          </React.Fragment>
+        }
+      </Header>
+    )
+  }
+
+  renderMessages() {
+    if (!this.state.open || this.state.searchResults) return null
+
+    return (
+      <React.Fragment>
+        {this.props.channel.private && <PaddingToKeepMessagesDown />}
+
+        {!this.props.channel.private &&
+          <Welcome>
+            <WelcomeUser className="row">
+              <Avatar
+                title={this.props.channel.user.name}
+                image={this.props.channel.user.image}
+                size="small"
+              />
+
+              <WelcomeUserName>
+                Started by {this.props.channel.user.name} - {moment(this.props.channel.createdAt).fromNow()}
+              </WelcomeUserName>
+            </WelcomeUser>
+
+            <WelcomeTitle>
+              {this.state.title}
+            </WelcomeTitle>
+
+            {this.props.channel.description &&
+              <WelcomeDescription>
+                <ReactMarkdown source={this.props.channel.description} />
+              </WelcomeDescription>
+            }
+
+            {/* If there is no channel description */}
+            {/* Then give the user the option to update it */}
+            {/* But only if they can */}
+            {!this.props.channel.description && this.state.permissible &&
+              <WelcomeDescriptionUpdate
+                className="button"
+                onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}>
+                Add some more context about this conversation here
+              </WelcomeDescriptionUpdate>
+            }
+          </Welcome>
+        }
+
+        <MessagesInner ref={(ref) => this.messagesRef = ref}>
+          <MessagesComponent
+            messages={this.props.channel.messages}
+            highlight={this.state.searchQuery}
+            setUpdateMessage={this.setUpdateMessage}
+            setReplyMessage={this.setReplyMessage}
+          />
+        </MessagesInner>
+      </React.Fragment>
+    )
+  }
+
+  renderSearchResults() {
+    if (!this.state.open || !this.state.searchResults) return null
+
+    return (
+      <React.Fragment>
+        <Welcome>
+          <WelcomeDescription>
+            <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? "message" : "messages"}`} />
+          </WelcomeDescription>
+        </Welcome>
+
+        <MessagesInner ref={(ref) => this.messagesRef = ref}>
+          <MessagesComponent
+            messages={this.state.searchResults}
+            highlight={this.state.searchQuery}
+            setUpdateMessage={this.setUpdateMessage}
+            setReplyMessage={this.setReplyMessage}
+          />
+        </MessagesInner>
+      </React.Fragment>
+    )
+  }
+
+  renderNotification() {
+    if (!this.state.open) return <Error message="Sorry, you are not allowed to view this" />
+    if (this.props.channel.public && !this.props.channel.public) return <Notification text="This team channel is public" />
+
+    return null
+  }
+
+  renderTypingNames() {
+    // Don't include ourselves
+    const typingUsers = this.props.channel.typing.filter(t => t.userId != this.props.user.id)
+
+    if (typingUsers.length == 0) {
+      return null
+    } else {
+      return <Typing>{typingUsers.map(t => t.userName).join(', ') + ' is typing'}</Typing>
+    }
+  }
+
   // prettier-ignore
   render() {
     return (
@@ -348,253 +600,15 @@ class ChannelComponent extends React.Component {
               <div className="h5 color-d1 mt-30">Drop your files here to upload</div>
           </Dropzone>
 
-          {!this.state.open &&
-            <Blocked>
-              Sorry, you are not allowed to view this
-            </Blocked>
-          }
-
-          {/* Only show the header to people who can see this channel */}
-          {this.state.open &&
-            <Header className="row">
-              <Avatar
-                image={this.state.image}
-                title={this.state.title}
-                size="medium"
-              />
-
-              <div className="column ml-10">
-                <HeaderTitle>
-                  {this.state.title}
-                </HeaderTitle>
-
-                {/* Member header subtitle */}
-                <div className="row">
-                  <HeaderText>
-                    {this.props.channel.members.length.numberShorthand()} &nbsp;
-                    {this.props.channel.members.length == 1 ? "member" : "members"}
-                  </HeaderText>
-
-                  {!this.props.channel.private && this.state.permissible &&
-                    <div
-                      className="ml-10 row button"
-                      onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}>
-                      <IconComponent
-                        icon="plus"
-                        size={15}
-                        color="#007af5"
-                        thickness={2}
-                        className="mr-5"
-                      />
-                      <HeaderLink>Add New</HeaderLink>
-                    </div>
-                  }
-                </div>
-              </div>
-
-              <div className="flexer"></div>
-
-              <HeaderSearchContainer
-                className="row"
-                focus={this.state.searchFocus}>
-                <IconComponent
-                  icon="search"
-                  size={15}
-                  color="#acb5bd"
-                  thickness={2}
-                  className="ml-10 mr-10"
-                  onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
-                />
-
-                <HeaderSearchInput
-                  placeholder="Search"
-                  value={this.state.searchQuery}
-                  onChange={this.onSearch}
-                  onFocus={() => this.setState({ searchFocus: true })}
-                  onBlur={() => this.setState({ searchFocus: false })}
-                />
-
-                {this.state.searchResults &&
-                  <IconComponent
-                    icon="x"
-                    size={15}
-                    thickness={2}
-                    color="#acb5bd"
-                    className="button"
-                    onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
-                  />
-                }
-              </HeaderSearchContainer>
-
-              {this.props.channel.apps.filter(app => app.active).map((app, index) => {
-                if (!app.active) return
-                if (!app.app.shortcuts) return
-                if (app.app.shortcuts.length == 0) return
-
-                return (
-                  <React.Fragment key={index}>
-                    {app.app.shortcuts.map((button, i) => {
-                      return (
-                        <AppIconContainer key={i} onClick={() => this.handleActionClick({
-                            ...button.action,
-                            token: app.token,
-                          })}>
-                          <AppIconImage image={button.icon} />
-                        </AppIconContainer>
-                      )
-                    })}
-                  </React.Fragment>
-                )
-              })}
-
-              <IconComponent
-                icon="attachment"
-                size={20}
-                thickness={1.5}
-                color="#babec9"
-                onClick={() => console.log('Show attachments')}
-                className="ml-15 button"
-              />
-
-              <IconComponent
-                icon="star"
-                size={20}
-                thickness={1.5}
-                color={this.state.starred ? "#edd264" : "#babec9"}
-                onClick={() => this.updateUserStarred(!this.state.starred)}
-                className="ml-15 button"
-              />
-
-              {!this.props.channel.private &&
-                <React.Fragment>
-                  <IconComponent
-                    icon="info"
-                    size={20}
-                    color="#acb5bd"
-                    thickness={1.5}
-                    className="ml-15 button"
-                    onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}
-                  />
-
-                  <IconComponent
-                    icon="users"
-                    size={26}
-                    thickness={0}
-                    color="#acb5bd"
-                    className="ml-15 button"
-                    onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}
-                  />
-
-                  <Popup
-                    handleDismiss={() => this.setState({ visibilityMenu: false })}
-                    visible={this.state.visibilityMenu}
-                    width={275}
-                    direction="right-bottom"
-                    content={
-                      <Menu
-                        items={[
-                          { hide: this.props.channel.private, icon: <IconComponent icon="eye" size={20} color="#acb5bd" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateChannelVisibility({ private: false, public: true }) },
-                          { hide: this.props.channel.private, icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />, text: "Private", label: 'Members of this channel only', onClick: (e) => this.updateChannelVisibility({ private: false, public: false }) },
-                        ]}
-                      />
-                    }>
-                    <IconComponent
-                      icon={this.props.channel.public ? "eye" : "eye-off"}
-                      size={20}
-                      thickness={1.5}
-                      color="#acb5bd"
-                      className="ml-15 button"
-                      onClick={() => this.state.permissible ? this.setState({ visibilityMenu: true }) : null}
-                    />
-                  </Popup>
-                </React.Fragment>
-              }
-            </Header>
-          }
-
-          {(this.props.channel.public && !this.props.channel.public) &&
-            <Notification text="This team channel is public" />
-          }
+          {this.renderHeader()}
+          {this.renderNotification()}
 
           <MessagesContainer ref={(ref) => this.scrollRef = ref}>
-            {/* Primary message list + header */}
-            {this.state.open && !this.state.searchResults &&
-              <React.Fragment>
-                {this.props.channel.private && <PaddingToKeepMessagesDown />}
-
-                {!this.props.channel.private &&
-                  <Welcome>
-                    <WelcomeUser className="row">
-                      <Avatar
-                        title={this.props.channel.user.name}
-                        image={this.props.channel.user.image}
-                        size="small"
-                      />
-
-                      <WelcomeUserName>
-                        Started by {this.props.channel.user.name} - {moment(this.props.channel.createdAt).fromNow()}
-                      </WelcomeUserName>
-                    </WelcomeUser>
-
-                    <WelcomeTitle>
-                      {this.state.title}
-                    </WelcomeTitle>
-
-                    {this.props.channel.description &&
-                      <WelcomeDescription>
-                        <ReactMarkdown source={this.props.channel.description} />
-                      </WelcomeDescription>
-                    }
-
-                    {/* If there is no channel description */}
-                    {/* Then give the user the option to update it */}
-                    {/* But only if they can */}
-                    {!this.props.channel.description && this.state.permissible &&
-                      <WelcomeDescriptionUpdate
-                        className="button"
-                        onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}>
-                        Add some more context about this conversation here
-                      </WelcomeDescriptionUpdate>
-                    }
-                  </Welcome>
-                }
-
-                <MessagesInner ref={(ref) => this.messagesRef = ref}>
-                  <MessagesComponent
-                    messages={this.props.channel.messages}
-                    highlight={this.state.searchQuery}
-                    setUpdateMessage={this.setUpdateMessage}
-                    setReplyMessage={this.setReplyMessage}
-                  />
-                </MessagesInner>
-              </React.Fragment>
-            }
-
-            {/* Search result display */}
-            {/* We use the welcome style do display search info */}
-            {this.state.open && this.state.searchResults &&
-              <React.Fragment>
-                <Welcome>
-                  <WelcomeDescription>
-                    <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? "message" : "messages"}`} />
-                  </WelcomeDescription>
-                </Welcome>
-
-                <MessagesInner ref={(ref) => this.messagesRef = ref}>
-                  <MessagesComponent
-                    messages={this.state.searchResults}
-                    highlight={this.state.searchQuery}
-                    setUpdateMessage={this.setUpdateMessage}
-                    setReplyMessage={this.setReplyMessage}
-                  />
-                </MessagesInner>
-              </React.Fragment>
-            }
+            {this.renderMessages()}
+            {this.renderSearchResults()}
           </MessagesContainer>
 
-          <Typing>
-            {this.composeTypingNames()}
-          </Typing>
+          {this.renderTypingNames()}
 
           {this.state.open &&
             <ComposeComponent
@@ -736,13 +750,6 @@ const HeaderSearchInput = styled.input`
   &::placeholder {
     color: #acb5bd;
   }
-`
-
-const Blocked = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: #343a40;
-  padding: 10px;
 `
 
 const Typing = styled.div`

@@ -38,7 +38,7 @@ const HeaderTitle = styled.div`
   flex: 1;
 `
 
-export default function AppComponent(props) {
+export default function AppPanelComponent(props) {
   const user = useSelector(state => state.user)
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
@@ -80,7 +80,7 @@ export default function AppComponent(props) {
   )
 }
 
-AppComponent.propTypes = {
+AppPanelComponent.propTypes = {
   onClose: PropTypes.func,
   action: PropTypes.any,
 }

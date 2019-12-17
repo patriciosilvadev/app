@@ -56,6 +56,14 @@ class ChannelsComponent extends React.Component {
 
     this.onSearch$ = new Subject()
     this.subscription = null
+
+    this.renderHeader = this.renderHeader.bind(this)
+    this.renderSearch = this.renderSearch.bind(this)
+    this.renderSearchResults = this.renderSearchResults.bind(this)
+    this.renderStarred = this.renderStarred.bind(this)
+    this.renderPublic = this.renderPublic.bind(this)
+    this.renderPrivate = this.renderPrivate.bind(this)
+    this.renderArchived = this.renderArchived.bind(this)
   }
 
   async updateUserStatus(userId, teamId, status) {
@@ -262,6 +270,384 @@ class ChannelsComponent extends React.Component {
     this.onSearch$.next(search)
   }
 
+  // Child render functions that compose the
+  // parts of the channels sidebar
+  renderHeader() {
+    return (
+      <Header className="row">
+        <Avatar
+          size="medium"
+          image={this.props.user.image}
+          title={this.props.user.name}
+          className="mr-10"
+        />
+
+        <HeaderTitles className="column">
+          <HeaderTeam>
+            {this.props.team.name}
+          </HeaderTeam>
+
+          <HeaderTitle className="align-items-center">
+            {this.props.user.name}
+          </HeaderTitle>
+
+          <QuickInputComponent
+            visible={this.state.statusMenu}
+            width={300}
+            direction="left-bottom"
+            handleDismiss={() => this.setState({ statusMenu: false })}
+            handleAccept={(status) => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
+            placeholder={this.props.user.status}>
+            <HeaderSubtitle
+              className="button"
+              onClick={() => this.setState({ statusMenu: true })}>
+              {this.props.user.status || "Update your status"}
+            </HeaderSubtitle>
+          </QuickInputComponent>
+        </HeaderTitles>
+
+        <Popup
+          handleDismiss={this._closeUserMenu.bind(this)}
+          visible={this.state.accountMenu}
+          width={275}
+          direction="left-bottom"
+          content={
+            <React.Fragment>
+              <AccountMenuHeader className="column align-items-center">
+                <Avatar
+                  size="medium"
+                  image={this.props.user.image}
+                  title={this.props.user.name}
+                />
+
+                <AccountMenuTitle>
+                  {this.props.user.name}
+                </AccountMenuTitle>
+
+                <AccountMenuSubtitle>
+                  {this.props.team.name}
+                </AccountMenuSubtitle>
+              </AccountMenuHeader>
+
+              <Menu
+                items={[
+                  {
+                    icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
+                    text: "Account settings",
+                    onClick: this._openAccountSettings.bind(this)
+                  },
+                  {
+                    icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
+                    text: "Team settings",
+                    onClick: this._openTeamSettings.bind(this),
+                  },
+                  {
+                    icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
+                    text: "Team directory",
+                    onClick: this._openTeamDirectory.bind(this),
+                  },
+                  {
+                    icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
+                    text: "Signout",
+                    onClick: this._signout.bind(this),
+                  },
+                ]}
+              />
+
+              <AccountMenuBuild>
+                Build {version}
+              </AccountMenuBuild>
+            </React.Fragment>
+          }>
+          <IconComponent
+            icon="chevron-down"
+            size={20}
+            thickness={2}
+            color="#475669"
+            className="button"
+            onClick={this._openUserMenu.bind(this)}
+          />
+        </Popup>
+      </Header>
+    )
+  }
+
+  renderSearch() {
+    return (
+      <SearchContainer className="row">
+        <SearchInner className="row">
+          <IconComponent
+            icon="search"
+            size={15}
+            color="#475669"
+            thickness={2}
+            className="ml-15"
+          />
+
+          <SearchInput
+            ref={(ref) => this.filterRef = ref}
+            visible={this.state.showFilter}
+            value={this.state.filter}
+            onChange={this.onSearch}
+            placeholder="Start Conversation"
+          />
+        </SearchInner>
+      </SearchContainer>
+    )
+  }
+
+  renderSearchResults() {
+    if (this.state.results.length == 0) return null
+
+    return (
+      <React.Fragment>
+        <Heading>Results</Heading>
+
+        {this.state.results.map((user, index) => {
+          return (
+            <Channel
+              key={index}
+              active={false}
+              unread={null}
+              title={user.name}
+              image={user.image}
+              excerpt={user.username}
+              public={null}
+              private={null}
+              onClick={() => this.createPrivateChannel(user)}
+            />
+          )
+        })}
+
+        {this.state.results.length == 0 &&
+          <Channel
+            active={false}
+            unread={null}
+            title={`Create '${this.state.filter}'`}
+            image={null}
+            excerpt={null}
+            public={null}
+            private={null}
+            onClick={() => this.createPublicChannel(this.state.filter)}
+          />
+        }
+      </React.Fragment>
+    )
+  }
+
+  renderStarred() {
+    if (this.state.starred.length == 0) return null
+
+    const { pathname } = this.props.history.location
+
+    return (
+      <React.Fragment>
+        <Heading>Favourites</Heading>
+
+        {this.state.starred.map((channel, index) => {
+          if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+          const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
+          const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
+          const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+          const unreadCount = unread ? unread.doc.count : 0
+          const to = `/app/team/${channel.team.id}/channel/${channel.id}`
+          const muted = this.props.user.muted.indexOf(channel.id) != -1
+          const archived = this.props.user.archived.indexOf(channel.id) != -1
+
+          return (
+            <Channel
+              key={index}
+              active={pathname.indexOf(channel.id) != -1}
+              unread={unreadCount}
+              title={title}
+              image={image}
+              excerpt={channel.excerpt}
+              public={channel.public}
+              private={channel.private}
+              muted={muted}
+              archived={archived}
+              onClick={() => this.props.history.push(to)}
+              onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+              onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+            />
+          )
+        })}
+      </React.Fragment>
+    )
+  }
+
+  renderPublic() {
+    if (this.state.public.length == 0) return null
+
+    const { pathname } = this.props.history.location
+
+    return (
+      <React.Fragment>
+        <div className="row pr-25">
+          <Heading>
+            Channels
+          </Heading>
+
+          {(this.props.team.role != 'GUEST') &&
+            <QuickInputComponent
+              visible={this.state.channelPopup}
+              width={250}
+              direction="right-bottom"
+              handleDismiss={() => this.setState({ channelPopup: false })}
+              handleAccept={(name) => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
+              placeholder="New channel name">
+              <IconComponent
+                icon="plus-circle"
+                size={15}
+                color="#475669"
+                thickness={2}
+                className="button"
+                onClick={() => this.setState({ channelPopup: true })}
+              />
+            </QuickInputComponent>
+          }
+        </div>
+
+        {this.state.public.map((channel, index) => {
+          if (this.props.user.starred.indexOf(channel.id) != -1) return
+          if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+          const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+          const unreadCount = unread ? unread.doc.count : 0
+          const muted = this.props.user.muted.indexOf(channel.id) != -1
+          const archived = this.props.user.archived.indexOf(channel.id) != -1
+
+          return (
+            <Channel
+              key={index}
+              active={pathname.indexOf(channel.id) != -1}
+              unread={unreadCount}
+              title={channel.title}
+              image={channel.image}
+              excerpt={channel.excerpt}
+              public={channel.public}
+              private={channel.private}
+              muted={muted}
+              archived={archived}
+              onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
+              onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+              onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+            />
+          )
+        })}
+      </React.Fragment>
+    )
+  }
+
+  renderPrivate() {
+    if (this.state.private.length == 0) return null
+
+    const { pathname } = this.props.history.location
+
+    return (
+      <React.Fragment>
+        <Heading>Private Conversations</Heading>
+
+        {this.state.private.map((channel, index) => {
+          if (this.props.user.starred.indexOf(channel.id) != -1) return
+
+          const title = channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "")
+          const image = channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "")
+          const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+          const unreadCount = unread ? unread.doc.count : 0
+          const muted = this.props.user.muted.indexOf(channel.id) != -1
+          const archived = this.props.user.archived.indexOf(channel.id) != -1
+
+          // Filter based on users search
+          if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+          // Get the other users' presence
+          const timeSnapshot = new Date().getTime()
+          const otherMember = channel.members.filter(member => member.user.id != this.props.user.id).flatten()
+          const otherMemberStatus = otherMember.user.status
+          const otherMemberTimezone = otherMember.user.timezone
+          const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
+          const presence = otherMemberPresence
+                            ? ((timeSnapshot - otherMemberPresence.userTime) > 15000)
+                              ? "away"
+                              : "online"
+                            : null
+
+          return (
+            <Channel
+              key={index}
+              presence={presence}
+              active={pathname.indexOf(channel.id) != -1}
+              unread={unreadCount}
+              title={title}
+              image={image}
+              excerpt={otherMemberStatus}
+              public={channel.public}
+              private={channel.private}
+              muted={muted}
+              archived={archived}
+              onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
+              onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+              onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+            />
+          )
+        })}
+      </React.Fragment>
+    )
+  }
+
+  renderArchived() {
+    if (this.state.archived.length == 0) return null
+
+    const { pathname } = this.props.history.location
+
+    return (
+      <React.Fragment>
+        <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
+          {this.state.archivedVisible ? "Hide archived" : "See archived"}
+        </Heading>
+
+        {this.state.archivedVisible &&
+          <React.Fragment>
+            {this.state.archived.map((channel, index) => {
+              if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+
+              const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
+              const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
+              const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+              const unreadCount = unread ? unread.doc.count : 0
+              const to = `/app/team/${channel.team.id}/channel/${channel.id}`
+              const muted = this.props.user.muted.indexOf(channel.id) != -1
+              const archived = this.props.user.archived.indexOf(channel.id) != -1
+
+              return (
+                <Channel
+                  key={index}
+                  active={pathname.indexOf(channel.id) != -1}
+                  unread={unreadCount}
+                  title={title}
+                  image={image}
+                  excerpt={channel.excerpt}
+                  public={channel.public}
+                  private={channel.private}
+                  muted={muted}
+                  archived={archived}
+                  onClick={() => this.props.history.push(to)}
+                  onArchivedClick={(e) => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+                  onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+                />
+              )
+            })}
+          </React.Fragment>
+        }
+      </React.Fragment>
+    )
+  }
+
+  // These unbounded functions
+  // So we haven't bound these to THIS
+  // Just is easier/quicker for now
   _openAccountSettings() {
     this.setState({ accountMenu: false, accountModal: true })
   }
@@ -293,7 +679,6 @@ class ChannelsComponent extends React.Component {
 
   // prettier-ignore
   render() {
-    const { pathname } = this.props.history.location
 
     return (
       <Channels className="column">
@@ -313,337 +698,15 @@ class ChannelsComponent extends React.Component {
           />
         }
 
-        <Header className="row">
-          <Avatar
-            size="medium"
-            image={this.props.user.image}
-            title={this.props.user.name}
-            className="mr-10"
-          />
-
-          <HeaderTitles className="column">
-            <HeaderTeam>
-              {this.props.team.name}
-            </HeaderTeam>
-
-            <HeaderTitle className="align-items-center">
-              {this.props.user.name}
-            </HeaderTitle>
-
-            <QuickInputComponent
-              visible={this.state.statusMenu}
-              width={300}
-              direction="left-bottom"
-              handleDismiss={() => this.setState({ statusMenu: false })}
-              handleAccept={(status) => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
-              placeholder={this.props.user.status}>
-              <HeaderSubtitle
-                className="button"
-                onClick={() => this.setState({ statusMenu: true })}>
-                {this.props.user.status || "Update your status"}
-              </HeaderSubtitle>
-            </QuickInputComponent>
-          </HeaderTitles>
-
-          <Popup
-            handleDismiss={this._closeUserMenu.bind(this)}
-            visible={this.state.accountMenu}
-            width={275}
-            direction="left-bottom"
-            content={
-              <React.Fragment>
-                <AccountMenuHeader className="column align-items-center">
-                  <Avatar
-                    size="medium"
-                    image={this.props.user.image}
-                    title={this.props.user.name}
-                  />
-
-                  <AccountMenuTitle>
-                    {this.props.user.name}
-                  </AccountMenuTitle>
-
-                  <AccountMenuSubtitle>
-                    {this.props.team.name}
-                  </AccountMenuSubtitle>
-                </AccountMenuHeader>
-
-                <Menu
-                  items={[
-                    {
-                      icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
-                      text: "Account settings",
-                      onClick: this._openAccountSettings.bind(this)
-                    },
-                    {
-                      icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
-                      text: "Team settings",
-                      onClick: this._openTeamSettings.bind(this),
-                    },
-                    {
-                      icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
-                      text: "Team directory",
-                      onClick: this._openTeamDirectory.bind(this),
-                    },
-                    {
-                      icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
-                      text: "Signout",
-                      onClick: this._signout.bind(this),
-                    },
-                  ]}
-                />
-
-                <AccountMenuBuild>
-                  Build {version}
-                </AccountMenuBuild>
-              </React.Fragment>
-            }>
-            <IconComponent
-              icon="chevron-down"
-              size={20}
-              thickness={2}
-              color="#475669"
-              className="button"
-              onClick={this._openUserMenu.bind(this)}
-            />
-          </Popup>
-        </Header>
-
-        <SearchContainer className="row">
-          <SearchInner className="row">
-            <IconComponent
-              icon="search"
-              size={15}
-              color="#475669"
-              thickness={2}
-              className="ml-15"
-            />
-
-            <SearchInput
-              ref={(ref) => this.filterRef = ref}
-              visible={this.state.showFilter}
-              value={this.state.filter}
-              onChange={this.onSearch}
-              placeholder="Start Conversation"
-            />
-          </SearchInner>
-        </SearchContainer>
+        {this.renderHeader()}
+        {this.renderSearch()}
 
         <ChannelsContainer>
-          {this.state.filter != "" &&
-            <React.Fragment>
-              <Heading>Results</Heading>
-
-              {this.state.results.map((user, index) => {
-                return (
-                  <Channel
-                    key={index}
-                    active={false}
-                    unread={null}
-                    title={user.name}
-                    image={user.image}
-                    excerpt={user.username}
-                    public={null}
-                    private={null}
-                    onClick={() => this.createPrivateChannel(user)}
-                  />
-                )
-              })}
-
-              {this.state.results.length == 0 &&
-                <Channel
-                  active={false}
-                  unread={null}
-                  title={`Create '${this.state.filter}'`}
-                  image={null}
-                  excerpt={null}
-                  public={null}
-                  private={null}
-                  onClick={() => this.createPublicChannel(this.state.filter)}
-                />
-              }
-            </React.Fragment>
-          }
-
-          {this.state.starred.length != 0 &&
-            <React.Fragment>
-              <Heading>Favourites</Heading>
-
-              {this.state.starred.map((channel, index) => {
-                if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
-                const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
-                const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
-                const unreadCount = unread ? unread.doc.count : 0
-                const to = `/app/team/${channel.team.id}/channel/${channel.id}`
-                const muted = this.props.user.muted.indexOf(channel.id) != -1
-                const archived = this.props.user.archived.indexOf(channel.id) != -1
-
-                return (
-                  <Channel
-                    key={index}
-                    active={pathname.indexOf(channel.id) != -1}
-                    unread={unreadCount}
-                    title={title}
-                    image={image}
-                    excerpt={channel.excerpt}
-                    public={channel.public}
-                    private={channel.private}
-                    muted={muted}
-                    archived={archived}
-                    onClick={() => this.props.history.push(to)}
-                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-                    onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
-                  />
-                )
-              })}
-            </React.Fragment>
-          }
-
-          <div className="row pr-25">
-            <Heading>
-              Channels
-            </Heading>
-
-            {(this.props.team.role != 'GUEST') &&
-              <QuickInputComponent
-                visible={this.state.channelPopup}
-                width={250}
-                direction="right-bottom"
-                handleDismiss={() => this.setState({ channelPopup: false })}
-                handleAccept={(name) => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
-                placeholder="New channel name">
-                <IconComponent
-                  icon="plus-circle"
-                  size={15}
-                  color="#475669"
-                  thickness={2}
-                  className="button"
-                  onClick={() => this.setState({ channelPopup: true })}
-                />
-              </QuickInputComponent>
-            }
-          </div>
-
-          {this.state.public.map((channel, index) => {
-            if (this.props.user.starred.indexOf(channel.id) != -1) return
-            if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-            const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
-            const unreadCount = unread ? unread.doc.count : 0
-            const muted = this.props.user.muted.indexOf(channel.id) != -1
-            const archived = this.props.user.archived.indexOf(channel.id) != -1
-
-            return (
-              <Channel
-                key={index}
-                active={pathname.indexOf(channel.id) != -1}
-                unread={unreadCount}
-                title={channel.title}
-                image={channel.image}
-                excerpt={channel.excerpt}
-                public={channel.public}
-                private={channel.private}
-                muted={muted}
-                archived={archived}
-                onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
-                onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-                onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
-              />
-            )
-          })}
-
-          {this.state.private.length != 0 &&
-            <React.Fragment>
-              <Heading>Private Conversations</Heading>
-
-              {this.state.private.map((channel, index) => {
-                if (this.props.user.starred.indexOf(channel.id) != -1) return
-
-                const title = channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "")
-                const image = channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "")
-                const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
-                const unreadCount = unread ? unread.doc.count : 0
-                const muted = this.props.user.muted.indexOf(channel.id) != -1
-                const archived = this.props.user.archived.indexOf(channel.id) != -1
-
-                // Filter based on users search
-                if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                // Get the other users' presence
-                const snapshot = new Date().getTime()
-                const otherMember = channel.members.filter(member => member.user.id != this.props.user.id).flatten()
-                const otherMemberStatus = otherMember.user.status
-                const otherMemberTimezone = otherMember.user.timezone
-                const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
-                const presence = otherMemberPresence
-                                  ? ((snapshot - otherMemberPresence.userTime) > 15000)
-                                    ? "away"
-                                    : "online"
-                                  : null
-
-                return (
-                  <Channel
-                    key={index}
-                    presence={presence}
-                    active={pathname.indexOf(channel.id) != -1}
-                    unread={unreadCount}
-                    title={title}
-                    image={image}
-                    excerpt={otherMemberStatus}
-                    public={channel.public}
-                    private={channel.private}
-                    muted={muted}
-                    archived={archived}
-                    onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
-                    onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-                    onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
-                  />
-                )
-              })}
-            </React.Fragment>
-          }
-
-          {this.state.archived.length != 0 &&
-            <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
-              {this.state.archivedVisible ? "Hide archived" : "See archived"}
-            </Heading>
-          }
-
-          {this.state.archived.length != 0 && this.state.archivedVisible &&
-            <React.Fragment>
-              {this.state.archived.map((channel, index) => {
-                if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
-
-                const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
-                const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
-                const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
-                const unreadCount = unread ? unread.doc.count : 0
-                const to = `/app/team/${channel.team.id}/channel/${channel.id}`
-                const muted = this.props.user.muted.indexOf(channel.id) != -1
-                const archived = this.props.user.archived.indexOf(channel.id) != -1
-
-                return (
-                  <Channel
-                    key={index}
-                    active={pathname.indexOf(channel.id) != -1}
-                    unread={unreadCount}
-                    title={title}
-                    image={image}
-                    excerpt={channel.excerpt}
-                    public={channel.public}
-                    private={channel.private}
-                    muted={muted}
-                    archived={archived}
-                    onClick={() => this.props.history.push(to)}
-                    onArchivedClick={(e) => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-                    onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
-                  />
-                )
-              })}
-            </React.Fragment>
-          }
+          {this.renderSearchResults()}
+          {this.renderStarred()}
+          {this.renderPublic()}
+          {this.renderPrivate()}
+          {this.renderArchived()}
         </ChannelsContainer>
       </Channels>
     )
