@@ -160,6 +160,7 @@ export default class AuthService {
     })
   }
 
+  /*
   static addCard(email, userId) {
     const token = CookiesService.getCookie(JWT)
 
@@ -185,5 +186,5 @@ export default class AuthService {
       body: JSON.stringify({ email, userId }),
     })
   }
-
+  */
 }
