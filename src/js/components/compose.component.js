@@ -348,8 +348,7 @@ class ComposeComponent extends React.Component {
     Keg.keg('compose').tap(
       'uploads',
       async (file, pour) => {
-        this.setState({ loading: true })
-        this.setState({ error: null })
+        this.setState({ error: null, loading: true })
 
         try {
           const { name, type, size } = file
@@ -370,8 +369,7 @@ class ComposeComponent extends React.Component {
             }
           )
         } catch (e) {
-          this.setState({ loading: false })
-          this.setState({ error: e })
+          this.setState({ error: e, loading: false })
         }
       },
       () => {
