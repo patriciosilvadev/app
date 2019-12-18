@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
@@ -17,6 +17,13 @@ export default function PanelAttachmentsComponent(props) {
   const [busy, setBusy] = useState(false)
   const [page, setPage] = useState(0)
   const [messages, setMessages] = useState([])
+  const scrollRef = useRef(null)
+
+  handleScrollEvent(e) {
+    // If the user scvrolls up - then fetch more messages
+    // 0 = the top of the container
+    if (scrollRef.current.scrollTop == 0) this.fetchChannelAttachments()
+  }
 
   async fetchChannelAttachments() {
     // Don't refetch messages every time it's triggered
@@ -80,7 +87,10 @@ export default function PanelAttachmentsComponent(props) {
 
       {messages.map((message, index1) => {
         return (
-          <Attachments className="column" key={index1}>
+          <Attachments
+            ref={scrollRef}
+            className="column"
+            key={index1}>
             {message.attachments.map((attachment, index2) => {
               const isImage = attachment.mime.split('/')[0]
 
@@ -101,15 +111,6 @@ export default function PanelAttachmentsComponent(props) {
           </Attachments>
         )
       })}
-
-      <div className="p-20 pt-0 row justify-content-center w-100">
-        <Button
-          text="Load more"
-          onClick={() => console.log('Load more')}
-          size="small"
-          theme="blue-border"
-        />
-      </div>
     </Container>
   )
 }

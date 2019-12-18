@@ -119,10 +119,16 @@ class ChannelComponent extends React.Component {
   }
 
   handleScrollEvent(e) {
-    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
-
+    // If the user scvrolls up - then fetch more messages
+    // 0 = the top of the container
     if (this.scrollRef.scrollTop == 0) this.fetchChannelMessages()
 
+    // Calculate the difference between the bottom & where the user is
+    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
+
+    // If they are at the bottom: this.scrollRef.offsetHeight >= offsetHeight
+    // Toggle whether the user is scrolling or not
+    // If not, then we handle the scrolling
     if (this.scrollRef.offsetHeight >= offsetHeight) {
       this.setState({ manualScrolling: false })
     } else {
@@ -307,6 +313,7 @@ class ChannelComponent extends React.Component {
     }
   }
 
+  // Render methods for ease of reading
   renderHeader() {
     if (!this.state.open) return null
 
@@ -585,8 +592,12 @@ class ChannelComponent extends React.Component {
           />
         }
 
-        <Channel ref={ref => this.dropZone = ref} className="column flexer align-items-center align-items-stretch">
-          <Dropzone active={this.state.isDragging} ref={ref => this.dropMask = ref}>
+        <Channel
+          ref={ref => this.dropZone = ref}
+          className="column flexer align-items-center align-items-stretch">
+          <Dropzone
+            active={this.state.isDragging}
+            ref={ref => this.dropMask = ref}>
             <svg
               enableBackground="new 0 0 511.999 511.999"
               height={100}
