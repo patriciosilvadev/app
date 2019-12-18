@@ -19,6 +19,7 @@ import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import uuidv1 from 'uuid/v1'
+import PreviewComponent from './preview.component'
 
 export default memo(props => {
   const [message, setMessage] = useState(false)
@@ -439,22 +440,10 @@ export default memo(props => {
     if (!preview) return null
 
     return (
-      <ModalPortal>
-        <PreviewContainer className="row justify-content-center">
-          <PreviewClose>
-            <IconComponent
-              icon="x"
-              size={25}
-              color="#8DA2A5"
-              className="button"
-              onClick={() => setPreview(null)}
-            />
-          </PreviewClose>
-          <PreviewImage
-            image={preview}
-          />
-        </PreviewContainer>
-      </ModalPortal>
+      <PreviewComponent
+        onClose={() => setPreview(null)}
+        image={preview}
+      />
     )
   }
 
@@ -816,35 +805,6 @@ const ParentDate = styled.div`
   font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
-`
-
-const PreviewContainer = styled.div`
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  background-color: rgba(4, 11, 28, 0.75);
-`
-
-const PreviewClose = styled.div`
-  position: fixed;
-  top: 0px;
-  right: 0px;
-  width: max-content;
-  height: max-content;
-  z-index: 1;
-  padding: 20px;
-`
-
-const PreviewImage = styled.div`
-  width: 80%;
-  height: 80%;
-  background-position: center center;
-  background-image: url(${props => props.image});
-  background-size: contain;
-  border-radius: 5px;
 `
 
 const App = styled.div`

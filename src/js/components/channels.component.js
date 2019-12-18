@@ -679,7 +679,6 @@ class ChannelsComponent extends React.Component {
 
   // prettier-ignore
   render() {
-
     return (
       <Channels className="column">
         {this.state.teamModal &&

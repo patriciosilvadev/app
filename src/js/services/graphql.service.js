@@ -596,6 +596,67 @@ export default class GraphqlService {
     })
   }
 
+  channelAttachments(channelId, page) {
+    return this.client.query({
+      query: gql`
+        query channelAttachments($channelId: String!, $page: Float) {
+          channelAttachments(channelId: $channelId, page: $page) {
+            id
+            reactions
+            system
+            parent {
+              app {
+                payload
+                app {
+                  id
+                  name
+                  image
+                }
+              }
+              user {
+                id
+                name
+                image
+                username
+                timezone
+                status
+                color
+              }
+              message
+              createdAt
+            }
+            user {
+              id
+              name
+              image
+              status
+              username
+              color
+              timezone
+            }
+            message
+            attachments {
+              _id
+              id
+              uri
+              size
+              name
+              preview
+              mime
+              createdAt
+            }
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        channelId,
+        page,
+      },
+    })
+  }
+
   searchMessages(channelId, query) {
     return this.client.query({
       query: gql`

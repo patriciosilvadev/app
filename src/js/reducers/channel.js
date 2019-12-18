@@ -136,7 +136,9 @@ export default (state = initialState, action) =>
               ...message,
 
               // We need to use the _id because attachments is a schema-only of message
-              // Not a child object - the ID accessor only gets added to Models
+              // Not a child object - the "id" accessor only gets added to Models
+              // Usually this is fine - but we need the _id of the child object here to
+              // know which attachment to update the preview of
               attachments: message.attachments.map(attachment => {
                 if (attachment._id == action.payload.attachmentId) {
                   return {
