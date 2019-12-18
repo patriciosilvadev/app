@@ -225,7 +225,7 @@ export default memo(props => {
     })
   }, [props.message, resizeId])
 
-  // Here we start processing the markdown
+  // Here we start processing the markdown & text highighting
   useEffect(() => {
     setMessage(parseMessageMardown(props.message.message, props.highlight))
   }, [props.highlight, props.message])

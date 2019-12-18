@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import { Attachment, Popup, Button, Modal } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
+import { parseMessageMardown } from '../helpers/util'
 
 export default function PanelAttachmentsComponent(props) {
   const user = useSelector(state => state.user)
