@@ -19,7 +19,7 @@ export default (state = initialState, action) =>
 
               // We first find the right user to update
               // Then we re-create the member object and update their
-              // status. This value will be used in channels.js to display
+              // status. This value will be used in channels.component.js to display
               // an update status (we don't need to do anything else)
               if (member.user.id == action.payload.userId) {
                 return {

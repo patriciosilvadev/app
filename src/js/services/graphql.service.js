@@ -94,6 +94,11 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
+            cards {
+              token
+              vendor
+              card
+            }
           }
         }
       `,

@@ -14,29 +14,6 @@ import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@weekday/elements'
 const moment = require('moment-timezone')
 
-const EmailAddress = props => {
-  const [over, setOver] = useState(false)
-
-  // prettier-ignore
-  return (
-    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <MailTableCell width="40%"><MailAddress>{props.email.address}</MailAddress></MailTableCell>
-      <MailTableCell width="30%"><MailStatus>{props.email.confirmed ? "Confirmed" : "Not confirmed"}</MailStatus></MailTableCell>
-      <MailTableCell>
-        {over &&
-          <React.Fragment>
-            {!props.email.confirmed &&
-              <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">Confirm</MailButtonConfirm>
-            }
-
-            <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">Delete</MailButtonDelete>
-          </React.Fragment>
-        }
-      </MailTableCell>
-    </tr>
-  )
-}
-
 export default function AccountModal(props) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(null)
@@ -214,6 +191,231 @@ export default function AccountModal(props) {
     }
   }
 
+  // Render functions to make things easier
+  const renderProfile = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <div className="row w-100 p-20">
+            <input
+              accept="image/png,image/jpg"
+              type="file"
+              className="hide"
+              ref={fileRef}
+              onChange={handleFileChange}
+            />
+
+            <Avatar
+              image={image}
+              className="mr-20"
+              size="large"
+              circle
+            />
+
+            <div className="column pl-10">
+              <div className="row pb-5">
+                <Text className="h5 color-d2">{name}</Text>
+              </div>
+              <div className="row">
+                <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
+              </div>
+            </div>
+          </div>
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Input
+              label="Full name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Enter full name"
+              className="mb-20"
+            />
+
+            <Input
+              label="Role"
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              placeholder="Enter your role"
+              className="mb-20"
+            />
+
+            <Input
+              label="Username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Username"
+              className="mb-20"
+            />
+
+            <Textarea
+              label="Description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Enter bio"
+              className="mb-20"
+              rows={2}
+            />
+
+            <div className="mb-20 w-100">
+              <Select
+                label="Your timezone"
+                onSelect={(index) => setTimezone(index)}
+                selected={timezone}
+                options={moment.tz.names().map((timezone, index) => {
+                  return {
+                    option: timezone.replace("_", " "),
+                    value: timezone,
+                  }
+                })}
+              />
+            </div>
+
+            <Button
+              theme="blue-border"
+              size="small"
+              onClick={handleSubmit}
+              text="Save"
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderEmailAccounts = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
+            <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
+
+            <MailTable width="100%">
+              <tbody>
+                {email.map((e, index) => (
+                  <EmailAddressRow
+                    key={index}
+                    onDelete={handleNewEmailAddressDelete}
+                    onConfirm={handleNewEmailAddressConfirm}
+                    email={e}
+                  />
+                ))}
+              </tbody>
+            </MailTable>
+
+            <Input
+              label="Connect another email address"
+              value={newEmailAddress}
+              onChange={e => setNewEmailAddress(e.target.value)}
+              placeholder="Enter your email"
+            />
+
+            <Button
+              text="Add"
+              theme="blue-border"
+              size="small"
+              onClick={handleNewEmailAddressAdd}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderSecurity = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Change & update your password</Text>
+            <Text className="color-d0 p mb-30">You need to know your old password.</Text>
+
+            <Input
+              label="Current password"
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              placeholder=""
+              type="password"
+              autocomplete="no"
+              className="mb-20"
+            />
+
+            <Input
+              label="New password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder=""
+              type="password"
+              autocomplete="no"
+              className="mb-20"
+            />
+
+            <Input
+              label="Confirm new password"
+              value={newPasswordConfirm}
+              onChange={e => setNewPasswordConfirm(e.target.value)}
+              placeholder=""
+              type="password"
+              autocomplete="no"
+              className="mb-20"
+            />
+
+            <Button
+              text="Update"
+              theme="blue-border"
+              size="small"
+              onClick={handlePasswordUpdate}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderDangerZone = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          {confirmAccountDeleteModal &&
+            <ConfirmModal
+              onOkay={handleAccountDelete}
+              onCancel={() => setConfirmAccountDeleteModal(false)}
+              text="Are you sure you want to delete your account, it can not be undone?"
+              title="Are you sure?"
+            />
+          }
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-red h5 mb-10">Here be dragons!</Text>
+            <Text className="color-d0 p mb-30">This cannot be undone.</Text>
+
+            <Button
+              theme="red"
+              text="Delete"
+              onClick={() => setConfirmAccountDeleteModal(true)}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // prettier-ignore
   return (
     <ModalPortal>
@@ -229,230 +431,22 @@ export default function AccountModal(props) {
             {
               title: 'Profile',
               show: true,
-              content: (
-                <div className="row align-items-start w-100">
-                  <div className="column w-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    <div className="row w-100 p-20">
-                      <input
-                        accept="image/png,image/jpg"
-                        type="file"
-                        className="hide"
-                        ref={fileRef}
-                        onChange={handleFileChange}
-                      />
-
-                      <Avatar
-                        image={image}
-                        className="mr-20"
-                        size="large"
-                        circle
-                      />
-
-                      <div className="column pl-10">
-                        <div className="row pb-5">
-                          <Text className="h5 color-d2">{name}</Text>
-                        </div>
-                        <div className="row">
-                          <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="column p-20 flex-1 scroll w-100">
-                      <Input
-                        label="Full name"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder="Enter full name"
-                        className="mb-20"
-                      />
-
-                      <Input
-                        label="Role"
-                        value={role}
-                        onChange={e => setRole(e.target.value)}
-                        placeholder="Enter your role"
-                        className="mb-20"
-                      />
-
-                      <Input
-                        label="Username"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                        placeholder="Username"
-                        className="mb-20"
-                      />
-
-                      <Textarea
-                        label="Description"
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                        placeholder="Enter bio"
-                        className="mb-20"
-                        rows={2}
-                      />
-
-                      <div className="mb-20 w-100">
-                        <Select
-                          label="Your timezone"
-                          onSelect={(index) => setTimezone(index)}
-                          selected={timezone}
-                          options={moment.tz.names().map((timezone, index) => {
-                            return {
-                              option: timezone.replace("_", " "),
-                              value: timezone,
-                            }
-                          })}
-                        />
-                      </div>
-
-                      <Button
-                        theme="blue-border"
-                        size="small"
-                        onClick={handleSubmit}
-                        text="Save"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
+              content: renderProfile()
             },
             {
               title: 'Email accounts',
               show: true,
-              content: (
-                <div className="row align-items-start w-100">
-                  <div className="column w-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    <div className="column p-20 flex-1 scroll w-100">
-                      <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
-                      <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
-
-                      <MailTable width="100%">
-                        <tbody>
-                          {email.map((e, index) => (
-                            <EmailAddress
-                              key={index}
-                              onDelete={handleNewEmailAddressDelete}
-                              onConfirm={handleNewEmailAddressConfirm}
-                              email={e}
-                            />
-                          ))}
-                        </tbody>
-                      </MailTable>
-
-                      <Input
-                        label="Connect another email address"
-                        value={newEmailAddress}
-                        onChange={e => setNewEmailAddress(e.target.value)}
-                        placeholder="Enter your email"
-                      />
-
-                      <Button
-                        text="Add"
-                        theme="blue-border"
-                        size="small"
-                        onClick={handleNewEmailAddressAdd}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
+              content: renderEmailAccounts()
             },
             {
               title: 'Security',
               show: true,
-              content: (
-                <div className="row align-items-start w-100">
-                  <div className="column w-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    <div className="column p-20 flex-1 scroll w-100">
-                      <Text className="color-d2 h5 mb-10">Change & update your password</Text>
-                      <Text className="color-d0 p mb-30">You need to know your old password.</Text>
-
-                      <Input
-                        label="Current password"
-                        value={currentPassword}
-                        onChange={e => setCurrentPassword(e.target.value)}
-                        placeholder=""
-                        type="password"
-                        autocomplete="no"
-                        className="mb-20"
-                      />
-
-                      <Input
-                        label="New password"
-                        value={newPassword}
-                        onChange={e => setNewPassword(e.target.value)}
-                        placeholder=""
-                        type="password"
-                        autocomplete="no"
-                        className="mb-20"
-                      />
-
-                      <Input
-                        label="Confirm new password"
-                        value={newPasswordConfirm}
-                        onChange={e => setNewPasswordConfirm(e.target.value)}
-                        placeholder=""
-                        type="password"
-                        autocomplete="no"
-                        className="mb-20"
-                      />
-
-                      <Button
-                        text="Update"
-                        theme="blue-border"
-                        size="small"
-                        onClick={handlePasswordUpdate}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
+              content: renderSecurity()
             },
             {
               title: 'Danger zone',
               show: true,
-              content: (
-                <div className="row align-items-start w-100">
-                  <div className="column w-100">
-                    {error && <Error message={error} />}
-                    {loading && <Spinner />}
-                    {notification && <Notification text={notification} />}
-
-                    {confirmAccountDeleteModal &&
-                      <ConfirmModal
-                        onOkay={handleAccountDelete}
-                        onCancel={() => setConfirmAccountDeleteModal(false)}
-                        text="Are you sure you want to delete your account, it can not be undone?"
-                        title="Are you sure?"
-                      />
-                    }
-
-                    <div className="column p-20 flex-1 scroll w-100">
-                      <Text className="color-red h5 mb-10">Here be dragons!</Text>
-                      <Text className="color-d0 p mb-30">This cannot be undone.</Text>
-
-                      <Button
-                        theme="red"
-                        text="Delete"
-                        onClick={() => setConfirmAccountDeleteModal(true)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
+              content: renderDangerZone()
             },
           ]}
         />
@@ -464,6 +458,29 @@ export default function AccountModal(props) {
 AccountModal.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
+}
+
+const EmailAddressRow = props => {
+  const [over, setOver] = useState(false)
+
+  // prettier-ignore
+  return (
+    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+      <MailTableCell width="40%"><MailAddress>{props.email.address}</MailAddress></MailTableCell>
+      <MailTableCell width="30%"><MailStatus>{props.email.confirmed ? "Confirmed" : "Not confirmed"}</MailStatus></MailTableCell>
+      <MailTableCell>
+        {over &&
+          <React.Fragment>
+            {!props.email.confirmed &&
+              <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">Confirm</MailButtonConfirm>
+            }
+
+            <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">Delete</MailButtonDelete>
+          </React.Fragment>
+        }
+      </MailTableCell>
+    </tr>
+  )
 }
 
 const Text = styled.div``

@@ -159,4 +159,31 @@ export default class AuthService {
       body: JSON.stringify(payload),
     })
   }
+
+  static addCard(email, userId) {
+    const token = CookiesService.getCookie(JWT)
+
+    return fetch(`${API_HOST}/account/${userId}/card/add`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
+  static deleteCard(email, userId) {
+    const token = CookiesService.getCookie(JWT)
+
+    return fetch(`${API_HOST}/account/${userId}/card/delete`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify({ email, userId }),
+    })
+  }
+
 }
