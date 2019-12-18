@@ -444,6 +444,16 @@ export default function AccountModal(props) {
               content: renderSecurity()
             },
             {
+              title: 'Credit Cards',
+              show: true,
+              content: <div></div>
+            },
+            {
+              title: 'Invoices',
+              show: true,
+              content: <div></div>
+            },
+            {
               title: 'Danger zone',
               show: true,
               content: renderDangerZone()

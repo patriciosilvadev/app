@@ -127,6 +127,166 @@ export default function ChannelModal(props) {
     })()
   }, [props.id])
 
+  // Render functions for ease of reading
+  const renderOverview = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <Row className="row align-items-start">
+            <input
+              accept="image/png,image/jpg"
+              type="file"
+              className="hide"
+              ref={fileRef}
+              onChange={handleFileChange}
+            />
+
+            <div className="column">
+              <Avatar
+                title={title}
+                image={image}
+                className="mr-20 mb-20"
+                size="xx-large"
+              />
+
+              {props.permissible &&
+                <Link className="button mt-10" onClick={() => fileRef.current.click()}>
+                  Update image
+                </Link>
+              }
+            </div>
+
+            <Column className="column">
+              <Input
+                label="Title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="New channel title"
+                className="mb-20"
+                disable={!props.permissible}
+              />
+
+              <Textarea
+                label="Description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Add a description"
+                rows={8}
+                className="mb-20"
+                disable={!props.permissible}
+              />
+
+              <div className="row">
+                <IconComponent
+                  icon="markdown"
+                  size={20}
+                  color="#007af5"
+                />
+                <Supported>
+                  Markdown supported
+                </Supported>
+              </div>
+            </Column>
+          </Row>
+
+          {props.permissible &&
+            <div className="p-20">
+              <Button
+                onClick={handleUpdateChannel}
+                text="Update"
+                theme="blue-border"
+                size="small"
+              />
+            </div>
+          }
+        </div>
+      </div>
+    )
+  }
+
+  const renderMembers = () => {
+    return (
+      <div className="column flex-1 w-100 h-100">
+        <MembersChannelComponent
+          permissible={props.permissible}
+          id={props.id}
+          team={props.team}
+          onClose={props.onClose}
+          members={members}
+        />
+
+        {props.permissible &&
+          <QuickUserComponent
+            channel={channel}
+            visible={userMenu}
+            width={250}
+            direction="left-top"
+            handleDismiss={() => setUserMenu(false)}
+            handleAccept={({ user }) => {
+              // Check to see if there are already people
+              // Don't re-add people
+              if (members.filter(member => member.user.id == user.id).length > 0) return
+
+              // Otherwise all good - add them
+              handleCreateChannelMember(user)
+              setUserMenu(false)
+            }}>
+            <AddButton className="button row" onClick={() => setUserMenu(true)}>
+              <Avatar
+                className="mr-5"
+                size="medium"
+                circle
+                image={null}
+                color="#007af5"
+                title="">
+                <IconComponent
+                  icon="plus"
+                  size={20}
+                  color="#007af5"
+                />
+              </Avatar>
+
+              <Link className="ml-10">Add new Member</Link>
+            </AddButton>
+          </QuickUserComponent>
+        }
+      </div>
+    )
+  }
+
+  const renderDangerZone = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+
+          {confirmDeleteModal &&
+            <ConfirmModal
+              onOkay={handleDeleteChannel}
+              onCancel={() => setConfirmDeleteModal(false)}
+              text="Are you sure you want to delete this channel, it can not be undone?"
+              title="Are you sure?"
+            />
+          }
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-red h5 mb-10">Here be dragons!</Text>
+            <Text className="color-d0 p mb-30">This cannot be undone.</Text>
+
+            <Button
+              text="Delete"
+              theme="red"
+              onClick={() => setConfirmDeleteModal(true)}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // prettier-ignore
   return (
     <ModalPortal>
@@ -141,165 +301,18 @@ export default function ChannelModal(props) {
               {
                 title: 'Overview',
                 show: true,
-                content: (
-                  <div className="row align-items-start w-100">
-                    <div className="column w-100">
-                      {error && <Error message={error} />}
-                      {loading && <Spinner />}
-                      {notification && <Notification text={notification} />}
-
-                      <Row className="row align-items-start">
-                        <input
-                          accept="image/png,image/jpg"
-                          type="file"
-                          className="hide"
-                          ref={fileRef}
-                          onChange={handleFileChange}
-                        />
-
-                        <div className="column">
-                          <Avatar
-                            title={title}
-                            image={image}
-                            className="mr-20 mb-20"
-                            size="xx-large"
-                          />
-
-                          {props.permissible &&
-                            <Link className="button mt-10" onClick={() => fileRef.current.click()}>
-                              Update image
-                            </Link>
-                          }
-                        </div>
-
-                        <Column className="column">
-                          <Input
-                            label="Title"
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            placeholder="New channel title"
-                            className="mb-20"
-                            disable={!props.permissible}
-                          />
-
-                          <Textarea
-                            label="Description"
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}
-                            placeholder="Add a description"
-                            rows={8}
-                            className="mb-20"
-                            disable={!props.permissible}
-                          />
-
-                          <div className="row">
-                            <IconComponent
-                              icon="markdown"
-                              size={20}
-                              color="#007af5"
-                            />
-                            <Supported>
-                              Markdown supported
-                            </Supported>
-                          </div>
-                        </Column>
-                      </Row>
-
-                      {props.permissible &&
-                        <div className="p-20">
-                          <Button
-                            onClick={handleUpdateChannel}
-                            text="Update"
-                            theme="blue-border"
-                            size="small"
-                          />
-                        </div>
-                      }
-                    </div>
-                  </div>
-                )
+                content: renderOverview()
               },
               {
                 title: 'Members',
                 show: members.length != 0,
-                content: (
-                  <div className="column flex-1 w-100 h-100">
-                    <MembersChannelComponent
-                      permissible={props.permissible}
-                      id={props.id}
-                      team={props.team}
-                      onClose={props.onClose}
-                      members={members}
-                    />
-
-                    {props.permissible &&
-                      <QuickUserComponent
-                        channel={channel}
-                        visible={userMenu}
-                        width={250}
-                        direction="left-top"
-                        handleDismiss={() => setUserMenu(false)}
-                        handleAccept={({ user }) => {
-                          // Check to see if there are already people
-                          // Don't re-add people
-                          if (members.filter(member => member.user.id == user.id).length > 0) return
-
-                          // Otherwise all good - add them
-                          handleCreateChannelMember(user)
-                          setUserMenu(false)
-                        }}>
-                        <AddButton className="button row" onClick={() => setUserMenu(true)}>
-                          <Avatar
-                            className="mr-5"
-                            size="medium"
-                            circle
-                            image={null}
-                            color="#007af5"
-                            title="">
-                            <IconComponent
-                              icon="plus"
-                              size={20}
-                              color="#007af5"
-                            />
-                          </Avatar>
-
-                          <Link className="ml-10">Add new Member</Link>
-                        </AddButton>
-                      </QuickUserComponent>
-                    }
-                  </div>
-                )
+                content: renderMembers()
               },
               {
                 title: 'Danger zone',
                 show: true,
                 hide: !props.permissible,
-                content: (
-                  <div className="row align-items-start w-100">
-                    <div className="column w-100">
-
-                      {confirmDeleteModal &&
-                        <ConfirmModal
-                          onOkay={handleDeleteChannel}
-                          onCancel={() => setConfirmDeleteModal(false)}
-                          text="Are you sure you want to delete this channel, it can not be undone?"
-                          title="Are you sure?"
-                        />
-                      }
-
-                      <div className="column p-20 flex-1 scroll w-100">
-                        <Text className="color-red h5 mb-10">Here be dragons!</Text>
-                        <Text className="color-d0 p mb-30">This cannot be undone.</Text>
-
-                        <Button
-                          text="Delete"
-                          theme="red"
-                          onClick={() => setConfirmDeleteModal(true)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
+                content: renderDangerZone()
               },
             ]}
           />
@@ -313,7 +326,7 @@ ChannelModal.propTypes = {
   start: PropTypes.number,
   members: PropTypes.array,
   onClose: PropTypes.func,
-  permissible: PropTypes.bool,
+  permissible: PropTypes.bool, // Whether someone can edit the team or not (admin)
 }
 
 const Text = styled.div``

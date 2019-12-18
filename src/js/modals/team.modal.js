@@ -15,8 +15,6 @@ import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
 
-const Text = styled.div``
-
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(null)
@@ -173,6 +171,208 @@ export default function TeamModal(props) {
     })()
   }, [props.id])
 
+  // Render functions for ease of reading
+  const renderOverview = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <div className="row w-100 p-20">
+            <input
+              accept="image/png,image/jpg"
+              type="file"
+              className="hide"
+              ref={fileRef}
+              onChange={handleFileChange}
+            />
+
+            <Avatar
+              image={image}
+              className="mr-20"
+              size="large"
+            />
+
+            <div className="column flexer header pl-10">
+              <div className="row pb-5">
+                <Text className="h5 color-d2">{name}</Text>
+              </div>
+              <div className="row">
+                {props.id &&
+                  <Text className="p color-d0 button bold mr-10">{members.length} members</Text>
+                }
+
+                {admin &&
+                  <Text
+                    className="p color-blue button bold"
+                    onClick={() => fileRef.current.click()}>
+                    Update profile image
+                  </Text>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Input
+              label="Team name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Enter full name"
+              className="mb-20"
+              disabled={!admin}
+            />
+
+            <Textarea
+              label="Description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Add a description"
+              rows={8}
+              className="mb-20"
+              disabled={!admin}
+            />
+
+            {admin &&
+              <Button
+                onClick={handleUpdateTeam}
+                text="Save"
+                theme="blue-border"
+                size="small"
+              />
+            }
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderMembers = () => {
+    return (
+      <div className="column flex-1 w-100 h-100">
+        <MembersTeamComponent
+          admin={admin}
+          id={props.id}
+          createChannel={props.createChannel}
+          onClose={props.onClose}
+          members={members}
+        />
+      </div>
+    )
+  }
+
+  const renderAccess = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Outside access</Text>
+            <Text className="color-d0 p mb-30">
+              {`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}
+            </Text>
+
+            <Input
+              label="Update your team shortcode"
+              value={shortcode}
+              onChange={e => setShortcode(e.target.value)}
+              placeholder="Enter shortcode"
+              className="mb-20"
+            />
+
+            <div className="row mb-30">
+              <Button
+                onClick={handleUpdateTeamShortcode}
+                text="Update shortcode"
+                theme="blue-border"
+                size="small"
+              />
+
+              <Button
+                theme="blue-border"
+                size="small"
+                onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)}
+                text="Copy URL"
+                className="ml-5"
+              />
+            </div>
+
+            <Input
+              label="Update your team slug"
+              value={slug}
+              onChange={e => setSlug(e.target.value)}
+              placeholder="Enter Slug"
+              className="mb-20"
+            />
+
+            <Button
+              theme="blue-border"
+              size="small"
+              onClick={handleUpdateTeamSlug}
+              text="Update slug"
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderInviteShare = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Invite users</Text>
+            <Text className="color-d0 p mb-30">Add users email.</Text>
+
+            <Textarea
+              placeholder="Comma seperated email addresses"
+              value={emails}
+              onChange={(e) => setEmails(e.target.value)}
+            />
+
+            <Button
+              text="Invite users"
+              onClick={handleInviteTeamMembers}
+              theme="blue-border"
+              size="small"
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderDangerZone = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+
+          {confirmDeleteModal &&
+            <ConfirmModal
+              onOkay={handleDeleteTeam}
+              onCancel={() => setConfirmDeleteModal(false)}
+              text="Are you sure you want to delete this team, it can not be undone?"
+              title="Are you sure?"
+            />
+          }
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-red h5 mb-10">Here be dragons!</Text>
+            <Text className="color-d0 p mb-30">This cannot be undone.</Text>
+
+            <Button
+              text="Delete"
+              theme="red"
+              onClick={() => setConfirmDeleteModal(true)}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // prettier-ignore
   return (
     <ModalPortal>
@@ -187,208 +387,27 @@ export default function TeamModal(props) {
               {
                 title: 'Overview',
                 show: true,
-                content: (
-                  <div className="row align-items-start w-100">
-                    <div className="column w-100">
-                      {error && <Error message={error} />}
-                      {loading && <Spinner />}
-                      {notification && <Notification text={notification} />}
-
-                      <div className="row w-100 p-20">
-                        <input
-                          accept="image/png,image/jpg"
-                          type="file"
-                          className="hide"
-                          ref={fileRef}
-                          onChange={handleFileChange}
-                        />
-
-                        <Avatar
-                          image={image}
-                          className="mr-20"
-                          size="large"
-                        />
-
-                        <div className="column flexer header pl-10">
-                          <div className="row pb-5">
-                            <Text className="h5 color-d2">{name}</Text>
-                          </div>
-                          <div className="row">
-                            {props.id &&
-                              <Text className="p color-d0 button bold mr-10">{members.length} members</Text>
-                            }
-
-                            {admin &&
-                              <Text
-                                className="p color-blue button bold"
-                                onClick={() => fileRef.current.click()}>
-                                Update profile image
-                              </Text>
-                            }
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="column p-20 flex-1 scroll w-100">
-                        <Input
-                          label="Team name"
-                          value={name}
-                          onChange={e => setName(e.target.value)}
-                          placeholder="Enter full name"
-                          className="mb-20"
-                          disabled={!admin}
-                        />
-
-                        <Textarea
-                          label="Description"
-                          value={description}
-                          onChange={e => setDescription(e.target.value)}
-                          placeholder="Add a description"
-                          rows={8}
-                          className="mb-20"
-                          disabled={!admin}
-                        />
-
-                        {admin &&
-                          <Button
-                            onClick={handleUpdateTeam}
-                            text="Save"
-                            theme="blue-border"
-                            size="small"
-                          />
-                        }
-                      </div>
-                    </div>
-                  </div>
-                )
+                content: renderOverview()
               },
               {
                 title: 'Members',
                 show: true,
-                content: (
-                  <div className="column flex-1 w-100 h-100">
-                    <MembersTeamComponent
-                      admin={admin}
-                      id={props.id}
-                      createChannel={props.createChannel}
-                      onClose={props.onClose}
-                      members={members}
-                    />
-                  </div>
-                )
+                content: renderMembers()
               },
               {
                 title: 'Access',
                 show: admin,
-                content: (
-                  <div className="row align-items-start w-100">
-                    <div className="column w-100">
-
-                      <div className="column p-20 flex-1 scroll w-100">
-                        <Text className="color-d2 h5 mb-10">Outside access</Text>
-                        <Text className="color-d0 p mb-30">
-                          {`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}
-                        </Text>
-
-                        <Input
-                          label="Update your team shortcode"
-                          value={shortcode}
-                          onChange={e => setShortcode(e.target.value)}
-                          placeholder="Enter shortcode"
-                          className="mb-20"
-                        />
-
-                        <div className="row mb-30">
-                          <Button
-                            onClick={handleUpdateTeamShortcode}
-                            text="Update shortcode"
-                            theme="blue-border"
-                            size="small"
-                          />
-
-                          <Button
-                            theme="blue-border"
-                            size="small"
-                            onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)}
-                            text="Copy URL"
-                            className="ml-5"
-                          />
-                        </div>
-
-                        <Input
-                          label="Update your team slug"
-                          value={slug}
-                          onChange={e => setSlug(e.target.value)}
-                          placeholder="Enter Slug"
-                          className="mb-20"
-                        />
-
-                        <Button
-                          theme="blue-border"
-                          size="small"
-                          onClick={handleUpdateTeamSlug}
-                          text="Update slug"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
+                content: renderAccess()
               },
               {
                 title: 'Invite & share',
                 show: admin,
-                content: (
-                  <div className="row align-items-start w-100">
-                    <div className="column w-100">
-                      <div className="column p-20 flex-1 scroll w-100">
-                        <Text className="color-d2 h5 mb-10">Invite users</Text>
-                        <Text className="color-d0 p mb-30">Add users email.</Text>
-
-                        <Textarea
-                          placeholder="Comma seperated email addresses"
-                          value={emails}
-                          onChange={(e) => setEmails(e.target.value)}
-                        />
-
-                        <Button
-                          text="Invite users"
-                          onClick={handleInviteTeamMembers}
-                          theme="blue-border"
-                          size="small"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
+                content: renderInviteShare()
               },
               {
                 title: 'Danger zone',
                 show: admin,
-                content: (
-                  <div className="row align-items-start w-100">
-                    <div className="column w-100">
-
-                      {confirmDeleteModal &&
-                        <ConfirmModal
-                          onOkay={handleDeleteTeam}
-                          onCancel={() => setConfirmDeleteModal(false)}
-                          text="Are you sure you want to delete this team, it can not be undone?"
-                          title="Are you sure?"
-                        />
-                      }
-                      <div className="column p-20 flex-1 scroll w-100">
-                        <Text className="color-red h5 mb-10">Here be dragons!</Text>
-                        <Text className="color-d0 p mb-30">This cannot be undone.</Text>
-
-                        <Button
-                          text="Delete"
-                          theme="red"
-                          onClick={() => setConfirmDeleteModal(true)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
+                content: renderDangerZone()
               },
             ]}
           />
@@ -404,3 +423,5 @@ TeamModal.propTypes = {
   history: PropTypes.any,
   createChannel: PropTypes.func,
 }
+
+const Text = styled.div``

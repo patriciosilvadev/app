@@ -10,61 +10,6 @@ import { validEmail, logger } from '../helpers/util'
 import { createTeam } from '../actions'
 import MessagingService from '../services/messaging.service'
 
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  background: #f3f3f3;
-  position: relative;
-`
-
-const Inner = styled.div`
-  background: white;
-  position: relative;
-  height: 90%;
-  width: 550px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  flex-direction: column;
-`
-
-const Logo = styled.div`
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: center;
-  align-items: center;
-  margin-right: auto;
-`
-
-const LogoText = styled.div`
-  padding-left: 5px;
-  position: relative;
-  bottom: 2px;
-  color: #007af5;
-  font-size: 22px;
-  font-weight: 400;
-  font-family: 'hk_groteskmedium', helvetica;
-`
-
-const InputContainer = styled.div`
-  width: 80%;
-  padding: 5px;
-`
-
-const Text = styled.div``
-
 export default function TeamOnboardingModal(props) {
   const [loading, setLoading] = useState(null)
   const [notification, setNotification] = useState(null)
@@ -178,6 +123,150 @@ export default function TeamOnboardingModal(props) {
     }
   }
 
+  // Render functions for ease of reading
+  const renderStep1 = () => {
+    if (step != 1) return null
+
+    return (
+      <React.Fragment>
+        <img src="./team-onboarding.png" width="90%" />
+
+        <Text className="h1 mb-30 mt-30 color-d3">Start Something</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
+        <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
+
+        <div className="column mt-30 align-items-center w-100">
+          <InputContainer>
+            <Input
+              placeholder="Team name"
+              inputSize="large"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </InputContainer>
+
+          <Button
+            onClick={() => name != "" ? setStep(2) : null}
+            size="large"
+            text="Next"
+          />
+
+          <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
+            No thanks, not now
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  }
+
+  const renderStep2 = () => {
+    if (step != 2) return null
+
+    return (
+      <React.Fragment>
+        <input
+          accept="image/png,image/jpg"
+          type="file"
+          className="hide"
+          ref={fileRef}
+          onChange={handleFileChange}
+        />
+
+        <Avatar
+          image={image}
+          className="mr-20"
+          size="xxx-large"
+        />
+
+        <Text className="h1 mb-30 mt-30 color-d3">{name}</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Choose an image</Text>
+        <Text className="h5 color-d0 mb-30">
+          <span className="color-blue bold h5 button" onClick={() => fileRef.current.click()}>Click here</span> to choose an image for your new team
+        </Text>
+
+        <div className="row mt-30">
+          <Button
+            className="mr-10"
+            onClick={() => setStep(1)}
+            size="large"
+            text="Back"
+          />
+
+          <Button
+            onClick={handleNewTeamCreate}
+            size="large"
+            text="Create Team"
+          />
+        </div>
+
+        <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
+          No thanks, not now
+        </div>
+      </React.Fragment>
+    )
+  }
+
+  const renderStep3 = () => {
+    if (step != 3) return null
+
+    return (
+      <React.Fragment>
+        <Text className="h1 mb-30 mt-30 color-d3">Congratulations!</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Your team has been successfully created.</Text>
+        <Text className="h5 color-d0">Add more emails below to invite others to your team.</Text>
+
+        <div className="column mt-30 align-items-center w-100">
+          <InputContainer>
+            <Input
+              placeholder="Email address one"
+              inputSize="large"
+              value={email1}
+              onChange={(e) => setEmail1(e.target.value)}
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Input
+              placeholder="Email address two"
+              inputSize="large"
+              value={email2}
+              onChange={(e) => setEmail2(e.target.value)}
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Input
+              placeholder="Email address three"
+              inputSize="large"
+              value={email3}
+              onChange={(e) => setEmail3(e.target.value)}
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Input
+              placeholder="Email address four"
+              inputSize="large"
+              value={email4}
+              onChange={(e) => setEmail4(e.target.value)}
+            />
+          </InputContainer>
+
+          <Button
+            onClick={handleNewTeamInvites}
+            size="large"
+            text="Invite Now"
+            className="mt-30"
+          />
+
+          <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
+            Skip for now
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  }
+
   // prettier-ignore
   return (
     <ModalPortal>
@@ -194,136 +283,9 @@ export default function TeamOnboardingModal(props) {
 
           <Container>
             <Inner>
-              {step == 1 &&
-                <React.Fragment>
-                  <img src="./team-onboarding.png" width="90%" />
-
-                  <Text className="h1 mb-30 mt-30 color-d3">Start Something</Text>
-                  <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
-                  <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
-
-                  <div className="column mt-30 align-items-center w-100">
-                    <InputContainer>
-                      <Input
-                        placeholder="Team name"
-                        inputSize="large"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </InputContainer>
-
-                    <Button
-                      onClick={() => name != "" ? setStep(2) : null}
-                      size="large"
-                      text="Next"
-                    />
-
-                    <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
-                      No thanks, not now
-                    </div>
-                  </div>
-                </React.Fragment>
-              }
-
-              {step == 2 &&
-                <React.Fragment>
-                  <input
-                    accept="image/png,image/jpg"
-                    type="file"
-                    className="hide"
-                    ref={fileRef}
-                    onChange={handleFileChange}
-                  />
-
-                  <Avatar
-                    image={image}
-                    className="mr-20"
-                    size="xxx-large"
-                  />
-
-                  <Text className="h1 mb-30 mt-30 color-d3">{name}</Text>
-                  <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Choose an image</Text>
-                  <Text className="h5 color-d0 mb-30">
-                    <span className="color-blue bold h5 button" onClick={() => fileRef.current.click()}>Click here</span> to choose an image for your new team
-                  </Text>
-
-                  <div className="row mt-30">
-                    <Button
-                      className="mr-10"
-                      onClick={() => setStep(1)}
-                      size="large"
-                      text="Back"
-                    />
-
-                    <Button
-                      onClick={handleNewTeamCreate}
-                      size="large"
-                      text="Create Team"
-                    />
-                  </div>
-
-                  <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
-                    No thanks, not now
-                  </div>
-                </React.Fragment>
-              }
-
-              {step == 3 &&
-                <React.Fragment>
-                  <Text className="h1 mb-30 mt-30 color-d3">Congratulations!</Text>
-                  <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Your team has been successfully created.</Text>
-                  <Text className="h5 color-d0">Add more emails below to invite others to your team.</Text>
-
-                  <div className="column mt-30 align-items-center w-100">
-                    <InputContainer>
-                      <Input
-                        placeholder="Email address one"
-                        inputSize="large"
-                        value={email1}
-                        onChange={(e) => setEmail1(e.target.value)}
-                      />
-                    </InputContainer>
-
-                    <InputContainer>
-                      <Input
-                        placeholder="Email address two"
-                        inputSize="large"
-                        value={email2}
-                        onChange={(e) => setEmail2(e.target.value)}
-                      />
-                    </InputContainer>
-
-                    <InputContainer>
-                      <Input
-                        placeholder="Email address three"
-                        inputSize="large"
-                        value={email3}
-                        onChange={(e) => setEmail3(e.target.value)}
-                      />
-                    </InputContainer>
-
-                    <InputContainer>
-                      <Input
-                        placeholder="Email address four"
-                        inputSize="large"
-                        value={email4}
-                        onChange={(e) => setEmail4(e.target.value)}
-                      />
-                    </InputContainer>
-
-                    <Button
-                      onClick={handleNewTeamInvites}
-                      size="large"
-                      text="Invite Now"
-                      className="mt-30"
-                    />
-
-                    <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
-                      Skip for now
-                    </div>
-                  </div>
-                </React.Fragment>
-              }
+              {renderStep1()}
+              {renderStep2()}
+              {renderStep3()}
             </Inner>
 
             <Logo>
@@ -341,3 +303,58 @@ TeamOnboardingModal.propTypes = {
   onOkay: PropTypes.any,
   onCancel: PropTypes.any,
 }
+
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  background: #f3f3f3;
+  position: relative;
+`
+
+const Inner = styled.div`
+  background: white;
+  position: relative;
+  height: 90%;
+  width: 550px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+`
+
+const Logo = styled.div`
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  margin-right: auto;
+`
+
+const LogoText = styled.div`
+  padding-left: 5px;
+  position: relative;
+  bottom: 2px;
+  color: #007af5;
+  font-size: 22px;
+  font-weight: 400;
+  font-family: 'hk_groteskmedium', helvetica;
+`
+
+const InputContainer = styled.div`
+  width: 80%;
+  padding: 5px;
+`
+
+const Text = styled.div``
