@@ -40,6 +40,30 @@ export function deleteChannelMessageReaction(channelId, messageId, reaction) {
   }
 }
 
+export function createChannelMessageLike(channelId, messageId, userId) {
+  return {
+    type: 'CREATE_CHANNEL_MESSAGE_LIKE',
+    payload: {
+      channelId,
+      messageId,
+      userId,
+    },
+    sync: channelId,
+  }
+}
+
+export function deleteChannelMessageLike(channelId, messageId, userId) {
+  return {
+    type: 'DELETE_CHANNEL_MESSAGE_LIKE',
+    payload: {
+      channelId,
+      messageId,
+      userId,
+    },
+    sync: channelId,
+  }
+}
+
 export function createChannelMessage(channelId, channelMessage) {
   return {
     type: 'CREATE_CHANNEL_MESSAGE',

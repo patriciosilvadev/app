@@ -182,6 +182,32 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'CREATE_CHANNEL_MESSAGE_LIKE':
+        draft.messages = state.messages.map((message, _) => {
+          if (message.id == action.payload.messageId) {
+            return {
+              ...message,
+              likes: [...message.likes, action.payload.userId],
+            }
+          } else {
+            return message
+          }
+        })
+        break
+
+      case 'DELETE_CHANNEL_MESSAGE_LIKE':
+        draft.messages = state.messages.map((message, _) => {
+          if (message.id == action.payload.messageId) {
+            return {
+              ...message,
+              likes: message.likes.filter(like => like != action.payload.userId),
+            }
+          } else {
+            return message
+          }
+        })
+        break
+
       case 'CREATE_CHANNEL_MEMBER':
         draft.members = [...state.members, action.payload.member]
         break

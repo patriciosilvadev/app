@@ -363,6 +363,7 @@ export default class GraphqlService {
             messages {
               id
               reactions
+              likes
               system
               parent {
                 channel {
@@ -518,6 +519,7 @@ export default class GraphqlService {
           channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
+            likes
             system
             parent {
               app {
@@ -608,6 +610,7 @@ export default class GraphqlService {
           channelAttachments(channelId: $channelId, page: $page) {
             id
             reactions
+            likes
             system
             parent {
               user {
@@ -661,6 +664,7 @@ export default class GraphqlService {
           searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
+            likes
             system
             parent {
               user {
@@ -1130,6 +1134,7 @@ export default class GraphqlService {
             }
             message
             reactions
+            likes
             attachments {
               _id
               id
@@ -1179,6 +1184,7 @@ export default class GraphqlService {
             }
             message
             reactions
+            likes
             attachments {
               _id
               id
@@ -1236,6 +1242,34 @@ export default class GraphqlService {
       variables: {
         messageId,
         reaction,
+      },
+    })
+  }
+
+  createChannelMessageLike(messageId, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelMessageLike($messageId: String, $userId: String) {
+          createChannelMessageLike(messageId: $messageId, userId: $userId)
+        }
+      `,
+      variables: {
+        messageId,
+        userId,
+      },
+    })
+  }
+
+  deleteChannelMessageLike(messageId, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteChannelMessageLike($messageId: String, $userId: String) {
+          deleteChannelMessageLike(messageId: $messageId, userId: $userId)
+        }
+      `,
+      variables: {
+        messageId,
+        userId,
       },
     })
   }

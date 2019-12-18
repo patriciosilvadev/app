@@ -11,7 +11,7 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createChannelMessageReaction, deleteChannelMessageReaction, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
+import { createChannelMessageReaction, deleteChannelMessageReaction, createChannelMessageLike, deleteChannelMessageLike, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMardown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
@@ -119,6 +119,26 @@ export default memo(props => {
 
       setEmoticonMenu(false)
       dispatch(createChannelMessageReaction(channel.id, props.message.id, reaction))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleDeleteChannelMessageLike = async () => {
+    try {
+      await GraphqlService.getInstance().deleteChannelMessageLike(props.message.id, user.id)
+
+      dispatch(deleteChannelMessageLike(channel.id, props.message.id, user.id))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleCreateChannelMessageLike = async () => {
+    try {
+      await GraphqlService.getInstance().createChannelMessageLike(props.message.id, user.id)
+
+      dispatch(createChannelMessageLike(channel.id, props.message.id, user.id))
     } catch (e) {
       logger(e)
     }
