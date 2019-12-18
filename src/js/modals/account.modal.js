@@ -445,12 +445,12 @@ export default function AccountModal(props) {
             },
             {
               title: 'Credit Cards',
-              show: true,
+              show: false,
               content: <div></div>
             },
             {
               title: 'Invoices',
-              show: true,
+              show: false,
               content: <div></div>
             },
             {
