@@ -605,14 +605,6 @@ export default class GraphqlService {
             reactions
             system
             parent {
-              app {
-                payload
-                app {
-                  id
-                  name
-                  image
-                }
-              }
               user {
                 id
                 name
