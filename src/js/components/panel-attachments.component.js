@@ -11,25 +11,42 @@ export default function PanelAttachmentsComponent(props) {
   const user = useSelector(state => state.user)
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
+  const [loading, setLoading] = useState(null)
+  const [error, setError] = useState(null)
   const [preview, setPreview] = useState(null)
-  const [messages, setMessages] = useState([{
-    attachments: [
-      {
-        uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-        preview: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-        mime: "image/jpeg",
-        size: 17361,
-        name: "tester.jpg",
-      },
-      {
-        uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-        preview: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
-        mime: "image/jpeg",
-        size: 17361,
-        name: "testers.jpg",
-      }
-    ]
-  }])
+  const [busy, setBusy] = useState(false)
+  const [page, setPage] = useState(0)
+  const [messages, setMessages] = useState([])
+
+  async fetchChannelAttachments() {
+    // Don't refetch messages every time it's triggered
+    // We need to wait if there's already a fetch in progress
+    if (busy) return
+
+    // Set it as busy to not allow more messages to be fetch
+    setBusy(true)
+    setLoading(true)
+
+    try {
+      const { data } = await GraphqlService.getInstance().channelAttachments(channel.id, page)
+
+      // Add the new messages to the channel
+      setMessage([...messages, data.channelAttachments])
+
+      // Increase the next page & open the scroll event for more messages fetches
+      setPage(page + 1)
+      setBusy(false)
+      setLoading(false)
+    } catch (e) {
+      setError(e)
+      setBusy(false)
+      setLoading(false)
+    }
+  }
+
+  useEffect((async () => {
+    await fetchChannelAttachments()
+  })(), [])
 
   // prettier-ignore
   return (
@@ -53,6 +70,9 @@ export default function PanelAttachmentsComponent(props) {
           onClick={() => props.navigation.history.push('')}
         />
       </Header>
+
+      {error && <Error message={error} />}
+      {loading && <Spinner />}
 
       <AttachmentsText>
         There {messages.length == 1 ? "is" : "are"} <strong>{messages.length}</strong> {messages.length == 1 ? "message" : "messages"} with attachments
