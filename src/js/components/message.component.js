@@ -13,7 +13,7 @@ import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
 import { createChannelMessageReaction, deleteChannelMessageReaction, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
-import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes } from '../helpers/util'
+import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMardown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
@@ -124,13 +124,6 @@ export default memo(props => {
     }
   }
 
-  const highlightMessage = (message, query) => {
-    var reg = new RegExp(query, 'gi')
-    return message.replace(reg, str => {
-      return `<strong>${str}<strong>`
-    })
-  }
-
   // General app & send info setup
   useEffect(() => {
     setImages(
@@ -234,46 +227,7 @@ export default memo(props => {
 
   // Here we start processing the markdown
   useEffect(() => {
-    const htmlMessage = marked(props.message.message)
-    const compiledMessage = props.highlight ? (props.highlight != '' ? highlightMessage(htmlMessage, props.highlight) : htmlMessage) : htmlMessage
-
-    // What we do here is replace the emoji symbol with one from EmojiOne
-    const regex = new RegExp('(:[a-zA-Z0-9-_+]+:(:skin-tone-[2-6]:)?)', 'g')
-    const partsOfTheMessageText = []
-    let matchArr
-    let lastOffset = 0
-
-    // Match all instances of the emoji
-    while ((matchArr = regex.exec(compiledMessage)) !== null) {
-      const previousText = compiledMessage.substring(lastOffset, matchArr.index)
-      if (previousText.length) partsOfTheMessageText.push(previousText)
-
-      lastOffset = matchArr.index + matchArr[0].length
-
-      const emoji = ReactDOMServer.renderToStaticMarkup(
-        <Emoji
-          emoji={matchArr[0]}
-          set="emojione"
-          size={22}
-          fallback={(em, props) => {
-            return em ? `:${em.short_names[0]}:` : props.emoji
-          }}
-        />
-      )
-
-      if (emoji) {
-        partsOfTheMessageText.push(emoji)
-      } else {
-        partsOfTheMessageText.push(matchArr[0])
-      }
-    }
-
-    const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
-
-    if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
-
-    // Finally set the message after processnig
-    setMessage(partsOfTheMessageText.join(''))
+    setMessage(parseMessageMardown(props.message.message, props.highlight))
   }, [props.highlight, props.message])
 
   // Render functions for the message component

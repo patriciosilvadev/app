@@ -1,3 +1,7 @@
+import { Emoji } from 'emoji-mart'
+import marked from 'marked'
+import ReactDOMServer from 'react-dom/server'
+
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
   if (bytes == 0) return '0 Byte'
@@ -88,4 +92,54 @@ export const decimalToMinutes = minutes => {
   var min = Math.floor(Math.abs(minutes))
   var sec = Math.floor((Math.abs(minutes) * 60) % 60)
   return sign + (min < 10 ? '0' : '') + min + ':' + (sec < 10 ? '0' : '') + sec
+}
+
+export  const highlightMessage = (message, query) => {
+  var reg = new RegExp(query, 'gi')
+  return message.replace(reg, str => {
+    return `<strong>${str}<strong>`
+  })
+}
+
+export const parseMessageMardown = (markdown, highlight) => {
+  const htmlMessage = marked(markdown)
+  const compiledMessage = highlight ? (highlight != '' ? highlightMessage(htmlMessage, highlight) : htmlMessage) : htmlMessage
+
+  // What we do here is replace the emoji symbol with one from EmojiOne
+  const regex = new RegExp('(:[a-zA-Z0-9-_+]+:(:skin-tone-[2-6]:)?)', 'g')
+  const partsOfTheMessageText = []
+  let matchArr
+  let lastOffset = 0
+
+  // Match all instances of the emoji
+  while ((matchArr = regex.exec(compiledMessage)) !== null) {
+    const previousText = compiledMessage.substring(lastOffset, matchArr.index)
+    if (previousText.length) partsOfTheMessageText.push(previousText)
+
+    lastOffset = matchArr.index + matchArr[0].length
+
+    const emoji = ReactDOMServer.renderToStaticMarkup(
+      <Emoji
+        emoji={matchArr[0]}
+        set="emojione"
+        size={22}
+        fallback={(em, props) => {
+          return em ? `:${em.short_names[0]}:` : props.emoji
+        }}
+      />
+    )
+
+    if (emoji) {
+      partsOfTheMessageText.push(emoji)
+    } else {
+      partsOfTheMessageText.push(matchArr[0])
+    }
+  }
+
+  const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+
+  if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
+
+  // Finally set the message after processnig
+  return partsOfTheMessageText.join('')
 }
