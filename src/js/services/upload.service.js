@@ -1,4 +1,5 @@
 import { API_HOST, JWT } from '../environment'
+import CookiesService from './cookies.service'
 
 export default class UploadService {
   constructor(file, channelId = null, messageId = null) {

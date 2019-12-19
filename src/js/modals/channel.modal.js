@@ -13,6 +13,7 @@ import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Inpu
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
 import MembersChannelComponent from '../components/members-channel.component'
+import { logger } from '../helpers/util'
 
 export default function ChannelModal(props) {
   const [loading, setLoading] = useState(null)
@@ -70,6 +71,7 @@ export default function ChannelModal(props) {
       setImage(uri)
       setLoading(false)
     } catch (e) {
+      logger(e)
       setLoading(false)
       setError('Error uploading file')
     }

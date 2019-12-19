@@ -144,6 +144,18 @@ export default memo(props => {
     }
   }
 
+  const handleChannelLikeOrUnlike = () => {
+    const likes = props.message.likes || []
+    const userLikes = likes.filter(like => like == user.id)
+    const userLikedAlready = userLikes.length >= 1
+
+    if (userLikedAlready) {
+      handleDeleteChannelMessageLike()
+    } else {
+      handleCreateChannelMessageLike()
+    }
+  }
+
   // General app & send info setup
   useEffect(() => {
     setImages(
@@ -316,6 +328,14 @@ export default memo(props => {
             onClick={() => setEmoticonMenu(true)}
           />
         </Popup>
+
+        <IconComponent
+          icon="thumbs-up"
+          size={15}
+          color="#CFD4D9"
+          className="button mr-10"
+          onClick={() => handleChannelLikeOrUnlike()}
+        />
 
         <IconComponent
           icon="delete"
@@ -542,31 +562,50 @@ export default memo(props => {
     )
   }
 
-  const renderReactions = () => {
+  const renderReactionsLikes = () => {
     if (!props.message) return null
-    if (!props.message.reactions) return null
-    if (!props.message.reactions.length) return null
-    if (props.message.reactions.length == 0) return null
+
+    const reactions = props.message.reactions || []
+    const likes = props.message.likes || []
+
+    if (reactions.length == 0 && likes.length == 0) return null
 
     return (
-      <Reactions className="row">
-        {props.message.reactions.map((reaction, index) => {
-          const reactionParts = reaction.split('__')
-          const emoticon = reactionParts[0]
-          const userName = reactionParts[2]
+      <div className="row">
+        {likes.length != 0 &&
+          <Likes className="button row" onClick={() => handleChannelLikeOrUnlike()}>
+            <IconComponent
+              icon="thumbs-up"
+              size={15}
+              color="#007af5"
+              className="mr-5"
+            />
 
-          return (
-            <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
-              <Emoji
-                emoji={emoticon}
-                size={16}
-                set='emojione'
-              />
-              <span className="name">{userName}</span>
-            </div>
-          )
-        })}
-      </Reactions>
+            <span className="bold p color-blue">{likes.length}</span>
+          </Likes>
+        }
+
+        {reactions.length != 0 &&
+          <Reactions className="row">
+            {reactions.map((reaction, index) => {
+              const reactionParts = reaction.split('__')
+              const emoticon = reactionParts[0]
+              const userName = reactionParts[2]
+
+              return (
+                <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
+                  <Emoji
+                    emoji={emoticon}
+                    size={16}
+                    set='emojione'
+                  />
+                  <span className="name">{userName}</span>
+                </div>
+              )
+            })}
+          </Reactions>
+        }
+      </div>
     )
   }
 
@@ -609,7 +648,7 @@ export default memo(props => {
             {renderMedia()}
             {renderApp()}
             {renderAppButtons()}
-            {renderReactions()}
+            {renderReactionsLikes()}
           </Bubble>
         </div>
       </div>
@@ -696,6 +735,12 @@ const Text = styled.div`
 const Compose = styled.div`
   margin-top: 20px;
   width: 100%;
+`
+
+const Likes = styled.div`
+  padding: 5px;
+  border: 1px solid #007af5;
+  border-radius: 5px;
 `
 
 const Reactions = styled.div`
