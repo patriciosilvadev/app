@@ -10,8 +10,9 @@ import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
-import { bytesToSize } from '../helpers/util'
+import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent } from '../helpers/util'
 import { IconComponent } from './icon.component'
+import EventService from '../services/event.service'
 
 class ComposeComponent extends React.Component {
   constructor(props) {
@@ -66,6 +67,7 @@ class ComposeComponent extends React.Component {
     this.onSend = this.onSend.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
     this.clearMessage = this.clearMessage.bind(this)
+    this.focusComposeInput = this.focusComposeInput.bind(this)
 
     this.renderMembers = this.renderMembers.bind(this)
     this.renderUpdate = this.renderUpdate.bind(this)
@@ -338,8 +340,12 @@ class ComposeComponent extends React.Component {
     this.composeRef.focus()
   }
 
-  componentDidMount() {
+  focusComposeInput() {
     this.composeRef.focus()
+  }
+
+  componentDidMount() {
+    this.focusComposeInput()
 
     // Resize compose initiallyl
     this.updateComposeHeight()
@@ -378,6 +384,11 @@ class ComposeComponent extends React.Component {
         this.setState({ loading: false })
       }
     )
+
+    // Liosten for focus messages (from message.component)
+    EventService.getInstance().on('FOCUS_COMPOSE_INPUT', data => {
+      this.focusComposeInput()
+    })
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -490,9 +501,7 @@ class ComposeComponent extends React.Component {
                 </ReplyName>
                 <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
               </div>
-              <ReplyMessage>
-                {this.props.message.message}
-              </ReplyMessage>
+              <ReplyMessage dangerouslySetInnerHTML={{__html: parseMessageMarkdown(this.props.message.message)}} />
             </div>
             <IconComponent
               icon="x"

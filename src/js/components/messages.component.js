@@ -18,7 +18,7 @@ const DateDividerText = styled.span`
   font-size: 12px;
   z-index: 2;
   position: relative;
-  font-weight: 600;
+  font-weight: 400;
   color: #adb5bd;
   font-style: italic;
   background: white;

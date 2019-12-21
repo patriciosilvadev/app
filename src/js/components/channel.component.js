@@ -22,6 +22,7 @@ import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
+import { sendFocusComposeInputEvent } from '../helpers/util'
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -273,10 +274,12 @@ class ChannelComponent extends React.Component {
 
   setUpdateMessage(message) {
     this.setState({ message, update: true, reply: false })
+    sendFocusComposeInputEvent()
   }
 
   setReplyMessage(message) {
     this.setState({ message, update: false, reply: true })
+    sendFocusComposeInputEvent()
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -632,7 +635,10 @@ class ChannelComponent extends React.Component {
               reply={this.state.reply}
               update={this.state.update}
               message={this.state.message}
-              clearMessage={() => this.setState({ message: null, update: false, reply: false })}
+              clearMessage={() => {
+                this.setState({ message: null, update: false, reply: false })
+                sendFocusComposeInputEvent()
+              }}
             />
           }
         </Channel>

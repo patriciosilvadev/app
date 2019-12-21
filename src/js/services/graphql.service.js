@@ -1197,6 +1197,10 @@ export default class GraphqlService {
             }
             system
             parent {
+              channel {
+                title
+                id
+              }
               user {
                 id
                 name

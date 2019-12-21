@@ -1,6 +1,8 @@
 import { Emoji } from 'emoji-mart'
 import marked from 'marked'
 import ReactDOMServer from 'react-dom/server'
+import React from 'react'
+import EventService from '../services/event.service'
 
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
@@ -101,7 +103,7 @@ export  const highlightMessage = (message, query) => {
   })
 }
 
-export const parseMessageMardown = (markdown, highlight) => {
+export const parseMessageMarkdown = (markdown, highlight) => {
   const htmlMessage = marked(markdown)
   const compiledMessage = highlight ? (highlight != '' ? highlightMessage(htmlMessage, highlight) : htmlMessage) : htmlMessage
 
@@ -142,4 +144,8 @@ export const parseMessageMardown = (markdown, highlight) => {
 
   // Finally set the message after processnig
   return partsOfTheMessageText.join('')
+}
+
+export const sendFocusComposeInputEvent = () => {
+  EventService.getInstance().emit('FOCUS_COMPOSE_INPUT', null)
 }

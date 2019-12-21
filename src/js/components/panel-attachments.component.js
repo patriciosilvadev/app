@@ -7,7 +7,7 @@ import PropTypes from 'prop-types'
 import { Attachment, Popup, Button, Modal, Error, Spinner } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
-import { parseMessageMardown } from '../helpers/util'
+import { parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
 
@@ -99,7 +99,7 @@ export default function PanelAttachmentsComponent(props) {
               <span className="color-d2 p bold">{moment(message.createdAt).tz(user.timezone).fromNow()}</span>
             </div>
 
-            <Text dangerouslySetInnerHTML={{__html: parseMessageMardown(message.message, null)}} />
+            <Text dangerouslySetInnerHTML={{__html: parseMessageMarkdown(message.message, null)}} />
 
             <Attachments
               ref={scrollRef}

@@ -1,11 +1,14 @@
-import { SOCKETIO_HOST } from '../environment'
+import { SOCKETIO_HOST, JWT } from '../environment'
 import { logger } from '../helpers/util'
+import CookiesService from './cookies.service'
 
 export default class MessagingService {
   static instance
   client
 
   constructor() {
+    const token = CookiesService.getCookie(JWT)
+
     this.client = io.connect(SOCKETIO_HOST)
 
     this.client.on('connect', data => {

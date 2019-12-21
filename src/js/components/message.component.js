@@ -13,7 +13,7 @@ import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
 import { createChannelMessageReaction, deleteChannelMessageReaction, createChannelMessageLike, deleteChannelMessageLike, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
-import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMardown } from '../helpers/util'
+import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
@@ -259,7 +259,7 @@ export default memo(props => {
 
   // Here we start processing the markdown & text highighting
   useEffect(() => {
-    setMessage(parseMessageMardown(props.message.message, props.highlight))
+    setMessage(parseMessageMarkdown(props.message.message, props.highlight))
   }, [props.highlight, props.message])
 
   // Render functions for the message component
@@ -636,7 +636,6 @@ export default memo(props => {
             <div className="row w-100 relative">
               {renderName()}
               {renderTools()}
-              {renderTools()}
             </div>
 
             {renderParent()}
@@ -741,10 +740,11 @@ const Likes = styled.div`
   padding: 5px;
   border: 1px solid #007af5;
   border-radius: 5px;
+  margin-right: 5px;
 `
 
 const Reactions = styled.div`
-  padding-top: 5px;
+  padding-top: 10px;
   padding-bottom: 10px;
 
   .reaction {
