@@ -1,4 +1,4 @@
-import { SOCKETIO_HOST, JWT } from '../environment'
+import { MQTT_HOST, JWT } from '../environment'
 import { logger } from '../helpers/util'
 import CookiesService from './cookies.service'
 
@@ -7,7 +7,7 @@ export default class MessagingService {
   client
 
   constructor() {
-    this.client = mqtt.connect(MQTT_PATH, {
+    this.client = mqtt.connect(MQTT_HOST, {
       clean: false,
       queueQoSZero: true,
       useSSL: false,
