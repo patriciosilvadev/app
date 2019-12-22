@@ -16,3 +16,6 @@ dist/
 .env
 
 .vscode
+
+environment.production.js
+environment.staging.js

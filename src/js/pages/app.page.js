@@ -79,6 +79,7 @@ class AppPage extends React.Component {
       this.setState({ userId })
       this.fetchData(userId)
 
+      // This is sent from the app iframes in panels/modals
       window.addEventListener('message', this.onAppMessageReceived, false)
     } catch (e) {
       this.props.history.push('/auth')
@@ -95,8 +96,8 @@ class AppPage extends React.Component {
     if (!event.data.content) return
 
     // AUTO_ADJUST_MESSAGE_HEIGHT -> message.component
-    // OPEN_APP_PANEL -> common (action)
-    // OPEN_APP_MODAL -> common (action)
+    // APP_PANEL -> common (action)
+    // APP_MODAL -> common (action)
     EventService.getInstance().emit(event.data.type, event.data.content)
   }
 
@@ -216,6 +217,10 @@ class AppPage extends React.Component {
       <AppContainer>
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
+
+        {!this.props.common.connected &&
+          <Error message="Not connected" />
+        }
 
         {this.props.app.modal &&
           <AppModal

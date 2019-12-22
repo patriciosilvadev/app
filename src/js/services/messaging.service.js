@@ -7,20 +7,15 @@ export default class MessagingService {
   client
 
   constructor() {
-    const token = CookiesService.getCookie(JWT)
-
-    this.client = io.connect(SOCKETIO_HOST)
-
-    this.client.on('connect', data => {
-      logger('WS:CONNECTED')
-    })
-
-    this.client.on('error', data => {
-      logger('WS:ERROR')
-    })
-
-    this.client.on('connect_failed', data => {
-      logger('WS:FAILED')
+    this.client = mqtt.connect(MQTT_PATH, {
+      clean: false,
+      queueQoSZero: true,
+      useSSL: false,
+      clientId: userId + '-web',
+      will: {
+        topic: 'death',
+        payload: userId
+      }
     })
   }
 
@@ -32,43 +27,97 @@ export default class MessagingService {
     return this.instance
   }
 
-  sync(sync, action) {
-    this.client.emit('sync', { sync, action })
+  sendMessageToTopic(topic, messageType, messagePayload) {
+    if (this.client) {
+      this.client.publish(
+        topic,
+        JSON.stringify({
+          messageType,
+          messagePayload,
+        }),
+        {
+          qos: 2
+        },
+        err => {
+          if (err) {
+            console.log("Error: ", err)
+          }
+        }
+      )
+    }
+
   }
 
-  joins(channelIds) {
-    this.client.emit('joins', { channelIds })
+  joins(topics) {
+    if (this.client) {
+      topics.map(topic => {
+        console.log('Subscribing to', topic)
+
+        this.client.subscribe(
+          topic,
+          {
+            qos: 2,
+          },
+          err => {
+            if (err) {
+              console.log('Error: ', err)
+            }
+          }
+        )
+      })
+    }
   }
 
-  join(channelId) {
-    this.client.emit('join', { channelId })
+  join(topic) {
+    if (this.client) {
+      console.log('Subscribing to', topic)
+
+      this.client.subscribe(
+        topic,
+        {
+          qos: 2,
+        },
+        err => {
+          if (err) {
+            console.log('Error: ', err)
+          }
+        }
+      )
+    }
   }
 
-  leave(channelId) {
-    this.client.emit('leave', { channelId })
+  leave(topic) {
+    if (this.client) this.client.unsubscribe(topic)
+  }
+
+  // These are messages sent to users
+  // for them to do specific things
+  // Sync gets used by middleware to tell everyone else to update their state
+  sync(topic, action) {
+    this.sendMessageToTopic(topic, 'SYNC', action)
   }
 
   joinChannel(userIds, channelId) {
-    this.client.emit('joinChannel', { userIds, channelId })
+    userIds.map(userId => this.sendMessageToTopic(userId, 'JOIN_CHANNEL', channelId))
   }
 
   leaveChannelTeam(teamId, channelId) {
-    this.client.emit('leaveChannelTeam', { teamId, channelId })
+    this.sendMessageToTopic(teamId, 'LEAVE_CHANNEL_TEAM', channelId)
   }
 
   joinChannelTeam(teamId, channelId) {
-    this.client.emit('joinChannelTeam', { teamId, channelId })
+    this.sendMessageToTopic(teamId, 'JOIN_CHANNEL', channelId)
   }
 
   joinTeam(userIds, teamId) {
-    this.client.emit('joinTeam', { userIds, teamId })
+    userIds.map(userId => this.sendMessageToTopic(userId, 'JOIN_TEAM', teamId))
   }
 
   leaveChannel(userIds, channelId) {
-    this.client.emit('leaveChannel', { userIds, channelId })
+    userIds.map(userId => this.sendMessageToTopic(userId, 'LEAVE_CHANNEL', channelId))
   }
 
   leaveTeam(userIds, teamId) {
-    this.client.emit('leaveTeam', { userIds, teamId })
+    userIds.map(userId => this.sendMessageToTopic(userId, 'LEAVE_TEAM', teamId))
   }
 }

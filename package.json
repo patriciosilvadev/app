@@ -42,6 +42,7 @@
         "moment": "^2.22.2",
         "moment-range": "^4.0.1",
         "moment-timezone": "^0.5.21",
+        "mqtt": "^3.0.0",
         "pouchdb": "^7.0.0",
         "pouchdb-find": "^7.0.0",
         "react": "^16.8.6",

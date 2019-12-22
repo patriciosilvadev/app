@@ -31,7 +31,6 @@ module.exports = env => {
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
-        socketio: 'https://websocket.weekday.sh/socket.io/socket.io.js',
       }),
       new webpack.NormalModuleReplacementPlugin(
           /src\/js\/environment\.js/, 'environment.production.js'

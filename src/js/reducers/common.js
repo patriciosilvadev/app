@@ -3,6 +3,7 @@ import produce from 'immer'
 const initialState = {
   error: null,
   loading: false,
+  connected: false,
   unread: [],
 }
 
@@ -15,6 +16,10 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_ERROR':
         draft.error = action.payload
+        break
+
+      case 'UPDATE_CONNECTED':
+        draft.connected = action.connected
         break
 
       case 'UPDATE_LOADING':

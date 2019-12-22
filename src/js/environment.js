@@ -1,5 +1,6 @@
 export const API_HOST = ''
 export const SOCKETIO_HOST = ''
+export const MQTT_HOST = ''
 export const LOCAL_DB = ''
 export const PUBLIC_VAPID_KEY = ''
 export const NODE_ENV = ''

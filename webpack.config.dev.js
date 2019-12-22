@@ -30,7 +30,6 @@ module.exports = env => {
     plugins: [
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
-        socketio: 'http://localhost:8000/socket.io/socket.io.js',
       }),
       new webpack.NormalModuleReplacementPlugin(
           /src\/js\/environment\.js/, 'environment.staging.js'
