@@ -522,22 +522,25 @@ export default class GraphqlService {
             likes
             system
             parent {
-              app {
-                payload
-                app {
-                  id
-                  name
-                  image
-                }
+              channel {
+                title
+                id
               }
               user {
                 id
                 name
                 image
                 username
-                timezone
-                status
                 color
+                timezone
+              }
+              app {
+                resourceId
+                app {
+                  id
+                  name
+                  image
+                }
               }
               message
               createdAt

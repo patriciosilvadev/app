@@ -13,6 +13,50 @@ export function initialize(userId) {
   return async (dispatch, getState) => {
     let cache
 
+    const presenceAdd = () => {
+      const { team, user } = getState()
+      const teamId = team.id
+      const userId = user.id
+
+      dispatch(addPresence(teamId, userId))
+    }
+
+    const presenceDelete = () => {
+      const { presences } = getState()
+      const snapshot = new Date().getTime()
+
+      // Remove after 30 seconds
+      presences.users.map(p => {
+        if (snapshot - p.userTime > 30000) {
+          dispatch(deletePresence(p.userId))
+        }
+      })
+    }
+
+    const isTypingCleanup = () => {
+      const { channel } = getState()
+      const channelId = channel.id
+      const snapshot = new Date().getTime()
+
+      // Remove after 1 second
+      channel.typing.map(t => {
+        if (snapshot - t.userTime > 1000) {
+          dispatch(updateChannelDeleteTyping(channelId, t.userId))
+        }
+      })
+    }
+
+    // Tell our current team about our status
+    setInterval(presenceAdd, 5000)
+
+    // Clean our presence array every 5 seconds
+    setInterval(presenceDelete, 5000)
+
+    // Check if the typing array is valid every 1 second
+    // Iterage over the current channel's typing array
+    // If it's too old - then remove it and notify everyone else
+    setInterval(isTypingCleanup, 2500)
+
     // NOT just a Redux action - but an app action
     // Same name, but these actions are data objects that apps create
     // They are dispatched from buttons clicks, etc
@@ -57,8 +101,9 @@ export function initialize(userId) {
 
       // Save it to our cache
       // So we can avoid double deliveries
-      if (cache == payload) return
-      if (cache != payload) cache = payload
+      // TODO: This might cause double deliveries
+      // if (cache == payload) return
+      // if (cache != payload) cache = payload
 
       // This looks like the payload dispatched to the store
       // It's straight from Redux
@@ -70,9 +115,9 @@ export function initialize(userId) {
       if (!message.messageType || !message.messagePayload) return
 
       // Debug
-      logger('Received from MQTT broker: ')
-      logger(topic)
-      logger(message)
+      // logger('Received from MQTT broker: ')
+      // logger(topic)
+      // logger(message)
 
       const messageSync = async () => {
         // Just use the Redux acttion
@@ -237,44 +282,6 @@ export function initialize(userId) {
           break
       }
     })
-
-    // Tell our current team about our status
-    setInterval(() => {
-      const { team, user } = getState()
-      const teamId = team.id
-      const userId = user.id
-
-      dispatch(addPresence(teamId, userId))
-    }, 5000)
-
-    // Clean our presence array every 5 seconds
-    setInterval(() => {
-      const { presences } = getState()
-      const snapshot = new Date().getTime()
-
-      // Remove after 30 seconds
-      presences.users.map(p => {
-        if (snapshot - p.userTime > 30000) {
-          dispatch(deletePresence(p.userId))
-        }
-      })
-    }, 5000)
-
-    // Check if the typing array is valid every 1 second
-    // Iterage over the current channel's typing array
-    // If it's too old - then remove it and notify everyone else
-    setInterval(() => {
-      const { channel } = getState()
-      const channelId = channel.id
-      const snapshot = new Date().getTime()
-
-      // Remove after 1 second
-      channel.typing.map(t => {
-        if (snapshot - t.userTime > 1000) {
-          dispatch(updateChannelDeleteTyping(channelId, t.userId))
-        }
-      })
-    }, 2500)
 
     // Get unread count
     DatabaseService.getInstance()
