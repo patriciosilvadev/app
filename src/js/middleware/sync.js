@@ -13,7 +13,7 @@ export const sync = store => next => action => {
   // This sends this action to the sync channel in SO
   // So everybody that is subscribed to that channel
   // will receive this action
-  if (sync) MessagingService.getInstance().sync(sync, mutableAction)
+  if (sync) return MessagingService.getInstance().sync(sync, mutableAction)
 
   // Move along
   return next(action)

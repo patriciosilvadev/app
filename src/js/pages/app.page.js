@@ -219,7 +219,7 @@ class AppPage extends React.Component {
         <Error message={this.props.common.error} />
 
         {!this.props.common.connected &&
-          <Error message="Not connected" />
+          <Notification text="Connecting..." />
         }
 
         {this.props.app.modal &&

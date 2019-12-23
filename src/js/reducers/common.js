@@ -19,7 +19,7 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_CONNECTED':
-        draft.connected = action.connected
+        draft.connected = action.payload
         break
 
       case 'UPDATE_LOADING':

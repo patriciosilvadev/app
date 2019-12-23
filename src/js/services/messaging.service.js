@@ -1,12 +1,17 @@
 import { MQTT_HOST, JWT } from '../environment'
 import { logger } from '../helpers/util'
 import CookiesService from './cookies.service'
+import mqtt from 'mqtt'
+import AuthService from './auth.service'
 
 export default class MessagingService {
   static instance
   client
 
   constructor() {
+    const token = CookiesService.getCookie(JWT)
+    const { userId } = AuthService.parseJwt(token)
+
     this.client = mqtt.connect(MQTT_HOST, {
       clean: false,
       queueQoSZero: true,

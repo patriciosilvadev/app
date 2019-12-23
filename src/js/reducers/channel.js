@@ -143,7 +143,7 @@ export default (state = initialState, action) =>
                 if (attachment._id == action.payload.attachmentId) {
                   return {
                     ...attachment,
-                    preview: action.payload.uri,
+                    preview: action.payload.preview,
                   }
                 } else {
                   return attachment

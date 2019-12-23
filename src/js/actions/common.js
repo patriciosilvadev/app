@@ -8,7 +8,6 @@ import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification, logger } from '../helpers/util'
 import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createChannel, deleteChannel, updateChannelDeleteTyping, addPresence, deletePresence } from './'
 import mqtt from 'mqtt'
-import { MQTT_PATH } from '../environment'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -52,7 +51,7 @@ export function initialize(userId) {
     })
 
     // Now subs
-    MessagingService.getInstance().client.on('message', (topic, data) => {
+    MessagingService.getInstance().client.on('message', async (topic, data) => {
       // Get a string version of the data
       const payload = data.toString()
 
@@ -71,7 +70,142 @@ export function initialize(userId) {
       if (!message.messageType || !message.messagePayload) return
 
       // Debug
-      logger('Received from MQTT broker: ', topic, message)
+      logger('Received from MQTT broker: ')
+      logger(topic)
+      logger(message)
+
+      const messageSync = async () => {
+        // Just use the Redux acttion
+        const action = message.messagePayload
+
+        // Check whether this person is in our channels list first
+        if (action.type == 'ADD_PRESENCE') {
+          const existingChannel = getState().channels.reduce((exists, channel) => {
+            if (channel.public) return false
+
+            const { members } = channel
+            const existingMember = members.filter(member => member.user.id == action.payload.userId).flatten()
+
+            if (existingMember) return true
+          }, false)
+
+          if (!existingChannel) return
+        }
+
+        // Update our store with the synced action
+        dispatch(action)
+
+        // Handle any reads/unreads here for the DB
+        // And also handle push notices
+        if (action.type == 'CREATE_CHANNEL_MESSAGE') {
+          const { channelId, teamId, message } = action.payload
+          const isStarred = getState().user.starred.indexOf(channelId) != -1
+          const isArchived = getState().user.archived.indexOf(channelId) != -1
+          const isCurrentChannel = channelId == getState().channel.id
+
+          // Don't do a PN or unread increment if we are on the same channel
+          // as the message
+          if (isArchived || isStarred || isCurrentChannel) return
+
+          // Trigger a push notification
+          showLocalPushNotification('New Message', message.message)
+
+          // Create an unread marker
+          // Channel will be null, which is good
+          DatabaseService.getInstance().unread(teamId, channelId)
+        }
+      }
+
+      const messageJoinChannel = async () => {
+        // Just use the Redux acttion
+        const channelId = message.messagePayload
+
+        // If this user is already in this channel, then don't do anything
+        if (
+          getState()
+            .channels.filter(r => r.id == channelId)
+            .flatten()
+        )
+          return
+
+        // Get the channel data
+        const channel = await GraphqlService.getInstance().channel(channelId)
+
+        // If there is an error
+        if (!channel.data.channel) return
+
+        // Joing the channel SOCKET
+        MessagingService.getInstance().join(channelId)
+
+        // Create the channel in the store
+        // They may or may not be a member of it (irrelevant if it's public)
+        dispatch(createChannel(channel.data.channel))
+      }
+
+      const messageLeaveChannelTeam = async () => {
+        // Just use the Redux acttion
+        const channelId = message.messagePayload
+        const userId = getState().user.id
+        const channel = getState()
+          .channels.filter(r => r.id == channelId)
+          .flatten()
+
+        // If they don't have this channel
+        if (!channel) return
+
+        // Check if they are a member
+        const { members } = channel
+
+        // Check if this user is a member
+        const isMember = members.filter(m => m.user.id == userId).flatten()
+
+        // If they are a member, then they have a right to be a here
+        // Don't make them leave
+        if (isMember) return
+
+        // Unsub from this SOCKET
+        MessagingService.getInstance().leave(channelId)
+
+        // And then remove it - just for us
+        dispatch(deleteChannel(channelId, false))
+      }
+
+      const messageJoinTeam = async () => {
+        // Just use the Redux acttion
+        const teamId = message.messagePayload
+
+        // If this user is already in this team, then don't do anything
+        if (
+          !!getState()
+            .teams.filter(t => t.id == teamId)
+            .flatten()
+        )
+          return
+
+        const team = await GraphqlService.getInstance().team(teamId)
+
+        if (!team.data.team) return
+        MessagingService.getInstance().join(teamId)
+
+        dispatch(createTeam(team.data.team))
+      }
+
+      const messageLeaveChannel = async () => {
+        // Just use the Redux acttion
+        const channelId = message.messagePayload
+
+        // Unsub from this SOCKET
+        MessagingService.getInstance().leave(channelId)
+
+        // And then remove it - but just for us
+        dispatch(deleteChannel(channelId, false))
+      }
+
+      const messageLeaveTeam = async () => {
+        const teamId = message.messagePayload
+        MessagingService.getInstance().leave(teamId)
+        dispatch(deleteTeam(teamId, false))
+      }
 
       // Only process the message we didn't send
       // if (action.sender == _id) return;
@@ -79,136 +213,27 @@ export function initialize(userId) {
       // We need to process these specifically
       switch (message.messageType) {
         case 'SYNC':
-          // Just use the Redux acttion
-          const action = message.messagePayload
-
-          // Check whether this person is in our channels list first
-          if (action.type == 'ADD_PRESENCE') {
-            const existingChannel = getState().channels.reduce((exists, channel) => {
-              if (channel.public) return false
-
-              const { members } = channel
-              const existingMember = members.filter(member => member.user.id == action.payload.userId).flatten()
-
-              if (existingMember) return true
-            }, false)
-
-            if (!existingChannel) return
-          }
-
-          // Update our store with the synced action
-          dispatch(action)
-
-          // Handle any reads/unreads here for the DB
-          // And also handle push notices
-          if (action.type == 'CREATE_CHANNEL_MESSAGE') {
-            const { channelId, teamId, message } = action.payload
-            const isStarred = getState().user.starred.indexOf(channelId) != -1
-            const isArchived = getState().user.archived.indexOf(channelId) != -1
-            const isCurrentChannel = channelId == getState().channel.id
-
-            // Don't do a PN or unread increment if we are on the same channel
-            // as the message
-            if (isArchived || isStarred || isCurrentChannel) return
-
-            // Trigger a push notification
-            showLocalPushNotification('New Message', message.message)
-
-            // Create an unread marker
-            // Channel will be null, which is good
-            DatabaseService.getInstance().unread(teamId, channelId)
-          }
+          messageSync()
           break
 
         case 'JOIN_CHANNEL':
-          // Just use the Redux acttion
-          const channelId = message.messagePayload
-
-          // If this user is already in this channel, then don't do anything
-          if (
-            getState()
-              .channels.filter(r => r.id == channelId)
-              .flatten()
-          )
-            return
-
-          // Get the channel data
-          const channel = await GraphqlService.getInstance().channel(channelId)
-
-          // If there is an error
-          if (!channel.data.channel) return
-
-          // Joing the channel SOCKET
-          MessagingService.getInstance().join(channelId)
-
-          // Create the channel in the store
-          // They may or may not be a member of it (irrelevant if it's public)
-          dispatch(createChannel(channel.data.channel))
+          messageJoinChannel()
           break
 
         case 'LEAVE_CHANNEL_TEAM':
-          // Just use the Redux acttion
-          const channelId = message.messagePayload
-          const userId = getState().user.id
-          const channel = getState()
-            .channels.filter(r => r.id == channelId)
-            .flatten()
-
-          // If they don't have this channel
-          if (!channel) return
-
-          // Check if they are a member
-          const { members } = channel
-
-          // Check if this user is a member
-          const isMember = members.filter(m => m.user.id == userId).flatten()
-
-          // If they are a member, then they have a right to be a here
-          // Don't make them leave
-          if (isMember) return
-
-          // Unsub from this SOCKET
-          MessagingService.getInstance().leave(channelId)
-
-          // And then remove it - just for us
-          dispatch(deleteChannel(channelId, false))
+          messageLeaveChannelTeam()
           break
 
         case 'JOIN_TEAM':
-          // Just use the Redux acttion
-          const teamId = message.messagePayload
-
-          // If this user is already in this team, then don't do anything
-          if (
-            !!getState()
-              .teams.filter(t => t.id == teamId)
-              .flatten()
-          )
-            return
-
-          const team = await GraphqlService.getInstance().team(teamId)
-
-          if (!team.data.team) return
-          MessagingService.getInstance().join(teamId)
-
-          dispatch(createTeam(team.data.team))
+          messageJoinTeam()
           break
 
         case 'LEAVE_CHANNEL':
-          // Just use the Redux acttion
-          const channelId = message.messagePayload
-
-          // Unsub from this SOCKET
-          MessagingService.getInstance().leave(channelId)
-
-          // And then remove it - but just for us
-          dispatch(deleteChannel(channelId, false))
+          messageLeaveChannel()
           break
 
         case 'LEAVE_TEAM':
-          const teamId = message.messagePayload
-          MessagingService.getInstance().leave(teamId)
-          dispatch(deleteTeam(teamId, false))
+          messageLeaveTeam()
           break
       }
     })
