@@ -24,7 +24,8 @@ export default function AccountModal(props) {
   const [role, setRole] = useState('')
   const [description, setDescription] = useState('')
   const [timezone, setTimezone] = useState(0)
-  const [email, setEmail] = useState([])
+  const [emails, setEmails] = useState([])
+  const [cards, setCards] = useState([])
   const [newEmailAddress, setNewEmailAddress] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -46,7 +47,8 @@ export default function AccountModal(props) {
         setName(user.name || '')
         setRole(user.role || '')
         setDescription(user.description || '')
-        setEmail(user.email)
+        setEmails(user.emails)
+        setCards(user.cards)
         setTimezone(moment.tz.names().indexOf(user.timezone))
         setLoading(false)
       } catch (e) {
@@ -54,7 +56,7 @@ export default function AccountModal(props) {
         setError('Error getting data')
       }
     })()
-  }, {})
+  }, [])
 
   const handleAccountDelete = async () => {
     setLoading(true)
@@ -94,7 +96,7 @@ export default function AccountModal(props) {
     }
   }
 
-  const handleNewEmailAddressConfirm = async emailAddress => {
+  const handleEmailAddressConfirm = async emailAddress => {
     setLoading(true)
     setError(false)
 
@@ -110,8 +112,8 @@ export default function AccountModal(props) {
     }
   }
 
-  const handleNewEmailAddressDelete = async emailAddress => {
-    if (email.length == 1) return setError('You need at least 1 connected email address')
+  const handleEmailAddressDelete = async emailAddress => {
+    if (emails.length == 1) return setError('You need at least 1 connected email address')
 
     setLoading(true)
     setError(false)
@@ -122,14 +124,14 @@ export default function AccountModal(props) {
 
       setLoading(false)
       setNotification('Succesfully removed email')
-      setEmail(email.filter(e => e.address != emailAddress))
+      setEmails(emails.filter(e => e.address != emailAddress))
     } catch (e) {
       setLoading(false)
       setError('There has been an error')
     }
   }
 
-  const handleNewEmailAddressAdd = async () => {
+  const handleEmailAddressAdd = async () => {
     if (newEmailAddress.trim() == '') return setError('This field is mandatory')
 
     setLoading(true)
@@ -144,7 +146,7 @@ export default function AccountModal(props) {
         setLoading(false)
       } else {
         setLoading(false)
-        setEmail([...email, { address: newEmailAddress, confirmed: false }])
+        setEmails([...emails, { address: newEmailAddress, confirmed: false }])
         setNewEmailAddress('')
         setNotification('Succesfully added new email')
       }
@@ -193,6 +195,64 @@ export default function AccountModal(props) {
     } catch (e) {
       setLoading(false)
       setError('Error uploading file')
+    }
+  }
+
+  const handleCardActive = async token => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AccountService.confirmEmail(emailAddress, userId)
+
+      setLoading(false)
+      setNotification('We have sent you a confirmation email')
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
+
+  const handleCardDelete = async token => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AccountService.deleteEmail(emailAddress, userId)
+
+      setLoading(false)
+      setNotification('Succesfully removed email')
+      setCards(card.filter(e => e.address != emailAddress))
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
+    }
+  }
+
+  const handleCardAdd = async () => {
+    if (newEmailAddress.trim() == '') return setError('This field is mandatory')
+
+    setLoading(true)
+    setError(false)
+
+    try {
+      const userId = props.id
+      const auth = await AccountService.addEmail(newEmailAddress, userId)
+
+      if (auth.status == 401) {
+        setError('Email is already taken')
+        setLoading(false)
+      } else {
+        setLoading(false)
+        setEmail([...email, { address: newEmailAddress, confirmed: false }])
+        setNewEmailAddress('')
+        setNotification('Succesfully added new email')
+      }
+    } catch (e) {
+      setLoading(false)
+      setError('There has been an error')
     }
   }
 
@@ -303,18 +363,18 @@ export default function AccountModal(props) {
             <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
             <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
 
-            <MailTable width="100%">
+            <Table width="100%">
               <tbody>
-                {email.map((e, index) => (
+                {emails.map((email, index) => (
                   <EmailAddressRow
                     key={index}
-                    onDelete={handleNewEmailAddressDelete}
-                    onConfirm={handleNewEmailAddressConfirm}
-                    email={e}
+                    onDelete={handleEmailAddressDelete}
+                    onConfirm={handleEmailAddressConfirm}
+                    email={email}
                   />
                 ))}
               </tbody>
-            </MailTable>
+            </Table>
 
             <Input
               label="Connect another email address"
@@ -327,7 +387,8 @@ export default function AccountModal(props) {
               text="Add"
               theme="blue-border"
               size="small"
-              onClick={handleNewEmailAddressAdd}
+              className="mt-20"
+              onClick={handleEmailAddressAdd}
             />
           </div>
         </div>
@@ -421,6 +482,49 @@ export default function AccountModal(props) {
     )
   }
 
+  const renderCreditCards = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Credit Cards</Text>
+            <Text className="color-d0 p mb-30">Add multiple cards, only 1 can be active at a time.</Text>
+
+            <Table width="100%">
+              <tbody>
+                {cards.map((card, index) => (
+                  <CreditCardRow
+                    key={index}
+                    onDelete={handleCardDelete}
+                    onActive={handleCardActive}
+                    card={card}
+                  />
+                ))}
+              </tbody>
+            </Table>
+
+            <div className="row mt-20">
+              <Button
+                text="Add New Card"
+                theme="blue-border"
+                size="small"
+                onClick={handleCardAdd}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderInvoices = () => {
+    return <div></div>
+  }
+
   // prettier-ignore
   return (
     <ModalPortal>
@@ -431,7 +535,7 @@ export default function AccountModal(props) {
         onClose={props.onClose}>
 
         <Tabbed
-          start={0}
+          start={3}
           panels={[
             {
               title: 'Profile',
@@ -450,13 +554,13 @@ export default function AccountModal(props) {
             },
             {
               title: 'Credit Cards',
-              show: false,
-              content: <div></div>
+              show: true,
+              content: renderCreditCards()
             },
             {
               title: 'Invoices',
-              show: false,
-              content: <div></div>
+              show: true,
+              content: renderInvoices()
             },
             {
               title: 'Danger zone',
@@ -475,15 +579,38 @@ AccountModal.propTypes = {
   id: PropTypes.string,
 }
 
+const CreditCardRow = props => {
+  const [over, setOver] = useState(false)
+
+  // prettier-ignore
+  return (
+    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+      <TableCell width="40%"><CardNumber>{props.card.card}</CardNumber></TableCell>
+      <TableCell width="30%"><CardStatus>{props.card.active ? "Active" : ""}</CardStatus></TableCell>
+      <TableCell>
+        {over &&
+          <React.Fragment>
+            {!props.card.active &&
+              <CardButtonActive onClick={() => props.onActive(props.card.token)} className="button">Make default</CardButtonActive>
+            }
+
+            <CardButtonDelete onClick={() => props.onDelete(props.card.token)} className="button">Delete</CardButtonDelete>
+          </React.Fragment>
+        }
+      </TableCell>
+    </tr>
+  )
+}
+
 const EmailAddressRow = props => {
   const [over, setOver] = useState(false)
 
   // prettier-ignore
   return (
     <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <MailTableCell width="40%"><MailAddress>{props.email.address}</MailAddress></MailTableCell>
-      <MailTableCell width="30%"><MailStatus>{props.email.confirmed ? "Confirmed" : "Not confirmed"}</MailStatus></MailTableCell>
-      <MailTableCell>
+      <TableCell width="40%"><MailAddress>{props.email.address}</MailAddress></TableCell>
+      <TableCell width="30%"><MailStatus>{props.email.confirmed ? "Confirmed" : "Not confirmed"}</MailStatus></TableCell>
+      <TableCell>
         {over &&
           <React.Fragment>
             {!props.email.confirmed &&
@@ -493,21 +620,33 @@ const EmailAddressRow = props => {
             <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">Delete</MailButtonDelete>
           </React.Fragment>
         }
-      </MailTableCell>
+      </TableCell>
     </tr>
   )
 }
 
 const Text = styled.div``
 
-const MailTable = styled.table`
+const Table = styled.table`
   margin-bottom: 50px;
   margin-top: 20px;
 `
 
-const MailTableCell = styled.td`
+const TableCell = styled.td`
   border-bottom: 1px solid #edf0f2;
   height: 30px;
+`
+
+const MailAddress = styled.div`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 600;
+`
+
+const MailStatus = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
 `
 
 const MailButtonConfirm = styled.span`
@@ -526,14 +665,30 @@ const MailButtonDelete = styled.span`
   margin-left: 10px;
 `
 
-const MailAddress = styled.div`
+const CardNumber = styled.div`
   color: #007af5;
   font-size: 12px;
   font-weight: 600;
 `
 
-const MailStatus = styled.div`
+const CardStatus = styled.div`
   color: #858e96;
   font-size: 12px;
   font-weight: 400;
+`
+
+const CardButtonActive = styled.span`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const CardButtonDelete = styled.span`
+  color: #d93025;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
 `

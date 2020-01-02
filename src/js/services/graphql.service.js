@@ -74,7 +74,7 @@ export default class GraphqlService {
         query user($userId: String!) {
           user(userId: $userId) {
             id
-            email {
+            emails {
               address
               confirmed
             }
@@ -98,6 +98,7 @@ export default class GraphqlService {
               token
               vendor
               card
+              active
             }
           }
         }
@@ -194,7 +195,7 @@ export default class GraphqlService {
                 id
                 role
                 name
-                email {
+                emails {
                   address
                   confirmed
                 }
@@ -264,7 +265,7 @@ export default class GraphqlService {
                 user {
                   id
                   name
-                  email {
+                  emails {
                     address
                     confirmed
                   }
@@ -443,7 +444,7 @@ export default class GraphqlService {
               user {
                 id
                 name
-                email {
+                emails {
                   address
                   confirmed
                 }
