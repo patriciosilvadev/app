@@ -96,6 +96,49 @@ export default function AccountModal(props) {
     }
   }
 
+  const handleSubmit = async () => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const updatedUser = { name, role, description, username, image, timezone: moment.tz.names()[timezone] }
+      const userId = props.id
+
+      await GraphqlService.getInstance().updateUser(userId, updatedUser)
+
+      dispatch(updateUser(updatedUser))
+      setLoading(false)
+      setNotification('Succesfully updated')
+    } catch (e) {
+      setLoading(false)
+      setError('Email or username are taken')
+    }
+  }
+
+  const handleFileChange = async e => {
+    if (e.target.files.length == 0) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const file = e.target.files[0]
+      const { name, type, size } = file
+      const raw = await UploadService.getUploadUrl(name, type)
+      const { url } = await raw.json()
+      const upload = await UploadService.uploadFile(url, file, type)
+      const uri = upload.url.split('?')[0]
+      const mime = type
+
+      setImage(uri)
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      setError('Error uploading file')
+    }
+  }
+
+  // Email management
   const handleEmailAddressConfirm = async emailAddress => {
     setLoading(true)
     setError(false)
@@ -156,48 +199,7 @@ export default function AccountModal(props) {
     }
   }
 
-  const handleSubmit = async () => {
-    setLoading(true)
-    setError(false)
-
-    try {
-      const updatedUser = { name, role, description, username, image, timezone: moment.tz.names()[timezone] }
-      const userId = props.id
-
-      await GraphqlService.getInstance().updateUser(userId, updatedUser)
-
-      dispatch(updateUser(updatedUser))
-      setLoading(false)
-      setNotification('Succesfully updated')
-    } catch (e) {
-      setLoading(false)
-      setError('Email or username are taken')
-    }
-  }
-
-  const handleFileChange = async e => {
-    if (e.target.files.length == 0) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const file = e.target.files[0]
-      const { name, type, size } = file
-      const raw = await UploadService.getUploadUrl(name, type)
-      const { url } = await raw.json()
-      const upload = await UploadService.uploadFile(url, file, type)
-      const uri = upload.url.split('?')[0]
-      const mime = type
-
-      setImage(uri)
-      setLoading(false)
-    } catch (e) {
-      setLoading(false)
-      setError('Error uploading file')
-    }
-  }
-
+  // Credit card management
   const handleCardActive = async token => {
     setLoading(true)
     setError(false)
