@@ -20,7 +20,7 @@ export default function NotificationsComponent(props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [notificationsMenu, setNotificationsMenu] = useState(false)
-  const hasNotification = notifications.filter(n => !n.read).length > 0
+  const hasNotification = notifications.filter(notification => !notification.read).length > 0
 
   const fetchNotifications = async userId => {
     setLoading(true)

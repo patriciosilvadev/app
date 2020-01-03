@@ -762,7 +762,7 @@ const Channels = styled.div`
   position: relative;
   z-index: 2;
   background: white;
-  background: #f8f9fa;
+  background: #1a1f36;
   background: #040b1c;
   border-right: 1px solid #f1f3f5;
 `

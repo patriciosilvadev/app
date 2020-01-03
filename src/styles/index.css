@@ -1,9 +1,9 @@
 * {
-  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   outline: none;
   text-decoration: none;
   box-sizing: border-box;
-  font-size: 0.9rem;
+  font-size: 13px;
 }
 
 *:focus { outline: none; }
@@ -210,7 +210,13 @@ body {
 
 .wrap { flex-wrap: wrap; }
 
-.flexer { flex: 1 }
+.flexer { flex: 1; }
+
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.flex-3 { flex: 3; }
+.flex-4 { flex: 4; }
+.flex-5 { flex: 5; }
 
 /* Text sizes & weights */
 
@@ -219,7 +225,7 @@ body {
 .h3 { font-size: 30px; font-weight: 400; }
 .h4 { font-size: 20px; font-weight: 400; }
 .h5 { font-size: 16px; font-weight: 400; }
-.p { font-size: 12px; font-weight: 400; }
+.p { font-size: 13px; font-weight: 400; }
 .small { font-size: 10px; font-weight: 400; }
 
 .xx-light { font-weight: 100; }

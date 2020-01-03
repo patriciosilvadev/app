@@ -12,7 +12,68 @@ import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@weekday/elements'
+import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
+import { STRIPE_API_KEY } from '../environment'
+
 const moment = require('moment-timezone')
+
+const stripeElementsOptions = {
+  style: {
+    base: {
+      'fontSize': '16px',
+      'color': '#424770',
+      'fontFamily': 'Open Sans, sans-serif',
+      'letterSpacing': '0.025em',
+      '::placeholder': {
+        color: '#aab7c4',
+      },
+    },
+    invalid: {
+      color: '#c23d4b',
+    },
+  },
+}
+
+class _CardForm extends Component {
+  state = {
+    errorMessage: '',
+  }
+
+  handleChange = ({ error }) => {
+    if (error) {
+      this.setState({ errorMessage: error.message })
+    }
+  }
+
+  handleSubmit = evt => {
+    evt.preventDefault()
+    
+    if (this.props.stripe) {
+      this.props.stripe.createToken().then(this.props.handleResult)
+    } else {
+      console.log("Stripe.js hasn't loaded yet.")
+    }
+  }
+
+  render() {
+    return (
+      <div className="CardDemo">
+        <form onSubmit={this.handleSubmit.bind(this)}>
+          <label>
+            Card details
+            <CardElement onChange={this.handleChange} {...stripeElementsOptions} />
+          </label>
+          <div className="error" role="alert">
+            {this.state.errorMessage}
+          </div>
+          <button>Pay</button>
+        </form>
+      </div>
+    )
+  }
+}
+
+const CardForm = injectStripe(_CardForm)
 
 export default function AccountModal(props) {
   const [error, setError] = useState(null)
@@ -233,7 +294,9 @@ export default function AccountModal(props) {
     }
   }
 
-  const handleCardAdd = async () => {
+  const handleCardAdd = async result => {
+    console.log(result)
+    /*
     if (newEmailAddress.trim() == '') return setError('This field is mandatory')
 
     setLoading(true)
@@ -256,6 +319,7 @@ export default function AccountModal(props) {
       setLoading(false)
       setError('There has been an error')
     }
+    */
   }
 
   // Render functions to make things easier
@@ -517,6 +581,12 @@ export default function AccountModal(props) {
                 onClick={handleCardAdd}
               />
             </div>
+
+            <StripeProvider apiKey={STRIPE_API_KEY}>
+              <Elements>
+                <CardForm handleResult={handleCardAdd} />
+              </Elements>
+            </StripeProvider>
           </div>
         </div>
       </div>
