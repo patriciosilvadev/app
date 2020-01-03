@@ -20,33 +20,6 @@ import ToolbarComponent from '../components/toolbar.component'
 import { askPushNotificationPermission, urlBase64ToUint8Array } from '../helpers/util'
 import EventService from '../services/event.service'
 
-const AppContainer = styled.div`
-  background-color: white;
-  background-size: contain;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-`
-
-const App = styled.div`
-  width: 100%;
-  height: 100%;
-  flex: 1;
-`
-
-const Loader = () => (
-  <div className="react-fragment-loader">
-    <div className="react-fragment-spinner">
-      <div />
-      <div />
-      <div />
-      <div />
-    </div>
-  </div>
-)
-
 class AppPage extends React.Component {
   constructor(props) {
     super(props)
@@ -294,3 +267,30 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AppPage)
+
+const AppContainer = styled.div`
+  background-color: white;
+  background-size: contain;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+`
+
+const App = styled.div`
+  width: 100%;
+  height: 100%;
+  flex: 1;
+`
+
+const Loader = () => (
+  <div className="react-fragment-loader">
+    <div className="react-fragment-spinner">
+      <div />
+      <div />
+      <div />
+      <div />
+    </div>
+  </div>
+)
