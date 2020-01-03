@@ -5,68 +5,6 @@ import PropTypes from 'prop-types'
 import { Loading, Error, Input, Button, Notification, Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 
-const Container = styled.div`
-  background: #f3f3f3;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  display: flex;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-`
-
-const Inputs = styled.div`
-  position: relative;
-  width: 300px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  flex-direction: column;
-`
-
-const Inner = styled.div`
-  background: white;
-  position: relative;
-  height: 650px;
-  width: 550px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  flex-direction: column;
-`
-
-const Logo = styled.div`
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: center;
-  align-items: center;
-  margin-right: auto;
-`
-
-const LogoText = styled.div`
-  padding-left: 5px;
-  position: relative;
-  bottom: 2px;
-  color: #007af5;
-  font-size: 22px;
-  font-weight: 400;
-  font-family: 'hk_groteskmedium', helvetica;
-`
-
-const Text = styled.div``
-
 export default props => {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -190,3 +128,65 @@ export default props => {
     </React.Fragment>
   )
 }
+
+const Container = styled.div`
+  background: #f3f3f3;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+`
+
+const Inputs = styled.div`
+  position: relative;
+  width: 300px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+`
+
+const Inner = styled.div`
+  background: white;
+  position: relative;
+  height: 650px;
+  width: 550px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+`
+
+const Logo = styled.div`
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  margin-right: auto;
+`
+
+const LogoText = styled.div`
+  padding-left: 5px;
+  position: relative;
+  bottom: 2px;
+  color: #007af5;
+  font-size: 22px;
+  font-weight: 400;
+  font-family: 'hk_groteskmedium', helvetica;
+`
+
+const Text = styled.div``

@@ -211,14 +211,14 @@ export default function MembersTeamComponent(props) {
     }
   }
 
-  const handleTeamMemberConversationStart = async initialOtherUserId => {
+  const handleTeamMemberConversationStart = async otherUserId => {
     const title = null
     const description = null
     const image = null
     const teamId = props.id
     const userId = user.id
 
-    props.createChannel(title, description, image, teamId, userId, initialOtherUserId)
+    props.createChannel(title, description, image, teamId, userId, otherUserId)
     props.onClose()
   }
 

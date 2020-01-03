@@ -18,6 +18,7 @@ import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger } from '../helpers/util'
+import SubscriptionModal from '../modals/subscription.modal'
 
 class ChannelsComponent extends React.Component {
   constructor(props) {
@@ -26,6 +27,7 @@ class ChannelsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
+      subscriptionModal: false,
       teamModal: false,
       teamModalStart: 0,
       channelPopup: false,
@@ -56,6 +58,10 @@ class ChannelsComponent extends React.Component {
 
     this.onSearch$ = new Subject()
     this.subscription = null
+
+    this.renderAccountModal = this.renderAccountModal.bind(this)
+    this.renderTeamModal = this.renderTeamModal.bind(this)
+    this.renderSubscriptionModal = this.renderSubscriptionModal.bind(this)
 
     this.renderHeader = this.renderHeader.bind(this)
     this.renderSearch = this.renderSearch.bind(this)
@@ -118,10 +124,10 @@ class ChannelsComponent extends React.Component {
     const description = null
     const image = null
     const teamId = this.props.team.id
-    const initialOtherUserId = user.id
+    const otherUserId = user.id
     const userId = this.props.user.id
 
-    this.createChannel(title, description, image, teamId, userId, initialOtherUserId)
+    this.createChannel(title, description, image, teamId, userId, otherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
@@ -129,21 +135,21 @@ class ChannelsComponent extends React.Component {
     const description = null
     const image = null
     const teamId = this.props.team.id
-    const initialOtherUserId = null
+    const otherUserId = null
     const userId = this.props.user.id
 
-    this.createChannel(title, description, image, teamId, userId, initialOtherUserId)
+    this.createChannel(title, description, image, teamId, userId, otherUserId)
     this.setState({ filter: '', showFilter: false })
   }
 
-  async createChannel(title, description, image, teamId, userId, initialOtherUserId) {
+  async createChannel(title, description, image, teamId, userId, otherUserId) {
     try {
       // 1. Find channels where there rae only 2 members
       // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
-      const channel = initialOtherUserId
+      const channel = otherUserId
         ? this.props.channels
             .filter(channel => channel.members.length == 2 && channel.private)
-            .filter(channel => channel.members.filter(member => member.user.id == initialOtherUserId).length == 1)
+            .filter(channel => channel.members.filter(member => member.user.id == otherUserId).length == 1)
             .flatten()
         : null
 
@@ -152,7 +158,7 @@ class ChannelsComponent extends React.Component {
 
       // Create the default member array
       // If user isn't null - then it's a private channel
-      const members = initialOtherUserId ? [{ user: initialOtherUserId }, { user: userId }] : [{ user: userId }]
+      const members = otherUserId ? [{ user: otherUserId }, { user: userId }] : [{ user: userId }]
 
       // Otherwise create the new channel
       // 1) Create the channel object based on an open channel or private
@@ -166,7 +172,7 @@ class ChannelsComponent extends React.Component {
         user: userId,
         messages: [],
         public: false,
-        private: initialOtherUserId ? true : false,
+        private: otherUserId ? true : false,
       })
 
       const channelData = data.createChannel
@@ -178,7 +184,7 @@ class ChannelsComponent extends React.Component {
       MessagingService.getInstance().join(channelId)
 
       // If it's a private conversation - then incite the other optersons
-      if (initialOtherUserId) MessagingService.getInstance().joinChannel([initialOtherUserId], channelId)
+      if (otherUserId) MessagingService.getInstance().joinChannel([otherUserId], channelId)
 
       // Navigate there
       browserHistory.push(`/app/team/${teamId}/channel/${channelId}`)
@@ -645,6 +651,41 @@ class ChannelsComponent extends React.Component {
     )
   }
 
+  renderAccountModal() {
+    if (!this.state.accountModal) return null
+
+    return (
+      <AccountModal
+        id={this.props.user.id}
+        onClose={() => this.setState({ accountModal: false })}
+      />
+    )
+  }
+
+  renderTeamModal() {
+    if (!this.state.teamModal) return null
+
+    return (
+      <TeamModal
+        id={this.props.team.id}
+        start={this.state.teamModalStart}
+        createChannel={this.createChannel}
+        onClose={() => this.setState({ teamModal: false })}
+      />
+    )
+  }
+
+  renderSubscriptionModal() {
+    if (!this.state.subscriptionModal) return null
+
+    return (
+      <SubscriptionModal
+        id={this.props.team.id}
+        onClose={() => this.setState({ subscriptionModal: false })}
+      />
+    )
+  }
+
   // These unbounded functions
   // So we haven't bound these to THIS
   // Just is easier/quicker for now
@@ -681,21 +722,9 @@ class ChannelsComponent extends React.Component {
   render() {
     return (
       <Channels className="column">
-        {this.state.teamModal &&
-          <TeamModal
-            createChannel={this.createChannel}
-            start={this.state.teamModalStart}
-            id={this.props.team.id}
-            onClose={() => this.setState({ teamModal: false })}
-          />
-        }
-
-        {this.state.accountModal &&
-          <AccountModal
-            id={this.props.user.id}
-            onClose={() => this.setState({ accountModal: false })}
-          />
-        }
+        {this.renderAccountModal()}
+        {this.renderTeamModal()}
+        {this.renderSubscriptionModal()}
 
         {this.renderHeader()}
         {this.renderSearch()}
