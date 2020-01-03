@@ -265,6 +265,10 @@ body {
 .color-d4 { color: #202529; }
 .color-d5 { color: #11161c; }
 
+/* borders */
+
+.border-top { border-top: 1px solid #E9EDEF; }
+
 /* Spinner */
 
 .react-fragment-loader {

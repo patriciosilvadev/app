@@ -17,13 +17,13 @@ import { STRIPE_API_KEY } from '../environment'
 
 const moment = require('moment-timezone')
 
-const stripeElementsOptions = {
+const createStripeElementOptions = {
   style: {
     base: {
-      'fontSize': '16px',
-      'color': '#424770',
-      'fontFamily': 'Open Sans, sans-serif',
-      'letterSpacing': '0.025em',
+      fontSize: '16px',
+      color: '#424770',
+      fontFamily: 'Open Sans, sans-serif',
+      letterSpacing: '0.025em',
       '::placeholder': {
         color: '#aab7c4',
       },
@@ -31,10 +31,10 @@ const stripeElementsOptions = {
     invalid: {
       color: '#c23d4b',
     },
-  },
+  }
 }
 
-class _CardForm extends Component {
+class _CardForm extends React.Component {
   state = {
     errorMessage: '',
   }
@@ -47,7 +47,7 @@ class _CardForm extends Component {
 
   handleSubmit = evt => {
     evt.preventDefault()
-    
+
     if (this.props.stripe) {
       this.props.stripe.createToken().then(this.props.handleResult)
     } else {
@@ -57,18 +57,27 @@ class _CardForm extends Component {
 
   render() {
     return (
-      <div className="CardDemo">
-        <form onSubmit={this.handleSubmit.bind(this)}>
-          <label>
-            Card details
-            <CardElement onChange={this.handleChange} {...stripeElementsOptions} />
-          </label>
-          <div className="error" role="alert">
-            {this.state.errorMessage}
-          </div>
-          <button>Pay</button>
-        </form>
-      </div>
+      <form className="border-top mt-20 pt-20">
+        <CardElement onChange={this.handleChange} {...createStripeElementOptions} />
+
+        <div className="p color-red mt-20" role="alert">
+          {this.state.errorMessage}
+        </div>
+
+        <div className="row mt-20">
+          <Button
+            onClick={this.handleSubmit.bind(this)}
+            text="Add"
+            size="small"
+            className="mr-10"
+          />
+          <Button
+            onClick={this.props.onCancel}
+            text="Cancel"
+            size="small"
+          />
+        </div>
+      </form>
     )
   }
 }
@@ -87,6 +96,7 @@ export default function AccountModal(props) {
   const [timezone, setTimezone] = useState(0)
   const [emails, setEmails] = useState([])
   const [cards, setCards] = useState([])
+  const [newCard, setNewCard] = useState(false)
   const [newEmailAddress, setNewEmailAddress] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -219,19 +229,21 @@ export default function AccountModal(props) {
   const handleEmailAddressDelete = async emailAddress => {
     if (emails.length == 1) return setError('You need at least 1 connected email address')
 
-    setLoading(true)
-    setError(false)
+    if (confirm("Are you sure?")) {
+      setLoading(true)
+      setError(false)
 
-    try {
-      const userId = props.id
-      const auth = await AccountService.deleteEmail(emailAddress, userId)
+      try {
+        const userId = props.id
+        const auth = await AccountService.deleteEmail(emailAddress, userId)
 
-      setLoading(false)
-      setNotification('Succesfully removed email')
-      setEmails(emails.filter(e => e.address != emailAddress))
-    } catch (e) {
-      setLoading(false)
-      setError('There has been an error')
+        setLoading(false)
+        setNotification('Succesfully removed email')
+        setEmails(emails.filter(e => e.address != emailAddress))
+      } catch (e) {
+        setLoading(false)
+        setError('There has been an error')
+      }
     }
   }
 
@@ -267,10 +279,18 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
-      const auth = await AccountService.confirmEmail(emailAddress, userId)
+      const auth = await AccountService.activateCard(userId, token)
 
       setLoading(false)
-      setNotification('We have sent you a confirmation email')
+      setNotification('Successfully set default card')
+      setCards(cards.map(card => {
+        return {
+          token: card.token,
+          vendor: card.vendor,
+          card: card.card,
+          active: token == card.token,
+        }
+      }))
     } catch (e) {
       setLoading(false)
       setError('There has been an error')
@@ -278,48 +298,47 @@ export default function AccountModal(props) {
   }
 
   const handleCardDelete = async token => {
-    setLoading(true)
-    setError(false)
+    if (confirm("Are you sure?")) {
+      setLoading(true)
+      setError(false)
 
-    try {
-      const userId = props.id
-      const auth = await AccountService.deleteEmail(emailAddress, userId)
+      try {
+        const userId = props.id
+        const auth = await AccountService.deleteCard(userId, token)
 
-      setLoading(false)
-      setNotification('Succesfully removed email')
-      setCards(card.filter(e => e.address != emailAddress))
-    } catch (e) {
-      setLoading(false)
-      setError('There has been an error')
+        setLoading(false)
+        setNotification('Succesfully removed card')
+        setCards(cards.filter(card => card.token != token))
+      } catch (e) {
+        setLoading(false)
+        setError('There has been an error')
+      }
     }
   }
 
   const handleCardAdd = async result => {
-    console.log(result)
-    /*
-    if (newEmailAddress.trim() == '') return setError('This field is mandatory')
+    const { token: { card: { brand, last4 }, id } } = result
+    const token = id
+    const card = last4
+    const vendor = brand
+    const active = cards.length == 0
+    const userId = props.id
 
     setLoading(true)
     setError(false)
 
     try {
-      const userId = props.id
-      const auth = await AccountService.addEmail(newEmailAddress, userId)
+      await AccountService.addCard(userId, token, vendor, card, active)
 
-      if (auth.status == 401) {
-        setError('Email is already taken')
-        setLoading(false)
-      } else {
-        setLoading(false)
-        setEmail([...email, { address: newEmailAddress, confirmed: false }])
-        setNewEmailAddress('')
-        setNotification('Succesfully added new email')
-      }
+      setLoading(false)
+      setCards([...cards, { token, vendor, card, active }])
+      setNewCard(false)
+      setNotification('Succesfully added new card')
     } catch (e) {
+      console.log(e)
       setLoading(false)
       setError('There has been an error')
     }
-    */
   }
 
   // Render functions to make things easier
@@ -573,20 +592,29 @@ export default function AccountModal(props) {
               </tbody>
             </Table>
 
-            <div className="row mt-20">
-              <Button
-                text="Add New Card"
-                theme="blue-border"
-                size="small"
-                onClick={handleCardAdd}
-              />
-            </div>
+            {!newCard &&
+              <div className="row mt-20">
+                <Button
+                  text="Add New Card"
+                  theme="blue-border"
+                  size="small"
+                  onClick={() => setNewCard(true)}
+                />
+              </div>
+            }
 
-            <StripeProvider apiKey={STRIPE_API_KEY}>
-              <Elements>
-                <CardForm handleResult={handleCardAdd} />
-              </Elements>
-            </StripeProvider>
+            {newCard &&
+              <div className="w-100">
+                <StripeProvider apiKey={STRIPE_API_KEY}>
+                  <Elements>
+                    <CardForm
+                      handleResult={handleCardAdd}
+                      onCancel={() => setNewCard(false)}
+                    />
+                  </Elements>
+                </StripeProvider>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -657,13 +685,13 @@ const CreditCardRow = props => {
   // prettier-ignore
   return (
     <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <TableCell width="40%"><CardNumber>{props.card.card}</CardNumber></TableCell>
+      <TableCell width="40%"><CardNumber>xxxx-xxxx-xxxx-{props.card.card}</CardNumber></TableCell>
       <TableCell width="30%"><CardStatus>{props.card.active ? "Active" : ""}</CardStatus></TableCell>
       <TableCell>
         {over &&
           <React.Fragment>
             {!props.card.active &&
-              <CardButtonActive onClick={() => props.onActive(props.card.token)} className="button">Make default</CardButtonActive>
+              <CardButtonActive onClick={() => props.onActive(props.card.token)} className="button mr-20">Make active</CardButtonActive>
             }
 
             <CardButtonDelete onClick={() => props.onDelete(props.card.token)} className="button">Delete</CardButtonDelete>

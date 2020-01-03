@@ -160,31 +160,42 @@ export default class AuthService {
     })
   }
 
-  /*
-  static addCard(email, userId) {
-    const token = CookiesService.getCookie(JWT)
+  static addCard(userId, token, vendor, card, active) {
+    const jwtToken = CookiesService.getCookie(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/card/add`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token,
+        'Authorization': 'Bearer ' + jwtToken,
       },
-      body: JSON.stringify({ email, userId }),
+      body: JSON.stringify({ token, vendor, card, active }),
     })
   }
 
-  static deleteCard(email, userId) {
-    const token = CookiesService.getCookie(JWT)
+  static deleteCard(userId, token) {
+    const jwtToken = CookiesService.getCookie(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/card/delete`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token,
+        'Authorization': 'Bearer ' + jwtToken,
       },
-      body: JSON.stringify({ email, userId }),
+      body: JSON.stringify({ token }),
     })
   }
-  */
+
+  static activateCard(userId, token) {
+    const jwtToken = CookiesService.getCookie(JWT)
+
+    return fetch(`${API_HOST}/account/${userId}/card/activate`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + jwtToken,
+      },
+      body: JSON.stringify({ token }),
+    })
+  }
 }
