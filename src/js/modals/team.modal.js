@@ -378,6 +378,17 @@ export default function TeamModal(props) {
     )
   }
 
+  const renderBillingAccount = () => {
+    return (
+      <div>
+        <Button
+          text="Ok"
+
+        />
+      </div>
+    )
+  }
+
   // prettier-ignore
   return (
     <ModalPortal>
@@ -408,6 +419,11 @@ export default function TeamModal(props) {
                 title: 'Invite & share',
                 show: admin,
                 content: renderInviteShare()
+              },
+              {
+                title: 'Billing Account',
+                show: admin,
+                content: renderBillingAccount()
               },
               {
                 title: 'Danger zone',

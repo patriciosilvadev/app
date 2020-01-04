@@ -31,7 +31,7 @@ class ChannelsComponent extends React.Component {
       teamModal: false,
       teamModalStart: 0,
       channelPopup: false,
-      accountModal: true,
+      accountModal: false,
       accountMenu: false,
       statusMenu: false,
       archivedVisible: false,
@@ -351,6 +351,11 @@ class ChannelsComponent extends React.Component {
                     icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
                     text: "Team directory",
                     onClick: this._openTeamDirectory.bind(this),
+                  },
+                  {
+                    icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
+                    text: "Team subscription",
+                    onClick: this._openTeamSubscription.bind(this),
                   },
                   {
                     icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
@@ -691,6 +696,10 @@ class ChannelsComponent extends React.Component {
   // Just is easier/quicker for now
   _openAccountSettings() {
     this.setState({ accountMenu: false, accountModal: true })
+  }
+
+  _openTeamSubscription() {
+    this.setState({ accountMenu: false, subscriptionModal: true })
   }
 
   _openTeamSettings() {

@@ -31,6 +31,7 @@ import {
   UserMinus,
   Shield,
   ThumbsUp,
+  Flag,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -114,6 +115,8 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
         return <Markdown width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'thumbs-up':
         return <ThumbsUp width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'flag':
+        return <Flag width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       default:
         null
     }

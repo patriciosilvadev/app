@@ -134,8 +134,6 @@ export default function SubscriptionModal(props) {
 
     return (
       <React.Fragment>
-        <img src="./team-onboarding.png" width="90%" />
-
         <Text className="h1 mb-30 mt-30 color-d3">Start Something</Text>
         <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
         <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
@@ -293,7 +291,7 @@ export default function SubscriptionModal(props) {
               {renderStep3()}
             </Inner>
 
-            <Logo>
+            <Logo onClick={props.onClose}>
               <img src="./logo.png" height="20" alt="Weekday"/>
               <LogoText>weekday</LogoText>
             </Logo>
