@@ -22,6 +22,7 @@ export default function TeamModal(props) {
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
+  const [billing, setBilling] = useState(null)
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
@@ -166,6 +167,7 @@ export default function TeamModal(props) {
         setDescription(team.description || '')
         setMembers(team.members)
         setShortcode(team.shortcode)
+        setBilling(team.billing)
         setSlug(team.slug)
         setAdmin(team.role == 'ADMIN')
         setLoading(false)
@@ -259,6 +261,7 @@ export default function TeamModal(props) {
       <div className="column flex-1 w-100 h-100">
         <MembersTeamComponent
           admin={admin}
+          billing={billing}
           id={props.id}
           createChannel={props.createChannel}
           onClose={props.onClose}
@@ -378,7 +381,7 @@ export default function TeamModal(props) {
     )
   }
 
-  const renderBillingAccount = () => {
+  const renderSubscription = () => {
     return (
       <div>
         <Button
@@ -399,6 +402,7 @@ export default function TeamModal(props) {
         onClose={props.onClose}>
           <Tabbed
             start={props.start}
+            footer={renderSubscription()}
             panels={[
               {
                 title: 'Overview',
@@ -419,11 +423,6 @@ export default function TeamModal(props) {
                 title: 'Invite & share',
                 show: admin,
                 content: renderInviteShare()
-              },
-              {
-                title: 'Billing Account',
-                show: admin,
-                content: renderBillingAccount()
               },
               {
                 title: 'Danger zone',

@@ -155,6 +155,11 @@ export default class GraphqlService {
             slug
             description
             image
+            billing {
+              id
+              name
+              username
+            }
             role(userId: $userId)
             channels(userId: $userId) {
               id
@@ -949,6 +954,20 @@ export default class GraphqlService {
       `,
       variables: {
         teamId,
+      },
+    })
+  }
+
+  updateTeamBilling(teamId, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTeamBilling($teamId: String, $userId: String) {
+          updateTeamBilling(teamId: $teamId, userId: $userId)
+        }
+      `,
+      variables: {
+        teamId,
+        userId,
       },
     })
   }

@@ -19,15 +19,31 @@ const TableRow = props => {
   const [menu, setMenu] = useState(false)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
+  const [confirmMemberBillingModal, setConfirmMemberBillingModal] = useState(false)
   const [roles, setRoles] = useState(false)
   const [memberDeleteId, setMemberDeleteId] = useState('')
 
   // prettier-ignore
   return (
     <React.Fragment>
+      {confirmMemberBillingModal &&
+        <ConfirmModal
+          onOkay={() => {
+            props.onBilling(member.user.id)
+            setConfirmMemberBillingModal(false)
+          }}
+          onCancel={() => setConfirmMemberBillingModal(false)}
+          text="Are you sure you want to make this person the billing contact?"
+          title="Are you sure?"
+        />
+      }
+
       {confirmSelfDeleteModal &&
         <ConfirmModal
-          onOkay={() => props.onLeave()}
+          onOkay={() => {
+            props.onLeave()
+            setConfirmSelfDeleteModal(false)
+          }}
           onCancel={() => setConfirmSelfDeleteModal(false)}
           text="Are you sure you want to leave this team?"
           title="Are you sure?"
@@ -36,11 +52,22 @@ const TableRow = props => {
 
       {confirmMemberDeleteModal &&
         <ConfirmModal
-          onOkay={() => props.onDelete(member.user.id)}
+          onOkay={() => {
+            props.onDelete(member.user.id)
+            setConfirmMemberDeleteModal(false)
+          }}
           onCancel={() => setConfirmMemberDeleteModal(false)}
           text="Are you sure you want to remove this person, it can not be undone?"
           title="Are you sure?"
         />
+      }
+
+      {props.billing &&
+        <tr>
+          <td className="p-5 p color-d1 background-l5" colSpan={5}>
+            {member.user.name} is the billing contact for this team
+          </td>
+        </tr>
       }
 
       <tr>
@@ -112,6 +139,12 @@ const TableRow = props => {
                     text: "Start conversation",
                     onClick: () => props.onConversationStart(member.user.id),
                   },
+                  {
+                    hide: (props.billing || !props.admin),
+                    icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
+                    text: "Make billing contact",
+                    onClick: () => setConfirmMemberBillingModal(true),
+                  },
                 ]}
               />
             }>
@@ -136,11 +169,28 @@ export default function MembersTeamComponent(props) {
   const [notification, setNotification] = useState(null)
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(0)
+  const [billing, setBilling] = useState(null)
   const [members, setMembers] = useState([])
   const [filter, setFilter] = useState('')
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
   const limit = 10
+
+  const handleTeamMemberBilling = async (userId) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const teamId = props.id
+      const updateTeamMemberRole = await GraphqlService.getInstance().updateTeamBilling(teamId, userId)
+
+      setLoading(false)
+      setBilling(members.filter(member => member.user.id == userId).flatten().user)
+    } catch (e) {
+      setLoading(false)
+      setError('Error setting admin')
+    }
+  }
 
   const handleTeamMemberRoleChange = async (userId, role) => {
     setLoading(true)
@@ -223,6 +273,7 @@ export default function MembersTeamComponent(props) {
   }
 
   useEffect(() => {
+    setBilling(props.billing)
     setMembers(props.members)
     setPages(Math.ceil(props.members.length / limit))
   }, [props.members])
@@ -290,14 +341,19 @@ export default function MembersTeamComponent(props) {
               if (filter != "" && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + ".*"))) return null
               if (index < ((page * limit) - limit) || index > (page * limit)) return null
 
+              const memberUserId = member.user.id
+              const billingUserId = billing ? billing.id : null
+
               return (
                 <TableRow
+                  billing={memberUserId == billingUserId}
                   admin={props.admin}
                   key={index}
                   member={member}
                   user={user}
                   onLeave={handleTeamLeave}
                   onDelete={handleTeamMemberDelete}
+                  onBilling={handleTeamMemberBilling}
                   onConversationStart={handleTeamMemberConversationStart}
                   onRoleChange={handleTeamMemberRoleChange}
                 />
@@ -316,6 +372,7 @@ MembersTeamComponent.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
   admin: PropTypes.bool,
+  billing: PropTypes.any,
 }
 
 const Buttons = styled.div`
@@ -332,7 +389,7 @@ const Th = styled.th`
   font-size: 12px;
 `
 
-const Td = styled.th`
+const Td = styled.td`
   text-align: left;
   padding: 7px;
   font-weight: 400;

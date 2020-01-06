@@ -279,7 +279,7 @@ const Th = styled.th`
   font-size: 12px;
 `
 
-const Td = styled.th`
+const Td = styled.td`
   text-align: left;
   padding: 7px;
   font-weight: 400;

@@ -265,6 +265,13 @@ body {
 .color-d4 { color: #202529; }
 .color-d5 { color: #11161c; }
 
+.background-l0 { background-color: #AEB5BC; }
+.background-l1 { background-color: #CFD6DE; }
+.background-l2 { background-color: #DEE2E6; }
+.background-l3 { background-color: #E1E7EB; }
+.background-l4 { background-color: #E9EDEF; }
+.background-l5 { background-color: #F2F3F5; }
+
 /* borders */
 
 .border-top { border-top: 1px solid #E9EDEF; }
