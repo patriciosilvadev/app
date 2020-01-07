@@ -135,6 +135,7 @@ export default class GraphqlService {
             name
             description
             image
+            premium
           }
         }
       `,
@@ -155,9 +156,11 @@ export default class GraphqlService {
             slug
             description
             image
+            premium
             billing {
               id
               name
+              image
               username
             }
             role(userId: $userId)
@@ -233,6 +236,7 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
+            premium
             role(userId: $userId)
           }
         }
@@ -936,6 +940,20 @@ export default class GraphqlService {
       mutation: gql`
         mutation updateTeam($teamId: String, $payload: String) {
           updateTeam(teamId: $teamId, payload: $payload)
+        }
+      `,
+      variables: {
+        teamId,
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  updateTeamPremium(teamId, payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTeamPremium($teamId: String, $payload: String) {
+          updateTeamPremium(teamId: $teamId, payload: $payload)
         }
       `,
       variables: {

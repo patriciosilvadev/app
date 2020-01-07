@@ -22,6 +22,9 @@ import {
   HelpCircle,
   LogOut,
   ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  ChevronLeft,
   RefreshCcw,
   MoreVertical,
   MoreHorizontal,
@@ -93,6 +96,12 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
         return <Forward width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'chevron-down':
         return <ChevronDown width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'chevron-up':
+        return <ChevronUp width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'chevron-right':
+        return <ChevronRight width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'chevron-left':
+        return <ChevronLeft width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'profile':
         return <Profile width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'settings':

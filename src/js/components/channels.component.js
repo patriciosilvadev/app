@@ -18,7 +18,6 @@ import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger } from '../helpers/util'
-import SubscriptionModal from '../modals/subscription.modal'
 
 class ChannelsComponent extends React.Component {
   constructor(props) {
@@ -27,9 +26,8 @@ class ChannelsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      subscriptionModal: false,
       teamModal: true,
-      teamModalStart: 1,
+      teamModalStart: 4,
       channelPopup: false,
       accountModal: false,
       accountMenu: false,
@@ -61,7 +59,6 @@ class ChannelsComponent extends React.Component {
 
     this.renderAccountModal = this.renderAccountModal.bind(this)
     this.renderTeamModal = this.renderTeamModal.bind(this)
-    this.renderSubscriptionModal = this.renderSubscriptionModal.bind(this)
 
     this.renderHeader = this.renderHeader.bind(this)
     this.renderSearch = this.renderSearch.bind(this)
@@ -680,17 +677,6 @@ class ChannelsComponent extends React.Component {
     )
   }
 
-  renderSubscriptionModal() {
-    if (!this.state.subscriptionModal) return null
-
-    return (
-      <SubscriptionModal
-        id={this.props.team.id}
-        onClose={() => this.setState({ subscriptionModal: false })}
-      />
-    )
-  }
-
   // These unbounded functions
   // So we haven't bound these to THIS
   // Just is easier/quicker for now
@@ -699,7 +685,7 @@ class ChannelsComponent extends React.Component {
   }
 
   _openTeamSubscription() {
-    this.setState({ accountMenu: false, subscriptionModal: true })
+    this.setState({ accountMenu: false, teamModal: true, teamModalStart: 4 })
   }
 
   _openTeamSettings() {
@@ -733,7 +719,6 @@ class ChannelsComponent extends React.Component {
       <Channels className="column">
         {this.renderAccountModal()}
         {this.renderTeamModal()}
-        {this.renderSubscriptionModal()}
 
         {this.renderHeader()}
         {this.renderSearch()}

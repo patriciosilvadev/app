@@ -183,9 +183,13 @@ export default function MembersTeamComponent(props) {
     try {
       const teamId = props.id
       const updateTeamMemberRole = await GraphqlService.getInstance().updateTeamBilling(teamId, userId)
+      const billing = members.filter(member => member.user.id == userId).flatten().user
 
       setLoading(false)
-      setBilling(members.filter(member => member.user.id == userId).flatten().user)
+      setBilling(billing)
+
+      // Now update the parent
+      props.onBillingContactUpdate(billing)
     } catch (e) {
       setLoading(false)
       setError('Error setting admin')
@@ -209,6 +213,8 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamMemberDelete = async userId => {
+    if (billing.id == userId) return setError('Please change the billing contact first')
+
     setLoading(true)
     setError(null)
 
@@ -236,6 +242,8 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamLeave = async () => {
+    if (billing.id == user.id) return setError('Please change the billing contact first')
+
     setLoading(true)
     setError(null)
 

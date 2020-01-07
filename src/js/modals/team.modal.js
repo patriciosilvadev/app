@@ -26,11 +26,14 @@ export default function TeamModal(props) {
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
+  const [premium, setPremium] = useState(false)
   const [description, setDescription] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
   const user = useSelector(state => state.user)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
+  const [confirmUpgradeModal, setConfirmUpgradeModal] = useState(false)
+  const [confirmDowngradeModal, setConfirmDowngradeModal] = useState(false)
   const [admin, setAdmin] = useState(false)
 
   const handleFileChange = async e => {
@@ -151,6 +154,57 @@ export default function TeamModal(props) {
     }
   }
 
+  const handleUpgrade = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const teamId = props.id
+      const premium = true
+      const billingUserId = user.id
+      const billing = {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        image: user.image,
+      }
+
+      await GraphqlService.getInstance().updateTeamPremium(teamId, { premium, billing: billingUserId })
+
+      setLoading(false)
+      setPremium(true)
+      setBilling(billing)
+      setNotification('Succesfully upgraded')
+      dispatch(updateTeam(teamId, { premium, billing }))
+      setConfirmUpgradeModal(false)
+    } catch (e) {
+      setConfirmUpgradeModal(false)
+      setLoading(false)
+      setError('Error updating team')
+    }
+  }
+
+  const handleDowngrade = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const teamId = props.id
+      const premium = false
+      await GraphqlService.getInstance().updateTeamPremium(teamId, { premium })
+
+      setLoading(false)
+      setPremium(false)
+      setNotification('Succesfully upgraded')
+      dispatch(updateTeam(teamId, { premium }))
+      setConfirmDowngradeModal(false)
+    } catch (e) {
+      setLoading(false)
+      setConfirmDowngradeModal(false)
+      setError('Error updating team')
+    }
+  }
+
   // Effect loads current team details
   useEffect(() => {
     ;(async () => {
@@ -166,6 +220,7 @@ export default function TeamModal(props) {
         setName(team.name || '')
         setDescription(team.description || '')
         setMembers(team.members)
+        setPremium(team.premium)
         setShortcode(team.shortcode)
         setBilling(team.billing)
         setSlug(team.slug)
@@ -264,6 +319,7 @@ export default function TeamModal(props) {
           billing={billing}
           id={props.id}
           createChannel={props.createChannel}
+          onBillingContactUpdate={(billing) => setBilling(billing)}
           onClose={props.onClose}
           members={members}
         />
@@ -357,7 +413,6 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-
           {confirmDeleteModal &&
             <ConfirmModal
               onOkay={handleDeleteTeam}
@@ -366,6 +421,7 @@ export default function TeamModal(props) {
               title="Are you sure?"
             />
           }
+
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-red h5 mb-10">Here be dragons!</Text>
             <Text className="color-d0 p mb-30">This cannot be undone.</Text>
@@ -381,13 +437,86 @@ export default function TeamModal(props) {
     )
   }
 
-  const renderSubscription = () => {
+  const renderIsPremium = () => {
     return (
-      <div>
-        <Button
-          text="Ok"
+      <div className="flexer text-center p-20">
+        <img src="./downgrade.png" width="90%" />
 
-        />
+        <Text className="h1 mb-30 mt-30 color-d3">You're premium</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations! We hope you enjoy the journey with us.</Text>
+        <Text className="h5 color-d0">You are billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).</Text>
+
+        <div className="w-100 row justify-content-center">
+          <Button
+            text="Downgrade"
+            className="mt-20"
+            onClick={() => setConfirmDowngradeModal(true)}
+          />
+        </div>
+
+        {billing &&
+          <div className="w-100 row justify-content-center mt-20">
+            <Avatar
+              size="medium"
+              image={billing.image}
+              title={billing.name}
+            />
+
+            <div className="pl-10 column">
+              <div className="small color-l0">Billing contact</div>
+              <div className="p color-d0">{billing.name}</div>
+            </div>
+          </div>
+        }
+
+        {confirmDowngradeModal &&
+          <ConfirmModal
+            onOkay={handleDowngrade}
+            onCancel={() => setConfirmDowngradeModal(false)}
+            text="Are you sure you want to downgrade this team & lose out on all the goodies?"
+            title="Are you sure?"
+          />
+        }
+      </div>
+    )
+  }
+
+  const renderIsNotPremium = () => {
+    return (
+      <div className="flexer text-center p-20">
+        <img src="./upgrade.png" width="90%" />
+
+        <Text className="h1 mb-30 mt-30 color-d3">Go premium</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Unlock the next level in your team's productivity journey!</Text>
+        <Text className="h5 color-d0">You will be billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).</Text>
+
+        <div className="w-100 row justify-content-center">
+          <Button
+            text="Upgrade"
+            className="mt-20"
+            onClick={() => setConfirmUpgradeModal(true)}
+          />
+        </div>
+
+        <a className="mt-30 color-blue h5 button row justify-content-center" href="" target="_blank">
+          <span>Check out what you get with it</span>
+          <IconComponent
+            icon="chevron-right"
+            thickness={2}
+            color="#007af5"
+            size={20}
+            className="ml-5"
+          />
+        </a>
+
+        {confirmUpgradeModal &&
+          <ConfirmModal
+            onOkay={handleUpgrade}
+            onCancel={() => setConfirmUpgradeModal(false)}
+            text="Are you sure you want to level up & upgrade this team?"
+            title="Are you sure?"
+          />
+        }
       </div>
     )
   }
@@ -396,13 +525,12 @@ export default function TeamModal(props) {
   return (
     <ModalPortal>
       <Modal
-        title="Team"
+        title={`Team ${name}`}
         width={800}
-        height="80%"
+        height="90%"
         onClose={props.onClose}>
           <Tabbed
             start={props.start}
-            footer={renderSubscription()}
             panels={[
               {
                 title: 'Overview',
@@ -423,6 +551,11 @@ export default function TeamModal(props) {
                 title: 'Invite & share',
                 show: admin,
                 content: renderInviteShare()
+              },
+              {
+                title: 'Upgrade',
+                show: admin,
+                content: premium ? renderIsPremium() : renderIsNotPremium()
               },
               {
                 title: 'Danger zone',
