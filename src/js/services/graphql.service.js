@@ -952,7 +952,7 @@ export default class GraphqlService {
   updateTeamPremium(teamId, premium, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamPremium($teamId: String, $premium: String, userId: String) {
+        mutation updateTeamPremium($teamId: String, $premium: Boolean, $userId: String) {
           updateTeamPremium(teamId: $teamId, premium: $premium, userId: $userId)
         }
       `,
