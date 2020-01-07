@@ -161,7 +161,7 @@ export default function TeamModal(props) {
     try {
       const teamId = props.id
       const premium = true
-      const billingUserId = user.id
+      const userId = user.id
       const billing = {
         id: user.id,
         name: user.name,
@@ -169,7 +169,7 @@ export default function TeamModal(props) {
         image: user.image,
       }
 
-      await GraphqlService.getInstance().updateTeamPremium(teamId, { premium, billing: billingUserId })
+      await GraphqlService.getInstance().updateTeamPremium(teamId, premium, userId)
 
       setLoading(false)
       setPremium(true)
@@ -191,7 +191,8 @@ export default function TeamModal(props) {
     try {
       const teamId = props.id
       const premium = false
-      await GraphqlService.getInstance().updateTeamPremium(teamId, { premium })
+      const userId = user.id
+      await GraphqlService.getInstance().updateTeamPremium(teamId, premium, userId)
 
       setLoading(false)
       setPremium(false)
