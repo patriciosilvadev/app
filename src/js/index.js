@@ -67,7 +67,6 @@ const apollo = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-// prettier-ignore
 ReactDOM.render(
   <Provider store={store}>
     <ApolloProvider client={apollo}>
@@ -78,17 +77,16 @@ ReactDOM.render(
           path="/"
           render={props => {
             if (window.location.pathname == '/') {
-              AuthService
-              .currentAuthenticatedUser()
-              .then(res => {
-                const { token } = res
-                const { sub } = AuthService.parseJwt(token)
+              AuthService.currentAuthenticatedUser()
+                .then(res => {
+                  const { token } = res
+                  const { sub } = AuthService.parseJwt(token)
 
-                props.history.push('/app')
-              })
-              .catch(err => {
-                props.history.push('/auth')
-              })
+                  props.history.push('/app')
+                })
+                .catch(err => {
+                  props.history.push('/auth')
+                })
             }
           }}
         />
@@ -98,5 +96,6 @@ ReactDOM.render(
         <Route path="/app" component={AppPage} />
       </Router>
     </ApolloProvider>
-  </Provider>, document.getElementById("root")
+  </Provider>,
+  document.getElementById('root')
 )

@@ -43,24 +43,24 @@ export default class QuickInputComponent extends React.Component {
     if (this.filterRef.focus) this.filterRef.focus()
   }
 
-  // prettier-ignore
   render() {
     return (
       <Popup
         visible={this.props.visible}
         handleDismiss={this.props.handleDismiss}
         width={this.props.width || 250}
-        direction={this.props.direction || "right-bottom"}
+        direction={this.props.direction || 'right-bottom'}
         content={
           <Filter
             autoFocus
-            ref={ref => this.filterRef = ref}
+            ref={ref => (this.filterRef = ref)}
             onKeyDown={this.handleKeyDown}
             placeholder={this.props.placeholder}
             value={this.state.filter}
-            onChange={(e) => this.setState({ filter: e.target.value })}
+            onChange={e => this.setState({ filter: e.target.value })}
           />
-        }>
+        }
+      >
         {this.props.children}
       </Popup>
     )

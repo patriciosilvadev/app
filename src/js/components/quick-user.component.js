@@ -89,7 +89,6 @@ export default class QuickUser extends React.Component {
     } catch (e) {}
   }
 
-  // prettier-ignore
   render() {
     return (
       <Popup
@@ -98,35 +97,32 @@ export default class QuickUser extends React.Component {
           this.setState({ filter: '', members: [] }, () => this.props.handleDismiss())
         }}
         width={this.props.width || 250}
-        direction={this.props.direction || "right-bottom"}
+        direction={this.props.direction || 'right-bottom'}
         content={
           <div className="column flexer">
             {this.state.loading && <Spinner />}
 
             <div className="row">
-              <Filter
-                autoFocus
-                ref={ref => this.filterRef = ref}
-                placeholder="Search for users"
-                value={this.state.filter}
-                onChange={this.onSearch}
-              />
+              <Filter autoFocus ref={ref => (this.filterRef = ref)} placeholder="Search for users" value={this.state.filter} onChange={this.onSearch} />
             </div>
             <Members
               members={this.state.members}
-              handleAccept={(member) => {
-                this.setState({
-                  filter: '',
-                  members: [],
-                }, () => {
-                  // Process the choice
-                  this.props.handleAccept(member)
-                })
+              handleAccept={member => {
+                this.setState(
+                  {
+                    filter: '',
+                    members: [],
+                  },
+                  () => {
+                    // Process the choice
+                    this.props.handleAccept(member)
+                  }
+                )
               }}
             />
           </div>
-        }>
-
+        }
+      >
         {this.props.children}
       </Popup>
     )

@@ -182,7 +182,6 @@ class AppPage extends React.Component {
     this.setState({ pushNotifications: false })
   }
 
-  // prettier-ignore
   render() {
     if (!this.props.user.id) return <Loading show={true} />
 
@@ -191,25 +190,13 @@ class AppPage extends React.Component {
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
 
-        {!this.props.common.connected &&
-          <Notification text="Connecting..." />
-        }
+        {!this.props.common.connected && <Notification text="Connecting..." />}
 
-        {this.props.app.modal &&
-          <AppModal
-            action={this.props.app.modal}
-            onClose={this.props.closeAppModal}
-          />
-        }
+        {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
 
-        {this.state.pushNotifications &&
-          <Notification
-            text="Push notifications are disabled."
-            actionText="Enable"
-            onActionClick={this.pushNotifications.bind(this)}
-            onDismissClick={this.dismissPushNotifications.bind(this)}
-          />
-        }
+        {this.state.pushNotifications && (
+          <Notification text="Push notifications are disabled." actionText="Enable" onActionClick={this.pushNotifications.bind(this)} onDismissClick={this.dismissPushNotifications.bind(this)} />
+        )}
 
         <Router history={browserHistory}>
           <App className="row">
@@ -221,12 +208,7 @@ class AppPage extends React.Component {
               render={props => {
                 if (!this.props.app.panel) return null
 
-                return (
-                  <PanelAppComponent
-                    action={this.props.app.panel}
-                    onClose={this.props.closeAppPanel}
-                  />
-                )
+                return <PanelAppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
               }}
             />
             <Route path="/app/team/:teamId/channel/:channelId/attachments" component={PanelAttachmentsComponent} />
@@ -234,7 +216,7 @@ class AppPage extends React.Component {
           </App>
         </Router>
       </AppContainer>
-    );
+    )
   }
 }
 

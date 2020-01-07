@@ -6,18 +6,11 @@ import PropTypes from 'prop-types'
 import { Button, Modal } from '@weekday/elements'
 
 export default function ConfirmModal({ onOkay, onCancel, text, title }) {
-  // prettier-ignore
   return (
     <ModalPortal>
-      <Modal
-        title={title}
-        width={450}
-        height={300}
-        onClose={onCancel}>
+      <Modal title={title} width={450} height={300} onClose={onCancel}>
         <div className="row justify-content-center pt-30">
-          <div className="h5 pl-30 pr-30 text-center w-light color-d1">
-            {text}
-          </div>
+          <div className="h5 pl-30 pr-30 text-center w-light color-d1">{text}</div>
         </div>
         <div className="row justify-content-center pt-30 pb-30">
           <Button size="large" onClick={onOkay} text="Yes" className="mr-10" />

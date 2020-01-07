@@ -63,7 +63,6 @@ export default function NotificationsComponent(props) {
     if (user.id) fetchNotifications(user.id)
   }, [user.id])
 
-  // prettier-ignore
   return (
     <Popup
       handleDismiss={() => setNotificationsMenu(false)}
@@ -85,10 +84,8 @@ export default function NotificationsComponent(props) {
                     </div>
                     <Body read={notification.read}>{notification.body}</Body>
                     <div className="row">
-                      <Button
-                        className="button"
-                        onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
-                        {notification.read ? "Mark as unread" : "Mark as read"}
+                      <Button className="button" onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
+                        {notification.read ? 'Mark as unread' : 'Mark as read'}
                       </Button>
                     </div>
                   </div>
@@ -96,38 +93,25 @@ export default function NotificationsComponent(props) {
               )
             })}
 
-            {notifications.length == 0 &&
+            {notifications.length == 0 && (
               <React.Fragment>
                 <img src="https://weekday-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
                 <TitleText>Whoops</TitleText>
                 <SubtitleText>You have no notifications</SubtitleText>
               </React.Fragment>
-            }
+            )}
 
-            <LoadContainer
-              onClick={() => handleLoadButtonClick()}
-              className="button row justify-content-center">
-              <IconComponent
-                icon="refresh"
-                size={15}
-                color="#acb5bd"
-                className="mt-5 mb-5"
-              />
-            <LoadText>Refresh</LoadText>
+            <LoadContainer onClick={() => handleLoadButtonClick()} className="button row justify-content-center">
+              <IconComponent icon="refresh" size={15} color="#acb5bd" className="mt-5 mb-5" />
+              <LoadText>Refresh</LoadText>
             </LoadContainer>
           </Inner>
         </Container>
-      }>
-      <div
-        style={{...props.style}}
-        className="button"
-        onClick={(e) => setNotificationsMenu(true)}>
+      }
+    >
+      <div style={{ ...props.style }} className="button" onClick={e => setNotificationsMenu(true)}>
         {hasNotification && <Badge />}
-        <IconComponent
-          icon="bell"
-          size={20}
-          color={hasNotification ? "white" : "#475669"}
-        />
+        <IconComponent icon="bell" size={20} color={hasNotification ? 'white' : '#475669'} />
       </div>
     </Popup>
   )

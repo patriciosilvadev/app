@@ -322,54 +322,31 @@ class ChannelComponent extends React.Component {
 
     return (
       <Header className="row">
-        <Avatar
-          image={this.state.image}
-          title={this.state.title}
-          size="medium"
-        />
+        <Avatar image={this.state.image} title={this.state.title} size="medium" />
 
         <div className="column ml-10">
-          <HeaderTitle>
-            {this.state.title}
-          </HeaderTitle>
+          <HeaderTitle>{this.state.title}</HeaderTitle>
 
           {/* Member header subtitle */}
           <div className="row">
             <HeaderText>
               {this.props.channel.members.length.numberShorthand()} &nbsp;
-              {this.props.channel.members.length == 1 ? "member" : "members"}
+              {this.props.channel.members.length == 1 ? 'member' : 'members'}
             </HeaderText>
 
-            {!this.props.channel.private && this.state.permissible &&
-              <div
-                className="ml-10 row button"
-                onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}>
-                <IconComponent
-                  icon="plus"
-                  size={15}
-                  color="#007af5"
-                  thickness={2}
-                  className="mr-5"
-                />
+            {!this.props.channel.private && this.state.permissible && (
+              <div className="ml-10 row button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}>
+                <IconComponent icon="plus" size={15} color="#007af5" thickness={2} className="mr-5" />
                 <HeaderLink>Add New</HeaderLink>
               </div>
-            }
+            )}
           </div>
         </div>
 
         <div className="flexer"></div>
 
-        <HeaderSearchContainer
-          className="row"
-          focus={this.state.searchFocus}>
-          <IconComponent
-            icon="search"
-            size={15}
-            color="#acb5bd"
-            thickness={2}
-            className="ml-10 mr-10"
-            onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
-          />
+        <HeaderSearchContainer className="row" focus={this.state.searchFocus}>
+          <IconComponent icon="search" size={15} color="#acb5bd" thickness={2} className="ml-10 mr-10" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />
 
           <HeaderSearchInput
             placeholder="Search"
@@ -379,47 +356,38 @@ class ChannelComponent extends React.Component {
             onBlur={() => this.setState({ searchFocus: false })}
           />
 
-          {this.state.searchResults &&
-            <IconComponent
-              icon="x"
-              size={15}
-              thickness={2}
-              color="#acb5bd"
-              className="button"
-              onClick={() => this.setState({ searchResults: null, searchQuery: '' })}
-            />
-          }
+          {this.state.searchResults && <IconComponent icon="x" size={15} thickness={2} color="#acb5bd" className="button" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />}
         </HeaderSearchContainer>
 
-        {this.props.channel.apps.filter(app => app.active).map((app, index) => {
-          if (!app.active) return
-          if (!app.app.shortcuts) return
-          if (app.app.shortcuts.length == 0) return
+        {this.props.channel.apps
+          .filter(app => app.active)
+          .map((app, index) => {
+            if (!app.active) return
+            if (!app.app.shortcuts) return
+            if (app.app.shortcuts.length == 0) return
 
-          return (
-            <React.Fragment key={index}>
-              {app.app.shortcuts.map((button, i) => {
-                return (
-                  <AppIconContainer key={i} onClick={() => this.handleActionClick({
-                      ...button.action,
-                      token: app.token,
-                    })}>
-                    <AppIconImage image={button.icon} />
-                  </AppIconContainer>
-                )
-              })}
-            </React.Fragment>
-          )
-        })}
+            return (
+              <React.Fragment key={index}>
+                {app.app.shortcuts.map((button, i) => {
+                  return (
+                    <AppIconContainer
+                      key={i}
+                      onClick={() =>
+                        this.handleActionClick({
+                          ...button.action,
+                          token: app.token,
+                        })
+                      }
+                    >
+                      <AppIconImage image={button.icon} />
+                    </AppIconContainer>
+                  )
+                })}
+              </React.Fragment>
+            )
+          })}
 
-        <IconComponent
-          icon="star"
-          size={20}
-          thickness={1.5}
-          color={this.state.starred ? "#edd264" : "#babec9"}
-          onClick={() => this.updateUserStarred(!this.state.starred)}
-          className="ml-15 button"
-        />
+        <IconComponent icon="star" size={20} thickness={1.5} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="ml-15 button" />
 
         <IconComponent
           icon="attachment"
@@ -436,25 +404,11 @@ class ChannelComponent extends React.Component {
           }}
         />
 
-        {!this.props.channel.private &&
+        {!this.props.channel.private && (
           <React.Fragment>
-            <IconComponent
-              icon="info"
-              size={20}
-              color="#acb5bd"
-              thickness={1.5}
-              className="ml-15 button"
-              onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}
-            />
+            <IconComponent icon="info" size={20} color="#acb5bd" thickness={1.5} className="ml-15 button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })} />
 
-            <IconComponent
-              icon="users"
-              size={26}
-              thickness={0}
-              color="#acb5bd"
-              className="ml-15 button"
-              onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}
-            />
+            <IconComponent icon="users" size={26} thickness={0} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })} />
 
             <Popup
               handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -464,22 +418,35 @@ class ChannelComponent extends React.Component {
               content={
                 <Menu
                   items={[
-                    { hide: this.props.channel.private, icon: <IconComponent icon="eye" size={20} color="#acb5bd" />, text: "Public", label: 'Everyone in your team has access', onClick: (e) => this.updateChannelVisibility({ private: false, public: true }) },
-                    { hide: this.props.channel.private, icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />, text: "Private", label: 'Members of this channel only', onClick: (e) => this.updateChannelVisibility({ private: false, public: false }) },
+                    {
+                      hide: this.props.channel.private,
+                      icon: <IconComponent icon="eye" size={20} color="#acb5bd" />,
+                      text: 'Public',
+                      label: 'Everyone in your team has access',
+                      onClick: e => this.updateChannelVisibility({ private: false, public: true }),
+                    },
+                    {
+                      hide: this.props.channel.private,
+                      icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />,
+                      text: 'Private',
+                      label: 'Members of this channel only',
+                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                    },
                   ]}
                 />
-              }>
+              }
+            >
               <IconComponent
-                icon={this.props.channel.public ? "eye" : "eye-off"}
+                icon={this.props.channel.public ? 'eye' : 'eye-off'}
                 size={20}
                 thickness={1.5}
                 color="#acb5bd"
                 className="ml-15 button"
-                onClick={() => this.state.permissible ? this.setState({ visibilityMenu: true }) : null}
+                onClick={() => (this.state.permissible ? this.setState({ visibilityMenu: true }) : null)}
               />
             </Popup>
           </React.Fragment>
-        }
+        )}
       </Header>
     )
   }
@@ -491,50 +458,37 @@ class ChannelComponent extends React.Component {
       <React.Fragment>
         {this.props.channel.private && <PaddingToKeepMessagesDown />}
 
-        {!this.props.channel.private &&
+        {!this.props.channel.private && (
           <Welcome>
             <WelcomeUser className="row">
-              <Avatar
-                title={this.props.channel.user.name}
-                image={this.props.channel.user.image}
-                size="small"
-              />
+              <Avatar title={this.props.channel.user.name} image={this.props.channel.user.image} size="small" />
 
               <WelcomeUserName>
                 Started by {this.props.channel.user.name} - {moment(this.props.channel.createdAt).fromNow()}
               </WelcomeUserName>
             </WelcomeUser>
 
-            <WelcomeTitle>
-              {this.state.title}
-            </WelcomeTitle>
+            <WelcomeTitle>{this.state.title}</WelcomeTitle>
 
-            {this.props.channel.description &&
+            {this.props.channel.description && (
               <WelcomeDescription>
                 <ReactMarkdown source={this.props.channel.description} />
               </WelcomeDescription>
-            }
+            )}
 
             {/* If there is no channel description */}
             {/* Then give the user the option to update it */}
             {/* But only if they can */}
-            {!this.props.channel.description && this.state.permissible &&
-              <WelcomeDescriptionUpdate
-                className="button"
-                onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}>
+            {!this.props.channel.description && this.state.permissible && (
+              <WelcomeDescriptionUpdate className="button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}>
                 Add some more context about this conversation here
               </WelcomeDescriptionUpdate>
-            }
+            )}
           </Welcome>
-        }
+        )}
 
-        <MessagesInner ref={(ref) => this.messagesRef = ref}>
-          <MessagesComponent
-            messages={this.props.channel.messages}
-            highlight={this.state.searchQuery}
-            setUpdateMessage={this.setUpdateMessage}
-            setReplyMessage={this.setReplyMessage}
-          />
+        <MessagesInner ref={ref => (this.messagesRef = ref)}>
+          <MessagesComponent messages={this.props.channel.messages} highlight={this.state.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
         </MessagesInner>
       </React.Fragment>
     )
@@ -547,17 +501,12 @@ class ChannelComponent extends React.Component {
       <React.Fragment>
         <Welcome>
           <WelcomeDescription>
-            <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? "message" : "messages"}`} />
+            <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? 'message' : 'messages'}`} />
           </WelcomeDescription>
         </Welcome>
 
-        <MessagesInner ref={(ref) => this.messagesRef = ref}>
-          <MessagesComponent
-            messages={this.state.searchResults}
-            highlight={this.state.searchQuery}
-            setUpdateMessage={this.setUpdateMessage}
-            setReplyMessage={this.setReplyMessage}
-          />
+        <MessagesInner ref={ref => (this.messagesRef = ref)}>
+          <MessagesComponent messages={this.state.searchResults} highlight={this.state.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
         </MessagesInner>
       </React.Fragment>
     )
@@ -581,11 +530,10 @@ class ChannelComponent extends React.Component {
     }
   }
 
-  // prettier-ignore
   render() {
     return (
       <React.Fragment>
-        {this.state.channelUpdateModal &&
+        {this.state.channelUpdateModal && (
           <ChannelModal
             permissible={this.state.permissible}
             id={this.props.channel.id}
@@ -593,44 +541,45 @@ class ChannelComponent extends React.Component {
             start={this.state.channelUpdateModalStart}
             onClose={() => this.setState({ channelUpdateModal: false })}
           />
-        }
+        )}
 
-        <Channel
-          ref={ref => this.dropZone = ref}
-          className="column flexer align-items-center align-items-stretch">
-          <Dropzone
-            active={this.state.isDragging}
-            ref={ref => this.dropMask = ref}>
-            <svg
-              enableBackground="new 0 0 511.999 511.999"
-              height={100}
-              width={100}
-              viewBox="0 0 511.999 511.999">
-                <g>
-                  <path d="m422.651 225.765v248.961c0 20.586-16.688 37.273-37.273 37.273h-306.206c-20.586 0-37.273-16.688-37.273-37.273v-390.003c0-20.591 16.692-37.273 37.273-37.273h165.159z" fill="#bed8fb"/>
-                  <path d="m126.622 464.55c-20.586 0-37.273-16.688-37.273-37.273v-390.004c-.001-20.591 16.691-37.273 37.273-37.273h165.158c28.395 0 178.32 149.924 178.32 178.316v248.961c0 20.586-16.688 37.273-37.273 37.273z" fill="#ddeafb"/>
-                  <path d="m470.1 178.319v15.767c0-33.195-26.918-60.113-60.113-60.113h-36.587c-20.581 0-37.273-16.692-37.273-37.273v-36.587c0-33.195-26.918-60.113-60.113-60.113h15.767c28.39 0 55.627 11.28 75.701 31.355l71.264 71.264c20.073 20.074 31.354 47.31 31.354 75.7z" fill="#bed8fb"/>
-                  <g fill="#80b4fb">
-                    <path d="m242.615 284.564v108.975c0 4.701 3.811 8.512 8.512 8.512h57.194c4.701 0 8.512-3.811 8.512-8.512v-108.975h24.315c7.583 0 11.381-9.168 6.019-14.53l-54.331-54.331c-7.241-7.241-18.982-7.241-26.223 0l-54.331 54.331c-5.362 5.362-1.564 14.53 6.019 14.53z"/>
-                    <path d="m213.396 185.797h132.656c9.161 0 16.587-7.426 16.587-16.587v-.456c0-9.161-7.426-16.587-16.587-16.587h-132.656c-9.161 0-16.587 7.426-16.587 16.587v.456c0 9.16 7.426 16.587 16.587 16.587z"/>
-                  </g>
+        <Channel ref={ref => (this.dropZone = ref)} className="column flexer align-items-center align-items-stretch">
+          <Dropzone active={this.state.isDragging} ref={ref => (this.dropMask = ref)}>
+            <svg enableBackground="new 0 0 511.999 511.999" height={100} width={100} viewBox="0 0 511.999 511.999">
+              <g>
+                <path
+                  d="m422.651 225.765v248.961c0 20.586-16.688 37.273-37.273 37.273h-306.206c-20.586 0-37.273-16.688-37.273-37.273v-390.003c0-20.591 16.692-37.273 37.273-37.273h165.159z"
+                  fill="#bed8fb"
+                />
+                <path
+                  d="m126.622 464.55c-20.586 0-37.273-16.688-37.273-37.273v-390.004c-.001-20.591 16.691-37.273 37.273-37.273h165.158c28.395 0 178.32 149.924 178.32 178.316v248.961c0 20.586-16.688 37.273-37.273 37.273z"
+                  fill="#ddeafb"
+                />
+                <path
+                  d="m470.1 178.319v15.767c0-33.195-26.918-60.113-60.113-60.113h-36.587c-20.581 0-37.273-16.692-37.273-37.273v-36.587c0-33.195-26.918-60.113-60.113-60.113h15.767c28.39 0 55.627 11.28 75.701 31.355l71.264 71.264c20.073 20.074 31.354 47.31 31.354 75.7z"
+                  fill="#bed8fb"
+                />
+                <g fill="#80b4fb">
+                  <path d="m242.615 284.564v108.975c0 4.701 3.811 8.512 8.512 8.512h57.194c4.701 0 8.512-3.811 8.512-8.512v-108.975h24.315c7.583 0 11.381-9.168 6.019-14.53l-54.331-54.331c-7.241-7.241-18.982-7.241-26.223 0l-54.331 54.331c-5.362 5.362-1.564 14.53 6.019 14.53z" />
+                  <path d="m213.396 185.797h132.656c9.161 0 16.587-7.426 16.587-16.587v-.456c0-9.161-7.426-16.587-16.587-16.587h-132.656c-9.161 0-16.587 7.426-16.587 16.587v.456c0 9.16 7.426 16.587 16.587 16.587z" />
                 </g>
-              </svg>
-              <div className="h2 color-d4 mt-30">Drop Files</div>
-              <div className="h5 color-d1 mt-30">Drop your files here to upload</div>
+              </g>
+            </svg>
+            <div className="h2 color-d4 mt-30">Drop Files</div>
+            <div className="h5 color-d1 mt-30">Drop your files here to upload</div>
           </Dropzone>
 
           {this.renderHeader()}
           {this.renderNotification()}
 
-          <MessagesContainer ref={(ref) => this.scrollRef = ref}>
+          <MessagesContainer ref={ref => (this.scrollRef = ref)}>
             {this.renderMessages()}
             {this.renderSearchResults()}
           </MessagesContainer>
 
           {this.renderTypingNames()}
 
-          {this.state.open &&
+          {this.state.open && (
             <ComposeComponent
               reply={this.state.reply}
               update={this.state.update}
@@ -640,7 +589,7 @@ class ChannelComponent extends React.Component {
                 sendFocusComposeInputEvent()
               }}
             />
-          }
+          )}
         </Channel>
       </React.Fragment>
     )

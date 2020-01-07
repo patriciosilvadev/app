@@ -185,7 +185,7 @@ class AuthPage extends React.Component {
   // Render functions for the auth page
   // Making it easier (to read)
   renderPasswordReset() {
-    if (!this.state.verify && this.state.view == "password") {
+    if (!this.state.verify && this.state.view == 'password') {
       return (
         <Formik
           initialValues={{ email: '' }}
@@ -194,26 +194,17 @@ class AuthPage extends React.Component {
             this.resetPassword(values.email)
           }}
           validationSchema={Yup.object().shape({
-            email: Yup.string().email().required('Required'),
-          })}>
+            email: Yup.string()
+              .email()
+              .required('Required'),
+          })}
+        >
           {props => {
-            const {
-              values,
-              touched,
-              errors,
-              dirty,
-              isSubmitting,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              handleReset,
-            } = props;
+            const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
             return (
               <Form onSubmit={handleSubmit} className="column align-items-center">
-                <div className="h4 p-30 color-d3 text-center">
-                  Enter your email address and we'll send you a verification code to reset your password.
-                </div>
+                <div className="h4 p-30 color-d3 text-center">Enter your email address and we'll send you a verification code to reset your password.</div>
 
                 <InputContainer>
                   <Input
@@ -231,18 +222,13 @@ class AuthPage extends React.Component {
                 {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
                 <Footer className="column align-items-center">
-                  <Button
-                    size="large"
-                    type="submit"
-                    disabled={isSubmitting}
-                    text="Send me a code"
-                  />
+                  <Button size="large" type="submit" disabled={isSubmitting} text="Send me a code" />
                   <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                     Go back to sign in
                   </SmallTextButton>
                 </Footer>
               </Form>
-            );
+            )
           }}
         </Formik>
       )
@@ -252,7 +238,7 @@ class AuthPage extends React.Component {
   }
 
   renderPasswordUpdate() {
-    if (this.state.verify && this.state.view == "password") {
+    if (this.state.verify && this.state.view == 'password') {
       return (
         <Formik
           initialValues={{ email: '', password: '', code: '' }}
@@ -262,27 +248,18 @@ class AuthPage extends React.Component {
           }}
           validationSchema={Yup.object().shape({
             password: Yup.string().required('Required'),
-            email: Yup.string().email().required('Required'),
+            email: Yup.string()
+              .email()
+              .required('Required'),
             code: Yup.string().required('Required'),
-          })}>
+          })}
+        >
           {props => {
-            const {
-              values,
-              touched,
-              errors,
-              dirty,
-              isSubmitting,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              handleReset,
-            } = props;
+            const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
             return (
               <Form onSubmit={handleSubmit} className="column align-items-center">
-                <div className="h4 p-30 color-d3 text-center">
-                  Enter your verification code & new password.
-                </div>
+                <div className="h4 p-30 color-d3 text-center">Enter your verification code & new password.</div>
 
                 <InputContainer>
                   <Input
@@ -330,18 +307,13 @@ class AuthPage extends React.Component {
                 {errors.code && touched.code && <ErrorText>{errors.code}</ErrorText>}
 
                 <Footer className="column align-items-center">
-                  <Button
-                    size="large"
-                    type="submit"
-                    disabled={isSubmitting}
-                    text="Update Password"
-                  />
+                  <Button size="large" type="submit" disabled={isSubmitting} text="Update Password" />
                   <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
                     Get another code
                   </SmallTextButton>
                 </Footer>
               </Form>
-            );
+            )
           }}
         </Formik>
       )
@@ -351,7 +323,7 @@ class AuthPage extends React.Component {
   }
 
   renderSignupOnboarding() {
-    if (this.state.view == "signup-onboarding") {
+    if (this.state.view == 'signup-onboarding') {
       return (
         <Formik
           initialValues={{
@@ -367,19 +339,10 @@ class AuthPage extends React.Component {
             name: Yup.string().required('Required'),
             description: Yup.string().required('Required'),
             role: Yup.string().required('Required'),
-          })}>
+          })}
+        >
           {props => {
-            const {
-              values,
-              touched,
-              errors,
-              dirty,
-              isSubmitting,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              handleReset,
-            } = props;
+            const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
             return (
               <Form onSubmit={handleSubmit} className="column align-items-center w-100">
@@ -438,12 +401,12 @@ class AuthPage extends React.Component {
                 <InputContainer>
                   <Select
                     label="Your timezone"
-                    onSelect={(index) => this.setState({ timezone: index })}
+                    onSelect={index => this.setState({ timezone: index })}
                     selected={this.state.timezone}
                     size="large"
                     options={moment.tz.names().map((timezone, index) => {
                       return {
-                        option: timezone.replace("_", " "),
+                        option: timezone.replace('_', ' '),
                         value: timezone,
                       }
                     })}
@@ -451,12 +414,7 @@ class AuthPage extends React.Component {
                 </InputContainer>
 
                 <Footer className="column align-items-center">
-                  <Button
-                    size="large"
-                    type="submit"
-                    disabled={isSubmitting}
-                    text="Complete"
-                  />
+                  <Button size="large" type="submit" disabled={isSubmitting} text="Complete" />
                   <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                     Just let me sign in already
                   </SmallTextButton>
@@ -465,7 +423,7 @@ class AuthPage extends React.Component {
                   </a>
                 </Footer>
               </Form>
-            );
+            )
           }}
         </Formik>
       )
@@ -475,7 +433,7 @@ class AuthPage extends React.Component {
   }
 
   renderSignup() {
-    if (this.state.view == "signup") {
+    if (this.state.view == 'signup') {
       return (
         <Formik
           initialValues={{
@@ -490,22 +448,15 @@ class AuthPage extends React.Component {
           }}
           validationSchema={Yup.object().shape({
             username: Yup.string().required('Required'),
-            email: Yup.string().email().required('Required'),
+            email: Yup.string()
+              .email()
+              .required('Required'),
             password: Yup.string().required('Required'),
-            confirm: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match')
-          })}>
+            confirm: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match'),
+          })}
+        >
           {props => {
-            const {
-              values,
-              touched,
-              errors,
-              dirty,
-              isSubmitting,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              handleReset,
-            } = props;
+            const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
             return (
               <Form onSubmit={handleSubmit} className="column align-items-center w-100">
@@ -576,12 +527,7 @@ class AuthPage extends React.Component {
                 {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
 
                 <Footer className="column align-items-center">
-                  <Button
-                    size="large"
-                    type="submit"
-                    disabled={isSubmitting}
-                    text="Sign up"
-                  />
+                  <Button size="large" type="submit" disabled={isSubmitting} text="Sign up" />
                   <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                     Go back to sign in
                   </SmallTextButton>
@@ -590,7 +536,7 @@ class AuthPage extends React.Component {
                   </a>
                 </Footer>
               </Form>
-            );
+            )
           }}
         </Formik>
       )
@@ -600,14 +546,12 @@ class AuthPage extends React.Component {
   }
 
   renderSignin() {
-    if (this.state.view == "signin") {
+    if (this.state.view == 'signin') {
       return (
         <React.Fragment>
           <div className="h1 mb-30 mt-30 color-d3">Sign in</div>
 
-          <div className="h5 color-d0">
-            Please log in using your username & password
-          </div>
+          <div className="h5 color-d0">Please log in using your username & password</div>
 
           <Formik
             initialValues={{ username: '', password: '' }}
@@ -618,19 +562,10 @@ class AuthPage extends React.Component {
             validationSchema={Yup.object().shape({
               username: Yup.string().required('Required'),
               password: Yup.string().required('Required'),
-            })}>
+            })}
+          >
             {props => {
-              const {
-                values,
-                touched,
-                errors,
-                dirty,
-                isSubmitting,
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                handleReset,
-              } = props;
+              const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
@@ -668,12 +603,7 @@ class AuthPage extends React.Component {
 
                   <Spacer />
 
-                  <Button
-                    size="large"
-                    type="submit"
-                    disabled={isSubmitting}
-                    text="Sign in"
-                  />
+                  <Button size="large" type="submit" disabled={isSubmitting} text="Sign in" />
                   <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
                     I've lost my password
                   </SmallTextButton>
@@ -681,7 +611,7 @@ class AuthPage extends React.Component {
                     Create an account
                   </SmallTextButton>
                 </Form>
-              );
+              )
             }}
           </Formik>
         </React.Fragment>
@@ -691,27 +621,26 @@ class AuthPage extends React.Component {
     return null
   }
 
-  // prettier-ignore
   render() {
-    return(
+    return (
       <React.Fragment>
         <Error message={this.state.error} />
 
         <Auth>
           <Logo>
-            <img src="./logo.png" height="20" alt="Weekday"/>
+            <img src="./logo.png" height="20" alt="Weekday" />
             <LogoText>weekday</LogoText>
           </Logo>
 
           <Loading show={this.state.loading} />
 
           <Container className="column justify-content-center align-content-center align-items-stretch">
-            {this.state.view == "password" &&
+            {this.state.view == 'password' && (
               <React.Fragment>
                 {this.renderPasswordReset()}
                 {this.renderPasswordUpdate()}
               </React.Fragment>
-            }
+            )}
 
             {this.renderSignupOnboarding()}
             {this.renderSignup()}

@@ -144,38 +144,20 @@ export default function ChannelModal(props) {
           {notification && <Notification text={notification} />}
 
           <Row className="row align-items-start">
-            <input
-              accept="image/png,image/jpg"
-              type="file"
-              className="hide"
-              ref={fileRef}
-              onChange={handleFileChange}
-            />
+            <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
             <div className="column">
-              <Avatar
-                title={title}
-                image={image}
-                className="mr-20 mb-20"
-                size="xx-large"
-              />
+              <Avatar title={title} image={image} className="mr-20 mb-20" size="xx-large" />
 
-              {props.permissible &&
+              {props.permissible && (
                 <Link className="button mt-10" onClick={() => fileRef.current.click()}>
                   Update image
                 </Link>
-              }
+              )}
             </div>
 
             <Column className="column">
-              <Input
-                label="Title"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="New channel title"
-                className="mb-20"
-                disable={!props.permissible}
-              />
+              <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.permissible} />
 
               <Textarea
                 label="Description"
@@ -188,28 +170,17 @@ export default function ChannelModal(props) {
               />
 
               <div className="row">
-                <IconComponent
-                  icon="markdown"
-                  size={20}
-                  color="#007af5"
-                />
-                <Supported>
-                  Markdown supported
-                </Supported>
+                <IconComponent icon="markdown" size={20} color="#007af5" />
+                <Supported>Markdown supported</Supported>
               </div>
             </Column>
           </Row>
 
-          {props.permissible &&
+          {props.permissible && (
             <div className="p-20">
-              <Button
-                onClick={handleUpdateChannel}
-                text="Update"
-                theme="blue-border"
-                size="small"
-              />
+              <Button onClick={handleUpdateChannel} text="Update" theme="blue-border" size="small" />
             </div>
-          }
+          )}
         </div>
       </div>
     )
@@ -218,15 +189,9 @@ export default function ChannelModal(props) {
   const renderMembers = () => {
     return (
       <div className="column flex-1 w-100 h-100">
-        <MembersChannelComponent
-          permissible={props.permissible}
-          id={props.id}
-          team={props.team}
-          onClose={props.onClose}
-          members={members}
-        />
+        <MembersChannelComponent permissible={props.permissible} id={props.id} team={props.team} onClose={props.onClose} members={members} />
 
-        {props.permissible &&
+        {props.permissible && (
           <QuickUserComponent
             channel={channel}
             visible={userMenu}
@@ -241,26 +206,17 @@ export default function ChannelModal(props) {
               // Otherwise all good - add them
               handleCreateChannelMember(user)
               setUserMenu(false)
-            }}>
+            }}
+          >
             <AddButton className="button row" onClick={() => setUserMenu(true)}>
-              <Avatar
-                className="mr-5"
-                size="medium"
-                circle
-                image={null}
-                color="#007af5"
-                title="">
-                <IconComponent
-                  icon="plus"
-                  size={20}
-                  color="#007af5"
-                />
+              <Avatar className="mr-5" size="medium" circle image={null} color="#007af5" title="">
+                <IconComponent icon="plus" size={20} color="#007af5" />
               </Avatar>
 
               <Link className="ml-10">Add new Member</Link>
             </AddButton>
           </QuickUserComponent>
-        }
+        )}
       </div>
     )
   }
@@ -269,60 +225,45 @@ export default function ChannelModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-
-          {confirmDeleteModal &&
-            <ConfirmModal
-              onOkay={handleDeleteChannel}
-              onCancel={() => setConfirmDeleteModal(false)}
-              text="Are you sure you want to delete this channel, it can not be undone?"
-              title="Are you sure?"
-            />
-          }
+          {confirmDeleteModal && (
+            <ConfirmModal onOkay={handleDeleteChannel} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this channel, it can not be undone?" title="Are you sure?" />
+          )}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-red h5 mb-10">Here be dragons!</Text>
             <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
-            <Button
-              text="Delete"
-              theme="red"
-              onClick={() => setConfirmDeleteModal(true)}
-            />
+            <Button text="Delete" theme="red" onClick={() => setConfirmDeleteModal(true)} />
           </div>
         </div>
       </div>
     )
   }
 
-  // prettier-ignore
   return (
     <ModalPortal>
-      <Modal
-        title="Channel"
-        width={700}
-        height="90%"
-        onClose={props.onClose}>
-          <Tabbed
-            start={props.start || 0}
-            panels={[
-              {
-                title: 'Overview',
-                show: true,
-                content: renderOverview()
-              },
-              {
-                title: 'Members',
-                show: members.length != 0,
-                content: renderMembers()
-              },
-              {
-                title: 'Danger zone',
-                show: true,
-                hide: !props.permissible,
-                content: renderDangerZone()
-              },
-            ]}
-          />
+      <Modal title="Channel" width={700} height="90%" onClose={props.onClose}>
+        <Tabbed
+          start={props.start || 0}
+          panels={[
+            {
+              title: 'Overview',
+              show: true,
+              content: renderOverview(),
+            },
+            {
+              title: 'Members',
+              show: members.length != 0,
+              content: renderMembers(),
+            },
+            {
+              title: 'Danger zone',
+              show: true,
+              hide: !props.permissible,
+              content: renderDangerZone(),
+            },
+          ]}
+        />
       </Modal>
     </ModalPortal>
   )

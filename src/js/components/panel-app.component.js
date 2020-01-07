@@ -55,27 +55,13 @@ export default function PanelAppComponent(props) {
     }
   }, [])
 
-  // prettier-ignore
   return (
     <Container className="column">
       <Header className="row">
-        <HeaderTitle>
-          {props.action.name}
-        </HeaderTitle>
-        <IconComponent
-          icon="x"
-          size={25}
-          color="#040b1c"
-          className="mr-5 button"
-          onClick={props.onClose}
-        />
+        <HeaderTitle>{props.action.name}</HeaderTitle>
+        <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={props.onClose} />
       </Header>
-      <Iframe
-        border="0"
-        src={url}
-        width="100%"
-        height="100%">
-      </Iframe>
+      <Iframe border="0" src={url} width="100%" height="100%"></Iframe>
     </Container>
   )
 }

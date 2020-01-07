@@ -278,33 +278,23 @@ class ChannelsComponent extends React.Component {
   renderHeader() {
     return (
       <Header className="row">
-        <Avatar
-          size="medium"
-          image={this.props.user.image}
-          title={this.props.user.name}
-          className="mr-10"
-        />
+        <Avatar size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" />
 
         <HeaderTitles className="column">
-          <HeaderTeam>
-            {this.props.team.name}
-          </HeaderTeam>
+          <HeaderTeam>{this.props.team.name}</HeaderTeam>
 
-          <HeaderTitle className="align-items-center">
-            {this.props.user.name}
-          </HeaderTitle>
+          <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
 
           <QuickInputComponent
             visible={this.state.statusMenu}
             width={300}
             direction="left-bottom"
             handleDismiss={() => this.setState({ statusMenu: false })}
-            handleAccept={(status) => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
-            placeholder={this.props.user.status}>
-            <HeaderSubtitle
-              className="button"
-              onClick={() => this.setState({ statusMenu: true })}>
-              {this.props.user.status || "Update your status"}
+            handleAccept={status => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
+            placeholder={this.props.user.status}
+          >
+            <HeaderSubtitle className="button" onClick={() => this.setState({ statusMenu: true })}>
+              {this.props.user.status || 'Update your status'}
             </HeaderSubtitle>
           </QuickInputComponent>
         </HeaderTitles>
@@ -317,64 +307,48 @@ class ChannelsComponent extends React.Component {
           content={
             <React.Fragment>
               <AccountMenuHeader className="column align-items-center">
-                <Avatar
-                  size="medium"
-                  image={this.props.user.image}
-                  title={this.props.user.name}
-                />
+                <Avatar size="medium" image={this.props.user.image} title={this.props.user.name} />
 
-                <AccountMenuTitle>
-                  {this.props.user.name}
-                </AccountMenuTitle>
+                <AccountMenuTitle>{this.props.user.name}</AccountMenuTitle>
 
-                <AccountMenuSubtitle>
-                  {this.props.team.name}
-                </AccountMenuSubtitle>
+                <AccountMenuSubtitle>{this.props.team.name}</AccountMenuSubtitle>
               </AccountMenuHeader>
 
               <Menu
                 items={[
                   {
                     icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
-                    text: "Account settings",
-                    onClick: this._openAccountSettings.bind(this)
+                    text: 'Account settings',
+                    onClick: this._openAccountSettings.bind(this),
                   },
                   {
                     icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
-                    text: "Team settings",
+                    text: 'Team settings',
                     onClick: this._openTeamSettings.bind(this),
                   },
                   {
                     icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
-                    text: "Team directory",
+                    text: 'Team directory',
                     onClick: this._openTeamDirectory.bind(this),
                   },
                   {
                     icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
-                    text: "Team subscription",
+                    text: 'Team subscription',
                     onClick: this._openTeamSubscription.bind(this),
                   },
                   {
                     icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
-                    text: "Signout",
+                    text: 'Signout',
                     onClick: this._signout.bind(this),
                   },
                 ]}
               />
 
-              <AccountMenuBuild>
-                Build {version}
-              </AccountMenuBuild>
+              <AccountMenuBuild>Build {version}</AccountMenuBuild>
             </React.Fragment>
-          }>
-          <IconComponent
-            icon="chevron-down"
-            size={20}
-            thickness={2}
-            color="#475669"
-            className="button"
-            onClick={this._openUserMenu.bind(this)}
-          />
+          }
+        >
+          <IconComponent icon="chevron-down" size={20} thickness={2} color="#475669" className="button" onClick={this._openUserMenu.bind(this)} />
         </Popup>
       </Header>
     )
@@ -384,21 +358,9 @@ class ChannelsComponent extends React.Component {
     return (
       <SearchContainer className="row">
         <SearchInner className="row">
-          <IconComponent
-            icon="search"
-            size={15}
-            color="#475669"
-            thickness={2}
-            className="ml-15"
-          />
+          <IconComponent icon="search" size={15} color="#475669" thickness={2} className="ml-15" />
 
-          <SearchInput
-            ref={(ref) => this.filterRef = ref}
-            visible={this.state.showFilter}
-            value={this.state.filter}
-            onChange={this.onSearch}
-            placeholder="Start Conversation"
-          />
+          <SearchInput ref={ref => (this.filterRef = ref)} visible={this.state.showFilter} value={this.state.filter} onChange={this.onSearch} placeholder="Start Conversation" />
         </SearchInner>
       </SearchContainer>
     )
@@ -427,7 +389,7 @@ class ChannelsComponent extends React.Component {
           )
         })}
 
-        {this.state.results.length == 0 &&
+        {this.state.results.length == 0 && (
           <Channel
             active={false}
             unread={null}
@@ -438,7 +400,7 @@ class ChannelsComponent extends React.Component {
             private={null}
             onClick={() => this.createPublicChannel(this.state.filter)}
           />
-        }
+        )}
       </React.Fragment>
     )
   }
@@ -453,11 +415,11 @@ class ChannelsComponent extends React.Component {
         <Heading>Favourites</Heading>
 
         {this.state.starred.map((channel, index) => {
-          if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+          if (this.state.filter != '' && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
 
-          const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
-          const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
-          const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+          const title = channel.private ? channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '') : channel.title
+          const image = channel.private ? channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '') : channel.image
+          const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const to = `/app/team/${channel.team.id}/channel/${channel.id}`
           const muted = this.props.user.muted.indexOf(channel.id) != -1
@@ -493,35 +455,27 @@ class ChannelsComponent extends React.Component {
     return (
       <React.Fragment>
         <div className="row pr-25">
-          <Heading>
-            Channels
-          </Heading>
+          <Heading>Channels</Heading>
 
-          {(this.props.team.role != 'GUEST') &&
+          {this.props.team.role != 'GUEST' && (
             <QuickInputComponent
               visible={this.state.channelPopup}
               width={250}
               direction="right-bottom"
               handleDismiss={() => this.setState({ channelPopup: false })}
-              handleAccept={(name) => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
-              placeholder="New channel name">
-              <IconComponent
-                icon="plus-circle"
-                size={15}
-                color="#475669"
-                thickness={2}
-                className="button"
-                onClick={() => this.setState({ channelPopup: true })}
-              />
+              handleAccept={name => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
+              placeholder="New channel name"
+            >
+              <IconComponent icon="plus-circle" size={15} color="#475669" thickness={2} className="button" onClick={() => this.setState({ channelPopup: true })} />
             </QuickInputComponent>
-          }
+          )}
         </div>
 
         {this.state.public.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
-          if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+          if (this.state.filter != '' && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
 
-          const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+          const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
@@ -560,15 +514,15 @@ class ChannelsComponent extends React.Component {
         {this.state.private.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
 
-          const title = channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "")
-          const image = channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "")
-          const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+          const title = channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '')
+          const image = channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '')
+          const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
 
           // Filter based on users search
-          if (this.state.filter != "" && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+          if (this.state.filter != '' && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
 
           // Get the other users' presence
           const timeSnapshot = new Date().getTime()
@@ -576,11 +530,7 @@ class ChannelsComponent extends React.Component {
           const otherMemberStatus = otherMember.user.status
           const otherMemberTimezone = otherMember.user.timezone
           const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
-          const presence = otherMemberPresence
-                            ? ((timeSnapshot - otherMemberPresence.userTime) > 15000)
-                              ? "away"
-                              : "online"
-                            : null
+          const presence = otherMemberPresence ? (timeSnapshot - otherMemberPresence.userTime > 15000 ? 'away' : 'online') : null
 
           return (
             <Channel
@@ -613,17 +563,17 @@ class ChannelsComponent extends React.Component {
     return (
       <React.Fragment>
         <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
-          {this.state.archivedVisible ? "Hide archived" : "See archived"}
+          {this.state.archivedVisible ? 'Hide archived' : 'See archived'}
         </Heading>
 
-        {this.state.archivedVisible &&
+        {this.state.archivedVisible && (
           <React.Fragment>
             {this.state.archived.map((channel, index) => {
-              if (this.state.filter != "" && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + ".*"))) return
+              if (this.state.filter != '' && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
 
-              const title = channel.private ? channel.members.reduce((title, member) => member.user.id != this.props.user.id ? title + member.user.name : title, "") : channel.title
-              const image = channel.private ? channel.members.reduce((image, member) => member.user.id != this.props.user.id ? image + member.user.image : image, "") : channel.image
-              const unread = this.props.common.unread.filter((row) => channel.id == row.doc.channel).flatten()
+              const title = channel.private ? channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '') : channel.title
+              const image = channel.private ? channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '') : channel.image
+              const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
               const unreadCount = unread ? unread.doc.count : 0
               const to = `/app/team/${channel.team.id}/channel/${channel.id}`
               const muted = this.props.user.muted.indexOf(channel.id) != -1
@@ -642,13 +592,13 @@ class ChannelsComponent extends React.Component {
                   muted={muted}
                   archived={archived}
                   onClick={() => this.props.history.push(to)}
-                  onArchivedClick={(e) => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
+                  onArchivedClick={e => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
                   onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
                 />
               )
             })}
           </React.Fragment>
-        }
+        )}
       </React.Fragment>
     )
   }
@@ -656,25 +606,13 @@ class ChannelsComponent extends React.Component {
   renderAccountModal() {
     if (!this.state.accountModal) return null
 
-    return (
-      <AccountModal
-        id={this.props.user.id}
-        onClose={() => this.setState({ accountModal: false })}
-      />
-    )
+    return <AccountModal id={this.props.user.id} onClose={() => this.setState({ accountModal: false })} />
   }
 
   renderTeamModal() {
     if (!this.state.teamModal) return null
 
-    return (
-      <TeamModal
-        id={this.props.team.id}
-        start={this.state.teamModalStart}
-        createChannel={this.createChannel}
-        onClose={() => this.setState({ teamModal: false })}
-      />
-    )
+    return <TeamModal id={this.props.team.id} start={this.state.teamModalStart} createChannel={this.createChannel} onClose={() => this.setState({ teamModal: false })} />
   }
 
   // These unbounded functions
@@ -713,7 +651,6 @@ class ChannelsComponent extends React.Component {
     this.setState({ accountMenu: false })
   }
 
-  // prettier-ignore
   render() {
     return (
       <Channels className="column">

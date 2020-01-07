@@ -91,26 +91,15 @@ export default function ToolbarComponent(props) {
       })
   }, [channel.apps])
 
-  // prettier-ignore
   return (
     <Toolbar className="column">
-      {store &&
+      {store && (
         <ModalPortal>
-          <Modal
-            title=""
-            width="80%"
-            height="90%"
-            header={false}
-            onClose={() => setStore(false)}>
-            <Iframe
-              border="0"
-              src={url}
-              width="100%"
-              height="100%">
-            </Iframe>
+          <Modal title="" width="80%" height="90%" header={false} onClose={() => setStore(false)}>
+            <Iframe border="0" src={url} width="100%" height="100%"></Iframe>
           </Modal>
         </ModalPortal>
-      }
+      )}
 
       {buttons.map((button, index) => {
         return (
@@ -121,11 +110,7 @@ export default function ToolbarComponent(props) {
       })}
       <div className="flexer" />
       <AppIconContainer onClick={handleAppStoreClick}>
-        <IconComponent
-          icon="weekday"
-          size={20}
-          color="#666"
-        />
+        <IconComponent icon="weekday" size={20} color="#666" />
       </AppIconContainer>
     </Toolbar>
   )

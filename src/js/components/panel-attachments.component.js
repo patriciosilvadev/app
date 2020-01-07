@@ -61,34 +61,20 @@ export default function PanelAttachmentsComponent(props) {
     fetchChannelAttachments()
   }, [])
 
-  // prettier-ignore
   return (
     <Container className="column">
-      {preview &&
-        <PreviewComponent
-          onClose={() => setPreview(null)}
-          image={preview}
-        />
-      }
+      {preview && <PreviewComponent onClose={() => setPreview(null)} image={preview} />}
 
       <Header className="row">
-        <HeaderTitle>
-          Channel Files
-        </HeaderTitle>
-        <IconComponent
-          icon="x"
-          size={25}
-          color="#040b1c"
-          className="mr-5 button"
-          onClick={() => history.push(`app/team/${teamId}/channel/${channelId}`)}
-        />
+        <HeaderTitle>Channel Files</HeaderTitle>
+        <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={() => history.push(`app/team/${teamId}/channel/${channelId}`)} />
       </Header>
 
       {error && <Error message={error} />}
       {loading && <Spinner />}
 
       <AttachmentsText>
-        There {messages.length == 1 ? "is" : "are"} <strong>{messages.length}</strong> {messages.length == 1 ? "message" : "messages"} with attachments
+        There {messages.length == 1 ? 'is' : 'are'} <strong>{messages.length}</strong> {messages.length == 1 ? 'message' : 'messages'} with attachments
       </AttachmentsText>
 
       {messages.map((message, index1) => {
@@ -96,14 +82,16 @@ export default function PanelAttachmentsComponent(props) {
           <React.Fragment key={index1}>
             <div className="row p-20 pb-0">
               <span className="color-d2 p regular">{message.user.name} -&nbsp;</span>
-              <span className="color-d2 p bold">{moment(message.createdAt).tz(user.timezone).fromNow()}</span>
+              <span className="color-d2 p bold">
+                {moment(message.createdAt)
+                  .tz(user.timezone)
+                  .fromNow()}
+              </span>
             </div>
 
-            <Text dangerouslySetInnerHTML={{__html: parseMessageMarkdown(message.message, null)}} />
+            <Text dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(message.message, null) }} />
 
-            <Attachments
-              ref={scrollRef}
-              className="column">
+            <Attachments ref={scrollRef} className="column">
               {message.attachments.map((attachment, index2) => {
                 const isImage = attachment.mime.split('/')[0]
 

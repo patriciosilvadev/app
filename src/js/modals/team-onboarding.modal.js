@@ -142,19 +142,10 @@ export default function TeamOnboardingModal(props) {
 
         <div className="column mt-30 align-items-center w-100">
           <InputContainer>
-            <Input
-              placeholder="Team name"
-              inputSize="large"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <Input placeholder="Team name" inputSize="large" value={name} onChange={e => setName(e.target.value)} />
           </InputContainer>
 
-          <Button
-            onClick={() => name != "" ? setStep(2) : null}
-            size="large"
-            text="Next"
-          />
+          <Button onClick={() => (name != '' ? setStep(2) : null)} size="large" text="Next" />
 
           <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
             No thanks, not now
@@ -169,39 +160,23 @@ export default function TeamOnboardingModal(props) {
 
     return (
       <React.Fragment>
-        <input
-          accept="image/png,image/jpg"
-          type="file"
-          className="hide"
-          ref={fileRef}
-          onChange={handleFileChange}
-        />
+        <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
-        <Avatar
-          image={image}
-          className="mr-20"
-          size="xxx-large"
-        />
+        <Avatar image={image} className="mr-20" size="xxx-large" />
 
         <Text className="h1 mb-30 mt-30 color-d3">{name}</Text>
         <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Choose an image</Text>
         <Text className="h5 color-d0 mb-30">
-          <span className="color-blue bold h5 button" onClick={() => fileRef.current.click()}>Click here</span> to choose an image for your new team
+          <span className="color-blue bold h5 button" onClick={() => fileRef.current.click()}>
+            Click here
+          </span>{' '}
+          to choose an image for your new team
         </Text>
 
         <div className="row mt-30">
-          <Button
-            className="mr-10"
-            onClick={() => setStep(1)}
-            size="large"
-            text="Back"
-          />
+          <Button className="mr-10" onClick={() => setStep(1)} size="large" text="Back" />
 
-          <Button
-            onClick={handleNewTeamCreate}
-            size="large"
-            text="Create Team"
-          />
+          <Button onClick={handleNewTeamCreate} size="large" text="Create Team" />
         </div>
 
         <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
@@ -222,47 +197,22 @@ export default function TeamOnboardingModal(props) {
 
         <div className="column mt-30 align-items-center w-100">
           <InputContainer>
-            <Input
-              placeholder="Email address one"
-              inputSize="large"
-              value={email1}
-              onChange={(e) => setEmail1(e.target.value)}
-            />
+            <Input placeholder="Email address one" inputSize="large" value={email1} onChange={e => setEmail1(e.target.value)} />
           </InputContainer>
 
           <InputContainer>
-            <Input
-              placeholder="Email address two"
-              inputSize="large"
-              value={email2}
-              onChange={(e) => setEmail2(e.target.value)}
-            />
+            <Input placeholder="Email address two" inputSize="large" value={email2} onChange={e => setEmail2(e.target.value)} />
           </InputContainer>
 
           <InputContainer>
-            <Input
-              placeholder="Email address three"
-              inputSize="large"
-              value={email3}
-              onChange={(e) => setEmail3(e.target.value)}
-            />
+            <Input placeholder="Email address three" inputSize="large" value={email3} onChange={e => setEmail3(e.target.value)} />
           </InputContainer>
 
           <InputContainer>
-            <Input
-              placeholder="Email address four"
-              inputSize="large"
-              value={email4}
-              onChange={(e) => setEmail4(e.target.value)}
-            />
+            <Input placeholder="Email address four" inputSize="large" value={email4} onChange={e => setEmail4(e.target.value)} />
           </InputContainer>
 
-          <Button
-            onClick={handleNewTeamInvites}
-            size="large"
-            text="Invite Now"
-            className="mt-30"
-          />
+          <Button onClick={handleNewTeamInvites} size="large" text="Invite Now" className="mt-30" />
 
           <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
             Skip for now
@@ -272,15 +222,9 @@ export default function TeamOnboardingModal(props) {
     )
   }
 
-  // prettier-ignore
   return (
     <ModalPortal>
-      <Modal
-        title="Create a new team"
-        frameless={true}
-        width="100%"
-        height="100%"
-        onClose={props.onCancel}>
+      <Modal title="Create a new team" frameless={true} width="100%" height="100%" onClose={props.onCancel}>
         <React.Fragment>
           {error && <Error message={error} />}
           {loading && <Spinner />}
@@ -294,7 +238,7 @@ export default function TeamOnboardingModal(props) {
             </Inner>
 
             <Logo>
-              <img src="./logo.png" height="20" alt="Weekday"/>
+              <img src="./logo.png" height="20" alt="Weekday" />
               <LogoText>weekday</LogoText>
             </Logo>
           </Container>

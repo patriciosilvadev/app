@@ -27,20 +27,10 @@ export default function AppModal(props) {
     }
   }, [])
 
-  // prettier-ignore
   return (
     <ModalPortal>
-      <Modal
-        title={props.action.name}
-        width={props.action.payload.width || "75%"}
-        height={props.action.payload.height || "75%"}
-        onClose={props.onClose}>
-        <Iframe
-          border="0"
-          src={url}
-          width="100%"
-          height="100%">
-        </Iframe>
+      <Modal title={props.action.name} width={props.action.payload.width || '75%'} height={props.action.payload.height || '75%'} onClose={props.onClose}>
+        <Iframe border="0" src={url} width="100%" height="100%"></Iframe>
       </Modal>
     </ModalPortal>
   )

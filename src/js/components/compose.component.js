@@ -415,10 +415,7 @@ class ComposeComponent extends React.Component {
         <UpdateContainer className="row">
           <UpdateText>
             Updating message
-
-            {this.props.message.parent &&
-              <span> - replying to {this.props.message.parent.user.name}</span>
-            }
+            {this.props.message.parent && <span> - replying to {this.props.message.parent.user.name}</span>}
           </UpdateText>
           <div className="flexer"></div>
           <UpdateCancel className="button" onClick={this.clearMessage}>
@@ -446,9 +443,13 @@ class ComposeComponent extends React.Component {
               size={attachment.size}
               name={attachment.name}
               createdAt={null}
-              onDeleteClick={() => this.setState({ attachments: this.state.attachments.filter((a, _) => {
-                return attachment.uri != a.uri
-              })})}
+              onDeleteClick={() =>
+                this.setState({
+                  attachments: this.state.attachments.filter((a, _) => {
+                    return attachment.uri != a.uri
+                  }),
+                })
+              }
             />
           )
         })}
@@ -461,10 +462,7 @@ class ComposeComponent extends React.Component {
 
     return (
       <DrawerContainer>
-        <Members
-          members={this.state.members}
-          handleAccept={(member) => this.replaceWordAtCursor(`@${member.user.username} `)}
-        />
+        <Members members={this.state.members} handleAccept={member => this.replaceWordAtCursor(`@${member.user.username} `)} />
       </DrawerContainer>
     )
   }
@@ -496,20 +494,12 @@ class ComposeComponent extends React.Component {
           <ReplyContainer className="row justify-content-center">
             <div className="pl-10 column flexer">
               <div className="row">
-                <ReplyName>
-                  {this.props.message.app ? this.props.message.app.name : this.props.message.user.name}
-                </ReplyName>
+                <ReplyName>{this.props.message.app ? this.props.message.app.name : this.props.message.user.name}</ReplyName>
                 <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
               </div>
-              <ReplyMessage dangerouslySetInnerHTML={{__html: parseMessageMarkdown(this.props.message.message)}} />
+              <ReplyMessage dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(this.props.message.message) }} />
             </div>
-            <IconComponent
-              icon="x"
-              size={20}
-              color="#565456"
-              className="ml-15 button"
-              onClick={this.props.clearMessage}
-            />
+            <IconComponent icon="x" size={20} color="#565456" className="ml-15 button" onClick={this.props.clearMessage} />
           </ReplyContainer>
         </ReplyPadding>
       )
@@ -521,17 +511,11 @@ class ComposeComponent extends React.Component {
   renderInput() {
     return (
       <InputContainer className="row">
-        <input
-          className="hide"
-          ref={(ref) => this.fileRef = ref}
-          type="file"
-          multiple
-          onChange={this.handleFileChange}
-        />
+        <input className="hide" ref={ref => (this.fileRef = ref)} type="file" multiple onChange={this.handleFileChange} />
 
         <Input
           style={{ height: this.state.height }}
-          ref={(ref) => this.composeRef = ref}
+          ref={ref => (this.composeRef = ref)}
           placeholder="Say something"
           value={this.state.text}
           onKeyUp={this.handleKeyUp}
@@ -539,55 +523,36 @@ class ComposeComponent extends React.Component {
           onChange={this.handleComposeChange}
         />
 
-        {this.props.channel.apps.filter(app => app.active).map((app, index) => {
-          if (!app.app.attachments) return
-          if (app.app.attachments.length == 0) return
+        {this.props.channel.apps
+          .filter(app => app.active)
+          .map((app, index) => {
+            if (!app.app.attachments) return
+            if (app.app.attachments.length == 0) return
 
-          return (
-            <React.Fragment key={index}>
-              {app.app.attachments.map((button, i) => {
-                return (
-                  <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
-                    <AppIconImage image={button.icon} />
-                  </AppIconContainer>
-                )
-              })}
-            </React.Fragment>
-          )
-        })}
+            return (
+              <React.Fragment key={index}>
+                {app.app.attachments.map((button, i) => {
+                  return (
+                    <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                      <AppIconImage image={button.icon} />
+                    </AppIconContainer>
+                  )
+                })}
+              </React.Fragment>
+            )
+          })}
 
         <Popup
           handleDismiss={() => this.setState({ emoticonMenu: false })}
           visible={this.state.emoticonMenu}
           width={350}
           direction="right-top"
-          content={
-            <Picker
-              style={{ width: 350 }}
-              set='emojione'
-              title=""
-              emoji=""
-              showPreview={false}
-              showSkinTones={false}
-              onSelect={(emoji) => this.insertAtCursor(emoji.colons)}
-            />
-          }>
-          <IconComponent
-            icon="smile"
-            size={20}
-            color="#565456"
-            className="ml-15 button"
-            onClick={() => this.setState({ emoticonMenu: true })}
-          />
+          content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
+        >
+          <IconComponent icon="smile" size={20} color="#565456" className="ml-15 button" onClick={() => this.setState({ emoticonMenu: true })} />
         </Popup>
 
-        <IconComponent
-          icon="attachment"
-          size={20}
-          color="#565456"
-          className="ml-15 button"
-          onClick={() => this.fileRef.click()}
-        />
+        <IconComponent icon="attachment" size={20} color="#565456" className="ml-15 button" onClick={() => this.fileRef.click()} />
 
         <IconComponent
           icon="at"
@@ -595,18 +560,12 @@ class ComposeComponent extends React.Component {
           color="#565456"
           className="ml-15 button"
           onClick={() => {
-            this.insertAtCursor("@")
-            this.filterMembers("")
+            this.insertAtCursor('@')
+            this.filterMembers('')
           }}
         />
 
-        <IconComponent
-          icon="send"
-          size={20}
-          color="#565456"
-          className="ml-15 button"
-          onClick={this.onSend}
-        />
+        <IconComponent icon="send" size={20} color="#565456" className="ml-15 button" onClick={this.onSend} />
       </InputContainer>
     )
   }
@@ -614,18 +573,14 @@ class ComposeComponent extends React.Component {
   renderFooter() {
     return (
       <Footer className="row">
-        <IconComponent
-          icon="markdown"
-          size={20}
-          color="#cfd4d9"
-          className="mr-10"
-        />
-        <span>Use <strong>**markdown**</strong> to format your message</span>
+        <IconComponent icon="markdown" size={20} color="#cfd4d9" className="mr-10" />
+        <span>
+          Use <strong>**markdown**</strong> to format your message
+        </span>
       </Footer>
     )
   }
 
-  // prettier-ignore
   render() {
     return (
       <Compose className="column align-items-stretch">

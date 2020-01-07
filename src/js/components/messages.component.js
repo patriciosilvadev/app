@@ -36,7 +36,6 @@ const DateDividerLine = styled.div`
 `
 
 export default memo(props => {
-  // prettier-ignore
   return (
     <React.Fragment>
       {props.messages.map((message, index) => {
@@ -53,7 +52,7 @@ export default memo(props => {
           previousUserId = props.messages[previousIndex].user ? props.messages[previousIndex].user.id : null
 
           if (previousUserId != null && currentUserId != null) {
-            if (previousUserId == currentUserId && (currentDate.format('X') - previousDate.format('X')) <= 60) append = true
+            if (previousUserId == currentUserId && currentDate.format('X') - previousDate.format('X') <= 60) append = true
           }
 
           if (currentDate.format('DDD') != previousDate.format('DDD')) {
@@ -63,20 +62,14 @@ export default memo(props => {
 
         return (
           <React.Fragment key={index}>
-            {showDate &&
+            {showDate && (
               <DateDivider>
                 <DateDividerText>{moment(message.createAt).format('dddd, MMMM Do')}</DateDividerText>
                 <DateDividerLine />
               </DateDivider>
-            }
+            )}
 
-            <MessageComponent
-              message={message}
-              append={append && !showDate}
-              highlight={props.highlight}
-              setUpdateMessage={props.setUpdateMessage}
-              setReplyMessage={props.setReplyMessage}
-            />
+            <MessageComponent message={message} append={append && !showDate} highlight={props.highlight} setUpdateMessage={props.setUpdateMessage} setReplyMessage={props.setReplyMessage} />
           </React.Fragment>
         )
       })}

@@ -62,7 +62,6 @@ export default props => {
     })()
   }, [])
 
-  // prettier-ignore
   return (
     <React.Fragment>
       <Error message={error} />
@@ -71,57 +70,33 @@ export default props => {
       <Container className="column">
         <Loading show={loading} />
 
-        {!joined &&
+        {!joined && (
           <Inner>
-            <Avatar
-              image={image}
-              title={name}
-              className="mb-20"
-              size="xx-large"
-            />
+            <Avatar image={image} title={name} className="mb-20" size="xx-large" />
             <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
             <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
             <Inputs>
-              <Input
-                placeholder="Enter shortcode here"
-                inputSize="large"
-                className="mt-30"
-                value={shortcode}
-                onChange={e => setShortcode(e.target.value)}
-              />
-              <Button
-                onClick={handleTeamJoin}
-                size="large"
-                text="Join Now"
-              />
+              <Input placeholder="Enter shortcode here" inputSize="large" className="mt-30" value={shortcode} onChange={e => setShortcode(e.target.value)} />
+              <Button onClick={handleTeamJoin} size="large" text="Join Now" />
             </Inputs>
           </Inner>
-        }
+        )}
 
-        {joined &&
+        {joined && (
           <Inner>
-            <Avatar
-              image={image}
-              title={name}
-              className="mb-20"
-              size="xx-large"
-            />
+            <Avatar image={image} title={name} className="mb-20" size="xx-large" />
             <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations</Text>
             <Text className="h5 color-d0">You have successfully joined this team. Click on the button to start.</Text>
             <Inputs>
-              <Button
-                onClick={() => props.history.push('/app')}
-                size="large"
-                text="Start"
-              />
+              <Button onClick={() => props.history.push('/app')} size="large" text="Start" />
             </Inputs>
           </Inner>
-        }
+        )}
 
         <Logo>
-          <img src="./logo.png" height="20" alt="Weekday"/>
+          <img src="./logo.png" height="20" alt="Weekday" />
           <LogoText>weekday</LogoText>
         </Logo>
       </Container>

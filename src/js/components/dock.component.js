@@ -66,55 +66,36 @@ export default function DockComponent(props) {
     }
   }, [user.id])
 
-  // prettier-ignore
   return (
     <Dock className="column align-items-center">
-      {teamOnboardingModal &&
-        <TeamOnboardingModal
-          onOkay={() => setTeamOnboardingModal(false)}
-          onCancel={() => setTeamOnboardingModal(false)}
-        />
-      }
+      {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
 
       {teams.map((t, index) => {
-        const unread = !!common.unread.filter((row) => t.id == row.doc.team).flatten()
+        const unread = !!common.unread.filter(row => t.id == row.doc.team).flatten()
 
         return (
           <Link
             key={index}
             to={`/app/team/${t.id}`}
             style={{
-              opacity: lastPathname != "starred" && t.id == team.id ? 1 : 0.5,
+              opacity: lastPathname != 'starred' && t.id == team.id ? 1 : 0.5,
               marginBottom: 10,
-            }}>
-            <Avatar
-              dark
-              badge={unread}
-              size="medium"
-              image={t.image}
-              title={t.name}
-              className="button"
-            />
+            }}
+          >
+            <Avatar dark badge={unread} size="medium" image={t.image} title={t.name} className="button" />
           </Link>
         )
       })}
 
-      <Avatar
-        dark
-        className="button"
-        onClick={(e) => setTeamOnboardingModal(true)}>
-        <IconComponent
-          icon="plus"
-          size={20}
-          color="#007af5"
-        />
+      <Avatar dark className="button" onClick={e => setTeamOnboardingModal(true)}>
+        <IconComponent icon="plus" size={20} color="#007af5" />
       </Avatar>
 
       <NotificationsComponent style={{ marginTop: 20 }} />
 
       <div className="flexer"></div>
 
-      <img src="logo.svg" width="30" style={{ marginTop: 20 }}/>
+      <img src="logo.svg" width="30" style={{ marginTop: 20 }} />
     </Dock>
   )
 }

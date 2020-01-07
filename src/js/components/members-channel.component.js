@@ -23,47 +23,31 @@ const TableRow = props => {
   const [roles, setRoles] = useState(false)
   const [memberDeleteId, setMemberDeleteId] = useState('')
 
-  // prettier-ignore
   return (
     <React.Fragment>
-      {confirmSelfDeleteModal &&
-        <ConfirmModal
-          onOkay={() => props.onLeave()}
-          onCancel={() => setConfirmSelfDeleteModal(false)}
-          text="Are you sure you want to leave this channel?"
-          title="Are you sure?"
-        />
-      }
+      {confirmSelfDeleteModal && (
+        <ConfirmModal onOkay={() => props.onLeave()} onCancel={() => setConfirmSelfDeleteModal(false)} text="Are you sure you want to leave this channel?" title="Are you sure?" />
+      )}
 
-      {confirmMemberDeleteModal &&
+      {confirmMemberDeleteModal && (
         <ConfirmModal
           onOkay={() => props.onDelete(member.user.id)}
           onCancel={() => setConfirmMemberDeleteModal(false)}
           text="Are you sure you want to remove this person, it can not be undone?"
           title="Are you sure?"
         />
-      }
+      )}
 
       <tr>
         <Td>
-          <Avatar
-            size="medium"
-            image={member.user.image}
-            title={member.user.name}
-          />
+          <Avatar size="medium" image={member.user.image} title={member.user.name} />
         </Td>
         <Td>
-          <div className="bold">
-            {member.user.id == user.id ? member.user.name + " (You)" : member.user.name}
-          </div>
-          <div className="color-l0">
-            @{`${member.user.username}`}
-          </div>
+          <div className="bold">{member.user.id == user.id ? member.user.name + ' (You)' : member.user.name}</div>
+          <div className="color-l0">@{`${member.user.username}`}</div>
         </Td>
         <Td>
-          <span className="">
-            {member.user.timezone ? member.user.timezone.replace('_', ' ') : "Not set yet"}
-          </span>
+          <span className="">{member.user.timezone ? member.user.timezone.replace('_', ' ') : 'Not set yet'}</span>
         </Td>
         <Td>
           <Popup
@@ -75,28 +59,22 @@ const TableRow = props => {
               <Menu
                 items={[
                   {
-                    hide: (member.user.id != user.id),
+                    hide: member.user.id != user.id,
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
-                    text: "Leave team",
+                    text: 'Leave team',
                     onClick: () => setConfirmSelfDeleteModal(true),
                   },
                   {
-                    hide: ((member.user.id == user.id) || (!props.permissible)),
+                    hide: member.user.id == user.id || !props.permissible,
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
-                    text: "Remove person from team",
+                    text: 'Remove person from team',
                     onClick: () => setConfirmMemberDeleteModal(true),
                   },
                 ]}
               />
-            }>
-            <IconComponent
-              icon="more-v"
-              size={20}
-              thickness={2}
-              color="#475669"
-              className="button"
-              onClick={() => setMenu(true)}
-            />
+            }
+          >
+            <IconComponent icon="more-v" size={20} thickness={2} color="#475669" className="button" onClick={() => setMenu(true)} />
           </Popup>
         </Td>
       </tr>
@@ -176,7 +154,6 @@ export default function MembersChannelComponent(props) {
     setPages(Math.ceil(props.members.length / limit))
   }, [props.members])
 
-  // prettier-ignore
   return (
     <React.Fragment>
       {error && <Error message={error} />}
@@ -186,42 +163,29 @@ export default function MembersChannelComponent(props) {
       <div className="flexer p-20 w-100">
         <div className="row pb-20">
           <div className="column flexer">
-            <div className="h5 color-d2 pb-5">{members.length} {members.length == 1 ? "Member" : "Members"}</div>
-            <div className="p color-d0 bold">Displaying page {page} of {pages}</div>
+            <div className="h5 color-d2 pb-5">
+              {members.length} {members.length == 1 ? 'Member' : 'Members'}
+            </div>
+            <div className="p color-d0 bold">
+              Displaying page {page} of {pages}
+            </div>
           </div>
           <Buttons className="row">
-            {page > 1 &&
+            {page > 1 && (
               <div>
-                <Button
-                  size="small"
-                  text="Previous"
-                  theme="blue-border"
-                  className="button"
-                  onClick={() => setPage(page - 1)}
-                />
+                <Button size="small" text="Previous" theme="blue-border" className="button" onClick={() => setPage(page - 1)} />
               </div>
-            }
+            )}
 
-            {page < pages &&
+            {page < pages && (
               <div>
-                <Button
-                  size="small"
-                  text="Next"
-                  theme="blue-border"
-                  className="button"
-                  onClick={() => setPage(page + 1)}
-                />
+                <Button size="small" text="Next" theme="blue-border" className="button" onClick={() => setPage(page + 1)} />
               </div>
-            }
+            )}
           </Buttons>
         </div>
 
-        <Input
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          placeholder="Filter members by name"
-          className="mb-20"
-        />
+        <Input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter members by name" className="mb-20" />
 
         <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
           <thead>
@@ -235,19 +199,10 @@ export default function MembersChannelComponent(props) {
 
           <tbody>
             {members.map((member, index) => {
-              if (filter != "" && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + ".*"))) return null
-              if (index < ((page * limit) - limit) || index > (page * limit)) return null
+              if (filter != '' && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + '.*'))) return null
+              if (index < page * limit - limit || index > page * limit) return null
 
-              return (
-                <TableRow
-                  permissible={props.permissible}
-                  key={index}
-                  member={member}
-                  user={user}
-                  onLeave={handleChannelLeave}
-                  onDelete={handleChannelMemberDelete}
-                />
-              )
+              return <TableRow permissible={props.permissible} key={index} member={member} user={user} onLeave={handleChannelLeave} onDelete={handleChannelMemberDelete} />
             })}
           </tbody>
         </table>

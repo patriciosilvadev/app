@@ -244,68 +244,32 @@ export default function TeamModal(props) {
           {notification && <Notification text={notification} />}
 
           <div className="row w-100 p-20">
-            <input
-              accept="image/png,image/jpg"
-              type="file"
-              className="hide"
-              ref={fileRef}
-              onChange={handleFileChange}
-            />
+            <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
-            <Avatar
-              image={image}
-              className="mr-20"
-              size="large"
-            />
+            <Avatar image={image} className="mr-20" size="large" />
 
             <div className="column flexer header pl-10">
               <div className="row pb-5">
                 <Text className="h5 color-d2">{name}</Text>
               </div>
               <div className="row">
-                {props.id &&
-                  <Text className="p color-d0 button bold mr-10">{members.length} members</Text>
-                }
+                {props.id && <Text className="p color-d0 button bold mr-10">{members.length} members</Text>}
 
-                {admin &&
-                  <Text
-                    className="p color-blue button bold"
-                    onClick={() => fileRef.current.click()}>
+                {admin && (
+                  <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>
                     Update profile image
                   </Text>
-                }
+                )}
               </div>
             </div>
           </div>
 
           <div className="column p-20 flex-1 scroll w-100">
-            <Input
-              label="Team name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Enter full name"
-              className="mb-20"
-              disabled={!admin}
-            />
+            <Input label="Team name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter full name" className="mb-20" disabled={!admin} />
 
-            <Textarea
-              label="Description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Add a description"
-              rows={8}
-              className="mb-20"
-              disabled={!admin}
-            />
+            <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Add a description" rows={8} className="mb-20" disabled={!admin} />
 
-            {admin &&
-              <Button
-                onClick={handleUpdateTeam}
-                text="Save"
-                theme="blue-border"
-                size="small"
-              />
-            }
+            {admin && <Button onClick={handleUpdateTeam} text="Save" theme="blue-border" size="small" />}
           </div>
         </div>
       </div>
@@ -320,7 +284,7 @@ export default function TeamModal(props) {
           billing={billing}
           id={props.id}
           createChannel={props.createChannel}
-          onBillingContactUpdate={(billing) => setBilling(billing)}
+          onBillingContactUpdate={billing => setBilling(billing)}
           onClose={props.onClose}
           members={members}
         />
@@ -332,52 +296,21 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Outside access</Text>
-            <Text className="color-d0 p mb-30">
-              {`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}
-            </Text>
+            <Text className="color-d0 p mb-30">{`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}</Text>
 
-            <Input
-              label="Update your team shortcode"
-              value={shortcode}
-              onChange={e => setShortcode(e.target.value)}
-              placeholder="Enter shortcode"
-              className="mb-20"
-            />
+            <Input label="Update your team shortcode" value={shortcode} onChange={e => setShortcode(e.target.value)} placeholder="Enter shortcode" className="mb-20" />
 
             <div className="row mb-30">
-              <Button
-                onClick={handleUpdateTeamShortcode}
-                text="Update shortcode"
-                theme="blue-border"
-                size="small"
-              />
+              <Button onClick={handleUpdateTeamShortcode} text="Update shortcode" theme="blue-border" size="small" />
 
-              <Button
-                theme="blue-border"
-                size="small"
-                onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)}
-                text="Copy URL"
-                className="ml-5"
-              />
+              <Button theme="blue-border" size="small" onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)} text="Copy URL" className="ml-5" />
             </div>
 
-            <Input
-              label="Update your team slug"
-              value={slug}
-              onChange={e => setSlug(e.target.value)}
-              placeholder="Enter Slug"
-              className="mb-20"
-            />
+            <Input label="Update your team slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="Enter Slug" className="mb-20" />
 
-            <Button
-              theme="blue-border"
-              size="small"
-              onClick={handleUpdateTeamSlug}
-              text="Update slug"
-            />
+            <Button theme="blue-border" size="small" onClick={handleUpdateTeamSlug} text="Update slug" />
           </div>
         </div>
       </div>
@@ -392,18 +325,9 @@ export default function TeamModal(props) {
             <Text className="color-d2 h5 mb-10">Invite users</Text>
             <Text className="color-d0 p mb-30">Add users email.</Text>
 
-            <Textarea
-              placeholder="Comma seperated email addresses"
-              value={emails}
-              onChange={(e) => setEmails(e.target.value)}
-            />
+            <Textarea placeholder="Comma seperated email addresses" value={emails} onChange={e => setEmails(e.target.value)} />
 
-            <Button
-              text="Invite users"
-              onClick={handleInviteTeamMembers}
-              theme="blue-border"
-              size="small"
-            />
+            <Button text="Invite users" onClick={handleInviteTeamMembers} theme="blue-border" size="small" />
           </div>
         </div>
       </div>
@@ -414,24 +338,15 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {confirmDeleteModal &&
-            <ConfirmModal
-              onOkay={handleDeleteTeam}
-              onCancel={() => setConfirmDeleteModal(false)}
-              text="Are you sure you want to delete this team, it can not be undone?"
-              title="Are you sure?"
-            />
-          }
+          {confirmDeleteModal && (
+            <ConfirmModal onOkay={handleDeleteTeam} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this team, it can not be undone?" title="Are you sure?" />
+          )}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-red h5 mb-10">Here be dragons!</Text>
             <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
-            <Button
-              text="Delete"
-              theme="red"
-              onClick={() => setConfirmDeleteModal(true)}
-            />
+            <Button text="Delete" theme="red" onClick={() => setConfirmDeleteModal(true)} />
           </div>
         </div>
       </div>
@@ -445,39 +360,33 @@ export default function TeamModal(props) {
 
         <Text className="h1 mb-30 mt-30 color-d3">You're premium</Text>
         <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations! We hope you enjoy the journey with us.</Text>
-        <Text className="h5 color-d0">You are billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).</Text>
+        <Text className="h5 color-d0">
+          You are billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).
+        </Text>
 
         <div className="w-100 row justify-content-center">
-          <Button
-            text="Downgrade"
-            className="mt-20"
-            onClick={() => setConfirmDowngradeModal(true)}
-          />
+          <Button text="Downgrade" className="mt-20" onClick={() => setConfirmDowngradeModal(true)} />
         </div>
 
-        {billing &&
+        {billing && (
           <div className="w-100 row justify-content-center mt-20">
-            <Avatar
-              size="medium"
-              image={billing.image}
-              title={billing.name}
-            />
+            <Avatar size="medium" image={billing.image} title={billing.name} />
 
             <div className="pl-10 column">
               <div className="small color-l0">Billing contact</div>
               <div className="p color-d0">{billing.name}</div>
             </div>
           </div>
-        }
+        )}
 
-        {confirmDowngradeModal &&
+        {confirmDowngradeModal && (
           <ConfirmModal
             onOkay={handleDowngrade}
             onCancel={() => setConfirmDowngradeModal(false)}
             text="Are you sure you want to downgrade this team & lose out on all the goodies?"
             title="Are you sure?"
           />
-        }
+        )}
       </div>
     )
   }
@@ -489,82 +398,64 @@ export default function TeamModal(props) {
 
         <Text className="h1 mb-30 mt-30 color-d3">Go premium</Text>
         <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Unlock the next level in your team's productivity journey!</Text>
-        <Text className="h5 color-d0">You will be billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).</Text>
+        <Text className="h5 color-d0">
+          You will be billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).
+        </Text>
 
         <div className="w-100 row justify-content-center">
-          <Button
-            text="Upgrade"
-            className="mt-20"
-            onClick={() => setConfirmUpgradeModal(true)}
-          />
+          <Button text="Upgrade" className="mt-20" onClick={() => setConfirmUpgradeModal(true)} />
         </div>
 
         <a className="mt-30 color-blue h5 button row justify-content-center" href="" target="_blank">
           <span>Check out what you get with it</span>
-          <IconComponent
-            icon="chevron-right"
-            thickness={2}
-            color="#007af5"
-            size={20}
-            className="ml-5"
-          />
+          <IconComponent icon="chevron-right" thickness={2} color="#007af5" size={20} className="ml-5" />
         </a>
 
-        {confirmUpgradeModal &&
-          <ConfirmModal
-            onOkay={handleUpgrade}
-            onCancel={() => setConfirmUpgradeModal(false)}
-            text="Are you sure you want to level up & upgrade this team?"
-            title="Are you sure?"
-          />
-        }
+        {confirmUpgradeModal && (
+          <ConfirmModal onOkay={handleUpgrade} onCancel={() => setConfirmUpgradeModal(false)} text="Are you sure you want to level up & upgrade this team?" title="Are you sure?" />
+        )}
       </div>
     )
   }
 
-  // prettier-ignore
   return (
     <ModalPortal>
-      <Modal
-        title={`Team ${name}`}
-        width={800}
-        height="90%"
-        onClose={props.onClose}>
-          <Tabbed
-            start={props.start}
-            panels={[
-              {
-                title: 'Overview',
-                show: true,
-                content: renderOverview()
-              },
-              {
-                title: 'Members',
-                show: true,
-                content: renderMembers()
-              },
-              {
-                title: 'Access',
-                show: admin,
-                content: renderAccess()
-              },
-              {
-                title: 'Invite & share',
-                show: admin,
-                content: renderInviteShare()
-              },
-              {
-                title: 'Upgrade',
-                show: admin,
-                content: premium ? renderIsPremium() : renderIsNotPremium()
-              },
-              {
-                title: 'Danger zone',
-                show: admin,
-                content: renderDangerZone()
-              },
-            ]}
-          />
+      <Modal title={`Team ${name}`} width={800} height="90%" onClose={props.onClose}>
+        <Tabbed
+          start={props.start}
+          panels={[
+            {
+              title: 'Overview',
+              show: true,
+              content: renderOverview(),
+            },
+            {
+              title: 'Members',
+              show: true,
+              content: renderMembers(),
+            },
+            {
+              title: 'Access',
+              show: admin,
+              content: renderAccess(),
+            },
+            {
+              title: 'Invite & share',
+              show: admin,
+              content: renderInviteShare(),
+            },
+            {
+              title: 'Upgrade',
+              show: admin,
+              content: premium ? renderIsPremium() : renderIsNotPremium(),
+            },
+            {
+              title: 'Danger zone',
+              show: admin,
+              content: renderDangerZone(),
+            },
+          ]}
+        />
       </Modal>
     </ModalPortal>
   )

@@ -20,10 +20,10 @@ const moment = require('moment-timezone')
 const createStripeElementOptions = {
   style: {
     base: {
-      fontSize: '16px',
-      color: '#424770',
-      fontFamily: 'Open Sans, sans-serif',
-      letterSpacing: '0.025em',
+      'fontSize': '16px',
+      'color': '#424770',
+      'fontFamily': 'Open Sans, sans-serif',
+      'letterSpacing': '0.025em',
       '::placeholder': {
         color: '#aab7c4',
       },
@@ -31,7 +31,7 @@ const createStripeElementOptions = {
     invalid: {
       color: '#c23d4b',
     },
-  }
+  },
 }
 
 class _CardForm extends React.Component {
@@ -65,17 +65,8 @@ class _CardForm extends React.Component {
         </div>
 
         <div className="row mt-20">
-          <Button
-            onClick={this.handleSubmit.bind(this)}
-            text="Add"
-            size="small"
-            className="mr-10"
-          />
-          <Button
-            onClick={this.props.onCancel}
-            text="Cancel"
-            size="small"
-          />
+          <Button onClick={this.handleSubmit.bind(this)} text="Add" size="small" className="mr-10" />
+          <Button onClick={this.props.onCancel} text="Cancel" size="small" />
         </div>
       </form>
     )
@@ -229,7 +220,7 @@ export default function AccountModal(props) {
   const handleEmailAddressDelete = async emailAddress => {
     if (emails.length == 1) return setError('You need at least 1 connected email address')
 
-    if (confirm("Are you sure?")) {
+    if (confirm('Are you sure?')) {
       setLoading(true)
       setError(false)
 
@@ -283,14 +274,16 @@ export default function AccountModal(props) {
 
       setLoading(false)
       setNotification('Successfully set default card')
-      setCards(cards.map(card => {
-        return {
-          token: card.token,
-          vendor: card.vendor,
-          card: card.card,
-          active: token == card.token,
-        }
-      }))
+      setCards(
+        cards.map(card => {
+          return {
+            token: card.token,
+            vendor: card.vendor,
+            card: card.card,
+            active: token == card.token,
+          }
+        })
+      )
     } catch (e) {
       setLoading(false)
       setError('There has been an error')
@@ -298,7 +291,7 @@ export default function AccountModal(props) {
   }
 
   const handleCardDelete = async token => {
-    if (confirm("Are you sure?")) {
+    if (confirm('Are you sure?')) {
       setLoading(true)
       setError(false)
 
@@ -317,7 +310,12 @@ export default function AccountModal(props) {
   }
 
   const handleCardAdd = async result => {
-    const { token: { card: { brand, last4 }, id } } = result
+    const {
+      token: {
+        card: { brand, last4 },
+        id,
+      },
+    } = result
     const token = id
     const card = last4
     const vendor = brand
@@ -351,85 +349,46 @@ export default function AccountModal(props) {
           {notification && <Notification text={notification} />}
 
           <div className="row w-100 p-20">
-            <input
-              accept="image/png,image/jpg"
-              type="file"
-              className="hide"
-              ref={fileRef}
-              onChange={handleFileChange}
-            />
+            <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
-            <Avatar
-              image={image}
-              className="mr-20"
-              size="large"
-              circle
-            />
+            <Avatar image={image} className="mr-20" size="large" circle />
 
             <div className="column pl-10">
               <div className="row pb-5">
                 <Text className="h5 color-d2">{name}</Text>
               </div>
               <div className="row">
-                <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>Update profile image</Text>
+                <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>
+                  Update profile image
+                </Text>
               </div>
             </div>
           </div>
 
           <div className="column p-20 flex-1 scroll w-100">
-            <Input
-              label="Full name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Enter full name"
-              className="mb-20"
-            />
+            <Input label="Full name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter full name" className="mb-20" />
 
-            <Input
-              label="Role"
-              value={role}
-              onChange={e => setRole(e.target.value)}
-              placeholder="Enter your role"
-              className="mb-20"
-            />
+            <Input label="Role" value={role} onChange={e => setRole(e.target.value)} placeholder="Enter your role" className="mb-20" />
 
-            <Input
-              label="Username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="Username"
-              className="mb-20"
-            />
+            <Input label="Username" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" className="mb-20" />
 
-            <Textarea
-              label="Description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Enter bio"
-              className="mb-20"
-              rows={2}
-            />
+            <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter bio" className="mb-20" rows={2} />
 
             <div className="mb-20 w-100">
               <Select
                 label="Your timezone"
-                onSelect={(index) => setTimezone(index)}
+                onSelect={index => setTimezone(index)}
                 selected={timezone}
                 options={moment.tz.names().map((timezone, index) => {
                   return {
-                    option: timezone.replace("_", " "),
+                    option: timezone.replace('_', ' '),
                     value: timezone,
                   }
                 })}
               />
             </div>
 
-            <Button
-              theme="blue-border"
-              size="small"
-              onClick={handleSubmit}
-              text="Save"
-            />
+            <Button theme="blue-border" size="small" onClick={handleSubmit} text="Save" />
           </div>
         </div>
       </div>
@@ -451,30 +410,14 @@ export default function AccountModal(props) {
             <Table width="100%">
               <tbody>
                 {emails.map((email, index) => (
-                  <EmailAddressRow
-                    key={index}
-                    onDelete={handleEmailAddressDelete}
-                    onConfirm={handleEmailAddressConfirm}
-                    email={email}
-                  />
+                  <EmailAddressRow key={index} onDelete={handleEmailAddressDelete} onConfirm={handleEmailAddressConfirm} email={email} />
                 ))}
               </tbody>
             </Table>
 
-            <Input
-              label="Connect another email address"
-              value={newEmailAddress}
-              onChange={e => setNewEmailAddress(e.target.value)}
-              placeholder="Enter your email"
-            />
+            <Input label="Connect another email address" value={newEmailAddress} onChange={e => setNewEmailAddress(e.target.value)} placeholder="Enter your email" />
 
-            <Button
-              text="Add"
-              theme="blue-border"
-              size="small"
-              className="mt-20"
-              onClick={handleEmailAddressAdd}
-            />
+            <Button text="Add" theme="blue-border" size="small" className="mt-20" onClick={handleEmailAddressAdd} />
           </div>
         </div>
       </div>
@@ -493,42 +436,13 @@ export default function AccountModal(props) {
             <Text className="color-d2 h5 mb-10">Change & update your password</Text>
             <Text className="color-d0 p mb-30">You need to know your old password.</Text>
 
-            <Input
-              label="Current password"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              placeholder=""
-              type="password"
-              autocomplete="no"
-              className="mb-20"
-            />
+            <Input label="Current password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="" type="password" autocomplete="no" className="mb-20" />
 
-            <Input
-              label="New password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder=""
-              type="password"
-              autocomplete="no"
-              className="mb-20"
-            />
+            <Input label="New password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="" type="password" autocomplete="no" className="mb-20" />
 
-            <Input
-              label="Confirm new password"
-              value={newPasswordConfirm}
-              onChange={e => setNewPasswordConfirm(e.target.value)}
-              placeholder=""
-              type="password"
-              autocomplete="no"
-              className="mb-20"
-            />
+            <Input label="Confirm new password" value={newPasswordConfirm} onChange={e => setNewPasswordConfirm(e.target.value)} placeholder="" type="password" autocomplete="no" className="mb-20" />
 
-            <Button
-              text="Update"
-              theme="blue-border"
-              size="small"
-              onClick={handlePasswordUpdate}
-            />
+            <Button text="Update" theme="blue-border" size="small" onClick={handlePasswordUpdate} />
           </div>
         </div>
       </div>
@@ -543,24 +457,20 @@ export default function AccountModal(props) {
           {loading && <Spinner />}
           {notification && <Notification text={notification} />}
 
-          {confirmAccountDeleteModal &&
+          {confirmAccountDeleteModal && (
             <ConfirmModal
               onOkay={handleAccountDelete}
               onCancel={() => setConfirmAccountDeleteModal(false)}
               text="Are you sure you want to delete your account, it can not be undone?"
               title="Are you sure?"
             />
-          }
+          )}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-red h5 mb-10">Here be dragons!</Text>
             <Text className="color-d0 p mb-30">This cannot be undone.</Text>
 
-            <Button
-              theme="red"
-              text="Delete"
-              onClick={() => setConfirmAccountDeleteModal(true)}
-            />
+            <Button theme="red" text="Delete" onClick={() => setConfirmAccountDeleteModal(true)} />
           </div>
         </div>
       </div>
@@ -582,39 +492,26 @@ export default function AccountModal(props) {
             <Table width="100%">
               <tbody>
                 {cards.map((card, index) => (
-                  <CreditCardRow
-                    key={index}
-                    onDelete={handleCardDelete}
-                    onActive={handleCardActive}
-                    card={card}
-                  />
+                  <CreditCardRow key={index} onDelete={handleCardDelete} onActive={handleCardActive} card={card} />
                 ))}
               </tbody>
             </Table>
 
-            {!newCard &&
+            {!newCard && (
               <div className="row mt-20">
-                <Button
-                  text="Add New Card"
-                  theme="blue-border"
-                  size="small"
-                  onClick={() => setNewCard(true)}
-                />
+                <Button text="Add New Card" theme="blue-border" size="small" onClick={() => setNewCard(true)} />
               </div>
-            }
+            )}
 
-            {newCard &&
+            {newCard && (
               <div className="w-100">
                 <StripeProvider apiKey={STRIPE_API_KEY}>
                   <Elements>
-                    <CardForm
-                      handleResult={handleCardAdd}
-                      onCancel={() => setNewCard(false)}
-                    />
+                    <CardForm handleResult={handleCardAdd} onCancel={() => setNewCard(false)} />
                   </Elements>
                 </StripeProvider>
               </div>
-            }
+            )}
           </div>
         </div>
       </div>
@@ -625,47 +522,41 @@ export default function AccountModal(props) {
     return <div></div>
   }
 
-  // prettier-ignore
   return (
     <ModalPortal>
-      <Modal
-        title="Account"
-        width={700}
-        height="90%"
-        onClose={props.onClose}>
-
+      <Modal title="Account" width={700} height="90%" onClose={props.onClose}>
         <Tabbed
           start={3}
           panels={[
             {
               title: 'Profile',
               show: true,
-              content: renderProfile()
+              content: renderProfile(),
             },
             {
               title: 'Email accounts',
               show: true,
-              content: renderEmailAccounts()
+              content: renderEmailAccounts(),
             },
             {
               title: 'Security',
               show: true,
-              content: renderSecurity()
+              content: renderSecurity(),
             },
             {
               title: 'Credit Cards',
               show: true,
-              content: renderCreditCards()
+              content: renderCreditCards(),
             },
             {
               title: 'Invoices',
               show: true,
-              content: renderInvoices()
+              content: renderInvoices(),
             },
             {
               title: 'Danger zone',
               show: true,
-              content: renderDangerZone()
+              content: renderDangerZone(),
             },
           ]}
         />
@@ -682,21 +573,28 @@ AccountModal.propTypes = {
 const CreditCardRow = props => {
   const [over, setOver] = useState(false)
 
-  // prettier-ignore
   return (
     <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <TableCell width="40%"><CardNumber>xxxx-xxxx-xxxx-{props.card.card}</CardNumber></TableCell>
-      <TableCell width="30%"><CardStatus>{props.card.active ? "Active" : ""}</CardStatus></TableCell>
+      <TableCell width="40%">
+        <CardNumber>xxxx-xxxx-xxxx-{props.card.card}</CardNumber>
+      </TableCell>
+      <TableCell width="30%">
+        <CardStatus>{props.card.active ? 'Active' : ''}</CardStatus>
+      </TableCell>
       <TableCell>
-        {over &&
+        {over && (
           <React.Fragment>
-            {!props.card.active &&
-              <CardButtonActive onClick={() => props.onActive(props.card.token)} className="button mr-20">Make active</CardButtonActive>
-            }
+            {!props.card.active && (
+              <CardButtonActive onClick={() => props.onActive(props.card.token)} className="button mr-20">
+                Make active
+              </CardButtonActive>
+            )}
 
-            <CardButtonDelete onClick={() => props.onDelete(props.card.token)} className="button">Delete</CardButtonDelete>
+            <CardButtonDelete onClick={() => props.onDelete(props.card.token)} className="button">
+              Delete
+            </CardButtonDelete>
           </React.Fragment>
-        }
+        )}
       </TableCell>
     </tr>
   )
@@ -705,21 +603,28 @@ const CreditCardRow = props => {
 const EmailAddressRow = props => {
   const [over, setOver] = useState(false)
 
-  // prettier-ignore
   return (
     <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <TableCell width="40%"><MailAddress>{props.email.address}</MailAddress></TableCell>
-      <TableCell width="30%"><MailStatus>{props.email.confirmed ? "Confirmed" : "Not confirmed"}</MailStatus></TableCell>
+      <TableCell width="40%">
+        <MailAddress>{props.email.address}</MailAddress>
+      </TableCell>
+      <TableCell width="30%">
+        <MailStatus>{props.email.confirmed ? 'Confirmed' : 'Not confirmed'}</MailStatus>
+      </TableCell>
       <TableCell>
-        {over &&
+        {over && (
           <React.Fragment>
-            {!props.email.confirmed &&
-              <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">Confirm</MailButtonConfirm>
-            }
+            {!props.email.confirmed && (
+              <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">
+                Confirm
+              </MailButtonConfirm>
+            )}
 
-            <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">Delete</MailButtonDelete>
+            <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">
+              Delete
+            </MailButtonDelete>
           </React.Fragment>
-        }
+        )}
       </TableCell>
     </tr>
   )

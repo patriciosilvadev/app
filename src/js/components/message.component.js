@@ -11,7 +11,16 @@ import ReactDOMServer from 'react-dom/server'
 import ConfirmModal from '../modals/confirm.modal'
 import marked from 'marked'
 import { useSelector, useDispatch } from 'react-redux'
-import { createChannelMessageReaction, deleteChannelMessageReaction, createChannelMessageLike, deleteChannelMessageLike, deleteChannelMessage, openApp, createChannelMessage, updateChannel } from '../actions'
+import {
+  createChannelMessageReaction,
+  deleteChannelMessageReaction,
+  createChannelMessageLike,
+  deleteChannelMessageLike,
+  deleteChannelMessage,
+  openApp,
+  createChannelMessage,
+  updateChannel,
+} from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
 import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
@@ -275,7 +284,9 @@ export default memo(props => {
         <Date>
           {props.message.system && <span>{props.message.message} - </span>}
 
-          {moment(props.message.createdAt).tz(user.timezone).fromNow()}
+          {moment(props.message.createdAt)
+            .tz(user.timezone)
+            .fromNow()}
         </Date>
       </React.Fragment>
     )
@@ -285,11 +296,7 @@ export default memo(props => {
     if (!props.append && !props.message.system) {
       return (
         <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
-          <Avatar
-            image={senderImage}
-            title={senderImage}
-            size="medium"
-          />
+          <Avatar image={senderImage} title={senderImage} size="medium" />
         </Tooltip>
       )
     }
@@ -309,63 +316,22 @@ export default memo(props => {
           visible={emoticonMenu}
           width={350}
           direction="right-top"
-          content={
-            <Picker
-              style={{ width: 350 }}
-              set='emojione'
-              title=""
-              emoji=""
-              showPreview={false}
-              showSkinTones={false}
-              onSelect={(emoji) => handleCreateChannelMessageReaction(emoji.colons)}
-            />
-          }>
-          <IconComponent
-            icon="smile"
-            size={15}
-            color="#CFD4D9"
-            className="button mr-10"
-            onClick={() => setEmoticonMenu(true)}
-          />
+          content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => handleCreateChannelMessageReaction(emoji.colons)} />}
+        >
+          <IconComponent icon="smile" size={15} color="#CFD4D9" className="button mr-10" onClick={() => setEmoticonMenu(true)} />
         </Popup>
 
-        <IconComponent
-          icon="thumbs-up"
-          size={15}
-          color="#CFD4D9"
-          className="button mr-10"
-          onClick={() => handleChannelLikeOrUnlike()}
-        />
+        <IconComponent icon="thumbs-up" size={15} color="#CFD4D9" className="button mr-10" onClick={() => handleChannelLikeOrUnlike()} />
 
-        <IconComponent
-          icon="delete"
-          size={15}
-          color="#CFD4D9"
-          className="button mr-10"
-          onClick={() => setConfirmDeleteModal(true)}
-        />
+        <IconComponent icon="delete" size={15} color="#CFD4D9" className="button mr-10" onClick={() => setConfirmDeleteModal(true)} />
 
-        {!props.message.app &&
+        {!props.message.app && (
           <React.Fragment>
-            {props.message.user.id == user.id &&
-              <IconComponent
-                icon="pen"
-                size={15}
-                color="#CFD4D9"
-                className="button mr-10"
-                onClick={() => props.setUpdateMessage(props.message)}
-              />
-            }
+            {props.message.user.id == user.id && <IconComponent icon="pen" size={15} color="#CFD4D9" className="button mr-10" onClick={() => props.setUpdateMessage(props.message)} />}
           </React.Fragment>
-        }
+        )}
 
-        <IconComponent
-          icon="reply"
-          size={15}
-          color="#CFD4D9"
-          className="button mr-10"
-          onClick={() => props.setReplyMessage(props.message)}
-        />
+        <IconComponent icon="reply" size={15} color="#CFD4D9" className="button mr-10" onClick={() => props.setReplyMessage(props.message)} />
 
         <Popup
           handleDismiss={() => setForwardMenu(false)}
@@ -374,29 +340,22 @@ export default memo(props => {
           direction="right-top"
           content={
             <React.Fragment>
-              <div className="color-d2 h5 pl-15 pt-15 bold">
-                Forward to channel:
-              </div>
+              <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
               <Menu
-                items={channels.map((channel) => {
-                  const text = channel.private ? channel.members.reduce((title, member) => member.user.id != user.id ? title + member.user.name : title, "") : channel.title
+                items={channels.map(channel => {
+                  const text = channel.private ? channel.members.reduce((title, member) => (member.user.id != user.id ? title + member.user.name : title), '') : channel.title
 
                   return {
                     text,
-                    onClick: (e) => handleForwardMessage(channel.id),
+                    onClick: e => handleForwardMessage(channel.id),
                   }
                 })}
               />
             </React.Fragment>
-          }>
+          }
+        >
           <div>
-            <IconComponent
-              icon="forward"
-              size={15}
-              color="#CFD4D9"
-              className="button"
-              onClick={() => setForwardMenu(true)}
-            />
+            <IconComponent icon="forward" size={15} color="#CFD4D9" className="button" onClick={() => setForwardMenu(true)} />
           </div>
         </Popup>
       </Tools>
@@ -407,15 +366,11 @@ export default memo(props => {
     if (props.message.parent) {
       return (
         <ParentPadding className="column align-items-stretch flexer">
-          <ParentText>
-            {props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}
-          </ParentText>
+          <ParentText>{props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}</ParentText>
           <ParentContainer className="row justify-content-center">
             <div className="column flexer">
               <div className="row">
-                <ParentName>
-                  {props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}
-                </ParentName>
+                <ParentName>{props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}</ParentName>
                 <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
               </div>
               <ParentMessage>
@@ -433,12 +388,7 @@ export default memo(props => {
   const renderPreview = () => {
     if (!preview) return null
 
-    return (
-      <PreviewComponent
-        onClose={() => setPreview(null)}
-        image={preview}
-      />
-    )
+    return <PreviewComponent onClose={() => setPreview(null)} image={preview} />
   }
 
   const renderAttachments = () => {
@@ -479,46 +429,16 @@ export default memo(props => {
           const mime = `image/${extension}`
 
           return (
-            <Attachment
-              key={index}
-              layout="message"
-              size={null}
-              mime={mime}
-              preview={image}
-              uri={image}
-              name={name}
-              createdAt={props.message.createdAt}
-              onPreviewClick={() => setPreview(image)}
-            />
+            <Attachment key={index} layout="message" size={null} mime={mime} preview={image} uri={image} name={name} createdAt={props.message.createdAt} onPreviewClick={() => setPreview(image)} />
           )
         })}
 
         {youtubeVideos.map((youtubeVideo, index) => {
-          return (
-            <iframe
-              key={index}
-              width={560}
-              height={300}
-              src={`https://www.youtube.com/embed/${youtubeVideo}`}
-              frameBorder={0}
-              allow="autoplay; encrypted-media"
-              allowFullScreen>
-            </iframe>
-          )
+          return <iframe key={index} width={560} height={300} src={`https://www.youtube.com/embed/${youtubeVideo}`} frameBorder={0} allow="autoplay; encrypted-media" allowFullScreen></iframe>
         })}
 
         {vimeoVideos.map((vimeoVideo, index) => {
-          return (
-            <iframe
-              key={index}
-              width={560}
-              height={300}
-              src={`https://player.vimeo.com/video/${vimeoVideo}`}
-              frameBorder={0}
-              allow="autoplay; encrypted-media"
-              allowFullScreen>
-            </iframe>
-          )
+          return <iframe key={index} width={560} height={300} src={`https://player.vimeo.com/video/${vimeoVideo}`} frameBorder={0} allow="autoplay; encrypted-media" allowFullScreen></iframe>
         })}
       </React.Fragment>
     )
@@ -529,13 +449,7 @@ export default memo(props => {
 
     return (
       <AppUrl>
-        <iframe
-          border="0"
-          ref={iframeRef}
-          src={appUrl}
-          width={appWidth}
-          height={appHeight}>
-        </iframe>
+        <iframe border="0" ref={iframeRef} src={appUrl} width={appWidth} height={appHeight}></iframe>
       </AppUrl>
     )
   }
@@ -549,10 +463,7 @@ export default memo(props => {
       <AppActions className="row">
         {appButtons.map((button, index) => {
           return (
-            <AppActionContainer
-              key={index}
-              className="row"
-              onClick={() => handleActionClick(button.action)}>
+            <AppActionContainer key={index} className="row" onClick={() => handleActionClick(button.action)}>
               <AppActionImage image={button.icon} />
               <AppActionText>{button.text}</AppActionText>
             </AppActionContainer>
@@ -572,20 +483,15 @@ export default memo(props => {
 
     return (
       <div className="row">
-        {likes.length != 0 &&
+        {likes.length != 0 && (
           <Likes className="button row" onClick={() => handleChannelLikeOrUnlike()}>
-            <IconComponent
-              icon="thumbs-up"
-              size={15}
-              color="#007af5"
-              className="mr-5"
-            />
+            <IconComponent icon="thumbs-up" size={15} color="#007af5" className="mr-5" />
 
             <span className="bold p color-blue">{likes.length}</span>
           </Likes>
-        }
+        )}
 
-        {reactions.length != 0 &&
+        {reactions.length != 0 && (
           <Reactions className="row">
             {reactions.map((reaction, index) => {
               const reactionParts = reaction.split('__')
@@ -594,22 +500,17 @@ export default memo(props => {
 
               return (
                 <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
-                  <Emoji
-                    emoji={emoticon}
-                    size={16}
-                    set='emojione'
-                  />
+                  <Emoji emoji={emoticon} size={16} set="emojione" />
                   <span className="name">{userName}</span>
                 </div>
               )
             })}
           </Reactions>
-        }
+        )}
       </div>
     )
   }
 
-  // prettier-ignore
   return (
     <Message
       className="column"
@@ -618,15 +519,9 @@ export default memo(props => {
         setOver(false)
         setForwardMenu(false)
         setEmoticonMenu(false)
-      }}>
-      {confirmDeleteModal &&
-        <ConfirmModal
-          onOkay={handleDeleteChannelMessage}
-          onCancel={() => setConfirmDeleteModal(false)}
-          text="Are you sure you want to delete this?"
-          title="Are you sure?"
-        />
-      }
+      }}
+    >
+      {confirmDeleteModal && <ConfirmModal onOkay={handleDeleteChannelMessage} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this?" title="Are you sure?" />}
 
       <div className="row align-items-start w-100">
         {renderAvatar()}
@@ -640,7 +535,7 @@ export default memo(props => {
 
             {renderParent()}
 
-            {!props.message.system && <Text dangerouslySetInnerHTML={{__html: message}} />}
+            {!props.message.system && <Text dangerouslySetInnerHTML={{ __html: message }} />}
 
             {renderPreview()}
             {renderAttachments()}
