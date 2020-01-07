@@ -156,12 +156,15 @@ export default class GraphqlService {
             slug
             description
             image
-            premium
             billing {
-              id
-              name
-              image
-              username
+              start
+              tier
+              user {
+                id
+                name
+                image
+                username
+              }
             }
             role(userId: $userId)
             channels(userId: $userId) {
@@ -236,7 +239,6 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
-            premium
             role(userId: $userId)
           }
         }
@@ -949,16 +951,16 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamPremium(teamId, premium, userId) {
+  updateTeamBilling(teamId, tier, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamPremium($teamId: String, $premium: Boolean, $userId: String) {
-          updateTeamPremium(teamId: $teamId, premium: $premium, userId: $userId)
+        mutation updateTeamBilling($teamId: String, $tier: String, $userId: String) {
+          updateTeamBilling(teamId: $teamId, tier: $tier, userId: $userId)
         }
       `,
       variables: {
         teamId,
-        premium,
+        tier,
         userId,
       },
     })
@@ -977,11 +979,11 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamBilling(teamId, userId) {
+  updateTeamBillingUser(teamId, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamBilling($teamId: String, $userId: String) {
-          updateTeamBilling(teamId: $teamId, userId: $userId)
+        mutation updateTeamBillingUser($teamId: String, $userId: String) {
+          updateTeamBillingUser(teamId: $teamId, userId: $userId)
         }
       `,
       variables: {

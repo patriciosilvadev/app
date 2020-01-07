@@ -151,7 +151,7 @@ export default function MembersTeamComponent(props) {
   const [notification, setNotification] = useState(null)
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(0)
-  const [billing, setBilling] = useState(null)
+  const [billingUser, setBillingUser] = useState({})
   const [members, setMembers] = useState([])
   const [filter, setFilter] = useState('')
   const dispatch = useDispatch()
@@ -164,14 +164,15 @@ export default function MembersTeamComponent(props) {
 
     try {
       const teamId = props.id
-      const updateTeamMemberRole = await GraphqlService.getInstance().updateTeamBilling(teamId, userId)
-      const billing = members.filter(member => member.user.id == userId).flatten().user
+      const updatedBillingUser = members.filter(member => member.user.id == userId).flatten().user
+
+      await GraphqlService.getInstance().updateTeamBillingUser(teamId, userId)
 
       setLoading(false)
-      setBilling(billing)
+      setBillingUser(updatedBillingUser)
 
       // Now update the parent
-      props.onBillingContactUpdate(billing)
+      props.onBillingUserUpdate(updatedBillingUser)
     } catch (e) {
       setLoading(false)
       setError('Error setting admin')
@@ -184,7 +185,8 @@ export default function MembersTeamComponent(props) {
 
     try {
       const teamId = props.id
-      const updateTeamMemberRole = await GraphqlService.getInstance().updateTeamMemberRole(teamId, userId, role)
+
+      await GraphqlService.getInstance().updateTeamMemberRole(teamId, userId, role)
 
       setLoading(false)
       setMembers(members.map(member => (member.user.id == userId ? { ...member, role } : member)))
@@ -263,7 +265,7 @@ export default function MembersTeamComponent(props) {
   }
 
   useEffect(() => {
-    setBilling(props.billing)
+    setBillingUser(props.billingUser)
     setMembers(props.members)
     setPages(Math.ceil(props.members.length / limit))
   }, [props.members])
@@ -318,7 +320,7 @@ export default function MembersTeamComponent(props) {
               if (index < page * limit - limit || index > page * limit) return null
 
               const memberUserId = member.user.id
-              const billingUserId = billing ? billing.id : null
+              const billingUserId = billingUser.id
 
               return (
                 <TableRow
