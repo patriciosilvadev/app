@@ -56,13 +56,14 @@ export default function TeamOnboardingModal(props) {
     setError(false)
 
     try {
-      const { data } = await GraphqlService.getInstance().createTeam({
+      const userId = user.id
+      const { data } = await GraphqlService.getInstance().createTeam(userId, {
         name,
         description: '',
         image,
         members: [
           {
-            user: user.id,
+            user: userId,
             role: 'ADMIN',
           },
         ],
