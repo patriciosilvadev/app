@@ -11,17 +11,9 @@ export default function PreviewComponent(props) {
     <ModalPortal>
       <PreviewContainer className="row justify-content-center">
         <PreviewClose>
-          <IconComponent
-            icon="x"
-            size={25}
-            color="#8DA2A5"
-            className="button"
-            onClick={props.onClose}
-          />
+          <IconComponent icon="x" size={25} color="#8DA2A5" className="button" onClick={props.onClose} />
         </PreviewClose>
-        <PreviewImage
-          image={props.image}
-        />
+        <PreviewImage image={props.image} />
       </PreviewContainer>
     </ModalPortal>
   )

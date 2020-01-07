@@ -19,8 +19,8 @@ export default class MessagingService {
       clientId: userId + '-web',
       will: {
         topic: 'death',
-        payload: userId
-      }
+        payload: userId,
+      },
     })
   }
 
@@ -41,16 +41,15 @@ export default class MessagingService {
           messagePayload,
         }),
         {
-          qos: 2
+          qos: 2,
         },
         err => {
           if (err) {
-            console.log("Error: ", err)
+            console.log('Error: ', err)
           }
         }
       )
     }
-
   }
 
   joins(topics) {

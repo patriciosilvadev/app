@@ -96,7 +96,7 @@ export const decimalToMinutes = minutes => {
   return sign + (min < 10 ? '0' : '') + min + ':' + (sec < 10 ? '0' : '') + sec
 }
 
-export  const highlightMessage = (message, query) => {
+export const highlightMessage = (message, query) => {
   var reg = new RegExp(query, 'gi')
   return message.replace(reg, str => {
     return `<strong>${str}<strong>`

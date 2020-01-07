@@ -85,7 +85,7 @@ export function initialize(userId) {
     MessagingService.getInstance().client.on('disconnect', e => dispatch(updateConnected(false)))
     MessagingService.getInstance().client.on('close', e => dispatch(updateConnected(false)))
     MessagingService.getInstance().client.on('connect', () => {
-      logger("Connected to broker")
+      logger('Connected to broker')
 
       // Tell everyone we're live
       dispatch(updateConnected(true))
