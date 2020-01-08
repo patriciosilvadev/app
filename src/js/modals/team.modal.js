@@ -161,14 +161,17 @@ export default function TeamModal(props) {
       const teamId = props.id
       const userId = user.id
       const tier = 'PAID'
-      const start = new Date()
+      const next = moment()
+        .startOf('day')
+        .add(1, 'months')
+        .toDate()
       const billingUser = {
         id: user.id,
         name: user.name,
         username: user.username,
         image: user.image,
       }
-      const billing = { user: billingUser, tier, start }
+      const billing = { user: billingUser, tier, next }
 
       await GraphqlService.getInstance().updateTeamBilling(teamId, tier, userId)
 
@@ -193,13 +196,17 @@ export default function TeamModal(props) {
       const premium = false
       const userId = user.id
       const tier = 'FREE'
+      const next = moment()
+        .startOf('day')
+        .add(1, 'months')
+        .toDate()
       const billingUser = {
         id: user.id,
         name: user.name,
         username: user.username,
         image: user.image,
       }
-      const billing = { user: billingUser, tier, start }
+      const billing = { user: billingUser, tier, next }
 
       await GraphqlService.getInstance().updateTeamBilling(teamId, tier, userId)
 

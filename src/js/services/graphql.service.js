@@ -157,7 +157,7 @@ export default class GraphqlService {
             description
             image
             billing {
-              start
+              next
               tier
               user {
                 id
