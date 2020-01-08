@@ -14,6 +14,7 @@ import { copyToClipboard } from '../helpers/util'
 import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
+import moment from 'moment'
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -162,6 +163,7 @@ export default function TeamModal(props) {
       const userId = user.id
       const tier = 'PAID'
       const next = moment()
+        .tz('America/New_York')
         .startOf('day')
         .add(1, 'months')
         .toDate()
@@ -197,6 +199,7 @@ export default function TeamModal(props) {
       const userId = user.id
       const tier = 'FREE'
       const next = moment()
+        .tz('America/New_York')
         .startOf('day')
         .add(1, 'months')
         .toDate()
