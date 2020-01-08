@@ -78,6 +78,16 @@ export default class GraphqlService {
               address
               confirmed
             }
+            invoices {
+              id
+              processed
+              number
+              amount
+              members
+              team
+              createdAt
+              updatedAt
+            }
             color
             username
             timezone

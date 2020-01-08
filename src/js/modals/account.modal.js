@@ -86,6 +86,7 @@ export default function AccountModal(props) {
   const [description, setDescription] = useState('')
   const [timezone, setTimezone] = useState(0)
   const [emails, setEmails] = useState([])
+  const [invoices, setInvoices] = useState([])
   const [cards, setCards] = useState([])
   const [newCard, setNewCard] = useState(false)
   const [newEmailAddress, setNewEmailAddress] = useState('')
@@ -111,6 +112,7 @@ export default function AccountModal(props) {
         setDescription(user.description || '')
         setEmails(user.emails)
         setCards(user.cards)
+        setInvoices(user.invoices)
         setTimezone(moment.tz.names().indexOf(user.timezone))
         setLoading(false)
       } catch (e) {
