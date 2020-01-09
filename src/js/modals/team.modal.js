@@ -23,7 +23,7 @@ export default function TeamModal(props) {
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
-  const [billing, setBilling] = useState(null)
+  const [billing, setBilling] = useState({ user: null, tier: 'FREE', strikes: 0, next: new Date() })
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
@@ -240,7 +240,6 @@ export default function TeamModal(props) {
         setName(team.name || '')
         setDescription(team.description || '')
         setMembers(team.members)
-        setPremium(team.premium)
         setShortcode(team.shortcode)
         setBilling(team.billing)
         setSlug(team.slug)
@@ -373,7 +372,7 @@ export default function TeamModal(props) {
   }
 
   const renderBilling = () => {
-    if (billing.tier.toUppercase() == 'FREE')
+    if (billing.tier.toUpperCase() == 'FREE')
       return (
         <div className="flexer text-center p-20">
           <img src="./upgrade.png" width="90%" />
@@ -399,7 +398,7 @@ export default function TeamModal(props) {
         </div>
       )
 
-    if (billing.tier.toUppercase() != 'FREE')
+    if (billing.tier.toUpperCase() != 'FREE')
       return (
         <div className="flexer text-center p-20">
           <img src="./downgrade.png" width="90%" />

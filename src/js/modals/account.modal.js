@@ -105,6 +105,8 @@ export default function AccountModal(props) {
         const { data } = await GraphqlService.getInstance().user(props.id)
         const user = data.user
 
+        console.log(user.invoices)
+
         setImage(user.image)
         setUsername(user.username)
         setName(user.name || '')

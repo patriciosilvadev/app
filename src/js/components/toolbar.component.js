@@ -6,7 +6,7 @@ import { openApp } from '../actions'
 import { IconComponent } from '../components/icon.component'
 import ModalPortal from '../portals/modal.portal'
 import { Button, Modal } from '@weekday/elements'
-import { STORE_URL } from '../environment'
+import { APPSTORE_URL } from '../environment'
 import AuthService from '../services/auth.service'
 
 const Toolbar = styled.div`

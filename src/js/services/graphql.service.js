@@ -82,9 +82,16 @@ export default class GraphqlService {
               id
               processed
               number
-              amount
-              members
-              team
+              items {
+                description
+                amount
+                cost
+              }
+              team {
+                id
+                name
+                image
+              }
               createdAt
               updatedAt
             }
@@ -168,6 +175,7 @@ export default class GraphqlService {
             image
             billing {
               next
+              strikes
               tier
               user {
                 id

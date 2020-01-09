@@ -26,10 +26,10 @@ class ChannelsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: true,
-      teamModalStart: 4,
+      teamModal: false,
+      teamModalStart: 0,
       channelPopup: false,
-      accountModal: false,
+      accountModal: true,
       accountMenu: false,
       statusMenu: false,
       archivedVisible: false,
