@@ -4,6 +4,7 @@ import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import AuthService from '../services/auth.service'
 import AccountService from '../services/account.service'
+import { API_HOST, JWT } from '../environment'
 import styled from 'styled-components'
 import { Formik } from 'formik'
 import ConfirmModal from './confirm.modal'
@@ -104,8 +105,6 @@ export default function AccountModal(props) {
 
         const { data } = await GraphqlService.getInstance().user(props.id)
         const user = data.user
-
-        console.log(user.invoices)
 
         setImage(user.image)
         setUsername(user.username)
@@ -523,14 +522,34 @@ export default function AccountModal(props) {
   }
 
   const renderInvoices = () => {
-    return <div></div>
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} />}
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Invoices</Text>
+
+            <Table width="100%">
+              <tbody>
+                {invoices.map((invoice, index) => (
+                  <InvoiceRow key={index} invoice={invoice} />
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <ModalPortal>
       <Modal title="Account" width={700} height="90%" onClose={props.onClose}>
         <Tabbed
-          start={0}
+          start={4}
           panels={[
             {
               title: 'Profile',
@@ -572,6 +591,30 @@ export default function AccountModal(props) {
 AccountModal.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
+}
+
+const InvoiceRow = props => {
+  const [over, setOver] = useState(false)
+
+  return (
+    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+      <TableCell width="40%">
+        <InvoiceDescription>{props.invoice.team.name}</InvoiceDescription>
+      </TableCell>
+      <TableCell width="30%">
+        <InvoiceDate>{moment(props.invoice.createdAt).format('mm dd YYYY')}</InvoiceDate>
+      </TableCell>
+      <TableCell>
+        {over && (
+          <React.Fragment>
+            <InvoiceDownloadButton href={`${API_HOST}/billing/download_invoice/${props.invoice.id}`} target="_blank" className="button mr-20">
+              Download
+            </InvoiceDownloadButton>
+          </React.Fragment>
+        )}
+      </TableCell>
+    </tr>
+  )
 }
 
 const CreditCardRow = props => {
@@ -668,6 +711,26 @@ const MailButtonConfirm = styled.span`
 
 const MailButtonDelete = styled.span`
   color: #d93025;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+`
+
+const InvoiceDescription = styled.div`
+  color: #007af5;
+  font-size: 12px;
+  font-weight: 600;
+`
+
+const InvoiceDate = styled.div`
+  color: #858e96;
+  font-size: 12px;
+  font-weight: 400;
+`
+
+const InvoiceDownloadButton = styled.a`
+  color: #007af5;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
