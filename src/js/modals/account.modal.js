@@ -549,7 +549,7 @@ export default function AccountModal(props) {
     <ModalPortal>
       <Modal title="Account" width={700} height="90%" onClose={props.onClose}>
         <Tabbed
-          start={4}
+          start={0}
           panels={[
             {
               title: 'Profile',
