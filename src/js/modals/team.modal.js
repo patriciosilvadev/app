@@ -23,7 +23,7 @@ export default function TeamModal(props) {
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
-  const [billing, setBilling] = useState({ user: null, tier: 'FREE', strikes: 0, next: new Date() })
+  const [billing, setBilling] = useState({ user: null, plan: 'FREE', strikes: 0, next: new Date() })
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
   const [members, setMembers] = useState([])
@@ -161,7 +161,7 @@ export default function TeamModal(props) {
     try {
       const teamId = props.id
       const userId = user.id
-      const tier = 'PAID'
+      const plan = 'PAID'
       const next = moment()
         .tz('America/New_York')
         .startOf('day')
@@ -173,9 +173,9 @@ export default function TeamModal(props) {
         username: user.username,
         image: user.image,
       }
-      const billing = { user: billingUser, tier, next }
+      const billing = { user: billingUser, plan, next }
 
-      await GraphqlService.getInstance().updateTeamBilling(teamId, tier, userId)
+      await GraphqlService.getInstance().updateTeamBilling(teamId, plan, userId)
 
       setLoading(false)
       setBilling(billing)
@@ -197,7 +197,7 @@ export default function TeamModal(props) {
       const teamId = props.id
       const premium = false
       const userId = user.id
-      const tier = 'FREE'
+      const plan = 'FREE'
       const next = moment()
         .tz('America/New_York')
         .startOf('day')
@@ -209,9 +209,9 @@ export default function TeamModal(props) {
         username: user.username,
         image: user.image,
       }
-      const billing = { user: billingUser, tier, next }
+      const billing = { user: billingUser, plan, next }
 
-      await GraphqlService.getInstance().updateTeamBilling(teamId, tier, userId)
+      await GraphqlService.getInstance().updateTeamBilling(teamId, plan, userId)
 
       setLoading(false)
       setBilling(billing)
@@ -372,7 +372,7 @@ export default function TeamModal(props) {
   }
 
   const renderBilling = () => {
-    if (billing.tier.toUpperCase() == 'FREE')
+    if (billing.plan.toUpperCase() == 'FREE')
       return (
         <div className="flexer text-center p-20">
           <img src="./upgrade.png" width="90%" />
@@ -398,7 +398,7 @@ export default function TeamModal(props) {
         </div>
       )
 
-    if (billing.tier.toUpperCase() != 'FREE')
+    if (billing.plan.toUpperCase() != 'FREE')
       return (
         <div className="flexer text-center p-20">
           <img src="./downgrade.png" width="90%" />

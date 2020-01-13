@@ -176,7 +176,7 @@ export default class GraphqlService {
             billing {
               next
               strikes
-              tier
+              plan
               user {
                 id
                 name
@@ -970,16 +970,16 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamBilling(teamId, tier, userId) {
+  updateTeamBilling(teamId, plan, userId) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamBilling($teamId: String, $tier: String, $userId: String) {
-          updateTeamBilling(teamId: $teamId, tier: $tier, userId: $userId)
+        mutation updateTeamBilling($teamId: String, $plan: String, $userId: String) {
+          updateTeamBilling(teamId: $teamId, plan: $plan, userId: $userId)
         }
       `,
       variables: {
         teamId,
-        tier,
+        plan,
         userId,
       },
     })

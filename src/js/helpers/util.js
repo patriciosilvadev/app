@@ -11,6 +11,11 @@ export const bytesToSize = bytes => {
   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i]
 }
 
+export const urlParser = url => {
+  const match = url.match(/(http[s]?:\/\/.*)/i)
+  return match ? match[0].split(' ') : false
+}
+
 export const imageUrlParser = url => {
   const match = url.match(/(http[s]?:\/\/.*\.(?:png|jpg|svg|jpeg|gif))/i)
   return match ? match[1] : false

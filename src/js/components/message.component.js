@@ -22,7 +22,7 @@ import {
   updateChannel,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
-import { youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
+import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
@@ -58,6 +58,10 @@ export default memo(props => {
   const [appWidth, setAppWidth] = useState(200)
   const [resizeId, setResizeId] = useState(null)
   const iframeRef = useRef(null)
+  const [ogTitle, setOgTitle] = useState(null)
+  const [ogDescription, setOgDescription] = useState(null)
+  const [ogImage, setOgImage] = useState(null)
+  const [ogUrl, setOgUrl] = useState(null)
 
   const handleForwardMessage = async channelId => {
     setForwardMenu(false)
@@ -166,20 +170,49 @@ export default memo(props => {
     }
   }
 
+  const fetchOpengraphData = async url => {
+    const response = await OpengraphService.fetchUrl(url)
+    const { data } = await response.json()
+    const processedUrl = data.ogUrl ? data.ogUrl : url
+
+    if (data.ogUrl) setOgUrl(processedUrl)
+    if (data.ogTitle) setOgTitle(data.ogTitle)
+    if (data.ogDescription) setOgDescription(data.ogDescription)
+    if (data.ogImage) {
+      const firstImageUrl = data.ogImage.url ? data.ogImage.url : data.ogImage[0].url
+      const fullPath = firstImageUrl.substring(0, 4).toLowerCase() == 'http'
+      const basePath = processedUrl.split(' / ')[0]
+
+      setOgImage(fullPath ? firstImageUrl : `${basePath}/${firstImageUrl}`)
+    }
+  }
+
   // General app & send info setup
   useEffect(() => {
+    const parseUrls = urlParser(props.message.message)
+    const firstUrl = parseUrls ? parseUrls[0] : null
+
+    // Just fetch the first URL
+    // Process othe rpopular media type that are not supported in OG necessarily
+    if (firstUrl) fetchOpengraphData(firstUrl)
+
+    // Display all images
     setImages(
       props.message.message
         .split(' ')
         .filter(p => imageUrlParser(p))
         .map(p => imageUrlParser(p))
     )
+
+    // All Youtube videos
     setYoutubeVideos(
       props.message.message
         .split(' ')
         .filter(p => youtubeUrlParser(p))
         .map(p => youtubeUrlParser(p))
     )
+
+    // All vimeo videos
     setVimeoVideos(
       props.message.message
         .split(' ')
@@ -187,7 +220,7 @@ export default memo(props => {
         .map(p => vimeoUrlParser(p))
     )
 
-    // Get the connected app
+    // Set sender details - and accommodate SYSTEM messages & APP messages
     setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
     setSenderName(props.message.system ? '' : props.message.app ? props.message.app.app.name : props.message.user.name)
     setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
@@ -445,6 +478,18 @@ export default memo(props => {
     )
   }
 
+  const renderOpengraph = () => {
+    if (!ogTitle) return null
+
+    return (
+      <UrlPreview className="button" href={ogUrl} target="_blank">
+        {ogImage && <img className="mb-5" src={ogImage} height="200" />}
+        {ogTitle && <div className="h4 color-d3 mb-5">{ogTitle}</div>}
+        {ogDescription && <div className="p color-d0">{ogDescription}</div>}
+      </UrlPreview>
+    )
+  }
+
   const renderApp = () => {
     if (!appUrl) return null
 
@@ -539,6 +584,7 @@ export default memo(props => {
             {!props.message.system && <Text dangerouslySetInnerHTML={{ __html: message }} />}
 
             {renderPreview()}
+            {renderOpengraph()}
             {renderAttachments()}
             {renderMedia()}
             {renderApp()}
@@ -550,6 +596,14 @@ export default memo(props => {
     </Message>
   )
 })
+
+const UrlPreview = styled.a`
+  border-left: 3px solid #007af5;
+  padding: 0px 0px 0px 15px;
+  margin-bottom: 20px;
+  margin-top: 5px;
+  cursor: pointer;
+`
 
 const Message = styled.div`
   margin-bottom: 20px;
