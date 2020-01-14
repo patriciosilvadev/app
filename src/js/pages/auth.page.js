@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import AuthService from '../services/auth.service'
-import AccountService from '../services/account.service'
 import { connect } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
@@ -9,7 +8,7 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
 import { Loading, Button, Error, Input, Textarea, Select } from '@weekday/elements'
-const moment = require('moment-timezone')
+import Zero from '@joduplessis/zero'
 
 class AuthPage extends React.Component {
   constructor(props) {
@@ -35,6 +34,8 @@ class AuthPage extends React.Component {
     this.renderSignupOnboarding = this.renderSignupOnboarding.bind(this)
     this.renderSignup = this.renderSignup.bind(this)
     this.renderSignin = this.renderSignin.bind(this)
+
+    this.AccountService = Zero.container().get('AccountService')
   }
 
   async signupOnboarding(payload) {
@@ -46,7 +47,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const request = await AccountService.accountUpdate(userId, { ...payload, timezone: moment.tz.names()[timezone] })
+      const request = await this.AccountService.accountUpdate(userId, { ...payload, timezone: moment.tz.names()[timezone] })
       const result = await request.json()
 
       this.setState({ loading: false })
@@ -83,7 +84,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const request = await AccountService.signup(email, username, password)
+      const request = await this.AccountService.signup(email, username, password)
       const result = await request.json()
 
       this.setState({ loading: false })
@@ -117,7 +118,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AccountService.signin(username, password)
+      const auth = await this.AccountService.signin(username, password)
       const data = await auth.json()
 
       this.setState({ loading: false })
@@ -145,7 +146,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AccountService.resetPassword(email)
+      const auth = await this.AccountService.resetPassword(email)
       const data = await auth.json()
 
       this.setState({ loading: false })
@@ -167,7 +168,7 @@ class AuthPage extends React.Component {
     })
 
     try {
-      const auth = await AccountService.updatePasswordReset(email, password, code)
+      const auth = await this.AccountService.updatePasswordReset(email, password, code)
       const data = await auth.json()
 
       this.setState({ loading: false })

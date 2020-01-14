@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import AuthService from '../services/auth.service'
-import AccountService from '../services/account.service'
 import { API_HOST, JWT } from '../environment'
 import styled from 'styled-components'
 import { Formik } from 'formik'
@@ -15,6 +14,7 @@ import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@weekday/elements'
 import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
 import { STRIPE_API_KEY } from '../environment'
+import Zero from '@joduplessis/zero'
 
 const moment = require('moment-timezone')
 
@@ -97,6 +97,8 @@ export default function AccountModal(props) {
   const [confirmAccountDeleteModal, setConfirmAccountDeleteModal] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
+
+  const AccountService = Zero.container().get('AccountService')
 
   useEffect(() => {
     ;(async () => {

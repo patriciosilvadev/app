@@ -24,6 +24,7 @@
   "url": "https://github.com/getweekday/app",
   "dependencies": {
     "@joduplessis/keg": "0.0.4",
+    "@joduplessis/zero": "0.0.0",
     "@sentry/browser": "^5.5.0",
     "@weekday/elements": "^0.7.5",
     "apollo-cache-inmemory": "^1.2.10",

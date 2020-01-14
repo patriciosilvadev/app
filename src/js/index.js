@@ -36,9 +36,11 @@ import '../assets/downgrade.png'
 import '../styles/index.css'
 import '../../node_modules/emoji-mart/css/emoji-mart.css'
 import '../.htaccess'
+import Zero from '@joduplessis/zero'
+import AccountService from './services/account.service'
 
-// These are for messages
-window.now = moment()
+// Register our account service - only 1 for now
+Zero.container().inject('AccountService', AccountService)
 
 // Redux logger
 const logger = createLogger({
@@ -58,44 +60,36 @@ const store = createStore(
     user,
     app,
   }),
-  applyMiddleware(thunk, sync)
+  applyMiddleware(thunk, sync) //, logger)
 )
-
-// Setup GraphQL
-const apollo = new ApolloClient({
-  link: new HttpLink({ uri: API_HOST + '/graphql' }),
-  cache: new InMemoryCache(),
-})
 
 ReactDOM.render(
   <Provider store={store}>
-    <ApolloProvider client={apollo}>
-      <Router history={browserHistory}>
-        {/* Check if user is logged in */}
-        {/* Direct to the right place */}
-        <Route
-          path="/"
-          render={props => {
-            if (window.location.pathname == '/') {
-              AuthService.currentAuthenticatedUser()
-                .then(res => {
-                  const { token } = res
-                  const { sub } = AuthService.parseJwt(token)
+    <Router history={browserHistory}>
+      {/* Check if user is logged in */}
+      {/* Direct to the right place */}
+      <Route
+        path="/"
+        render={props => {
+          if (window.location.pathname == '/') {
+            AuthService.currentAuthenticatedUser()
+              .then(res => {
+                const { token } = res
+                const { sub } = AuthService.parseJwt(token)
 
-                  props.history.push('/app')
-                })
-                .catch(err => {
-                  props.history.push('/auth')
-                })
-            }
-          }}
-        />
+                props.history.push('/app')
+              })
+              .catch(err => {
+                props.history.push('/auth')
+              })
+          }
+        }}
+      />
 
-        <Route path="/auth" component={AuthPage} />
-        <Route path="/t/:slug" component={TeamPage} />
-        <Route path="/app" component={AppPage} />
-      </Router>
-    </ApolloProvider>
+      <Route path="/auth" component={AuthPage} />
+      <Route path="/t/:slug" component={TeamPage} />
+      <Route path="/app" component={AppPage} />
+    </Router>
   </Provider>,
   document.getElementById('root')
 )

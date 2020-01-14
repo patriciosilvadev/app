@@ -228,7 +228,10 @@ export default memo(props => {
     // Only set this for non apps & valid timezones
     if (!props.message.app && props.message.user) {
       if (props.message.user.timezone) {
-        const offsetMinutes = window.now.tz(props.message.user.timezone).utcOffset() / 60
+        const offsetMinutes =
+          moment()
+            .tz(props.message.user.timezone)
+            .utcOffset() / 60
 
         if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
         if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
