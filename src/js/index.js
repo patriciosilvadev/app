@@ -9,7 +9,7 @@ import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { API_HOST, PUBLIC_VAPID_KEY } from './environment'
+import { API_HOST, PUBLIC_VAPID_KEY, NODE_ENV, SENTRY_DSN } from './environment'
 import { sync } from './middleware/sync'
 import AuthPage from './pages/auth.page'
 import TeamPage from './pages/team.page'
@@ -38,6 +38,10 @@ import '../../node_modules/emoji-mart/css/emoji-mart.css'
 import '../.htaccess'
 import Zero from '@joduplessis/zero'
 import AccountService from './services/account.service'
+import * as Sentry from '@sentry/browser'
+
+// Set up Sentry
+if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })
 
 // Register our account service - only 1 for now
 Zero.container().inject('AccountService', AccountService)
