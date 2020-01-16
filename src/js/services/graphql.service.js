@@ -700,6 +700,10 @@ export default class GraphqlService {
             likes
             system
             parent {
+              channel {
+                id
+                title
+              }
               user {
                 id
                 name

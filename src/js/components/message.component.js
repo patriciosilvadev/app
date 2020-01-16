@@ -401,22 +401,24 @@ export default memo(props => {
 
   const renderParent = () => {
     if (props.message.parent) {
-      return (
-        <ParentPadding className="column align-items-stretch flexer">
-          <ParentText>{props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}</ParentText>
-          <ParentContainer className="row justify-content-center">
-            <div className="column flexer">
-              <div className="row">
-                <ParentName>{props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}</ParentName>
-                <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
+      if (props.message.parent.channel) {
+        return (
+          <ParentPadding className="column align-items-stretch flexer">
+            <ParentText>{props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}</ParentText>
+            <ParentContainer className="row justify-content-center">
+              <div className="column flexer">
+                <div className="row">
+                  <ParentName>{props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}</ParentName>
+                  <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
+                </div>
+                <ParentMessage>
+                  <ReactMarkdown source={props.message.parent.message} />
+                </ParentMessage>
               </div>
-              <ParentMessage>
-                <ReactMarkdown source={props.message.parent.message} />
-              </ParentMessage>
-            </div>
-          </ParentContainer>
-        </ParentPadding>
-      )
+            </ParentContainer>
+          </ParentPadding>
+        )
+      }
     }
 
     return null

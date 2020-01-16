@@ -722,9 +722,8 @@ const Channels = styled.div`
   position: relative;
   z-index: 2;
   background: white;
-  background: #1a1f36;
-  background: #040b1c;
-  border-right: 1px solid #f1f3f5;
+  background: #18181d;
+  border-right: 1px solid #1f2d3d;
 `
 
 const ChannelsContainer = styled.div`
@@ -760,13 +759,13 @@ const HeaderTitle = styled.div`
 
 const HeaderTeam = styled.div`
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   color: #475669;
 `
 
 const HeaderSubtitle = styled.div`
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: #475669;
 `
 
@@ -819,7 +818,7 @@ const SearchInput = styled.input`
   background: transparent;
 
   &::placeholder {
-    color: #324057;
+    color: #475669;
   }
 `
 
@@ -837,7 +836,7 @@ const SearchContainer = styled.div`
 const Heading = styled.div`
   margin: 20px 25px 20px 25px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #475669;
