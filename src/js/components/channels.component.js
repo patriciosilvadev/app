@@ -358,7 +358,7 @@ class ChannelsComponent extends React.Component {
     return (
       <SearchContainer className="row">
         <SearchInner className="row">
-          <IconComponent icon="search" size={15} color="#475669" thickness={2} className="ml-15" />
+          <IconComponent icon="search" size={15} color="#475669" thickness={2} className="ml-10" />
 
           <SearchInput ref={ref => (this.filterRef = ref)} visible={this.state.showFilter} value={this.state.filter} onChange={this.onSearch} placeholder="Start Conversation" />
         </SearchInner>
@@ -822,15 +822,20 @@ const SearchInput = styled.input`
   }
 `
 
-const SearchInner = styled.div`
-  border-radius: 3px;
-  flex: 1;
-  margin: 10px;
-`
-
 const SearchContainer = styled.div`
   width: 100%;
-  border-bottom: 1px solid #0a152e;
+`
+
+const SearchInner = styled.div`
+  border-radius: 3px;
+  border: 1px solid #1f2d3d;
+  flex: 1;
+  margin: 20px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  padding: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 `
 
 const Heading = styled.div`
