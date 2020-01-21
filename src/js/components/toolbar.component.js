@@ -9,42 +9,6 @@ import { Button, Modal } from '@weekday/elements'
 import { APPSTORE_URL } from '../environment'
 import AuthService from '../services/auth.service'
 
-const Toolbar = styled.div`
-  display: flex;
-  height: 100%;
-  position: relative;
-  background: white;
-  background: white;
-  border-left: 1px solid #f1f3f5;
-`
-
-const AppIconContainer = styled.div`
-  padding: 5px;
-  margin: 15px;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 0.25s;
-
-  &:hover {
-    opacity: 0.8;
-  }
-`
-
-const AppIconImage = styled.div`
-  width: 20px;
-  height: 20px;
-  overflow: hidden;
-  background-size: contain;
-  background-position: center center;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-image: url(${props => props.image});
-`
-
-const Iframe = styled.iframe`
-  border: none;
-`
-
 export default function ToolbarComponent(props) {
   const [buttons, setButtons] = useState([])
   const [store, setStore] = useState(false)
@@ -117,3 +81,39 @@ export default function ToolbarComponent(props) {
 }
 
 ToolbarComponent.propTypes = {}
+
+const Toolbar = styled.div`
+  display: flex;
+  height: 100%;
+  position: relative;
+  background: white;
+  background: white;
+  border-left: 1px solid #f1f3f5;
+`
+
+const AppIconContainer = styled.div`
+  padding: 5px;
+  margin: 15px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const AppIconImage = styled.div`
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center center;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-image: url(${props => props.image});
+`
+
+const Iframe = styled.iframe`
+  border: none;
+`

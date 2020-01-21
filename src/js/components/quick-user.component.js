@@ -6,21 +6,6 @@ import { debounceTime } from 'rxjs/operators'
 import GraphqlService from '../services/graphql.service'
 import { Popup, User, Members, Spinner } from '@weekday/elements'
 
-const Filter = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #acb5bd;
-  font-size: 15px;
-  font-weight: 400;
-  padding: 15px;
-  width: 250px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
 export default class QuickUser extends React.Component {
   constructor(props) {
     super(props)
@@ -138,3 +123,18 @@ QuickUser.propTypes = {
   handleDismiss: PropTypes.func,
   children: PropTypes.any,
 }
+
+const Filter = styled.input`
+  border: none;
+  flex: 1;
+  background: transparent;
+  color: #acb5bd;
+  font-size: 15px;
+  font-weight: 400;
+  padding: 15px;
+  width: 250px;
+
+  &::placeholder {
+    color: #acb5bd;
+  }
+`

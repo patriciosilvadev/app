@@ -4,20 +4,6 @@ import GraphqlService from '../services/graphql.service'
 import { Popup } from '@weekday/elements'
 import PropTypes from 'prop-types'
 
-const Filter = styled.input`
-  border: none;
-  flex: 1;
-  background: transparent;
-  color: #acb5bd;
-  font-size: 15px;
-  font-weight: 400;
-  padding: 15px;
-
-  &::placeholder {
-    color: #acb5bd;
-  }
-`
-
 export default class QuickInputComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -76,3 +62,17 @@ QuickInputComponent.propTypes = {
   handleAccept: PropTypes.func,
   children: PropTypes.any,
 }
+
+const Filter = styled.input`
+  border: none;
+  flex: 1;
+  background: transparent;
+  color: #acb5bd;
+  font-size: 15px;
+  font-weight: 400;
+  padding: 15px;
+
+  &::placeholder {
+    color: #acb5bd;
+  }
+`

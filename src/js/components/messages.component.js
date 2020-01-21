@@ -6,35 +6,6 @@ import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import MessageComponent from '../components/message.component'
 import moment from 'moment'
 
-const DateDivider = styled.div`
-  width: 100%;
-  margin-top: 15px;
-  margin-bottom: 20px;
-  text-align: center;
-  position: relative;
-`
-
-const DateDividerText = styled.span`
-  font-size: 12px;
-  z-index: 2;
-  position: relative;
-  font-weight: 400;
-  color: #adb5bd;
-  font-style: italic;
-  background: white;
-  padding: 10px;
-`
-
-const DateDividerLine = styled.div`
-  z-index: 1;
-  position: absolute;
-  height: 1px;
-  width: 100%;
-  background-color: #f2f3f5;
-  top: 50%;
-  left: 0px;
-`
-
 export default memo(props => {
   return (
     <React.Fragment>
@@ -76,3 +47,32 @@ export default memo(props => {
     </React.Fragment>
   )
 })
+
+const DateDivider = styled.div`
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+`
+
+const DateDividerText = styled.span`
+  font-size: 12px;
+  z-index: 2;
+  position: relative;
+  font-weight: 400;
+  color: #adb5bd;
+  font-style: italic;
+  background: white;
+  padding: 10px;
+`
+
+const DateDividerLine = styled.div`
+  z-index: 1;
+  position: absolute;
+  height: 1px;
+  width: 100%;
+  background-color: #f2f3f5;
+  top: 50%;
+  left: 0px;
+`
