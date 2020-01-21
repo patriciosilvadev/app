@@ -6,10 +6,6 @@ import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import { Button, Modal } from '@weekday/elements'
 
-const Iframe = styled.iframe`
-  border: none;
-`
-
 export default function AppModal(props) {
   const user = useSelector(state => state.user)
   const channel = useSelector(state => state.channel)
@@ -40,3 +36,7 @@ AppModal.propTypes = {
   onClose: PropTypes.func,
   action: PropTypes.any,
 }
+
+const Iframe = styled.iframe`
+  border: none;
+`
