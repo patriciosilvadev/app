@@ -11,7 +11,6 @@ import styled from 'styled-components'
 import { Popup, Menu, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import { copyToClipboard } from '../helpers/util'
-import { LINK_URL_PREFIX } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 
 const TableRow = props => {

@@ -11,7 +11,7 @@ import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
 import { IconComponent } from '../components/icon.component'
 import { copyToClipboard } from '../helpers/util'
-import { LINK_URL_PREFIX } from '../environment'
+import { BASE_URL } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
 import moment from 'moment'
@@ -316,14 +316,14 @@ export default function TeamModal(props) {
         <div className="column w-100">
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Outside access</Text>
-            <Text className="color-d0 p mb-30">{`Allow anybody to join your team using a shortcode at ${LINK_URL_PREFIX}/t/${slug}`}</Text>
+            <Text className="color-d0 p mb-30">{`Allow anybody to join your team using a shortcode at ${BASE_URL}/t/${slug}`}</Text>
 
             <Input label="Update your team shortcode" value={shortcode} onChange={e => setShortcode(e.target.value)} placeholder="Enter shortcode" className="mb-20" />
 
             <div className="row mb-30">
               <Button onClick={handleUpdateTeamShortcode} text="Update shortcode" theme="blue-border" size="small" />
 
-              <Button theme="blue-border" size="small" onClick={() => copyToClipboard(`${LINK_URL_PREFIX}/t/${slug}`)} text="Copy URL" className="ml-5" />
+              <Button theme="blue-border" size="small" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
             </div>
 
             <Input label="Update your team slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="Enter Slug" className="mb-20" />
