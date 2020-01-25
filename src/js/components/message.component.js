@@ -611,7 +611,7 @@ const UrlPreview = styled.a`
 `
 
 const Message = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   width: 100%;
 `
 
