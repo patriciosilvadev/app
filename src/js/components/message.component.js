@@ -633,7 +633,7 @@ const Tools = styled.div`
 `
 
 const Date = styled.div`
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
@@ -641,10 +641,10 @@ const Date = styled.div`
 
 const User = styled.div`
   color: #343a40;
-  font-weight: 700;
+  font-weight: 600;
   font-style: normal;
-  font-size: 12px;
-  margin-right: 10px;
+  font-size: 14px;
+  margin-right: 5px;
 `
 
 const Text = styled.div`
@@ -657,11 +657,13 @@ const Text = styled.div`
 
   strong {
     font-weight: bold;
+    font-size: 14px;
   }
 
   p {
     padding: 0px;
     margin: 0px;
+    font-size: 14px;
   }
 
   code {
@@ -671,8 +673,8 @@ const Text = styled.div`
     color: #495057;
     border-radius: 2px;
     page-break-inside: avoid;
-    font-family: Menlo, monospace;
-    font-size: 10px;
+    font-family: monospace !important;
+    font-size: 12px;
     margin-top: 5px;
     line-height: 1.6;
     max-width: 100%;
@@ -683,6 +685,8 @@ const Text = styled.div`
   }
 
   pre {
+    font-size: 14px;
+    font-family: monospace !important;
   }
 `
 
@@ -707,7 +711,7 @@ const Reactions = styled.div`
     margin-right: 2px;
 
     .name {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
       color: #212123;
       padding-left: 5px;
@@ -749,10 +753,12 @@ const ParentMessage = styled.div`
 
   code {
     display: none;
+    font-family: monospace !important;
   }
 
   pre {
     display: none;
+    font-family: monospace !important;
   }
 `
 
@@ -760,11 +766,11 @@ const ParentName = styled.div`
   color: #343a40;
   font-weight: 700;
   font-style: normal;
-  font-size: 12px;
+  font-size: 13px;
 `
 
 const ParentText = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   color: #adb5bd;
   font-weight: regular;
@@ -775,7 +781,7 @@ const ParentText = styled.div`
 
 const ParentDate = styled.div`
   margin-left: 10px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #adb5bd;
   font-weight: regular;

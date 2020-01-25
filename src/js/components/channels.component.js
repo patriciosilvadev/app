@@ -281,10 +281,10 @@ class ChannelsComponent extends React.Component {
         <Avatar size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" />
 
         <HeaderTitles className="column">
-          <HeaderTeam>{this.props.team.name}</HeaderTeam>
-
-          <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
-
+          {/*<HeaderTeam>{this.props.team.name}</HeaderTeam>*/}
+          <HeaderTitle className="align-items-center">
+            {this.props.user.name} − {this.props.team.name}
+          </HeaderTitle>
           <QuickInputComponent
             visible={this.state.statusMenu}
             width={300}
@@ -348,7 +348,7 @@ class ChannelsComponent extends React.Component {
             </React.Fragment>
           }
         >
-          <IconComponent icon="chevron-down" size={20} thickness={2} color="#475669" className="button" onClick={this._openUserMenu.bind(this)} />
+          <IconComponent icon="chevron-down" size={20} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
         </Popup>
       </Header>
     )
@@ -358,7 +358,7 @@ class ChannelsComponent extends React.Component {
     return (
       <SearchContainer className="row">
         <SearchInner className="row">
-          <IconComponent icon="search" size={15} color="#475669" thickness={2} className="ml-10" />
+          <IconComponent icon="search" size={15} color="#626d7a" thickness={2} className="ml-10" />
 
           <SearchInput ref={ref => (this.filterRef = ref)} visible={this.state.showFilter} value={this.state.filter} onChange={this.onSearch} placeholder="Start Conversation" />
         </SearchInner>
@@ -466,7 +466,7 @@ class ChannelsComponent extends React.Component {
               handleAccept={name => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color="#475669" thickness={2} className="button" onClick={() => this.setState({ channelPopup: true })} />
+              <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPopup: true })} />
             </QuickInputComponent>
           )}
         </div>
@@ -717,7 +717,7 @@ export default connect(
 )(ChannelsComponent)
 
 const Channels = styled.div`
-  width: 300px;
+  width: 350px;
   height: 100%;
   position: relative;
   z-index: 2;
@@ -736,7 +736,6 @@ const Header = styled.div`
   background-color: transparent;
   width: 100%;
   padding 25px;
-  border-bottom: 1px solid #0a152e;
   transition: background-color 0.5s;
 `
 
@@ -745,28 +744,28 @@ const HeaderTitles = styled.div`
   padding-left: 10px;
 `
 
+const HeaderTeam = styled.div`
+  font-size: 11px;
+  font-weight: 500;
+  color: #626d7a;
+`
+
 const HeaderTitle = styled.div`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   font-style: normal;
   color: white;
   transition: opacity 0.5s;
   display: inline-block;
   margin-top: 3px;
-  margin-bottom: 3px;
+  margin-bottom: 0px;
   height: 20px;
-`
-
-const HeaderTeam = styled.div`
-  font-size: 11px;
-  font-weight: 500;
-  color: #475669;
 `
 
 const HeaderSubtitle = styled.div`
   font-size: 13px;
   font-weight: 500;
-  color: #475669;
+  color: #626d7a;
 `
 
 const AccountMenuHeader = styled.div`
@@ -818,32 +817,32 @@ const SearchInput = styled.input`
   background: transparent;
 
   &::placeholder {
-    color: #475669;
+    color: #626d7a;
   }
 `
 
 const SearchContainer = styled.div`
   width: 100%;
+  background: #111;
 `
 
 const SearchInner = styled.div`
   border-radius: 3px;
-  border: 1px solid #1f2d3d;
   flex: 1;
-  margin: 20px;
+  margin: 10px;
   margin-top: 0px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   padding: 5px;
   padding-top: 10px;
   padding-bottom: 10px;
 `
 
 const Heading = styled.div`
-  margin: 20px 25px 20px 25px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.8px;
+  margin: 25px 25px 15px 25px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #626d7a;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: #475669;
   flex: 1;
 `

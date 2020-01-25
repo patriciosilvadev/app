@@ -74,7 +74,7 @@ export default function ToolbarComponent(props) {
       })}
       <div className="flexer" />
       <AppIconContainer onClick={handleAppStoreClick}>
-        <IconComponent icon="weekday" size={20} color="#666" />
+        <IconComponent icon="yack" size={20} color="#666" />
       </AppIconContainer>
     </Toolbar>
   )

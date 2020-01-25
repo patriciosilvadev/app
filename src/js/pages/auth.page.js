@@ -419,8 +419,8 @@ class AuthPage extends React.Component {
                   <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                     Just let me sign in already
                   </SmallTextButton>
-                  <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
-                    By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
+                  <a href="https://yack.co" target="_blank" className="color-l1 a text-center mt-10">
+                    By creating an account & using Yack, you agree to our <strong>terms & conditions</strong>
                   </a>
                 </Footer>
               </Form>
@@ -532,8 +532,8 @@ class AuthPage extends React.Component {
                   <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                     Go back to sign in
                   </SmallTextButton>
-                  <a href="https://weekday.sh" target="_blank" className="color-l1 a text-center mt-10">
-                    By creating an account & using Weekday, you agree to our <strong>terms & conditions</strong>
+                  <a href="https://yack.co" target="_blank" className="color-l1 a text-center mt-10">
+                    By creating an account & using Yack, you agree to our <strong>terms & conditions</strong>
                   </a>
                 </Footer>
               </Form>
@@ -629,8 +629,8 @@ class AuthPage extends React.Component {
 
         <Auth>
           <Logo>
-            <img src="./logo.png" height="20" alt="Weekday" />
-            <LogoText>weekday</LogoText>
+            <img src="./logo.png" height="20" alt="Yack" />
+            <LogoText>yack</LogoText>
           </Logo>
 
           <Loading show={this.state.loading} />

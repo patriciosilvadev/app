@@ -1,7 +1,7 @@
 {
-  "name": "weekday-app",
+  "name": "yack-app",
   "version": "0.0.7",
-  "description": "Weekday, a hackable team messaging platform.",
+  "description": "Yack, a hackable team messaging platform.",
   "main": "src/js/app.js",
   "scripts": {
     "build:prod": "webpack --config webpack.config.js",
@@ -14,14 +14,14 @@
     "test": "jest",
     "lint": "eslint ./src",
     "electron": "electron .",
-    "deploy:prepare": "aws s3 rm --recursive s3://app.weekday.sh",
-    "deploy:upload": "aws s3 cp ./dist s3://app.weekday.sh --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive",
+    "deploy:prepare": "aws s3 rm --recursive s3://app.yack.co",
+    "deploy:upload": "aws s3 cp ./dist s3://app.yack.co --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive",
     "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload"
   },
   "author": "Jo du Plessis",
   "license": "ISC",
-  "repository": "https://github.com/getweekday/app",
-  "url": "https://github.com/getweekday/app",
+  "repository": "https://github.com/getyack/app",
+  "url": "https://github.com/getyack/app",
   "dependencies": {
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",

@@ -4,8 +4,8 @@ import '../../../../enzyme.setup'
 
 describe('Testing framework setup', () => {
   it('renders', () => {
-    const wrapper = shallow(<h1>Welcome to Weekday</h1>)
-    expect(wrapper.find('h1').html()).toMatch(/Welcome to Weekday/)
+    const wrapper = shallow(<h1>Welcome to Yack</h1>)
+    expect(wrapper.find('h1').html()).toMatch(/Welcome to Yack/)
   })
 })
 

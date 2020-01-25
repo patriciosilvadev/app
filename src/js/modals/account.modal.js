@@ -410,7 +410,7 @@ export default function AccountModal(props) {
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
-            <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
+            <Text className="color-d0 p mb-30">Use your Yack account with more than just 1 email address.</Text>
 
             <Table width="100%">
               <tbody>

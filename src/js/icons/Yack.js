@@ -1,5 +1,5 @@
 import React from "react";
-export function Weekday(props) {
+export function Yack(props) {
   return (
     <svg
       viewBox="0 0 24 24"

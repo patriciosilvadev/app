@@ -315,7 +315,7 @@ export function initialize(userId) {
       })
 
     // TODO: Debug
-    // DatabaseService.getInstance().unread('5db7e3d88476242154d43183', '5db87f04db059a6d8dc8d068')
+    DatabaseService.getInstance().unread('5dc936f540d06d7c3589cde6', '5de71ca13c66af3b9f17a97a')
   }
 }
 

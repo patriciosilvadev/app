@@ -68,8 +68,8 @@ export const showLocalPushNotification = (title, body) => {
     if (serviceWorkerRegistration) {
       serviceWorkerRegistration.showNotification(title, {
         body,
-        icon: 'https://weekday-app.s3-us-west-2.amazonaws.com/favicon.png',
-        image: 'https://weekday-app.s3-us-west-2.amazonaws.com/favicon.png',
+        icon: 'https://yack-app.s3-us-west-2.amazonaws.com/favicon.png',
+        image: 'https://yack-app.s3-us-west-2.amazonaws.com/favicon.png',
       })
     }
   })

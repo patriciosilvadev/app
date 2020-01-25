@@ -95,7 +95,7 @@ export default function NotificationsComponent(props) {
 
             {notifications.length == 0 && (
               <React.Fragment>
-                <img src="https://weekday-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
+                <img src="https://yack-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
                 <TitleText>Whoops</TitleText>
                 <SubtitleText>You have no notifications</SubtitleText>
               </React.Fragment>

@@ -657,15 +657,17 @@ const Channel = styled.div`
 
 const Header = styled.div`
   width: 100%;
-  background: transparent;
   border-bottom: 1px solid #f1f3f5;
+  position: relative;
+  z-index: 1;
   background: white;
   padding 15px 25px 15px 25px;
   display: flex;
+  /* box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.05); */
 `
 
 const HeaderTitle = styled.div`
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 600;
   font-style: normal;
   color: #040b1c;
@@ -676,7 +678,7 @@ const HeaderTitle = styled.div`
 `
 
 const HeaderText = styled.div`
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   font-style: normal;
   color: #acb5bd;
@@ -686,7 +688,7 @@ const HeaderText = styled.div`
 `
 
 const HeaderLink = styled.div`
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   font-style: normal;
   color: #007af5;
@@ -702,12 +704,12 @@ const HeaderButton = styled.div`
 `
 
 const HeaderSearchContainer = styled.div`
-  border: 3px solid #f1f3f5;
+  border: 2px solid #f1f3f5;
   background: white;
   border-radius: 10px;
-  padding 5px;
+  padding 7px;
   transition: width 0.5s;
-  width: ${props => (props.focus ? '300px' : '200px')};
+  width: ${props => (props.focus ? '50%' : '40%')};
   margin-right: 10px;
 `
 
@@ -759,7 +761,7 @@ const Welcome = styled.div`
 `
 
 const WelcomeTitle = styled.div`
-  font-weight: 500;
+  font-weight: 300;
   font-size: 60px;
   color: #040b1c;
   padding-bottom: 10px;

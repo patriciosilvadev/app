@@ -21,13 +21,13 @@ class ComposeComponent extends React.Component {
     /*
     Placeholder attachment for testing:
     {
-      uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+      uri: "https://yack-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
       mime: "image/jpeg",
       size: 17361,
       name: "tester.jpg",
       },
       {
-      uri: "https://weekday-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
+      uri: "https://yack-users.s3.us-west-2.amazonaws.com/18-9-2019/0a003170-d9df-11e9-938b-51a9e8e38b88.tester.jpg",
       mime: "image/jpeg",
       size: 17361,
       name: "testers.jpg",
@@ -341,7 +341,7 @@ class ComposeComponent extends React.Component {
   }
 
   focusComposeInput() {
-    this.composeRef.focus()
+    if (this.composeRef) this.composeRef.focus()
   }
 
   componentDidMount() {

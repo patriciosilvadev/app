@@ -35,7 +35,7 @@ export default memo(props => {
           <React.Fragment key={index}>
             {showDate && (
               <DateDivider>
-                <DateDividerText>{moment(message.createAt).format('dddd, MMMM Do')}</DateDividerText>
+                <DateDividerText>{moment(message.createdAt).format('dddd, MMMM Do')}</DateDividerText>
                 <DateDividerLine />
               </DateDivider>
             )}
@@ -57,14 +57,14 @@ const DateDivider = styled.div`
 `
 
 const DateDividerText = styled.span`
-  font-size: 12px;
+  font-size: 10px;
   z-index: 2;
   position: relative;
-  font-weight: 400;
+  font-weight: 600;
   color: #adb5bd;
-  font-style: italic;
   background: white;
   padding: 10px;
+  text-transform: uppercase;
 `
 
 const DateDividerLine = styled.div`

@@ -82,7 +82,7 @@ export default function DockComponent(props) {
               marginBottom: 10,
             }}
           >
-            <Avatar dark badge={unread} size="medium" image={t.image} title={t.name} className="button" />
+            <Avatar dark badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
           </Link>
         )
       })}
@@ -103,7 +103,7 @@ export default function DockComponent(props) {
 DockComponent.propTypes = {}
 
 const Dock = styled.div`
-  width: 70px;
+  width: 80px;
   padding-top: 20px;
   padding-bottom: 20px;
   display: flex;
@@ -111,5 +111,5 @@ const Dock = styled.div`
   position: relative;
   background: white;
   background: #18181d;
-  border-right: 1px solid #1f2d3d;
+  border-right: 1px solid #111;
 `

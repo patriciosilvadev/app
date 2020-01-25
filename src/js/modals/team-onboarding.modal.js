@@ -239,8 +239,8 @@ export default function TeamOnboardingModal(props) {
             </Inner>
 
             <Logo>
-              <img src="./logo.png" height="20" alt="Weekday" />
-              <LogoText>weekday</LogoText>
+              <img src="./logo.png" height="20" alt="Yack" />
+              <LogoText>yack</LogoText>
             </Logo>
           </Container>
         </React.Fragment>
