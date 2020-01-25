@@ -178,7 +178,7 @@ export default function ChannelModal(props) {
 
           {props.permissible && (
             <div className="p-20">
-              <Button onClick={handleUpdateChannel} text="Update" theme="blue-border" size="small" />
+              <Button onClick={handleUpdateChannel} text="Update" theme="muted" />
             </div>
           )}
         </div>

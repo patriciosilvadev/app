@@ -13,8 +13,8 @@ export default function ConfirmModal({ onOkay, onCancel, text, title }) {
           <div className="h5 pl-30 pr-30 text-center w-light color-d1">{text}</div>
         </div>
         <div className="row justify-content-center pt-30 pb-30">
-          <Button size="large" onClick={onOkay} text="Yes" className="mr-10" />
-          <Button size="large" onClick={onCancel} text="No" />
+          <Button size="large" onClick={onOkay} text="Yes" className="mr-10" theme="muted" />
+          <Button size="large" onClick={onCancel} text="No" theme="muted" />
         </div>
       </Modal>
     </ModalPortal>

@@ -278,23 +278,23 @@ export default function MembersTeamComponent(props) {
       <div className="flexer p-20 w-100">
         <div className="row pb-20">
           <div className="column flexer">
-            <div className="h5 color-d2 pb-5">
+            <div className="h5 color-d2 mb-10">
               {members.length} {members.length == 1 ? 'Member' : 'Members'}
             </div>
-            <div className="p color-d0 bold">
+            <div className="p color-d0">
               Displaying page {page} of {pages}
             </div>
           </div>
           <Buttons className="row">
             {page > 1 && (
               <div>
-                <Button size="small" text="Previous" theme="blue-border" className="button" onClick={() => setPage(page - 1)} />
+                <Button text="Previous" theme="muted" className="button" onClick={() => setPage(page - 1)} />
               </div>
             )}
 
             {page < pages && (
               <div>
-                <Button size="small" text="Next" theme="blue-border" className="button" onClick={() => setPage(page + 1)} />
+                <Button text="Next" theme="muted" className="button" onClick={() => setPage(page + 1)} />
               </div>
             )}
           </Buttons>

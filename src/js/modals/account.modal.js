@@ -66,8 +66,8 @@ class _CardForm extends React.Component {
         </div>
 
         <div className="row mt-20">
-          <Button onClick={this.handleSubmit.bind(this)} text="Add" size="small" className="mr-10" />
-          <Button onClick={this.props.onCancel} text="Cancel" size="small" />
+          <Button onClick={this.handleSubmit.bind(this)} text="Add" muted className="mr-10" />
+          <Button onClick={this.props.onCancel} text="Cancel" muted />
         </div>
       </form>
     )
@@ -393,7 +393,7 @@ export default function AccountModal(props) {
               />
             </div>
 
-            <Button theme="blue-border" size="small" onClick={handleSubmit} text="Save" />
+            <Button theme="muted" onClick={handleSubmit} text="Save" />
           </div>
         </div>
       </div>
@@ -422,7 +422,7 @@ export default function AccountModal(props) {
 
             <Input label="Connect another email address" value={newEmailAddress} onChange={e => setNewEmailAddress(e.target.value)} placeholder="Enter your email" />
 
-            <Button text="Add" theme="blue-border" size="small" className="mt-20" onClick={handleEmailAddressAdd} />
+            <Button text="Add" theme="muted" className="mt-20" onClick={handleEmailAddressAdd} />
           </div>
         </div>
       </div>
@@ -447,7 +447,7 @@ export default function AccountModal(props) {
 
             <Input label="Confirm new password" value={newPasswordConfirm} onChange={e => setNewPasswordConfirm(e.target.value)} placeholder="" type="password" autocomplete="no" className="mb-20" />
 
-            <Button text="Update" theme="blue-border" size="small" onClick={handlePasswordUpdate} />
+            <Button text="Update" theme="muted" onClick={handlePasswordUpdate} />
           </div>
         </div>
       </div>
@@ -504,7 +504,7 @@ export default function AccountModal(props) {
 
             {!newCard && (
               <div className="row mt-20">
-                <Button text="Add New Card" theme="blue-border" size="small" onClick={() => setNewCard(true)} />
+                <Button text="Add New Card" theme="muted" onClick={() => setNewCard(true)} />
               </div>
             )}
 

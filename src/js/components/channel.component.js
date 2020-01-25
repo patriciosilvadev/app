@@ -35,8 +35,8 @@ class ChannelComponent extends React.Component {
       open: true,
       title: '',
       image: '',
-      channelUpdateModal: false,
-      channelUpdateModalStart: 0,
+      channelModal: true,
+      channelModalStart: 0,
       message: null,
       reply: false,
       update: false,
@@ -335,7 +335,7 @@ class ChannelComponent extends React.Component {
             </HeaderText>
 
             {!this.props.channel.private && this.state.permissible && (
-              <div className="ml-10 row button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })}>
+              <div className="ml-10 row button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })}>
                 <IconComponent icon="plus" size={15} color="#007af5" thickness={2} className="mr-5" />
                 <HeaderLink>Add New</HeaderLink>
               </div>
@@ -406,9 +406,9 @@ class ChannelComponent extends React.Component {
 
         {!this.props.channel.private && (
           <React.Fragment>
-            <IconComponent icon="info" size={20} color="#acb5bd" thickness={1.5} className="ml-15 button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })} />
+            <IconComponent icon="info" size={20} color="#acb5bd" thickness={1.5} className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })} />
 
-            <IconComponent icon="users" size={26} thickness={0} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 1 })} />
+            <IconComponent icon="users" size={26} thickness={0} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
 
             <Popup
               handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -480,7 +480,7 @@ class ChannelComponent extends React.Component {
             {/* Then give the user the option to update it */}
             {/* But only if they can */}
             {!this.props.channel.description && this.state.permissible && (
-              <WelcomeDescriptionUpdate className="button" onClick={() => this.setState({ channelUpdateModal: true, channelUpdateModalStart: 0 })}>
+              <WelcomeDescriptionUpdate className="button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })}>
                 Add some more context about this conversation here
               </WelcomeDescriptionUpdate>
             )}
@@ -533,13 +533,13 @@ class ChannelComponent extends React.Component {
   render() {
     return (
       <React.Fragment>
-        {this.state.channelUpdateModal && (
+        {this.state.channelModal && (
           <ChannelModal
             permissible={this.state.permissible}
             id={this.props.channel.id}
             members={this.props.channel.members}
-            start={this.state.channelUpdateModalStart}
-            onClose={() => this.setState({ channelUpdateModal: false })}
+            start={this.state.channelModalStart}
+            onClose={() => this.setState({ channelModal: false })}
           />
         )}
 

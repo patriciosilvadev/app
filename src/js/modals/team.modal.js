@@ -287,7 +287,7 @@ export default function TeamModal(props) {
 
             <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Add a description" rows={8} className="mb-20" disabled={!admin} />
 
-            {admin && <Button onClick={handleUpdateTeam} text="Save" theme="blue-border" size="small" />}
+            {admin && <Button onClick={handleUpdateTeam} text="Save" theme="muted" />}
           </div>
         </div>
       </div>
@@ -321,14 +321,14 @@ export default function TeamModal(props) {
             <Input label="Update your team shortcode" value={shortcode} onChange={e => setShortcode(e.target.value)} placeholder="Enter shortcode" className="mb-20" />
 
             <div className="row mb-30">
-              <Button onClick={handleUpdateTeamShortcode} text="Update shortcode" theme="blue-border" size="small" />
+              <Button onClick={handleUpdateTeamShortcode} text="Update shortcode" theme="muted" />
 
-              <Button theme="blue-border" size="small" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
+              <Button theme="muted" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
             </div>
 
             <Input label="Update your team slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="Enter Slug" className="mb-20" />
 
-            <Button theme="blue-border" size="small" onClick={handleUpdateTeamSlug} text="Update slug" />
+            <Button theme="muted" onClick={handleUpdateTeamSlug} text="Update slug" />
           </div>
         </div>
       </div>
@@ -345,7 +345,7 @@ export default function TeamModal(props) {
 
             <Textarea placeholder="Comma seperated email addresses" value={emails} onChange={e => setEmails(e.target.value)} />
 
-            <Button text="Invite users" onClick={handleInviteTeamMembers} theme="blue-border" size="small" />
+            <Button text="Invite users" onClick={handleInviteTeamMembers} theme="muted" />
           </div>
         </div>
       </div>
