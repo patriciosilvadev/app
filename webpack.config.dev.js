@@ -3,6 +3,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = env => {
   return {
@@ -13,8 +14,8 @@ module.exports = env => {
     },
     resolve: {
       alias: {
-        react: path.resolve('./node_modules/react')
-      }
+        react: path.resolve('./node_modules/react'),
+      },
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -25,19 +26,18 @@ module.exports = env => {
     performance: {
       hints: false,
       maxEntrypointSize: 512000,
-      maxAssetSize: 512000
+      maxAssetSize: 512000,
     },
     plugins: [
+      new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
       }),
-      new webpack.NormalModuleReplacementPlugin(
-          /src\/js\/environment\.js/, 'environment.staging.js'
-      ),
+      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.staging.js'),
       new WorkboxPlugin.InjectManifest({
         swSrc: './src/js/sw.js',
-        swDest: 'sw.js'
-      })
+        swDest: 'sw.js',
+      }),
       //new BundleAnalyzerPlugin()
     ],
     optimization: {
@@ -47,20 +47,20 @@ module.exports = env => {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendor',
             chunks: 'all',
-          }
-        }
-      }
+          },
+        },
+      },
     },
     resolve: {
       symlinks: true,
       extensions: ['*', '.js', '.jsx', '.less', '.scss'],
       alias: {
-        "styled-components": path.resolve("./node_modules", "styled-components"),
-      }
+        'styled-components': path.resolve('./node_modules', 'styled-components'),
+      },
     },
-    devServer:{
+    devServer: {
       contentBase: path.resolve(__dirname, 'dist'),
-      historyApiFallback: true
+      historyApiFallback: true,
     },
     module: {
       rules: [
@@ -91,7 +91,7 @@ module.exports = env => {
               loader: 'file-loader',
               options: {
                 name: '[name].[ext]',
-                outputPath: ''
+                outputPath: '',
               },
             },
           ],
@@ -100,18 +100,18 @@ module.exports = env => {
           test: /\.(css)$/,
           use: [
             {
-              loader: "file-loader",
+              loader: 'file-loader',
               options: {
-                  name: "[name].[ext]",
+                name: '[name].[ext]',
               },
-             },
-             "extract-loader",
-             {
-               loader: "css-loader",
-               options: {
-                 sourceMap: true,
-               }
-             },
+            },
+            'extract-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
           ],
         },
         {
@@ -121,22 +121,22 @@ module.exports = env => {
           options: {
             name: '[name].[ext]',
             outputPath: 'fonts',
-          }
+          },
         },
         {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
-          use: ['babel-loader']
+          use: ['babel-loader'],
         },
         {
           test: /\.less$/,
-          loader: 'style-loader!css-loader!less-loader'
+          loader: 'style-loader!css-loader!less-loader',
         },
         {
           test: /\.scss$/,
-          loader: 'style-loader!css-loader!sass-loader'
-        }
-      ]
+          loader: 'style-loader!css-loader!sass-loader',
+        },
+      ],
     },
   }
-};
+}

@@ -101,11 +101,25 @@ class ChannelsComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const starredChannels = props.channels.filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
-    const mutedChannels = props.channels.filter((channel, index) => props.user.muted.indexOf(channel.id) != -1)
-    const archivedChannels = props.channels.filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
-    const privateChannels = props.channels.filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
-    const publicChannels = props.channels.filter((channel, index) => !channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
+    const starredChannels = props.channels
+      .filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
+      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+    const mutedChannels = props.channels
+      .filter((channel, index) => props.user.muted.indexOf(channel.id) != -1)
+      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+    const archivedChannels = props.channels
+      .filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
+      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+    const publicChannels = props.channels
+      .filter((channel, index) => !channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
+      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+    const privateChannels = props.channels
+      .filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
+      .filter(channel => {
+        const title = channel.members.reduce((title, member) => (member.user.id != props.user.id ? title + member.user.name : title), '')
+
+        return title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+      })
 
     return {
       starred: starredChannels,
@@ -415,8 +429,6 @@ class ChannelsComponent extends React.Component {
         <Heading>Favourites</Heading>
 
         {this.state.starred.map((channel, index) => {
-          if (this.state.filter != '' && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
-
           const title = channel.private ? channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '') : channel.title
           const image = channel.private ? channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '') : channel.image
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
@@ -472,9 +484,6 @@ class ChannelsComponent extends React.Component {
         </div>
 
         {this.state.public.map((channel, index) => {
-          if (this.props.user.starred.indexOf(channel.id) != -1) return
-          if (this.state.filter != '' && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
-
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
@@ -521,9 +530,6 @@ class ChannelsComponent extends React.Component {
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
 
-          // Filter based on users search
-          if (this.state.filter != '' && !title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
-
           // Get the other users' presence
           const timeSnapshot = new Date().getTime()
           const otherMember = channel.members.filter(member => member.user.id != this.props.user.id).flatten()
@@ -569,8 +575,6 @@ class ChannelsComponent extends React.Component {
         {this.state.archivedVisible && (
           <React.Fragment>
             {this.state.archived.map((channel, index) => {
-              if (this.state.filter != '' && !channel.title.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return
-
               const title = channel.private ? channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '') : channel.title
               const image = channel.private ? channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '') : channel.image
               const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()

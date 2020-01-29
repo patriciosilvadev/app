@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { connect } from 'react-redux'
 import styled from 'styled-components'
 import moment from 'moment'
 import ModalPortal from '../portals/modal.portal'
@@ -11,127 +12,168 @@ import { parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
 
-export default function PanelAttachmentsComponent(props) {
-  const user = useSelector(state => state.user)
-  const channel = useSelector(state => state.channel)
-  const dispatch = useDispatch()
-  const [loading, setLoading] = useState(null)
-  const [error, setError] = useState(null)
-  const [preview, setPreview] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const [page, setPage] = useState(0)
-  const [messages, setMessages] = useState([])
-  const scrollRef = useRef(null)
-  const { channelId, teamId } = useParams()
-  const history = useHistory()
+class PanelAttachmentsComponent extends React.Component {
+  constructor(props) {
+    super(props)
 
-  const handleScrollEvent = e => {
-    // If the user scvrolls up - then fetch more messages
-    // 0 = the top of the container
-    if (scrollRef.current.scrollTop == 0) this.fetchChannelAttachments()
+    this.state = {
+      loading: false,
+      error: null,
+      preview: null,
+      busy: false,
+      page: 0,
+      messages: [],
+    }
+
+    this.scrollRef = React.createRef()
+
+    this.fetchChannelAttachments = this.fetchChannelAttachments.bind(this)
+    this.handleScrollEvent = this.handleScrollEvent.bind(this)
   }
 
-  const fetchChannelAttachments = async () => {
+  componentDidMount() {
+    this.fetchChannelAttachments()
+
+    this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
+  }
+
+  componentWillUnmount() {
+    this.scrollRef.removeEventListener('scroll', this.handleScrollEvent)
+  }
+
+  async handleScrollEvent(e) {
+    // If the user scvrolls up - then fetch more messages
+    // 0 = the top of the container
+    if (this.scrollRef.scrollTop + this.scrollRef.clientHeight >= this.scrollRef.scrollHeight) this.fetchChannelAttachments()
+  }
+
+  async fetchChannelAttachments() {
     // Don't refetch messages every time it's triggered
     // We need to wait if there's already a fetch in progress
-    if (busy) return
+    if (this.state.busy) return
 
     // Set it as busy to not allow more messages to be fetch
-    setBusy(true)
-    setLoading(true)
+    this.setState({
+      busy: true,
+      loading: true,
+    })
 
     try {
-      const { data } = await GraphqlService.getInstance().channelAttachments(channelId, page)
+      const nextPage = this.state.page + 1
+      const { teamId, channelId } = this.props.match.params
+      const { data } = await GraphqlService.getInstance().channelAttachments(channelId, this.state.page)
 
       // Add the new messages to the channel
-      setMessages([...messages, ...data.channelAttachments])
-
       // Increase the next page & open the scroll event for more messages fetches
-      setPage(page + 1)
-      setBusy(false)
-      setLoading(false)
+      this.setState({
+        messages: [...this.state.messages, ...data.channelAttachments],
+        page: nextPage,
+        busy: false,
+        loading: false,
+      })
     } catch (e) {
-      setError(e.message)
-      setBusy(false)
-      setLoading(false)
+      this.setState({
+        error: e.message,
+        busy: false,
+        loading: false,
+      })
     }
   }
 
-  useEffect(() => {
-    fetchChannelAttachments()
-  }, [])
+  render() {
+    const { teamId, channelId } = this.props.match.params
 
-  return (
-    <Container className="column">
-      {preview && <PreviewComponent onClose={() => setPreview(null)} image={preview} />}
+    return (
+      <Container className="column">
+        {this.state.preview && <PreviewComponent onClose={() => this.setState({ preview: null })} image={this.state.preview} />}
 
-      <Header className="row">
-        <HeaderTitle>Channel Files</HeaderTitle>
-        <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={() => history.push(`app/team/${teamId}/channel/${channelId}`)} />
-      </Header>
+        <Header className="row">
+          <HeaderTitle>Channel Files</HeaderTitle>
+          <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={() => this.props.history.push(`app/team/${teamId}/channel/${channelId}`)} />
+        </Header>
 
-      {error && <Error message={error} />}
-      {loading && <Spinner />}
+        {this.state.error && <Error message={this.state.error} />}
+        {this.state.loading && <Spinner />}
 
-      <AttachmentsText>
-        There {messages.length == 1 ? 'is' : 'are'} <strong>{messages.length}</strong> {messages.length == 1 ? 'message' : 'messages'} with attachments
-      </AttachmentsText>
+        <AttachmentsText>
+          There {this.state.messages.length == 1 ? 'is' : 'are'} <strong>{this.state.messages.length}</strong> {this.state.messages.length == 1 ? 'message' : 'messages'} with attachments
+        </AttachmentsText>
 
-      {messages.map((message, index1) => {
-        return (
-          <React.Fragment key={index1}>
-            <div className="row p-20 pb-0">
-              <span className="color-d2 p regular">{message.user.name} -&nbsp;</span>
-              <span className="color-d2 p bold">
-                {moment(message.createdAt)
-                  .tz(user.timezone)
-                  .fromNow()}
-              </span>
-            </div>
-
-            <Text dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(message.message, null) }} />
-
-            <Attachments ref={scrollRef} className="column">
-              {message.attachments.map((attachment, index2) => {
-                const isImage = attachment.mime.split('/')[0]
-
+        <Attachments>
+          <AttachmentsScrollContainer ref={ref => (this.scrollRef = ref)}>
+            <div className="p-20">
+              {this.state.messages.map((message, index1) => {
                 return (
-                  <Attachment
-                    key={index2}
-                    layout="panel"
-                    size={attachment.size}
-                    mime={attachment.mime}
-                    preview={attachment.preview}
-                    uri={attachment.uri}
-                    name={attachment.name}
-                    createdAt={attachment.createdAt}
-                    onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
-                  />
+                  <React.Fragment key={index1}>
+                    {message.attachments.map((attachment, index2) => {
+                      const isImage = attachment.mime.split('/')[0]
+
+                      return (
+                        <Attachment
+                          key={index2}
+                          layout="panel"
+                          size={attachment.size}
+                          mime={attachment.mime}
+                          preview={attachment.preview}
+                          uri={attachment.uri}
+                          name={attachment.name}
+                          createdAt={attachment.createdAt}
+                          onPreviewClick={isImage ? () => this.setState({ preview: attachment.uri }) : null}
+                        />
+                      )
+                    })}
+
+                    <div className="row pt-0">
+                      <span className="color-d2 p regular">{message.user.name} -&nbsp;</span>
+                      <span className="color-d2 p bold">
+                        {moment(message.createdAt)
+                          .tz(this.props.user.timezone)
+                          .fromNow()}
+                      </span>
+                    </div>
+
+                    <Text dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(message.message, null) }} />
+                  </React.Fragment>
                 )
               })}
-            </Attachments>
-          </React.Fragment>
-        )
-      })}
-    </Container>
-  )
+            </div>
+          </AttachmentsScrollContainer>
+        </Attachments>
+      </Container>
+    )
+  }
 }
+
+const mapDispatchToProps = {}
+
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PanelAttachmentsComponent)
 
 PanelAttachmentsComponent.propTypes = {
   onClose: PropTypes.func,
   action: PropTypes.any,
+  user: PropTypes.any,
 }
 
 const Text = styled.div`
   font-size: 14px;
   color: #acb5bd;
   font-weight: 400;
-  line-height: 1.4;
-  padding: 0px 20px 0px 20px;
+
+  line-height: 1.2;
+  padding: 0px 0px 20px 0px;
   margin-top: 5px;
   margin-bottom: 5px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   width: 100%;
@@ -172,8 +214,8 @@ const Attachments = styled.div`
   padding-top: 10px;
   padding-bottom: 0px;
   flex: 1;
-  overflow: scroll;
   width: 100%;
+  position: relative;
 `
 
 const AttachmentsText = styled.div`
@@ -185,9 +227,18 @@ const AttachmentsText = styled.div`
   margin-bottom: 0px;
 `
 
+const AttachmentsScrollContainer = styled.div`
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+`
+
 const Container = styled.div`
   display: flex;
-  width: 300px;
+  width: 350px;
   height: 100%;
   border-left: 1px solid #f1f3f5;
 `

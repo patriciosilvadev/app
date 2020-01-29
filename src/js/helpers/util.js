@@ -86,7 +86,7 @@ export const copyToClipboard = value => {
 }
 
 export const logger = log => {
-  console.log(log)
+  // console.log(log)
 }
 
 export const validEmail = email => {

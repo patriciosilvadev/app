@@ -186,7 +186,7 @@ class AppPage extends React.Component {
     if (!this.props.user.id) return <Loading show={true} />
 
     return (
-      <AppContainer>
+      <AppContainer className="column">
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} />
 
@@ -198,8 +198,8 @@ class AppPage extends React.Component {
           <Notification text="Push notifications are disabled." actionText="Enable" onActionClick={this.pushNotifications.bind(this)} onDismissClick={this.dismissPushNotifications.bind(this)} />
         )}
 
-        <Router history={browserHistory}>
-          <App className="row">
+        <App className="row">
+          <Router history={browserHistory}>
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
@@ -213,8 +213,8 @@ class AppPage extends React.Component {
             />
             <Route path="/app/team/:teamId/channel/:channelId/attachments" component={PanelAttachmentsComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
-          </App>
-        </Router>
+          </Router>
+        </App>
       </AppContainer>
     )
   }
@@ -256,15 +256,14 @@ const AppContainer = styled.div`
   background-size: contain;
   width: 100%;
   height: 100%;
-  position: absolute;
-  top: 0px;
-  left: 0px;
+  overflow: hidden;
+  align-content: stretch;
 `
 
 const App = styled.div`
-  width: 100%;
-  height: 100%;
   flex: 1;
+  overflow: hidden;
+  width: 100%;
 `
 
 const Loader = () => (

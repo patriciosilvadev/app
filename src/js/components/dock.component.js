@@ -70,8 +70,6 @@ export default function DockComponent(props) {
     <Dock className="column align-items-center">
       {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
 
-      <img src="logo.svg" width="30" style={{ marginBottom: 20 }} />
-
       {teams.map((t, index) => {
         const unread = !!common.unread.filter(row => t.id == row.doc.team).flatten()
 
@@ -96,6 +94,7 @@ export default function DockComponent(props) {
       <NotificationsComponent style={{ marginTop: 20 }} />
 
       <div className="flexer"></div>
+      <img src="logo.svg" width="30" />
     </Dock>
   )
 }

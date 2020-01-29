@@ -45,7 +45,7 @@ export default class MessagingService {
         },
         err => {
           if (err) {
-            console.log('Error: ', err)
+            logger('Error: ', err)
           }
         }
       )
@@ -55,7 +55,7 @@ export default class MessagingService {
   joins(topics) {
     if (this.client) {
       topics.map(topic => {
-        console.log('Subscribing to', topic)
+        logger('Subscribing to', topic)
 
         this.client.subscribe(
           topic,
@@ -64,7 +64,7 @@ export default class MessagingService {
           },
           err => {
             if (err) {
-              console.log('Error: ', err)
+              logger('Error: ', err)
             }
           }
         )
@@ -74,7 +74,7 @@ export default class MessagingService {
 
   join(topic) {
     if (this.client) {
-      console.log('Subscribing to', topic)
+      logger('Subscribing to', topic)
 
       this.client.subscribe(
         topic,
@@ -83,7 +83,7 @@ export default class MessagingService {
         },
         err => {
           if (err) {
-            console.log('Error: ', err)
+            logger('Error: ', err)
           }
         }
       )

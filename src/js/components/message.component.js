@@ -102,6 +102,8 @@ export default memo(props => {
 
   const handleDeleteChannelMessage = async () => {
     try {
+      const messageId = props.message.id
+
       await GraphqlService.getInstance().deleteChannelMessage(messageId)
 
       dispatch(deleteChannelMessage(channel.id, props.message.id))
@@ -536,9 +538,9 @@ export default memo(props => {
       <div className="row">
         {likes.length != 0 && (
           <Likes className="button row" onClick={() => handleChannelLikeOrUnlike()}>
-            <IconComponent icon="thumbs-up" size={15} color="#007af5" className="mr-5" />
+            <IconComponent icon="thumbs-up" size={15} color="#617691" thickness={1.5} />
 
-            <span className="bold p color-blue">{likes.length}</span>
+            <Like>{likes.length}</Like>
           </Likes>
         )}
 
@@ -551,8 +553,7 @@ export default memo(props => {
 
               return (
                 <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
-                  <Emoji emoji={emoticon} size={16} set="emojione" />
-                  <span className="name">{userName}</span>
+                  <Emoji emoji={emoticon} size={18} set="emojione" />
                 </div>
               )
             })}
@@ -697,9 +698,18 @@ const Compose = styled.div`
 
 const Likes = styled.div`
   padding: 5px;
-  border: 1px solid #007af5;
-  border-radius: 5px;
+  border-radius: 10px;
   margin-right: 5px;
+  background-color: #f6f7fa;
+`
+
+const Like = styled.div`
+  color: #617691;
+  margin-left: 5px;
+  position: relative;
+  top: 1px;
+  font-size: 11px;
+  font-weight: 600;
 `
 
 const Reactions = styled.div`
@@ -709,13 +719,6 @@ const Reactions = styled.div`
   .reaction {
     padding: 3px;
     margin-right: 2px;
-
-    .name {
-      font-size: 13px;
-      font-weight: 800;
-      color: #212123;
-      padding-left: 5px;
-    }
   }
 `
 

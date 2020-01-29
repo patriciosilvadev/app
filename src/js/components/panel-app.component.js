@@ -45,7 +45,7 @@ const Iframe = styled.iframe`
 
 const Container = styled.div`
   display: flex;
-  width: 300px;
+  width: 350px;
   height: 100%;
   border-left: 1px solid #f1f3f5;
 `
