@@ -109,7 +109,8 @@ const Dock = styled.div`
   display: flex;
   height: 100%;
   position: relative;
-  background: white;
+  background: #f6f7fa;
   background: #18181d;
-  border-right: 1px solid #111;
+  border-right: 1px solid #eaedef;
+  border-right: 1px solid #202027;
 `

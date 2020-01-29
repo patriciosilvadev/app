@@ -35,7 +35,7 @@ class ChannelComponent extends React.Component {
       open: true,
       title: '',
       image: '',
-      channelModal: true,
+      channelModal: false,
       channelModalStart: 0,
       message: null,
       reply: false,
@@ -646,7 +646,6 @@ const Dropzone = styled.div`
 `
 
 const Channel = styled.div`
-  background: white;
   height: 100%;
   flex: 1;
   padding-left: 0px;
@@ -660,7 +659,6 @@ const Header = styled.div`
   border-bottom: 1px solid #f1f3f5;
   position: relative;
   z-index: 1;
-  background: white;
   padding 15px 25px 15px 25px;
   display: flex;
   /* box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.05); */
@@ -705,7 +703,6 @@ const HeaderButton = styled.div`
 
 const HeaderSearchContainer = styled.div`
   border: 2px solid #f1f3f5;
-  background: white;
   border-radius: 10px;
   padding 7px;
   transition: width 0.5s;
@@ -742,8 +739,7 @@ const MessagesContainer = styled.div`
   flex: 1;
   overflow: scroll;
   width: 100%;
-  background: #f8f9fa;
-  background: white;
+  border-bottom: 1px solid #f1f3f5;
 `
 
 const MessagesInner = styled.div`

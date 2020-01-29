@@ -86,8 +86,6 @@ const Toolbar = styled.div`
   display: flex;
   height: 100%;
   position: relative;
-  background: white;
-  background: white;
   border-left: 1px solid #f1f3f5;
 `
 

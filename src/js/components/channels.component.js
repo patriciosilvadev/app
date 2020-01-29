@@ -429,7 +429,7 @@ class ChannelsComponent extends React.Component {
             <Channel
               key={index}
               active={pathname.indexOf(channel.id) != -1}
-              unread={unreadCount}
+              unread={muted ? 0 : unreadCount}
               title={title}
               image={image}
               excerpt={channel.excerpt}
@@ -484,7 +484,7 @@ class ChannelsComponent extends React.Component {
             <Channel
               key={index}
               active={pathname.indexOf(channel.id) != -1}
-              unread={unreadCount}
+              unread={muted ? 0 : unreadCount}
               title={channel.title}
               image={channel.image}
               excerpt={channel.excerpt}
@@ -537,7 +537,7 @@ class ChannelsComponent extends React.Component {
               key={index}
               presence={presence}
               active={pathname.indexOf(channel.id) != -1}
-              unread={unreadCount}
+              unread={muted ? 0 : unreadCount}
               title={title}
               image={image}
               excerpt={otherMemberStatus}
@@ -583,7 +583,7 @@ class ChannelsComponent extends React.Component {
                 <Channel
                   key={index}
                   active={pathname.indexOf(channel.id) != -1}
-                  unread={unreadCount}
+                  unread={muted ? 0 : unreadCount}
                   title={title}
                   image={image}
                   excerpt={channel.excerpt}
@@ -723,7 +723,7 @@ const Channels = styled.div`
   z-index: 2;
   background: white;
   background: #18181d;
-  border-right: 1px solid #1f2d3d;
+  border-right: 0px solid #1f2d3d;
 `
 
 const ChannelsContainer = styled.div`
@@ -823,7 +823,7 @@ const SearchInput = styled.input`
 
 const SearchContainer = styled.div`
   width: 100%;
-  background: #111;
+  background: #202027;
 `
 
 const SearchInner = styled.div`

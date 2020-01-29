@@ -251,6 +251,7 @@ export default connect(
 )(AppPage)
 
 const AppContainer = styled.div`
+  background-color: #202027;
   background-color: white;
   background-size: contain;
   width: 100%;
