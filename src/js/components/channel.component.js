@@ -16,7 +16,6 @@ import ConfirmModal from '../modals/confirm.modal'
 import { openApp, closeAppPanel, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner, Notification } from '@weekday/elements'
-import QuickUserComponent from '../components/quick-user.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
@@ -35,7 +34,7 @@ class ChannelComponent extends React.Component {
       open: true,
       title: '',
       image: '',
-      channelModal: false,
+      channelModal: true,
       channelModalStart: 0,
       message: null,
       reply: false,
@@ -50,7 +49,7 @@ class ChannelComponent extends React.Component {
       loading: false,
       error: false,
       isDragging: false,
-      permissible: false,
+      hasPermission: false,
     }
 
     this.messagesRef = React.createRef()
@@ -291,7 +290,7 @@ class ChannelComponent extends React.Component {
     const starred = props.user.starred.indexOf(props.channel.id) != -1
     const muted = props.user.muted.indexOf(props.channel.id) != -1
     const archived = props.user.archived.indexOf(props.channel.id) != -1
-    const permissible = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
+    const hasPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
 
     const title = props.channel.private
       ? props.channel.members
@@ -312,7 +311,7 @@ class ChannelComponent extends React.Component {
       title,
       image,
       starred,
-      permissible,
+      hasPermission,
     }
   }
 
@@ -334,7 +333,7 @@ class ChannelComponent extends React.Component {
               {this.props.channel.members.length == 1 ? 'member' : 'members'}
             </HeaderText>
 
-            {!this.props.channel.private && this.state.permissible && (
+            {!this.props.channel.private && this.state.hasPermission && (
               <div className="ml-10 row button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })}>
                 <IconComponent icon="plus" size={15} color="#007af5" thickness={2} className="mr-5" />
                 <HeaderLink>Add New</HeaderLink>
@@ -442,7 +441,7 @@ class ChannelComponent extends React.Component {
                 thickness={1.5}
                 color="#acb5bd"
                 className="ml-15 button"
-                onClick={() => (this.state.permissible ? this.setState({ visibilityMenu: true }) : null)}
+                onClick={() => (this.state.hasPermission ? this.setState({ visibilityMenu: true }) : null)}
               />
             </Popup>
           </React.Fragment>
@@ -479,7 +478,7 @@ class ChannelComponent extends React.Component {
             {/* If there is no channel description */}
             {/* Then give the user the option to update it */}
             {/* But only if they can */}
-            {!this.props.channel.description && this.state.permissible && (
+            {!this.props.channel.description && this.state.hasPermission && (
               <WelcomeDescriptionUpdate className="button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })}>
                 Add some more context about this conversation here
               </WelcomeDescriptionUpdate>
@@ -531,12 +530,15 @@ class ChannelComponent extends React.Component {
   }
 
   render() {
+    const { teamId, channelId } = this.props.match.params
+
     return (
       <React.Fragment>
         {this.state.channelModal && (
           <ChannelModal
-            permissible={this.state.permissible}
-            id={this.props.channel.id}
+            hasPermission={this.state.hasPermission}
+            channelId={channelId}
+            teamId={teamId}
             members={this.props.channel.members}
             start={this.state.channelModalStart}
             onClose={() => this.setState({ channelModal: false })}

@@ -90,21 +90,24 @@ export default class QuickUser extends React.Component {
             <div className="row">
               <Filter autoFocus ref={ref => (this.filterRef = ref)} placeholder="Search for users" value={this.state.filter} onChange={this.onSearch} />
             </div>
-            <Members
-              members={this.state.members}
-              handleAccept={member => {
-                this.setState(
-                  {
-                    filter: '',
-                    members: [],
-                  },
-                  () => {
-                    // Process the choice
-                    this.props.handleAccept(member)
-                  }
-                )
-              }}
-            />
+
+            <MembersContainer>
+              <Members
+                members={this.state.members}
+                handleAccept={member => {
+                  this.setState(
+                    {
+                      filter: '',
+                      members: [],
+                    },
+                    () => {
+                      // Process the choice
+                      this.props.handleAccept(member)
+                    }
+                  )
+                }}
+              />
+            </MembersContainer>
           </div>
         }
       >
@@ -123,6 +126,19 @@ QuickUser.propTypes = {
   handleDismiss: PropTypes.func,
   children: PropTypes.any,
 }
+
+const MembersContainer = styled.div`
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 100%;
+  background: white;
+  transform: translateY(-100%);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  overflow: hidden;
+  z-index: 100000;
+`
 
 const Filter = styled.input`
   border: none;

@@ -64,7 +64,7 @@ const TableRow = props => {
                     onClick: () => setConfirmSelfDeleteModal(true),
                   },
                   {
-                    hide: member.user.id == user.id || !props.permissible,
+                    hide: member.user.id == user.id || !props.hasPermission,
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
                     text: 'Remove person from team',
                     onClick: () => setConfirmMemberDeleteModal(true),
@@ -98,21 +98,21 @@ export default function MembersChannelComponent(props) {
     setError(null)
 
     try {
-      const channelId = channel.id
-      const teamId = props.team.id
+      const channelId = props.channelId
+      const teamId = props.teamId
       const userIds = [userId]
-      const deleteChannelMember = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
+      const { data } = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
       const updatedMembers = members.filter(member => member.user.id != userId)
 
       // Revoke access to people
       dispatch(deleteChannelMember(channelId, userId))
       setLoading(false)
-      setConfirmMemberDeleteModal(false)
       setMembers(updatedMembers)
 
       // Tell this person to leave this channel - send to team
       MessagingService.getInstance().leaveChannel(userIds, teamId)
     } catch (e) {
+      console.log(e)
       setLoading(false)
       setError('Error deleting member')
     }
@@ -123,18 +123,16 @@ export default function MembersChannelComponent(props) {
     setError(null)
 
     try {
-      const channelId = props.id
+      const channelId = props.channelId
+      const teamId = props.teamId
       const userId = user.id
-      const teamId = props.team.id
-      const deleteChannelMembe = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
-
-      // Stop loading the spinners
-      setLoading(false)
+      const { data } = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
 
       // Don't sync this one - because its just for us
       // false is for syncing here
       dispatch(deleteChannelMember(channelId, userId))
       dispatch(deleteChannel(channelId, false))
+      setLoading(false)
 
       // Unsub frem receiving messages here
       MessagingService.getInstance().leave(channelId)
@@ -143,6 +141,7 @@ export default function MembersChannelComponent(props) {
       browserHistory.push(`/app/team/${teamId}/`)
       props.onClose()
     } catch (e) {
+      console.log(e)
       setLoading(false)
       setError('Error deleting self')
     }
@@ -201,7 +200,7 @@ export default function MembersChannelComponent(props) {
               if (filter != '' && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + '.*'))) return null
               if (index < page * limit - limit || index > page * limit) return null
 
-              return <TableRow permissible={props.permissible} key={index} member={member} user={user} onLeave={handleChannelLeave} onDelete={handleChannelMemberDelete} />
+              return <TableRow hasPermission={props.hasPermission} key={index} member={member} user={user} onLeave={handleChannelLeave} onDelete={handleChannelMemberDelete} />
             })}
           </tbody>
         </table>
@@ -212,7 +211,8 @@ export default function MembersChannelComponent(props) {
 
 MembersChannelComponent.propTypes = {
   members: PropTypes.array,
-  team: PropTypes.any,
+  teamId: PropTypes.string,
+  channelId: PropTypes.string,
   createChannel: PropTypes.func,
   onClose: PropTypes.func,
   id: PropTypes.string,

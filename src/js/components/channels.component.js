@@ -285,6 +285,7 @@ class ChannelsComponent extends React.Component {
     const search = e.target.value
     this.setState({ filter: search })
     this.onSearch$.next(search)
+    if (search == '') this.setState({ results: [] })
   }
 
   // Child render functions that compose the

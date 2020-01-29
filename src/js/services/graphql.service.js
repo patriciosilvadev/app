@@ -1145,16 +1145,18 @@ export default class GraphqlService {
     })
   }
 
-  createChannelMember(channelId, userId) {
+  createChannelMember(channelId, teamId, userId, userName) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelMember($channelId: String, $userId: String) {
-          createChannelMember(channelId: $channelId, userId: $userId)
+        mutation createChannelMember($channelId: String, $teamId: String, $userId: String, $userName: String) {
+          createChannelMember(channelId: $channelId, teamId: $teamId, userId: $userId, userName: $userName)
         }
       `,
       variables: {
+        teamId,
         channelId,
         userId,
+        userName,
       },
     })
   }

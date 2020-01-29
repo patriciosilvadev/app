@@ -37,10 +37,11 @@ export default function ChannelModal(props) {
 
     try {
       const userId = user.id
+      const userName = user.name
       const userIds = [userId]
-      const channelId = channel.id
+      const { channelId, teamId } = props
       const member = { user }
-      const { data } = await GraphqlService.getInstance().createChannelMember(channelId, userId)
+      const { data } = await GraphqlService.getInstance().createChannelMember(channelId, teamId, userId, userName)
 
       setLoading(false)
       setMembers([...members, member])
@@ -115,11 +116,11 @@ export default function ChannelModal(props) {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!props.id) return
+        if (!props.channelId) return
 
         setLoading(true)
 
-        const { data } = await GraphqlService.getInstance().channel(props.id)
+        const { data } = await GraphqlService.getInstance().channel(props.channelId)
         const channel = data.channel
 
         setImage(channel.image)
@@ -149,7 +150,7 @@ export default function ChannelModal(props) {
             <div className="column">
               <Avatar title={title} image={image} className="mr-20 mb-20" size="xx-large" />
 
-              {props.permissible && (
+              {props.hasPermission && (
                 <Link className="button mt-10" onClick={() => fileRef.current.click()}>
                   Update image
                 </Link>
@@ -157,7 +158,7 @@ export default function ChannelModal(props) {
             </div>
 
             <Column className="column">
-              <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.permissible} />
+              <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.hasPermission} />
 
               <Textarea
                 label="Description"
@@ -166,7 +167,7 @@ export default function ChannelModal(props) {
                 placeholder="Add a description"
                 rows={8}
                 className="mb-20"
-                disable={!props.permissible}
+                disable={!props.hasPermission}
               />
 
               <div className="row">
@@ -176,7 +177,7 @@ export default function ChannelModal(props) {
             </Column>
           </Row>
 
-          {props.permissible && (
+          {props.hasPermission && (
             <div className="p-20">
               <Button onClick={handleUpdateChannel} text="Update" theme="muted" />
             </div>
@@ -189,9 +190,9 @@ export default function ChannelModal(props) {
   const renderMembers = () => {
     return (
       <div className="column flex-1 w-100 h-100">
-        <MembersChannelComponent permissible={props.permissible} id={props.id} team={props.team} onClose={props.onClose} members={members} />
+        <MembersChannelComponent hasPermission={props.hasPermission} id={props.id} channelId={channel.id} teamId={team.id} onClose={props.onClose} members={members} />
 
-        {props.permissible && (
+        {props.hasPermission && (
           <QuickUserComponent
             channel={channel}
             visible={userMenu}
@@ -259,7 +260,7 @@ export default function ChannelModal(props) {
             {
               title: 'Danger zone',
               show: true,
-              hide: !props.permissible,
+              hide: !props.hasPermission,
               content: renderDangerZone(),
             },
           ]}
@@ -270,11 +271,12 @@ export default function ChannelModal(props) {
 }
 
 ChannelModal.propTypes = {
-  team: PropTypes.any,
+  channelId: PropTypes.string,
+  teamId: PropTypes.string,
   start: PropTypes.number,
   members: PropTypes.array,
   onClose: PropTypes.func,
-  permissible: PropTypes.bool, // Whether someone can edit the team or not (admin)
+  hasPermission: PropTypes.bool, // Whether someone can edit the team or not (admin)
 }
 
 const Text = styled.div``
