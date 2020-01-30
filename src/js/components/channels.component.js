@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -13,11 +13,214 @@ import { IconComponent } from './icon.component'
 import PropTypes from 'prop-types'
 import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Channel, Tooltip } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Tooltip } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger } from '../helpers/util'
+
+const Channel = props => {
+  const [over, setOver] = useState(false)
+  const [menu, setMenu] = useState(false)
+
+  return (
+    <ChannelContainer
+      onClick={props.onClick ? props.onClick : null}
+      onMouseEnter={() => setOver(true)}
+      onMouseLeave={() => {
+        setOver(false)
+        setMenu(false)
+      }}
+      unread={props.unread}
+      active={props.active}
+    >
+      <ChannelContainerPadding>
+        <Avatar dark presence={props.presence} size="medium" image={props.image} title={props.title} />
+
+        <ChannelContents>
+          <ChannelInnerContents>
+            <ChannelTitle active={props.active || props.unread != 0}>{props.title}</ChannelTitle>
+
+            {props.muted && <IconComponent icon="bell-off" color="#626d7a" size={15} thickness={1.5} style={{ marginRight: 5 }} />}
+
+            {!props.public && !props.private && <IconComponent icon="eye-off" color="#626d7a" size={15} thickness={1.5} />}
+
+            <div className="flexer" />
+
+            {over && props.onMutedClick && props.onArchivedClick && (
+              <Popup
+                handleDismiss={() => setMenu(false)}
+                visible={menu}
+                width={200}
+                direction="right-bottom"
+                content={
+                  <Menu
+                    items={[
+                      {
+                        text: props.archived ? 'Unarchive' : 'Archive',
+                        onClick: e => {
+                          props.onArchivedClick()
+                        },
+                      },
+                      {
+                        text: props.muted ? 'Unmute' : 'Mute',
+                        onClick: e => {
+                          props.onMutedClick()
+                        },
+                      },
+                    ]}
+                  />
+                }
+              >
+                <ChannelMoreIcon
+                  onClick={e => {
+                    e.stopPropagation()
+                    setMenu(true)
+                  }}
+                >
+                  <IconComponent icon="more-h" color="#626d7a" size={15} thickness={1.5} />
+                </ChannelMoreIcon>
+              </Popup>
+            )}
+
+            {!over && props.unread > 0 && <ChannelBadge>{props.unread}</ChannelBadge>}
+          </ChannelInnerContents>
+
+          {props.excerpt && (
+            <ChannelExcerpt>
+              <ChannelExcerptText active={props.active || props.unread != 0}>{props.excerpt}</ChannelExcerptText>
+            </ChannelExcerpt>
+          )}
+        </ChannelContents>
+      </ChannelContainerPadding>
+    </ChannelContainer>
+  )
+}
+
+Channel.propTypes = {
+  dark: PropTypes.bool,
+  active: PropTypes.bool,
+  muted: PropTypes.bool,
+  archived: PropTypes.bool,
+  unread: PropTypes.number,
+  title: PropTypes.string,
+  image: PropTypes.string,
+  icon: PropTypes.string,
+  label: PropTypes.string,
+  excerpt: PropTypes.string,
+  public: PropTypes.bool,
+  private: PropTypes.bool,
+  presence: PropTypes.string,
+  onClick: PropTypes.any,
+  onMutedClick: PropTypes.any,
+  onArchivedClick: PropTypes.any,
+}
+
+const ChannelContainer = styled.div`
+  background: ${props => (props.active ? '#202027' : 'transparent')};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  margin-bottom: 5px;
+`
+
+const ChannelContainerPadding = styled.div`
+  flex: 1;
+  padding: 3px 25px 3px 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+  position: relative;
+`
+
+const ChannelBadge = styled.div`
+  padding: 3px 7px 3px 7px;
+  border-radius: 10px;
+  background-color: #007af5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 8px;
+  color: white;
+  font-weight: 700;
+  margin-left: 5px;
+`
+
+const ChannelTitle = styled.div`
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: ${props => (props.active ? 'white' : '#626d7a')};
+  white-space: wrap;
+  max-width: 140px;
+  /*letter-spacing: -0.5px;*/
+  margin-right: 5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+`
+
+const ChannelExcerpt = styled.div`
+  flex: 1;
+  margin-top: 1px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  overflow: hidden;
+`
+
+const ChannelExcerptText = styled.span`
+  font-size: 13px;
+  color: #626d7a;
+  font-weight: 400;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  overflow: hidden;
+  max-width: 200px;
+`
+
+const ChannelContents = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: flex-start;
+  justify-content: flex-start;
+  position: relative;
+  flex: 1;
+  padding-left: 10px;
+`
+
+const ChannelInnerContents = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  position: relative;
+`
+
+const ChannelMoreIcon = styled.span`
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.5s;
+  display: inline-block;
+  z-index: 5;
+  right: 0px;
+  top: 0px;
+  display: flex;
+  margin-left: 5px;
+  margin-right: 4px;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 0.75;
+  }
+`
 
 class ChannelsComponent extends React.Component {
   constructor(props) {
