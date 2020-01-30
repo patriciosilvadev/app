@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Loading, Error, Input, Button, Notification, Avatar } from '@weekday/elements'
+import { Loading, Error, Input, Button, Notification, Avatar } from '@yacklabs/elements'
 import GraphqlService from '../services/graphql.service'
 
 export default props => {

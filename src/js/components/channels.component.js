@@ -13,7 +13,7 @@ import { IconComponent } from './icon.component'
 import PropTypes from 'prop-types'
 import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Tooltip } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Tooltip } from '@yacklabs/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
@@ -46,44 +46,6 @@ const Channel = props => {
             {!props.public && !props.private && <IconComponent icon="eye-off" color="#626d7a" size={15} thickness={1.5} />}
 
             <div className="flexer" />
-
-            {over && props.onMutedClick && props.onArchivedClick && (
-              <Popup
-                handleDismiss={() => setMenu(false)}
-                visible={menu}
-                width={200}
-                direction="right-bottom"
-                content={
-                  <Menu
-                    items={[
-                      {
-                        text: props.archived ? 'Unarchive' : 'Archive',
-                        onClick: e => {
-                          props.onArchivedClick()
-                        },
-                      },
-                      {
-                        text: props.muted ? 'Unmute' : 'Mute',
-                        onClick: e => {
-                          props.onMutedClick()
-                        },
-                      },
-                    ]}
-                  />
-                }
-              >
-                <ChannelMoreIcon
-                  onClick={e => {
-                    e.stopPropagation()
-                    setMenu(true)
-                  }}
-                >
-                  <IconComponent icon="more-h" color="#626d7a" size={15} thickness={1.5} />
-                </ChannelMoreIcon>
-              </Popup>
-            )}
-
-            {!over && props.unread > 0 && <ChannelBadge>{props.unread}</ChannelBadge>}
           </ChannelInnerContents>
 
           {props.excerpt && (
@@ -93,6 +55,44 @@ const Channel = props => {
           )}
         </ChannelContents>
       </ChannelContainerPadding>
+
+      {over && props.onMutedClick && props.onArchivedClick && (
+        <Popup
+          handleDismiss={() => setMenu(false)}
+          visible={menu}
+          width={200}
+          direction="right-bottom"
+          content={
+            <Menu
+              items={[
+                {
+                  text: props.archived ? 'Unarchive' : 'Archive',
+                  onClick: e => {
+                    props.onArchivedClick()
+                  },
+                },
+                {
+                  text: props.muted ? 'Unmute' : 'Mute',
+                  onClick: e => {
+                    props.onMutedClick()
+                  },
+                },
+              ]}
+            />
+          }
+        >
+          <ChannelMoreIcon
+            onClick={e => {
+              e.stopPropagation()
+              setMenu(true)
+            }}
+          >
+            <IconComponent icon="more-h" color="#626d7a" size={15} thickness={1.5} />
+          </ChannelMoreIcon>
+        </Popup>
+      )}
+
+      {props.unread > 0 && <ChannelBadge>{props.unread}</ChannelBadge>}
     </ChannelContainer>
   )
 }
@@ -126,11 +126,12 @@ const ChannelContainer = styled.div`
   position: relative;
   cursor: pointer;
   margin-bottom: 5px;
+  padding-right: 25px;
 `
 
 const ChannelContainerPadding = styled.div`
   flex: 1;
-  padding: 3px 25px 3px 25px;
+  padding: 3px 0px 3px 25px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -144,9 +145,9 @@ const ChannelBadge = styled.div`
   border-radius: 10px;
   background-color: #007af5;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-size: 8px;
+  font-size: 11px;
   color: white;
-  font-weight: 700;
+  font-weight: 600;
   margin-left: 5px;
 `
 

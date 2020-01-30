@@ -43,7 +43,7 @@ import { Forward } from '../icons/Forward'
 import { Profile } from '../icons/Profile'
 import { Yack } from '../icons/Yack'
 
-export function IconComponent({ size, color, icon, thickness, className, onClick }) {
+export function IconComponent({ size, color, icon, thickness, className, onClick, style }) {
   const defaultThickness = 1.25
 
   const getIcon = () => {
@@ -132,7 +132,7 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
   }
 
   return (
-    <span style={{ width: size, height: size, display: 'inline-block' }} className={className} onClick={onClick}>
+    <span style={{ width: size, height: size, display: 'inline-block', ...style }} className={className} onClick={onClick}>
       {getIcon()}
     </span>
   )

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Button, Modal } from '@weekday/elements'
+import { Button, Modal } from '@yacklabs/elements'
 
 export default function AppModal(props) {
   const user = useSelector(state => state.user)

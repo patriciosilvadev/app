@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Button, Modal } from '@weekday/elements'
+import { Button, Modal } from '@yacklabs/elements'
 import { IconComponent } from './icon.component'
 
 export default function PanelAppComponent(props) {
