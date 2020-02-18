@@ -665,8 +665,8 @@ class ChannelsComponent extends React.Component {
   }
 
   renderPublic() {
-    if (this.state.public.length == 0) return null
-
+    // Not this one - we want to always show this one
+    // if (this.state.public.length == 0) return null
     const { pathname } = this.props.history.location
 
     return (
