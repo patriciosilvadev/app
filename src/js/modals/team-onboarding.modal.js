@@ -137,9 +137,8 @@ export default function TeamOnboardingModal(props) {
       <React.Fragment>
         <img src="./team-onboarding.png" width="90%" />
 
-        <Text className="h1 mb-30 mt-30 color-d3">Start Something</Text>
-        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
-        <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
+        <Text className="h1 mb-30 mt-30 color-d3">Start something...</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Create a new team by entering the name below</Text>
 
         <div className="column mt-30 align-items-center w-100">
           <InputContainer>
@@ -176,7 +175,6 @@ export default function TeamOnboardingModal(props) {
 
         <div className="row mt-30">
           <Button className="mr-10" onClick={() => setStep(1)} size="large" text="Back" />
-
           <Button onClick={handleNewTeamCreate} size="large" text="Create Team" />
         </div>
 
