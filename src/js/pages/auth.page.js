@@ -9,6 +9,7 @@ import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
 import { Loading, Button, Error, Input, Textarea, Select } from '@yacklabs/elements'
 import Zero from '@joduplessis/zero'
+import moment from 'moment'
 
 class AuthPage extends React.Component {
   constructor(props) {
@@ -20,7 +21,8 @@ class AuthPage extends React.Component {
       error: null,
       loading: null,
       timezone: 0,
-      userId: '',
+      userId: null,
+      token: null,
     }
 
     this.signin = this.signin.bind(this)
@@ -55,13 +57,13 @@ class AuthPage extends React.Component {
       if (request.status == 500) return this.setState({ error: 'Internal error' })
       if (request.status == 401) return this.setState({ error: 'Error' })
       if (request.status == 200) {
-        this.props.fetchUser(this.state.userId)
+        this.props.fetchUser(userId)
         this.props.history.push('/app?onboarding=true')
       }
     } catch (e) {
       this.setState({
         loading: false,
-        error: 'Username not available',
+        error: 'There has been an error',
       })
     }
   }
@@ -93,6 +95,7 @@ class AuthPage extends React.Component {
       if (request.status == 401) return this.setState({ error: 'Username or email not available' })
       if (request.status == 200) {
         const { user, token } = result
+        const userId = user._id
 
         // Save our token
         AuthService.saveToken(token)
@@ -100,7 +103,8 @@ class AuthPage extends React.Component {
         // And then let the user onboard
         this.setState({
           view: 'signup-onboarding',
-          userId: user._id,
+          userId,
+          token,
         })
       }
     } catch (e) {
@@ -349,9 +353,9 @@ class AuthPage extends React.Component {
         <Container className="column justify-content-center align-content-center align-items-stretch">
           <Formik
             initialValues={{
-              name: 'Joseph',
-              description: 'Coolness',
-              role: 'ed',
+              name: '',
+              description: '',
+              role: '',
             }}
             onSubmit={(values, actions) => {
               actions.resetForm()

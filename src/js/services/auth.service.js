@@ -32,7 +32,7 @@ export default class AuthService {
     CookiesService.deleteCookie(JWT)
   }
 
-  static saveToken(token) {
-    CookiesService.setCookie(JWT, token)
+  static saveToken(jwt) {
+    CookiesService.setCookie(JWT, jwt)
   }
 }
