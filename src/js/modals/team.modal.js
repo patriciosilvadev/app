@@ -271,11 +271,15 @@ export default function TeamModal(props) {
                 <Text className="h5 color-d2">{name}</Text>
               </div>
               <div className="row">
-                {props.id && <Text className="p color-d0 button bold mr-10">{members.length} members</Text>}
+                {props.id && (
+                  <Text className="p color-d0 button bold mr-10">
+                    {members.length} {members.length == 1 ? 'member' : 'members'}
+                  </Text>
+                )}
 
                 {admin && (
                   <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>
-                    Update profile image
+                    Update team image
                   </Text>
                 )}
               </div>

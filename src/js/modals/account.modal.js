@@ -171,11 +171,22 @@ export default function AccountModal(props) {
       const updatedUser = { name, role, description, username, image, timezone: moment.tz.names()[timezone] }
       const userId = props.id
 
-      await GraphqlService.getInstance().updateUser(userId, updatedUser)
+      const { data } = await GraphqlService.getInstance().updateUser(userId, updatedUser)
 
-      dispatch(updateUser(updatedUser))
+      // Either way, stop loading
       setLoading(false)
-      setNotification('Succesfully updated')
+
+      // This is a bit assumptive
+      // Only reason it would fail
+      // TODO: Handle this better
+      if (!data.updateUser) {
+        setError('This username is already in use')
+        setNotification(null)
+      } else {
+        dispatch(updateUser(updatedUser))
+        setError(null)
+        setNotification('Succesfully updated')
+      }
     } catch (e) {
       setLoading(false)
       setError('Email or username are taken')
@@ -356,7 +367,7 @@ export default function AccountModal(props) {
           <div className="row w-100 p-20">
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
-            <Avatar image={image} className="mr-20" size="large" circle />
+            <Avatar image={image} className="mr-20" size="large" />
 
             <div className="column pl-10">
               <div className="row pb-5">

@@ -497,7 +497,7 @@ class ChannelsComponent extends React.Component {
   renderHeader() {
     return (
       <Header className="row">
-        <Avatar size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" />
+        <Avatar dark size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" />
 
         <HeaderTitles className="column">
           {/*<HeaderTeam>{this.props.team.name}</HeaderTeam>*/}
