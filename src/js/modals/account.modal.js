@@ -597,6 +597,10 @@ export default function AccountModal(props) {
       <Modal title="Account" width={700} height="90%" onClose={props.onClose}>
         <Tabbed
           start={0}
+          onChange={i => {
+            setNotification(null)
+            setError(null)
+          }}
           panels={[
             {
               title: 'Profile',

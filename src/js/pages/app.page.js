@@ -188,14 +188,20 @@ class AppPage extends React.Component {
     return (
       <AppContainer className="column">
         <Loading show={this.props.common.loading} />
-        <Error message={this.props.common.error} />
+        <Error message={this.props.common.error} theme="solid" />
 
-        {!this.props.common.connected && <Notification text="Connecting..." />}
+        {!this.props.common.connected && <Notification theme="blue" text="Connecting..." />}
 
         {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
 
         {this.state.pushNotifications && (
-          <Notification text="Push notifications are disabled." actionText="Enable" onActionClick={this.pushNotifications.bind(this)} onDismissIconClick={this.dismissPushNotifications.bind(this)} />
+          <Notification
+            text="Push notifications are disabled."
+            actionText="Enable"
+            onActionClick={this.pushNotifications.bind(this)}
+            onDismissIconClick={this.dismissPushNotifications.bind(this)}
+            theme="solid"
+          />
         )}
 
         <App className="row">
