@@ -8,7 +8,7 @@ import PropTypes from 'prop-types'
 import { initialize, fetchUser, closeAppModal, closeAppPanel } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import CookieService from '../services/cookies.service'
-import { Avatar, Loading, Error, Notification } from '@yacklabs/elements'
+import { Avatar, Loading, Error, Notification } from '@tryyack/elements'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
@@ -195,7 +195,7 @@ class AppPage extends React.Component {
         {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
 
         {this.state.pushNotifications && (
-          <Notification text="Push notifications are disabled." actionText="Enable" onActionClick={this.pushNotifications.bind(this)} onDismissClick={this.dismissPushNotifications.bind(this)} />
+          <Notification text="Push notifications are disabled." actionText="Enable" onActionClick={this.pushNotifications.bind(this)} onDismissIconClick={this.dismissPushNotifications.bind(this)} />
         )}
 
         <App className="row">

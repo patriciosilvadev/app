@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Loading, Error, Input, Button, Notification, Avatar } from '@yacklabs/elements'
+import { Loading, Error, Input, Button, Notification, Avatar } from '@tryyack/elements'
 import GraphqlService from '../services/graphql.service'
 
 export default props => {
@@ -64,8 +64,8 @@ export default props => {
 
   return (
     <React.Fragment>
-      <Error message={error} />
-      <Notification text={notification} />
+      <Error message={error} onDismiss={() => setError(null)} />
+      <Notification text={notification} onDismiss={() => setNotification(false)} />
 
       <Container className="column">
         <Loading show={loading} />

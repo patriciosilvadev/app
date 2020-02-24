@@ -12,11 +12,12 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser, deleteChannelMember } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@yacklabs/elements'
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@tryyack/elements'
 import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
 import { STRIPE_API_KEY } from '../environment'
 import Zero from '@joduplessis/zero'
 import { logger } from '../helpers/util'
+import { IconComponent } from '../components/icon.component'
 
 const moment = require('moment-timezone')
 
@@ -391,9 +392,9 @@ export default function AccountModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <div className="row w-100 p-20">
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
@@ -446,9 +447,9 @@ export default function AccountModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
@@ -475,9 +476,9 @@ export default function AccountModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Change & update your password</Text>
@@ -500,9 +501,9 @@ export default function AccountModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           {confirmAccountDeleteModal && (
             <ConfirmModal
@@ -515,7 +516,9 @@ export default function AccountModal(props) {
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-red h5 mb-10">Here be dragons!</Text>
-            <Text className="color-d0 p mb-30">This cannot be undone.</Text>
+            <Text className="color-d0 p mb-30">
+              Once you delete your account, you will only be able to re-activate it by contacting <a href="mailto:support@yack.co">support@yack.co</a>.
+            </Text>
 
             <Button theme="red" text="Delete" onClick={() => setConfirmAccountDeleteModal(true)} />
           </div>
@@ -528,9 +531,9 @@ export default function AccountModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Credit Cards</Text>
@@ -569,9 +572,9 @@ export default function AccountModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Invoices</Text>
@@ -692,30 +695,24 @@ const CreditCardRow = props => {
 }
 
 const EmailAddressRow = props => {
-  const [over, setOver] = useState(false)
-
   return (
-    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
+    <tr>
       <TableCell width="40%">
         <MailAddress>{props.email.address}</MailAddress>
       </TableCell>
-      <TableCell width="30%">
-        <MailStatus>{props.email.confirmed ? 'Confirmed' : 'Not confirmed'}</MailStatus>
+      <TableCell width="20%">
+        <MailStatus>{props.email.confirmed ? '✓ Confirmed' : '✕ Not confirmed'}</MailStatus>
       </TableCell>
-      <TableCell>
-        {over && (
-          <React.Fragment>
-            {!props.email.confirmed && (
-              <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">
-                Confirm
-              </MailButtonConfirm>
-            )}
+      <TableCell width="40%">
+        <div className="row w-100 justify-content-end">
+          {!props.email.confirmed && (
+            <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">
+              Send code again
+            </MailButtonConfirm>
+          )}
 
-            <MailButtonDelete onClick={() => props.onDelete(props.email.address)} className="button">
-              Delete
-            </MailButtonDelete>
-          </React.Fragment>
-        )}
+          <IconComponent color="#617691" icon="delete" onClick={() => props.onDelete(props.email.address)} size={15} thickness={1.5} className="button" />
+        </div>
       </TableCell>
     </tr>
   )
@@ -746,11 +743,11 @@ const MailStatus = styled.div`
 `
 
 const MailButtonConfirm = styled.span`
-  color: #007af5;
+  color: #858e96;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   cursor: pointer;
-  margin-left: 10px;
+  margin-right: 10px;
 `
 
 const MailButtonDelete = styled.span`

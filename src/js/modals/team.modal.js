@@ -8,7 +8,7 @@ import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
-import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@yacklabs/elements'
+import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
 import { IconComponent } from '../components/icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { BASE_URL } from '../environment'
@@ -257,9 +257,9 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <div className="row w-100 p-20">
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
@@ -466,7 +466,7 @@ export default function TeamModal(props) {
             },
             {
               title: 'Upgrade',
-              show: admin,
+              show: false /* TODO: Set back to the admin variable */,
               content: renderBilling(),
             },
             {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Button, Modal } from '@yacklabs/elements'
+import { Button, Modal } from '@tryyack/elements'
 
 export default function ConfirmModal({ onOkay, onCancel, text, title }) {
   return (

@@ -5,7 +5,7 @@ import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
-import { Button, Modal, Input, Textarea, Avatar, Notification, Spinner, Error } from '@yacklabs/elements'
+import { Button, Modal, Input, Textarea, Avatar, Notification, Spinner, Error } from '@tryyack/elements'
 import { validEmail, logger } from '../helpers/util'
 import { createTeam } from '../actions'
 import MessagingService from '../services/messaging.service'
@@ -225,9 +225,9 @@ export default function TeamOnboardingModal(props) {
     <ModalPortal>
       <Modal title="Create a new team" frameless={true} width="100%" height="100%" onClose={props.onCancel}>
         <React.Fragment>
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <Container>
             <Inner>

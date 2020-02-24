@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Attachment, Popup, Button, Modal } from '@yacklabs/elements'
+import { Attachment, Popup, Button, Modal } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 
 export default function PreviewComponent(props) {

@@ -9,7 +9,7 @@ import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
-import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@yacklabs/elements'
+import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@tryyack/elements'
 import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent } from '../helpers/util'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
@@ -584,9 +584,9 @@ class ComposeComponent extends React.Component {
   render() {
     return (
       <Compose className="column align-items-stretch">
-        {this.state.error && <Error message={this.state.error} />}
+        {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
-        {this.state.notification && <Notification text={this.state.notification} />}
+        {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
 
         {this.renderUpdate()}
         {this.renderAttachments()}

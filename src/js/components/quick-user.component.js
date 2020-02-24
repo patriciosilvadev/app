@@ -4,7 +4,7 @@ import { Subject } from 'rxjs'
 import PropTypes from 'prop-types'
 import { debounceTime } from 'rxjs/operators'
 import GraphqlService from '../services/graphql.service'
-import { Popup, User, Members, Spinner } from '@yacklabs/elements'
+import { Popup, User, Members, Spinner } from '@tryyack/elements'
 
 export default class QuickUser extends React.Component {
   constructor(props) {

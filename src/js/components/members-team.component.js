@@ -8,7 +8,7 @@ import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
-import { Popup, Menu, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@yacklabs/elements'
+import { Popup, Menu, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { deleteTeam, updateTeam } from '../actions'
@@ -271,9 +271,9 @@ export default function MembersTeamComponent(props) {
 
   return (
     <React.Fragment>
-      {error && <Error message={error} />}
+      {error && <Error message={error} onDismiss={() => setError(false)} />}
       {loading && <Spinner />}
-      {notification && <Notification text={notification} />}
+      {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
       <div className="flexer p-20 w-100">
         <div className="row pb-20">

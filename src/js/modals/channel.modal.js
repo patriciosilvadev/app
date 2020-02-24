@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 import { browserHistory } from '../services/browser-history.service'
 import { updateChannel, deleteChannel, createChannelMember, deleteChannelMember } from '../actions'
 import ConfirmModal from './confirm.modal'
-import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@yacklabs/elements'
+import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@tryyack/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
 import MembersChannelComponent from '../components/members-channel.component'
@@ -140,9 +140,9 @@ export default function ChannelModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {error && <Error message={error} />}
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
-          {notification && <Notification text={notification} />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
           <Row className="row align-items-start">
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
