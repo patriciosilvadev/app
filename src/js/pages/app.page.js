@@ -190,7 +190,7 @@ class AppPage extends React.Component {
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} theme="solid" />
 
-        {!this.props.common.connected && <Notification theme="blue" text="Connecting..." />}
+        {!this.props.common.connected && <Notification theme="solid" text="Connecting..." />}
 
         {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
 

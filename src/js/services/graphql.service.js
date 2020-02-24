@@ -152,7 +152,6 @@ export default class GraphqlService {
             name
             description
             image
-            premium
           }
         }
       `,

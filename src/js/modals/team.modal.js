@@ -68,8 +68,13 @@ export default function TeamModal(props) {
       const { data } = await GraphqlService.getInstance().updateTeamSlug(teamId, slug)
 
       setLoading(false)
-      setNotification('Succesfully updated team slug')
-      dispatch(updateTeam(teamId, { slug }))
+
+      if (data.updateTeamSlug) {
+        setNotification('Succesfully updated team slug')
+        dispatch(updateTeam(teamId, { slug }))
+      } else {
+        setError('Slug unavailable')
+      }
     } catch (e) {
       setLoading(false)
       setError('Error updating team slug')
@@ -318,6 +323,10 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Outside access</Text>
             <Text className="color-d0 p mb-30">{`Allow anybody to join your team using a shortcode at ${BASE_URL}/t/${slug}`}</Text>
@@ -325,14 +334,16 @@ export default function TeamModal(props) {
             <Input label="Update your team shortcode" value={shortcode} onChange={e => setShortcode(e.target.value)} placeholder="Enter shortcode" className="mb-20" />
 
             <div className="row mb-30">
-              <Button onClick={handleUpdateTeamShortcode} text="Update shortcode" theme="muted" />
-
-              <Button theme="muted" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
+              <Button onClick={handleUpdateTeamShortcode} text="Update" theme="muted" />
             </div>
 
             <Input label="Update your team slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="Enter Slug" className="mb-20" />
 
-            <Button theme="muted" onClick={handleUpdateTeamSlug} text="Update slug" />
+            <div className="row mb-30">
+              <Button theme="muted" onClick={handleUpdateTeamSlug} text="Update slug" />
+
+              <Button theme="muted" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
+            </div>
           </div>
         </div>
       </div>
@@ -443,6 +454,10 @@ export default function TeamModal(props) {
       <Modal title={`Team ${name}`} width={800} height="90%" onClose={props.onClose}>
         <Tabbed
           start={props.start}
+          onChange={i => {
+            setNotification(null)
+            setError(null)
+          }}
           panels={[
             {
               title: 'Overview',

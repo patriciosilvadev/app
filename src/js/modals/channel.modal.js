@@ -245,7 +245,11 @@ export default function ChannelModal(props) {
     <ModalPortal>
       <Modal title="Channel" width={700} height="90%" onClose={props.onClose}>
         <Tabbed
-          start={props.start || 0}
+          start={props.start}
+          onChange={i => {
+            setNotification(null)
+            setError(null)
+          }}
           panels={[
             {
               title: 'Overview',

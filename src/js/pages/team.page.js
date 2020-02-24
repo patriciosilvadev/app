@@ -36,7 +36,7 @@ export default props => {
       if (!data.joinTeam) setError('Could not join team')
       if (data.joinTeam) {
         setJoined(true)
-        setNotification('successfully joined team')
+        setNotification('Successfully joined team')
       }
     } catch (e) {
       setLoading(false)
@@ -77,7 +77,7 @@ export default props => {
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
             <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
             <Inputs>
-              <Input placeholder="Enter shortcode here" inputSize="large" className="mt-30" value={shortcode} onChange={e => setShortcode(e.target.value)} />
+              <Input placeholder="Enter shortcode here" inputSize="large" className="mt-30 mb-10" value={shortcode} onChange={e => setShortcode(e.target.value)} />
               <Button onClick={handleTeamJoin} size="large" text="Join Now" />
             </Inputs>
           </Inner>
@@ -88,7 +88,7 @@ export default props => {
             <Avatar image={image} title={name} className="mb-20" size="xx-large" />
             <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations</Text>
-            <Text className="h5 color-d0">You have successfully joined this team. Click on the button to start.</Text>
+            <Text className="h5 color-d0 mb-20">You have successfully joined this team. Click on the button to start.</Text>
             <Inputs>
               <Button onClick={() => props.history.push('/app')} size="large" text="Start" />
             </Inputs>
@@ -96,7 +96,7 @@ export default props => {
         )}
 
         <Logo>
-          <img src="./logo.png" height="20" alt="Yack" />
+          <img src="./logo.svg" height="20" alt="Yack" />
           <LogoText>yack</LogoText>
         </Logo>
       </Container>
