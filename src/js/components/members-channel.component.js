@@ -112,7 +112,6 @@ export default function MembersChannelComponent(props) {
       // Tell this person to leave this channel - send to team
       MessagingService.getInstance().leaveChannel(userIds, teamId)
     } catch (e) {
-      console.log(e)
       setLoading(false)
       setError('Error deleting member')
     }
@@ -141,7 +140,6 @@ export default function MembersChannelComponent(props) {
       browserHistory.push(`/app/team/${teamId}/`)
       props.onClose()
     } catch (e) {
-      console.log(e)
       setLoading(false)
       setError('Error deleting self')
     }

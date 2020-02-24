@@ -3,18 +3,20 @@ import { useSelector, useDispatch } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import AuthService from '../services/auth.service'
+import MessagingService from '../services/messaging.service'
 import { API_HOST, JWT } from '../environment'
 import styled from 'styled-components'
 import { Formik } from 'formik'
 import ConfirmModal from './confirm.modal'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
-import { updateUser } from '../actions'
+import { updateUser, deleteChannelMember } from '../actions'
 import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@yacklabs/elements'
 import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
 import { STRIPE_API_KEY } from '../environment'
 import Zero from '@joduplessis/zero'
+import { logger } from '../helpers/util'
 
 const moment = require('moment-timezone')
 
@@ -97,6 +99,8 @@ export default function AccountModal(props) {
   const [confirmAccountDeleteModal, setConfirmAccountDeleteModal] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
+  const teams = useSelector(state => state.teams)
+  const channels = useSelector(state => state.channels)
 
   const AccountService = Zero.container().get('AccountService')
 
@@ -131,10 +135,37 @@ export default function AccountModal(props) {
 
     try {
       const userId = props.id
+
+      // Delete me first
+      // So that if anything fails I'm still gone
       await AccountService.accountDelete(userId)
-      AuthService.signout()
+
+      // Remove user from teams
+      teams.map(team => {
+        MessagingService.getInstance().leave(team.id)
+      })
+
+      // Remove user from channels
+      channels.map(channel => {
+        // Tell everyone I'm dead
+        dispatch(deleteChannelMember(channel.id, userId))
+        MessagingService.getInstance().leave(channel.id)
+      })
+
+      // Remove from user sub
+      MessagingService.getInstance().leave(userId)
+
+      // Sign me out and
+      await AuthService.signout()
+      await GraphqlService.signout()
+
+      // Close this the confirm modal
+      setConfirmAccountDeleteModal(false)
+
+      // Reload to force refresh
       window.location.reload()
     } catch (e) {
+      logger(e)
       setLoading(false)
       setError('There has been an error')
     }

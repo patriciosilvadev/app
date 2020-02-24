@@ -16,7 +16,7 @@ class AuthPage extends React.Component {
     super(props)
 
     this.state = {
-      view: 'signup',
+      view: 'signin',
       verify: false,
       error: null,
       loading: null,

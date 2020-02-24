@@ -85,8 +85,12 @@ export const copyToClipboard = value => {
   document.body.removeChild(tempInput)
 }
 
-export const logger = log => {
-  // console.log(log)
+export const logger = (log, additional) => {
+  if (additional) {
+    console.log(log, additional)
+  } else {
+    console.log(log)
+  }
 }
 
 export const validEmail = email => {
