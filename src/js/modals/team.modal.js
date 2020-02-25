@@ -139,14 +139,16 @@ export default function TeamModal(props) {
     try {
       setLoading(true)
       setError(null)
+      setNotification(null)
 
       await GraphqlService.getInstance().inviteTeamMembers(name, slug, shortcode, emails)
 
       setLoading(false)
+      setNotification('Successfully sent invites')
       setEmails('')
     } catch (e) {
       setLoading(false)
-      setError('Error creating team member')
+      setError('Error inviting team members')
     }
   }
 
@@ -354,6 +356,10 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Invite users</Text>
             <Text className="color-d0 p mb-30">Add users email.</Text>
