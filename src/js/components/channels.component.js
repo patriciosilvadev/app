@@ -231,7 +231,7 @@ class ChannelsComponent extends React.Component {
       filter: '',
       results: [],
       teamModal: true,
-      teamModalStart: 2,
+      teamModalStart: 1,
       channelPopup: false,
       accountModal: false,
       accountMenu: false,
