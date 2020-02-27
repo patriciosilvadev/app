@@ -258,8 +258,12 @@ class ComposeComponent extends React.Component {
       const word = this.composeRef.value.split(' ')[wordArray - 1]
       const firstLetter = word[0]
 
-      if (firstLetter == '@') this.filterMembers(word)
+      // If the user is NOT searching for someone
+      // Then remove the timeout &
       if (firstLetter != '@') this.setState({ members: [] })
+
+      // If the user is searching, then delay the search to accommodate typing
+      if (firstLetter == '@') this.filterMembers(word.replace('@', ''))
     })
   }
 
@@ -292,19 +296,14 @@ class ComposeComponent extends React.Component {
     if (e.keyCode == 16) this.setState({ shift: false })
   }
 
-  filterMembers(name) {
-    // Remove the @ sign
-    // QuillJS seems to input some weird chars here that
-    // we just need to strip out
-    const username = name.replace('@', '')
-
+  filterMembers(username) {
     // Create the Regex test against the remaining word
     // Return 5 there is no match
-    // Cap them at 5
+    // Cap them at 5 for the match too
     const members =
       username == ''
         ? this.props.channel.members.filter((member, index) => index < 5)
-        : this.props.channel.members.filter((member, index) => index < 5 && member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*')))
+        : this.props.channel.members.filter((member, index) => member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*'))).filter((member, index) => index < 5)
 
     // Create the brand the state object the component should use
     this.setState({ members })

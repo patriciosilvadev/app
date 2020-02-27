@@ -193,7 +193,7 @@ export default class GraphqlService {
               public
               excerpt
               private
-              user {
+              otherUser {
                 id
                 name
                 username
@@ -201,14 +201,13 @@ export default class GraphqlService {
                 image
                 status
               }
-              members {
-                user {
-                  id
-                  image
-                  name
-                  status
-                  timezone
-                }
+              user {
+                id
+                name
+                username
+                timezone
+                image
+                status
               }
               team {
                 id
@@ -290,22 +289,6 @@ export default class GraphqlService {
               id
               name
               image
-              members {
-                user {
-                  id
-                  name
-                  emails {
-                    address
-                    confirmed
-                  }
-                  color
-                  username
-                  timezone
-                  role
-                  image
-                }
-                role
-              }
             }
             apps {
               active
@@ -495,6 +478,10 @@ export default class GraphqlService {
     })
   }
 
+  // This one is reserved for the sidebar
+  // There is a field on here called "otherUser"
+  // Which is only set if it's private
+  // Also of type User
   channels(teamId, userId) {
     return this.client.query({
       query: gql`
@@ -508,7 +495,7 @@ export default class GraphqlService {
             public
             excerpt
             private
-            user {
+            otherUser {
               id
               name
               username
@@ -516,14 +503,13 @@ export default class GraphqlService {
               image
               status
             }
-            members {
-              user {
-                id
-                image
-                name
-                status
-                timezone
-              }
+            user {
+              id
+              name
+              username
+              timezone
+              image
+              status
             }
             team {
               id

@@ -123,20 +123,6 @@ export function initialize(userId) {
         // Just use the Redux acttion
         const action = message.messagePayload
 
-        // Check whether this person is in our channels list first
-        if (action.type == 'ADD_PRESENCE') {
-          const existingChannel = getState().channels.reduce((exists, channel) => {
-            if (channel.public) return false
-
-            const { members } = channel
-            const existingMember = members.filter(member => member.user.id == action.payload.userId).flatten()
-
-            if (existingMember) return true
-          }, false)
-
-          if (!existingChannel) return
-        }
-
         // Update our store with the synced action
         dispatch(action)
 

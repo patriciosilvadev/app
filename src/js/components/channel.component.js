@@ -286,25 +286,13 @@ class ChannelComponent extends React.Component {
 
     const isMember = props.channel.isMember
     const isPublic = props.channel.public
-    const open = isMember || isPublic
     const starred = props.user.starred.indexOf(props.channel.id) != -1
     const muted = props.user.muted.indexOf(props.channel.id) != -1
     const archived = props.user.archived.indexOf(props.channel.id) != -1
     const hasAdminPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
-
-    const title = props.channel.private
-      ? props.channel.members
-          .map(member => member.user.name)
-          .filter(name => name != props.user.name)
-          .flatten()
-      : props.channel.title
-
-    const image = props.channel.private
-      ? props.channel.members
-          .map(member => member.user.image)
-          .filter(image => image != props.user.image)
-          .flatten()
-      : props.channel.image
+    const title = props.channel.title
+    const image = props.channel.image
+    const open = isMember || isPublic
 
     return {
       open,

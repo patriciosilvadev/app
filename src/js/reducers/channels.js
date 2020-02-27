@@ -13,26 +13,17 @@ export default (state = initialState, action) =>
           // Only do private channels
           // Because there will be 2 members
           if (!channel.private) return channel
+          if (!channel.otherUser) return channel
+          if (channel.otherUser._id != action.payload.userId) return channel
 
+          // Only update the user if it's this userId as the otherUser._id
+          // So only update the desiganted userId with the new status
           return {
             ...channel,
-            members: channel.members.map(member => {
-              if (member.user.id != action.payload.userId) return member
-
-              // We first find the right user to update
-              // Then we re-create the member object and update their
-              // status. This value will be used in channels.component.js to display
-              // an update status (we don't need to do anything else)
-              if (member.user.id == action.payload.userId) {
-                return {
-                  ...member,
-                  user: {
-                    ...member.user,
-                    status: action.payload.status,
-                  },
-                }
-              }
-            }),
+            otherUser: {
+              ...channel.otherUser,
+              status: action.payload.status,
+            },
           }
         })
 

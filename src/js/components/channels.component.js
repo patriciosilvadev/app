@@ -230,7 +230,7 @@ class ChannelsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: true,
+      teamModal: false,
       teamModalStart: 1,
       channelPopup: false,
       accountModal: false,
@@ -319,11 +319,7 @@ class ChannelsComponent extends React.Component {
       .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const privateChannels = props.channels
       .filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
-      .filter(channel => {
-        const title = channel.members.reduce((title, member) => (member.user.id != props.user.id ? title + member.user.name : title), '')
-
-        return title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
-      })
+      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
 
     return {
       starred: starredChannels,
@@ -343,7 +339,7 @@ class ChannelsComponent extends React.Component {
     const userId = this.props.user.id
 
     this.createChannel(title, description, image, teamId, userId, otherUserId)
-    this.setState({ filter: '', showFilter: false })
+    this.setState({ filter: '', showFilter: false, results: [] })
   }
 
   createPublicChannel(title) {
@@ -354,7 +350,7 @@ class ChannelsComponent extends React.Component {
     const userId = this.props.user.id
 
     this.createChannel(title, description, image, teamId, userId, otherUserId)
-    this.setState({ filter: '', showFilter: false })
+    this.setState({ filter: '', showFilter: false, results: [] })
   }
 
   async createChannel(title, description, image, teamId, userId, otherUserId) {
@@ -634,8 +630,6 @@ class ChannelsComponent extends React.Component {
         <Heading>Favourites</Heading>
 
         {this.state.starred.map((channel, index) => {
-          const title = channel.private ? channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '') : channel.title
-          const image = channel.private ? channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '') : channel.image
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const to = `/app/team/${channel.team.id}/channel/${channel.id}`
@@ -647,8 +641,8 @@ class ChannelsComponent extends React.Component {
               key={index}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={title}
-              image={image}
+              title={channel.title}
+              image={channel.image}
               excerpt={channel.excerpt}
               public={channel.public}
               private={channel.private}
@@ -728,30 +722,20 @@ class ChannelsComponent extends React.Component {
         {this.state.private.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
 
-          const title = channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '')
-          const image = channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '')
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
 
-          // Get the other users' presence
-          const timeSnapshot = new Date().getTime()
-          const otherMember = channel.members.filter(member => member.user.id != this.props.user.id).flatten()
-          const otherMemberStatus = otherMember.user.status
-          const otherMemberTimezone = otherMember.user.timezone
-          const otherMemberPresence = this.props.presences.users.filter(user => user.userId == otherMember.user.id).flatten()
-          const presence = otherMemberPresence ? (timeSnapshot - otherMemberPresence.userTime > 15000 ? 'away' : 'online') : null
-
           return (
             <Channel
               key={index}
-              presence={presence}
+              presence="online"
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={title}
-              image={image}
-              excerpt={otherMemberStatus}
+              title={channel.title}
+              image={channel.image}
+              excerpt={channel.otherUser.status}
               public={channel.public}
               private={channel.private}
               muted={muted}
@@ -780,8 +764,6 @@ class ChannelsComponent extends React.Component {
         {this.state.archivedVisible && (
           <React.Fragment>
             {this.state.archived.map((channel, index) => {
-              const title = channel.private ? channel.members.reduce((title, member) => (member.user.id != this.props.user.id ? title + member.user.name : title), '') : channel.title
-              const image = channel.private ? channel.members.reduce((image, member) => (member.user.id != this.props.user.id ? image + member.user.image : image), '') : channel.image
               const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
               const unreadCount = unread ? unread.doc.count : 0
               const to = `/app/team/${channel.team.id}/channel/${channel.id}`
@@ -793,8 +775,8 @@ class ChannelsComponent extends React.Component {
                   key={index}
                   active={pathname.indexOf(channel.id) != -1}
                   unread={muted ? 0 : unreadCount}
-                  title={title}
-                  image={image}
+                  title={channel.title}
+                  image={channel.image}
                   excerpt={channel.excerpt}
                   public={channel.public}
                   private={channel.private}
