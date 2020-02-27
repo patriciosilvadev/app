@@ -355,16 +355,16 @@ class ChannelsComponent extends React.Component {
 
   async createChannel(title, description, image, teamId, userId, otherUserId) {
     try {
-      // 1. Find channels where there rae only 2 members
-      // 2. Remove the argument-user from the members array, should only be 1 left afterwards (us)
+      // 1. Find channels where there are private
+      // 2. Filter channels that have this private user as the otherUser (so it exists)
       const channel = otherUserId
         ? this.props.channels
-            .filter(channel => channel.members.length == 2 && channel.private)
-            .filter(channel => channel.members.filter(member => member.user.id == otherUserId).length == 1)
+            .filter(channel => channel.private)
+            .filter(channel => channel.otherUser._id == otherUserId)
             .flatten()
         : null
 
-      // 3. If it's found - then go there
+      // 3. If it's found - then go there first (don't create a new one)
       if (channel) return this.props.history.push(`/app/team/${teamId}/channel/${channel.id}`)
 
       // Create the default member array
