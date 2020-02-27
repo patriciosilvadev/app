@@ -359,8 +359,8 @@ class ChannelsComponent extends React.Component {
       // 2. Filter channels that have this private user as the otherUser (so it exists)
       const channel = otherUserId
         ? this.props.channels
-            .filter(channel => channel.private)
-            .filter(channel => channel.otherUser._id == otherUserId)
+            .filter(channel => channel.otherUser && channel.private)
+            .filter(channel => channel.otherUser.id == otherUserId)
             .flatten()
         : null
 
@@ -388,8 +388,10 @@ class ChannelsComponent extends React.Component {
 
       const channelData = data.createChannel
       const channelId = channelData.id
+      const newChannel = await GraphqlService.getInstance().channel(channelId)
 
-      this.props.createChannel(channelData)
+      // Update our redux store
+      this.props.createChannel(newChannel.data.channel)
 
       // Join this channel ourselves
       MessagingService.getInstance().join(channelId)

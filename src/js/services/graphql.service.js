@@ -278,6 +278,14 @@ export default class GraphqlService {
             public
             private
             isMember
+            otherUser {
+              id
+              name
+              username
+              timezone
+              image
+              status
+            }
             user {
               id
               name
@@ -1058,27 +1066,19 @@ export default class GraphqlService {
             createdAt
             public
             private
-            team {
+            excerpt
+            otherUser {
               id
               name
-            }
-            members {
-              user {
-                id
-                status
-                name
-                color
-                role
-                username
-                timezone
-                image
-              }
+              status
+              username
+              timezone
+              image
             }
             user {
               id
               name
               status
-              role
               username
               timezone
               image

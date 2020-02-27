@@ -14,9 +14,9 @@ export default (state = initialState, action) =>
           // Because there will be 2 members
           if (!channel.private) return channel
           if (!channel.otherUser) return channel
-          if (channel.otherUser._id != action.payload.userId) return channel
+          if (channel.otherUser.id != action.payload.userId) return channel
 
-          // Only update the user if it's this userId as the otherUser._id
+          // Only update the user if it's this userId as the otherUser.id
           // So only update the desiganted userId with the new status
           return {
             ...channel,
