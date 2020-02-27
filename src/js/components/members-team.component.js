@@ -319,7 +319,7 @@ export default function MembersTeamComponent(props) {
               if (index < page * limit - limit || index > page * limit) return null
 
               const memberUserId = member.user.id
-              const billingUserId = billingUser.id
+              const billingUserId = billingUser ? billingUser.id : null
 
               return (
                 <TableRow

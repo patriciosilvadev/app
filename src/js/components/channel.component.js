@@ -284,7 +284,7 @@ class ChannelComponent extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (props.channel.id == undefined || props.channel.id == '') return null
 
-    const isMember = !!props.channel.members.filter(member => member.user.id == props.user.id).flatten()
+    const isMember = props.channel.isMember
     const isPublic = props.channel.public
     const open = isMember || isPublic
     const starred = props.user.starred.indexOf(props.channel.id) != -1

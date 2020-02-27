@@ -278,6 +278,7 @@ export default class GraphqlService {
             image
             public
             private
+            isMember
             user {
               id
               name
