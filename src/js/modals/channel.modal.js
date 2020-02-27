@@ -150,7 +150,7 @@ export default function ChannelModal(props) {
             <div className="column">
               <Avatar title={title} image={image} className="mr-20 mb-20" size="xx-large" />
 
-              {props.hasPermission && (
+              {props.hasAdminPermission && (
                 <Link className="button mt-10" onClick={() => fileRef.current.click()}>
                   Update image
                 </Link>
@@ -158,7 +158,7 @@ export default function ChannelModal(props) {
             </div>
 
             <Column className="column">
-              <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.hasPermission} />
+              <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.hasAdminPermission} />
 
               <Textarea
                 label="Description"
@@ -167,7 +167,7 @@ export default function ChannelModal(props) {
                 placeholder="Add a description"
                 rows={8}
                 className="mb-20"
-                disable={!props.hasPermission}
+                disable={!props.hasAdminPermission}
               />
 
               <div className="row">
@@ -177,7 +177,7 @@ export default function ChannelModal(props) {
             </Column>
           </Row>
 
-          {props.hasPermission && (
+          {props.hasAdminPermission && (
             <div className="p-20">
               <Button onClick={handleUpdateChannel} text="Update" theme="muted" />
             </div>
@@ -190,9 +190,9 @@ export default function ChannelModal(props) {
   const renderMembers = () => {
     return (
       <div className="column flex-1 w-100 h-100">
-        <MembersChannelComponent hasPermission={props.hasPermission} id={props.id} channelId={channel.id} teamId={team.id} onClose={props.onClose} members={members} />
+        <MembersChannelComponent hasAdminPermission={props.hasAdminPermission} id={props.id} channelId={channel.id} teamId={team.id} onClose={props.onClose} members={members} />
 
-        {props.hasPermission && (
+        {props.hasAdminPermission && (
           <QuickUserComponent
             channel={channel}
             visible={userMenu}
@@ -264,7 +264,7 @@ export default function ChannelModal(props) {
             {
               title: 'Danger zone',
               show: true,
-              hide: !props.hasPermission,
+              hide: !props.hasAdminPermission,
               content: renderDangerZone(),
             },
           ]}
@@ -280,7 +280,7 @@ ChannelModal.propTypes = {
   start: PropTypes.number,
   members: PropTypes.array,
   onClose: PropTypes.func,
-  hasPermission: PropTypes.bool, // Whether someone can edit the team or not (admin)
+  hasAdminPermission: PropTypes.bool, // Whether someone can edit the team or not (admin)
 }
 
 const Text = styled.div``

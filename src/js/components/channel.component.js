@@ -49,7 +49,7 @@ class ChannelComponent extends React.Component {
       loading: false,
       error: false,
       isDragging: false,
-      hasPermission: false,
+      hasAdminPermission: false,
     }
 
     this.messagesRef = React.createRef()
@@ -290,7 +290,7 @@ class ChannelComponent extends React.Component {
     const starred = props.user.starred.indexOf(props.channel.id) != -1
     const muted = props.user.muted.indexOf(props.channel.id) != -1
     const archived = props.user.archived.indexOf(props.channel.id) != -1
-    const hasPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
+    const hasAdminPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
 
     const title = props.channel.private
       ? props.channel.members
@@ -311,7 +311,7 @@ class ChannelComponent extends React.Component {
       title,
       image,
       starred,
-      hasPermission,
+      hasAdminPermission,
     }
   }
 
@@ -333,7 +333,7 @@ class ChannelComponent extends React.Component {
               {this.props.channel.members.length == 1 ? 'member' : 'members'}
             </HeaderText>
 
-            {!this.props.channel.private && this.state.hasPermission && (
+            {!this.props.channel.private && this.state.hasAdminPermission && (
               <div className="ml-10 row button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })}>
                 <IconComponent icon="plus" size={15} color="#007af5" thickness={2} className="mr-5" />
                 <HeaderLink>Add New</HeaderLink>
@@ -441,7 +441,7 @@ class ChannelComponent extends React.Component {
                 thickness={1.5}
                 color="#acb5bd"
                 className="ml-15 button"
-                onClick={() => (this.state.hasPermission ? this.setState({ visibilityMenu: true }) : null)}
+                onClick={() => (this.state.hasAdminPermission ? this.setState({ visibilityMenu: true }) : null)}
               />
             </Popup>
           </React.Fragment>
@@ -478,7 +478,7 @@ class ChannelComponent extends React.Component {
             {/* If there is no channel description */}
             {/* Then give the user the option to update it */}
             {/* But only if they can */}
-            {!this.props.channel.description && this.state.hasPermission && (
+            {!this.props.channel.description && this.state.hasAdminPermission && (
               <WelcomeDescriptionUpdate className="button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })}>
                 Add some more context about this conversation here
               </WelcomeDescriptionUpdate>
@@ -536,7 +536,7 @@ class ChannelComponent extends React.Component {
       <React.Fragment>
         {this.state.channelModal && (
           <ChannelModal
-            hasPermission={this.state.hasPermission}
+            hasAdminPermission={this.state.hasAdminPermission}
             channelId={channelId}
             teamId={teamId}
             members={this.props.channel.members}

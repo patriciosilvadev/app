@@ -10,6 +10,8 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_CHANNEL_USER_STATUS':
         return state.map(channel => {
+          // Only do private channels
+          // Because there will be 2 members
           if (!channel.private) return channel
 
           return {

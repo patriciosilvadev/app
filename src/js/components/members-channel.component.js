@@ -64,7 +64,7 @@ const TableRow = props => {
                     onClick: () => setConfirmSelfDeleteModal(true),
                   },
                   {
-                    hide: member.user.id == user.id || !props.hasPermission,
+                    hide: member.user.id == user.id || !props.hasAdminPermission,
                     icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
                     text: 'Remove person from team',
                     onClick: () => setConfirmMemberDeleteModal(true),
@@ -198,7 +198,7 @@ export default function MembersChannelComponent(props) {
               if (filter != '' && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + '.*'))) return null
               if (index < page * limit - limit || index > page * limit) return null
 
-              return <TableRow hasPermission={props.hasPermission} key={index} member={member} user={user} onLeave={handleChannelLeave} onDelete={handleChannelMemberDelete} />
+              return <TableRow hasAdminPermission={props.hasAdminPermission} key={index} member={member} user={user} onLeave={handleChannelLeave} onDelete={handleChannelMemberDelete} />
             })}
           </tbody>
         </table>
