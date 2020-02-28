@@ -32,8 +32,6 @@ class ChannelComponent extends React.Component {
       busy: false,
       page: 1,
       open: true,
-      title: '',
-      image: '',
       channelModal: false,
       channelModalStart: 0,
       message: null,
@@ -293,14 +291,10 @@ class ChannelComponent extends React.Component {
     const muted = props.user.muted.indexOf(props.channel.id) != -1
     const archived = props.user.archived.indexOf(props.channel.id) != -1
     const hasAdminPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
-    const title = props.channel.title
-    const image = props.channel.image
     const open = isMember || isPublic
 
     return {
       open,
-      title,
-      image,
       starred,
       muted,
       archived,
@@ -314,16 +308,25 @@ class ChannelComponent extends React.Component {
 
     return (
       <Header className="row">
-        <Avatar image={this.state.image} title={this.state.title} size="medium" />
+        <IconComponent icon="star" size={20} thickness={2.5} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
+
+        <Avatar image={this.props.channel.image} title={this.props.channel.title} size="medium-large" />
 
         <div className="column ml-10">
-          <HeaderTitle>{this.state.title}</HeaderTitle>
+          <div className="row">
+            {!this.props.public && !this.props.private && <IconComponent icon="lock" color="#040b1c" size={15} thickness={2.5} className="mr-5" />}
+            <HeaderTitle>{this.props.channel.title}</HeaderTitle>
+          </div>
+
+          <HeaderDescription>
+            <ReactMarkdown source={this.props.channel.description} />
+          </HeaderDescription>
 
           {/* Member header subtitle */}
-          <div className="row">
-            <HeaderText>
+          <div className="row hide">
+            <HeaderDescription>
               {this.props.channel.totalMembers.numberShorthand()} {this.props.channel.totalMembers == 1 ? 'member' : 'members'}
-            </HeaderText>
+            </HeaderDescription>
 
             {!this.props.channel.private && this.state.hasAdminPermission && (
               <div className="ml-10 row button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })}>
@@ -378,14 +381,14 @@ class ChannelComponent extends React.Component {
             )
           })}
 
-        <IconComponent icon="star" size={20} thickness={1.5} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="ml-15 button" />
+        <IconComponent icon="pen" size={18} thickness={1.75} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
 
         <IconComponent
           icon="attachment"
-          size={20}
-          thickness={1.5}
+          size={18}
+          thickness={1.75}
           color="#babec9"
-          className="ml-15 button hide"
+          className="ml-15 button"
           onClick={() => {
             // Close the app panel first
             this.props.closeAppPanel()
@@ -397,8 +400,7 @@ class ChannelComponent extends React.Component {
 
         {!this.props.channel.private && (
           <React.Fragment>
-            <IconComponent icon="info hide" size={20} color="#acb5bd" thickness={1.5} className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })} />
-            <IconComponent icon="users hide" size={26} thickness={0} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+            <IconComponent icon="users" size={26} thickness={1.25} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
 
             <Popup
               handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -410,37 +412,16 @@ class ChannelComponent extends React.Component {
                   items={[
                     {
                       hide: this.props.channel.private,
-                      icon: <IconComponent icon="eye" size={20} color="#acb5bd" />,
+                      icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
                       text: 'Public',
                       label: 'Everyone in your team has access',
                       onClick: e => this.updateChannelVisibility({ private: false, public: true }),
                     },
                     {
                       hide: this.props.channel.private,
-                      icon: <IconComponent icon="eye-off" size={20} color="#acb5bd" />,
+                      icon: <IconComponent icon="lock" size={20} color="#acb5bd" />,
                       text: 'Private',
                       label: 'Members of this channel only',
-                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
-                    },
-                    {
-                      hide: false,
-                      icon: <IconComponent icon="delete" size={20} color="#acb5bd" />,
-                      text: 'Delete',
-                      label: 'This cannot be undone',
-                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
-                    },
-                    {
-                      hide: false,
-                      icon: <IconComponent icon="delete" size={20} color="#acb5bd" />,
-                      text: 'Archive',
-                      label: 'This cannot be undone',
-                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
-                    },
-                    {
-                      hide: false,
-                      icon: <IconComponent icon="bell-off" size={20} color="#acb5bd" />,
-                      text: 'Mute',
-                      label: 'Ignore notifications',
                       onClick: e => this.updateChannelVisibility({ private: false, public: false }),
                     },
                   ]}
@@ -448,9 +429,9 @@ class ChannelComponent extends React.Component {
               }
             >
               <IconComponent
-                icon="more-v"
-                size={20}
-                thickness={1.5}
+                icon={this.props.channel.public ? 'unlock' : 'lock'}
+                size={18}
+                thickness={1.8}
                 color="#acb5bd"
                 className="ml-15 button"
                 onClick={() => (this.state.hasAdminPermission ? this.setState({ visibilityMenu: true }) : null)}
@@ -479,21 +460,12 @@ class ChannelComponent extends React.Component {
               </WelcomeUserName>
             </WelcomeUser>
 
-            <WelcomeTitle>{this.state.title}</WelcomeTitle>
+            <WelcomeTitle>{this.props.channel.title}</WelcomeTitle>
 
             {this.props.channel.description && (
               <WelcomeDescription>
                 <ReactMarkdown source={this.props.channel.description} />
               </WelcomeDescription>
-            )}
-
-            {/* If there is no channel description */}
-            {/* Then give the user the option to update it */}
-            {/* But only if they can */}
-            {!this.props.channel.description && this.state.hasAdminPermission && (
-              <WelcomeDescriptionUpdate className="button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })}>
-                Add some more context about this conversation here
-              </WelcomeDescriptionUpdate>
             )}
           </Welcome>
         )}
@@ -581,7 +553,7 @@ class ChannelComponent extends React.Component {
             hasAdminPermission={this.state.hasAdminPermission}
             channelId={channelId}
             teamId={teamId}
-            members={this.props.channel.members}
+            members={[]}
             start={this.state.channelModalStart}
             onClose={() => this.setState({ channelModal: false })}
           />
@@ -676,10 +648,11 @@ const Channel = styled.div`
 
 const Header = styled.div`
   width: 100%;
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid #eaedef;
   position: relative;
   z-index: 1;
-  padding 15px 25px 15px 25px;
+  padding 0px 25px 0px 25px;
+  height: 75px;
   display: flex;
   /* box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.05); */
 `
@@ -691,18 +664,21 @@ const HeaderTitle = styled.div`
   color: #040b1c;
   transition: opacity 0.5s;
   display: inline-block;
-  margin-bottom: 2px;
   width: max-content;
 `
 
-const HeaderText = styled.div`
-  font-size: 11px;
-  font-weight: 500;
+const HeaderDescription = styled.div`
+  font-size: 14px;
+  font-weight: 400;
   font-style: normal;
   color: #acb5bd;
   transition: opacity 0.5s;
   display: inline-block;
   margin-right: 0px;
+
+  p {
+    margin: 0px;
+  }
 `
 
 const HeaderLink = styled.div`
@@ -716,12 +692,11 @@ const HeaderLink = styled.div`
 `
 
 const HeaderSearchContainer = styled.div`
-  border: 1px solid #f1f3f5;
-  background: #f5f6f7;
-  border-radius: 7px;
+  border: 1px solid #eaedef;
+  border-radius: 10px;
   padding 10px;
   transition: width 0.5s;
-  width: ${props => (props.focus ? '50%' : '40%')};
+  width: ${props => (props.focus ? '50%' : '25%')};
   margin-right: 10px;
 `
 
@@ -744,7 +719,7 @@ const Typing = styled.div`
   font-weight: 400;
   font-size: 12px;
   color: "#adb5bd";
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid #eaedef;
   padding: 10px 25px 10px 25px
   width: 100%;
 `
@@ -754,7 +729,7 @@ const MessagesContainer = styled.div`
   flex: 1;
   overflow: scroll;
   width: 100%;
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid #eaedef;
 `
 
 const MessagesInner = styled.div`
@@ -767,7 +742,7 @@ const Welcome = styled.div`
   padding: 25px;
   padding-bottom: 35px;
   margin-bottom: 10px;
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid #eaedef;
   padding-top: 1000px;
 `
 

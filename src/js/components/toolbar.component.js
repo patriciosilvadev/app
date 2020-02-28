@@ -73,11 +73,8 @@ export default function ToolbarComponent(props) {
         )
       })}
 
-      <IconComponent icon="attachment" size={20} thickness={1.5} color="#babec9" className="mt-15 button" onClick={() => {}} />
-
-      <IconComponent icon="users" size={24} thickness={1.25} color="#babec9" className="mt-15 button" onClick={() => {}} />
-
       <div className="flexer" />
+
       <AppIconContainer onClick={handleAppStoreClick}>
         <IconComponent icon="yack" size={20} color="#666" />
       </AppIconContainer>
@@ -91,7 +88,7 @@ const Toolbar = styled.div`
   align-items: center;
   height: 100%;
   position: relative;
-  border-left: 1px solid #f1f3f5;
+  border-left: 1px solid #eaedef;
 `
 
 const AppIconContainer = styled.div`

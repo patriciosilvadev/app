@@ -35,6 +35,8 @@ import {
   Shield,
   ThumbsUp,
   Flag,
+  Lock,
+  Unlock,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -50,6 +52,10 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
     switch (icon) {
       case 'yack':
         return <Yack width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'lock':
+        return <Lock width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'unlock':
+        return <Unlock width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'shield':
         return <Shield width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'user-minus':

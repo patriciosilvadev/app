@@ -26,7 +26,7 @@
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",
     "@sentry/browser": "^5.5.0",
-    "@tryyack/elements": "^0.7.10",
+    "@tryyack/elements": "^0.7.11",
     "apollo-cache-inmemory": "^1.2.10",
     "apollo-client": "^2.4.2",
     "apollo-link": "^1.2.13",

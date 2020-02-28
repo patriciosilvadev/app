@@ -35,24 +35,23 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar dark presence={props.presence} size="medium" image={props.image} title={props.title} />
+        <Avatar dark muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.title} />
 
         <ChannelContents>
           <ChannelInnerContents>
+            {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? 'white' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
+
             <ChannelTitle active={props.active || props.unread != 0}>{props.title}</ChannelTitle>
 
-            {props.muted && <IconComponent icon="bell-off" color="#626d7a" size={15} thickness={1.5} style={{ marginRight: 5 }} />}
-
-            {!props.public && !props.private && <IconComponent icon="eye-off" color="#626d7a" size={15} thickness={1.5} />}
-
-            <div className="flexer" />
-          </ChannelInnerContents>
-
-          {props.excerpt && (
             <ChannelExcerpt>
-              <ChannelExcerptText active={props.active || props.unread != 0}>{props.excerpt}</ChannelExcerptText>
+              &nbsp;
+              {props.excerpt && (
+                <ChannelExcerptTextContainer>
+                  <ChannelExcerptText active={props.active || props.unread != 0}>{props.excerpt}</ChannelExcerptText>
+                </ChannelExcerptTextContainer>
+              )}
             </ChannelExcerpt>
-          )}
+          </ChannelInnerContents>
         </ChannelContents>
       </ChannelContainerPadding>
 
@@ -117,7 +116,7 @@ Channel.propTypes = {
 }
 
 const ChannelContainer = styled.div`
-  background: ${props => (props.active ? '#1d1c24' : 'transparent')};
+  background: ${props => (props.active ? '#201F27' : 'transparent')};
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -154,7 +153,7 @@ const ChannelBadge = styled.div`
 const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: ${props => (props.active ? '500' : '400')};
   color: ${props => (props.active ? 'white' : '#626d7a')};
   white-space: wrap;
   max-width: 140px;
@@ -165,20 +164,33 @@ const ChannelTitle = styled.div`
 
 const ChannelExcerpt = styled.div`
   flex: 1;
-  margin-top: 1px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   overflow: hidden;
+  position: relative;
+`
+
+const ChannelExcerptTextContainer = styled.div`
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
 `
 
 const ChannelExcerptText = styled.span`
-  font-size: 11px;
+  font-size: 14px;
   color: #626d7a;
   font-weight: 400;
   white-space: nowrap;
-  text-overflow: ellipsis;
-  display: block;
   overflow: hidden;
-  max-width: 200px;
+  text-overflow: ellipsis;
+  align: left;
+  opacity: 0.5;
 `
 
 const ChannelContents = styled.div`
@@ -495,7 +507,7 @@ class ChannelsComponent extends React.Component {
   renderHeader() {
     return (
       <Header className="row">
-        <Avatar dark size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" />
+        <Avatar dark size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" presence="online" />
 
         <HeaderTitles className="column">
           {/*<HeaderTeam>{this.props.team.name}</HeaderTeam>*/}
@@ -524,7 +536,7 @@ class ChannelsComponent extends React.Component {
           content={
             <React.Fragment>
               <AccountMenuHeader className="column align-items-center">
-                <Avatar size="medium" image={this.props.user.image} title={this.props.user.name} />
+                <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
 
                 <AccountMenuTitle>{this.props.user.name}</AccountMenuTitle>
 
@@ -719,7 +731,20 @@ class ChannelsComponent extends React.Component {
 
     return (
       <React.Fragment>
-        <Heading>Private Conversations</Heading>
+        <div className="row pr-25">
+          <Heading>Private Conversations</Heading>
+
+          <QuickInputComponent
+            visible={this.state.channelPopup}
+            width={250}
+            direction="right-bottom"
+            handleDismiss={() => this.setState({ channelPopup: false })}
+            handleAccept={name => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
+            placeholder="New channel name"
+          >
+            <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPopup: true })} />
+          </QuickInputComponent>
+        </div>
 
         {this.state.private.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
@@ -732,7 +757,7 @@ class ChannelsComponent extends React.Component {
           return (
             <Channel
               key={index}
-              presence="online"
+              presence="away"
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
               title={channel.title}
@@ -928,8 +953,10 @@ const ChannelsContainer = styled.div`
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding 25px;
+  padding 0px 25px 0px 25px;
+  height: 75px;
   transition: background-color 0.5s;
+  background: #202027;
 `
 
 const HeaderTitles = styled.div`
@@ -962,14 +989,14 @@ const HeaderSubtitle = styled.div`
 `
 
 const AccountMenuHeader = styled.div`
-  padding: 20px;
+  padding: 30px;
   width: 100%;
   flex: 1;
   border-bottom: 1px solid #f1f3f5;
 `
 
 const AccountMenuTitle = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   font-style: normal;
   color: #343a40;
@@ -983,7 +1010,7 @@ const AccountMenuSubtitle = styled.div`
   font-size: 13px;
   font-weight: 500;
   color: #cfd4d9;
-  padding: 5px 5px 5px 5px;
+  padding-top: 5px;
 `
 
 const AccountMenuBuild = styled.div`
@@ -1017,6 +1044,7 @@ const SearchInput = styled.input`
 const SearchContainer = styled.div`
   width: 100%;
   background: #1d1c24;
+  display: none;
 `
 
 const SearchInner = styled.div`
@@ -1032,10 +1060,10 @@ const SearchInner = styled.div`
 
 const Heading = styled.div`
   margin: 25px 25px 15px 25px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   color: #626d7a;
-  letter-spacing: 1px;
+  /*letter-spacing: 1px;*/
   text-transform: uppercase;
   flex: 1;
 `
