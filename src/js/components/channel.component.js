@@ -50,6 +50,8 @@ class ChannelComponent extends React.Component {
       error: false,
       isDragging: false,
       hasAdminPermission: false,
+      muted: false,
+      archived: false,
     }
 
     this.messagesRef = React.createRef()
@@ -300,6 +302,8 @@ class ChannelComponent extends React.Component {
       title,
       image,
       starred,
+      muted,
+      archived,
       hasAdminPermission,
     }
   }
@@ -318,8 +322,7 @@ class ChannelComponent extends React.Component {
           {/* Member header subtitle */}
           <div className="row">
             <HeaderText>
-              {this.props.channel.members.length.numberShorthand()} &nbsp;
-              {this.props.channel.members.length == 1 ? 'member' : 'members'}
+              {this.props.channel.members.length.numberShorthand()} {this.props.channel.members.length == 1 ? 'member' : 'members'}
             </HeaderText>
 
             {!this.props.channel.private && this.state.hasAdminPermission && (
@@ -382,7 +385,7 @@ class ChannelComponent extends React.Component {
           size={20}
           thickness={1.5}
           color="#babec9"
-          className="ml-15 button"
+          className="ml-15 button hide"
           onClick={() => {
             // Close the app panel first
             this.props.closeAppPanel()
@@ -394,9 +397,8 @@ class ChannelComponent extends React.Component {
 
         {!this.props.channel.private && (
           <React.Fragment>
-            <IconComponent icon="info" size={20} color="#acb5bd" thickness={1.5} className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })} />
-
-            <IconComponent icon="users" size={26} thickness={0} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+            <IconComponent icon="info hide" size={20} color="#acb5bd" thickness={1.5} className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 0 })} />
+            <IconComponent icon="users hide" size={26} thickness={0} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
 
             <Popup
               handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -420,12 +422,33 @@ class ChannelComponent extends React.Component {
                       label: 'Members of this channel only',
                       onClick: e => this.updateChannelVisibility({ private: false, public: false }),
                     },
+                    {
+                      hide: false,
+                      icon: <IconComponent icon="delete" size={20} color="#acb5bd" />,
+                      text: 'Delete',
+                      label: 'This cannot be undone',
+                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                    },
+                    {
+                      hide: false,
+                      icon: <IconComponent icon="delete" size={20} color="#acb5bd" />,
+                      text: 'Archive',
+                      label: 'This cannot be undone',
+                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                    },
+                    {
+                      hide: false,
+                      icon: <IconComponent icon="bell-off" size={20} color="#acb5bd" />,
+                      text: 'Mute',
+                      label: 'Ignore notifications',
+                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                    },
                   ]}
                 />
               }
             >
               <IconComponent
-                icon={this.props.channel.public ? 'eye' : 'eye-off'}
+                icon="more-v"
                 size={20}
                 thickness={1.5}
                 color="#acb5bd"
@@ -662,8 +685,8 @@ const Header = styled.div`
 `
 
 const HeaderTitle = styled.div`
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 400;
   font-style: normal;
   color: #040b1c;
   transition: opacity 0.5s;
@@ -673,8 +696,8 @@ const HeaderTitle = styled.div`
 `
 
 const HeaderText = styled.div`
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   font-style: normal;
   color: #acb5bd;
   transition: opacity 0.5s;
@@ -683,8 +706,8 @@ const HeaderText = styled.div`
 `
 
 const HeaderLink = styled.div`
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   font-style: normal;
   color: #007af5;
   transition: opacity 0.5s;
@@ -692,16 +715,11 @@ const HeaderLink = styled.div`
   margin-right: 0px;
 `
 
-const HeaderButton = styled.div`
-  transition: opacity 0.5s;
-  position: relative;
-  cursor: pointer;
-`
-
 const HeaderSearchContainer = styled.div`
-  border: 2px solid #f1f3f5;
-  border-radius: 10px;
-  padding 7px;
+  border: 1px solid #f1f3f5;
+  background: #f5f6f7;
+  border-radius: 7px;
+  padding 10px;
   transition: width 0.5s;
   width: ${props => (props.focus ? '50%' : '40%')};
   margin-right: 10px;

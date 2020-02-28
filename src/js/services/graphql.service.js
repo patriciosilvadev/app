@@ -161,6 +161,42 @@ export default class GraphqlService {
     })
   }
 
+  teamChannelsComponent(teamId, userId) {
+    return this.client.query({
+      query: gql`
+        query team($teamId: String!, $userId: String) {
+          team(teamId: $teamId, userId: $userId) {
+            id
+            name
+            shortcode
+            slug
+            image
+            channels(userId: $userId) {
+              id
+              title
+              image
+              public
+              excerpt
+              private
+              otherUser {
+                id
+                name
+                username
+                timezone
+                image
+                status
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        teamId,
+        userId,
+      },
+    })
+  }
+
   team(teamId, userId) {
     return this.client.query({
       query: gql`
@@ -200,19 +236,6 @@ export default class GraphqlService {
                 timezone
                 image
                 status
-              }
-              user {
-                id
-                name
-                username
-                timezone
-                image
-                status
-              }
-              team {
-                id
-                name
-                image
               }
               createdAt
               updatedAt
@@ -486,10 +509,6 @@ export default class GraphqlService {
     })
   }
 
-  // This one is reserved for the sidebar
-  // There is a field on here called "otherUser"
-  // Which is only set if it's private
-  // Also of type User
   channels(teamId, userId) {
     return this.client.query({
       query: gql`
@@ -510,19 +529,6 @@ export default class GraphqlService {
               timezone
               image
               status
-            }
-            user {
-              id
-              name
-              username
-              timezone
-              image
-              status
-            }
-            team {
-              id
-              name
-              image
             }
             createdAt
             updatedAt

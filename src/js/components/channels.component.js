@@ -117,7 +117,7 @@ Channel.propTypes = {
 }
 
 const ChannelContainer = styled.div`
-  background: ${props => (props.active ? '#202027' : 'transparent')};
+  background: ${props => (props.active ? '#1d1c24' : 'transparent')};
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -424,7 +424,7 @@ class ChannelsComponent extends React.Component {
     try {
       // await GraphqlService.getInstance().channels(teamId, userId)
       // Not sure why I was using the above to seperate the calls
-      const team = await GraphqlService.getInstance().team(teamId, userId)
+      const team = await GraphqlService.getInstance().teamChannelsComponent(teamId, userId)
       const channels = team.data.team.channels
       const channelIds = channels.map(channel => channel.id)
 
@@ -435,8 +435,8 @@ class ChannelsComponent extends React.Component {
       MessagingService.getInstance().joins(channelIds)
 
       // Populate our stores
-      this.props.hydrateChannels(channels)
       this.props.hydrateTeam(team.data.team)
+      this.props.hydrateChannels(channels)
     } catch (e) {
       this.setState({ loading: false, error: e })
     }
@@ -634,7 +634,7 @@ class ChannelsComponent extends React.Component {
         {this.state.starred.map((channel, index) => {
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
           const unreadCount = unread ? unread.doc.count : 0
-          const to = `/app/team/${channel.team.id}/channel/${channel.id}`
+          const to = `/app/team/${this.props.team.id}/channel/${channel.id}`
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
 
@@ -702,7 +702,7 @@ class ChannelsComponent extends React.Component {
               private={channel.private}
               muted={muted}
               archived={archived}
-              onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
+              onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -742,7 +742,7 @@ class ChannelsComponent extends React.Component {
               private={channel.private}
               muted={muted}
               archived={archived}
-              onClick={() => this.props.history.push(`/app/team/${channel.team.id}/channel/${channel.id}`)}
+              onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -768,7 +768,7 @@ class ChannelsComponent extends React.Component {
             {this.state.archived.map((channel, index) => {
               const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
               const unreadCount = unread ? unread.doc.count : 0
-              const to = `/app/team/${channel.team.id}/channel/${channel.id}`
+              const to = `/app/team/${this.props.team.id}/channel/${channel.id}`
               const muted = this.props.user.muted.indexOf(channel.id) != -1
               const archived = this.props.user.archived.indexOf(channel.id) != -1
 
@@ -1016,7 +1016,7 @@ const SearchInput = styled.input`
 
 const SearchContainer = styled.div`
   width: 100%;
-  background: #202027;
+  background: #1d1c24;
 `
 
 const SearchInner = styled.div`
