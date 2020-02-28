@@ -125,7 +125,7 @@ const ChannelContainer = styled.div`
   justify-content: center;
   position: relative;
   cursor: pointer;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
   padding-right: 25px;
 `
 
@@ -153,7 +153,7 @@ const ChannelBadge = styled.div`
 
 const ChannelTitle = styled.div`
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: ${props => (props.active ? 'white' : '#626d7a')};
   white-space: wrap;
@@ -171,7 +171,7 @@ const ChannelExcerpt = styled.div`
 `
 
 const ChannelExcerptText = styled.span`
-  font-size: 13px;
+  font-size: 11px;
   color: #626d7a;
   font-weight: 400;
   white-space: nowrap;
@@ -910,7 +910,7 @@ export default connect(
 )(ChannelsComponent)
 
 const Channels = styled.div`
-  width: 350px;
+  width: 300px;
   height: 100%;
   position: relative;
   z-index: 2;

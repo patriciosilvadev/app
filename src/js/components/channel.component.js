@@ -322,7 +322,7 @@ class ChannelComponent extends React.Component {
           {/* Member header subtitle */}
           <div className="row">
             <HeaderText>
-              {this.props.channel.members.length.numberShorthand()} {this.props.channel.members.length == 1 ? 'member' : 'members'}
+              {this.props.channel.totalMembers.numberShorthand()} {this.props.channel.totalMembers == 1 ? 'member' : 'members'}
             </HeaderText>
 
             {!this.props.channel.private && this.state.hasAdminPermission && (

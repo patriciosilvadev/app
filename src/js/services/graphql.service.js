@@ -301,6 +301,7 @@ export default class GraphqlService {
             public
             private
             isMember
+            totalMembers
             otherUser {
               id
               name

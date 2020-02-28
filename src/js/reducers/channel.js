@@ -7,6 +7,8 @@ const initialState = {
   image: '',
   public: false,
   private: false,
+  isMember: false,
+  totalMembers: 0,
   messages: [],
   members: [],
   apps: [],

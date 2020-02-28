@@ -382,10 +382,8 @@ export default memo(props => {
               <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
               <Menu
                 items={channels.map(channel => {
-                  const text = channel.private ? channel.members.reduce((title, member) => (member.user.id != user.id ? title + member.user.name : title), '') : channel.title
-
                   return {
-                    text,
+                    text: channel.title,
                     onClick: e => handleForwardMessage(channel.id),
                   }
                 })}
