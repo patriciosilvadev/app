@@ -75,6 +75,7 @@ export default function DockComponent(props) {
 
         return (
           <Link
+            className="column align-items-center"
             key={index}
             to={`/app/team/${t.id}`}
             style={{
@@ -83,6 +84,7 @@ export default function DockComponent(props) {
             }}
           >
             <Avatar dark badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
+            <Team>{t.name}</Team>
           </Link>
         )
       })}
@@ -112,4 +114,14 @@ const Dock = styled.div`
   background: #18181d;
   border-right: 1px solid #eaedef;
   border-right: 1px solid #202027;
+`
+
+const Team = styled.div`
+  margin-top: 3px;
+  font-size: 10px;
+  color: #cfd4da;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `

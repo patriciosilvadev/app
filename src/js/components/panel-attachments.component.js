@@ -11,6 +11,7 @@ import PreviewComponent from './preview.component'
 import { parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
+import PanelComponent from './panel.component'
 
 class PanelAttachmentsComponent extends React.Component {
   constructor(props) {
@@ -60,13 +61,14 @@ class PanelAttachmentsComponent extends React.Component {
 
     try {
       const nextPage = this.state.page + 1
-      const { teamId, channelId } = this.props.match.params
+      const teamId = this.props.team.id
+      const channelId = this.props.channel.id
       const { data } = await GraphqlService.getInstance().channelAttachments(channelId, this.state.page)
 
       // Add the new messages to the channel
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({
-        messages: [...this.state.messages, ...data.channelAttachments],
+        messages: data.channelAttachments ? [...this.state.messages, ...data.channelAttachments] : [],
         page: nextPage,
         busy: false,
         loading: false,
@@ -81,17 +83,9 @@ class PanelAttachmentsComponent extends React.Component {
   }
 
   render() {
-    const { teamId, channelId } = this.props.match.params
-
     return (
-      <Container className="column">
+      <PanelComponent title="Channel Files" onClose={this.props.onClose}>
         {this.state.preview && <PreviewComponent onClose={() => this.setState({ preview: null })} image={this.state.preview} />}
-
-        <Header className="row">
-          <HeaderTitle>Channel Files</HeaderTitle>
-          <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={() => this.props.history.push(`app/team/${teamId}/channel/${channelId}`)} />
-        </Header>
-
         {this.state.error && <Error message={this.state.error} />}
         {this.state.loading && <Spinner />}
 
@@ -139,7 +133,7 @@ class PanelAttachmentsComponent extends React.Component {
             </div>
           </AttachmentsScrollContainer>
         </Attachments>
-      </Container>
+      </PanelComponent>
     )
   }
 }
@@ -149,6 +143,8 @@ const mapDispatchToProps = {}
 const mapStateToProps = state => {
   return {
     user: state.user,
+    team: state.team,
+    channel: state.channel,
   }
 }
 
@@ -159,8 +155,9 @@ export default connect(
 
 PanelAttachmentsComponent.propTypes = {
   onClose: PropTypes.func,
-  action: PropTypes.any,
   user: PropTypes.any,
+  team: PropTypes.any,
+  channel: PropTypes.any,
 }
 
 const Text = styled.div`

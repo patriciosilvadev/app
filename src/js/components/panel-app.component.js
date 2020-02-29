@@ -5,6 +5,7 @@ import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import { Button, Modal } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
+import PanelComponent from './panel.component'
 
 export default function PanelAppComponent(props) {
   const user = useSelector(state => state.user)
@@ -24,13 +25,9 @@ export default function PanelAppComponent(props) {
   }, [])
 
   return (
-    <Container className="column">
-      <Header className="row">
-        <HeaderTitle>{props.action.name}</HeaderTitle>
-        <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={props.onClose} />
-      </Header>
+    <PanelComponent title={props.action.name} onClose={props.onClose}>
       <Iframe border="0" src={url} width="100%" height="100%"></Iframe>
-    </Container>
+    </PanelComponent>
   )
 }
 

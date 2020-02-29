@@ -512,7 +512,7 @@ class ChannelsComponent extends React.Component {
         <HeaderTitles className="column">
           {/*<HeaderTeam>{this.props.team.name}</HeaderTeam>*/}
           <HeaderTitle className="align-items-center">
-            {this.props.user.name} − {this.props.team.name}
+            {this.props.user.name} @{this.props.user.username}
           </HeaderTitle>
           <QuickInputComponent
             visible={this.state.statusMenu}

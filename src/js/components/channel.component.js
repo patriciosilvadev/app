@@ -22,6 +22,9 @@ import MessagesComponent from './messages.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
 import { sendFocusComposeInputEvent } from '../helpers/util'
+import ToolbarComponent from './toolbar.component'
+import PanelAppComponent from './panel-app.component'
+import PanelAttachmentsComponent from './panel-attachments.component'
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -32,6 +35,7 @@ class ChannelComponent extends React.Component {
       busy: false,
       page: 1,
       open: true,
+      attachmentsPanel: true,
       channelModal: false,
       channelModalStart: 0,
       message: null,
@@ -81,6 +85,9 @@ class ChannelComponent extends React.Component {
     this.renderNotification = this.renderNotification.bind(this)
     this.renderTypingNames = this.renderTypingNames.bind(this)
     this.renderDropzone = this.renderDropzone.bind(this)
+    this.renderToolbar = this.renderToolbar.bind(this)
+    this.renderPanelApp = this.renderPanelApp.bind(this)
+    this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
   }
 
   handleActionClick(action) {
@@ -394,7 +401,7 @@ class ChannelComponent extends React.Component {
             this.props.closeAppPanel()
 
             // Open the attachments panel
-            this.props.history.push(`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/attachments`)
+            this.setState({ attachmentsPanel: true })
           }}
         />
 
@@ -543,6 +550,28 @@ class ChannelComponent extends React.Component {
     )
   }
 
+  renderToolbar() {
+    return <ToolbarComponent />
+  }
+
+  renderPanelApp() {
+    if (!this.props.app.panel) return null
+
+    return <PanelAppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
+  }
+
+  renderPanelAttachments() {
+    if (!this.state.attachmentsPanel || this.props.app.panel) return null
+
+    return (
+      <PanelAttachmentsComponent
+        onClose={() => {
+          this.setState({ attachmentsPanel: false })
+        }}
+      />
+    )
+  }
+
   render() {
     const { teamId, channelId } = this.props.match.params
 
@@ -559,30 +588,40 @@ class ChannelComponent extends React.Component {
           />
         )}
 
-        <Channel ref={ref => (this.dropZone = ref)} className="column flexer align-items-center align-items-stretch">
-          {this.renderDropzone()}
+        <ChannelContainer>
           {this.renderHeader()}
-          {this.renderNotification()}
 
-          <MessagesContainer ref={ref => (this.scrollRef = ref)}>
-            {this.renderMessages()}
-            {this.renderSearchResults()}
-          </MessagesContainer>
+          <ChannelBodyContainer>
+            <ChannelBody ref={ref => (this.dropZone = ref)}>
+              {this.renderDropzone()}
+              {this.renderNotification()}
 
-          {this.renderTypingNames()}
+              <MessagesContainer ref={ref => (this.scrollRef = ref)}>
+                {this.renderMessages()}
+                {this.renderSearchResults()}
+              </MessagesContainer>
 
-          {this.state.open && (
-            <ComposeComponent
-              reply={this.state.reply}
-              update={this.state.update}
-              message={this.state.message}
-              clearMessage={() => {
-                this.setState({ message: null, update: false, reply: false })
-                sendFocusComposeInputEvent()
-              }}
-            />
-          )}
-        </Channel>
+              {this.renderTypingNames()}
+
+              {this.state.open && (
+                <ComposeComponent
+                  reply={this.state.reply}
+                  update={this.state.update}
+                  message={this.state.message}
+                  clearMessage={() => {
+                    this.setState({ message: null, update: false, reply: false })
+                    sendFocusComposeInputEvent()
+                  }}
+                />
+              )}
+            </ChannelBody>
+
+            {this.renderPanelAttachments()}
+            {this.renderPanelApp()}
+          </ChannelBodyContainer>
+        </ChannelContainer>
+
+        {this.renderToolbar()}
       </React.Fragment>
     )
   }
@@ -590,6 +629,7 @@ class ChannelComponent extends React.Component {
 
 ChannelComponent.propTypes = {
   team: PropTypes.any,
+  app: PropTypes.any,
   channel: PropTypes.any,
   user: PropTypes.any,
   hydrateChannel: PropTypes.func,
@@ -612,6 +652,7 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     team: state.team,
+    app: state.app,
     user: state.user,
     channel: state.channel,
   }
@@ -622,27 +663,35 @@ export default connect(
   mapDispatchToProps
 )(ChannelComponent)
 
-const Dropzone = styled.div`
-  background: rgba(255, 255, 255, 0.8);
-  height: 100%;
-  width: 100%;
-  z-index: 10;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  display: ${props => (props.active ? 'flex' : 'none')};
-  flex-direction: column;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-`
-
-const Channel = styled.div`
+const ChannelContainer = styled.div`
   height: 100%;
   flex: 1;
-  padding-left: 0px;
-  padding-right: 0px;
   position: relative;
+  z-index: 1;
+  overflow: hidden;
+  flex-direction: column;
+  display: flex;
+  align-items: stretch;
+`
+
+const ChannelBodyContainer = styled.div`
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  flex-direction: row;
+  display: flex;
+  align-items: stretch;
+`
+
+const ChannelBody = styled.div`
+  flex: 1;
+  position: relative;
+  border-sizing: box-border;
+  flex-direction: column;
+  align-items: stretch;
+  display: flex;
   z-index: 1;
 `
 
@@ -810,4 +859,19 @@ const AppIconImage = styled.div`
   background-color: transparent;
   background-repeat: no-repeat;
   background-image: url(${props => props.image});
+`
+
+const Dropzone = styled.div`
+  background: rgba(255, 255, 255, 0.8);
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: ${props => (props.active ? 'flex' : 'none')};
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
 `

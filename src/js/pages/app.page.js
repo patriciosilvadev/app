@@ -209,16 +209,6 @@ class AppPage extends React.Component {
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
-            <Route
-              path="/app/team/:teamId/channel/:channelId"
-              render={props => {
-                if (!this.props.app.panel) return null
-
-                return <PanelAppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
-              }}
-            />
-            <Route path="/app/team/:teamId/channel/:channelId/attachments" component={PanelAttachmentsComponent} />
-            <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
           </Router>
         </App>
       </AppContainer>

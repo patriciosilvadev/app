@@ -712,7 +712,6 @@ const Compose = styled.div`
   padding: 0px;
   border-sizing: box-border;
   z-index: 2;
-  border: ${props => (props.active ? '2px solid #007af5' : 'none')};
 `
 
 const InputContainer = styled.div`
