@@ -232,31 +232,3 @@ const AttachmentsScrollContainer = styled.div`
   height: 100%;
   overflow: scroll;
 `
-
-const Container = styled.div`
-  display: flex;
-  width: 350px;
-  height: 100%;
-  border-left: 1px solid #f1f3f5;
-`
-
-const Header = styled.div`
-  width: 100%;
-  background: transparent;
-  border-bottom: 1px solid #f1f3f5;
-  background: white;
-  padding 15px 25px 15px 25px;
-  display: flex;
-`
-
-const HeaderTitle = styled.div`
-  font-size: 20px;
-  font-weight: 600;
-  font-style: normal;
-  color: #040b1c;
-  transition: opacity 0.5s;
-  display: inline-block;
-  margin-bottom: 2px;
-  width: max-content;
-  flex: 1;
-`

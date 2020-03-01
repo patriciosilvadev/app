@@ -38,6 +38,8 @@ const Header = styled.div`
   background: white;
   padding 15px 25px 15px 25px;
   display: flex;
+  position: relative;
+  z-index: 1;
 `
 
 const HeaderTitle = styled.div`

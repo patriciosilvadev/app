@@ -315,7 +315,7 @@ class ChannelComponent extends React.Component {
 
     return (
       <Header className="row">
-        <IconComponent icon="star" size={20} thickness={2.5} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
+        <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
         <Avatar image={this.props.channel.image} title={this.props.channel.title} size="medium-large" />
 
@@ -371,7 +371,7 @@ class ChannelComponent extends React.Component {
               <React.Fragment key={index}>
                 {app.app.shortcuts.map((button, i) => {
                   return (
-                    <AppIconContainer
+                    <HeaderButton
                       key={i}
                       onClick={() =>
                         this.handleActionClick({
@@ -381,33 +381,40 @@ class ChannelComponent extends React.Component {
                       }
                     >
                       <AppIconImage image={button.icon} />
-                    </AppIconContainer>
+                    </HeaderButton>
                   )
                 })}
               </React.Fragment>
             )
           })}
 
-        <IconComponent icon="pen" size={18} thickness={1.75} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+        <HeaderButton className="row">
+          <IconComponent icon="pen" size={18} thickness={1.75} color="#acb5bd" className="button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+        </HeaderButton>
 
-        <IconComponent
-          icon="attachment"
-          size={18}
-          thickness={1.75}
-          color="#babec9"
-          className="ml-15 button"
-          onClick={() => {
-            // Close the app panel first
-            this.props.closeAppPanel()
+        <HeaderButton className="row">
+          <IconComponent
+            icon="attachment"
+            size={18}
+            thickness={1.75}
+            color="#babec9"
+            className="button"
+            onClick={() => {
+              // Close the app panel first
+              this.props.closeAppPanel()
 
-            // Open the attachments panel
-            this.setState({ attachmentsPanel: true })
-          }}
-        />
+              // Open the attachments panel
+              this.setState({ attachmentsPanel: true })
+            }}
+          />
+        </HeaderButton>
 
         {!this.props.channel.private && (
           <React.Fragment>
-            <IconComponent icon="users" size={26} thickness={1.25} color="#acb5bd" className="ml-15 button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+            <HeaderButton className="row">
+              <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
+              <IconComponent icon="users" size={26} thickness={1.25} color="#acb5bd" className="ml-5" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+            </HeaderButton>
 
             <Popup
               handleDismiss={() => this.setState({ visibilityMenu: false })}
@@ -435,14 +442,16 @@ class ChannelComponent extends React.Component {
                 />
               }
             >
-              <IconComponent
-                icon={this.props.channel.public ? 'unlock' : 'lock'}
-                size={18}
-                thickness={1.8}
-                color="#acb5bd"
-                className="ml-15 button"
-                onClick={() => (this.state.hasAdminPermission ? this.setState({ visibilityMenu: true }) : null)}
-              />
+              <HeaderButton className="row">
+                <IconComponent
+                  icon={this.props.channel.public ? 'unlock' : 'lock'}
+                  size={18}
+                  thickness={1.8}
+                  color="#acb5bd"
+                  className="button"
+                  onClick={() => (this.state.hasAdminPermission ? this.setState({ visibilityMenu: true }) : null)}
+                />
+              </HeaderButton>
             </Popup>
           </React.Fragment>
         )}
@@ -706,6 +715,22 @@ const Header = styled.div`
   /* box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.05); */
 `
 
+const HeaderButton = styled.div`
+  border: 1px solid #eaedef;
+  position: relative;
+  height: 35px;
+  border-radius: 10px;
+  margin-left: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+  transition: background 0.25s;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+`
+
 const HeaderTitle = styled.div`
   font-size: 18px;
   font-weight: 400;
@@ -740,12 +765,23 @@ const HeaderLink = styled.div`
   margin-right: 0px;
 `
 
+const TotalMembers = styled.div`
+  font-size: 13px;
+  font-weight: 500;
+  font-style: normal;
+  color: #acb5bd;
+  transition: opacity 0.5s;
+  display: inline-block;
+`
+
 const HeaderSearchContainer = styled.div`
   border: 1px solid #eaedef;
   border-radius: 10px;
-  padding 10px;
+  padding-left: 10px;
+  height: 35px;
+  padding-right: 10px;
   transition: width 0.5s;
-  width: ${props => (props.focus ? '50%' : '25%')};
+  width: ${props => (props.focus ? '30%' : '25%')};
   margin-right: 10px;
 `
 
@@ -836,18 +872,6 @@ const WelcomeUserName = styled.div`
 
 const PaddingToKeepMessagesDown = styled.div`
   height: 1500px;
-`
-
-const AppIconContainer = styled.div`
-  padding: 5px;
-  margin-left: 15px;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 0.25s;
-
-  &:hover {
-    opacity: 0.8;
-  }
 `
 
 const AppIconImage = styled.div`
