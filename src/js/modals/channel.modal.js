@@ -148,7 +148,7 @@ export default function ChannelModal(props) {
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
             <div className="column">
-              <Avatar title={title} image={image} className="mr-20 mb-20" size="xx-large" />
+              <Avatar title={title} image={image} className="mr-20 mb-20" size="xxx-large" />
 
               {props.hasAdminPermission && (
                 <Link className="button mt-10" onClick={() => fileRef.current.click()}>
@@ -171,7 +171,7 @@ export default function ChannelModal(props) {
               />
 
               <div className="row">
-                <IconComponent icon="markdown" size={20} color="#007af5" />
+                <IconComponent icon="markdown" size={20} color="#626d7a" />
                 <Supported>Markdown supported</Supported>
               </div>
             </Column>
@@ -244,6 +244,10 @@ export default function ChannelModal(props) {
   return (
     <ModalPortal>
       <Modal title="Channel" width={700} height="90%" onClose={props.onClose}>
+        {renderOverview()}
+        {/* 
+        Temporarily removing this 
+
         <Tabbed
           start={props.start}
           onChange={i => {
@@ -269,6 +273,7 @@ export default function ChannelModal(props) {
             },
           ]}
         />
+        */}
       </Modal>
     </ModalPortal>
   )
@@ -307,8 +312,8 @@ const Column = styled.div`
 
 const Supported = styled.div`
   font-size: 12px;
-  font-weight: 600;
-  color: #007af5;
+  font-weight: 400;
+  color: #626d7a;
   margin-left: 5px;
 `
 

@@ -35,7 +35,7 @@ class ChannelComponent extends React.Component {
       busy: false,
       page: 1,
       open: true,
-      attachmentsPanel: true,
+      attachmentsPanel: false,
       channelModal: false,
       channelModalStart: 0,
       message: null,
@@ -389,10 +389,6 @@ class ChannelComponent extends React.Component {
           })}
 
         <HeaderButton className="row">
-          <IconComponent icon="pen" size={18} thickness={1.75} color="#acb5bd" className="button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
-        </HeaderButton>
-
-        <HeaderButton className="row">
           <IconComponent
             icon="attachment"
             size={18}
@@ -425,17 +421,31 @@ class ChannelComponent extends React.Component {
                 <Menu
                   items={[
                     {
-                      hide: this.props.channel.private,
+                      hide: !this.props.channel.private,
                       icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
-                      text: 'Public',
+                      text: 'Make public',
                       label: 'Everyone in your team has access',
                       onClick: e => this.updateChannelVisibility({ private: false, public: true }),
                     },
                     {
                       hide: this.props.channel.private,
                       icon: <IconComponent icon="lock" size={20} color="#acb5bd" />,
-                      text: 'Private',
+                      text: 'Make private',
                       label: 'Members of this channel only',
+                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                    },
+                    {
+                      hide: false,
+                      icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
+                      text: 'Update',
+                      label: 'Update name, image or description',
+                      onClick: e => this.setState({ channelModal: true }),
+                    },
+                    {
+                      hide: false,
+                      icon: <IconComponent icon="delete" size={20} color="#acb5bd" />,
+                      text: 'Delete',
+                      label: 'This cannot be undone',
                       onClick: e => this.updateChannelVisibility({ private: false, public: false }),
                     },
                   ]}
@@ -444,7 +454,7 @@ class ChannelComponent extends React.Component {
             >
               <HeaderButton className="row">
                 <IconComponent
-                  icon={this.props.channel.public ? 'unlock' : 'lock'}
+                  icon="more-v"
                   size={18}
                   thickness={1.8}
                   color="#acb5bd"
@@ -676,7 +686,6 @@ const ChannelContainer = styled.div`
   height: 100%;
   flex: 1;
   position: relative;
-  z-index: 1;
   overflow: hidden;
   flex-direction: column;
   display: flex;
@@ -688,7 +697,6 @@ const ChannelBodyContainer = styled.div`
   width: 100%;
   overflow: hidden;
   position: relative;
-  z-index: 1;
   flex-direction: row;
   display: flex;
   align-items: stretch;
@@ -701,7 +709,6 @@ const ChannelBody = styled.div`
   flex-direction: column;
   align-items: stretch;
   display: flex;
-  z-index: 1;
 `
 
 const Header = styled.div`
