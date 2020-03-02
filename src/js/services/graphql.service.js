@@ -781,8 +781,8 @@ export default class GraphqlService {
   searchTeamMembers(teamId, query) {
     return this.client.query({
       query: gql`
-        query search($teamId: String, $query: String) {
-          search(teamId: $teamId, query: $query) {
+        query searchTeamMembers($teamId: String, $query: String) {
+          searchTeamMembers(teamId: $teamId, query: $query) {
             id
             name
             image

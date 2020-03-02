@@ -9,6 +9,7 @@ import GraphqlService from '../services/graphql.service'
 import EventService from '../services/event.service'
 import { Button } from '@tryyack/elements'
 import ChannelModal from '../modals/channel.modal'
+import MembersModal from '../modals/members.modal'
 import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
@@ -25,6 +26,7 @@ import { sendFocusComposeInputEvent } from '../helpers/util'
 import ToolbarComponent from './toolbar.component'
 import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
+import PanelMembersComponent from './panel-members.component'
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -36,13 +38,14 @@ class ChannelComponent extends React.Component {
       page: 1,
       open: true,
       attachmentsPanel: false,
+      membersPanel: true,
+      membersModal: false,
       channelModal: false,
-      channelModalStart: 0,
       message: null,
       reply: false,
       update: false,
       starred: false,
-      visibilityMenu: false,
+      channelMenu: false,
       lastTypingTime: 0,
       typing: '',
       searchFocus: false,
@@ -87,6 +90,7 @@ class ChannelComponent extends React.Component {
     this.renderDropzone = this.renderDropzone.bind(this)
     this.renderToolbar = this.renderToolbar.bind(this)
     this.renderPanelApp = this.renderPanelApp.bind(this)
+    this.renderPanelMembers = this.renderPanelMembers.bind(this)
     this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
   }
 
@@ -274,7 +278,7 @@ class ChannelComponent extends React.Component {
     try {
       await GraphqlService.getInstance().updateChannel(channelId, updatedChannelVisibility)
 
-      this.setState({ visibilityMenu: false })
+      this.setState({ channelMenu: false })
       this.props.updateChannel(channelId, updatedChannelVisibility)
     } catch (e) {}
   }
@@ -388,33 +392,29 @@ class ChannelComponent extends React.Component {
             )
           })}
 
-        <HeaderButton className="row">
-          <IconComponent
-            icon="attachment"
-            size={18}
-            thickness={1.75}
-            color="#babec9"
-            className="button"
-            onClick={() => {
-              // Close the app panel first
-              this.props.closeAppPanel()
+        <HeaderButton
+          className="row"
+          onClick={() => {
+            // Close the app panel first
+            this.props.closeAppPanel()
 
-              // Open the attachments panel
-              this.setState({ attachmentsPanel: true })
-            }}
-          />
+            // Open the attachments panel
+            this.setState({ attachmentsPanel: true })
+          }}
+        >
+          <IconComponent icon="attachment" size={18} thickness={1.75} color="#babec9" />
         </HeaderButton>
 
         {!this.props.channel.private && (
           <React.Fragment>
-            <HeaderButton className="row">
+            <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true })}>
               <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
-              <IconComponent icon="users" size={26} thickness={1.25} color="#acb5bd" className="ml-5" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })} />
+              <IconComponent icon="users" size={26} thickness={1.25} color="#acb5bd" className="ml-5" />
             </HeaderButton>
 
             <Popup
-              handleDismiss={() => this.setState({ visibilityMenu: false })}
-              visible={this.state.visibilityMenu}
+              handleDismiss={() => this.setState({ channelMenu: false })}
+              visible={this.state.channelMenu}
               width={275}
               direction="right-bottom"
               content={
@@ -436,10 +436,17 @@ class ChannelComponent extends React.Component {
                     },
                     {
                       hide: false,
+                      icon: <IconComponent icon="plus" size={20} color="#acb5bd" />,
+                      text: 'Add members',
+                      label: 'Add team members to this channel',
+                      onClick: e => this.setState({ membersModal: true, channelMenu: false }),
+                    },
+                    {
+                      hide: false,
                       icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
                       text: 'Update',
                       label: 'Update name, image or description',
-                      onClick: e => this.setState({ channelModal: true }),
+                      onClick: e => this.setState({ channelModal: true, channelMenu: false }),
                     },
                     {
                       hide: false,
@@ -452,15 +459,8 @@ class ChannelComponent extends React.Component {
                 />
               }
             >
-              <HeaderButton className="row">
-                <IconComponent
-                  icon="more-v"
-                  size={18}
-                  thickness={1.8}
-                  color="#acb5bd"
-                  className="button"
-                  onClick={() => (this.state.hasAdminPermission ? this.setState({ visibilityMenu: true }) : null)}
-                />
+              <HeaderButton className="row" onClick={() => (this.state.hasAdminPermission ? this.setState({ channelMenu: true }) : null)}>
+                <IconComponent icon="more-v" size={18} thickness={1.8} color="#acb5bd" className="button" />
               </HeaderButton>
             </Popup>
           </React.Fragment>
@@ -579,6 +579,20 @@ class ChannelComponent extends React.Component {
     return <PanelAppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
   }
 
+  renderPanelMembers() {
+    if (!this.state.membersPanel || this.props.app.panel) return null
+
+    return (
+      <PanelMembersComponent
+        hasAdminPermission={this.state.hasAdminPermission}
+        onMemberAdd={() => this.setState({ membersModal: true })}
+        onClose={() => {
+          this.setState({ membersPanel: false })
+        }}
+      />
+    )
+  }
+
   renderPanelAttachments() {
     if (!this.state.attachmentsPanel || this.props.app.panel) return null
 
@@ -596,16 +610,9 @@ class ChannelComponent extends React.Component {
 
     return (
       <React.Fragment>
-        {this.state.channelModal && (
-          <ChannelModal
-            hasAdminPermission={this.state.hasAdminPermission}
-            channelId={channelId}
-            teamId={teamId}
-            members={[]}
-            start={this.state.channelModalStart}
-            onClose={() => this.setState({ channelModal: false })}
-          />
-        )}
+        {this.state.membersModal && <MembersModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ membersModal: false })} />}
+
+        {this.state.channelModal && <ChannelModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ channelModal: false })} />}
 
         <ChannelContainer>
           {this.renderHeader()}
@@ -635,6 +642,7 @@ class ChannelComponent extends React.Component {
               )}
             </ChannelBody>
 
+            {this.renderPanelMembers()}
             {this.renderPanelAttachments()}
             {this.renderPanelApp()}
           </ChannelBodyContainer>

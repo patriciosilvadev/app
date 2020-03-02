@@ -1,0 +1,148 @@
+import React, { useState, useRef, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import ModalPortal from '../portals/modal.portal'
+import GraphqlService from '../services/graphql.service'
+import MessagingService from '../services/messaging.service'
+import styled from 'styled-components'
+import UploadService from '../services/upload.service'
+import PropTypes from 'prop-types'
+import { browserHistory } from '../services/browser-history.service'
+import { updateChannel, deleteChannel, createChannelMember, deleteChannelMember } from '../actions'
+import ConfirmModal from './confirm.modal'
+import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@tryyack/elements'
+import QuickUserComponent from '../components/quick-user.component'
+import { IconComponent } from '../components/icon.component'
+import { logger } from '../helpers/util'
+
+export default function MembersModal(props) {
+  const [loading, setLoading] = useState(null)
+  const [error, setError] = useState(null)
+  const [title, setTitle] = useState('')
+  const [userMenu, setUserMenu] = useState(null)
+  const [notification, setNotification] = useState(null)
+  const [image, setImage] = useState('')
+  const [description, setDescription] = useState('')
+  const user = useSelector(state => state.user)
+  const team = useSelector(state => state.team)
+  const channel = useSelector(state => state.channel)
+  const fileRef = useRef(null)
+  const dispatch = useDispatch()
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
+  const [members, setMembers] = useState([])
+
+  const handleCreateChannelMember = async user => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const userId = user.id
+      const userName = user.name
+      const userIds = [userId]
+      const { channelId, teamId } = props
+      const member = { user }
+      const { data } = await GraphqlService.getInstance().createChannelMember(channelId, teamId, userId, userName)
+
+      setLoading(false)
+      setMembers([...members, member])
+      dispatch(createChannelMember(channelId, member))
+
+      MessagingService.getInstance().joinChannel(userIds, channelId)
+    } catch (e) {
+      setLoading(false)
+      setError('Error adding channel member')
+    }
+  }
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!props.channelId) return
+
+        setLoading(true)
+
+        const { data } = await GraphqlService.getInstance().channel(props.channelId)
+        const channel = data.channel
+
+        setLoading(false)
+      } catch (e) {
+        setLoading(false)
+        setError('Error getting data')
+      }
+    })()
+  }, [props.id])
+
+  return (
+    <ModalPortal>
+      <Modal title="Add Members" width={700} height={500} onClose={props.onClose}>
+        <div className="row align-items-start w-100" style={{ zIndex: 100000 }}>
+          <div className="column w-100">
+            {error && <Error message={error} onDismiss={() => setError(false)} />}
+            {loading && <Spinner />}
+            {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+
+            <div className="column pl-20 pt-20">
+              <div className="row align-items-start mb-20">
+                {members.map((member, index) => {
+                  return (
+                    <Member className="row" index={index}>
+                      <Avatar size="small-medium" image={member.user.image} title={member.user.name} className="mb-5 mr-5" key={index} />
+                      <MemberName>{member.user.name}</MemberName>
+                      <IconComponent icon="x" size={15} color="#626d7a" thickness={2} className="button mr-5" onClick={() => setUserMenu(true)} />
+                    </Member>
+                  )
+                })}
+              </div>
+
+              <div className="row pr-25">
+                <QuickUserComponent
+                  teamId={props.teamId}
+                  visible={userMenu}
+                  width={250}
+                  direction="left-bottom"
+                  handleDismiss={() => setUserMenu(false)}
+                  handleAccept={member => {
+                    // Check to see if there are already people
+                    // Don't re-add people
+                    if (user.id == member.user.id) return
+
+                    // Otherwise all good - add them
+                    setMembers([...members, member])
+                  }}
+                >
+                  <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => setUserMenu(true)} />
+                </QuickUserComponent>
+              </div>
+            </div>
+
+            {props.hasAdminPermission && (
+              <div className="p-20">
+                <Button onClick={() => console.log('')} text="Add" theme="muted" />
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+    </ModalPortal>
+  )
+}
+
+MembersModal.propTypes = {
+  channelId: PropTypes.string,
+  teamId: PropTypes.string,
+  onClose: PropTypes.func,
+  hasAdminPermission: PropTypes.bool, // Whether someone can edit the team or not (admin)
+}
+
+const Member = styled.div`
+  background: #f6f7fa;
+  padding: 3px;
+  border-radius: 10px;
+`
+
+const MemberName = styled.div`
+  color: #617691;
+  font-size: 12px;
+  font-weight: 500px;
+  padding-left: 10px;
+  padding-right: 10px;
+`

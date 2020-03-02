@@ -12,7 +12,6 @@ import ConfirmModal from './confirm.modal'
 import { User, Modal, Tabbed, Popup, Loading, Error, Spinner, Notification, Input, Textarea, Button, Avatar } from '@tryyack/elements'
 import QuickUserComponent from '../components/quick-user.component'
 import { IconComponent } from '../components/icon.component'
-import MembersChannelComponent from '../components/members-channel.component'
 import { logger } from '../helpers/util'
 
 export default function ChannelModal(props) {
@@ -30,29 +29,6 @@ export default function ChannelModal(props) {
   const dispatch = useDispatch()
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [members, setMembers] = useState([])
-
-  const handleCreateChannelMember = async user => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const userId = user.id
-      const userName = user.name
-      const userIds = [userId]
-      const { channelId, teamId } = props
-      const member = { user }
-      const { data } = await GraphqlService.getInstance().createChannelMember(channelId, teamId, userId, userName)
-
-      setLoading(false)
-      setMembers([...members, member])
-      dispatch(createChannelMember(channelId, member))
-
-      MessagingService.getInstance().joinChannel(userIds, channelId)
-    } catch (e) {
-      setLoading(false)
-      setError('Error adding channel member')
-    }
-  }
 
   const handleFileChange = async e => {
     if (e.target.files.length == 0) return
@@ -135,93 +111,6 @@ export default function ChannelModal(props) {
     })()
   }, [props.id])
 
-  // Render functions for ease of reading
-  const renderOverview = () => {
-    return (
-      <div className="row align-items-start w-100">
-        <div className="column w-100">
-          {error && <Error message={error} onDismiss={() => setError(false)} />}
-          {loading && <Spinner />}
-          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
-
-          <Row className="row align-items-start">
-            <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
-
-            <div className="column">
-              <Avatar title={title} image={image} className="mr-20 mb-20" size="xxx-large" />
-
-              {props.hasAdminPermission && (
-                <Link className="button mt-10" onClick={() => fileRef.current.click()}>
-                  Update image
-                </Link>
-              )}
-            </div>
-
-            <Column className="column">
-              <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.hasAdminPermission} />
-
-              <Textarea
-                label="Description"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder="Add a description"
-                rows={8}
-                className="mb-20"
-                disable={!props.hasAdminPermission}
-              />
-
-              <div className="row">
-                <IconComponent icon="markdown" size={20} color="#626d7a" />
-                <Supported>Markdown supported</Supported>
-              </div>
-            </Column>
-          </Row>
-
-          {props.hasAdminPermission && (
-            <div className="p-20">
-              <Button onClick={handleUpdateChannel} text="Update" theme="muted" />
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  const renderMembers = () => {
-    return (
-      <div className="column flex-1 w-100 h-100">
-        <MembersChannelComponent hasAdminPermission={props.hasAdminPermission} id={props.id} channelId={channel.id} teamId={team.id} onClose={props.onClose} members={members} />
-
-        {props.hasAdminPermission && (
-          <QuickUserComponent
-            channel={channel}
-            visible={userMenu}
-            width={250}
-            direction="left-top"
-            handleDismiss={() => setUserMenu(false)}
-            handleAccept={({ user }) => {
-              // Check to see if there are already people
-              // Don't re-add people
-              if (members.filter(member => member.user.id == user.id).length > 0) return
-
-              // Otherwise all good - add them
-              handleCreateChannelMember(user)
-              setUserMenu(false)
-            }}
-          >
-            <AddButton className="button row" onClick={() => setUserMenu(true)}>
-              <Avatar className="mr-5" size="medium" circle image={null} color="#007af5" title="">
-                <IconComponent icon="plus" size={20} color="#007af5" />
-              </Avatar>
-
-              <Link className="ml-10">Add new Member</Link>
-            </AddButton>
-          </QuickUserComponent>
-        )}
-      </div>
-    )
-  }
-
   const renderDangerZone = () => {
     return (
       <div className="row align-items-start w-100">
@@ -243,37 +132,53 @@ export default function ChannelModal(props) {
 
   return (
     <ModalPortal>
-      <Modal title="Channel" width={700} height="90%" onClose={props.onClose}>
-        {renderOverview()}
-        {/* 
-        Temporarily removing this 
+      <Modal title="Channel" width={700} height={500} onClose={props.onClose}>
+        <div className="row align-items-start w-100">
+          <div className="column w-100">
+            {error && <Error message={error} onDismiss={() => setError(false)} />}
+            {loading && <Spinner />}
+            {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
 
-        <Tabbed
-          start={props.start}
-          onChange={i => {
-            setNotification(null)
-            setError(null)
-          }}
-          panels={[
-            {
-              title: 'Overview',
-              show: true,
-              content: renderOverview(),
-            },
-            {
-              title: 'Members',
-              show: members.length != 0,
-              content: renderMembers(),
-            },
-            {
-              title: 'Danger zone',
-              show: true,
-              hide: !props.hasAdminPermission,
-              content: renderDangerZone(),
-            },
-          ]}
-        />
-        */}
+            <Row className="row align-items-start">
+              <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
+
+              <div className="column">
+                <Avatar title={title} image={image} className="mr-20 mb-20" size="xxx-large" />
+
+                {props.hasAdminPermission && (
+                  <Link className="button mt-10" onClick={() => fileRef.current.click()}>
+                    Update image
+                  </Link>
+                )}
+              </div>
+
+              <Column className="column">
+                <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.hasAdminPermission} />
+
+                <Textarea
+                  label="Description"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Add a description"
+                  rows={8}
+                  className="mb-20"
+                  disable={!props.hasAdminPermission}
+                />
+
+                <div className="row">
+                  <IconComponent icon="markdown" size={20} color="#626d7a" />
+                  <Supported>Markdown supported</Supported>
+                </div>
+              </Column>
+            </Row>
+
+            {props.hasAdminPermission && (
+              <div className="p-20">
+                <Button onClick={handleUpdateChannel} text="Update" theme="muted" />
+              </div>
+            )}
+          </div>
+        </div>
       </Modal>
     </ModalPortal>
   )
@@ -282,8 +187,6 @@ export default function ChannelModal(props) {
 ChannelModal.propTypes = {
   channelId: PropTypes.string,
   teamId: PropTypes.string,
-  start: PropTypes.number,
-  members: PropTypes.array,
   onClose: PropTypes.func,
   hasAdminPermission: PropTypes.bool, // Whether someone can edit the team or not (admin)
 }

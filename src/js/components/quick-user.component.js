@@ -53,7 +53,7 @@ export default class QuickUser extends React.Component {
 
       // Create a results object for the users
       // Dedupe existing users
-      data.search.map(user => {
+      data.searchTeamMembers.map(user => {
         members.push({
           user: {
             id: user.id,
@@ -127,15 +127,15 @@ QuickUser.propTypes = {
 
 const MembersContainer = styled.div`
   position: absolute;
-  top: 0px;
+  bottom: 0px;
   right: 0px;
   width: 100%;
   background: white;
-  transform: translateY(-100%);
+  transform: translateY(100%);
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   overflow: hidden;
-  z-index: 100000;
+  z-index: 10000000;
 `
 
 const Filter = styled.input`
