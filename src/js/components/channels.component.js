@@ -10,6 +10,7 @@ import AccountModal from '../modals/account.modal'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { IconComponent } from './icon.component'
+import QuickUserComponent from './quick-user.component'
 import PropTypes from 'prop-types'
 import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
@@ -244,7 +245,8 @@ class ChannelsComponent extends React.Component {
       results: [],
       teamModal: false,
       teamModalStart: 1,
-      channelPopup: false,
+      channelPublicPopup: false,
+      channelPrivatePopup: false,
       accountModal: false,
       accountMenu: false,
       statusMenu: false,
@@ -684,14 +686,14 @@ class ChannelsComponent extends React.Component {
 
           {this.props.team.role != 'GUEST' && (
             <QuickInputComponent
-              visible={this.state.channelPopup}
+              visible={this.state.channelPublicPopup}
               width={250}
               direction="right-bottom"
-              handleDismiss={() => this.setState({ channelPopup: false })}
-              handleAccept={name => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
+              handleDismiss={() => this.setState({ channelPublicPopup: false })}
+              handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPopup: true })} />
+              <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
             </QuickInputComponent>
           )}
         </div>
@@ -734,16 +736,24 @@ class ChannelsComponent extends React.Component {
         <div className="row pr-25">
           <Heading>Private Conversations</Heading>
 
-          <QuickInputComponent
-            visible={this.state.channelPopup}
+          <QuickUserComponent
+            teamId={this.props.team.id}
+            visible={this.state.channelPrivatePopup}
             width={250}
             direction="right-bottom"
-            handleDismiss={() => this.setState({ channelPopup: false })}
-            handleAccept={name => this.setState({ channelPopup: false }, () => this.createPublicChannel(name))}
-            placeholder="New channel name"
+            handleDismiss={() => this.setState({ channelPrivatePopup: false })}
+            handleAccept={({ user }) => {
+              // Check to see if there are already people
+              // Don't re-add people
+              if (user.id == this.props.user.id) return
+
+              // Otherwise all good - add them
+              this.createPrivateChannel(user)
+              this.setState({ channelPrivatePopup: false })
+            }}
           >
-            <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPopup: true })} />
-          </QuickInputComponent>
+            <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
+          </QuickUserComponent>
         </div>
 
         {this.state.private.map((channel, index) => {
