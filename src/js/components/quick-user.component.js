@@ -48,7 +48,7 @@ export default class QuickUser extends React.Component {
     this.setState({ loading: true })
 
     try {
-      const { data } = await GraphqlService.getInstance().search(this.props.teamId, this.state.filter)
+      const { data } = await GraphqlService.getInstance().searchTeamMembers(this.props.teamId, this.state.filter)
       const members = []
 
       // Create a results object for the users
