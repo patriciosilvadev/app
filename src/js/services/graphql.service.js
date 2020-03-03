@@ -484,6 +484,22 @@ export default class GraphqlService {
                 }
               }
             }
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        channelId,
+      },
+    })
+  }
+
+  channelMembers(channelId, page) {
+    return this.client.query({
+      query: gql`
+        query channelMembers($channelId: String!, $page: Float) {
+          channelMembers(channelId: $channelId, page: $page) {
             members {
               user {
                 id
@@ -506,6 +522,7 @@ export default class GraphqlService {
       `,
       variables: {
         channelId,
+        page,
       },
     })
   }
