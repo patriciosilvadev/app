@@ -250,6 +250,36 @@ export default class GraphqlService {
     })
   }
 
+  teamMembers(teamId, page) {
+    return this.client.query({
+      query: gql`
+        query teamMembers($teamId: String!, $page: Float) {
+          teamMembers(teamId: $teamId, page: $page) {
+            id
+            role
+            user {
+              id
+              name
+              emails {
+                address
+                confirmed
+              }
+              color
+              username
+              timezone
+              role
+              image
+            }
+          }
+        }
+      `,
+      variables: {
+        teamId,
+        page,
+      },
+    })
+  }
+
   teams(userId) {
     return this.client.query({
       query: gql`
@@ -483,6 +513,7 @@ export default class GraphqlService {
       query: gql`
         query channelMembers($channelId: String!, $page: Float) {
           channelMembers(channelId: $channelId, page: $page) {
+            id
             user {
               id
               name
