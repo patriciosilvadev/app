@@ -349,10 +349,8 @@ class ChannelsComponent extends React.Component {
     const description = null
     const image = null
     const teamId = this.props.team.id
-    const otherUserId = user.id
-    const userId = this.props.user.id
 
-    this.createChannel(title, description, image, teamId, userId, otherUserId)
+    this.createChannel(title, description, image, teamId, user)
     this.setState({ filter: '', showFilter: false, results: [] })
   }
 
@@ -360,44 +358,44 @@ class ChannelsComponent extends React.Component {
     const description = null
     const image = null
     const teamId = this.props.team.id
-    const otherUserId = null
-    const userId = this.props.user.id
 
-    this.createChannel(title, description, image, teamId, userId, otherUserId)
+    this.createChannel(title, description, image, teamId, null)
     this.setState({ filter: '', showFilter: false, results: [] })
   }
 
-  async createChannel(title, description, image, teamId, userId, otherUserId) {
+  async createChannel(title, description, image, teamId, otherUser) {
     try {
       // 1. Find channels where there are private
       // 2. Filter channels that have this private user as the otherUser (so it exists)
-      const channel = otherUserId
+      const isPrivate = otherUser ? true : false
+      const channel = isPrivate
         ? this.props.channels
-            .filter(channel => channel.otherUser && channel.private)
-            .filter(channel => channel.otherUser.id == otherUserId)
+            .filter(channel => channel.private)
+            .filter(channel => channel.otherUser.id == otherUser.id)
             .flatten()
         : null
 
       // 3. If it's found - then go there first (don't create a new one)
       if (channel) return this.props.history.push(`/app/team/${teamId}/channel/${channel.id}`)
 
-      // Create the default member array
-      // If user isn't null - then it's a private channel
-      const members = otherUserId ? [{ user: otherUserId }, { user: userId }] : [{ user: userId }]
-
       // Otherwise create the new channel
       // 1) Create the channel object based on an open channel or private
-      // 2) Default public channel is always members only
+      // 2) Seperate the members object for the API call
+      const { user } = this.props
+      const thisUser = { id: user.id, name: user.name, username: user.username }
       const { data } = await GraphqlService.getInstance().createChannel({
-        title,
-        description,
-        image,
-        members,
-        team: teamId,
-        user: userId,
-        messages: [],
-        public: false,
-        private: otherUserId ? true : false,
+        thisUser,
+        otherUser,
+        channel: {
+          title,
+          description,
+          image,
+          team: teamId,
+          user: user.id,
+          messages: [],
+          public: false,
+          private: isPrivate,
+        },
       })
 
       const channelData = data.createChannel

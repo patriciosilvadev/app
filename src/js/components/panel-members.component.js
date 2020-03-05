@@ -71,7 +71,7 @@ class PanelMembersComponent extends React.Component {
       members: [],
       results: [],
       filter: '',
-      membersModal: true,
+      membersModal: false,
     }
 
     this.scrollRef = React.createRef()
