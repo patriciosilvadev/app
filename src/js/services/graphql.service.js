@@ -240,23 +240,6 @@ export default class GraphqlService {
               createdAt
               updatedAt
             }
-            members {
-              user {
-                id
-                role
-                name
-                emails {
-                  address
-                  confirmed
-                }
-                color
-                username
-                timezone
-                image
-                createdAt
-              }
-              role
-            }
           }
         }
       `,
@@ -500,23 +483,19 @@ export default class GraphqlService {
       query: gql`
         query channelMembers($channelId: String!, $page: Float) {
           channelMembers(channelId: $channelId, page: $page) {
-            members {
-              user {
-                id
-                name
-                emails {
-                  address
-                  confirmed
-                }
-                color
-                username
-                timezone
-                role
-                image
+            user {
+              id
+              name
+              emails {
+                address
+                confirmed
               }
+              color
+              username
+              timezone
+              role
+              image
             }
-            createdAt
-            updatedAt
           }
         }
       `,
