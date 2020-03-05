@@ -322,9 +322,6 @@ class ChannelsComponent extends React.Component {
     const starredChannels = props.channels
       .filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
       .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
-    const mutedChannels = props.channels
-      .filter((channel, index) => props.user.muted.indexOf(channel.id) != -1)
-      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const archivedChannels = props.channels
       .filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
       .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
@@ -333,11 +330,10 @@ class ChannelsComponent extends React.Component {
       .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const privateChannels = props.channels
       .filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
-      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(channel => channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
 
     return {
       starred: starredChannels,
-      muted: mutedChannels,
       archived: archivedChannels,
       private: privateChannels,
       public: publicChannels,
@@ -652,9 +648,9 @@ class ChannelsComponent extends React.Component {
               key={index}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={channel.title}
-              image={channel.image}
-              excerpt={channel.excerpt}
+              title={channel.private ? channel.otherUser.name : channel.title}
+              image={channel.private ? channel.otherUser.image : channel.image}
+              excerpt={channel.private ? channel.otherUser.excerpt : channel.excerpt}
               public={channel.public}
               private={channel.private}
               muted={muted}
@@ -764,8 +760,8 @@ class ChannelsComponent extends React.Component {
               presence="away"
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={channel.title}
-              image={channel.image}
+              title={channel.otherUser.name}
+              image={channel.otherUser.image}
               excerpt={channel.otherUser.status}
               public={channel.public}
               private={channel.private}
@@ -806,9 +802,9 @@ class ChannelsComponent extends React.Component {
                   key={index}
                   active={pathname.indexOf(channel.id) != -1}
                   unread={muted ? 0 : unreadCount}
-                  title={channel.title}
-                  image={channel.image}
-                  excerpt={channel.excerpt}
+                  title={channel.private ? channel.otherUser.name : channel.title}
+                  image={channel.private ? channel.otherUser.image : channel.image}
+                  excerpt={channel.private ? channel.otherUser.status : channel.excerpt}
                   public={channel.public}
                   private={channel.private}
                   muted={muted}

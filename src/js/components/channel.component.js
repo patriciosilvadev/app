@@ -320,16 +320,20 @@ class ChannelComponent extends React.Component {
       <Header className="row">
         <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
-        <Avatar image={this.props.channel.image} title={this.props.channel.title} size="medium-large" />
+        <Avatar
+          image={this.props.channel.private ? this.props.channel.otherUser.image : this.props.channel.image}
+          title={this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title}
+          size="medium-large"
+        />
 
         <div className="column ml-10">
           <div className="row">
             {!this.props.public && !this.props.private && <IconComponent icon="lock" color="#040b1c" size={15} thickness={2.5} className="mr-5" />}
-            <HeaderTitle>{this.props.channel.title}</HeaderTitle>
+            <HeaderTitle>{this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title}</HeaderTitle>
           </div>
 
           <HeaderDescription>
-            <ReactMarkdown source={this.props.channel.description} />
+            <ReactMarkdown source={this.props.channel.private ? this.props.channel.otherUser.status : this.props.channel.description} />
           </HeaderDescription>
 
           {/* Member header subtitle */}
