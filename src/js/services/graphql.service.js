@@ -852,8 +852,6 @@ export default class GraphqlService {
             title
             body
             read
-            type
-            meta
             createdAt
           }
         }
@@ -1182,18 +1180,17 @@ export default class GraphqlService {
     })
   }
 
-  createChannelMember(channelId, teamId, userId, userName) {
+  createChannelMembers(channelId, teamId, members) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelMember($channelId: String, $teamId: String, $userId: String, $userName: String) {
-          createChannelMember(channelId: $channelId, teamId: $teamId, userId: $userId, userName: $userName)
+        mutation createChannelMembers($channelId: String, $teamId: String, $members: String) {
+          createChannelMembers(channelId: $channelId, teamId: $teamId, members: $members)
         }
       `,
       variables: {
         teamId,
         channelId,
-        userId,
-        userName,
+        members: JSON.stringify(members),
       },
     })
   }

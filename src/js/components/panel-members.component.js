@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import moment from 'moment'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Attachment, Popup, Button, Modal, Error, Spinner, Avatar, Menu } from '@tryyack/elements'
+import { Attachment, Popup, Button, Modal, Error, Spinner, Avatar, Menu, Notification } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
 import { parseMessageMarkdown } from '../helpers/util'
@@ -14,6 +14,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import PanelComponent from './panel.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+import MembersModal from '../modals/members.modal'
 
 const TableRow = props => {
   const { member, user } = props
@@ -63,12 +64,14 @@ class PanelMembersComponent extends React.Component {
 
     this.state = {
       loading: false,
+      notification: null,
       error: null,
       busy: false,
       page: 0,
       members: [],
       results: [],
       filter: '',
+      membersModal: true,
     }
 
     this.scrollRef = React.createRef()
@@ -222,67 +225,87 @@ class PanelMembersComponent extends React.Component {
 
   render() {
     return (
-      <PanelComponent title="Channel Members" onClose={this.props.onClose}>
-        {this.state.error && <Error message={this.state.error} />}
-        {this.state.loading && <Spinner />}
+      <React.Fragment>
+        {this.state.membersModal && (
+          <MembersModal
+            hasAdminPermission={this.props.hasAdminPermission}
+            channelId={this.props.channelId}
+            teamId={this.props.teamId}
+            onClose={() => this.setState({ membersModal: false })}
+            onSuccess={members => {
+              // Add them to the state
+              // And notify the user
+              this.setState({
+                members: [...this.state.members, ...members],
+                notification: 'Successfully added!',
+              })
+            }}
+          />
+        )}
 
-        <MembersText>
-          There {this.props.channel.totalMembers == 1 ? 'is' : 'are'} <strong>{this.props.channel.totalMembers}</strong> {this.props.channel.totalMembers == 1 ? 'member' : 'members'} in this channel
-        </MembersText>
+        <PanelComponent title="Channel Members" onClose={this.props.onClose}>
+          {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
+          {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
+          {this.state.loading && <Spinner />}
 
-        <Members>
-          <MembersScrollContainer ref={ref => (this.scrollRef = ref)}>
-            <div className="p-20">
-              <div className="row mb-20">
-                <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
-                <Button text="Add" theme="muted" size="small" onClick={this.props.onMemberAdd} />
+          <MembersText>
+            There {this.props.channel.totalMembers == 1 ? 'is' : 'are'} <strong>{this.props.channel.totalMembers}</strong> {this.props.channel.totalMembers == 1 ? 'member' : 'members'} in this channel
+          </MembersText>
+
+          <Members>
+            <MembersScrollContainer ref={ref => (this.scrollRef = ref)}>
+              <div className="p-20">
+                <div className="row mb-20">
+                  <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
+                  <Button text="Add" theme="muted" size="small" onClick={() => this.setState({ membersModal: true })} />
+                </div>
+
+                {this.state.results.length == 0 && (
+                  <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
+                    <tbody>
+                      {this.state.members.map((member, index) => {
+                        if (this.state.filter != '' && !member.user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
+
+                        return (
+                          <TableRow
+                            hasAdminPermission={this.props.hasAdminPermission}
+                            key={index}
+                            member={member}
+                            user={this.props.user}
+                            onLeave={this.handleChannelLeave}
+                            onDelete={this.handleChannelMemberDelete}
+                          />
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                )}
+
+                {this.state.results.length != 0 && (
+                  <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
+                    <tbody>
+                      {this.state.results.map((user, index) => {
+                        if (this.state.filter != '' && !user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
+
+                        return (
+                          <TableRow
+                            hasAdminPermission={this.props.hasAdminPermission}
+                            key={index}
+                            member={{ user }}
+                            user={this.props.user}
+                            onLeave={this.handleChannelLeave}
+                            onDelete={this.handleChannelMemberDelete}
+                          />
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                )}
               </div>
-
-              {this.state.results.length == 0 && (
-                <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
-                  <tbody>
-                    {this.state.members.map((member, index) => {
-                      if (this.state.filter != '' && !member.user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
-
-                      return (
-                        <TableRow
-                          hasAdminPermission={this.props.hasAdminPermission}
-                          key={index}
-                          member={member}
-                          user={this.props.user}
-                          onLeave={this.handleChannelLeave}
-                          onDelete={this.handleChannelMemberDelete}
-                        />
-                      )
-                    })}
-                  </tbody>
-                </table>
-              )}
-
-              {this.state.results.length != 0 && (
-                <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
-                  <tbody>
-                    {this.state.results.map((user, index) => {
-                      if (this.state.filter != '' && !user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
-
-                      return (
-                        <TableRow
-                          hasAdminPermission={this.props.hasAdminPermission}
-                          key={index}
-                          member={{ user }}
-                          user={this.props.user}
-                          onLeave={this.handleChannelLeave}
-                          onDelete={this.handleChannelMemberDelete}
-                        />
-                      )
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </MembersScrollContainer>
-        </Members>
-      </PanelComponent>
+            </MembersScrollContainer>
+          </Members>
+        </PanelComponent>
+      </React.Fragment>
     )
   }
 }

@@ -101,10 +101,6 @@ export default class MessagingService {
     this.sendMessageToTopic(topic, 'SYNC', action)
   }
 
-  joinChannel(userIds, channelId) {
-    userIds.map(userId => this.sendMessageToTopic(userId, 'JOIN_CHANNEL', channelId))
-  }
-
   leaveChannelTeam(teamId, channelId) {
     this.sendMessageToTopic(teamId, 'LEAVE_CHANNEL_TEAM', channelId)
   }

@@ -49,26 +49,20 @@ export default class QuickUser extends React.Component {
 
     try {
       const { data } = await GraphqlService.getInstance().searchTeamMembers(this.props.teamId, this.state.filter)
-      const members = []
 
       // Create a results object for the users
       // Dedupe existing users
-      data.searchTeamMembers.map(user => {
-        members.push({
-          user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            image: user.image,
-            role: user.role,
-          },
+      const members = data.searchTeamMembers
+        .filter(user => user.id != this.props.userId)
+        .map(user => {
+          return { user }
         })
-      })
-
-      this.setState({ loading: false })
 
       // Update our UI with our results
-      this.setState({ members })
+      this.setState({
+        loading: false,
+        members,
+      })
     } catch (e) {}
   }
 
@@ -119,6 +113,7 @@ QuickUser.propTypes = {
   visible: PropTypes.bool,
   width: PropTypes.number,
   direction: PropTypes.string,
+  userId: PropTypes.string,
   teamId: PropTypes.string,
   handleAccept: PropTypes.func,
   handleDismiss: PropTypes.func,

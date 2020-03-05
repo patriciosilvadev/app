@@ -87,28 +87,6 @@ export function createChannel(channel) {
   }
 }
 
-export function createChannelMember(channelId, member) {
-  return {
-    type: 'CREATE_CHANNEL_MEMBER',
-    payload: {
-      member,
-      channelId,
-    },
-    sync: channelId,
-  }
-}
-
-export function deleteChannelMember(channelId, userId) {
-  return {
-    type: 'DELETE_CHANNEL_MEMBER',
-    payload: {
-      userId,
-      channelId,
-    },
-    sync: channelId,
-  }
-}
-
 export function hydrateChannelMessages(messages) {
   return {
     type: 'UPDATE_CHANNEL_ADD_MESSAGES',

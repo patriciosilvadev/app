@@ -9,7 +9,6 @@ import GraphqlService from '../services/graphql.service'
 import EventService from '../services/event.service'
 import { Button } from '@tryyack/elements'
 import ChannelModal from '../modals/channel.modal'
-import MembersModal from '../modals/members.modal'
 import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
@@ -39,7 +38,6 @@ class ChannelComponent extends React.Component {
       open: true,
       attachmentsPanel: false,
       membersPanel: true,
-      membersModal: false,
       channelModal: false,
       message: null,
       reply: false,
@@ -92,6 +90,7 @@ class ChannelComponent extends React.Component {
     this.renderPanelApp = this.renderPanelApp.bind(this)
     this.renderPanelMembers = this.renderPanelMembers.bind(this)
     this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
+    this.renderChannelModal = this.renderChannelModal.bind(this)
   }
 
   handleActionClick(action) {
@@ -436,13 +435,6 @@ class ChannelComponent extends React.Component {
                     },
                     {
                       hide: false,
-                      icon: <IconComponent icon="plus" size={20} color="#acb5bd" />,
-                      text: 'Add members',
-                      label: 'Add team members to this channel',
-                      onClick: e => this.setState({ membersModal: true, channelMenu: false }),
-                    },
-                    {
-                      hide: false,
                       icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
                       text: 'Update',
                       label: 'Update name, image or description',
@@ -600,6 +592,8 @@ class ChannelComponent extends React.Component {
   renderPanelAttachments() {
     if (!this.state.attachmentsPanel || this.props.app.panel) return null
 
+    const { channelId, teamId } = this.props.match.params
+
     return (
       <PanelAttachmentsComponent
         channelId={channelId}
@@ -611,14 +605,20 @@ class ChannelComponent extends React.Component {
     )
   }
 
+  renderChannelModal() {
+    if (!this.state.channelModal) return
+
+    const { teamId, channelId } = this.props.match.params
+
+    return <ChannelModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ channelModal: false })} />
+  }
+
   render() {
     const { teamId, channelId } = this.props.match.params
 
     return (
       <React.Fragment>
-        {this.state.membersModal && <MembersModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ membersModal: false })} />}
-
-        {this.state.channelModal && <ChannelModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ channelModal: false })} />}
+        {this.renderChannelModal()}
 
         <ChannelContainer>
           {this.renderHeader()}

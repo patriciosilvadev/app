@@ -410,9 +410,6 @@ class ChannelsComponent extends React.Component {
       // Join this channel ourselves
       MessagingService.getInstance().join(channelId)
 
-      // If it's a private conversation - then incite the other optersons
-      if (otherUserId) MessagingService.getInstance().joinChannel([otherUserId], channelId)
-
       // Navigate there
       browserHistory.push(`/app/team/${teamId}/channel/${channelId}`)
     } catch (e) {}
@@ -727,8 +724,6 @@ class ChannelsComponent extends React.Component {
   }
 
   renderPrivate() {
-    if (this.state.private.length == 0) return null
-
     const { pathname } = this.props.history.location
 
     return (
@@ -738,6 +733,7 @@ class ChannelsComponent extends React.Component {
 
           <QuickUserComponent
             teamId={this.props.team.id}
+            userId={this.props.user.id}
             visible={this.state.channelPrivatePopup}
             width={250}
             direction="right-bottom"

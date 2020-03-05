@@ -30,23 +30,23 @@ export default function MembersModal(props) {
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const [members, setMembers] = useState([])
 
-  const handleCreateChannelMember = async user => {
+  const addUsersToChannel = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      const userId = user.id
-      const userName = user.name
-      const userIds = [userId]
       const { channelId, teamId } = props
-      const member = { user }
-      const { data } = await GraphqlService.getInstance().createChannelMember(channelId, teamId, userId, userName)
+      const { data } = await GraphqlService.getInstance().createChannelMembers(channelId, teamId, members)
 
+      // Add them to the current member list
+      props.onSuccess(members)
+
+      // Reset these before closing
       setLoading(false)
-      setMembers([...members, member])
-      dispatch(createChannelMember(channelId, member))
+      setMembers([])
 
-      MessagingService.getInstance().joinChannel(userIds, channelId)
+      // Close
+      props.onClose()
     } catch (e) {
       setLoading(false)
       setError('Error adding channel member')
@@ -84,7 +84,7 @@ export default function MembersModal(props) {
               <div className="row align-items-start mb-20">
                 {members.map((member, index) => {
                   return (
-                    <Member className="row" index={index}>
+                    <Member className="row" key={index}>
                       <Avatar size="small-medium" image={member.user.image} title={member.user.name} className="mb-5 mr-5" key={index} />
                       <MemberName>{member.user.name}</MemberName>
                       <IconComponent icon="x" size={15} color="#626d7a" thickness={2} className="button mr-5" onClick={() => setUserMenu(true)} />
@@ -95,19 +95,13 @@ export default function MembersModal(props) {
 
               <div className="row pr-25">
                 <QuickUserComponent
+                  userId={user.id}
                   teamId={props.teamId}
                   visible={userMenu}
                   width={250}
                   direction="left-bottom"
                   handleDismiss={() => setUserMenu(false)}
-                  handleAccept={member => {
-                    // Check to see if there are already people
-                    // Don't re-add people
-                    if (user.id == member.user.id) return
-
-                    // Otherwise all good - add them
-                    setMembers([...members, member])
-                  }}
+                  handleAccept={member => setMembers([...members, member])}
                 >
                   <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => setUserMenu(true)} />
                 </QuickUserComponent>
@@ -116,7 +110,7 @@ export default function MembersModal(props) {
 
             {props.hasAdminPermission && (
               <div className="p-20">
-                <Button onClick={() => console.log('')} text="Add" theme="muted" />
+                <Button onClick={addUsersToChannel} text="Add" theme="muted" />
               </div>
             )}
           </div>
@@ -130,6 +124,7 @@ MembersModal.propTypes = {
   channelId: PropTypes.string,
   teamId: PropTypes.string,
   onClose: PropTypes.func,
+  onSuccess: PropTypes.func,
   hasAdminPermission: PropTypes.bool, // Whether someone can edit the team or not (admin)
 }
 

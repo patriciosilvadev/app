@@ -210,14 +210,6 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'CREATE_CHANNEL_MEMBER':
-        draft.members = [...state.members, action.payload.member]
-        break
-
-      case 'DELETE_CHANNEL_MEMBER':
-        draft.members = state.members.filter(member => member.user.id != action.payload.userId)
-        break
-
       case 'CREATE_CHANNEL_APP':
         draft.apps = [...state.apps, action.payload.app]
         break
