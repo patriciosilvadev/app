@@ -289,8 +289,6 @@ export default class GraphqlService {
             name
             description
             image
-            createdAt
-            updatedAt
             role(userId: $userId)
           }
         }
