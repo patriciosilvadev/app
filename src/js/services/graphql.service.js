@@ -803,6 +803,26 @@ export default class GraphqlService {
     })
   }
 
+  searchChannelMembers(channelId, query) {
+    return this.client.query({
+      query: gql`
+        query searchChannelMembers($channelId: String, $query: String) {
+          searchChannelMembers(channelId: $channelId, query: $query) {
+            id
+            name
+            image
+            username
+            timezone
+          }
+        }
+      `,
+      variables: {
+        channelId,
+        query,
+      },
+    })
+  }
+
   searchTeamMembers(teamId, query) {
     return this.client.query({
       query: gql`
@@ -811,7 +831,6 @@ export default class GraphqlService {
             id
             name
             image
-            role
             username
             timezone
           }

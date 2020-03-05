@@ -432,6 +432,19 @@ class ChannelsComponent extends React.Component {
     this.fetchData(teamId, userId)
   }
 
+  componentDidUpdate(prevProps) {
+    const { teamId } = this.props.match.params
+    const userId = this.props.user.id
+
+    if (teamId != prevProps.match.params.teamId) this.fetchData(teamId, userId)
+  }
+
+  componentWillUnmount() {
+    this.filterRef.removeEventListener('keyup', this.handleKeyPress)
+
+    if (this.subscription) this.subscription.unsubscribe()
+  }
+
   async fetchData(teamId, userId) {
     this.setState({ loading: true, error: null })
 
@@ -454,19 +467,6 @@ class ChannelsComponent extends React.Component {
     } catch (e) {
       this.setState({ loading: false, error: e })
     }
-  }
-
-  componentDidUpdate(prevProps) {
-    const { teamId } = this.props.match.params
-    const userId = this.props.user.id
-
-    if (teamId != prevProps.match.params.teamId) this.fetchData(teamId, userId)
-  }
-
-  componentWillUnmount() {
-    this.filterRef.removeEventListener('keyup', this.handleKeyPress)
-
-    if (this.subscription) this.subscription.unsubscribe()
   }
 
   handleKeyPress(e) {

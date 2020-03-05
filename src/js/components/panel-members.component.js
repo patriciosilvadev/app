@@ -5,13 +5,15 @@ import styled from 'styled-components'
 import moment from 'moment'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Attachment, Popup, Button, Modal, Error, Spinner, Input, Avatar, Menu } from '@tryyack/elements'
+import { Attachment, Popup, Button, Modal, Error, Spinner, Avatar, Menu } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
 import { parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
 import PanelComponent from './panel.component'
+import { Subject } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
 
 const TableRow = props => {
   const { member, user } = props
@@ -37,7 +39,7 @@ const TableRow = props => {
       )}
 
       <tr>
-        <Td>
+        <Td width={30}>
           <Avatar size="medium" image={member.user.image} title={member.user.name} />
         </Td>
         <Td>
@@ -65,15 +67,22 @@ class PanelMembersComponent extends React.Component {
       busy: false,
       page: 0,
       members: [],
+      results: [],
       filter: '',
     }
 
     this.scrollRef = React.createRef()
+    this.filterRef = React.createRef()
 
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.handleChannelMemberDelete = this.handleChannelMemberDelete.bind(this)
     this.handleChannelLeave = this.handleChannelLeave.bind(this)
     this.fetchChannelMembers = this.fetchChannelMembers.bind(this)
+    this.fetchResults = this.fetchResults.bind(this)
+    this.onSearch = this.onSearch.bind(this)
+
+    this.onSearch$ = new Subject()
+    this.subscription = null
   }
 
   async fetchChannelMembers() {
@@ -161,11 +170,48 @@ class PanelMembersComponent extends React.Component {
   componentDidMount() {
     this.fetchChannelMembers()
 
+    // Here we handle the delay for the yser typing in the search field
+    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
+
+    // Listen for the user scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
   }
 
   componentWillUnmount() {
     this.scrollRef.removeEventListener('scroll', this.handleScrollEvent)
+
+    // Remove the search filter
+    if (this.subscription) this.subscription.unsubscribe()
+  }
+
+  onSearch(e) {
+    const search = e.target.value
+    this.setState({ filter: search })
+    this.onSearch$.next(search)
+    if (search == '') this.setState({ results: [] })
+  }
+
+  async fetchResults() {
+    this.setState({
+      loading: true,
+      error: null,
+    })
+
+    try {
+      const { channelId } = this.props
+      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, this.state.filter)
+
+      // Update our users & bump the page
+      this.setState({
+        loading: false,
+        results: data.searchChannelMembers,
+      })
+    } catch (e) {
+      this.setState({
+        loading: false,
+        error: 'Error searching members',
+      })
+    }
   }
 
   async handleScrollEvent(e) {
@@ -188,28 +234,51 @@ class PanelMembersComponent extends React.Component {
           <MembersScrollContainer ref={ref => (this.scrollRef = ref)}>
             <div className="p-20">
               <div className="row mb-20">
-                <Input value={this.state.filter} onChange={e => this.setState({ filter: e.target.value })} placeholder="Filter members by name" className="mr-5" />
+                <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
                 <Button text="Add" theme="muted" size="small" onClick={this.props.onMemberAdd} />
               </div>
 
-              <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
-                <tbody>
-                  {this.state.members.map((member, index) => {
-                    if (this.state.filter != '' && !member.user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
+              {this.state.results.length == 0 && (
+                <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
+                  <tbody>
+                    {this.state.members.map((member, index) => {
+                      if (this.state.filter != '' && !member.user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
 
-                    return (
-                      <TableRow
-                        hasAdminPermission={this.props.hasAdminPermission}
-                        key={index}
-                        member={member}
-                        user={this.props.user}
-                        onLeave={this.handleChannelLeave}
-                        onDelete={this.handleChannelMemberDelete}
-                      />
-                    )
-                  })}
-                </tbody>
-              </table>
+                      return (
+                        <TableRow
+                          hasAdminPermission={this.props.hasAdminPermission}
+                          key={index}
+                          member={member}
+                          user={this.props.user}
+                          onLeave={this.handleChannelLeave}
+                          onDelete={this.handleChannelMemberDelete}
+                        />
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+
+              {this.state.results.length != 0 && (
+                <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
+                  <tbody>
+                    {this.state.results.map((user, index) => {
+                      if (this.state.filter != '' && !user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
+
+                      return (
+                        <TableRow
+                          hasAdminPermission={this.props.hasAdminPermission}
+                          key={index}
+                          member={{ user }}
+                          user={this.props.user}
+                          onLeave={this.handleChannelLeave}
+                          onDelete={this.handleChannelMemberDelete}
+                        />
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           </MembersScrollContainer>
         </Members>
@@ -243,6 +312,21 @@ PanelMembersComponent.propTypes = {
   team: PropTypes.any,
   channel: PropTypes.any,
 }
+
+const Input = styled.input`
+  font-size: 14px;
+  border-radius: 5px;
+  width: 100%;
+  padding: 10px;
+  color: #626d7a;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid #e9edef;
+
+  &::placeholder {
+    color: #e9edef;
+  }
+`
 
 const Th = styled.th`
   text-align: left;
