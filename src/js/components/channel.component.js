@@ -582,8 +582,12 @@ class ChannelComponent extends React.Component {
   renderPanelMembers() {
     if (!this.state.membersPanel || this.props.app.panel) return null
 
+    const { channelId, teamId } = this.props.match.params
+
     return (
       <PanelMembersComponent
+        channelId={channelId}
+        teamId={teamId}
         hasAdminPermission={this.state.hasAdminPermission}
         onMemberAdd={() => this.setState({ membersModal: true })}
         onClose={() => {
@@ -598,6 +602,8 @@ class ChannelComponent extends React.Component {
 
     return (
       <PanelAttachmentsComponent
+        channelId={channelId}
+        teamId={teamId}
         onClose={() => {
           this.setState({ attachmentsPanel: false })
         }}

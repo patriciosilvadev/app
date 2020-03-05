@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import moment from 'moment'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Attachment, Popup, Button, Modal, Error, Spinner, Input } from '@tryyack/elements'
+import { Attachment, Popup, Button, Modal, Error, Spinner, Input, Avatar, Menu } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
 import { parseMessageMarkdown } from '../helpers/util'
@@ -42,38 +42,13 @@ const TableRow = props => {
         </Td>
         <Td>
           <div className="bold">{member.user.id == user.id ? member.user.name + ' (You)' : member.user.name}</div>
-          <div className="color-l0">@{`${member.user.username}`}</div>
+          <div className="color-l0">
+            @{`${member.user.username}`}
+            {member.user.timezone ? ` − ${member.user.timezone.replace('_', ' ')}` : ''}
+          </div>
         </Td>
         <Td>
-          <span className="">{member.user.timezone ? member.user.timezone.replace('_', ' ') : 'Not set yet'}</span>
-        </Td>
-        <Td>
-          <Popup
-            handleDismiss={() => setMenu(false)}
-            visible={menu}
-            width={275}
-            direction="right-bottom"
-            content={
-              <Menu
-                items={[
-                  {
-                    hide: member.user.id != user.id,
-                    icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
-                    text: 'Leave team',
-                    onClick: () => setConfirmSelfDeleteModal(true),
-                  },
-                  {
-                    hide: member.user.id == user.id || !props.hasAdminPermission,
-                    icon: <IconComponent icon="user-minus" size={20} color="#acb5bd" />,
-                    text: 'Remove person from team',
-                    onClick: () => setConfirmMemberDeleteModal(true),
-                  },
-                ]}
-              />
-            }
-          >
-            <IconComponent icon="more-v" size={20} thickness={2} color="#475669" className="button" onClick={() => setMenu(true)} />
-          </Popup>
+          <IconComponent icon="delete" size={15} thickness={2} color="#aeb5bc" className="button" onClick={() => setMenu(true)} />
         </Td>
       </tr>
     </React.Fragment>
@@ -101,7 +76,29 @@ class PanelMembersComponent extends React.Component {
     this.fetchChannelMembers = this.fetchChannelMembers.bind(this)
   }
 
-  async fetchChannelMembers() {}
+  async fetchChannelMembers() {
+    this.setState({
+      loading: true,
+      error: null,
+    })
+
+    try {
+      const { channelId } = this.props
+      const { data } = await GraphqlService.getInstance().channelMembers(channelId, this.state.page)
+
+      // Update our users & bump the page
+      this.setState({
+        loading: false,
+        page: this.state.page + 1,
+        members: data.channelMembers,
+      })
+    } catch (e) {
+      this.setState({
+        loading: false,
+        error: 'Error fetching members',
+      })
+    }
+  }
 
   async handleChannelMemberDelete(userId) {}
 
@@ -239,10 +236,12 @@ export default connect(
 PanelMembersComponent.propTypes = {
   onClose: PropTypes.func,
   onMemberAdd: PropTypes.func,
+  hasAdminPermission: PropTypes.bool,
+  channelId: PropTypes.string,
+  teamId: PropTypes.string,
   user: PropTypes.any,
   team: PropTypes.any,
   channel: PropTypes.any,
-  hasAdminPermission: PropTypes.bool,
 }
 
 const Th = styled.th`

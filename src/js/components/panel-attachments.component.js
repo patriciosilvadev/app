@@ -158,6 +158,8 @@ PanelAttachmentsComponent.propTypes = {
   user: PropTypes.any,
   team: PropTypes.any,
   channel: PropTypes.any,
+  channelId: PropTypes.string,
+  teamId: PropTypes.string,
 }
 
 const Text = styled.div`
