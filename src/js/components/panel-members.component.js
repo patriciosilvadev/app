@@ -71,7 +71,7 @@ class PanelMembersComponent extends React.Component {
       members: [],
       results: [],
       filter: '',
-      membersModal: false,
+      membersModal: true,
     }
 
     this.scrollRef = React.createRef()
@@ -101,7 +101,6 @@ class PanelMembersComponent extends React.Component {
       // Update our users & bump the page
       this.setState({
         loading: false,
-        page: this.state.page + 1,
         members: data.channelMembers,
       })
     } catch (e) {
@@ -232,13 +231,12 @@ class PanelMembersComponent extends React.Component {
             channelId={this.props.channelId}
             teamId={this.props.teamId}
             onClose={() => this.setState({ membersModal: false })}
-            onSuccess={members => {
-              // Add them to the state
-              // And notify the user
-              this.setState({
-                members: [...this.state.members, ...members],
-                notification: 'Successfully added!',
-              })
+            onSuccess={() => {
+              // Close
+              this.setState({ membersModal: false })
+
+              // Refetch
+              this.fetchChannelMembers()
             }}
           />
         )}

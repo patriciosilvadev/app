@@ -245,5 +245,9 @@ export default (state = initialState, action) =>
           }
         })
         break
+
+      case 'INCREASE_CHANNEL_TOTAL_MEMBERS':
+        draft.totalMembers = state.totalMembers + 1
+        break
     }
   })

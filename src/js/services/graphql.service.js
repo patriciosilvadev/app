@@ -1115,23 +1115,6 @@ export default class GraphqlService {
             createdAt
             public
             private
-            excerpt
-            otherUser {
-              id
-              name
-              status
-              username
-              timezone
-              image
-            }
-            user {
-              id
-              name
-              status
-              username
-              timezone
-              image
-            }
           }
         }
       `,

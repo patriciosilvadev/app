@@ -38,15 +38,12 @@ export default function MembersModal(props) {
       const { channelId, teamId } = props
       const { data } = await GraphqlService.getInstance().createChannelMembers(channelId, teamId, members)
 
-      // Add them to the current member list
-      props.onSuccess(members)
-
       // Reset these before closing
       setLoading(false)
       setMembers([])
 
       // Close
-      props.onClose()
+      props.onSuccess()
     } catch (e) {
       setLoading(false)
       setError('Error adding channel member')
