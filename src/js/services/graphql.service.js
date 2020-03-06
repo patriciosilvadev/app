@@ -955,11 +955,11 @@ export default class GraphqlService {
     })
   }
 
-  createTeam(userId, payload) {
+  createTeam(userId, userName, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTeam($userId: String, $payload: String) {
-          createTeam(userId: $userId, payload: $payload) {
+        mutation createTeam($userId: String, $userName: String, $payload: String) {
+          createTeam(userId: $userId, userName: $userName, payload: $payload) {
             id
             name
             slug
@@ -970,6 +970,7 @@ export default class GraphqlService {
       `,
       variables: {
         userId,
+        userName,
         payload: JSON.stringify(payload),
       },
     })

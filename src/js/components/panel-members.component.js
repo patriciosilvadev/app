@@ -71,7 +71,7 @@ class PanelMembersComponent extends React.Component {
       members: [],
       results: [],
       filter: '',
-      membersModal: true,
+      membersModal: false,
     }
 
     this.scrollRef = React.createRef()
@@ -88,7 +88,7 @@ class PanelMembersComponent extends React.Component {
     this.subscription = null
   }
 
-  async fetchChannelMembers() {
+  async fetchChannelMembers(refresh = false) {
     this.setState({
       loading: true,
       error: null,
@@ -101,7 +101,7 @@ class PanelMembersComponent extends React.Component {
       // Update our users & bump the page
       this.setState({
         loading: false,
-        members: data.channelMembers,
+        members: refresh ? data.channelMembers : [...this.state.members, ...data.channelMembers],
       })
     } catch (e) {
       this.setState({
@@ -219,7 +219,11 @@ class PanelMembersComponent extends React.Component {
   async handleScrollEvent(e) {
     // If the user scvrolls up - then fetch more messages
     // 0 = the top of the container
-    if (this.scrollRef.scrollTop + this.scrollRef.clientHeight >= this.scrollRef.scrollHeight) this.fetchChannelMembers()
+    if (this.scrollRef.scrollTop + this.scrollRef.clientHeight >= this.scrollRef.scrollHeight) {
+      this.setState({ page: this.state.page + 1 }, () => {
+        this.fetchChannelMembers()
+      })
+    }
   }
 
   render() {
@@ -236,7 +240,7 @@ class PanelMembersComponent extends React.Component {
               this.setState({ membersModal: false })
 
               // Refetch
-              this.fetchChannelMembers()
+              this.fetchChannelMembers(true)
             }}
           />
         )}
@@ -250,14 +254,16 @@ class PanelMembersComponent extends React.Component {
             There {this.props.channel.totalMembers == 1 ? 'is' : 'are'} <strong>{this.props.channel.totalMembers}</strong> {this.props.channel.totalMembers == 1 ? 'member' : 'members'} in this channel
           </MembersText>
 
+          <div className="p-20 w-100">
+            <div className="row">
+              <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
+              <Button text="Add" theme="muted" size="small" onClick={() => this.setState({ membersModal: true })} />
+            </div>
+          </div>
+
           <Members>
             <MembersScrollContainer ref={ref => (this.scrollRef = ref)}>
-              <div className="p-20">
-                <div className="row mb-20">
-                  <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
-                  <Button text="Add" theme="muted" size="small" onClick={() => this.setState({ membersModal: true })} />
-                </div>
-
+              <div className="p-20 pt-0">
                 {this.state.results.length == 0 && (
                   <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
                     <tbody>
