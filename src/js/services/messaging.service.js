@@ -118,10 +118,6 @@ export default class MessagingService {
     userIds.map(userId => this.sendMessageToTopic(userId, 'JOIN_TEAM', teamId))
   }
 
-  leaveChannel(userIds, channelId) {
-    userIds.map(userId => this.sendMessageToTopic(userId, 'LEAVE_CHANNEL', channelId))
-  }
-
   leaveTeam(userIds, teamId) {
     userIds.map(userId => this.sendMessageToTopic(userId, 'LEAVE_TEAM', teamId))
   }

@@ -15,24 +15,33 @@ import PanelComponent from './panel.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MembersModal from '../modals/members.modal'
+import ConfirmModal from '../modals/confirm.modal'
 
 const TableRow = props => {
   const { member, user } = props
-  const [menu, setMenu] = useState(false)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
-  const [roles, setRoles] = useState(false)
-  const [memberDeleteId, setMemberDeleteId] = useState('')
 
   return (
     <React.Fragment>
       {confirmSelfDeleteModal && (
-        <ConfirmModal onOkay={() => props.onLeave()} onCancel={() => setConfirmSelfDeleteModal(false)} text="Are you sure you want to leave this channel?" title="Are you sure?" />
+        <ConfirmModal
+          onOkay={() => {
+            props.onLeave()
+            setConfirmSelfDeleteModal(false)
+          }}
+          onCancel={() => setConfirmSelfDeleteModal(false)}
+          text="Are you sure you want to leave this channel?"
+          title="Are you sure?"
+        />
       )}
 
       {confirmMemberDeleteModal && (
         <ConfirmModal
-          onOkay={() => props.onDelete(member.user.id)}
+          onOkay={() => {
+            props.onDelete(member.user.id)
+            setConfirmMemberDeleteModal(false)
+          }}
           onCancel={() => setConfirmMemberDeleteModal(false)}
           text="Are you sure you want to remove this person, it can not be undone?"
           title="Are you sure?"
@@ -51,7 +60,20 @@ const TableRow = props => {
           </div>
         </Td>
         <Td>
-          <IconComponent icon="delete" size={15} thickness={2} color="#aeb5bc" className="button" onClick={() => setMenu(true)} />
+          <IconComponent
+            icon="delete"
+            size={15}
+            thickness={2}
+            color="#aeb5bc"
+            className="button"
+            onClick={() => {
+              if (user.id == member.user.id) {
+                setConfirmSelfDeleteModal(true)
+              } else {
+                setConfirmMemberDeleteModal(true)
+              }
+            }}
+          />
         </Td>
       </tr>
     </React.Fragment>
@@ -102,6 +124,7 @@ class PanelMembersComponent extends React.Component {
       this.setState({
         loading: false,
         members: refresh ? data.channelMembers : [...this.state.members, ...data.channelMembers],
+        results: [],
       })
     } catch (e) {
       this.setState({
@@ -111,49 +134,50 @@ class PanelMembersComponent extends React.Component {
     }
   }
 
-  async handleChannelMemberDelete(userId) {}
-
-  async handleChannelLeave() {}
-
-  /* handleChannelMemberDelete = async userId => {
-    setLoading(true)
-    setError(null)
+  async handleChannelMemberDelete(userId) {
+    this.setState({
+      loading: true,
+      error: null,
+    })
 
     try {
-      const channelId = props.channelId
-      const teamId = props.teamId
-      const userIds = [userId]
-      const { data } = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
-      const updatedMembers = members.filter(member => member.user.id != userId)
+      const { channelId } = this.props
 
-      // Revoke access to people
-      dispatch(deleteChannelMember(channelId, userId))
-      setLoading(false)
-      setMembers(updatedMembers)
+      // Make the API call
+      await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
 
-      // Tell this person to leave this channel - send to team
-      MessagingService.getInstance().leaveChannel(userIds, teamId)
+      // Stop loading
+      this.setState({ loading: false })
+
+      // Refresh the member list
+      // They will be told from the API to leave
+      this.fetchChannelMembers(true)
     } catch (e) {
-      setLoading(false)
-      setError('Error deleting member')
+      this.setState({
+        loading: false,
+        error: 'Error deleting member',
+      })
     }
   }
 
-  handleChannelLeave = async () => {
-    setLoading(true)
-    setError(null)
+  async handleChannelLeave() {
+    this.setState({
+      loading: true,
+      error: null,
+    })
 
     try {
-      const channelId = props.channelId
-      const teamId = props.teamId
-      const userId = user.id
+      const { channelId, teamId } = this.props
+      const userId = this.props.user.id
       const { data } = await GraphqlService.getInstance().deleteChannelMember(channelId, userId)
 
-      // Don't sync this one - because its just for us
-      // false is for syncing here
-      dispatch(deleteChannelMember(channelId, userId))
-      dispatch(deleteChannel(channelId, false))
-      setLoading(false)
+      // Stop loading
+      this.setState({ loading: false })
+
+      // We will get a notification from the server to:
+      // Unsubscribe AGAIN & also delete the channel from the store
+      // Refresh the member list (just in case)
+      this.fetchChannelMembers(true)
 
       // Unsub frem receiving messages here
       MessagingService.getInstance().leave(channelId)
@@ -162,12 +186,12 @@ class PanelMembersComponent extends React.Component {
       browserHistory.push(`/app/team/${teamId}/`)
       props.onClose()
     } catch (e) {
-      setLoading(false)
-      setError('Error deleting self')
+      this.setState({
+        loading: false,
+        error: 'Error leaving channel',
+      })
     }
   }
-
-   */
 
   componentDidMount() {
     this.fetchChannelMembers()
@@ -276,8 +300,8 @@ class PanelMembersComponent extends React.Component {
                             key={index}
                             member={member}
                             user={this.props.user}
-                            onLeave={this.handleChannelLeave}
-                            onDelete={this.handleChannelMemberDelete}
+                            onLeave={() => this.handleChannelLeave()}
+                            onDelete={userId => this.handleChannelMemberDelete(userId)}
                           />
                         )
                       })}
@@ -297,8 +321,8 @@ class PanelMembersComponent extends React.Component {
                             key={index}
                             member={{ user }}
                             user={this.props.user}
-                            onLeave={this.handleChannelLeave}
-                            onDelete={this.handleChannelMemberDelete}
+                            onLeave={() => this.handleChannelLeave()}
+                            onDelete={userId => this.handleChannelMemberDelete(userId)}
                           />
                         )
                       })}
