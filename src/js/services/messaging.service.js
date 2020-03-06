@@ -32,6 +32,13 @@ export default class MessagingService {
     return this.instance
   }
 
+  /**
+   * This applies to the server too (see sendMessageToMqttTopic & mqtt.helper.js)
+   * Redux (store) action creators gets sent as 'messagePayload':
+   * This would look like: messagePayload: { type: 'COOL', payload: 'Dude' }
+   * messageType & messagePayload are not Redux type & payload
+   * messageType & messagePayload are used for things other than Redux
+   */
   sendMessageToTopic(topic, messageType, messagePayload) {
     if (this.client) {
       this.client.publish(
@@ -94,9 +101,11 @@ export default class MessagingService {
     if (this.client) this.client.unsubscribe(topic)
   }
 
-  // These are messages sent to users
-  // for them to do specific things
-  // Sync gets used by middleware to tell everyone else to update their state
+  /**
+   * These are messages sent to users
+   * for them to do specific things
+   * Sync gets used by middleware to tell everyone else to update their state
+   */
   sync(topic, action) {
     this.sendMessageToTopic(topic, 'SYNC', action)
   }
