@@ -141,7 +141,7 @@ export default function TeamModal(props) {
       setError(null)
       setNotification(null)
 
-      await GraphqlService.getInstance().inviteTeamMembers(name, slug, shortcode, emails)
+      await GraphqlService.getInstance().inviteTeamMembers(props.id, emails)
 
       setLoading(false)
       setNotification('Successfully sent invites')
