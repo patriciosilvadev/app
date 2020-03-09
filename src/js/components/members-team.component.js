@@ -127,7 +127,7 @@ const TableRow = props => {
                   {
                     icon: <IconComponent icon="message-circle" size={20} color="#acb5bd" />,
                     text: 'Start conversation',
-                    onClick: () => props.onConversationStart(member.user.id),
+                    onClick: () => props.onConversationStart(member.user),
                   },
                   {
                     hide: true || (props.billing || !props.admin) /* TODO: Re-enable */,
@@ -257,14 +257,14 @@ export default function MembersTeamComponent(props) {
     }
   }
 
-  const handleTeamMemberConversationStart = async otherUserId => {
+  const handleTeamMemberConversationStart = async otherUser => {
     const title = null
     const description = null
     const image = null
     const teamId = props.id
     const userId = user.id
 
-    props.createChannel(title, description, image, teamId, userId, otherUserId)
+    props.createPrivateChannel(otherUser)
     props.onClose()
   }
 
@@ -380,7 +380,7 @@ export default function MembersTeamComponent(props) {
 
 MembersTeamComponent.propTypes = {
   members: PropTypes.array,
-  createChannel: PropTypes.func,
+  createPrivateChannel: PropTypes.func,
   onClose: PropTypes.func,
   id: PropTypes.string,
   admin: PropTypes.bool,

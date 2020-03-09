@@ -830,7 +830,7 @@ class ChannelsComponent extends React.Component {
   renderTeamModal() {
     if (!this.state.teamModal) return null
 
-    return <TeamModal id={this.props.team.id} start={this.state.teamModalStart} createChannel={this.createChannel} onClose={() => this.setState({ teamModal: false })} />
+    return <TeamModal id={this.props.team.id} start={this.state.teamModalStart} createPrivateChannel={this.createPrivateChannel} onClose={() => this.setState({ teamModal: false })} />
   }
 
   // These unbounded functions

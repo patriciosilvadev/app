@@ -307,7 +307,7 @@ export default function TeamModal(props) {
           billingUser={billing.user}
           admin={admin}
           id={props.id}
-          createChannel={props.createChannel}
+          createPrivateChannel={props.createPrivateChannel}
           onBillingUserUpdate={user => setBilling({ ...billing, user })}
           onClose={props.onClose}
         />
@@ -497,7 +497,7 @@ TeamModal.propTypes = {
   start: PropTypes.number,
   id: PropTypes.string,
   history: PropTypes.any,
-  createChannel: PropTypes.func,
+  createPrivateChannel: PropTypes.func,
 }
 
 const Text = styled.div``
