@@ -213,12 +213,17 @@ export function initialize(userId) {
         )
           return
 
+        // Otherwise get the team & update the store
         const team = await GraphqlService.getInstance().team(teamId)
 
+        // If it fails - do it silenetly
         if (!team.data.team) return
-        MessagingService.getInstance().join(teamId)
 
+        // Add it the UI
         dispatch(createTeam(team.data.team))
+
+        // Join the team via MQTT
+        MessagingService.getInstance().join(teamId)
       }
 
       const messageLeaveChannel = async () => {
