@@ -206,6 +206,7 @@ export default class GraphqlService {
             name
             shortcode
             slug
+            totalMembers
             description
             image
             billing {

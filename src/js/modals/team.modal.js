@@ -26,7 +26,7 @@ export default function TeamModal(props) {
   const [billing, setBilling] = useState({ user: null, plan: 'FREE', strikes: 0, next: new Date() })
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
-  const [members, setMembers] = useState([])
+  const [totalMembers, setTotalMembers] = useState(0)
   const [description, setDescription] = useState('')
   const dispatch = useDispatch()
   const fileRef = useRef(null)
@@ -241,15 +241,15 @@ export default function TeamModal(props) {
         setLoading(true)
 
         const { data } = await GraphqlService.getInstance().team(props.id, user.id)
-        const team = data.team
+        const { team } = data
 
         setImage(team.image)
         setName(team.name || '')
         setDescription(team.description || '')
-        setMembers(team.members)
         setShortcode(team.shortcode)
         setBilling(team.billing)
         setSlug(team.slug)
+        setTotalMembers(team.totalMembers)
         setAdmin(team.role == 'ADMIN')
         setLoading(false)
       } catch (e) {
@@ -278,12 +278,6 @@ export default function TeamModal(props) {
                 <Text className="h5 color-d2">{name}</Text>
               </div>
               <div className="row">
-                {props.id && (
-                  <Text className="p color-d0 button bold mr-10">
-                    {members.length} {members.length == 1 ? 'member' : 'members'}
-                  </Text>
-                )}
-
                 {admin && (
                   <Text className="p color-blue button bold" onClick={() => fileRef.current.click()}>
                     Update team image
@@ -309,13 +303,13 @@ export default function TeamModal(props) {
     return (
       <div className="column flex-1 w-100 h-100">
         <MembersTeamComponent
-          admin={admin}
+          totalMembers={totalMembers}
           billingUser={billing.user}
+          admin={admin}
           id={props.id}
           createChannel={props.createChannel}
           onBillingUserUpdate={user => setBilling({ ...billing, user })}
           onClose={props.onClose}
-          members={members}
         />
       </div>
     )
@@ -400,9 +394,7 @@ export default function TeamModal(props) {
 
           <Text className="h1 mb-30 mt-30 color-d3">Go premium</Text>
           <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Unlock the next level in your team's productivity journey!</Text>
-          <Text className="h5 color-d0">
-            You will be billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).
-          </Text>
+          <Text className="h5 color-d0">You will be billed at $3 per user per month.</Text>
 
           <div className="w-100 row justify-content-center">
             <Button text="Upgrade" className="mt-20" onClick={() => setConfirmUpgradeModal(true)} />
@@ -426,9 +418,7 @@ export default function TeamModal(props) {
 
           <Text className="h1 mb-30 mt-30 color-d3">You're premium</Text>
           <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations! We hope you enjoy the journey with us.</Text>
-          <Text className="h5 color-d0">
-            You are billed at $3 per user per month. There are currently {members.length} users (${members.length * 3}).
-          </Text>
+          <Text className="h5 color-d0">You are billed at $3 per user per month.</Text>
 
           <div className="w-100 row justify-content-center">
             <Button text="Downgrade" className="mt-20" onClick={() => setConfirmDowngradeModal(true)} />

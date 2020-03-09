@@ -60,16 +60,19 @@ const TableRow = props => {
         />
       )}
 
-      {props.billing && (
-        <tr>
-          <td className="p-5 p color-d1 background-l5" colSpan={5}>
-            {member.user.name} is the billing contact for this team
-          </td>
-        </tr>
-      )}
+      {/*
+        TODO: Re-enable
+        {(props.billing && false )(
+          <tr>
+            <td className="p-5 p color-d1 background-l5" colSpan={5}>
+              {member.user.name} is the billing contact for this team
+            </td>
+          </tr>
+        )}
+      */}
 
       <tr>
-        <Td>
+        <Td width={30}>
           <Avatar size="medium" image={member.user.image} title={member.user.name} />
         </Td>
         <Td>
@@ -127,7 +130,7 @@ const TableRow = props => {
                     onClick: () => props.onConversationStart(member.user.id),
                   },
                   {
-                    hide: props.billing || !props.admin,
+                    hide: true || (props.billing || !props.admin) /* TODO: Re-enable */,
                     icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
                     text: 'Make billing contact',
                     onClick: () => setConfirmMemberBillingModal(true),
@@ -148,14 +151,16 @@ export default function MembersTeamComponent(props) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(null)
   const [notification, setNotification] = useState(null)
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(0)
   const [pages, setPages] = useState(0)
   const [billingUser, setBillingUser] = useState({})
   const [members, setMembers] = useState([])
+  const [totalMembers, setTotalMembers] = useState(0)
+  const [results, setResults] = useState([])
   const [filter, setFilter] = useState('')
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-  const limit = 10
+  const limit = 3
 
   const handleTeamMemberBilling = async userId => {
     setLoading(true)
@@ -263,11 +268,41 @@ export default function MembersTeamComponent(props) {
     props.onClose()
   }
 
+  const fetchTeamMembers = async (localScopedPage = 0, refresh = false) => {
+    setLoading(true)
+    setError(false)
+
+    try {
+      const teamId = props.id
+      const { data } = await GraphqlService.getInstance().teamMembers(teamId, localScopedPage)
+
+      // Update our users & bump the page
+      setLoading(false)
+      setResults([])
+      setMembers(data.teamMembers)
+    } catch (e) {
+      setLoading(false)
+      setError('Error fetching members')
+    }
+  }
+
+  const fetchLessTeamMembers = () => {
+    setPage(page - 1)
+    fetchTeamMembers(page - 1)
+  }
+
+  const fetchMoreTeamMembers = () => {
+    setPage(page + 1)
+    fetchTeamMembers(page + 1)
+  }
+
   useEffect(() => {
+    if (!props.id || props.totalMembers == 0) return
+
     setBillingUser(props.billingUser)
-    setMembers(props.members)
-    setPages(Math.ceil(props.members.length / limit))
-  }, [props.members])
+    setPages(Math.ceil(props.totalMembers / limit))
+    fetchTeamMembers()
+  }, [props.id, props.totalMembers])
 
   return (
     <React.Fragment>
@@ -279,22 +314,22 @@ export default function MembersTeamComponent(props) {
         <div className="row pb-20">
           <div className="column flexer">
             <div className="h5 color-d2 mb-10">
-              {members.length} {members.length == 1 ? 'Member' : 'Members'}
+              {props.totalMembers} {props.totalMembers == 1 ? 'Member' : 'Members'}
             </div>
             <div className="p color-d0">
-              Displaying page {page} of {pages}
+              Displaying page {page + 1} of {pages}
             </div>
           </div>
           <Buttons className="row">
-            {page > 1 && (
+            {page <= pages && page > 0 && (
               <div>
-                <Button text="Previous" theme="muted" className="button" onClick={() => setPage(page - 1)} />
+                <Button text="Previous" theme="muted" className="button" onClick={fetchLessTeamMembers} />
               </div>
             )}
 
-            {page < pages && (
+            {page >= 0 && page + 1 != pages && (
               <div>
-                <Button text="Next" theme="muted" className="button" onClick={() => setPage(page + 1)} />
+                <Button text="Next" theme="muted" className="button" onClick={fetchMoreTeamMembers} />
               </div>
             )}
           </Buttons>
@@ -316,7 +351,7 @@ export default function MembersTeamComponent(props) {
           <tbody>
             {members.map((member, index) => {
               if (filter != '' && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + '.*'))) return null
-              if (index < page * limit - limit || index > page * limit) return null
+              // if (index < page * limit - limit || index > page * limit) return null
 
               const memberUserId = member.user.id
               const billingUserId = billingUser ? billingUser.id : null
