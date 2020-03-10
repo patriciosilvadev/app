@@ -260,27 +260,16 @@ class ChannelsComponent extends React.Component {
       error: false,
     }
 
-    this.filterRef = React.createRef()
-
     this.createChannel = this.createChannel.bind(this)
     this.createPrivateChannel = this.createPrivateChannel.bind(this)
     this.createPublicChannel = this.createPublicChannel.bind(this)
-    this.handleKeyPress = this.handleKeyPress.bind(this)
-    this.fetchResults = this.fetchResults.bind(this)
-    this.onSearch = this.onSearch.bind(this)
     this.updateUserMuted = this.updateUserMuted.bind(this)
     this.updateUserArchived = this.updateUserArchived.bind(this)
     this.updateUserStatus = this.updateUserStatus.bind(this)
 
-    this.onSearch$ = new Subject()
-    this.subscription = null
-
     this.renderAccountModal = this.renderAccountModal.bind(this)
     this.renderTeamModal = this.renderTeamModal.bind(this)
-
     this.renderHeader = this.renderHeader.bind(this)
-    this.renderSearch = this.renderSearch.bind(this)
-    this.renderSearchResults = this.renderSearchResults.bind(this)
     this.renderStarred = this.renderStarred.bind(this)
     this.renderPublic = this.renderPublic.bind(this)
     this.renderPrivate = this.renderPrivate.bind(this)
@@ -410,12 +399,6 @@ class ChannelsComponent extends React.Component {
   }
 
   componentDidMount() {
-    this.filterRef.addEventListener('keyup', this.handleKeyPress)
-
-    // Here we handle the delay for the yser typing in the search field
-    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
-
-    // Get the team ID (if any)
     const { teamId } = this.props.match.params
     const userId = this.props.user.id
 
@@ -428,12 +411,6 @@ class ChannelsComponent extends React.Component {
     const userId = this.props.user.id
 
     if (teamId != prevProps.match.params.teamId) this.fetchData(teamId, userId)
-  }
-
-  componentWillUnmount() {
-    this.filterRef.removeEventListener('keyup', this.handleKeyPress)
-
-    if (this.subscription) this.subscription.unsubscribe()
   }
 
   async fetchData(teamId, userId) {
@@ -458,41 +435,6 @@ class ChannelsComponent extends React.Component {
     } catch (e) {
       this.setState({ loading: false, error: e })
     }
-  }
-
-  handleKeyPress(e) {
-    if (e.keyCode == 27) this.setState({ filter: '', showFilter: false })
-  }
-
-  async fetchResults() {
-    if (this.state.filter == '') return
-
-    try {
-      const { data } = await GraphqlService.getInstance().search(this.props.team.id, this.state.filter)
-      const results = []
-
-      // Create a results object for the users
-      data.search.map(user => {
-        results.push({
-          id: user.id,
-          name: user.name,
-          username: user.username,
-          image: user.image,
-          role: user.role,
-        })
-      })
-
-      // Update our UI with our results
-      // Remove ourselves
-      this.setState({ results: results.filter(result => result.id != this.props.user.id) })
-    } catch (e) {}
-  }
-
-  onSearch(e) {
-    const search = e.target.value
-    this.setState({ filter: search })
-    this.onSearch$.next(search)
-    if (search == '') this.setState({ results: [] })
   }
 
   // Child render functions that compose the
@@ -573,57 +515,6 @@ class ChannelsComponent extends React.Component {
           <IconComponent icon="chevron-down" size={20} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
         </Popup>
       </Header>
-    )
-  }
-
-  renderSearch() {
-    return (
-      <SearchContainer className="row">
-        <SearchInner className="row">
-          <IconComponent icon="search" size={15} color="#626d7a" thickness={2} className="ml-10" />
-
-          <SearchInput ref={ref => (this.filterRef = ref)} visible={this.state.showFilter} value={this.state.filter} onChange={this.onSearch} placeholder="Start Conversation" />
-        </SearchInner>
-      </SearchContainer>
-    )
-  }
-
-  renderSearchResults() {
-    if (this.state.results.length == 0) return null
-
-    return (
-      <React.Fragment>
-        <Heading>Results</Heading>
-
-        {this.state.results.map((user, index) => {
-          return (
-            <Channel
-              key={index}
-              active={false}
-              unread={null}
-              title={user.name}
-              image={user.image}
-              excerpt={user.username}
-              public={null}
-              private={null}
-              onClick={() => this.createPrivateChannel(user)}
-            />
-          )
-        })}
-
-        {this.state.results.length == 0 && (
-          <Channel
-            active={false}
-            unread={null}
-            title={`Create '${this.state.filter}'`}
-            image={null}
-            excerpt={null}
-            public={null}
-            private={null}
-            onClick={() => this.createPublicChannel(this.state.filter)}
-          />
-        )}
-      </React.Fragment>
     )
   }
 
@@ -876,10 +767,8 @@ class ChannelsComponent extends React.Component {
         {this.renderTeamModal()}
 
         {this.renderHeader()}
-        {this.renderSearch()}
 
         <ChannelsContainer>
-          {this.renderSearchResults()}
           {this.renderStarred()}
           {this.renderPublic()}
           {this.renderPrivate()}
