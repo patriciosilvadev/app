@@ -20,7 +20,6 @@ const TableRow = props => {
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
   const [confirmMemberBillingModal, setConfirmMemberBillingModal] = useState(false)
   const [roles, setRoles] = useState(false)
-  const [memberDeleteId, setMemberDeleteId] = useState('')
 
   return (
     <React.Fragment>
@@ -130,7 +129,7 @@ const TableRow = props => {
                     onClick: () => props.onConversationStart(member.user),
                   },
                   {
-                    hide: true || (props.billing || !props.admin) /* TODO: Re-enable */,
+                    hide: true /* TODO: Re-enable with (props.billing || !props.admin) */,
                     icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
                     text: 'Make billing contact',
                     onClick: () => setConfirmMemberBillingModal(true),
@@ -201,28 +200,21 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamMemberDelete = async userId => {
-    if (billing.id == userId) return setError('Please change the billing contact first')
-
+    // if (billing.id == userId) return setError('Please change the billing contact first')
     setLoading(true)
     setError(null)
 
     try {
       const teamId = props.id
-      const userId = memberDeleteId
       const userIds = [userId]
       const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
-      const updatedMembers = members.filter(member => member.user.id != userId)
 
+      // Set loading to false
       setLoading(false)
+      setResults([])
 
-      // Revoke access to people
-      // MessagingService.getInstance().revoke(team, [user])
-      // Update the UI
-      setMemberDeleteId('')
-      setConfirmMemberDeleteModal(false)
-      setMembers(updatedMembers)
-
-      MessagingService.getInstance().leaveTeam(userIds, teamId)
+      // And refetch people
+      fetchTeamMembers(page)
     } catch (e) {
       setLoading(false)
       setError('Error deleting team member')
@@ -230,8 +222,7 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamLeave = async () => {
-    if (billing.id == user.id) return setError('Please change the billing contact first')
-
+    // if (billing.id == user.id) return setError('Please change the billing contact first')
     setLoading(true)
     setError(null)
 
@@ -241,16 +232,15 @@ export default function MembersTeamComponent(props) {
       const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
 
       setLoading(false)
+      setResults([])
 
       // Don't sync this one - because its just for us
       // false is for syncing here
       dispatch(deleteTeam(teamId, false))
 
-      MessagingService.getInstance().leave(teamId)
-
       // Redirect the user back to the landing page
-      browserHistory.push('/app')
       props.onClose()
+      browserHistory.push('/app')
     } catch (e) {
       setLoading(false)
       setError('Error deleting self')
@@ -268,7 +258,7 @@ export default function MembersTeamComponent(props) {
     props.onClose()
   }
 
-  const fetchTeamMembers = async (localScopedPage = 0, refresh = false) => {
+  const fetchTeamMembers = async (localScopedPage = 0) => {
     setLoading(true)
     setError(false)
 
@@ -301,7 +291,7 @@ export default function MembersTeamComponent(props) {
 
     setBillingUser(props.billingUser)
     setPages(Math.ceil(props.totalMembers / limit))
-    fetchTeamMembers()
+    fetchTeamMembers(page)
   }, [props.id, props.totalMembers])
 
   return (

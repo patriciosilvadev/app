@@ -6,7 +6,7 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import CookiesService from '../services/cookies.service'
 import { showLocalPushNotification, logger } from '../helpers/util'
-import { closeAppModal, closeAppPanel, openApp, createTeam, leaveTeam, createChannel, deleteChannel, updateChannelDeleteTyping, addPresence, deletePresence } from './'
+import { closeAppModal, closeAppPanel, openApp, createTeam, deleteTeam, createChannel, deleteChannel, updateChannelDeleteTyping, addPresence, deletePresence } from './'
 import mqtt from 'mqtt'
 
 export function initialize(userId) {

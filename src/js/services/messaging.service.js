@@ -118,10 +118,6 @@ export default class MessagingService {
     userIds.map(userId => this.sendMessageToTopic(userId, 'JOIN_TEAM', teamId))
   }
 
-  leaveTeam(userIds, teamId) {
-    userIds.map(userId => this.sendMessageToTopic(userId, 'LEAVE_TEAM', teamId))
-  }
-
   // This is the only one that is not handled in initialise() as it's the same
   // Action as JOIN_CHANNEL (hence the messageType)
   joinChannelTeam(teamId, channelId) {
