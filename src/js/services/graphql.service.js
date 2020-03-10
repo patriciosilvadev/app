@@ -810,10 +810,13 @@ export default class GraphqlService {
         query searchChannelMembers($channelId: String, $query: String) {
           searchChannelMembers(channelId: $channelId, query: $query) {
             id
-            name
-            image
-            username
-            timezone
+            user {
+              id
+              name
+              image
+              username
+              timezone
+            }
           }
         }
       `,
@@ -824,22 +827,27 @@ export default class GraphqlService {
     })
   }
 
-  searchTeamMembers(teamId, query) {
+  searchTeamMembers(teamId, query, page) {
     return this.client.query({
       query: gql`
-        query searchTeamMembers($teamId: String, $query: String) {
-          searchTeamMembers(teamId: $teamId, query: $query) {
+        query searchTeamMembers($teamId: String, $query: String, $page: Float) {
+          searchTeamMembers(teamId: $teamId, query: $query, page: $page) {
             id
-            name
-            image
-            username
-            timezone
+            role
+            user {
+              id
+              name
+              image
+              username
+              timezone
+            }
           }
         }
       `,
       variables: {
         teamId,
         query,
+        page,
       },
     })
   }

@@ -8,7 +8,7 @@ import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
-import { Popup, Menu, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
+import { Popup, Menu, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { deleteTeam, updateTeam } from '../actions'
@@ -155,11 +155,12 @@ export default function MembersTeamComponent(props) {
   const [billingUser, setBillingUser] = useState({})
   const [members, setMembers] = useState([])
   const [totalMembers, setTotalMembers] = useState(0)
-  const [results, setResults] = useState([])
   const [filter, setFilter] = useState('')
+  const [filterTimeout, setFilterTimeout] = useState(null)
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
   const limit = 3
+  const filterRef = useRef(null)
 
   const handleTeamMemberBilling = async userId => {
     setLoading(true)
@@ -211,10 +212,9 @@ export default function MembersTeamComponent(props) {
 
       // Set loading to false
       setLoading(false)
-      setResults([])
 
       // And refetch people
-      fetchTeamMembers(page)
+      fetchTeamMembers(page, filter)
     } catch (e) {
       setLoading(false)
       setError('Error deleting team member')
@@ -232,7 +232,6 @@ export default function MembersTeamComponent(props) {
       const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
 
       setLoading(false)
-      setResults([])
 
       // Don't sync this one - because its just for us
       // false is for syncing here
@@ -258,18 +257,25 @@ export default function MembersTeamComponent(props) {
     props.onClose()
   }
 
-  const fetchTeamMembers = async (localScopedPage = 0) => {
+  const fetchTeamMembers = async (localScopedPage = 0, query = '') => {
     setLoading(true)
     setError(false)
 
     try {
       const teamId = props.id
-      const { data } = await GraphqlService.getInstance().teamMembers(teamId, localScopedPage)
+      let membersResult = []
+
+      if (query != '') {
+        const { data } = await GraphqlService.getInstance().searchTeamMembers(teamId, query, localScopedPage)
+        membersResult = data.searchTeamMembers ? data.searchTeamMembers : []
+      } else {
+        const { data } = await GraphqlService.getInstance().teamMembers(teamId, localScopedPage)
+        membersResult = data.teamMembers ? data.teamMembers : []
+      }
 
       // Update our users & bump the page
       setLoading(false)
-      setResults([])
-      setMembers(data.teamMembers)
+      setMembers(membersResult)
     } catch (e) {
       setLoading(false)
       setError('Error fetching members')
@@ -278,12 +284,30 @@ export default function MembersTeamComponent(props) {
 
   const fetchLessTeamMembers = () => {
     setPage(page - 1)
-    fetchTeamMembers(page - 1)
+    fetchTeamMembers(page - 1, filter)
   }
 
   const fetchMoreTeamMembers = () => {
     setPage(page + 1)
-    fetchTeamMembers(page + 1)
+    fetchTeamMembers(page + 1, filter)
+  }
+
+  const onSearch = e => {
+    const query = e.target.value
+
+    // Update the filter
+    setFilter(query)
+
+    // First cleat the timeout
+    if (filterTimeout) clearTimeout(filterTimeout)
+
+    // Re-add a new one to start again
+    setFilterTimeout(
+      setTimeout(() => {
+        setPage(0)
+        fetchTeamMembers(0, query)
+      }, 1000)
+    )
   }
 
   useEffect(() => {
@@ -292,6 +316,9 @@ export default function MembersTeamComponent(props) {
     setBillingUser(props.billingUser)
     setPages(Math.ceil(props.totalMembers / limit))
     fetchTeamMembers(page)
+
+    // Make sure this is null
+    return () => clearTimeout(filterTimeout)
   }, [props.id, props.totalMembers])
 
   return (
@@ -303,29 +330,43 @@ export default function MembersTeamComponent(props) {
       <div className="flexer p-20 w-100">
         <div className="row pb-20">
           <div className="column flexer">
-            <div className="h5 color-d2 mb-10">
-              {props.totalMembers} {props.totalMembers == 1 ? 'Member' : 'Members'}
-            </div>
-            <div className="p color-d0">
-              Displaying page {page + 1} of {pages}
-            </div>
-          </div>
-          <Buttons className="row">
-            {page <= pages && page > 0 && (
-              <div>
-                <Button text="Previous" theme="muted" className="button" onClick={fetchLessTeamMembers} />
-              </div>
+            {filter == '' && (
+              <React.Fragment>
+                <div className="h5 color-d2 mb-10">
+                  {props.totalMembers} {props.totalMembers == 1 ? 'Member' : 'Members'}
+                </div>
+                <div className="p color-d0">
+                  Displaying page {page + 1} of {pages}
+                </div>
+              </React.Fragment>
             )}
 
-            {page >= 0 && page + 1 != pages && (
-              <div>
-                <Button text="Next" theme="muted" className="button" onClick={fetchMoreTeamMembers} />
-              </div>
+            {filter != '' && (
+              <React.Fragment>
+                <div className="h5 color-d2 mb-10">Searching</div>
+                <div className="p color-d0">Finding members that match "{filter}"</div>
+              </React.Fragment>
             )}
-          </Buttons>
+          </div>
+
+          {filter == '' && (
+            <Buttons className="row">
+              {page <= pages && page > 0 && (
+                <div>
+                  <Button text="Previous" theme="muted" className="button" onClick={fetchLessTeamMembers} />
+                </div>
+              )}
+
+              {page >= 0 && page + 1 != pages && (
+                <div>
+                  <Button text="Next" theme="muted" className="button" onClick={fetchMoreTeamMembers} />
+                </div>
+              )}
+            </Buttons>
+          )}
         </div>
 
-        <Input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter members by name" className="mb-20" />
+        <Input value={filter} ref={filterRef} onChange={onSearch} placeholder="Filter members by name" className="mb-20" />
 
         <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
           <thead>
@@ -340,9 +381,6 @@ export default function MembersTeamComponent(props) {
 
           <tbody>
             {members.map((member, index) => {
-              if (filter != '' && !member.user.name.toLowerCase().match(new RegExp(filter.toLowerCase() + '.*'))) return null
-              // if (index < page * limit - limit || index > page * limit) return null
-
               const memberUserId = member.user.id
               const billingUserId = billingUser ? billingUser.id : null
 
@@ -376,6 +414,21 @@ MembersTeamComponent.propTypes = {
   admin: PropTypes.bool,
   billing: PropTypes.any,
 }
+
+const Input = styled.input`
+  font-size: 14px;
+  border-radius: 5px;
+  width: 100%;
+  padding: 10px;
+  color: #626d7a;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid #e9edef;
+
+  &::placeholder {
+    color: #e9edef;
+  }
+`
 
 const Buttons = styled.div`
   div:nth-child(2) {

@@ -197,7 +197,7 @@ class PanelMembersComponent extends React.Component {
     this.fetchChannelMembers()
 
     // Here we handle the delay for the yser typing in the search field
-    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
+    this.subscription = this.onSearch$.pipe(debounceTime(1000)).subscribe(debounced => this.fetchResults())
 
     // Listen for the user scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
@@ -218,6 +218,8 @@ class PanelMembersComponent extends React.Component {
   }
 
   async fetchResults() {
+    if (this.state.filter == '') return
+
     this.setState({
       loading: true,
       error: null,
@@ -274,9 +276,18 @@ class PanelMembersComponent extends React.Component {
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
           {this.state.loading && <Spinner />}
 
-          <MembersText>
-            There {this.props.channel.totalMembers == 1 ? 'is' : 'are'} <strong>{this.props.channel.totalMembers}</strong> {this.props.channel.totalMembers == 1 ? 'member' : 'members'} in this channel
-          </MembersText>
+          {this.state.results.length == 0 && (
+            <MembersText>
+              There {this.props.channel.totalMembers == 1 ? 'is' : 'are'} <strong>{this.props.channel.totalMembers}</strong> {this.props.channel.totalMembers == 1 ? 'member' : 'members'} in this
+              channel
+            </MembersText>
+          )}
+
+          {this.state.results.length != 0 && (
+            <MembersText>
+              There {this.state.results.length == 1 ? 'is' : 'are'} <strong>{this.state.results.length}</strong> {this.state.results.length == 1 ? 'member' : 'members'} in your search
+            </MembersText>
+          )}
 
           <div className="p-20 w-100">
             <div className="row">
@@ -312,14 +323,14 @@ class PanelMembersComponent extends React.Component {
                 {this.state.results.length != 0 && (
                   <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
                     <tbody>
-                      {this.state.results.map((user, index) => {
-                        if (this.state.filter != '' && !user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
+                      {this.state.results.map((member, index) => {
+                        if (this.state.filter != '' && !member.user.name.toLowerCase().match(new RegExp(this.state.filter.toLowerCase() + '.*'))) return null
 
                         return (
                           <TableRow
                             hasAdminPermission={this.props.hasAdminPermission}
                             key={index}
-                            member={{ user }}
+                            member={member}
                             user={this.props.user}
                             onLeave={() => this.handleChannelLeave()}
                             onDelete={userId => this.handleChannelMemberDelete(userId)}
