@@ -519,7 +519,7 @@ class ChannelComponent extends React.Component {
 
   renderTypingNames() {
     // Don't include ourselves
-    const typingUsers = this.props.channel.typing //.filter(typingUser => typingUser.userId != this.props.user.id)
+    const typingUsers = this.props.channel.typing.filter(typingUser => typingUser.userId != this.props.user.id)
 
     if (typingUsers.length == 0) {
       return null
