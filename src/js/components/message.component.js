@@ -78,6 +78,7 @@ export default memo(props => {
       const { data } = await GraphqlService.getInstance().createChannelMessage({
         channel: channelId,
         user: userId,
+        team: teamId,
         parent: parentId,
         message: forwardedMessageContents,
         attachments: forwardedMessageAttachments,

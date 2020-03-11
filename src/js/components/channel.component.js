@@ -440,16 +440,9 @@ class ChannelComponent extends React.Component {
                     {
                       hide: false,
                       icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
-                      text: 'Update',
-                      label: 'Update name, image or description',
+                      text: 'Edit',
+                      label: 'Update or remove this channel',
                       onClick: e => this.setState({ channelModal: true, channelMenu: false }),
-                    },
-                    {
-                      hide: false,
-                      icon: <IconComponent icon="delete" size={20} color="#acb5bd" />,
-                      text: 'Delete',
-                      label: 'This cannot be undone',
-                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
                     },
                   ]}
                 />

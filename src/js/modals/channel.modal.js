@@ -60,13 +60,15 @@ export default function ChannelModal(props) {
     setConfirmDeleteModal(false)
 
     try {
-      await GraphqlService.getInstance().deleteChannel(props.id)
+      const channelId = channel.id
+      const teamId = team.id
+      const { data } = await GraphqlService.getInstance().deleteChannel(channelId)
 
       // Sync this one for everyone
-      dispatch(deleteChannel(teamId, true))
+      dispatch(deleteChannel(channelId, true))
       setLoading(false)
-      browserHistory.push(`/app/team/${team.id}/`)
       props.onClose()
+      browserHistory.push(`/app/team/${teamId}/`)
     } catch (e) {
       setLoading(false)
       setError('Error deleting team')
@@ -111,25 +113,6 @@ export default function ChannelModal(props) {
     })()
   }, [props.id])
 
-  const renderDangerZone = () => {
-    return (
-      <div className="row align-items-start w-100">
-        <div className="column w-100">
-          {confirmDeleteModal && (
-            <ConfirmModal onOkay={handleDeleteChannel} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this channel, it can not be undone?" title="Are you sure?" />
-          )}
-
-          <div className="column p-20 flex-1 scroll w-100">
-            <Text className="color-red h5 mb-10">Here be dragons!</Text>
-            <Text className="color-d0 p mb-30">This cannot be undone.</Text>
-
-            <Button text="Delete" theme="red" onClick={() => setConfirmDeleteModal(true)} />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <ModalPortal>
       <Modal title="Channel" width={700} height={500} onClose={props.onClose}>
@@ -138,6 +121,14 @@ export default function ChannelModal(props) {
             {error && <Error message={error} onDismiss={() => setError(false)} />}
             {loading && <Spinner />}
             {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+            {confirmDeleteModal && (
+              <ConfirmModal
+                onOkay={handleDeleteChannel}
+                onCancel={() => setConfirmDeleteModal(false)}
+                text="Are you sure you want to delete this channel, it can not be undone?"
+                title="Are you sure?"
+              />
+            )}
 
             <Row className="row align-items-start">
               <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
@@ -173,8 +164,10 @@ export default function ChannelModal(props) {
             </Row>
 
             {props.hasAdminPermission && (
-              <div className="p-20">
-                <Button onClick={handleUpdateChannel} text="Update" theme="muted" />
+              <div className="p-25 row w-100">
+                <Button className="mr-10" onClick={handleUpdateChannel} text="Update" theme="muted" />
+                <div className="flexer" />
+                <Button text="Delete" theme="red" onClick={() => setConfirmDeleteModal(true)} />
               </div>
             )}
           </div>

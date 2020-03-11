@@ -147,6 +147,7 @@ class ComposeComponent extends React.Component {
       const { data } = await GraphqlService.getInstance().createChannelMessage({
         channel: channelId,
         user: userId,
+        team: teamId,
         parent: parentId,
         message,
         attachments,
