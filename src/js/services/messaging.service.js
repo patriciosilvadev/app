@@ -101,26 +101,19 @@ export default class MessagingService {
     if (this.client) this.client.unsubscribe(topic)
   }
 
-  /**
-   * These are messages sent to users
-   * for them to do specific things
-   * Sync gets used by middleware to tell everyone else to update their state
-   */
   sync(topic, action) {
     this.sendMessageToTopic(topic, 'SYNC', action)
   }
 
-  leaveChannelTeam(teamId, channelId) {
-    this.sendMessageToTopic(teamId, 'LEAVE_CHANNEL_TEAM', channelId)
-  }
-
-  joinTeam(userIds, teamId) {
-    userIds.map(userId => this.sendMessageToTopic(userId, 'JOIN_TEAM', teamId))
-  }
-
-  // This is the only one that is not handled in initialise() as it's the same
-  // Action as JOIN_CHANNEL (hence the messageType)
+  // This tell everyone to join this channel if they haven't already
+  // Only for public groups - because everyone has access to them
   joinChannelTeam(teamId, channelId) {
     this.sendMessageToTopic(teamId, 'JOIN_CHANNEL', channelId)
+  }
+
+  // This tells users to leave channels they are not a member of
+  // This is handled in common.js
+  leaveChannelTeam(teamId, channelId) {
+    this.sendMessageToTopic(teamId, 'LEAVE_CHANNEL_IF_NOT_MEMBER', channelId)
   }
 }

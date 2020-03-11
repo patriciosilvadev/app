@@ -281,6 +281,20 @@ export default class GraphqlService {
     })
   }
 
+  isTeamMember(teamId, userId) {
+    return this.client.query({
+      query: gql`
+        query isTeamMember($teamId: String!, $userId: String!) {
+          isTeamMember(teamId: $teamId, userId: $userId)
+        }
+      `,
+      variables: {
+        teamId,
+        userId,
+      },
+    })
+  }
+
   teams(userId) {
     return this.client.query({
       query: gql`
@@ -532,6 +546,20 @@ export default class GraphqlService {
       variables: {
         channelId,
         page,
+      },
+    })
+  }
+
+  isChannelMember(channelId, userId) {
+    return this.client.query({
+      query: gql`
+        query isChannelMember($channelId: String!, $userId: String!) {
+          isChannelMember(channelId: $channelId, userId: $userId)
+        }
+      `,
+      variables: {
+        channelId,
+        userId,
       },
     })
   }

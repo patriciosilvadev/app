@@ -124,8 +124,6 @@ export default function TeamModal(props) {
       const teamId = props.id
       const { data } = await GraphqlService.getInstance().deleteTeam(teamId)
 
-      console.log(teamId, data)
-
       // Sync this one for everyone
       dispatch(deleteTeam(teamId, true))
       setLoading(false)
