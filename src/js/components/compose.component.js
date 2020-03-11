@@ -226,22 +226,30 @@ class ComposeComponent extends React.Component {
     )
   }
 
-  // Fire first
+  // Fires first
   handleKeyDown(e) {
+    const { keyCode } = e
+
     // Enter
-    if (e.keyCode == 13) e.preventDefault()
+    if (keyCode == 13) e.preventDefault()
 
     // Shift
-    if (e.keyCode == 16) this.setState({ shift: true })
+    if (keyCode == 16) this.setState({ shift: true })
 
     // Enter & Shift & no member popup
-    if (e.keyCode == 13 && !this.state.shift && this.state.members.length == 0) this.onSend()
+    if (keyCode == 13 && !this.state.shift && this.state.members.length == 0) this.onSend()
 
     // Enter & Shift
-    if (e.keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
+    if (keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
-    // Update typing
-    this.props.updateChannelAddTyping(this.props.channel.id, this.props.user.name, this.props.user.id)
+    // Update typing only with alpha numeric
+    if (
+      (keyCode > 47 && keyCode < 58) || // number keys
+      (keyCode == 32 || keyCode == 13) || // spacebar & return key(s)
+      (keyCode > 64 && keyCode < 91) // letter keys
+    ) {
+      this.props.updateChannelAddTyping(this.props.channel.id, this.props.user.name, this.props.user.id)
+    }
   }
 
   // Fires second

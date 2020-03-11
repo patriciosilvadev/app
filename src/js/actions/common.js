@@ -189,24 +189,6 @@ export function initialize(userId) {
           }
           break
 
-        case 'LEAVE_CHANNEL_IF_NOT_MEMBER':
-          {
-            // Just use the Redux acttion
-            const channelId = message.messagePayload
-            const userId = getState().user.id
-            const isChannelMember = await GraphqlService.getInstance().isChannelMember(channelId, userId)
-
-            // Check if this user is a channel member
-            // If not, then we leave/delete the channel
-            if (isChannelMember.data.isChannelMember) {
-              MessagingService.getInstance().leave(channelId)
-
-              // And then remove it - just for us
-              dispatch(deleteChannel(channelId, false))
-            }
-          }
-          break
-
         case 'JOIN_TEAM':
           {
             // Just use the Redux acttion
@@ -252,6 +234,52 @@ export function initialize(userId) {
             const teamId = message.messagePayload
             MessagingService.getInstance().leave(teamId)
             dispatch(deleteTeam(teamId, false))
+          }
+          break
+
+        case 'JOIN_PUBLIC_CHANNEL':
+          {
+            // Just use the Redux acttion
+            const channelId = message.messagePayload
+
+            // If this user is already in this channel, then don't do anything
+            if (
+              getState()
+                .channels.filter(r => r.id == channelId)
+                .flatten()
+            )
+              return
+
+            // Get the channel data
+            const channel = await GraphqlService.getInstance().channel(channelId)
+
+            // If there is an error
+            if (!channel.data.channel) return
+
+            // Joing the channel SOCKET
+            MessagingService.getInstance().join(channelId)
+
+            // Create the channel in the store
+            // They may or may not be a member of it (irrelevant if it's public)
+            dispatch(createChannel(channel.data.channel))
+          }
+          break
+
+        case 'LEAVE_CHANNEL_IF_NOT_MEMBER':
+          {
+            // Just use the Redux acttion
+            const channelId = message.messagePayload
+            const userId = getState().user.id
+            const isChannelMember = await GraphqlService.getInstance().isChannelMember(channelId, userId)
+
+            // Check if this user is a channel member
+            // If not, then we leave/delete the channel
+            if (!isChannelMember.data.isChannelMember) {
+              MessagingService.getInstance().leave(channelId)
+
+              // And then remove it - just for us
+              dispatch(deleteChannel(channelId, false))
+            }
           }
           break
       }

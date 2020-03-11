@@ -271,8 +271,8 @@ class ChannelComponent extends React.Component {
     const teamId = this.props.team.id
 
     // These messages have to be sent to the team
-    if (!updatedChannelVisibility.public) MessagingService.getInstance().leaveChannelTeam(teamId, channelId)
-    if (updatedChannelVisibility.public) MessagingService.getInstance().joinChannelTeam(teamId, channelId)
+    if (!updatedChannelVisibility.public) MessagingService.getInstance().leaveChannelIfNotMember(teamId, channelId)
+    if (updatedChannelVisibility.public) MessagingService.getInstance().joinPublicChannel(teamId, channelId)
 
     try {
       await GraphqlService.getInstance().updateChannel(channelId, updatedChannelVisibility)
@@ -328,7 +328,7 @@ class ChannelComponent extends React.Component {
 
         <div className="column ml-10">
           <div className="row">
-            {!this.props.public && !this.props.private && <IconComponent icon="lock" color="#040b1c" size={15} thickness={2.5} className="mr-5" />}
+            {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#040b1c" size={15} thickness={2.5} className="mr-5" />}
             <HeaderTitle>{this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title}</HeaderTitle>
           </div>
 
@@ -424,14 +424,14 @@ class ChannelComponent extends React.Component {
                 <Menu
                   items={[
                     {
-                      hide: !this.props.channel.private,
+                      hide: this.props.channel.public,
                       icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
                       text: 'Make public',
                       label: 'Everyone in your team has access',
                       onClick: e => this.updateChannelVisibility({ private: false, public: true }),
                     },
                     {
-                      hide: this.props.channel.private,
+                      hide: !this.props.channel.public,
                       icon: <IconComponent icon="lock" size={20} color="#acb5bd" />,
                       text: 'Make private',
                       label: 'Members of this channel only',
@@ -519,12 +519,12 @@ class ChannelComponent extends React.Component {
 
   renderTypingNames() {
     // Don't include ourselves
-    const typingUsers = this.props.channel.typing.filter(t => t.userId != this.props.user.id)
+    const typingUsers = this.props.channel.typing //.filter(typingUser => typingUser.userId != this.props.user.id)
 
     if (typingUsers.length == 0) {
       return null
     } else {
-      return <Typing>{typingUsers.map(t => t.userName).join(', ') + ' is typing'}</Typing>
+      return <Typing>{typingUsers.map(typingUser => typingUser.userName).join(', ') + ' is typing'}</Typing>
     }
   }
 

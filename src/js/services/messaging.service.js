@@ -107,13 +107,13 @@ export default class MessagingService {
 
   // This tell everyone to join this channel if they haven't already
   // Only for public groups - because everyone has access to them
-  joinChannelTeam(teamId, channelId) {
-    this.sendMessageToTopic(teamId, 'JOIN_CHANNEL', channelId)
+  joinPublicChannel(teamId, channelId) {
+    this.sendMessageToTopic(teamId, 'JOIN_PUBLIC_CHANNEL', channelId)
   }
 
   // This tells users to leave channels they are not a member of
   // This is handled in common.js
-  leaveChannelTeam(teamId, channelId) {
+  leaveChannelIfNotMember(teamId, channelId) {
     this.sendMessageToTopic(teamId, 'LEAVE_CHANNEL_IF_NOT_MEMBER', channelId)
   }
 }

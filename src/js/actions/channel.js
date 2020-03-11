@@ -133,7 +133,7 @@ export function deleteChannel(channelId, sync) {
 export function updateChannelAddTyping(channelId, userName, userId) {
   return {
     type: 'UPDATE_CHANNEL_ADD_TYPING',
-    payload: { userName, userId, channelId },
+    payload: { channelId, userName, userId },
     sync: channelId,
   }
 }
