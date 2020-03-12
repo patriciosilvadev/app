@@ -163,6 +163,9 @@ class ComposeComponent extends React.Component {
       // Create the message
       this.props.createChannelMessage(channelId, channelMessage)
       this.props.updateChannel(channelId, { excerpt })
+
+      // Tell the channel component to scroll down
+      EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
     } catch (e) {}
   }
 
@@ -187,6 +190,9 @@ class ComposeComponent extends React.Component {
 
       this.props.updateChannelMessage(channelId, channelMessage)
       this.props.updateChannel(channelId, { excerpt })
+
+      // Tell the channel component to scroll down
+      EventService.getInstance().emit('SCROLL_TO_BOTTOM', null)
     } catch (e) {}
   }
 

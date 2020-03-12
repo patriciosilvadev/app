@@ -562,6 +562,13 @@ export default memo(props => {
     )
   }
 
+  const renderMessage = () => {
+    // Do not render the message text if it's a system message
+    if (props.message.system) return null
+
+    return <Text dangerouslySetInnerHTML={{ __html: message }} />
+  }
+
   return (
     <Message
       className="column"
@@ -585,9 +592,7 @@ export default memo(props => {
             </div>
 
             {renderParent()}
-
-            {!props.message.system && <Text dangerouslySetInnerHTML={{ __html: message }} />}
-
+            {renderMessage()}
             {renderPreview()}
             {renderOpengraph()}
             {renderAttachments()}
@@ -655,6 +660,21 @@ const Text = styled.div`
   padding-top: 5px;
   padding-bottom: 5px;
 
+  blockquote {
+    border-left: 5px solid #007af5;
+    font-size: 14px;
+    margin: 0px;
+    padding: 0px;
+    padding-left: 1em;
+  }
+
+  i {
+    font-weight: bold;
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  b,
   strong {
     font-weight: bold;
     font-size: 14px;

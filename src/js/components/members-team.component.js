@@ -12,6 +12,7 @@ import { Popup, Menu, Textarea, Modal, Tabbed, Notification, Spinner, Error, Use
 import { IconComponent } from './icon.component'
 import { copyToClipboard } from '../helpers/util'
 import { deleteTeam, updateTeam } from '../actions'
+import { PAGE_LIMIT } from '../environment'
 
 const TableRow = props => {
   const { member, user } = props
@@ -159,7 +160,7 @@ export default function MembersTeamComponent(props) {
   const [filterTimeout, setFilterTimeout] = useState(null)
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-  const limit = 3
+  const limit = PAGE_LIMIT
   const filterRef = useRef(null)
 
   const handleTeamMemberBilling = async userId => {

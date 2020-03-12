@@ -38,7 +38,7 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_CHANNEL_ADD_MESSAGES':
-        draft.messages = [...state.messages, action.payload.messages]
+        draft.messages = [...state.messages, ...action.payload.messages]
         break
 
       case 'CREATE_CHANNEL_MESSAGE':

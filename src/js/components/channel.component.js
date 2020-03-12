@@ -34,7 +34,7 @@ class ChannelComponent extends React.Component {
     this.state = {
       manualScrolling: false,
       busy: false,
-      page: 1,
+      page: 0,
       open: true,
       attachmentsPanel: false,
       membersPanel: true,
@@ -149,6 +149,9 @@ class ChannelComponent extends React.Component {
 
   async fetchChannel(channelId) {
     try {
+      // Set it as busy to not allow more messages to be fetch
+      this.setState({ busy: true })
+
       const { data } = await GraphqlService.getInstance().channel(channelId)
 
       // Populate our channel - this will fetch page 0 of messages
@@ -156,6 +159,16 @@ class ChannelComponent extends React.Component {
 
       // Clear all the markers for read/unread
       DatabaseService.getInstance().read(channelId)
+
+      // Set manual scrolling to false & bump page
+      this.setState(
+        {
+          page: this.state.page + 1,
+          busy: false,
+          manualScrolling: false,
+        },
+        () => this.scrollToBottom()
+      )
     } catch (e) {}
   }
 
@@ -176,7 +189,7 @@ class ChannelComponent extends React.Component {
       const { data } = await GraphqlService.getInstance().channelMessages(channelId, page)
 
       // Add the new messages to the channel
-      this.props.hydrateChannelMessages(data.channelMessages)
+      this.props.hydrateChannelMessages(channelId, data.channelMessages)
 
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({
@@ -224,13 +237,18 @@ class ChannelComponent extends React.Component {
 
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
-    this.setState({ manualScrolling: false })
 
     // Drag event listeners
     this.dropZone.addEventListener('dragover', this.onDragOver)
     this.dropMask.addEventListener('dragleave', this.onDragEnd)
     this.dropMask.addEventListener('dragend', this.onDragEnd)
     this.dropMask.addEventListener('drop', this.onDrop)
+
+    // Listen for scroll messages
+    // Also force the scroll down
+    EventService.getInstance().on('FORCE_SCROLL_TO_BOTTOM', data => {
+      this.setState({ manualScrolling: false }, () => this.scrollToBottom())
+    })
   }
 
   componentDidUpdate(prevProps) {
@@ -672,7 +690,7 @@ ChannelComponent.propTypes = {
 
 const mapDispatchToProps = {
   hydrateChannel: channel => hydrateChannel(channel),
-  hydrateChannelMessages: messages => hydrateChannelMessages(messages),
+  hydrateChannelMessages: (channelId, messages) => hydrateChannelMessages(channelId, messages),
   updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
   updateUserStarred: (channelId, starred) => updateUserStarred(channelId, starred),
   openApp: action => openApp(action),

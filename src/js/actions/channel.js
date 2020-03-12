@@ -87,13 +87,12 @@ export function createChannel(channel) {
   }
 }
 
-export function hydrateChannelMessages(messages) {
+export function hydrateChannelMessages(channelId, messages) {
   return {
     type: 'UPDATE_CHANNEL_ADD_MESSAGES',
     payload: {
-      messages: messages.sort((left, right) => {
-        return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-      }),
+      channelId,
+      messages,
     },
   }
 }
@@ -104,9 +103,6 @@ export function hydrateChannel(channel) {
     payload: {
       ...channel,
       typing: [],
-      messages: channel.messages.sort((left, right) => {
-        return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-      }),
     },
   }
 }
