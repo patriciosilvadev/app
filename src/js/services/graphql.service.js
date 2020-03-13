@@ -436,7 +436,16 @@ export default class GraphqlService {
               reactions
               likes
               system
+              forwardingOriginalTime
+              forwardingUser {
+                id
+                name
+                username
+                timezone
+                image
+              }
               parent {
+                id
                 channel {
                   title
                   id
@@ -607,6 +616,7 @@ export default class GraphqlService {
             likes
             system
             parent {
+              id
               channel {
                 title
                 id
@@ -629,6 +639,14 @@ export default class GraphqlService {
               }
               message
               createdAt
+            }
+            forwardingOriginalTime
+            forwardingUser {
+              id
+              name
+              username
+              timezone
+              image
             }
             user {
               id

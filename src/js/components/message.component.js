@@ -71,15 +71,17 @@ export default memo(props => {
     const excerpt = userName.toString().split(' ')[0] + ': ' + props.message.message || props.message.message
     const teamId = team.id
     const forwardedMessageContents = props.message.message
+    const forwardingOriginalTime = props.message.createdAt
+    const forwardedMessageUser = props.message.user.id
     const forwardedMessageAttachments = props.message.attachments
-    const parentId = props.message.id
 
     try {
       const { data } = await GraphqlService.getInstance().createChannelMessage({
         channel: channelId,
-        user: userId,
+        user: forwardedMessageUser,
+        forwardingUser: userId,
+        forwardingOriginalTime,
         team: teamId,
-        parent: parentId,
         message: forwardedMessageContents,
         attachments: forwardedMessageAttachments,
       })
@@ -131,6 +133,9 @@ export default memo(props => {
   const handleCreateChannelMessageReaction = async emoticon => {
     try {
       const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
+      const exisitingReactions = props.message.reactions.filter(r => r == reaction)
+
+      if (exisitingReactions.length != 0) return setEmoticonMenu(false)
 
       await GraphqlService.getInstance().createChannelMessageReaction(props.message.id, reaction)
 
@@ -324,7 +329,7 @@ export default memo(props => {
         <Date>
           {props.message.system && <span>{props.message.message} - </span>}
 
-          {moment(props.message.createdAt)
+          {moment(props.message.forwardingOriginalTime ? props.message.forwardingOriginalTime : props.message.createdAt)
             .tz(user.timezone)
             .fromNow()}
         </Date>
@@ -382,10 +387,11 @@ export default memo(props => {
             <React.Fragment>
               <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
               <Menu
-                items={channels.map(channel => {
+                items={channels.map(c => {
+                  const channelTitle = c.otherUser ? (c.otherUser.name ? c.otherUser.name : c.title) : c.title
                   return {
-                    text: channel.title,
-                    onClick: e => handleForwardMessage(channel.id),
+                    text: `${channelTitle} ${c.id == channel.id ? '(this channel)' : ''}`,
+                    onClick: e => handleForwardMessage(c.id),
                   }
                 })}
               />
@@ -405,7 +411,7 @@ export default memo(props => {
       if (props.message.parent.channel) {
         return (
           <ParentPadding className="column align-items-stretch flexer">
-            <ParentText>{props.message.parent.channel.id == channel.id ? `Replying to:` : `Forwarded from ${props.message.parent.channel.title}: `}</ParentText>
+            <ParentText>{`Replying to: ${props.message.parent.channel.title}`}</ParentText>
             <ParentContainer className="row justify-content-center">
               <div className="column flexer">
                 <div className="row">
@@ -569,6 +575,21 @@ export default memo(props => {
     return <Text dangerouslySetInnerHTML={{ __html: message }} />
   }
 
+  const renderForwardingUser = () => {
+    if (!props.message.forwardingUser) return null
+
+    return (
+      <ForwardingUserContainer className="row">
+        <ForwardingUser>
+          Forwarded from {props.message.forwardingUser.name}{' '}
+          {moment(props.message.createdAt)
+            .tz(user.timezone)
+            .fromNow()}
+        </ForwardingUser>
+      </ForwardingUserContainer>
+    )
+  }
+
   return (
     <Message
       className="column"
@@ -581,6 +602,7 @@ export default memo(props => {
     >
       {confirmDeleteModal && <ConfirmModal onOkay={handleDeleteChannelMessage} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this?" title="Are you sure?" />}
 
+      {renderForwardingUser()}
       <div className="row align-items-start w-100">
         {renderAvatar()}
 
@@ -642,6 +664,21 @@ const Date = styled.div`
   font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
+`
+
+const ForwardingUserContainer = styled.div`
+  width: 100%;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+`
+
+const ForwardingUser = styled.div`
+  color: #343a40;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  font-style: italic;
+  margin-right: 5px;
 `
 
 const User = styled.div`

@@ -47,21 +47,29 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_CHANNEL_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
+          // If it's the correct message
           if (message.id == action.payload.messageId) {
-            // This is the base of the new message object
-            // attachments/message will always be there
-            let updatedMessage = message
-
-            // Because these aren\t guaranteed
-            if (action.payload.message.message) updatedMessage.message = action.payload.message.message
-            if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
-            if (action.payload.message.app) updatedMessage.app = action.payload.message.app
-
-            // Now return the new updated message
-            return updatedMessage
-          } else {
-            return message
+            return {
+              ...message,
+              ...action.payload.message,
+            }
           }
+
+          // If it's the parent (replied to) message
+          if (message.parent) {
+            if (message.parent.id == action.payload.messageId) {
+              return {
+                ...message,
+                parent: {
+                  ...message.parent,
+                  ...action.payload.message,
+                },
+              }
+            }
+          }
+
+          // Otherwise default
+          return message
         })
         break
 

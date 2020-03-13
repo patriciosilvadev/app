@@ -18,11 +18,11 @@ export default memo(props => {
       {sortedMessages.map((message, index) => {
         let append = false
         let showDate = false
+        let previousDate = null
+        let previousUserId = null
         const previousIndex = index - 1
         const currentDate = moment(props.messages[index].createdAt)
         const currentUserId = props.messages[index].user ? props.messages[index].user.id : null
-        let previousDate = null
-        let previousUserId = null
 
         if (previousIndex >= 0) {
           previousDate = moment(props.messages[previousIndex].createdAt)
