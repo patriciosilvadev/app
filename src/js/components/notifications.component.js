@@ -30,6 +30,7 @@ export default function NotificationsComponent(props) {
       const { data } = await GraphqlService.getInstance().notifications(userId, page)
 
       setLoading(false)
+      setPage(page + 1)
       dispatch(hydrateNotifications(data.notifications))
     } catch (e) {
       logger(e)
@@ -74,32 +75,37 @@ export default function NotificationsComponent(props) {
           {loading && <Spinner />}
 
           <Inner className="column align-items-center">
-            {notifications.map((notification, index) => {
-              return (
-                <Row key={index} className="row">
-                  <div className="flexer column">
-                    <div className="row w-100 flexer">
-                      <Title read={notification.read}>{notification.title}</Title>
-                      <Created>{moment(notification.createdAt).fromNow()}</Created>
+            <ScrollContainer className="column align-items-center">
+              {notifications.map((notification, index) => {
+                return (
+                  <Row key={index} className="row">
+                    <div className="flexer column">
+                      <div className="row w-100 flexer">
+                        <Title read={notification.read}>{notification.title}</Title>
+                        <Created>{moment(notification.createdAt).fromNow()}</Created>
+                      </div>
+                      <Body read={notification.read}>{notification.body}</Body>
+                      <div className="row">
+                        <Button className="button" onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
+                          {notification.read ? 'Mark as unread' : 'Mark as read'}
+                        </Button>
+                      </div>
                     </div>
-                    <Body read={notification.read}>{notification.body}</Body>
-                    <div className="row">
-                      <Button className="button" onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
-                        {notification.read ? 'Mark as unread' : 'Mark as read'}
-                      </Button>
-                    </div>
-                  </div>
-                </Row>
-              )
-            })}
+                  </Row>
+                )
+              })}
 
-            {notifications.length == 0 && (
-              <React.Fragment>
-                <img src="https://yack-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
-                <TitleText>Whoops</TitleText>
-                <SubtitleText>You have no notifications</SubtitleText>
-              </React.Fragment>
-            )}
+              {notifications.length == 0 && (
+                <React.Fragment>
+                  <img src="https://yack-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
+                  <TitleText>Whoops</TitleText>
+                  <SubtitleText>You have no notifications</SubtitleText>
+                </React.Fragment>
+              )}
+
+              <br />
+              <br />
+            </ScrollContainer>
 
             <LoadContainer onClick={() => handleLoadButtonClick()} className="button row justify-content-center">
               <IconComponent icon="refresh" size={15} color="#acb5bd" className="mt-5 mb-5" />
@@ -136,10 +142,18 @@ const Container = styled.div`
   overflow: hidden;
 `
 
+const ScrollContainer = styled.div`
+  width: 100%;
+  height: 500px;
+  overflow: scroll;
+  position: relative;
+`
+
 const Inner = styled.div`
   width: 100%;
   height: 500px;
   overflow: scroll;
+  position: relative;
 `
 
 const Row = styled.div`
