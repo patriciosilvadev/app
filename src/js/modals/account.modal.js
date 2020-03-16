@@ -10,14 +10,15 @@ import { Formik } from 'formik'
 import ConfirmModal from './confirm.modal'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
-import { updateUser, deleteChannelMember } from '../actions'
+import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select } from '@tryyack/elements'
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select, Toggle } from '@tryyack/elements'
 import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
 import { STRIPE_API_KEY } from '../environment'
 import Zero from '@joduplessis/zero'
 import { logger } from '../helpers/util'
 import { IconComponent } from '../components/icon.component'
+import * as PnService from '../services/pn.service'
 
 const moment = require('moment-timezone')
 
@@ -102,7 +103,6 @@ export default function AccountModal(props) {
   const fileRef = useRef(null)
   const teams = useSelector(state => state.teams)
   const channels = useSelector(state => state.channels)
-
   const AccountService = Zero.container().get('AccountService')
 
   useEffect(() => {
@@ -148,8 +148,6 @@ export default function AccountModal(props) {
 
       // Remove user from channels
       channels.map(channel => {
-        // Tell everyone I'm dead
-        dispatch(deleteChannelMember(channel.id, userId))
         MessagingService.getInstance().leave(channel.id)
       })
 
@@ -592,6 +590,28 @@ export default function AccountModal(props) {
     )
   }
 
+  const renderNotifications = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Notifications</Text>
+            <Text className="color-d0 p mb-30">Manage notifications you receive.</Text>
+
+            <div className="row">
+              <Toggle on={false} onChange={on => console.log(on)} />
+              <Text className="p color-blue button bold pl-10">{false ? 'Receive notifications for new messages' : "Don't receive notifications for new messages"}</Text>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <ModalPortal>
       <Modal title="Account" width={700} height="90%" onClose={props.onClose}>
@@ -626,6 +646,11 @@ export default function AccountModal(props) {
               title: 'Invoices',
               show: false,
               content: renderInvoices(),
+            },
+            {
+              title: 'Notifications',
+              show: false,
+              content: renderNotifications(),
             },
             {
               title: 'Danger zone',

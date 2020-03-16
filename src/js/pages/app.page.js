@@ -17,8 +17,9 @@ import PanelAttachmentsComponent from '../components/panel-attachments.component
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
-import { askPushNotificationPermission, urlBase64ToUint8Array } from '../helpers/util'
+import { showLocalPushNotification, urlBase64ToUint8Array } from '../helpers/util'
 import EventService from '../services/event.service'
+import * as PnService from '../services/pn.service'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -27,10 +28,13 @@ class AppPage extends React.Component {
     this.state = {
       teams: [],
       userId: null,
-      pushNotifications: false,
+      pushNotificationsNotification: false,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
+    this.dismissPushNotifications = this.dismissPushNotifications.bind(this)
+    this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(this)
+    this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -77,28 +81,11 @@ class AppPage extends React.Component {
   async fetchData(userId) {
     this.props.fetchUser(userId)
     this.props.initialize(userId)
-    this.checkPushNotification()
+
+    this.setupServiceWorker()
   }
 
-  async checkPushNotification() {
-    const pnPermissions = await navigator.permissions.query({ name: 'notifications' })
-
-    // If they've been asked'
-    if (CookieService.getCookie(PN)) {
-      this.setState({ pushNotifications: false })
-      if (pnPermissions.state == 'granted') {
-        this.subscribePushNotification()
-      }
-    }
-
-    // If they haven't - then ask them
-    // Ideally we want to check right away
-    // But Google LightHouse will moan about first having to
-    // reposnd to a user gesture - so always show them the UI
-    if (!CookieService.getCookie(PN)) this.setState({ pushNotifications: true })
-  }
-
-  async subscribePushNotification() {
+  async setupServiceWorker() {
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
@@ -114,72 +101,68 @@ class AppPage extends React.Component {
 
         if (serviceWorker) {
           if (serviceWorker.state == 'activated') {
-            this.subscribeUser()
+            this.checkPushNotificationsAreEnabled()
           }
-
-          serviceWorker.addEventListener('statechange', e => {
-            if (e.target.state == 'activated') {
-              this.subscribeUser()
-            }
-          })
         }
+
+        serviceWorker.addEventListener('statechange', async e => {
+          try {
+            if (e.target.state == 'activated') {
+              this.checkPushNotificationsAreEnabled()
+            }
+          } catch (e) {
+            console.log(e)
+          }
+        })
       } catch (e) {
-        console.error('Could not register service worker', e)
+        console.log(e)
       }
     } else {
-      console.error('Service workers are not supported in this browser')
+      console.log('Service workers are not supported in this browser')
     }
   }
 
-  async subscribeUser() {
-    const { userId } = this.state
-    const registrations = await navigator.serviceWorker.getRegistrations()
+  async checkPushNotificationsAreEnabled() {
+    const { state } = await navigator.permissions.query({ name: 'notifications' })
+    const cookie = CookieService.getCookie('PN')
 
-    registrations.map(async register => {
-      const parts = register.active.scriptURL.split('/')
-      const path = parts[parts.length - 1]
+    if (state == 'granted') {
+      CookieService.setCookie('PN', 'YES')
+      this.setState({ pushNotificationsNotification: false })
 
-      if (path == 'sw.js') {
-        // Subscribe to the PNs
-        const subscription = await register.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
-        })
-
-        // Join - we're not using this for anything yet
-        // But we will
-        await fetch(API_HOST + '/pn/subscribe', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            subscription,
-            userId,
-          }),
-        })
-      }
-    })
+      // Now get their device ID
+      PnService.subscribeUser()
+    } else if (state == 'denied') {
+      CookieService.setCookie('PN', 'NO')
+      this.setState({ pushNotificationsNotification: false })
+    } else {
+      CookieService.deleteCookie('PN')
+      this.setState({ pushNotificationsNotification: true })
+    }
   }
 
-  pushNotifications() {
+  async handlePushNotificationsSetup() {
     if ('PushManager' in window) {
-      askPushNotificationPermission()
-        .then(res => {
-          CookieService.setCookie('PN', 'YES')
-          this.setState({ pushNotifications: false })
-          this.subscribePushNotification()
-        })
-        .catch(err => {
-          CookieService.setCookie('PN', 'NO')
-          this.setState({ pushNotifications: false })
-        })
+      const permission = await PnService.askPushNotificationPermission()
+      const cookie = CookieService.getCookie('PN')
+
+      // If they have granted us permission
+      if (permission == 'granted') {
+        CookieService.setCookie('PN', 'YES')
+        this.setState({ pushNotificationsNotification: false })
+
+        // Now get their device ID
+        PnService.subscribeUser()
+      } else {
+        CookieService.setCookie('PN', 'NO')
+        this.setState({ pushNotificationsNotification: false })
+      }
     }
   }
 
-  dismissPushNotifications() {
+  async dismissPushNotifications() {
     CookieService.setCookie('PN', 'NO')
-    this.setState({ pushNotifications: false })
+    this.setState({ pushNotificationsNotification: false })
   }
 
   render() {
@@ -191,17 +174,10 @@ class AppPage extends React.Component {
         <Error message={this.props.common.error} theme="solid" />
 
         {!this.props.common.connected && <Notification theme="solid" text="Connecting..." />}
-
         {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
 
-        {this.state.pushNotifications && (
-          <Notification
-            text="Push notifications are disabled."
-            actionText="Enable"
-            onActionClick={this.pushNotifications.bind(this)}
-            onDismissIconClick={this.dismissPushNotifications.bind(this)}
-            theme="solid"
-          />
+        {this.state.pushNotificationsNotification && (
+          <Notification text="Push notifications are disabled" actionText="Enable" onActionClick={this.handlePushNotificationsSetup} onDismissIconClick={this.dismissPushNotifications} theme="solid" />
         )}
 
         <App className="row">

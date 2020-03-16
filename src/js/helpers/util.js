@@ -32,22 +32,6 @@ export const youtubeUrlParser = url => {
   return match && match[7].length == 11 ? match[7] : false
 }
 
-export const askPushNotificationPermission = () => {
-  return new Promise((resolve, reject) => {
-    const permissionResult = Notification.requestPermission(result => {
-      resolve(result)
-    })
-
-    if (permissionResult) {
-      permissionResult.then(resolve, reject)
-    }
-  }).then(function(permissionResult) {
-    if (permissionResult !== 'granted') {
-      throw new Error("We weren't granted permission.")
-    }
-  })
-}
-
 export const urlBase64ToUint8Array = base64String => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/')
@@ -68,8 +52,8 @@ export const showLocalPushNotification = (title, body) => {
     if (serviceWorkerRegistration) {
       serviceWorkerRegistration.showNotification(title, {
         body,
-        icon: 'https://yack-app.s3-us-west-2.amazonaws.com/favicon.png',
-        image: 'https://yack-app.s3-us-west-2.amazonaws.com/favicon.png',
+        icon: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
+        image: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
       })
     }
   })
