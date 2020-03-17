@@ -30,13 +30,13 @@ module.exports = env => {
     },
     plugins: [
       // new BundleAnalyzerPlugin(),
-      // new CleanWebpackPlugin(),
+      new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
       }),
       new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.staging.js'),
       new WorkboxPlugin.InjectManifest({
-        swSrc: './src/js/sw.js',
+        swSrc: './src/js/sw.staging.js',
         swDest: 'sw.js',
       }),
     ],

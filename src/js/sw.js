@@ -4,12 +4,9 @@ workbox.precaching.precacheAndRoute(self.__precacheManifest)
 // workbox.core.skipWaiting()
 // workbox.core.clientsClaim()
 
-// Don't cache localhost
-// workbox.routing.registerRoute(new RegExp('localhost'), new workbox.strategies.NetworkOnly())
-
 // Cache API
 workbox.routing.registerRoute(
-  new RegExp(/\/api/),
+  new RegExp(/\/api.yack.co/),
   new workbox.strategies.NetworkFirst({
     cacheName: 'api',
     plugins: [
@@ -22,7 +19,7 @@ workbox.routing.registerRoute(
 
 // Cache GraphQL endpoints
 workbox.routing.registerRoute(
-  new RegExp(/\/graphql/),
+  new RegExp(/\/api.yack.co\/graphql/),
   new workbox.strategies.NetworkFirst({
     cacheName: 'graphql',
     plugins: [
@@ -33,10 +30,14 @@ workbox.routing.registerRoute(
   })
 )
 
+// Don't cache localhost
+workbox.routing.registerRoute(new RegExp(/\/localhost/), new workbox.strategies.NetworkOnly())
+
 // Skip waiting
 addEventListener('message', event => {
-  skipWaiting()
-  console.log(`SKIPPING WAITING (FROM APP): ${event.data}`)
+  console.log(`MESSAGE → ${event.data}`)
+
+  if (event.data == 'SKIP_WAITING') skipWaiting()
 })
 
 addEventListener('push', event => {
@@ -50,19 +51,19 @@ addEventListener('push', event => {
   const message = data.message || 'This is the default message'
   const icon = 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png'
 
+  /*
   var notification = new self.Notification(title, {
     body: message,
     tag: 'yack-notification',
     icon: icon,
   })
-
-  /*
-  self.registration.showNotification(data.title, {
-    body: data.body,
-    icon: '',
-    image: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
-  })
   */
+
+  var notification = self.registration.showNotification(title, {
+    body: message,
+    tag: 'yack-notification',
+    icon: icon,
+  })
 
   notification.addEventListener('click', function() {
     if (clients.openWindow) {

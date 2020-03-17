@@ -86,6 +86,7 @@ class AppPage extends React.Component {
   }
 
   async setupServiceWorker() {
+    console.log('Hi there')
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
@@ -99,7 +100,7 @@ class AppPage extends React.Component {
           serviceWorker = register.waiting
 
           // For now - force it
-          serviceWorker.postMessage('SKIP WAITING!')
+          serviceWorker.postMessage('SKIP_WAITING')
         } else if (register.active) {
           serviceWorker = register.active
         }
@@ -112,6 +113,7 @@ class AppPage extends React.Component {
 
         // Triggered by the skipWaiting()
         serviceWorker.addEventListener('statechange', async e => {
+          console.log(e.target.state)
           try {
             if (e.target.state == 'activated') {
               this.checkPushNotificationsAreEnabled()
