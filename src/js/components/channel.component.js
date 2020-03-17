@@ -37,7 +37,7 @@ class ChannelComponent extends React.Component {
       page: 0,
       open: true,
       attachmentsPanel: false,
-      membersPanel: true,
+      membersPanel: false,
       channelModal: false,
       message: null,
       reply: false,

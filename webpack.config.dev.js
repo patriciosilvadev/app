@@ -29,7 +29,8 @@ module.exports = env => {
       maxAssetSize: 512000,
     },
     plugins: [
-      new CleanWebpackPlugin(),
+      // new BundleAnalyzerPlugin(),
+      // new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
       }),
@@ -38,7 +39,6 @@ module.exports = env => {
         swSrc: './src/js/sw.js',
         swDest: 'sw.js',
       }),
-      //new BundleAnalyzerPlugin()
     ],
     optimization: {
       splitChunks: {
