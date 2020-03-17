@@ -1,5 +1,12 @@
 workbox.precaching.precacheAndRoute(self.__precacheManifest)
 
+// workbox.setConfig({ debug: false })
+// workbox.core.skipWaiting()
+// workbox.core.clientsClaim()
+
+// Don't cache localhost
+// workbox.routing.registerRoute(new RegExp('localhost'), new workbox.strategies.NetworkOnly())
+
 // Cache API
 workbox.routing.registerRoute(
   new RegExp(/\/api/),
@@ -26,27 +33,40 @@ workbox.routing.registerRoute(
   })
 )
 
-/*
+// Skip waiting
+addEventListener('message', event => {
+  skipWaiting()
+  console.log(`SKIPPING WAITING (FROM APP): ${event.data}`)
+})
 
-workbox.setConfig({ debug: false })
-workbox.core.skipWaiting()
-workbox.core.clientsClaim()
-workbox.routing.registerRoute(new RegExp('localhost'), new workbox.strategies.NetworkOnly())
-
-self.addEventListener('push', e => {
+addEventListener('push', event => {
   let data = {}
 
-  if (e.data) {
-    // IMPORTANT:
-    // The following line does not use "e.data.json",
-    // but "e.data.json()" !!!!!
-    data = e.data.json()
+  if (event.data) {
+    data = event.data.json()
   }
 
+  const title = data.title || 'Yack'
+  const message = data.message || 'This is the default message'
+  const icon = 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png'
+
+  var notification = new self.Notification(title, {
+    body: message,
+    tag: 'yack-notification',
+    icon: icon,
+  })
+
+  /*
   self.registration.showNotification(data.title, {
     body: data.body,
-    icon: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
+    icon: '',
     image: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
   })
+  */
+
+  notification.addEventListener('click', function() {
+    if (clients.openWindow) {
+      clients.openWindow('https://yack.app')
+    }
+  })
 })
-*/

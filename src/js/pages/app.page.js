@@ -94,7 +94,12 @@ class AppPage extends React.Component {
         if (register.installing) {
           serviceWorker = register.installing
         } else if (register.waiting) {
+          // Service worker goes into waiting
+          // TODO: Maybe in future show button that sends message to sw
           serviceWorker = register.waiting
+
+          // For now - force it
+          serviceWorker.postMessage('SKIP WAITING!')
         } else if (register.active) {
           serviceWorker = register.active
         }
@@ -105,6 +110,7 @@ class AppPage extends React.Component {
           }
         }
 
+        // Triggered by the skipWaiting()
         serviceWorker.addEventListener('statechange', async e => {
           try {
             if (e.target.state == 'activated') {
