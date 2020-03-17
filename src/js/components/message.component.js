@@ -192,6 +192,9 @@ export default memo(props => {
       const basePath = processedUrl.split(' / ')[0]
 
       setOgImage(fullPath ? firstImageUrl : `${basePath}/${firstImageUrl}`)
+
+      // Tell the channel component to scroll down
+      EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
     }
   }
 
