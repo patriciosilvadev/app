@@ -18,7 +18,7 @@ import { Toggle, Popup, Menu, Avatar, Tooltip } from '@tryyack/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
-import { logger } from '../helpers/util'
+import { logger, shortenMarkdownText } from '../helpers/util'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -48,7 +48,7 @@ const Channel = props => {
               &nbsp;
               {props.excerpt && (
                 <ChannelExcerptTextContainer>
-                  <ChannelExcerptText active={props.active || props.unread != 0}>{props.excerpt}</ChannelExcerptText>
+                  <ChannelExcerptText active={props.active || props.unread != 0}>{shortenMarkdownText(props.excerpt)}</ChannelExcerptText>
                 </ChannelExcerptTextContainer>
               )}
             </ChannelExcerpt>

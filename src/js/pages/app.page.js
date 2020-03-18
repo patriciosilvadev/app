@@ -86,7 +86,6 @@ class AppPage extends React.Component {
   }
 
   async setupServiceWorker() {
-    console.log('Hi there')
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })

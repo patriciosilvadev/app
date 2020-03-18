@@ -142,3 +142,16 @@ export const parseMessageMarkdown = (markdown, highlight) => {
 export const sendFocusComposeInputEvent = () => {
   EventService.getInstance().emit('FOCUS_COMPOSE_INPUT', null)
 }
+
+export const shortenMarkdownText = text => {
+  const maxWords = 12
+  const html = `<p>${marked(text)}</p>`
+  const div = document.createElement('div')
+
+  div.innerHTML = html
+
+  const plainText = div.innerText
+  const textArray = plainText.split(' ').filter((_, i) => i < maxWords)
+
+  return `${textArray.join(' ')}...`
+}
