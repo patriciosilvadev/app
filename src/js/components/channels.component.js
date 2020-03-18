@@ -645,10 +645,17 @@ class ChannelsComponent extends React.Component {
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
 
+          // Process their presence
+          const snapshot = new Date().getTime()
+          const otherUserId = channel.otherUser.id
+          const lastSeenTimestamp = this.props.presences[otherUserId]
+          const snapshotDifference = snapshot - lastSeenTimestamp
+          const otherUserPresence = snapshotDifference < 60000 ? 'online' : snapshotDifference < 120000 && snapshotDifference > 60000 ? 'away' : 'offline'
+
           return (
             <Channel
               key={index}
-              presence="away"
+              presence={otherUserPresence}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
               title={channel.otherUser.name}

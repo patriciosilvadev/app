@@ -25,12 +25,12 @@ export function initialize(userId) {
       const { presences } = getState()
       const snapshot = new Date().getTime()
 
-      // Remove after 30 seconds
-      presences.users.map(p => {
-        if (snapshot - p.userTime > 30000) {
-          dispatch(deletePresence(p.userId))
-        }
-      })
+      for (let presence in presences) {
+        const lastSeenTimestamp = presences[presence]
+
+        // Longer than 2 minutes
+        if (snapshot - lastSeenTimestamp > 120000) dispatch(deletePresence(presence))
+      }
     }
 
     const isTypingCleanup = () => {
@@ -47,10 +47,10 @@ export function initialize(userId) {
     }
 
     // Tell our current team about our status
-    setInterval(presenceAdd, 5000)
+    setInterval(presenceAdd, 60000)
 
     // Clean our presence array every 5 seconds
-    setInterval(presenceDelete, 5000)
+    setInterval(presenceDelete, 120000)
 
     // Check if the typing array is valid every 1 second
     // Iterage over the current channel's typing array
