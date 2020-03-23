@@ -20,9 +20,10 @@ export default function ToolbarComponent(props) {
 
   const handleAppStoreClick = async () => {
     const { token } = await AuthService.currentAuthenticatedUser()
+    const appstoreUrl = `${APPSTORE_URL}?userId=${user.id}&teamId=${team.id}&channelId=${channel.id}&jwt=${token}`
 
     setStore(true)
-    setUrl(`${STORE_URL}?userId=${user.id}&teamId=${team.id}&channelId=${channel.id}&jwt=${token}`)
+    setUrl(appstoreUrl)
   }
 
   const handleActionClick = async action => {
@@ -32,6 +33,9 @@ export default function ToolbarComponent(props) {
   // Load all our toolbar actions
   useEffect(() => {
     setButtons([])
+
+    // TODO: Debugging - remove
+    handleAppStoreClick()
 
     channel.apps
       .filter(app => app.active)
@@ -60,7 +64,7 @@ export default function ToolbarComponent(props) {
       {store && (
         <ModalPortal>
           <Modal title="" width="80%" height="90%" header={false} onClose={() => setStore(false)}>
-            <Iframe border="0" src={url} width="100%" height="100%"></Iframe>
+            <Iframe border="0" src={url ? url : null} width="100%" height="100%"></Iframe>
           </Modal>
         </ModalPortal>
       )}
