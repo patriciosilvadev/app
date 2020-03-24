@@ -37,6 +37,8 @@ export default function ToolbarComponent(props) {
     // TODO: Debugging - remove
     handleAppStoreClick()
 
+    const appButtons = []
+
     channel.apps
       .filter(app => app.active)
       .map(app => {
@@ -45,18 +47,18 @@ export default function ToolbarComponent(props) {
 
         // Add the channel app details to each button so we can
         // pass them to the action _ for meta data
-        setButtons(
-          app.app.tools.map(tool => {
-            return {
-              ...tool,
-              action: {
-                ...tool.action,
-                token: app.token,
-              },
-            }
+        app.app.tools.map(tool => {
+          appButtons.push({
+            ...tool,
+            action: {
+              ...tool.action,
+              token: app.token,
+            },
           })
-        )
+        })
       })
+
+    setButtons(appButtons)
   }, [channel.apps])
 
   return (
