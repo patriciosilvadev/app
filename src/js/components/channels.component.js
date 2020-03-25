@@ -26,7 +26,7 @@ const Channel = props => {
 
   return (
     <ChannelContainer
-      onClick={props.onClick ? props.onClick : null}
+      onClick={props.onClick}
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => {
         setOver(false)

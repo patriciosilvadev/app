@@ -232,7 +232,7 @@ class PanelMembersComponent extends React.Component {
       // Update our users & bump the page
       this.setState({
         loading: false,
-        results: data.searchChannelMembers,
+        results: data.searchChannelMembers ?? [],
       })
     } catch (e) {
       this.setState({
