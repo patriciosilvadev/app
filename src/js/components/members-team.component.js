@@ -268,10 +268,10 @@ export default function MembersTeamComponent(props) {
 
       if (query != '') {
         const { data } = await GraphqlService.getInstance().searchTeamMembers(teamId, query, localScopedPage)
-        membersResult = data.searchTeamMembers ?? []
+        membersResult = data.searchTeamMembers ? data.searchTeamMembers : []
       } else {
         const { data } = await GraphqlService.getInstance().teamMembers(teamId, localScopedPage)
-        membersResult = data.teamMembers ?? []
+        membersResult = data.teamMembers ? data.teamMembers : []
       }
 
       // Update our users & bump the page
