@@ -103,6 +103,11 @@ const AppIconContainer = styled.div`
   cursor: pointer;
   opacity: 1;
   transition: opacity 0.25s;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  display: flex;
 
   &:hover {
     opacity: 0.8;
@@ -110,8 +115,8 @@ const AppIconContainer = styled.div`
 `
 
 const AppIconImage = styled.div`
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   overflow: hidden;
   background-size: contain;
   background-position: center center;

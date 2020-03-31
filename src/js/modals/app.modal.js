@@ -15,7 +15,6 @@ export default function AppModal(props) {
   // If a user has submitted a command
   // then this will be attached to the webhook, panel or modal
   useEffect(() => {
-    console.log(props.action)
     // If the user has already added a query string
     if (props.action.payload.url.indexOf('?') == -1) {
       setUrl(`${props.action.payload.url}?token=${props.action.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
