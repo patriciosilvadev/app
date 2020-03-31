@@ -32,12 +32,12 @@ export default function ToolbarComponent(props) {
 
   // Load all our toolbar actions
   useEffect(() => {
-    setButtons([])
+    const appButtons = []
+
+    setButtons(appButtons)
 
     // TODO: Debugging - remove
-    handleAppStoreClick()
-
-    const appButtons = []
+    // handleAppStoreClick()
 
     channel.apps
       .filter(app => app.active)

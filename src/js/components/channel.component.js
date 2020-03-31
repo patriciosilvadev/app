@@ -761,6 +761,11 @@ const HeaderButton = styled.div`
   padding-right: 10px;
   cursor: pointer;
   transition: background 0.25s;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  display: flex;
 
   &:hover {
     background: #f8f9fa;
@@ -911,8 +916,8 @@ const PaddingToKeepMessagesDown = styled.div`
 `
 
 const AppIconImage = styled.div`
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   overflow: hidden;
   background-size: contain;
   background-position: center center;

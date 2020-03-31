@@ -18,11 +18,11 @@ export default function PanelAppComponent(props) {
   useEffect(() => {
     // If the user has already added a query string
     if (props.action.payload.url.indexOf('?') == -1) {
-      setUrl(`${props.action.payload.url}?token=${props.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
+      setUrl(`${props.action.payload.url}?token=${props.action.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
     } else {
-      setUrl(`${props.action.payload.url}&token=${props.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
+      setUrl(`${props.action.payload.url}&token=${props.action.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
     }
-  }, [])
+  }, [props.action])
 
   return (
     <PanelComponent title={props.action.name} onClose={props.onClose}>
