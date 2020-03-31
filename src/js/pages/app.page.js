@@ -116,7 +116,6 @@ class AppPage extends React.Component {
 
         // Triggered by the skipWaiting()
         serviceWorker.addEventListener('statechange', async e => {
-          console.log(e.target.state)
           try {
             if (e.target.state == 'activated') {
               this.checkPushNotificationsAreEnabled()

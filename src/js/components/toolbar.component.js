@@ -65,7 +65,7 @@ export default function ToolbarComponent(props) {
     <Toolbar className="column">
       {store && (
         <ModalPortal>
-          <Modal title="" width="80%" height="90%" header={false} onClose={() => setStore(false)}>
+          <Modal title="Appstore" width="80%" height="90%" header={true} onClose={() => setStore(false)}>
             <Iframe border="0" src={url ? url : null} width="100%" height="100%"></Iframe>
           </Modal>
         </ModalPortal>
