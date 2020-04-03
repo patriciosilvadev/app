@@ -37,7 +37,7 @@ export default function ToolbarComponent(props) {
     setButtons(appButtons)
 
     // TODO: Debugging - remove
-    handleAppStoreClick()
+    // handleAppStoreClick()
 
     channel.apps
       .filter(app => app.active)
@@ -65,6 +65,9 @@ export default function ToolbarComponent(props) {
     <Toolbar className="column">
       {store && (
         <ModalPortal>
+          <CloseIcon className="button" onClick={() => setStore(false)}>
+            <IconComponent icon="x" size={23} color="white" thickness={2} />
+          </CloseIcon>
           <Modal title="Appstore" width="80%" height="90%" header={false} onClose={() => setStore(false)}>
             <Iframe border="0" src={url ? url : null} width="100%" height="100%"></Iframe>
           </Modal>
@@ -89,6 +92,15 @@ export default function ToolbarComponent(props) {
 }
 
 ToolbarComponent.propTypes = {}
+
+const CloseIcon = styled.div`
+  position: fixed;
+  z-index: 100;
+  width: 30px;
+  height: 30px;
+  top: 20px;
+  right: 20px;
+`
 
 const Toolbar = styled.div`
   align-items: center;
