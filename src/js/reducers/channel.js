@@ -73,7 +73,7 @@ export default (state = initialState, action) =>
         })
         break
 
-      // Unused - see API & DevKit - needs to be tested
+      // TODO: Unused - see API & DevKit - needs to be tested
       case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
         draft.messages = state.messages.map((message, _) => {
           if (action.payload.messageIds.indexOf(message.id) != -1) {
