@@ -73,6 +73,7 @@ export default (state = initialState, action) =>
         })
         break
 
+      // Unused - see API & DevKit - needs to be tested
       case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
         draft.messages = state.messages.map((message, _) => {
           if (action.payload.messageIds.indexOf(message.id) != -1) {
@@ -102,7 +103,13 @@ export default (state = initialState, action) =>
         break
 
       case 'DELETE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
-        draft.messages = state.messages.filter(message => action.payload.messageIds.indexOf(message.id) != -1)
+        draft.messages = state.messages.filter(message => {
+          const { messageIds } = action.payload
+          const messageIdPresentWithmessageIds = messageIds.indexOf(message.id) != -1
+
+          // Remove it if it's there
+          return !messageIdPresentWithmessageIds
+        })
         break
 
       case 'DELETE_CHANNEL_MESSAGE':

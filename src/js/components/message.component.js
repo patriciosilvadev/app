@@ -56,7 +56,7 @@ export default memo(props => {
   const [appUrl, setAppUrl] = useState(null)
   const [appHeight, setAppHeight] = useState(0)
   const [appWidth, setAppWidth] = useState(200)
-  const [resizeId, setResizeId] = useState(null)
+  const [resizeId, setResizeId] = useState(uuidv1())
   const iframeRef = useRef(null)
   const [ogTitle, setOgTitle] = useState(null)
   const [ogDescription, setOgDescription] = useState(null)
@@ -263,6 +263,7 @@ export default memo(props => {
       // This might be null
       const channelAppMessageButtons = props.message.app.app.message.buttons || []
       const appResourceId = props.message.app.resourceId
+      const uniqueIdForResizeId = uuidv1()
 
       // resourceId is what we use to ID the resource on the app's server
       // This could be an ID - when a user creates a message they add this
@@ -270,7 +271,6 @@ export default memo(props => {
       if (props.message.app.app.message) {
         setAppHeight(props.message.app.app.message.height)
         setAppWidth(props.message.app.app.message.width)
-        setResizeId(uuidv1())
 
         // Important that we add the channel token to the appAction.payload
         // This action is attached to all buttons - so we can assume this structure:
@@ -288,28 +288,32 @@ export default memo(props => {
 
         const { url } = props.message.app.app.message
 
-        // If the user has already added a query string
+        // If the user has already added a query string or not
         if (url.indexOf('?') == -1) {
           setAppUrl(`${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
         } else {
           setAppUrl(`${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
         }
-
-        setAppUrl(url)
       }
     }
   }, [props.message])
 
   // Specifically watch our resizeId
   useEffect(() => {
-    EventService.getInstance().on('AUTO_ADJUST_MESSAGE_HEIGHT', data => {
-      console.log('AUTO_ADJUST_MESSAGE_HEIGHT → ', data)
+    EventService.getInstance().on('SYNC_MESSAGE_HEIGHT', data => {
+      console.log('SYNC_MESSAGE_HEIGHT → ', data)
 
       // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
       // resizeId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
       // Only adjust this specific height when received
       if (data.resizeId == resizeId) {
-        if (data.resizeHeight) setAppHeight(parseInt(data.resizeHeight))
+        if (data.resizeHeight) {
+          // Resize the app message window
+          setAppHeight(parseInt(data.resizeHeight))
+
+          // Tell the channel component to scroll down
+          EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
+        }
       }
     })
   }, [props.message, resizeId])
