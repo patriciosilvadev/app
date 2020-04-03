@@ -354,6 +354,7 @@ export default class GraphqlService {
               app {
                 id
                 name
+                slug
                 description
                 image
                 token
@@ -493,6 +494,7 @@ export default class GraphqlService {
                 app {
                   id
                   name
+                  slug
                   description
                   image
                   token
@@ -674,6 +676,7 @@ export default class GraphqlService {
               app {
                 id
                 name
+                slug
                 description
                 image
                 token
@@ -814,6 +817,7 @@ export default class GraphqlService {
               app {
                 id
                 name
+                slug
                 description
                 image
                 token

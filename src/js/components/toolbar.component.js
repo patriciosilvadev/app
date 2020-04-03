@@ -37,7 +37,7 @@ export default function ToolbarComponent(props) {
     setButtons(appButtons)
 
     // TODO: Debugging - remove
-    // handleAppStoreClick()
+    handleAppStoreClick()
 
     channel.apps
       .filter(app => app.active)
