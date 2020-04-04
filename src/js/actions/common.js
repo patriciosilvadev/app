@@ -125,7 +125,6 @@ export function initialize(userId) {
       // const messageJoinTeam = async () => {}
       // const messageLeaveChannel = async () => {}
       // const messageLeaveTeam = async () => {}
-
       // Only process the message we didn't send
       // if (action.sender == _id) return;
       // These message are sent from the API
