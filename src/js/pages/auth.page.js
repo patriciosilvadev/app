@@ -560,7 +560,14 @@ class AuthPage extends React.Component {
                       Go back to sign in
                     </SmallTextButton>
                     <a href="https://yack.co" target="_blank" className="color-l1 a text-center mt-10">
-                      By creating an account & using Yack, you agree to our <strong>terms & conditions</strong>
+                      By creating an account, you agree to our
+                      <a href="https://yack.co/termsofuse" target="_blank">
+                        <strong>terms of use</strong>
+                      </a>{' '}
+                      &
+                      <a href="https://yack.co/privacypolicy" target="_blank">
+                        <strong>privacy policy</strong>
+                      </a>
                     </a>
                   </Footer>
                 </Form>
