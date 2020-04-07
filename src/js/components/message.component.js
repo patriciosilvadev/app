@@ -286,6 +286,7 @@ export default memo(props => {
           })
         )
 
+        // URL for the message view
         const { url } = props.message.app.app.message
 
         // If the user has already added a query string or not
