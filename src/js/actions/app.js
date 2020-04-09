@@ -1,4 +1,7 @@
 export function openApp(appAction) {
+  console.log(appAction)
+  console.log('----------------------')
+
   return (dispatch, getState) => {
     switch (appAction.type) {
       case 'webhook':
@@ -8,9 +11,9 @@ export function openApp(appAction) {
         // If a user has submitted a command
         // then this will be attached to the webhook, panel or modal
         if (appAction.payload.url.indexOf('?') == -1) {
-          url = `${appAction.payload.url}?token=${appAction.token}&userId=${user.id}${appAction.userCommand ? '&userCommand=' + appAction.userCommand : ''}`
+          url = `${appAction.payload.url}?token=${appAction.token}&userId=${user.id}`
         } else {
-          url = `${appAction.payload.url}&token=${appAction.token}&userId=${user.id}${appAction.userCommand ? '&userCommand=' + appAction.userCommand : ''}`
+          url = `${appAction.payload.url}&token=${appAction.token}&userId=${user.id}`
         }
 
         fetch(url, {

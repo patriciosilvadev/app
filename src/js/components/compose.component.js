@@ -33,7 +33,7 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text: '',
+      text: '/polls create Beer,What is your fav beer?,Ales,Lagers,Both',
       mention: null,
       position: 0,
       members: [],
@@ -78,12 +78,13 @@ class ComposeComponent extends React.Component {
   onSend() {
     if (this.state.text == '') return
 
-    // If this message is an app command
+    // If this message is a general (any) app command
     if (this.state.text[0] == '/') {
-      const textToMatch = this.state.text
-        .slice(1)
-        .split(' ')[0]
-        .toLowerCase()
+      // Remove the / from processing the command
+      const commandText = this.state.text.slice(1).toLowerCase()
+
+      // Take the very first word which is the app slug (unique accross apps)
+      const slug = commandText.split(' ')[0]
 
       // Reset our view
       // Members is just to be sure here - no other reason
@@ -91,21 +92,33 @@ class ComposeComponent extends React.Component {
 
       // Iterate over all the apps that have these action commands
       this.props.channel.apps.map(app => {
-        if (!app.active) return
+        // Dont use apps that aren't active
+        // Or if the app slug isn't the one the user entered
+        if (!app.active || app.app.slug.toLowerCase() != slug) return
 
-        // Now iterate over all the commands
+        // The only app left is the correct one
+        // Now iterate over all the commands (there could be a few)
         app.app.commands.map(command => {
+          const commandName = commandText.split(' ')[1]
+          const commandQuery = commandText
+            .split(' ')
+            .splice(2, commandText.split(' ').length - 1)
+            .join(' ')
+
           // If there is a match of a command
           // DO NOT USE REGEX HERE
           // We want to match the whole word
-          if (command.name.toLowerCase() == textToMatch) {
+          if (command.name.toLowerCase() == commandName) {
             // And call our action creator
             // If the user has add a WEB action type, then they can
             // get the text part as part of the body JSON pacakge
             this.handleActionClick({
               ...command.action,
               token: app.token,
-              userCommand: this.state.text,
+              userCommand: {
+                commandName,
+                commandQuery,
+              },
             })
           }
         })
