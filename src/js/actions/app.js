@@ -1,7 +1,4 @@
 export function openApp(appAction) {
-  console.log(appAction)
-  console.log('----------------------')
-
   return (dispatch, getState) => {
     switch (appAction.type) {
       case 'webhook':
