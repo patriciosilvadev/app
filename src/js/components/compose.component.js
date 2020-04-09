@@ -225,7 +225,7 @@ class ComposeComponent extends React.Component {
     )
   }
 
-  // Fires first
+  // Fires 1st
   handleKeyDown(e) {
     const { keyCode } = e
 
@@ -251,7 +251,7 @@ class ComposeComponent extends React.Component {
     }
   }
 
-  // Fires second
+  // Fires 2nd
   handleComposeChange(e) {
     const text = e.target.value
 
@@ -275,6 +275,13 @@ class ComposeComponent extends React.Component {
     })
   }
 
+  // Fires 3rd
+  handleKeyUp(e) {
+    this.updateComposeHeight()
+
+    if (e.keyCode == 16) this.setState({ shift: false })
+  }
+
   populateCommands(text) {
     const commands = []
     const textToMatch = text
@@ -289,19 +296,16 @@ class ComposeComponent extends React.Component {
       // and see if they have commands to list for the user
       app.app.commands.map(command => {
         if (command.name.toLowerCase().match(new RegExp(textToMatch + '.*'))) {
-          commands.push(command)
+          commands.push({
+            id: app.app.id,
+            slug: app.app.slug,
+            ...command,
+          })
         }
       })
     })
 
     this.setState({ commands })
-  }
-
-  // Fires 3rd
-  handleKeyUp(e) {
-    this.updateComposeHeight()
-
-    if (e.keyCode == 16) this.setState({ shift: false })
   }
 
   filterMembers(username) {
@@ -483,7 +487,9 @@ class ComposeComponent extends React.Component {
           {this.state.commands.map((command, index) => {
             return (
               <CommandRow key={index}>
-                <CommandName>/{command.name}</CommandName>
+                <CommandName>
+                  /{command.slug} {command.name}
+                </CommandName>
                 <CommandDescription>{command.description}</CommandDescription>
               </CommandRow>
             )
@@ -583,7 +589,9 @@ class ComposeComponent extends React.Component {
       <Footer className="row">
         <IconComponent icon="markdown" size={20} color="#cfd4d9" className="mr-10" />
         <span>
-          Use <strong>**markdown**</strong> to format your message
+          <strong>**bold**</strong> <i>*italic*</i> <code>`code`</code> <del>~~strikeout~~</del>
+          &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+          <strong>/</strong> for available commands
         </span>
       </Footer>
     )
@@ -745,6 +753,10 @@ const Footer = styled.div`
   font-size: 12px;
   font-weight: 400;
   color: #cfd4d9;
+
+  del {
+    text-decoration: line-through;
+  }
 
   strong {
     font-weight: 700;

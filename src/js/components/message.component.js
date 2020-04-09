@@ -713,6 +713,10 @@ const Text = styled.div`
     padding-left: 1em;
   }
 
+  del {
+    text-decoration: line-through;
+  }
+
   i {
     font-weight: bold;
     font-style: italic;
