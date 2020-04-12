@@ -157,6 +157,7 @@ class ComposeComponent extends React.Component {
         parent: parentId,
         message,
         attachments,
+        excerpt,
       })
 
       // The extra values are used for processing other info
