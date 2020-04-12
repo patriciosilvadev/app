@@ -33,7 +33,7 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text: '/polls create Beer,What is your fav beer?,Ales,Lagers,Both',
+      text: '',
       mention: null,
       position: 0,
       members: [],

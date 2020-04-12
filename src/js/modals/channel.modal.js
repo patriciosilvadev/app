@@ -115,7 +115,7 @@ export default function ChannelModal(props) {
 
   return (
     <ModalPortal>
-      <Modal title="Channel" width={700} height={500} onClose={props.onClose}>
+      <Modal title="Channel" width={700} height={550} onClose={props.onClose}>
         <div className="row align-items-start w-100">
           <div className="column w-100">
             {error && <Error message={error} onDismiss={() => setError(false)} />}
@@ -165,9 +165,9 @@ export default function ChannelModal(props) {
 
             {props.hasAdminPermission && (
               <div className="p-25 row w-100">
-                <Button className="mr-10" onClick={handleUpdateChannel} text="Update" theme="muted" />
-                <div className="flexer" />
                 <Button text="Delete" theme="red" onClick={() => setConfirmDeleteModal(true)} />
+                <div className="flexer" />
+                <Button className="mr-10" onClick={handleUpdateChannel} text="Update" theme="muted" />
               </div>
             )}
           </div>
