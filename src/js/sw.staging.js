@@ -14,8 +14,8 @@ addEventListener('push', event => {
 
   const title = data.title || 'Yack'
   const body = data.body || 'This is the default message'
-  const icon = 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png'
-  const image = 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png'
+  const icon = 'https://yack-marketing.s3-us-west-2.amazonaws.com/logo.png'
+  const image = 'https://yack-marketing.s3-us-west-2.amazonaws.com/logo.png'
   const tag = 'yack-notification'
 
   self.registration.showNotification(title, {
