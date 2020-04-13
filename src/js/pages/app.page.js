@@ -190,6 +190,16 @@ class AppPage extends React.Component {
           <Notification text="Push notifications are disabled" actionText="Enable" onActionClick={this.handlePushNotificationsSetup} onDismissIconClick={this.dismissPushNotifications} theme="solid" />
         )}
 
+        <Notification
+          text="Yack is currently is QA/testing mode - please click on the link to report bugs"
+          actionText="support@yack.co"
+          onDismissIconClick={null}
+          theme="dark-pink"
+          onActionClick={() => {
+            window.location.href = 'mailto:support@yack.co?subject=I%20found%20a%20bug&body=Please%20add%20as%20much%20detail%20as%20you%20can%20here...'
+          }}
+        />
+
         <App className="row">
           <Router history={browserHistory}>
             <Route path="/app" component={DockComponent} />
