@@ -12,7 +12,10 @@ export default class MessagingService {
     const token = CookiesService.getCookie(JWT)
     const { userId } = AuthService.parseJwt(token)
 
+    // This token will be used on the EMQX server to authenticate the client
     this.client = mqtt.connect(MQTT_HOST, {
+      username: 'userId',
+      password: token,
       clean: false,
       queueQoSZero: true,
       useSSL: false,
