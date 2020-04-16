@@ -21,7 +21,7 @@ import {
   createChannelMessage,
   updateChannel,
 } from '../actions'
-import { Attachment, Popup, Avatar, Menu, Tooltip } from '@tryyack/elements'
+import { Attachment, Popup, Avatar, Menu, Tooltip } from '@yack/elements'
 import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
