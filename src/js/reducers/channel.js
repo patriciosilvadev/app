@@ -73,45 +73,6 @@ export default (state = initialState, action) =>
         })
         break
 
-      // TODO: Unused - see API & DevKit - needs to be tested
-      case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
-        draft.messages = state.messages.map((message, _) => {
-          if (action.payload.messageIds.indexOf(message.id) != -1) {
-            // This is the base of the new message object
-            // attachments/message will always be there
-            let updatedMessage = message
-
-            // Because these aren\t guaranteed
-            if (action.payload.message.message) updatedMessage.message = action.payload.message.message
-            if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
-
-            // If there is an app - there should be - but in case
-            // If the app is being updated, then add it
-            // Just change the RESOURCE ID (not app.app)
-            if (updatedMessage.app) {
-              if (action.payload.message.app) {
-                updatedMessage.app.resourceId = action.payload.message.app.resourceId
-              }
-            }
-
-            // Now return the new updated message
-            return updatedMessage
-          } else {
-            return message
-          }
-        })
-        break
-
-      case 'DELETE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
-        draft.messages = state.messages.filter(message => {
-          const { messageIds } = action.payload
-          const messageIdPresentWithmessageIds = messageIds.indexOf(message.id) != -1
-
-          // Remove it if it's there
-          return !messageIdPresentWithmessageIds
-        })
-        break
-
       case 'DELETE_CHANNEL_MESSAGE':
         draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
         break
@@ -173,6 +134,10 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'INCREASE_CHANNEL_TOTAL_MEMBERS':
+        draft.totalMembers = state.totalMembers + 1
+        break
+
       case 'CREATE_CHANNEL_MESSAGE_REACTION':
         draft.messages = state.messages.map((message, _) => {
           if (message.id == action.payload.messageId) {
@@ -225,12 +190,25 @@ export default (state = initialState, action) =>
         })
         break
 
+      // There are the app reducer functions
+      // Just so there is some seperation
+
       case 'CREATE_CHANNEL_APP':
         draft.apps = [...state.apps, action.payload.app]
         break
 
       case 'DELETE_CHANNEL_APP':
+        // Delete app
         draft.apps = state.apps.filter(app => app.app.id != action.payload.appId)
+
+        // Delete messages
+        draft.messages = state.messages.filter(message => {
+          if (message.app) {
+            return message.app.app.id != action.payload.appId
+          } else {
+            return true
+          }
+        })
         break
 
       case 'UPDATE_CHANNEL_APP_APP':
@@ -261,8 +239,41 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'INCREASE_CHANNEL_TOTAL_MEMBERS':
-        draft.totalMembers = state.totalMembers + 1
+      case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
+        draft.messages = state.messages.map((message, _) => {
+          if (action.payload.messageIds.indexOf(message.id) != -1) {
+            // This is the base of the new message object
+            // attachments/message will always be there
+            let updatedMessage = message
+
+            // Because these aren\t guaranteed
+            if (action.payload.message.message) updatedMessage.message = action.payload.message.message
+            if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
+
+            // If there is an app - there should be
+            // Just change the RESOURCE ID (not app.app object)
+            if (updatedMessage.app) {
+              if (action.payload.message.app) {
+                updatedMessage.app.resourceId = action.payload.message.app.resourceId
+              }
+            }
+
+            // Now return the new updated message
+            return updatedMessage
+          } else {
+            return message
+          }
+        })
+        break
+
+      case 'DELETE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
+        draft.messages = state.messages.filter(message => {
+          const { messageIds } = action.payload
+          const messageIdPresentWithmessageIds = messageIds.indexOf(message.id) != -1
+
+          // Remove it if it's there
+          return !messageIdPresentWithmessageIds
+        })
         break
     }
   })
