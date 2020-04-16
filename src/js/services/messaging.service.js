@@ -14,12 +14,12 @@ export default class MessagingService {
 
     // This token will be used on the EMQX server to authenticate the client
     this.client = mqtt.connect(MQTT_HOST, {
+      clientId: userId + '-web',
       username: userId,
       password: token,
       clean: false,
       queueQoSZero: true,
       useSSL: false,
-      clientId: userId + '-web',
       will: {
         topic: 'death',
         payload: userId,
