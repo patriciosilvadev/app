@@ -44,6 +44,7 @@ import * as Sentry from '@sentry/browser'
 if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })
 
 // Register our account service - only 1 for now
+// See usage in account.modal
 Zero.container().inject('AccountService', AccountService)
 
 // Redux logger
