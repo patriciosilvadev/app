@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = env => {
   return {
@@ -33,6 +34,10 @@ module.exports = env => {
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
+      }),
+      new MiniCssExtractPlugin({
+        filename: '[name].[contenthash].css',
+        chunkFilename: '[id].[contenthash].css',
       }),
       new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.staging.js'),
       new WorkboxPlugin.InjectManifest({
@@ -96,13 +101,14 @@ module.exports = env => {
             },
           ],
         },
+        /*
         {
           test: /\.(css)$/,
           use: [
             {
               loader: 'file-loader',
               options: {
-                name: '[name].[contenthash].[ext]',
+                name: '[contenthash].[ext]',
               },
             },
             'extract-loader',
@@ -113,6 +119,11 @@ module.exports = env => {
               },
             },
           ],
+        },
+        */
+        {
+          test: /\.css$/i,
+          use: [MiniCssExtractPlugin.loader, 'css-loader'],
         },
         {
           test: /\.(woff|woff2|ttf|otf|eot)$/,
