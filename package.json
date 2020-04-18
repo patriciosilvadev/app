@@ -14,8 +14,8 @@
     "test": "jest",
     "lint": "eslint ./src",
     "electron": "electron .",
-    "deploy:prepare": "aws s3 rm --recursive s3://yack.app",
-    "deploy:upload": "aws s3 cp ./dist s3://yack.app --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive",
+    "deploy:prepare": "aws s3 rm --recursive s3://yack-web",
+    "deploy:upload": "aws s3 cp ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive",
     "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload"
   },
   "author": "Jo du Plessis",
