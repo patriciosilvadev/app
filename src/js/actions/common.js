@@ -168,7 +168,7 @@ export function initialize(userId) {
             // If this user is already in this channel, then don't do anything
             if (
               getState()
-                .channels.filter(r => r.id == channelId)
+                .channels.filter(channel => channel.id == channelId)
                 .flatten()
             )
               return
@@ -196,7 +196,7 @@ export function initialize(userId) {
             // If this user is already in this team, then don't do anything
             if (
               !!getState()
-                .teams.filter(t => t.id == teamId)
+                .teams.filter(team => team.id == teamId)
                 .flatten()
             )
               return
@@ -244,7 +244,7 @@ export function initialize(userId) {
             // If this user is already in this channel, then don't do anything
             if (
               getState()
-                .channels.filter(r => r.id == channelId)
+                .channels.filter(channel => channel.id == channelId)
                 .flatten()
             )
               return
