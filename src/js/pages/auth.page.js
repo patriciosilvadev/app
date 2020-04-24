@@ -7,7 +7,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
-import { Loading, Button, Error, Input, Textarea, Select } from '@yack/elements'
+import { Loading, Button, Error, Input, Textarea, Select } from '@tryyack/elements'
 import Zero from '@joduplessis/zero'
 import moment from 'moment'
 
