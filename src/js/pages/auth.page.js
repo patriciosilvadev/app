@@ -664,7 +664,7 @@ class AuthPage extends React.Component {
 
         <Auth>
           <Logo>
-            <img src="./logo.svg" height="20" alt="Yack" />
+            <img src="logo.svg" height="20" alt="Yack" />
             <LogoText>yack</LogoText>
           </Logo>
 

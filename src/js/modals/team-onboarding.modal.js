@@ -232,7 +232,7 @@ export default function TeamOnboardingModal(props) {
             </Inner>
 
             <Logo>
-              <img src="./logo.svg" height="20" alt="Yack" />
+              <img src="logo.svg" height="20" alt="Yack" />
               <LogoText>yack</LogoText>
             </Logo>
           </Container>
