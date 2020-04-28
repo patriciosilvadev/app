@@ -248,7 +248,7 @@ class ChannelsComponent extends React.Component {
       channelPublicPopup: false,
       channelPrivatePopup: false,
       accountModal: false,
-      accountMenu: false,
+      accountMenu: true,
       presenceMenu: false,
       statusMenu: false,
       archivedVisible: false,
@@ -506,6 +506,10 @@ class ChannelsComponent extends React.Component {
         <HeaderTitles className="column">
           <HeaderTeam>{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</HeaderTeam>
           <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
+          <HeaderSubtitle className="button" onClick={() => this.setState({ statusMenu: true })}>
+            <div>{this.props.user.status || 'Update your status'}</div>
+          </HeaderSubtitle>
+          {/*
           <QuickInputComponent
             visible={this.state.statusMenu}
             width={300}
@@ -515,9 +519,12 @@ class ChannelsComponent extends React.Component {
             placeholder={this.props.user.status}
           >
             <HeaderSubtitle className="button" onClick={() => this.setState({ statusMenu: true })}>
-              {this.props.user.status || 'Update your status'}
+              <div>
+                {this.props.user.status || 'Update your status'}
+              </div>
             </HeaderSubtitle>
           </QuickInputComponent>
+          */}
         </HeaderTitles>
 
         <Popup
@@ -530,8 +537,21 @@ class ChannelsComponent extends React.Component {
               <div className="w-100 p-20 column align-items-center border-bottom">
                 <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
                 <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
-                <div className="text-center p regular color-d2 mt-5">{this.props.team.name}</div>
-                <div className="text-center p regular color-d0 mt-5">{this.props.user.status}</div>
+                <div className="text-center small xx-bold color-l0 mt-5">{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</div>
+              </div>
+
+              <div className="w-100 p-20 pt-10 pb-10 column align-items-start border-bottom">
+                <div className="row w-100">
+                  <div className="p regular color-d2 flexer">Status: {this.props.user.status}...</div>
+                  <IconComponent icon="chevron-down" size={16} thickness={3} color="#acb5bd" className="button" onClick={this._openUserMenu.bind(this)} />
+                </div>
+              </div>
+
+              <div className="w-100 p-20 pt-10 pb-10 column align-items-start border-bottom">
+                <div className="row w-100">
+                  <div className="p regular color-d2 flexer">Notifications</div>
+                  <IconComponent icon="chevron-down" size={16} thickness={3} color="#acb5bd" className="button" onClick={this._openUserMenu.bind(this)} />
+                </div>
               </div>
 
               <Menu
@@ -552,6 +572,7 @@ class ChannelsComponent extends React.Component {
                     onClick: this._openTeamDirectory.bind(this),
                   },
                   {
+                    hide: true,
                     icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
                     text: 'Team subscription',
                     onClick: this._openTeamSubscription.bind(this),
@@ -564,11 +585,11 @@ class ChannelsComponent extends React.Component {
                 ]}
               />
 
-              <div className="small regular color-d0 p-20 border-top">Build {version}</div>
+              <div className="small regular color-d0 p-20 pt-10 pb-10 border-top">Build {version}</div>
             </React.Fragment>
           }
         >
-          <IconComponent icon="settings" size={20} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
+          <IconComponent icon="settings" size={16} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
         </Popup>
       </Header>
     )
@@ -938,6 +959,7 @@ const HeaderSubtitle = styled.div`
   font-size: 14px;
   font-weight: 400;
   color: #626d7a;
+  overflow: hidden;
 `
 
 const SearchInput = styled.input`
