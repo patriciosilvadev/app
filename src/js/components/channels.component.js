@@ -14,7 +14,7 @@ import QuickUserComponent from './quick-user.component'
 import PropTypes from 'prop-types'
 import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateChannelUserPresence, updateUserPresence, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Tooltip } from '@tryyack/elements'
+import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button } from '@tryyack/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
@@ -250,7 +250,6 @@ class ChannelsComponent extends React.Component {
       accountModal: false,
       accountMenu: true,
       presenceMenu: false,
-      statusMenu: false,
       archivedVisible: false,
       starred: [],
       muted: [],
@@ -259,6 +258,8 @@ class ChannelsComponent extends React.Component {
       private: [],
       loading: false,
       error: false,
+      statusCollapsableOpen: false,
+      statusCollapsableInput: '',
     }
 
     this.createChannel = this.createChannel.bind(this)
@@ -506,31 +507,15 @@ class ChannelsComponent extends React.Component {
         <HeaderTitles className="column">
           <HeaderTeam>{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</HeaderTeam>
           <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
-          <HeaderSubtitle className="button" onClick={() => this.setState({ statusMenu: true })}>
+          <HeaderSubtitle>
             <div>{this.props.user.status || 'Update your status'}</div>
           </HeaderSubtitle>
-          {/*
-          <QuickInputComponent
-            visible={this.state.statusMenu}
-            width={300}
-            direction="left-bottom"
-            handleDismiss={() => this.setState({ statusMenu: false })}
-            handleAccept={status => this.setState({ statusMenu: false }, () => this.updateUserStatus(this.props.user.id, this.props.team.id, status))}
-            placeholder={this.props.user.status}
-          >
-            <HeaderSubtitle className="button" onClick={() => this.setState({ statusMenu: true })}>
-              <div>
-                {this.props.user.status || 'Update your status'}
-              </div>
-            </HeaderSubtitle>
-          </QuickInputComponent>
-          */}
         </HeaderTitles>
 
         <Popup
           handleDismiss={this._closeUserMenu.bind(this)}
           visible={this.state.accountMenu}
-          width={275}
+          width={300}
           direction="left-bottom"
           content={
             <React.Fragment>
@@ -540,14 +525,40 @@ class ChannelsComponent extends React.Component {
                 <div className="text-center small xx-bold color-l0 mt-5">{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</div>
               </div>
 
-              <div className="w-100 p-20 pt-10 pb-10 column align-items-start border-bottom">
+              <div className="w-100 p-20 column align-items-start border-bottom">
                 <div className="row w-100">
-                  <div className="p regular color-d2 flexer">Status: {this.props.user.status}...</div>
-                  <IconComponent icon="chevron-down" size={16} thickness={3} color="#acb5bd" className="button" onClick={this._openUserMenu.bind(this)} />
+                  <div className="p regular color-d2 flexer">Status</div>
+                  <IconComponent
+                    icon={this.state.statusCollapsableOpen ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    thickness={3}
+                    color="#acb5bd"
+                    className="button"
+                    onClick={() => {
+                      this.setState({
+                        statusCollapsableOpen: !this.state.statusCollapsableOpen,
+                        statusCollapsableInput: this.props.user.status,
+                      })
+                    }}
+                  />
                 </div>
+                <Collapsable className={this.state.statusCollapsableOpen ? 'open' : ''}>
+                  <div className="row w-100 mt-10">
+                    <Input placeholder="Update your status" value={this.state.statusCollapsableInput} onChange={e => this.setState({ statusCollapsableInput: e.target.value })} />
+                    <Button
+                      size="small"
+                      className="ml-10"
+                      text="✓"
+                      onClick={() => {
+                        this.updateUserStatus(this.props.user.id, this.props.team.id, this.state.statusCollapsableInput)
+                        this.setState({ statusCollapsableOpen: false })
+                      }}
+                    />
+                  </div>
+                </Collapsable>
               </div>
 
-              <div className="w-100 p-20 pt-10 pb-10 column align-items-start border-bottom">
+              <div className="w-100 p-20 column align-items-start border-bottom">
                 <div className="row w-100">
                   <div className="p regular color-d2 flexer">Notifications</div>
                   <IconComponent icon="chevron-down" size={16} thickness={3} color="#acb5bd" className="button" onClick={this._openUserMenu.bind(this)} />
@@ -585,7 +596,7 @@ class ChannelsComponent extends React.Component {
                 ]}
               />
 
-              <div className="small regular color-d0 p-20 pt-10 pb-10 border-top">Build {version}</div>
+              <div className="small regular color-d0 p-20 border-top">Build {version}</div>
             </React.Fragment>
           }
         >
@@ -929,7 +940,6 @@ const Header = styled.div`
   padding 0px 25px 0px 25px;
   height: 75px;
   transition: background-color 0.5s;
-
 `
 
 const HeaderTitles = styled.div`
@@ -1001,4 +1011,16 @@ const Heading = styled.div`
   /*letter-spacing: 1px;*/
   text-transform: uppercase;
   flex: 1;
+`
+
+const Collapsable = styled.div`
+  width: 100%;
+  max-height: 0;
+  transition: max-height 0.15s ease-out;
+  overflow: hidden;
+
+  &.open {
+    max-height: 500px;
+    transition: max-height 0.25s ease-in;
+  }
 `
