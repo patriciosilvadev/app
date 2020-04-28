@@ -244,6 +244,19 @@ class ChannelComponent extends React.Component {
     this.dropMask.addEventListener('dragend', this.onDragEnd)
     this.dropMask.addEventListener('drop', this.onDrop)
 
+    // Copy and paste
+    document.addEventListener('paste', event => {
+      const items = (event.clipboardData || event.originalEvent.clipboardData).items
+
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') === 0) {
+          const file = items[i].getAsFile()
+
+          if (file) Keg.keg('compose').refill('uploads', file)
+        }
+      }
+    })
+
     // Listen for scroll messages
     // Also force the scroll down
     EventService.getInstance().on('FORCE_SCROLL_TO_BOTTOM', data => {
