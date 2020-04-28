@@ -1,7 +1,7 @@
-export function addPresence(teamId, userId) {
+export function addPresence(teamId, userId, userPresence) {
   return {
     type: 'ADD_PRESENCE',
-    payload: { userId },
+    payload: { userId, userPresence },
     sync: teamId,
   }
 }

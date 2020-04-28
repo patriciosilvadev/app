@@ -787,11 +787,8 @@ class ChannelsComponent extends React.Component {
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
-
-          // Calculate presences
           const otherUserId = channel.otherUser.id
-          const otherUserLastSeenSnapshot = this.props.presences[otherUserId]
-          const otherUserPresenceText = channel.otherUser.presence || getPresenceText(otherUserLastSeenSnapshot)
+          const otherUserPresenceText = getPresenceText(this.props.presences[otherUserId])
 
           return (
             <Channel

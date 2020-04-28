@@ -156,9 +156,21 @@ export const shortenMarkdownText = text => {
   return `${textArray.join(' ')}...`
 }
 
-export const getPresenceText = lastSeenSnapshot => {
+export const getPresenceText = presence => {
+  const presenceText = presence.split(':')[1]
+  const lastSeenSnapshot = presence.split(':')[0]
   const snapshot = new Date().getTime()
   const snapshotDifference = snapshot - lastSeenSnapshot
 
-  return snapshotDifference < 60000 ? 'online' : snapshotDifference < 120000 && snapshotDifference > 60000 ? 'away' : 'offline'
+  // If the user has no presence preferences
+  // Then we can assume it's default
+  // Or if it's missing
+  if (presenceText == 'default' || presenceText == undefined) {
+    // Less than 60s then online
+    // More than 60s / less than 120s then away
+    return snapshotDifference < 60000 ? 'online' : snapshotDifference < 120000 && snapshotDifference > 60000 ? 'away' : 'invisible'
+  } else {
+    // Otherwise just detault to heir chosen presence
+    return presenceText
+  }
 }

@@ -21,7 +21,7 @@ import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent } from '../helpers/util'
+import { sendFocusComposeInputEvent, getPresenceText } from '../helpers/util'
 import ToolbarComponent from './toolbar.component'
 import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
@@ -347,15 +347,16 @@ class ChannelComponent extends React.Component {
   renderHeader() {
     if (!this.state.open) return null
 
+    // Calculate presences
+    const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : this.props.channel.image
+    const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title
+    const avatarPresence = this.props.channel.private ? getPresenceText(this.props.presences[this.props.channel.otherUser.id]) : 'invisible'
+
     return (
       <Header className="row">
         <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
-        <Avatar
-          image={this.props.channel.private ? this.props.channel.otherUser.image : this.props.channel.image}
-          title={this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title}
-          size="medium-large"
-        />
+        <Avatar image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large" />
 
         <div className="column ml-10">
           <div className="row">
@@ -693,6 +694,7 @@ ChannelComponent.propTypes = {
   app: PropTypes.any,
   channel: PropTypes.any,
   user: PropTypes.any,
+  presences: PropTypes.any,
   hydrateChannel: PropTypes.func,
   hydrateChannelMessages: PropTypes.func,
   updateChannel: PropTypes.func,
@@ -716,6 +718,7 @@ const mapStateToProps = state => {
     app: state.app,
     user: state.user,
     channel: state.channel,
+    presences: state.presences,
   }
 }
 

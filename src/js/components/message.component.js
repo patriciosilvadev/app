@@ -22,7 +22,7 @@ import {
   updateChannel,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@tryyack/elements'
-import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
+import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
@@ -42,6 +42,7 @@ export default memo(props => {
   const channel = useSelector(state => state.channel)
   const team = useSelector(state => state.team)
   const channels = useSelector(state => state.channels)
+  const presences = useSelector(state => state.presences)
   const user = useSelector(state => state.user)
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
@@ -50,6 +51,7 @@ export default memo(props => {
   const [error, setError] = useState(false)
   const [senderName, setSenderName] = useState(null)
   const [senderImage, setSenderImage] = useState(null)
+  const [senderPresence, setSenderPresence] = useState(null)
   const [senderTimezone, setSenderTimezone] = useState('')
   const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
   const [appButtons, setAppButtons] = useState([])
@@ -236,6 +238,10 @@ export default memo(props => {
     setSenderName(props.message.system ? '' : props.message.app ? props.message.app.app.name : props.message.user.name)
     setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
 
+    // Only do this for human senders
+    // Add the presence to the avatar
+    if (!props.message.app && !props.message.system) setSenderPresence(getPresenceText(presences[props.message.user.id]))
+
     // Only set this for non apps & valid timezones
     if (!props.message.app && props.message.user) {
       if (props.message.user.timezone) {
@@ -349,7 +355,7 @@ export default memo(props => {
     if (!props.append && !props.message.system) {
       return (
         <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
-          <Avatar image={senderImage} title={senderImage} size="medium" />
+          <Avatar image={senderImage} title={senderImage} presence={senderPresence} size="medium" />
         </Tooltip>
       )
     }

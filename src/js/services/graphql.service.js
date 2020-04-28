@@ -480,6 +480,7 @@ export default class GraphqlService {
                 id
                 username
                 timezone
+                presence
                 name
                 image
               }

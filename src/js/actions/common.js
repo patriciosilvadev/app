@@ -18,17 +18,22 @@ export function initialize(userId) {
       const teamId = team.id
       const userId = user.id
 
-      dispatch(addPresence(teamId, userId))
+      // Default or null we can use
+      const userPresence = user.presence || 'default'
+
+      // Add this to the cahce
+      dispatch(addPresence(teamId, userId, userPresence))
     }
 
     const presenceDelete = () => {
       const { presences } = getState()
       const snapshot = new Date().getTime()
 
+      // Format of presences are timestamp:presenceText
       for (let presence in presences) {
-        const lastSeenTimestamp = presences[presence]
+        const lastSeenTimestamp = presences[presence].split(':')[0]
 
-        // Longer than 2 minutes
+        // Longer than 120s then we remove them
         if (snapshot - lastSeenTimestamp > 120000) dispatch(deletePresence(presence))
       }
     }
