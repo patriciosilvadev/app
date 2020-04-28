@@ -10,13 +10,14 @@ import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Popup, Menu, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
-import { copyToClipboard } from '../helpers/util'
+import { copyToClipboard, getPresenceText } from '../helpers/util'
 import { deleteTeam, updateTeam } from '../actions'
 import { PAGE_LIMIT } from '../environment'
 
 const TableRow = props => {
   const { member, user } = props
   const [menu, setMenu] = useState(false)
+  const presences = useSelector(state => state.presences)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
   const [confirmMemberBillingModal, setConfirmMemberBillingModal] = useState(false)
@@ -73,7 +74,7 @@ const TableRow = props => {
 
       <tr>
         <Td width={30}>
-          <Avatar size="medium" image={member.user.image} title={member.user.name} />
+          <Avatar size="medium" presence={getPresenceText(presences[member.user.id])} image={member.user.image} title={member.user.name} />
         </Td>
         <Td>
           <div className="bold">{member.user.id == user.id ? member.user.name + ' (You)' : member.user.name}</div>
