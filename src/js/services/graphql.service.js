@@ -108,6 +108,8 @@ export default class GraphqlService {
             description
             status
             presence
+            dnd
+            dndUntil
             timezone
             image
             createdAt
@@ -661,6 +663,8 @@ export default class GraphqlService {
               image
               status
               presence
+              dnd
+              dndUntil
               username
               color
               timezone
@@ -747,6 +751,8 @@ export default class GraphqlService {
               image
               status
               presence
+              dnd
+              dndUntil
               username
               color
               timezone

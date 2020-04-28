@@ -29,6 +29,13 @@ export function updateUserArchived(userId, channelId, archived) {
   }
 }
 
+export function updateUserDnd(dnd, dndUntil) {
+  return {
+    type: 'UPDATE_USER',
+    payload: { dnd, dndUntil },
+  }
+}
+
 export function updateUserPresence(presence) {
   return {
     type: 'UPDATE_USER',

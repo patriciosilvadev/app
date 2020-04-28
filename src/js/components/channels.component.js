@@ -12,13 +12,25 @@ import { debounceTime } from 'rxjs/operators'
 import { IconComponent } from './icon.component'
 import QuickUserComponent from './quick-user.component'
 import PropTypes from 'prop-types'
-import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateChannelUserPresence, updateUserPresence, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
+import {
+  createChannel,
+  hydrateChannels,
+  hydrateTeam,
+  updateUserDnd,
+  updateChannelUserStatus,
+  updateChannelUserPresence,
+  updateUserPresence,
+  updateUserStatus,
+  updateUserMuted,
+  updateUserArchived,
+} from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button } from '@tryyack/elements'
+import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@tryyack/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
+import moment from 'moment'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -260,6 +272,8 @@ class ChannelsComponent extends React.Component {
       error: false,
       statusCollapsableOpen: false,
       statusCollapsableInput: '',
+      dndCollapsableOpen: false,
+      dndIndex: 0,
     }
 
     this.createChannel = this.createChannel.bind(this)
@@ -269,6 +283,8 @@ class ChannelsComponent extends React.Component {
     this.updateUserArchived = this.updateUserArchived.bind(this)
     this.updateUserStatus = this.updateUserStatus.bind(this)
     this.updateUserPresence = this.updateUserPresence.bind(this)
+    this.updateUserDnd = this.updateUserDnd.bind(this)
+    this.getCurrentDndIndex = this.getCurrentDndIndex.bind(this)
 
     this.renderAccountModal = this.renderAccountModal.bind(this)
     this.renderTeamModal = this.renderTeamModal.bind(this)
@@ -277,6 +293,30 @@ class ChannelsComponent extends React.Component {
     this.renderPublic = this.renderPublic.bind(this)
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
+
+    this.dndOptions = [{ option: 'Never', value: 0 }, { option: '1 hour', value: 1 }, { option: '8 hours', value: 8 }, { option: '12 hours', value: 12 }, { option: '24 hours', value: 24 }]
+  }
+
+  getCurrentDndIndex() {
+    return this.dndOptions.reduce((acc, dnd, index) => {
+      return dnd.value == this.props.user.dnd ? acc + index : acc + 0
+    }, 0)
+  }
+
+  async updateUserDnd(dnd) {
+    try {
+      const userId = this.props.user.id
+      const teamId = this.props.team.id
+      const dndUntil = moment()
+        .add(dnd, 'hours')
+        .toISOString()
+
+      await GraphqlService.getInstance().updateUser(userId, { dnd, dndUntil })
+
+      this.props.updateUserDnd(dnd, dndUntil)
+    } catch (e) {
+      logger(e)
+    }
   }
 
   async updateUserPresence(presence) {
@@ -560,9 +600,24 @@ class ChannelsComponent extends React.Component {
 
               <div className="w-100 p-20 column align-items-start border-bottom">
                 <div className="row w-100">
-                  <div className="p regular color-d2 flexer">Notifications</div>
-                  <IconComponent icon="chevron-down" size={16} thickness={3} color="#acb5bd" className="button" onClick={this._openUserMenu.bind(this)} />
+                  <div className="p regular color-d2 flexer">Do not disturb</div>
+                  <Toggle
+                    on={!!this.props.user.dnd}
+                    onChange={() => {
+                      if (!!this.props.user.dnd) {
+                        this.updateUserDnd(0)
+                      } else {
+                        this.updateUserDnd(1)
+                      }
+                    }}
+                  />
                 </div>
+                <Collapsable className={!!this.props.user.dnd ? 'open' : ''}>
+                  <div className="column w-100 mt-10">
+                    <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
+                    <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />
+                  </div>
+                </Collapsable>
               </div>
 
               <Menu
@@ -890,6 +945,7 @@ ChannelsComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
+  updateUserDnd: dnd => updateUserDnd(dnd),
   updateUserStatus: status => updateUserStatus(status),
   updateUserPresence: presence => updateUserPresence(presence),
   updateChannelUserStatus: (userId, teamId, status) => updateChannelUserStatus(userId, teamId, status),
@@ -1021,6 +1077,7 @@ const Collapsable = styled.div`
 
   &.open {
     max-height: 500px;
+    overflow: visible;
     transition: max-height 0.25s ease-in;
   }
 `
