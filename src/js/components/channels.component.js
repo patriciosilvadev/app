@@ -12,13 +12,13 @@ import { debounceTime } from 'rxjs/operators'
 import { IconComponent } from './icon.component'
 import QuickUserComponent from './quick-user.component'
 import PropTypes from 'prop-types'
-import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
+import { createChannel, hydrateChannels, hydrateTeam, updateChannelUserStatus, updateChannelUserPresence, updateUserPresence, updateUserStatus, updateUserMuted, updateUserArchived } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Tooltip } from '@tryyack/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
-import { logger, shortenMarkdownText } from '../helpers/util'
+import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -248,7 +248,8 @@ class ChannelsComponent extends React.Component {
       channelPublicPopup: false,
       channelPrivatePopup: false,
       accountModal: false,
-      accountMenu: false,
+      accountMenu: true,
+      presenceMenu: true,
       statusMenu: false,
       archivedVisible: false,
       starred: [],
@@ -266,6 +267,7 @@ class ChannelsComponent extends React.Component {
     this.updateUserMuted = this.updateUserMuted.bind(this)
     this.updateUserArchived = this.updateUserArchived.bind(this)
     this.updateUserStatus = this.updateUserStatus.bind(this)
+    this.updateUserPresence = this.updateUserPresence.bind(this)
 
     this.renderAccountModal = this.renderAccountModal.bind(this)
     this.renderTeamModal = this.renderTeamModal.bind(this)
@@ -274,6 +276,22 @@ class ChannelsComponent extends React.Component {
     this.renderPublic = this.renderPublic.bind(this)
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
+  }
+
+  async updateUserPresence(presence) {
+    this.setState({ presenceMenu: false })
+
+    try {
+      const userId = this.props.user.id
+      const teamId = this.props.team.id
+
+      await GraphqlService.getInstance().updateUser(userId, { presence })
+
+      this.props.updateUserPresence(presence)
+      this.props.updateChannelUserPresence(userId, teamId, status)
+    } catch (e) {
+      logger(e)
+    }
   }
 
   async updateUserStatus(userId, teamId, status) {
@@ -442,13 +460,52 @@ class ChannelsComponent extends React.Component {
   renderHeader() {
     return (
       <Header className="row">
-        <Avatar dark size="medium" image={this.props.user.image} title={this.props.user.name} className="mr-10" presence="online" />
+        <Popup
+          handleDismiss={() => this.setState({ presenceMenu: false })}
+          visible={this.state.presenceMenu}
+          width={200}
+          direction="left-bottom"
+          content={
+            <Menu
+              items={[
+                {
+                  icon: <span style={{ fontSize: 14, color: '#36C5AB' }}>&#9679;</span>,
+                  text: 'Online (default)',
+                  onClick: () => this.updateUserPresence(null),
+                },
+                {
+                  icon: <span style={{ fontSize: 14, color: '#FD9A00' }}>&#9679;</span>,
+                  text: 'Away',
+                  onClick: () => this.updateUserPresence('away'),
+                },
+                {
+                  icon: <span style={{ fontSize: 14, color: '#FC1449' }}>&#9679;</span>,
+                  text: 'Busy',
+                  onClick: () => this.updateUserPresence('busy'),
+                },
+                {
+                  icon: <span style={{ fontSize: 14, color: 'rgba(0,0,0,0.1)' }}>&#9679;</span>,
+                  text: 'Invisible',
+                  onClick: () => this.updateUserPresence('invisible'),
+                },
+              ]}
+            />
+          }
+        >
+          <Avatar
+            dark
+            size="medium"
+            image={this.props.user.image}
+            title={this.props.user.name}
+            className="mr-10"
+            presence={this.props.user.presence ? (this.props.user.presence == 'invisible' ? 'invisible:user' : this.props.user.presence) : 'online'}
+            onPresenceClick={() => this.setState({ presenceMenu: true })}
+          />
+        </Popup>
 
         <HeaderTitles className="column">
-          {/*<HeaderTeam>{this.props.team.name}</HeaderTeam>*/}
-          <HeaderTitle className="align-items-center">
-            {this.props.user.name} @{this.props.user.username}
-          </HeaderTitle>
+          <HeaderTeam>{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</HeaderTeam>
+          <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
           <QuickInputComponent
             visible={this.state.statusMenu}
             width={300}
@@ -470,13 +527,12 @@ class ChannelsComponent extends React.Component {
           direction="left-bottom"
           content={
             <React.Fragment>
-              <AccountMenuHeader className="column align-items-center">
+              <div className="w-100 p-20 column align-items-center border-bottom">
                 <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
-
-                <AccountMenuTitle>{this.props.user.name}</AccountMenuTitle>
-
-                <AccountMenuSubtitle>{this.props.team.name}</AccountMenuSubtitle>
-              </AccountMenuHeader>
+                <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
+                <div className="text-center p regular color-d2 mt-5">{this.props.team.name}</div>
+                <div className="text-center p regular color-d0 mt-5">{this.props.user.status}</div>
+              </div>
 
               <Menu
                 items={[
@@ -508,11 +564,11 @@ class ChannelsComponent extends React.Component {
                 ]}
               />
 
-              <AccountMenuBuild>Build {version}</AccountMenuBuild>
+              <div className="small regular color-d0 p-20 border-top">Build {version}</div>
             </React.Fragment>
           }
         >
-          <IconComponent icon="chevron-down" size={20} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
+          <IconComponent icon="settings" size={20} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
         </Popup>
       </Header>
     )
@@ -645,17 +701,15 @@ class ChannelsComponent extends React.Component {
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
 
-          // Process their presence
-          const snapshot = new Date().getTime()
+          // Calculate presences
           const otherUserId = channel.otherUser.id
-          const lastSeenTimestamp = this.props.presences[otherUserId]
-          const snapshotDifference = snapshot - lastSeenTimestamp
-          const otherUserPresence = snapshotDifference < 60000 ? 'online' : snapshotDifference < 120000 && snapshotDifference > 60000 ? 'away' : 'offline'
+          const otherUserLastSeenSnapshot = this.props.presences[otherUserId]
+          const otherUserPresenceText = channel.otherUser.presence || getPresenceText(otherUserLastSeenSnapshot)
 
           return (
             <Channel
               key={index}
-              presence={otherUserPresence}
+              presence={otherUserPresenceText}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
               title={channel.otherUser.name}
@@ -805,7 +859,9 @@ ChannelsComponent.propTypes = {
 
 const mapDispatchToProps = {
   updateUserStatus: status => updateUserStatus(status),
+  updateUserPresence: presence => updateUserPresence(presence),
   updateChannelUserStatus: (userId, teamId, status) => updateChannelUserStatus(userId, teamId, status),
+  updateChannelUserPresence: (userId, teamId, presence) => updateChannelUserPresence(userId, teamId, presence),
   updateUserMuted: (userId, channelId, muted) => updateUserMuted(userId, channelId, muted),
   updateUserArchived: (userId, channelId, archived) => updateUserArchived(userId, channelId, archived),
   createChannel: channel => createChannel(channel),
@@ -852,7 +908,7 @@ const Header = styled.div`
   padding 0px 25px 0px 25px;
   height: 75px;
   transition: background-color 0.5s;
-  background: #202027;
+
 `
 
 const HeaderTitles = styled.div`
@@ -861,8 +917,8 @@ const HeaderTitles = styled.div`
 `
 
 const HeaderTeam = styled.div`
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 700;
   color: #626d7a;
 `
 
@@ -873,54 +929,15 @@ const HeaderTitle = styled.div`
   color: white;
   transition: opacity 0.5s;
   display: inline-block;
-  margin-top: 3px;
+  margin-top: 0px;
   margin-bottom: 0px;
   height: 20px;
 `
 
 const HeaderSubtitle = styled.div`
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
   color: #626d7a;
-`
-
-const AccountMenuHeader = styled.div`
-  padding: 30px;
-  width: 100%;
-  flex: 1;
-  border-bottom: 1px solid #f1f3f5;
-`
-
-const AccountMenuTitle = styled.div`
-  font-size: 16px;
-  font-weight: 400;
-  font-style: normal;
-  color: #343a40;
-  transition: opacity 0.5s;
-  display: inline-block;
-  flex: 1;
-  padding: 10px 5px 0px 5px;
-`
-
-const AccountMenuSubtitle = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: #cfd4d9;
-  padding-top: 5px;
-`
-
-const AccountMenuBuild = styled.div`
-  font-size: 11px;
-  font-weight: 400;
-  color: #cfd4d9;
-  padding: 10px;
-  border-top: 1px solid #f1f3f5;
-`
-
-const HeaderSubtitleLink = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  color: #007af5;
 `
 
 const SearchInput = styled.input`

@@ -273,7 +273,11 @@ class ComposeComponent extends React.Component {
       // If the first word is the command shorthand
       // Then pass only the first word to look for available commands
       // First also remove the slash
-      if (text[0] == '/') return this.populateCommands(text)
+      if (text[0] == '/') {
+        return this.populateCommands(text)
+      } else {
+        return this.setState({ commands: [] })
+      }
 
       const { selectionStart } = this.composeRef
       const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length

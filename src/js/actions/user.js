@@ -29,6 +29,13 @@ export function updateUserArchived(userId, channelId, archived) {
   }
 }
 
+export function updateUserPresence(presence) {
+  return {
+    type: 'UPDATE_USER',
+    payload: { presence },
+  }
+}
+
 export function updateUserStatus(status) {
   return {
     type: 'UPDATE_USER',
@@ -40,6 +47,14 @@ export function updateChannelUserStatus(userId, teamId, status) {
   return {
     type: 'UPDATE_CHANNEL_USER_STATUS',
     payload: { userId, status },
+    sync: teamId,
+  }
+}
+
+export function updateChannelUserPresence(userId, teamId, presence) {
+  return {
+    type: 'UPDATE_CHANNEL_USER_PRESENCE',
+    payload: { userId, presence },
     sync: teamId,
   }
 }

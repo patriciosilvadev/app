@@ -155,3 +155,10 @@ export const shortenMarkdownText = text => {
 
   return `${textArray.join(' ')}...`
 }
+
+export const getPresenceText = lastSeenSnapshot => {
+  const snapshot = new Date().getTime()
+  const snapshotDifference = snapshot - lastSeenSnapshot
+
+  return snapshotDifference < 60000 ? 'online' : snapshotDifference < 120000 && snapshotDifference > 60000 ? 'away' : 'offline'
+}

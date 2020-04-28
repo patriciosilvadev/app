@@ -37,14 +37,16 @@ export default class QuickInputComponent extends React.Component {
         width={this.props.width || 250}
         direction={this.props.direction || 'right-bottom'}
         content={
-          <Filter
-            autoFocus
-            ref={ref => (this.filterRef = ref)}
-            onKeyDown={this.handleKeyDown}
-            placeholder={this.props.placeholder}
-            value={this.state.filter}
-            onChange={e => this.setState({ filter: e.target.value })}
-          />
+          <React.Fragment>
+            <Filter
+              autoFocus
+              ref={ref => (this.filterRef = ref)}
+              onKeyDown={this.handleKeyDown}
+              placeholder={this.props.placeholder}
+              value={this.state.filter}
+              onChange={e => this.setState({ filter: e.target.value })}
+            />
+          </React.Fragment>
         }
       >
         {this.props.children}

@@ -9,7 +9,6 @@ import { hydrateTeams, updateNotifications, hydrateNotifications } from '../acti
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
 import { Toggle, Popup, Menu, Avatar, Channel } from '@tryyack/elements'
-import QuickInputComponent from '../components/quick-input.component'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'

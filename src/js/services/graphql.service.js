@@ -107,6 +107,7 @@ export default class GraphqlService {
             archived
             description
             status
+            presence
             timezone
             image
             createdAt
@@ -185,6 +186,7 @@ export default class GraphqlService {
                 timezone
                 image
                 status
+                presence
               }
             }
           }
@@ -237,6 +239,7 @@ export default class GraphqlService {
                 timezone
                 image
                 status
+                presence
               }
               createdAt
               updatedAt
@@ -335,6 +338,7 @@ export default class GraphqlService {
               timezone
               image
               status
+              presence
             }
             user {
               id
@@ -595,6 +599,7 @@ export default class GraphqlService {
               timezone
               image
               status
+              presence
             }
             createdAt
             updatedAt
@@ -655,6 +660,7 @@ export default class GraphqlService {
               name
               image
               status
+              presence
               username
               color
               timezone
@@ -729,6 +735,7 @@ export default class GraphqlService {
                 username
                 timezone
                 status
+                presence
                 color
               }
               message
@@ -739,6 +746,7 @@ export default class GraphqlService {
               name
               image
               status
+              presence
               username
               color
               timezone
@@ -787,6 +795,7 @@ export default class GraphqlService {
                 username
                 timezone
                 status
+                presence
                 color
               }
               message
@@ -797,6 +806,7 @@ export default class GraphqlService {
               name
               image
               status
+              presence
               username
               timezone
               color
