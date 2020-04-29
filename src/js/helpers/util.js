@@ -157,6 +157,8 @@ export const shortenMarkdownText = text => {
 }
 
 export const getPresenceText = presence => {
+  if (!presence) return 'invisible'
+
   const presenceText = presence.split(':')[1]
   const lastSeenSnapshot = presence.split(':')[0]
   const snapshot = new Date().getTime()

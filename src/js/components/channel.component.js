@@ -15,17 +15,18 @@ import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
 import { openApp, closeAppPanel, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, Avatar, Spinner, Notification } from '@tryyack/elements'
+import { Popup, Menu, Avatar, Spinner, Notification, Toggle } from '@tryyack/elements'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent, getPresenceText } from '../helpers/util'
+import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard } from '../helpers/util'
 import ToolbarComponent from './toolbar.component'
 import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
 import PanelMembersComponent from './panel-members.component'
+import { BASE_URL } from '../environment'
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -57,6 +58,7 @@ class ChannelComponent extends React.Component {
       archived: false,
     }
 
+    this.shortcodeRef = React.createRef()
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
     this.dropZone = React.createRef()
@@ -72,6 +74,7 @@ class ChannelComponent extends React.Component {
     this.setReplyMessage = this.setReplyMessage.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
+    this.updateChannelShortcode = this.updateChannelShortcode.bind(this)
 
     this.onDragOver = this.onDragOver.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
@@ -91,6 +94,16 @@ class ChannelComponent extends React.Component {
     this.renderPanelMembers = this.renderPanelMembers.bind(this)
     this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
     this.renderChannelModal = this.renderChannelModal.bind(this)
+  }
+
+  async updateChannelShortcode(generateNewCode) {
+    try {
+      const channelId = this.props.channel.id
+      const { data } = await GraphqlService.getInstance().updateChannelShortcode(channelId, generateNewCode)
+      const shortcode = data.updateChannelShortcode
+
+      this.props.updateChannel(channelId, { shortcode })
+    } catch (e) {}
   }
 
   handleActionClick(action) {
@@ -453,31 +466,71 @@ class ChannelComponent extends React.Component {
               width={275}
               direction="right-bottom"
               content={
-                <Menu
-                  items={[
-                    {
-                      hide: this.props.channel.public,
-                      icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
-                      text: 'Make public',
-                      label: 'Everyone in your team has access',
-                      onClick: e => this.updateChannelVisibility({ private: false, public: true }),
-                    },
-                    {
-                      hide: !this.props.channel.public,
-                      icon: <IconComponent icon="lock" size={20} color="#acb5bd" />,
-                      text: 'Make private',
-                      label: 'Members of this channel only',
-                      onClick: e => this.updateChannelVisibility({ private: false, public: false }),
-                    },
-                    {
-                      hide: false,
-                      icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
-                      text: 'Edit',
-                      label: 'Update or remove this channel',
-                      onClick: e => this.setState({ channelModal: true, channelMenu: false }),
-                    },
-                  ]}
-                />
+                <React.Fragment>
+                  <div className="w-100 p-20 column align-items-start border-bottom">
+                    <div className="row w-100">
+                      <div className="p regular color-d2 flexer">Share</div>
+                      <Toggle
+                        on={!!this.props.channel.shortcode}
+                        onChange={() => {
+                          if (!!this.props.channel.shortcode) {
+                            this.updateChannelShortcode(false)
+                          } else {
+                            this.updateChannelShortcode(true)
+                          }
+                        }}
+                      />
+                    </div>
+                    <Collapsable className={!!this.props.channel.shortcode ? 'open' : ''}>
+                      <div className="column w-100 mt-10">
+                        <ShortcodeInput
+                          placeholder="Shortcode URL"
+                          value={`${BASE_URL}/channel/${this.props.channel.shortcode}`}
+                          onChange={e => console.log('Do nothing')}
+                          disabled
+                          ref={ref => (this.shortcodeRef = ref)}
+                          className="p color-l0"
+                        />
+                        <Button
+                          size="small"
+                          text="Copy"
+                          className="mt-5"
+                          onClick={() => {
+                            this.shortcodeRef.focus()
+                            this.shortcodeRef.select()
+                            copyToClipboard(`${BASE_URL}/channel/${this.props.channel.shortcode}`)
+                          }}
+                        />
+                      </div>
+                    </Collapsable>
+                  </div>
+
+                  <Menu
+                    items={[
+                      {
+                        hide: this.props.channel.public,
+                        icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
+                        text: 'Make public',
+                        label: 'Everyone in your team has access',
+                        onClick: e => this.updateChannelVisibility({ private: false, public: true }),
+                      },
+                      {
+                        hide: !this.props.channel.public,
+                        icon: <IconComponent icon="lock" size={20} color="#acb5bd" />,
+                        text: 'Make private',
+                        label: 'Members of this channel only',
+                        onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                      },
+                      {
+                        hide: false,
+                        icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
+                        text: 'Edit',
+                        label: 'Update or remove this channel',
+                        onClick: e => this.setState({ channelModal: true, channelMenu: false }),
+                      },
+                    ]}
+                  />
+                </React.Fragment>
               }
             >
               <HeaderButton className="row" onClick={() => (this.state.hasAdminPermission ? this.setState({ channelMenu: true }) : null)}>
@@ -756,6 +809,13 @@ const ChannelBody = styled.div`
   display: flex;
 `
 
+const ShortcodeInput = styled.textarea`
+  width: 100%;
+  word-wrap: break-word;
+  border: none;
+  resize: none;
+`
+
 const Header = styled.div`
   width: 100%;
   border-bottom: 1px solid #eaedef;
@@ -955,4 +1015,17 @@ const Dropzone = styled.div`
   align-items: center;
   align-content: center;
   justify-content: center;
+`
+
+const Collapsable = styled.div`
+  width: 100%;
+  max-height: 0;
+  transition: max-height 0.15s ease-out;
+  overflow: hidden;
+
+  &.open {
+    max-height: 500px;
+    overflow: visible;
+    transition: max-height 0.25s ease-in;
+  }
 `

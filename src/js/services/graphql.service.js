@@ -331,6 +331,7 @@ export default class GraphqlService {
             image
             public
             private
+            shortcode
             isMember
             totalMembers
             otherUser {
@@ -1195,6 +1196,20 @@ export default class GraphqlService {
       `,
       variables: {
         payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  updateChannelShortcode(channelId, generateNewCode) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelShortcode($channelId: String, $generateNewCode: Boolean) {
+          updateChannelShortcode(channelId: $channelId, generateNewCode: $generateNewCode)
+        }
+      `,
+      variables: {
+        channelId,
+        generateNewCode,
       },
     })
   }
