@@ -93,6 +93,7 @@ ReactDOM.render(
 
       <Route path="/auth" component={AuthPage} />
       <Route path="/t/:slug" component={TeamPage} />
+      <Route path="/c/:shortcode" component={ChannelPage} />
       <Route path="/app" component={AppPage} />
     </Router>
   </Provider>,

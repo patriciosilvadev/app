@@ -485,7 +485,7 @@ class ChannelComponent extends React.Component {
                       <div className="column w-100 mt-10">
                         <ShortcodeInput
                           placeholder="Shortcode URL"
-                          value={`${BASE_URL}/channel/${this.props.channel.shortcode}`}
+                          value={`${BASE_URL}/c/${this.props.channel.shortcode}`}
                           onChange={e => console.log('Do nothing')}
                           disabled
                           ref={ref => (this.shortcodeRef = ref)}
@@ -498,7 +498,7 @@ class ChannelComponent extends React.Component {
                           onClick={() => {
                             this.shortcodeRef.focus()
                             this.shortcodeRef.select()
-                            copyToClipboard(`${BASE_URL}/channel/${this.props.channel.shortcode}`)
+                            copyToClipboard(`${BASE_URL}/c/${this.props.channel.shortcode}`)
                           }}
                         />
                       </div>
