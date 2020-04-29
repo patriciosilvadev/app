@@ -249,7 +249,7 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamMemberConversationStart = async otherUser => {
-    const title = null
+    const name = null
     const description = null
     const image = null
     const teamId = props.id

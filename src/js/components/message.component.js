@@ -402,9 +402,9 @@ export default memo(props => {
               <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
               <Menu
                 items={channels.map(c => {
-                  const channelTitle = c.otherUser ? (c.otherUser.name ? c.otherUser.name : c.title) : c.title
+                  const channelName = c.otherUser ? (c.otherUser.name ? c.otherUser.name : c.name) : c.name
                   return {
-                    text: `${channelTitle} ${c.id == channel.id ? '(this channel)' : ''}`,
+                    text: `${channelName} ${c.id == channel.id ? '(this channel)' : ''}`,
                     onClick: e => handleForwardMessage(c.id),
                   }
                 })}
@@ -425,7 +425,7 @@ export default memo(props => {
       if (props.message.parent.channel) {
         return (
           <ParentPadding className="column align-items-stretch flexer">
-            <ParentText>{`Replying to: ${props.message.parent.channel.title}`}</ParentText>
+            <ParentText>{`Replying to: ${props.message.parent.channel.name}`}</ParentText>
             <ParentContainer className="row justify-content-center">
               <div className="column flexer">
                 <div className="row">

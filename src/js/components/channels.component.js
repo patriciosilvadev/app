@@ -48,13 +48,13 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar dark muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.title} />
+        <Avatar dark muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.name} />
 
         <ChannelContents>
           <ChannelInnerContents>
             {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? 'white' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
 
-            <ChannelTitle active={props.active || props.unread != 0}>{props.title}</ChannelTitle>
+            <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
 
             <ChannelExcerpt>
               &nbsp;
@@ -115,7 +115,7 @@ Channel.propTypes = {
   muted: PropTypes.bool,
   archived: PropTypes.bool,
   unread: PropTypes.number,
-  title: PropTypes.string,
+  name: PropTypes.string,
   image: PropTypes.string,
   icon: PropTypes.string,
   label: PropTypes.string,
@@ -369,13 +369,13 @@ class ChannelsComponent extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const starredChannels = props.channels
       .filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
-      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const archivedChannels = props.channels
       .filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
-      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const publicChannels = props.channels
       .filter((channel, index) => !channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
-      .filter(channel => channel.title.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const privateChannels = props.channels
       .filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
       .filter(channel => channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
@@ -389,25 +389,25 @@ class ChannelsComponent extends React.Component {
   }
 
   createPrivateChannel(user) {
-    const title = null
+    const name = null
     const description = null
     const image = null
     const teamId = this.props.team.id
 
-    this.createChannel(title, description, image, teamId, user)
+    this.createChannel(name, description, image, teamId, user)
     this.setState({ filter: '', showFilter: false, results: [] })
   }
 
-  createPublicChannel(title) {
+  createPublicChannel(name) {
     const description = null
     const image = null
     const teamId = this.props.team.id
 
-    this.createChannel(title, description, image, teamId, null)
+    this.createChannel(name, description, image, teamId, null)
     this.setState({ filter: '', showFilter: false, results: [] })
   }
 
-  async createChannel(title, description, image, teamId, otherUser) {
+  async createChannel(name, description, image, teamId, otherUser) {
     try {
       // 1. Find channels where there are private
       // 2. Filter channels that have this private user as the otherUser (so it exists)
@@ -431,7 +431,7 @@ class ChannelsComponent extends React.Component {
         thisUser,
         otherUser,
         channel: {
-          title,
+          name,
           description,
           image,
           team: teamId,
@@ -682,7 +682,7 @@ class ChannelsComponent extends React.Component {
               key={index}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={channel.private ? channel.otherUser.name : channel.title}
+              name={channel.private ? channel.otherUser.name : channel.name}
               image={channel.private ? channel.otherUser.image : channel.image}
               excerpt={channel.private ? channel.otherUser.excerpt : channel.excerpt}
               public={channel.public}
@@ -734,7 +734,7 @@ class ChannelsComponent extends React.Component {
               key={index}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={channel.title}
+              name={channel.name}
               image={channel.image}
               excerpt={channel.excerpt}
               public={channel.public}
@@ -796,7 +796,7 @@ class ChannelsComponent extends React.Component {
               presence={otherUserPresenceText}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
-              title={channel.otherUser.name}
+              name={channel.otherUser.name}
               image={channel.otherUser.image}
               excerpt={channel.otherUser.status}
               public={channel.public}
@@ -838,7 +838,7 @@ class ChannelsComponent extends React.Component {
                   key={index}
                   active={pathname.indexOf(channel.id) != -1}
                   unread={muted ? 0 : unreadCount}
-                  title={channel.private ? channel.otherUser.name : channel.title}
+                  name={channel.private ? channel.otherUser.name : channel.name}
                   image={channel.private ? channel.otherUser.image : channel.image}
                   excerpt={channel.private ? channel.otherUser.status : channel.excerpt}
                   public={channel.public}

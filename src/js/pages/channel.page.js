@@ -10,7 +10,7 @@ export default props => {
   const [loading, setLoading] = useState(false)
   const [joined, setJoined] = useState(false)
   const [image, setImage] = useState('')
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [notification, setNotification] = useState(false)
   const [shortcode, setShortcode] = useState('')
@@ -47,7 +47,7 @@ export default props => {
         const { data } = await GraphqlService.getInstance().channelShortcode(props.match.params.shortcode)
 
         setImage(data.channelShortcode.image)
-        setTitle(data.channelShortcode.title)
+        setName(data.channelShortcode.name)
         setDescription(data.channelShortcode.description)
         setLoading(false)
       } catch (e) {
@@ -67,8 +67,8 @@ export default props => {
 
         {!joined && (
           <Inner>
-            <Avatar image={image} title={title} className="mb-20" size="xx-large" />
-            <Text className="h1 mb-30 mt-10 color-d3">{title}</Text>
+            <Avatar image={image} title={name} className="mb-20" size="xx-large" />
+            <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">{description}</Text>
             <Text className="h5 color-d0 mb-30">Join this channel now! Click on the button below.</Text>
             <Inputs>
@@ -79,8 +79,8 @@ export default props => {
 
         {joined && (
           <Inner>
-            <Avatar image={image} title={title} className="mb-20" size="xx-large" />
-            <Text className="h1 mb-30 mt-10 color-d3">{title}</Text>
+            <Avatar image={image} title={name} className="mb-20" size="xx-large" />
+            <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations</Text>
             <Text className="h5 color-d0 mb-20">You have successfully joined this channel. Click on the button to start.</Text>
             <Inputs>

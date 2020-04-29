@@ -2,7 +2,7 @@ import produce from 'immer'
 
 const initialState = {
   id: '',
-  title: '',
+  name: '',
   description: '',
   image: '',
   public: false,

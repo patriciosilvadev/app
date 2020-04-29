@@ -362,7 +362,7 @@ class ChannelComponent extends React.Component {
 
     // Calculate presences
     const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : this.props.channel.image
-    const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title
+    const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name
     const avatarPresence = this.props.channel.private ? getPresenceText(this.props.presences[this.props.channel.otherUser.id]) : 'invisible'
 
     return (
@@ -374,7 +374,7 @@ class ChannelComponent extends React.Component {
         <div className="column ml-10">
           <div className="row">
             {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#040b1c" size={15} thickness={2.5} className="mr-5" />}
-            <HeaderTitle>{this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.title}</HeaderTitle>
+            <HeaderTitle>{this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name}</HeaderTitle>
           </div>
 
           <HeaderDescription>
@@ -560,7 +560,7 @@ class ChannelComponent extends React.Component {
               </WelcomeUserName>
             </WelcomeUser>
 
-            <WelcomeTitle>{this.props.channel.title}</WelcomeTitle>
+            <WelcomeTitle>{this.props.channel.name}</WelcomeTitle>
 
             {this.props.channel.description && (
               <WelcomeDescription>

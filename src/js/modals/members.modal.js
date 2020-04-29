@@ -17,7 +17,7 @@ import { logger } from '../helpers/util'
 export default function MembersModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [userMenu, setUserMenu] = useState(null)
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')

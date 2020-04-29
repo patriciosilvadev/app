@@ -17,7 +17,7 @@ import { logger } from '../helpers/util'
 export default function ChannelModal(props) {
   const [loading, setLoading] = useState(null)
   const [error, setError] = useState(null)
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [userMenu, setUserMenu] = useState(null)
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
@@ -38,8 +38,9 @@ export default function ChannelModal(props) {
 
     try {
       const file = e.target.files[0]
-      const { name, type, size } = file
-      const raw = await UploadService.getUploadUrl(name, type)
+      const { type, size } = file
+      const fileName = file.name
+      const raw = await UploadService.getUploadUrl(fileName, type)
       const { url } = await raw.json()
       const upload = await UploadService.uploadFile(url, file, type)
       const uri = upload.url.split('?')[0]
@@ -80,9 +81,9 @@ export default function ChannelModal(props) {
     setError(null)
 
     try {
-      await GraphqlService.getInstance().updateChannel(channel.id, { title, image, description })
+      await GraphqlService.getInstance().updateChannel(channel.id, { name, image, description })
 
-      dispatch(updateChannel(channel.id, { title, image, description }))
+      dispatch(updateChannel(channel.id, { name, image, description }))
       setLoading(false)
       setNotification('Successfully updated')
     } catch (e) {
@@ -102,7 +103,7 @@ export default function ChannelModal(props) {
         const channel = data.channel
 
         setImage(channel.image)
-        setTitle(channel.title || '')
+        setName(channel.name || '')
         setDescription(channel.description || '')
         setLoading(false)
         setMembers(channel.members)
@@ -134,7 +135,7 @@ export default function ChannelModal(props) {
               <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
               <div className="column">
-                <Avatar title={title} image={image} className="mr-20 mb-20" size="xxx-large" />
+                <Avatar title={name} image={image} className="mr-20 mb-20" size="xxx-large" />
 
                 {props.hasAdminPermission && (
                   <Link className="button mt-10" onClick={() => fileRef.current.click()}>
@@ -144,7 +145,7 @@ export default function ChannelModal(props) {
               </div>
 
               <Column className="column">
-                <Input label="Title" value={title} onChange={e => setTitle(e.target.value)} placeholder="New channel title" className="mb-20" disable={!props.hasAdminPermission} />
+                <Input label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="New channel name" className="mb-20" disable={!props.hasAdminPermission} />
 
                 <Textarea
                   label="Description"

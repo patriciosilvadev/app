@@ -176,7 +176,7 @@ export default class GraphqlService {
             image
             channels(userId: $userId) {
               id
-              title
+              name
               image
               public
               excerpt
@@ -227,7 +227,7 @@ export default class GraphqlService {
             role(userId: $userId)
             channels(userId: $userId) {
               id
-              title
+              name
               description
               url
               image
@@ -325,7 +325,7 @@ export default class GraphqlService {
         query channelShortcode($shortcode: String) {
           channelShortcode(shortcode: $shortcode) {
             id
-            title
+            name
             description
             image
           }
@@ -343,7 +343,7 @@ export default class GraphqlService {
         query channel($channelId: String!) {
           channel(channelId: $channelId) {
             id
-            title
+            name
             url
             description
             image
@@ -473,7 +473,7 @@ export default class GraphqlService {
               parent {
                 id
                 channel {
-                  title
+                  name
                   id
                 }
                 user {
@@ -607,7 +607,7 @@ export default class GraphqlService {
         query channels($teamId: String, $userId: String!) {
           channels(teamId: $teamId, userId: $userId) {
             id
-            title
+            name
             description
             url
             image
@@ -647,7 +647,7 @@ export default class GraphqlService {
             parent {
               id
               channel {
-                title
+                name
                 id
               }
               user {
@@ -812,7 +812,7 @@ export default class GraphqlService {
             parent {
               channel {
                 id
-                title
+                name
               }
               user {
                 id
@@ -1218,7 +1218,7 @@ export default class GraphqlService {
         mutation createChannel($payload: String) {
           createChannel(payload: $payload) {
             id
-            title
+            name
             description
             createdAt
             public
@@ -1252,7 +1252,7 @@ export default class GraphqlService {
         mutation updateChannel($channelId: String, $payload: String) {
           updateChannel(channelId: $channelId, payload: $payload) {
             id
-            title
+            name
             description
             createdAt
             public
@@ -1406,7 +1406,7 @@ export default class GraphqlService {
             system
             parent {
               channel {
-                title
+                name
                 id
               }
               user {
