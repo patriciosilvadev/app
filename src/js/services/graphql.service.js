@@ -319,6 +319,24 @@ export default class GraphqlService {
     })
   }
 
+  channelShortcode(shortcode) {
+    return this.client.query({
+      query: gql`
+        query channelShortcode($shortcode: String) {
+          channelShortcode(shortcode: $shortcode) {
+            id
+            title
+            description
+            image
+          }
+        }
+      `,
+      variables: {
+        shortcode,
+      },
+    })
+  }
+
   channel(channelId) {
     return this.client.query({
       query: gql`
@@ -943,6 +961,20 @@ export default class GraphqlService {
   /**
    * Mutations
    */
+
+  joinChannel(shortcode, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation joinChannel($shortcode: String, $userId: String) {
+          joinChannel(shortcode: $shortcode, userId: $userId)
+        }
+      `,
+      variables: {
+        shortcode,
+        userId,
+      },
+    })
+  }
 
   joinTeam(slug, userId, shortcode) {
     return this.client.mutate({

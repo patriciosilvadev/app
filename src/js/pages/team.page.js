@@ -95,7 +95,7 @@ export default props => {
           </Inner>
         )}
 
-        <Logo>
+        <Logo onClick={() => props.history.push('/app')}>
           <img src="logo.svg" height="20" alt="Yack" />
           <LogoText>yack</LogoText>
         </Logo>

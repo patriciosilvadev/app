@@ -10,33 +10,27 @@ export default props => {
   const [loading, setLoading] = useState(false)
   const [joined, setJoined] = useState(false)
   const [image, setImage] = useState('')
-  const [name, setName] = useState('')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [notification, setNotification] = useState(false)
   const [shortcode, setShortcode] = useState('')
 
-  const handleTeamJoin = async () => {
+  const handleChannelJoin = async () => {
     setLoading(true)
     setError(false)
     setNotification(false)
 
-    if (shortcode == '') {
-      setError('Please enter a shortcode')
-      setLoading(false)
-
-      return
-    }
-
     try {
       const { userId } = await AuthService.currentAuthenticatedUser()
-      const { slug } = props.match.params
-      const { data } = await GraphqlService.getInstance().joinTeam(slug, userId, shortcode)
+      const { shortcode } = props.match.params
+      const { data } = await GraphqlService.getInstance().joinChannel(shortcode, userId)
 
       setLoading(false)
 
-      if (!data.joinTeam) setError('Could not join team')
+      if (!data.joinTeam) setError('Could not join channel')
       if (data.joinTeam) {
         setJoined(true)
-        setNotification('Successfully joined team')
+        setNotification('Successfully joined channel')
       }
     } catch (e) {
       setLoading(false)
@@ -50,14 +44,15 @@ export default props => {
       try {
         setLoading(true)
 
-        const { data } = await GraphqlService.getInstance().teamSlug(props.match.params.slug)
+        const { data } = await GraphqlService.getInstance().channelShortcode(props.match.params.shortcode)
 
-        setImage(data.teamSlug.image)
-        setName(data.teamSlug.name)
+        setImage(data.channelShortcode.image)
+        setTitle(data.channelShortcode.title)
+        setDescription(data.channelShortcode.description)
         setLoading(false)
       } catch (e) {
         setLoading(false)
-        setError('This team does not exist')
+        setError('This channel does not exist')
       }
     })()
   }, [])
@@ -72,30 +67,29 @@ export default props => {
 
         {!joined && (
           <Inner>
-            <Avatar image={image} title={name} className="mb-20" size="xx-large" />
-            <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
-            <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
-            <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
+            <Avatar image={image} title={title} className="mb-20" size="xx-large" />
+            <Text className="h1 mb-30 mt-10 color-d3">{title}</Text>
+            <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">{description}</Text>
+            <Text className="h5 color-d0 mb-30">Join this channel now! Click on the button below.</Text>
             <Inputs>
-              <Input placeholder="Enter shortcode here" inputSize="large" className="mt-30 mb-10" value={shortcode} onChange={e => setShortcode(e.target.value)} />
-              <Button onClick={handleTeamJoin} size="large" text="Join Now" />
+              <Button onClick={handleChannelJoin} size="large" text="Join Now" />
             </Inputs>
           </Inner>
         )}
 
         {joined && (
           <Inner>
-            <Avatar image={image} title={name} className="mb-20" size="xx-large" />
-            <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
+            <Avatar image={image} title={title} className="mb-20" size="xx-large" />
+            <Text className="h1 mb-30 mt-10 color-d3">{title}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Congratulations</Text>
-            <Text className="h5 color-d0 mb-20">You have successfully joined this team. Click on the button to start.</Text>
+            <Text className="h5 color-d0 mb-20">You have successfully joined this channel. Click on the button to start.</Text>
             <Inputs>
               <Button onClick={() => props.history.push('/app')} size="large" text="Start" />
             </Inputs>
           </Inner>
         )}
 
-        <Logo>
+        <Logo onClick={() => props.history.push('/app')}>
           <img src="logo.svg" height="20" alt="Yack" />
           <LogoText>yack</LogoText>
         </Logo>
