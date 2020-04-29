@@ -460,6 +460,8 @@ export default class GraphqlService {
             messages {
               id
               reactions
+              read
+              reads
               likes
               system
               forwardingOriginalTime
@@ -642,6 +644,8 @@ export default class GraphqlService {
           channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
+            read
+            reads
             likes
             system
             parent {
@@ -807,6 +811,7 @@ export default class GraphqlService {
           searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
+            read
             likes
             system
             parent {
@@ -1391,6 +1396,7 @@ export default class GraphqlService {
               timezone
             }
             message
+            read
             reactions
             likes
             attachments {

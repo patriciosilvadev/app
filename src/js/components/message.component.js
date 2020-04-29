@@ -20,12 +20,14 @@ import {
   openApp,
   createChannelMessage,
   updateChannel,
+  updateChannelMessageReadCount,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@tryyack/elements'
 import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
+import * as ReadService from '../services/read.service'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import uuidv1 from 'uuid/v1'
@@ -59,11 +61,11 @@ export default memo(props => {
   const [appHeight, setAppHeight] = useState(0)
   const [appWidth, setAppWidth] = useState(200)
   const [resizeId, setResizeId] = useState(uuidv1())
-  const iframeRef = useRef(null)
   const [ogTitle, setOgTitle] = useState(null)
   const [ogDescription, setOgDescription] = useState(null)
   const [ogImage, setOgImage] = useState(null)
   const [ogUrl, setOgUrl] = useState(null)
+  const iframeRef = useRef(null)
 
   const handleForwardMessage = async channelId => {
     setForwardMenu(false)
@@ -330,6 +332,45 @@ export default memo(props => {
     setMessage(parseMessageMarkdown(props.message.message, props.highlight))
   }, [props.highlight, props.message])
 
+  // Message reads - runs once
+  /*
+  Basic synopsis:
+
+  once a user loads a message:
+  - display 2 ticks of message is READ, if not:
+    - resolver loads total read count from CASSANDRA
+    - user calls API and adds another read
+      - send a SYNC message to other users that they've read it (bumps read count)
+      - if read count == channel members:
+        - mark message as read / 2 ticks
+        - make API call to mark MONGO message as read
+  */
+  useEffect(() => {
+    if (channel && user && props.message) {
+      const { reads, read } = props.message
+      const { totalMembers } = channel
+      const channelId = channel.id
+      const userId = user.id
+      const messageId = props.message.id
+
+      // Only do this is the message is not all read
+      if (!read) {
+        // Add another read
+        ReadService.addMessageRead(messageId, userId)
+
+        // Tell everyone else
+        dispatch(updateChannelMessageReadCount(channelId, messageId))
+
+        // If the total members are the same as all the reads
+        if (totalMembers <= reads + 1) {
+          // We don't bother with syncing the READ property
+          // here because users will already be checking for the read count
+          ReadService.updateMessageAsRead(messageId)
+        }
+      }
+    }
+  }, [])
+
   // Render functions for the message component
   // To make thigs easier to understand
   const renderName = () => {
@@ -347,6 +388,12 @@ export default memo(props => {
             .tz(user.timezone)
             .fromNow()}
         </Date>
+
+        <div className="row">
+          <IconComponent icon="check" thickness={3} size={15} color="#CFD4D9" />
+
+          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#CFD4D9" thickness={3} style={{ marginLeft: -11 }} />}
+        </div>
       </React.Fragment>
     )
   }
@@ -678,6 +725,7 @@ const Date = styled.div`
   font-weight: 600;
   color: #adb5bd;
   font-weight: regular;
+  margin-right: 10px;
 `
 
 const ForwardingUserContainer = styled.div`

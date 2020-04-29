@@ -72,6 +72,14 @@ export function createChannelMessage(channelId, channelMessage) {
   }
 }
 
+export function updateChannelMessageReadCount(channelId, messageId) {
+  return {
+    type: 'UPDATE_CHANNEL_MESSAGE_READ_COUNT',
+    payload: { channelId, messageId },
+    sync: channelId,
+  }
+}
+
 export function updateChannelMessage(channelId, channelMessage) {
   return {
     type: 'UPDATE_CHANNEL_MESSAGE',

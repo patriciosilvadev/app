@@ -45,6 +45,19 @@ export default (state = initialState, action) =>
         draft.messages = [...state.messages, action.payload.message]
         break
 
+      case 'UPDATE_CHANNEL_MESSAGE_READ_COUNT':
+        draft.messages = state.messages.map((message, _) => {
+          // If it's the correct message
+          if (message.id == action.payload.messageId) {
+            // Bump the read count
+            return { ...message, reads: message.reads + 1 }
+          }
+
+          // Otherwise default
+          return message
+        })
+        break
+
       case 'UPDATE_CHANNEL_MESSAGE':
         draft.messages = state.messages.map((message, _) => {
           // If it's the correct message
