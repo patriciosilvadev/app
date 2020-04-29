@@ -485,11 +485,14 @@ class ChannelComponent extends React.Component {
                       <div className="column w-100 mt-10">
                         <ShortcodeInput
                           placeholder="Shortcode URL"
-                          value={`${BASE_URL}/c/${this.props.channel.shortcode}`}
                           onChange={e => console.log('Do nothing')}
-                          disabled
+                          value={`${BASE_URL}/c/${this.props.channel.shortcode}`}
                           ref={ref => (this.shortcodeRef = ref)}
                           className="p color-l0"
+                          onFocus={event => {
+                            const target = event.target
+                            setTimeout(() => target.select(), 0)
+                          }}
                         />
                         <Button
                           size="small"
@@ -497,7 +500,7 @@ class ChannelComponent extends React.Component {
                           className="mt-5"
                           onClick={() => {
                             this.shortcodeRef.focus()
-                            this.shortcodeRef.select()
+
                             copyToClipboard(`${BASE_URL}/c/${this.props.channel.shortcode}`)
                           }}
                         />
