@@ -601,7 +601,7 @@ class ChannelComponent extends React.Component {
         {!this.props.channel.private && (
           <Welcome>
             <WelcomeUser className="row">
-              <Avatar title={this.props.channel.user.name} image={this.props.channel.user.image} size="small" />
+              <Avatar title={this.props.channel.user.name} image={this.props.channel.user.image} size="small" style={{ zIndex: 1 }} />
 
               <WelcomeUserName>
                 Started by {this.props.channel.user.name} - {moment(this.props.channel.createdAt).fromNow()}
@@ -873,7 +873,7 @@ const Header = styled.div`
   width: 100%;
   border-bottom: 1px solid #eaedef;
   position: relative;
-  z-index: 1;
+  z-index: 3;
   padding 0px 25px 0px 25px;
   height: 75px;
   display: flex;
@@ -982,7 +982,7 @@ const Typing = styled.div`
 const Pinned = styled.div`
   position: absolute;
   width: 100%;
-  z-index: 9;
+  z-index: 2;
 `
 
 const PinnedMessages = styled.div`
