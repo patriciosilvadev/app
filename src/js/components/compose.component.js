@@ -76,7 +76,7 @@ class ComposeComponent extends React.Component {
   }
 
   onSend() {
-    if (this.state.text == '') return
+    if (this.props.disabled || this.state.text == '') return
 
     // If this message is a general (any) app command
     if (this.state.text[0] == '/') {
@@ -545,64 +545,73 @@ class ComposeComponent extends React.Component {
 
   renderInput() {
     return (
-      <InputContainer className="row">
-        <input className="hide" ref={ref => (this.fileRef = ref)} type="file" multiple onChange={this.handleFileChange} />
+      <React.Fragment>
+        {this.props.disabled && <Notification text="You can not create messages" />}
 
-        <Input
-          style={{ height: this.state.height }}
-          ref={ref => (this.composeRef = ref)}
-          placeholder="Say something"
-          value={this.state.text}
-          onKeyUp={this.handleKeyUp}
-          onKeyDown={this.handleKeyDown}
-          onChange={this.handleComposeChange}
-        />
+        <InputContainer className="row">
+          <input className="hide" ref={ref => (this.fileRef = ref)} type="file" multiple onChange={this.handleFileChange} />
 
-        {this.props.channel.apps
-          .filter(app => app.active)
-          .map((app, index) => {
-            if (!app.app.attachments) return
-            if (app.app.attachments.length == 0) return
+          <Input
+            disabled={this.props.disabled}
+            style={{ height: this.state.height }}
+            ref={ref => (this.composeRef = ref)}
+            placeholder="Say something"
+            value={this.state.text}
+            onKeyUp={this.handleKeyUp}
+            onKeyDown={this.handleKeyDown}
+            onChange={this.handleComposeChange}
+          />
 
-            return (
-              <React.Fragment key={index}>
-                {app.app.attachments.map((button, i) => {
+          {!this.props.disabled && (
+            <React.Fragment>
+              {this.props.channel.apps
+                .filter(app => app.active)
+                .map((app, index) => {
+                  if (!app.app.attachments) return
+                  if (app.app.attachments.length == 0) return
+
                   return (
-                    <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
-                      <AppIconImage image={button.icon} />
-                    </AppIconContainer>
+                    <React.Fragment key={index}>
+                      {app.app.attachments.map((button, i) => {
+                        return (
+                          <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                            <AppIconImage image={button.icon} />
+                          </AppIconContainer>
+                        )
+                      })}
+                    </React.Fragment>
                   )
                 })}
-              </React.Fragment>
-            )
-          })}
 
-        <Popup
-          handleDismiss={() => this.setState({ emoticonMenu: false })}
-          visible={this.state.emoticonMenu}
-          width={350}
-          direction="right-top"
-          content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
-        >
-          <IconComponent icon="smile" size={19} thickness={1.5} color="#565456" className="ml-10 button" onClick={() => this.setState({ emoticonMenu: true })} />
-        </Popup>
+              <Popup
+                handleDismiss={() => this.setState({ emoticonMenu: false })}
+                visible={this.state.emoticonMenu}
+                width={350}
+                direction="right-top"
+                content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
+              >
+                <IconComponent icon="smile" size={19} thickness={1.5} color="#565456" className="ml-10 button" onClick={() => this.setState({ emoticonMenu: true })} />
+              </Popup>
 
-        <IconComponent icon="attachment" size={18} thickness={1.5} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
+              <IconComponent icon="attachment" size={18} thickness={1.5} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
 
-        <IconComponent
-          icon="at"
-          size={18}
-          thickness={1.5}
-          color="#565456"
-          className="ml-10 button"
-          onClick={() => {
-            this.insertAtCursor('@')
-            this.filterMembers('')
-          }}
-        />
+              <IconComponent
+                icon="at"
+                size={18}
+                thickness={1.5}
+                color="#565456"
+                className="ml-10 button"
+                onClick={() => {
+                  this.insertAtCursor('@')
+                  this.filterMembers('')
+                }}
+              />
 
-        <IconComponent icon="send" size={18} thickness={1.5} color="#565456" className="ml-10 button" onClick={this.onSend} />
-      </InputContainer>
+              <IconComponent icon="send" size={18} thickness={1.5} color="#565456" className="ml-10 button" onClick={this.onSend} />
+            </React.Fragment>
+          )}
+        </InputContainer>
+      </React.Fragment>
     )
   }
 
@@ -646,6 +655,7 @@ ComposeComponent.propTypes = {
   message: PropTypes.any,
   reply: PropTypes.bool,
   update: PropTypes.bool,
+  disabled: PropTypes.bool,
   clearMessage: PropTypes.any,
   createChannelMessage: PropTypes.func,
   updateChannel: PropTypes.func,

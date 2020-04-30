@@ -38,6 +38,7 @@ import {
   Lock,
   Unlock,
   Share2,
+  Radio,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -53,6 +54,8 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
     switch (icon) {
       case 'yack':
         return <Yack width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'radio':
+        return <Radio width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'share':
         return <Share2 width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'lock':

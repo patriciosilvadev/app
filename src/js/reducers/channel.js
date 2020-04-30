@@ -7,6 +7,7 @@ const initialState = {
   image: '',
   public: false,
   private: false,
+  readonly: false,
   isMember: false,
   totalMembers: 0,
   messages: [],

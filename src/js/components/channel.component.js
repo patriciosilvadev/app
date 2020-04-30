@@ -55,6 +55,7 @@ class ChannelComponent extends React.Component {
       error: false,
       isDragging: false,
       hasAdminPermission: false,
+      readonly: false,
       muted: false,
       archived: false,
     }
@@ -76,6 +77,7 @@ class ChannelComponent extends React.Component {
     this.handleActionClick = this.handleActionClick.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.updateChannelShortcode = this.updateChannelShortcode.bind(this)
+    this.updateChannelReadonly = this.updateChannelReadonly.bind(this)
 
     this.onDragOver = this.onDragOver.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
@@ -311,6 +313,18 @@ class ChannelComponent extends React.Component {
     } catch (e) {}
   }
 
+  async updateChannelReadonly(readonly) {
+    const channelId = this.props.channel.id
+    const teamId = this.props.team.id
+
+    try {
+      await GraphqlService.getInstance().updateChannel(channelId, { readonly })
+
+      this.setState({ channelMenu: false })
+      this.props.updateChannel(channelId, { readonly })
+    } catch (e) {}
+  }
+
   async updateChannelVisibility(updatedChannelVisibility) {
     const channelId = this.props.channel.id
     const teamId = this.props.team.id
@@ -347,6 +361,7 @@ class ChannelComponent extends React.Component {
     const archived = props.user.archived.indexOf(props.channel.id) != -1
     const hasAdminPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
     const open = isMember || isPublic
+    const readonly = props.channel.readonly ? props.channel.readonly && !hasAdminPermission : false
 
     return {
       open,
@@ -354,6 +369,7 @@ class ChannelComponent extends React.Component {
       muted,
       archived,
       hasAdminPermission,
+      readonly,
     }
   }
 
@@ -511,6 +527,13 @@ class ChannelComponent extends React.Component {
 
                   <Menu
                     items={[
+                      {
+                        hide: this.props.channel.private,
+                        icon: <IconComponent icon="radio" size={20} color="#acb5bd" />,
+                        text: this.props.channel.readonly ? 'Disable broadcast' : 'Make broadcast',
+                        label: 'Only you can post messages',
+                        onClick: e => this.updateChannelReadonly(!this.props.channel.readonly),
+                      },
                       {
                         hide: this.props.channel.public,
                         icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
@@ -748,6 +771,7 @@ class ChannelComponent extends React.Component {
 
               {this.state.open && (
                 <ComposeComponent
+                  disabled={this.state.readonly}
                   reply={this.state.reply}
                   update={this.state.update}
                   message={this.state.message}

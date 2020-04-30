@@ -53,6 +53,7 @@ const Channel = props => {
         <ChannelContents>
           <ChannelInnerContents>
             {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? 'white' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
+            {props.readonly && <IconComponent icon="radio" color={props.active ? 'white' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
 
             <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
 
@@ -122,6 +123,7 @@ Channel.propTypes = {
   excerpt: PropTypes.string,
   public: PropTypes.bool,
   private: PropTypes.bool,
+  readonly: PropTypes.bool,
   presence: PropTypes.string,
   onClick: PropTypes.any,
   onMutedClick: PropTypes.any,
@@ -687,6 +689,7 @@ class ChannelsComponent extends React.Component {
               excerpt={channel.private ? channel.otherUser.excerpt : channel.excerpt}
               public={channel.public}
               private={channel.private}
+              readonly={channel.readonly}
               muted={muted}
               archived={archived}
               onClick={() => this.props.history.push(to)}
@@ -739,6 +742,7 @@ class ChannelsComponent extends React.Component {
               excerpt={channel.excerpt}
               public={channel.public}
               private={channel.private}
+              readonly={channel.readonly}
               muted={muted}
               archived={archived}
               onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)}
@@ -801,6 +805,7 @@ class ChannelsComponent extends React.Component {
               excerpt={channel.otherUser.status}
               public={channel.public}
               private={channel.private}
+              readonly={channel.readonly}
               muted={muted}
               archived={archived}
               onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)}
@@ -843,6 +848,7 @@ class ChannelsComponent extends React.Component {
                   excerpt={channel.private ? channel.otherUser.status : channel.excerpt}
                   public={channel.public}
                   private={channel.private}
+                  readonly={channel.readonly}
                   muted={muted}
                   archived={archived}
                   onClick={() => this.props.history.push(to)}

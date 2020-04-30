@@ -181,6 +181,7 @@ export default class GraphqlService {
               public
               excerpt
               private
+              readonly
               otherUser {
                 id
                 name
@@ -232,6 +233,7 @@ export default class GraphqlService {
               url
               image
               public
+              readonly
               excerpt
               private
               otherUser {
@@ -349,6 +351,7 @@ export default class GraphqlService {
             image
             public
             private
+            readonly
             shortcode
             isMember
             totalMembers
@@ -665,6 +668,7 @@ export default class GraphqlService {
             id
             name
             description
+            readonly
             url
             image
             public
