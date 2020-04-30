@@ -33,7 +33,7 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text: '',
+      text: '@joe',
       mention: null,
       position: 0,
       members: [],
@@ -152,9 +152,8 @@ class ComposeComponent extends React.Component {
     // Get a list of mentions
     // but also strip punctuation
     const mentions = message
-      .replace(/./g, ' ')
-      .replace(/-/g, ' ')
-      .replace(/,/g, ' ')
+      .replace('/./g', ' ')
+      .replace('/,/g', ' ')
       .split(' ')
       .filter(part => part[0] == '@')
 
@@ -169,6 +168,9 @@ class ComposeComponent extends React.Component {
         attachments,
         excerpt,
       })
+
+      // Catch it
+      if (!data.createChannelMessage) return console.log('data.createChannelMessage is null')
 
       // The extra values are used for processing other info
       const channelMessage = {
@@ -195,9 +197,8 @@ class ComposeComponent extends React.Component {
     // Get a list of mentions
     // but also strip punctuation
     const mentions = message
-      .replace(/./g, ' ')
-      .replace(/-/g, ' ')
-      .replace(/,/g, ' ')
+      .replace('/./g', ' ')
+      .replace('/,/g', ' ')
       .split(' ')
       .filter(part => part[0] == '@')
 
