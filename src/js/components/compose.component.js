@@ -4,7 +4,7 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { openApp, updateLoading, updateError, updateChannel, updateChannelAddTyping, createChannelMessage, updateChannelMessage } from '../actions'
+import { openApp, updateLoading, updateError, updateChannelUpdateMessagePin, updateChannel, updateChannelAddTyping, createChannelMessage, updateChannelMessage } from '../actions'
 import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -195,6 +195,10 @@ class ComposeComponent extends React.Component {
         teamId,
       }
 
+      // There might be no message pins - but just in case
+      this.props.updateChannelUpdateMessagePin(channelId, channelMessage)
+
+      // Now update everything else
       this.props.updateChannelMessage(channelId, channelMessage)
       this.props.updateChannel(channelId, { excerpt })
 

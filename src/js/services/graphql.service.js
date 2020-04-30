@@ -457,11 +457,65 @@ export default class GraphqlService {
                 }
               }
             }
+            pinnedMessages {
+              id
+              reactions
+              read
+              reads
+              likes
+              system
+              parent {
+                id
+                channel {
+                  name
+                  id
+                }
+                user {
+                  id
+                  name
+                  image
+                  username
+                  color
+                  timezone
+                }
+                app {
+                  resourceId
+                  app {
+                    id
+                    name
+                    image
+                  }
+                }
+                message
+                createdAt
+              }
+              user {
+                id
+                username
+                timezone
+                presence
+                name
+                image
+              }
+              message
+              createdAt
+              app {
+                resourceId
+                app {
+                  id
+                  name
+                  slug
+                  description
+                  image
+                }
+              }
+            }
             messages {
               id
               reactions
               read
               reads
+              pinned
               likes
               system
               forwardingOriginalTime
@@ -646,6 +700,7 @@ export default class GraphqlService {
             reactions
             read
             reads
+            pinned
             likes
             system
             parent {
@@ -812,6 +867,7 @@ export default class GraphqlService {
             id
             reactions
             read
+            pinned
             likes
             system
             parent {
@@ -1360,6 +1416,7 @@ export default class GraphqlService {
             }
             system
             parent {
+              id
               user {
                 id
                 name

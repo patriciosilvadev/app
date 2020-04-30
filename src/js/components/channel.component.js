@@ -15,10 +15,11 @@ import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
 import { openApp, closeAppPanel, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, Avatar, Spinner, Notification, Toggle } from '@tryyack/elements'
+import { Popup, Menu, Avatar, Spinner, Notification, Toggle, Error } from '@tryyack/elements'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
+import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
 import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard } from '../helpers/util'
@@ -546,6 +547,27 @@ class ChannelComponent extends React.Component {
     )
   }
 
+  renderPinnedMessages() {
+    if (!this.state.open || this.state.searchResults) return null
+    if (this.props.channel.pinnedMessages.length == 0) return null
+
+    const sortedPinnedMessages = this.props.channel.pinnedMessages
+      ? this.props.channel.pinnedMessages.sort((left, right) => {
+          return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
+        })
+      : []
+
+    return (
+      <PinnedMessages>
+        {sortedPinnedMessages.map((pinnedMessage, index) => {
+          if (!pinnedMessage) return null
+
+          return <MessageComponent key={index} message={pinnedMessage} pinned={true} append={null} highlight={null} setUpdateMessage={null} setReplyMessage={null} />
+        })}
+      </PinnedMessages>
+    )
+  }
+
   renderMessages() {
     if (!this.state.open || this.state.searchResults) return null
 
@@ -711,7 +733,11 @@ class ChannelComponent extends React.Component {
           <ChannelBodyContainer>
             <ChannelBody ref={ref => (this.dropZone = ref)}>
               {this.renderDropzone()}
-              {this.renderNotification()}
+
+              <Pinned>
+                {this.renderNotification()}
+                {this.renderPinnedMessages()}
+              </Pinned>
 
               <MessagesContainer ref={ref => (this.scrollRef = ref)}>
                 {this.renderMessages()}
@@ -923,10 +949,23 @@ const HeaderSearchInput = styled.input`
 const Typing = styled.div`
   font-weight: 400;
   font-size: 12px;
-  color: "#adb5bd";
+  color: #adb5bd;
   border-bottom: 1px solid #eaedef;
   padding: 10px 25px 10px 25px
   width: 100%;
+`
+
+const Pinned = styled.div`
+  position: absolute;
+  width: 100%;
+  z-index: 9;
+`
+
+const PinnedMessages = styled.div`
+  width: 100%;
+  padding: 20px;
+  border-bottom: 1px solid #eaedef;
+  background: #fafaed;
 `
 
 const MessagesContainer = styled.div`

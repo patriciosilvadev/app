@@ -10,6 +10,7 @@ const initialState = {
   isMember: false,
   totalMembers: 0,
   messages: [],
+  pinnedMessages: [],
   members: [],
   apps: [],
   user: {},
@@ -27,6 +28,8 @@ export default (state = initialState, action) =>
     if (!action.payload.channelId) return
     if (state.id != action.payload.channelId) return
 
+    console.log(action)
+
     // These are actions that get dispatched against the laoded channel
     // They come from the user or the SocketIO server
     switch (action.type) {
@@ -35,6 +38,25 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_CHANNEL':
         draft = Object.assign(draft, action.payload)
+        break
+
+      case 'UPDATE_CHANNEL_CREATE_MESSAGE_PIN':
+        draft.pinnedMessages = [action.payload.channelMessage, ...state.pinnedMessages]
+        break
+
+      case 'UPDATE_CHANNEL_DELETE_MESSAGE_PIN':
+        draft.pinnedMessages = state.pinnedMessages.filter(pinnedMessage => pinnedMessage.id != action.payload.messageId)
+        break
+
+      case 'UPDATE_CHANNEL_UPDATE_MESSAGE_PIN':
+        draft.pinnedMessages = state.pinnedMessages.map(pinnedMessage => {
+          if (pinnedMessage.id == action.payload.messageId) {
+            return {
+              ...pinnedMessage,
+              ...action.payload.message,
+            }
+          }
+        })
         break
 
       case 'UPDATE_CHANNEL_ADD_MESSAGES':
@@ -59,6 +81,7 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_CHANNEL_MESSAGE':
+        // Update the normal message
         draft.messages = state.messages.map((message, _) => {
           // If it's the correct message
           if (message.id == action.payload.messageId) {

@@ -20,7 +20,10 @@ import {
   openApp,
   createChannelMessage,
   updateChannel,
+  updateChannelMessage,
   updateChannelMessageReadCount,
+  updateChannelCreateMessagePin,
+  updateChannelDeleteMessagePin,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@tryyack/elements'
 import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
@@ -67,6 +70,35 @@ export default memo(props => {
   const [ogUrl, setOgUrl] = useState(null)
   const iframeRef = useRef(null)
 
+  const handleMessagePin = async () => {
+    try {
+      const messageId = props.message.id
+      const pinned = !props.message.pinned
+      const channelId = channel.id
+
+      // Create our base message object
+      let channelMessage = { ...props.message, pinned }
+
+      // We don't want a parent
+      // delete channelMessage.parent
+
+      // Make the GQL call
+      await GraphqlService.getInstance().updateChannelMessage(messageId, { pinned })
+
+      // Update the pinned list with our message
+      // This also syncs across clients
+      if (pinned) dispatch(updateChannelCreateMessagePin(channelId, channelMessage))
+      if (!pinned) dispatch(updateChannelDeleteMessagePin(channelId, messageId))
+
+      // Also update this message in the channel messages list
+      // NOTE First channelId tell it to SYNC
+      // Second one makes sure this message only gets asent ot this channel
+      dispatch(updateChannelMessage(channelId, { channelId, messageId, message: { pinned } }))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
   const handleForwardMessage = async channelId => {
     setForwardMenu(false)
 
@@ -110,10 +142,12 @@ export default memo(props => {
   const handleDeleteChannelMessage = async () => {
     try {
       const messageId = props.message.id
+      const channelId = channel.id
 
       await GraphqlService.getInstance().deleteChannelMessage(messageId)
 
-      dispatch(deleteChannelMessage(channel.id, props.message.id))
+      dispatch(updateChannelDeleteMessagePin(channelId, messageId))
+      dispatch(deleteChannelMessage(channelId, messageId))
       setConfirmDeleteModal(false)
     } catch (e) {
       logger(e)
@@ -413,7 +447,7 @@ export default memo(props => {
   }
 
   const renderTools = () => {
-    if (!over || props.message.system) return null
+    if (!over || props.pinned || props.message.system) return null
 
     return (
       <Tools className="row">
@@ -428,7 +462,7 @@ export default memo(props => {
         </Popup>
 
         <IconComponent icon="thumbs-up" size={15} color="#CFD4D9" className="button mr-10" onClick={() => handleChannelLikeOrUnlike()} />
-
+        <IconComponent icon="star" size={15} color="#CFD4D9" className="button mr-10" onClick={() => handleMessagePin()} />
         <IconComponent icon="delete" size={15} color="#CFD4D9" className="button mr-10" onClick={() => setConfirmDeleteModal(true)} />
 
         {!props.message.app && (
@@ -637,6 +671,7 @@ export default memo(props => {
   }
 
   const renderForwardingUser = () => {
+    if (!props.message) return null
     if (!props.message.forwardingUser) return null
 
     return (

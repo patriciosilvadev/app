@@ -5,6 +5,39 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
+export function updateChannelCreateMessagePin(channelId, channelMessage) {
+  return {
+    type: 'UPDATE_CHANNEL_CREATE_MESSAGE_PIN',
+    payload: {
+      channelId,
+      channelMessage,
+    },
+    sync: channelId,
+  }
+}
+
+export function updateChannelDeleteMessagePin(channelId, messageId) {
+  return {
+    type: 'UPDATE_CHANNEL_DELETE_MESSAGE_PIN',
+    payload: {
+      channelId,
+      messageId,
+    },
+    sync: channelId,
+  }
+}
+
+export function updateChannelUpdateMessagePin(channelId, channelMessage) {
+  return {
+    type: 'UPDATE_CHANNEL_UPDATE_MESSAGE_PIN',
+    payload: {
+      channelId,
+      channelMessage,
+    },
+    sync: channelId,
+  }
+}
+
 export function deleteChannelMessage(channelId, messageId) {
   return {
     type: 'DELETE_CHANNEL_MESSAGE',

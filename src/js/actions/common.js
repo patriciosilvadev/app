@@ -173,6 +173,7 @@ export function initialize(userId) {
           }
           break
 
+        // From API
         case 'JOIN_CHANNEL':
           {
             // Just use the Redux acttion
@@ -201,6 +202,7 @@ export function initialize(userId) {
           }
           break
 
+        // From API
         case 'JOIN_TEAM':
           {
             // Just use the Redux acttion
@@ -228,6 +230,7 @@ export function initialize(userId) {
           }
           break
 
+        // From API
         case 'LEAVE_CHANNEL':
           {
             // Just use the Redux acttion
@@ -241,6 +244,7 @@ export function initialize(userId) {
           }
           break
 
+        // From API
         case 'LEAVE_TEAM':
           {
             const teamId = message.messagePayload

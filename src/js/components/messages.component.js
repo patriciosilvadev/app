@@ -46,7 +46,14 @@ export default memo(props => {
               </DateDivider>
             )}
 
-            <MessageComponent message={message} append={append && !showDate} highlight={props.highlight} setUpdateMessage={props.setUpdateMessage} setReplyMessage={props.setReplyMessage} />
+            <MessageComponent
+              message={message}
+              pinned={false}
+              append={append && !showDate}
+              highlight={props.highlight}
+              setUpdateMessage={props.setUpdateMessage}
+              setReplyMessage={props.setReplyMessage}
+            />
           </React.Fragment>
         )
       })}
