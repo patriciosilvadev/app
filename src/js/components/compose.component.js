@@ -149,8 +149,18 @@ class ComposeComponent extends React.Component {
     const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
     const teamId = this.props.team.id
 
+    // Get a list of mentions
+    // but also strip punctuation
+    const mentions = message
+      .replace(/./g, ' ')
+      .replace(/-/g, ' ')
+      .replace(/,/g, ' ')
+      .split(' ')
+      .filter(part => part[0] == '@')
+
     try {
       const { data } = await GraphqlService.getInstance().createChannelMessage({
+        mentions,
         channel: channelId,
         user: userId,
         team: teamId,
@@ -182,10 +192,21 @@ class ComposeComponent extends React.Component {
     const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
     const teamId = this.props.team.id
 
+    // Get a list of mentions
+    // but also strip punctuation
+    const mentions = message
+      .replace(/./g, ' ')
+      .replace(/-/g, ' ')
+      .replace(/,/g, ' ')
+      .split(' ')
+      .filter(part => part[0] == '@')
+
     try {
       const { data } = await GraphqlService.getInstance().updateChannelMessage(messageId, {
+        mentions,
         message,
         attachments,
+        excerpt,
       })
 
       const channelMessage = {
