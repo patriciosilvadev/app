@@ -544,18 +544,16 @@ export default memo(props => {
           const isImage = attachment.mime.split('/')[0]
 
           return (
-            <div style={{ width: 200 }}>
-              <Attachment
-                key={index}
-                size={attachment.size}
-                mime={attachment.mime}
-                preview={attachment.preview}
-                uri={attachment.uri}
-                name={attachment.name}
-                createdAt={attachment.createdAt}
-                onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
-              />
-            </div>
+            <Attachment
+              key={index}
+              size={attachment.size}
+              mime={attachment.mime}
+              preview={attachment.preview}
+              uri={attachment.uri}
+              name={attachment.name}
+              createdAt={attachment.createdAt}
+              onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
+            />
           )
         })}
       </Attachments>
@@ -570,11 +568,7 @@ export default memo(props => {
           const extension = image.split('.')[image.split('.').length - 1]
           const mime = `image/${extension}`
 
-          return (
-            <div style={{ width: 200 }}>
-              <Attachment key={index} size={null} mime={mime} preview={image} uri={image} name={name} createdAt={props.message.createdAt} onPreviewClick={() => setPreview(image)} />
-            </div>
-          )
+          return <Attachment key={index} size={null} mime={mime} preview={image} uri={image} name={name} createdAt={props.message.createdAt} onPreviewClick={() => setPreview(image)} />
         })}
 
         {youtubeVideos.map((youtubeVideo, index) => {

@@ -104,6 +104,7 @@ class PanelAttachmentsComponent extends React.Component {
                       return (
                         <Attachment
                           key={index2}
+                          fullwidth={true}
                           size={attachment.size}
                           mime={attachment.mime}
                           preview={attachment.preview}
