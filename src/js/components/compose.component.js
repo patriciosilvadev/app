@@ -490,22 +490,23 @@ class ComposeComponent extends React.Component {
       <Attachments className="row">
         {this.state.attachments.map((attachment, index) => {
           return (
-            <Attachment
-              key={index}
-              layout="compose"
-              uri={attachment.uri}
-              mime={attachment.mime}
-              size={attachment.size}
-              name={attachment.name}
-              createdAt={null}
-              onDeleteClick={() =>
-                this.setState({
-                  attachments: this.state.attachments.filter((a, _) => {
-                    return attachment.uri != a.uri
-                  }),
-                })
-              }
-            />
+            <div style={{ width: 200 }}>
+              <Attachment
+                key={index}
+                uri={attachment.uri}
+                mime={attachment.mime}
+                size={attachment.size}
+                name={attachment.name}
+                createdAt={null}
+                onDeleteClick={() =>
+                  this.setState({
+                    attachments: this.state.attachments.filter((a, _) => {
+                      return attachment.uri != a.uri
+                    }),
+                  })
+                }
+              />
+            </div>
           )
         })}
       </Attachments>

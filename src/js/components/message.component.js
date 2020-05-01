@@ -544,17 +544,18 @@ export default memo(props => {
           const isImage = attachment.mime.split('/')[0]
 
           return (
-            <Attachment
-              key={index}
-              layout="message"
-              size={attachment.size}
-              mime={attachment.mime}
-              preview={attachment.preview}
-              uri={attachment.uri}
-              name={attachment.name}
-              createdAt={attachment.createdAt}
-              onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
-            />
+            <div style={{ width: 200 }}>
+              <Attachment
+                key={index}
+                size={attachment.size}
+                mime={attachment.mime}
+                preview={attachment.preview}
+                uri={attachment.uri}
+                name={attachment.name}
+                createdAt={attachment.createdAt}
+                onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
+              />
+            </div>
           )
         })}
       </Attachments>
@@ -570,7 +571,9 @@ export default memo(props => {
           const mime = `image/${extension}`
 
           return (
-            <Attachment key={index} layout="message" size={null} mime={mime} preview={image} uri={image} name={name} createdAt={props.message.createdAt} onPreviewClick={() => setPreview(image)} />
+            <div style={{ width: 200 }}>
+              <Attachment key={index} size={null} mime={mime} preview={image} uri={image} name={name} createdAt={props.message.createdAt} onPreviewClick={() => setPreview(image)} />
+            </div>
           )
         })}
 
