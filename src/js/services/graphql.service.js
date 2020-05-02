@@ -4,7 +4,7 @@ import { ApolloLink, concat } from 'apollo-link'
 import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import AuthService from './auth.service'
-import CookiesService from './cookies.service'
+import StorageService from './storage.service'
 import { API_HOST, JWT } from '../environment'
 import { logger } from '../helpers/util'
 
@@ -24,7 +24,7 @@ export default class GraphqlService {
       },
     }
 
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
     const authMiddleware = new ApolloLink((operation, forward) => {
       operation.setContext({
         headers: {

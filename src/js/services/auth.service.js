@@ -1,4 +1,4 @@
-import CookiesService from './cookies.service'
+import StorageService from './storage.service'
 import { API_HOST, JWT } from '../environment'
 
 export default class AuthService {
@@ -11,7 +11,7 @@ export default class AuthService {
 
   static currentAuthenticatedUser() {
     return new Promise((resolve, reject) => {
-      const token = CookiesService.getCookie(JWT)
+      const token = StorageService.getStorage(JWT)
 
       // Now parse the JWT
       if (token) {
@@ -29,10 +29,10 @@ export default class AuthService {
   }
 
   static signout() {
-    CookiesService.deleteCookie(JWT)
+    StorageService.deleteStorage(JWT)
   }
 
   static saveToken(jwt) {
-    CookiesService.setCookie(JWT, jwt)
+    StorageService.setStorage(JWT, jwt)
   }
 }

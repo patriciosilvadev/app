@@ -4,7 +4,7 @@ import DatabaseService from '../services/database.service'
 import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
-import CookiesService from '../services/cookies.service'
+import StorageService from '../services/storage.service'
 import { showLocalPushNotification } from '../helpers/util'
 import { updateLoading, updateError, addPresence, deletePresence, updateChannelDeleteTyping } from './'
 

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types'
 import { initialize, fetchUser, closeAppModal, closeAppPanel } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import * as PresenceService from '../services/presence.service'
-import CookieService from '../services/cookies.service'
+import CookieService from '../services/storage.service'
 import { Avatar, Loading, Error, Notification } from '@tryyack/elements'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
@@ -134,19 +134,19 @@ class AppPage extends React.Component {
 
   async checkPushNotificationsAreEnabled() {
     const { state } = await navigator.permissions.query({ name: 'notifications' })
-    const cookie = CookieService.getCookie('PN')
+    const cookie = CookieService.getStorage('PN')
 
     if (state == 'granted') {
-      CookieService.setCookie('PN', 'YES')
+      CookieService.setStorage('PN', 'YES')
       this.setState({ pushNotificationsNotification: false })
 
       // Now get their device ID
       PnService.subscribeUser()
     } else if (state == 'denied') {
-      CookieService.setCookie('PN', 'NO')
+      CookieService.setStorage('PN', 'NO')
       this.setState({ pushNotificationsNotification: false })
     } else {
-      CookieService.deleteCookie('PN')
+      CookieService.deleteStorage('PN')
       this.setState({ pushNotificationsNotification: true })
     }
   }
@@ -154,24 +154,24 @@ class AppPage extends React.Component {
   async handlePushNotificationsSetup() {
     if ('PushManager' in window) {
       const permission = await PnService.askPushNotificationPermission()
-      const cookie = CookieService.getCookie('PN')
+      const cookie = CookieService.getStorage('PN')
 
       // If they have granted us permission
       if (permission == 'granted') {
-        CookieService.setCookie('PN', 'YES')
+        CookieService.setStorage('PN', 'YES')
         this.setState({ pushNotificationsNotification: false })
 
         // Now get their device ID
         PnService.subscribeUser()
       } else {
-        CookieService.setCookie('PN', 'NO')
+        CookieService.setStorage('PN', 'NO')
         this.setState({ pushNotificationsNotification: false })
       }
     }
   }
 
   async dismissPushNotifications() {
-    CookieService.setCookie('PN', 'NO')
+    CookieService.setStorage('PN', 'NO')
     this.setState({ pushNotificationsNotification: false })
   }
 

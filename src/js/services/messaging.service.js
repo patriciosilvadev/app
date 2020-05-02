@@ -1,6 +1,6 @@
 import { MQTT_HOST, JWT } from '../environment'
 import { logger } from '../helpers/util'
-import CookiesService from './cookies.service'
+import StorageService from './storage.service'
 import mqtt from 'mqtt'
 import AuthService from './auth.service'
 
@@ -9,7 +9,7 @@ export default class MessagingService {
   client
 
   constructor() {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
     const { userId } = AuthService.parseJwt(token)
 
     // This token will be used on the EMQX server to authenticate the client

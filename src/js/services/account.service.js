@@ -1,9 +1,9 @@
-import CookiesService from './cookies.service'
+import StorageService from './storage.service'
 import { API_HOST, JWT } from '../environment'
 
 export default class AuthService {
   static confirmEmail(email, userId) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/email/confirm`, {
       method: 'PUT',
@@ -16,7 +16,7 @@ export default class AuthService {
   }
 
   static addEmail(email, userId) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/email/add`, {
       method: 'PUT',
@@ -29,7 +29,7 @@ export default class AuthService {
   }
 
   static deleteEmail(email, userId) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/email/delete`, {
       method: 'PUT',
@@ -42,7 +42,7 @@ export default class AuthService {
   }
 
   static updatePassword(userId, currentPassword, newPassword) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/password/update`, {
       method: 'PUT',
@@ -58,7 +58,7 @@ export default class AuthService {
   }
 
   static resetPassword(email) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(API_HOST + '/account/password/reset', {
       method: 'PUT',
@@ -71,7 +71,7 @@ export default class AuthService {
   }
 
   static updatePasswordReset(email, password, code) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(API_HOST + '/account/password/reset/update', {
       method: 'PUT',
@@ -88,7 +88,7 @@ export default class AuthService {
   }
 
   static signup(email, username, password) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(API_HOST + '/account/signup', {
       method: 'POST',
@@ -110,7 +110,7 @@ export default class AuthService {
   }
 
   static signin(username, password) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(API_HOST + '/account/signin', {
       method: 'POST',
@@ -131,7 +131,7 @@ export default class AuthService {
   }
 
   static accountDelete(userId) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/delete`, {
       method: 'DELETE',
@@ -143,7 +143,7 @@ export default class AuthService {
   }
 
   static accountUpdate(userId, payload) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/update`, {
       method: 'PUT',
@@ -161,7 +161,7 @@ export default class AuthService {
   }
 
   static addCard(userId, token, vendor, card, active) {
-    const jwtToken = CookiesService.getCookie(JWT)
+    const jwtToken = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/card/add`, {
       method: 'PUT',
@@ -174,7 +174,7 @@ export default class AuthService {
   }
 
   static deleteCard(userId, token) {
-    const jwtToken = CookiesService.getCookie(JWT)
+    const jwtToken = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/card/delete`, {
       method: 'PUT',
@@ -187,7 +187,7 @@ export default class AuthService {
   }
 
   static activateCard(userId, token) {
-    const jwtToken = CookiesService.getCookie(JWT)
+    const jwtToken = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/account/${userId}/card/activate`, {
       method: 'PUT',

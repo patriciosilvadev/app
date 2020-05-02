@@ -1,9 +1,9 @@
 import { API_HOST, JWT } from '../environment'
-import CookiesService from './cookies.service'
+import StorageService from './storage.service'
 
 export default class UploadService {
   static getUploadUrl(filename, mime) {
-    const token = CookiesService.getCookie(JWT)
+    const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/upload/url`, {
       method: 'POST',
