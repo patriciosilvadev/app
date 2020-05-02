@@ -16,7 +16,15 @@
     "electron": "electron .",
     "deploy:prepare": "aws s3 rm --recursive s3://yack-web --profile yack-cli",
     "deploy:upload": "aws s3 cp ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile yack-cli",
-    "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload"
+    "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "your.id",
+    "mac": {
+      "category": "your.app.category.type"
+    }
   },
   "author": "Jo du Plessis",
   "license": "ISC",
@@ -76,6 +84,7 @@
     "css-loader": "^1.0.0",
     "dotenv-webpack": "^1.7.0",
     "electron": "^6.0.12",
+    "electron-builder": "^22.6.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.3.5",

@@ -408,7 +408,7 @@ export default memo(props => {
   const renderDeviceIcons = () => {
     switch (props.message.device) {
       case 'WEB':
-        return <IconComponent icon="compass" thickness={2} size={15} color="#aeb5bc" className="ml-20" />
+        return <IconComponent icon="compass" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
       default:
         return null
     }
