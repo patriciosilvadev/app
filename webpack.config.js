@@ -5,6 +5,7 @@ const WorkboxPlugin = require('workbox-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = env => {
   return {
@@ -20,7 +21,7 @@ module.exports = env => {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.[name].[contenthash].js',
-      publicPath: '/',
+      publicPath: './',
       chunkFilename: 'bundle.[name].js',
     },
     performance: {
@@ -42,7 +43,7 @@ module.exports = env => {
         swSrc: './src/js/sw.production.js',
         swDest: 'sw.js',
       }),
-      //new BundleAnalyzerPlugin()
+      new CopyPlugin([{ from: 'src/assets/*', to: '' }]),
     ],
     optimization: {
       splitChunks: {

@@ -19,3 +19,5 @@ dist/
 
 environment.production.js
 environment.staging.js
+
+release

@@ -32,11 +32,13 @@
       ]
     },
     "files": [
-      "dist/*"
+      "dist/*",
+      "node_modules/**/*",
+      "src/js/main.js"
     ],
     "directories": {
       "output": "release",
-      "buildResources": "dist"
+      "buildResources": "build"
     }
   },
   "homepage": "./",
@@ -95,6 +97,7 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "classnames": "^2.2.6",
     "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^1.0.0",
     "dotenv-webpack": "^1.7.0",
     "electron": "^6.0.12",
