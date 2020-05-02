@@ -77,7 +77,11 @@ ReactDOM.render(
       <Route
         path="/"
         render={props => {
-          if (window.location.pathname == '/') {
+          const { pathname } = window.location
+          const isElectron = pathname.split('/')[pathname.split('/').length - 1] == 'index.html'
+          const isRoot = pathname == '/'
+
+          if (isElectron || isRoot) {
             AuthService.currentAuthenticatedUser()
               .then(res => {
                 const { token } = res

@@ -13,23 +13,47 @@
     "dev": "npm run watch:dev | npm run serve:dev",
     "test": "jest",
     "lint": "eslint ./src",
-    "electron": "NODE_ENV=dev electron .",
     "deploy:prepare": "aws s3 rm --recursive s3://yack-web --profile yack-cli",
     "deploy:upload": "aws s3 cp ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile yack-cli",
     "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload",
-    "pack": "electron-builder --dir",
+    "electron": "NODE_ENV=dev electron .",
+    "pack:mac": "electron-builder --mac --dir",
+    "pack:win": "electron-builder --win --dir",
+    "pack:linux": "electron-builder --linux --dir",
     "dist": "electron-builder"
   },
   "build": {
     "appId": "com.yack.${name}",
     "productName": "Yack",
     "copyright": "Copyright © 2020 ${author}",
+    "linux": {
+      "category": "Productivity",
+      "desktop": {
+        "Comment": "Yack, a hackable team messaging platform.",
+        "Name": "Yack",
+        "StartupNotify": "true",
+        "Terminal": "false",
+        "Type": "Application",
+        "Categories": "Messaging;Office;"
+      },
+      "executableName": "yack-app",
+      "maintainer": "support@yack.co",
+      "target": [
+        "AppImage"
+      ]
+    },
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
-        "zip",
         "dmg"
       ]
+    },
+    "win": {
+      "asar": false,
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
     },
     "files": [
       "dist/*",
