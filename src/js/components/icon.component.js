@@ -40,6 +40,8 @@ import {
   Share2,
   Radio,
   Box,
+  Package,
+  Compass,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -52,6 +54,10 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'compass':
+        return <Compass width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'package':
+        return <Package width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'box':
         return <Box width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'radio':

@@ -78,7 +78,7 @@ const TableRow = props => {
         </Td>
         <Td>
           <div className="bold">{member.user.id == user.id ? member.user.name + ' (You)' : member.user.name}</div>
-          <div className="color-l0">@{`${member.user.username}`}</div>
+          <div className="color-l0">{member.position}</div>
         </Td>
         <Td>
           <Popup

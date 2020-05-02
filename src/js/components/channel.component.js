@@ -1012,8 +1012,8 @@ const Pinned = styled.div`
 const PinnedMessages = styled.div`
   width: 100%;
   padding: 20px;
-  border-bottom: 1px solid #eaedef;
-  background: #fafaed;
+  border-bottom: 1px solid #f5f5ba;
+  background: #f5f5e1;
 `
 
 const MessagesContainer = styled.div`

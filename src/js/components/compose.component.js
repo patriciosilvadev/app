@@ -13,6 +13,7 @@ import { Attachment, Popup, User, Members, Spinner, Error, Notification, Message
 import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent } from '../helpers/util'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
+import { DEVICE } from '../environment'
 
 class ComposeComponent extends React.Component {
   constructor(props) {
@@ -148,6 +149,7 @@ class ComposeComponent extends React.Component {
     const userId = this.props.user.id
     const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
     const teamId = this.props.team.id
+    const device = DEVICE
 
     // Get a list of mentions
     // but also strip punctuation
@@ -159,6 +161,7 @@ class ComposeComponent extends React.Component {
 
     try {
       const { data } = await GraphqlService.getInstance().createChannelMessage({
+        device,
         mentions,
         channel: channelId,
         user: userId,

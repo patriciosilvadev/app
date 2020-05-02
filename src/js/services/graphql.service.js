@@ -267,6 +267,7 @@ export default class GraphqlService {
           teamMembers(teamId: $teamId, page: $page) {
             id
             role
+            position
             user {
               id
               name
@@ -465,6 +466,7 @@ export default class GraphqlService {
             pinnedMessages {
               id
               reactions
+              device
               read
               reads
               likes
@@ -518,6 +520,7 @@ export default class GraphqlService {
             messages {
               id
               reactions
+              device
               read
               reads
               pinned
@@ -704,6 +707,7 @@ export default class GraphqlService {
           channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
+            device
             read
             reads
             pinned
@@ -814,6 +818,7 @@ export default class GraphqlService {
           channelAttachments(channelId: $channelId, page: $page) {
             id
             reactions
+            device
             likes
             system
             parent {
@@ -872,6 +877,7 @@ export default class GraphqlService {
           searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
+            device
             read
             pinned
             likes
@@ -1424,6 +1430,7 @@ export default class GraphqlService {
             }
             message
             reactions
+            device
             likes
             attachments {
               _id
@@ -1476,6 +1483,7 @@ export default class GraphqlService {
             message
             read
             reactions
+            device
             likes
             attachments {
               _id

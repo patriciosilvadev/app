@@ -75,8 +75,9 @@ const DateDividerText = styled.span`
   position: relative;
   font-weight: 600;
   color: #adb5bd;
-  background: white;
-  padding: 10px;
+  background: #f2f3f5;
+  border-radius: 5px;
+  padding: 7px;
   text-transform: uppercase;
 `
 

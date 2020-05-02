@@ -405,6 +405,15 @@ export default memo(props => {
     }
   }, [])
 
+  const renderDeviceIcons = () => {
+    switch (props.message.device) {
+      case 'WEB':
+        return <IconComponent icon="compass" thickness={2} size={15} color="#aeb5bc" className="ml-20" />
+      default:
+        return null
+    }
+  }
+
   // Render functions for the message component
   // To make thigs easier to understand
   const renderName = () => {
@@ -424,9 +433,11 @@ export default memo(props => {
         </Date>
 
         <div className="row">
-          <IconComponent icon="check" thickness={3} size={15} color="#aeb5bc" />
+          <IconComponent icon="check" thickness={2} size={15} color="#aeb5bc" />
 
-          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={3} style={{ marginLeft: -11 }} />}
+          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />}
+
+          {renderDeviceIcons()}
         </div>
       </React.Fragment>
     )
@@ -782,10 +793,10 @@ const Tool = styled.div`
 
 const Date = styled.div`
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: #adb5bd;
-  font-weight: regular;
   margin-right: 10px;
+  margin-left: 5px;
 `
 
 const ForwardingUserContainer = styled.div`

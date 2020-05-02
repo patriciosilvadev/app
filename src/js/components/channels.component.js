@@ -692,7 +692,7 @@ class ChannelsComponent extends React.Component {
                       onClick: this._openTeamSettings.bind(this),
                     },
                     {
-                      icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
+                      icon: <IconComponent icon="list" size={20} color="#acb5bd" thickness={1.5} />,
                       text: 'Team directory',
                       onClick: this._openTeamDirectory.bind(this),
                     },
