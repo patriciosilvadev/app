@@ -68,7 +68,7 @@ export default function ToolbarComponent(props) {
           <CloseIcon className="button" onClick={() => setStore(false)}>
             <IconComponent icon="x" size={23} color="white" thickness={2} />
           </CloseIcon>
-          <Modal title="Appstore" width="80%" height="90%" header={false} onClose={() => setStore(false)}>
+          <Modal title="Appstore" width="90%" height="90%" header={false} onClose={() => setStore(false)}>
             <Iframe border="0" src={url ? url : null} width="100%" height="100%"></Iframe>
           </Modal>
         </ModalPortal>
@@ -85,7 +85,7 @@ export default function ToolbarComponent(props) {
       <div className="flexer" />
 
       <AppIconContainer onClick={handleAppStoreClick}>
-        <IconComponent icon="yack" size={20} color="#666" />
+        <IconComponent icon="box" size={20} color="#666" />
       </AppIconContainer>
     </Toolbar>
   )

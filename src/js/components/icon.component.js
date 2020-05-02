@@ -39,21 +39,21 @@ import {
   Unlock,
   Share2,
   Radio,
+  Box,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
 import { Reply } from '../icons/Reply'
 import { Forward } from '../icons/Forward'
 import { Profile } from '../icons/Profile'
-import { Yack } from '../icons/Yack'
 
 export function IconComponent({ size, color, icon, thickness, className, onClick, style }) {
   const defaultThickness = 1.25
 
   const getIcon = () => {
     switch (icon) {
-      case 'yack':
-        return <Yack width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'box':
+        return <Box width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'radio':
         return <Radio width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'share':

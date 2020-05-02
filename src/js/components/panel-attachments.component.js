@@ -96,6 +96,8 @@ class PanelAttachmentsComponent extends React.Component {
           <AttachmentsScrollContainer ref={ref => (this.scrollRef = ref)}>
             <div className="p-20">
               {this.state.messages.map((message, index1) => {
+                if (!message.attachments) return null
+
                 return (
                   <React.Fragment key={index1}>
                     {message.attachments.map((attachment, index2) => {

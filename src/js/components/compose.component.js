@@ -33,7 +33,7 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text: '@joe',
+      text: '',
       mention: null,
       position: 0,
       members: [],

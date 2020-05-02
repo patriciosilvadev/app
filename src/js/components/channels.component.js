@@ -502,164 +502,172 @@ class ChannelsComponent extends React.Component {
   // parts of the channels sidebar
   renderHeader() {
     return (
-      <Header className="row">
-        <Popup
-          handleDismiss={() => this.setState({ presenceMenu: false })}
-          visible={this.state.presenceMenu}
-          width={200}
-          direction="left-bottom"
-          content={
-            <Menu
-              items={[
-                {
-                  icon: <span style={{ fontSize: 14, color: '#36C5AB' }}>&#9679;</span>,
-                  text: 'Online (default)',
-                  onClick: () => this.updateUserPresence(null),
-                },
-                {
-                  icon: <span style={{ fontSize: 14, color: '#FD9A00' }}>&#9679;</span>,
-                  text: 'Away',
-                  onClick: () => this.updateUserPresence('away'),
-                },
-                {
-                  icon: <span style={{ fontSize: 14, color: '#FC1449' }}>&#9679;</span>,
-                  text: 'Busy',
-                  onClick: () => this.updateUserPresence('busy'),
-                },
-                {
-                  icon: <span style={{ fontSize: 14, color: 'rgba(0,0,0,0.1)' }}>&#9679;</span>,
-                  text: 'Invisible',
-                  onClick: () => this.updateUserPresence('invisible'),
-                },
-              ]}
-            />
-          }
-        >
-          <Avatar
-            dark
-            size="medium"
-            image={this.props.user.image}
-            title={this.props.user.name}
-            className="mr-10"
-            presence={this.props.user.presence ? (this.props.user.presence == 'invisible' ? 'invisible:user' : this.props.user.presence) : 'online'}
-            onPresenceClick={() => this.setState({ presenceMenu: true })}
-          />
-        </Popup>
+      <div className="column w-100">
+        <div className="row pl-25 pr-25 pt-15 pb-15">
+          <HeaderTeam>{this.props.team.name}</HeaderTeam>
+          <HeaderRole>
+            {this.props.user.role} - {this.props.user.timezone}
+          </HeaderRole>
+        </div>
 
-        <HeaderTitles className="column">
-          <HeaderTeam>{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</HeaderTeam>
-          <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
-          <HeaderSubtitle>
-            <div>{this.props.user.status || 'Update your status'}</div>
-          </HeaderSubtitle>
-        </HeaderTitles>
-
-        <Popup
-          handleDismiss={this._closeUserMenu.bind(this)}
-          visible={this.state.accountMenu}
-          width={300}
-          direction="left-bottom"
-          content={
-            <React.Fragment>
-              <div className="w-100 p-20 column align-items-center border-bottom">
-                <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
-                <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
-                <div className="text-center small xx-bold color-l0 mt-5">{this.props.team.name ? this.props.team.name.toUpperCase() : ''}</div>
-              </div>
-
-              <div className="w-100 p-20 column align-items-start border-bottom">
-                <div className="row w-100">
-                  <div className="p regular color-d2 flexer">Status</div>
-                  <IconComponent
-                    icon={this.state.statusCollapsableOpen ? 'chevron-up' : 'chevron-down'}
-                    size={16}
-                    thickness={3}
-                    color="#acb5bd"
-                    className="button"
-                    onClick={() => {
-                      this.setState({
-                        statusCollapsableOpen: !this.state.statusCollapsableOpen,
-                        statusCollapsableInput: this.props.user.status,
-                      })
-                    }}
-                  />
-                </div>
-                <Collapsable className={this.state.statusCollapsableOpen ? 'open' : ''}>
-                  <div className="row w-100 mt-10">
-                    <Input placeholder="Update your status" value={this.state.statusCollapsableInput} onChange={e => this.setState({ statusCollapsableInput: e.target.value })} />
-                    <Button
-                      size="small"
-                      className="ml-10"
-                      text="✓"
-                      onClick={() => {
-                        this.updateUserStatus(this.props.user.id, this.props.team.id, this.state.statusCollapsableInput)
-                        this.setState({ statusCollapsableOpen: false })
-                      }}
-                    />
-                  </div>
-                </Collapsable>
-              </div>
-
-              <div className="w-100 p-20 column align-items-start border-bottom">
-                <div className="row w-100">
-                  <div className="p regular color-d2 flexer">Do not disturb</div>
-                  <Toggle
-                    on={!!this.props.user.dnd}
-                    onChange={() => {
-                      if (!!this.props.user.dnd) {
-                        this.updateUserDnd(0)
-                      } else {
-                        this.updateUserDnd(1)
-                      }
-                    }}
-                  />
-                </div>
-                <Collapsable className={!!this.props.user.dnd ? 'open' : ''}>
-                  <div className="column w-100 mt-10">
-                    <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
-                    <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />
-                  </div>
-                </Collapsable>
-              </div>
-
+        <Header className="row">
+          <Popup
+            handleDismiss={() => this.setState({ presenceMenu: false })}
+            visible={this.state.presenceMenu}
+            width={200}
+            direction="left-bottom"
+            content={
               <Menu
                 items={[
                   {
-                    icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
-                    text: 'Account settings',
-                    onClick: this._openAccountSettings.bind(this),
+                    icon: <span style={{ fontSize: 14, color: '#36C5AB' }}>&#9679;</span>,
+                    text: 'Online (default)',
+                    onClick: () => this.updateUserPresence(null),
                   },
                   {
-                    icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
-                    text: 'Team settings',
-                    onClick: this._openTeamSettings.bind(this),
+                    icon: <span style={{ fontSize: 14, color: '#FD9A00' }}>&#9679;</span>,
+                    text: 'Away',
+                    onClick: () => this.updateUserPresence('away'),
                   },
                   {
-                    icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
-                    text: 'Team directory',
-                    onClick: this._openTeamDirectory.bind(this),
+                    icon: <span style={{ fontSize: 14, color: '#FC1449' }}>&#9679;</span>,
+                    text: 'Busy',
+                    onClick: () => this.updateUserPresence('busy'),
                   },
                   {
-                    hide: true,
-                    icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
-                    text: 'Team subscription',
-                    onClick: this._openTeamSubscription.bind(this),
-                  },
-                  {
-                    icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
-                    text: 'Signout',
-                    onClick: this._signout.bind(this),
+                    icon: <span style={{ fontSize: 14, color: 'rgba(0,0,0,0.1)' }}>&#9679;</span>,
+                    text: 'Invisible',
+                    onClick: () => this.updateUserPresence('invisible'),
                   },
                 ]}
               />
+            }
+          >
+            <Avatar
+              dark
+              size="medium"
+              image={this.props.user.image}
+              title={this.props.user.name}
+              className="mr-10"
+              presence={this.props.user.presence ? (this.props.user.presence == 'invisible' ? 'invisible:user' : this.props.user.presence) : 'online'}
+              onPresenceClick={() => this.setState({ presenceMenu: true })}
+            />
+          </Popup>
 
-              <div className="small regular color-d0 p-20 border-top">Build {version}</div>
-            </React.Fragment>
-          }
-        >
-          <IconComponent icon="settings" size={16} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
-        </Popup>
-      </Header>
+          <HeaderTitles className="column">
+            <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
+            <HeaderSubtitle>
+              <div>{this.props.user.status || 'Update your status'}</div>
+            </HeaderSubtitle>
+          </HeaderTitles>
+
+          <Popup
+            handleDismiss={this._closeUserMenu.bind(this)}
+            visible={this.state.accountMenu}
+            width={300}
+            direction="left-bottom"
+            content={
+              <React.Fragment>
+                <div className="w-100 p-20 column align-items-center border-bottom">
+                  <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
+                  <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
+                  <div className="text-center small bold color-l0 mt-5">{this.props.user.role || ''}</div>
+                </div>
+
+                <div className="w-100 p-20 column align-items-start border-bottom">
+                  <div className="row w-100">
+                    <div className="p regular color-d2 flexer">Status</div>
+                    <IconComponent
+                      icon={this.state.statusCollapsableOpen ? 'chevron-up' : 'chevron-down'}
+                      size={16}
+                      thickness={3}
+                      color="#acb5bd"
+                      className="button"
+                      onClick={() => {
+                        this.setState({
+                          statusCollapsableOpen: !this.state.statusCollapsableOpen,
+                          statusCollapsableInput: this.props.user.status,
+                        })
+                      }}
+                    />
+                  </div>
+                  <Collapsable className={this.state.statusCollapsableOpen ? 'open' : ''}>
+                    <div className="row w-100 mt-10">
+                      <Input placeholder="Update your status" value={this.state.statusCollapsableInput} onChange={e => this.setState({ statusCollapsableInput: e.target.value })} />
+                      <Button
+                        size="small"
+                        className="ml-10"
+                        text="✓"
+                        onClick={() => {
+                          this.updateUserStatus(this.props.user.id, this.props.team.id, this.state.statusCollapsableInput)
+                          this.setState({ statusCollapsableOpen: false })
+                        }}
+                      />
+                    </div>
+                  </Collapsable>
+                </div>
+
+                <div className="w-100 p-20 column align-items-start border-bottom">
+                  <div className="row w-100">
+                    <div className="p regular color-d2 flexer">Do not disturb</div>
+                    <Toggle
+                      on={!!this.props.user.dnd}
+                      onChange={() => {
+                        if (!!this.props.user.dnd) {
+                          this.updateUserDnd(0)
+                        } else {
+                          this.updateUserDnd(1)
+                        }
+                      }}
+                    />
+                  </div>
+                  <Collapsable className={!!this.props.user.dnd ? 'open' : ''}>
+                    <div className="column w-100 mt-10">
+                      <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
+                      <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />
+                    </div>
+                  </Collapsable>
+                </div>
+
+                <Menu
+                  items={[
+                    {
+                      icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
+                      text: 'Account settings',
+                      onClick: this._openAccountSettings.bind(this),
+                    },
+                    {
+                      icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
+                      text: 'Team settings',
+                      onClick: this._openTeamSettings.bind(this),
+                    },
+                    {
+                      icon: <IconComponent icon="list" size={20} color="#acb5bd" />,
+                      text: 'Team directory',
+                      onClick: this._openTeamDirectory.bind(this),
+                    },
+                    {
+                      hide: true,
+                      icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
+                      text: 'Team subscription',
+                      onClick: this._openTeamSubscription.bind(this),
+                    },
+                    {
+                      icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
+                      text: 'Signout',
+                      onClick: this._signout.bind(this),
+                    },
+                  ]}
+                />
+
+                <div className="small regular color-d0 p-20 border-top">Build {version}</div>
+              </React.Fragment>
+            }
+          >
+            <IconComponent icon="settings" size={16} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
+          </Popup>
+        </Header>
+      </div>
     )
   }
 
@@ -981,7 +989,7 @@ const Channels = styled.div`
   width: 300px;
   height: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 4;
   background: white;
   background: #18181d;
   border-right: 0px solid #1f2d3d;
@@ -997,7 +1005,6 @@ const Header = styled.div`
   background-color: transparent;
   width: 100%;
   padding 0px 25px 0px 25px;
-  height: 75px;
   transition: background-color 0.5s;
 `
 
@@ -1006,10 +1013,28 @@ const HeaderTitles = styled.div`
   padding-left: 10px;
 `
 
-const HeaderTeam = styled.div`
-  font-size: 10px;
+const HeaderTeam = styled.span`
+  font-size: 8px;
+  font-weight: 500;
+  color: #8895a7;
+  padding: 5px;
+  border-radius: 3px;
+  background: #343a40;
+  text-transform: uppercase;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+`
+
+const HeaderRole = styled.span`
+  font-size: 8px;
   font-weight: 700;
-  color: #626d7a;
+  color: #5f6b7a;
+  padding: 5px;
+  border-radius: 3px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  background: #202529;
+  text-transform: uppercase;
 `
 
 const HeaderTitle = styled.div`
@@ -1064,7 +1089,7 @@ const SearchInner = styled.div`
 
 const Heading = styled.div`
   margin: 25px 25px 15px 25px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   color: #626d7a;
   /*letter-spacing: 1px;*/

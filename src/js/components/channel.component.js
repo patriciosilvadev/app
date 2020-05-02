@@ -22,7 +22,7 @@ import MessagesComponent from './messages.component'
 import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard } from '../helpers/util'
+import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes } from '../helpers/util'
 import ToolbarComponent from './toolbar.component'
 import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
@@ -97,6 +97,7 @@ class ChannelComponent extends React.Component {
     this.renderPanelMembers = this.renderPanelMembers.bind(this)
     this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
     this.renderChannelModal = this.renderChannelModal.bind(this)
+    this.renderOtherUserTimezone = this.renderOtherUserTimezone.bind(this)
   }
 
   async updateChannelShortcode(generateNewCode) {
@@ -384,14 +385,15 @@ class ChannelComponent extends React.Component {
 
     return (
       <Header className="row">
-        <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#babec9'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
+        <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
         <Avatar image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large" />
 
         <div className="column ml-10">
           <div className="row">
-            {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#040b1c" size={15} thickness={2.5} className="mr-5" />}
-            <HeaderTitle>{this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name}</HeaderTitle>
+            {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#11161c" size={15} thickness={2.5} className="mr-5" />}
+            {this.props.channel.private && <HeaderTitle>{this.props.channel.otherUser.name}</HeaderTitle>}
+            {!this.props.channel.private && <HeaderTitle>{this.props.channel.name}</HeaderTitle>}
           </div>
 
           <HeaderDescription>
@@ -416,7 +418,7 @@ class ChannelComponent extends React.Component {
         <div className="flexer"></div>
 
         <HeaderSearchContainer className="row" focus={this.state.searchFocus}>
-          <IconComponent icon="search" size={15} color="#acb5bd" thickness={2} className="ml-10 mr-10" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />
+          <IconComponent icon="search" size={15} color="#aeb5bc" thickness={2} className="ml-10 mr-10" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />
 
           <HeaderSearchInput
             placeholder="Search"
@@ -426,7 +428,7 @@ class ChannelComponent extends React.Component {
             onBlur={() => this.setState({ searchFocus: false })}
           />
 
-          {this.state.searchResults && <IconComponent icon="x" size={15} thickness={2} color="#acb5bd" className="button" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />}
+          {this.state.searchResults && <IconComponent icon="x" size={15} thickness={2} color="#aeb5bc" className="button" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />}
         </HeaderSearchContainer>
 
         {this.props.channel.apps
@@ -467,14 +469,14 @@ class ChannelComponent extends React.Component {
             this.setState({ attachmentsPanel: true })
           }}
         >
-          <IconComponent icon="attachment" size={18} thickness={1.75} color="#babec9" />
+          <IconComponent icon="attachment" size={18} thickness={1.75} color="#aeb5bc" />
         </HeaderButton>
 
         {!this.props.channel.private && (
           <React.Fragment>
             <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true })}>
               <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
-              <IconComponent icon="users" size={26} thickness={1.25} color="#acb5bd" className="ml-5" />
+              <IconComponent icon="users" size={26} thickness={1.25} color="#aeb5bc" className="ml-5" />
             </HeaderButton>
 
             <Popup
@@ -529,28 +531,28 @@ class ChannelComponent extends React.Component {
                     items={[
                       {
                         hide: this.props.channel.private,
-                        icon: <IconComponent icon="radio" size={20} color="#acb5bd" />,
+                        icon: <IconComponent icon="radio" size={20} color="#aeb5bc" />,
                         text: this.props.channel.readonly ? 'Disable broadcast' : 'Make broadcast',
                         label: 'Only you can post messages',
                         onClick: e => this.updateChannelReadonly(!this.props.channel.readonly),
                       },
                       {
                         hide: this.props.channel.public,
-                        icon: <IconComponent icon="unlock" size={20} color="#acb5bd" />,
+                        icon: <IconComponent icon="unlock" size={20} color="#aeb5bc" />,
                         text: 'Make public',
                         label: 'Everyone in your team has access',
                         onClick: e => this.updateChannelVisibility({ private: false, public: true }),
                       },
                       {
                         hide: !this.props.channel.public,
-                        icon: <IconComponent icon="lock" size={20} color="#acb5bd" />,
+                        icon: <IconComponent icon="lock" size={20} color="#aeb5bc" />,
                         text: 'Make private',
                         label: 'Members of this channel only',
                         onClick: e => this.updateChannelVisibility({ private: false, public: false }),
                       },
                       {
                         hide: false,
-                        icon: <IconComponent icon="pen" size={20} color="#acb5bd" />,
+                        icon: <IconComponent icon="pen" size={20} color="#aeb5bc" />,
                         text: 'Edit',
                         label: 'Update or remove this channel',
                         onClick: e => this.setState({ channelModal: true, channelMenu: false }),
@@ -561,7 +563,7 @@ class ChannelComponent extends React.Component {
               }
             >
               <HeaderButton className="row" onClick={() => (this.state.hasAdminPermission ? this.setState({ channelMenu: true }) : null)}>
-                <IconComponent icon="more-v" size={18} thickness={1.8} color="#acb5bd" className="button" />
+                <IconComponent icon="more-v" size={18} thickness={1.8} color="#aeb5bc" className="button" />
               </HeaderButton>
             </Popup>
           </React.Fragment>
@@ -743,6 +745,27 @@ class ChannelComponent extends React.Component {
     return <ChannelModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ channelModal: false })} />
   }
 
+  renderOtherUserTimezone() {
+    if (!this.props.channel.private) return null
+    if (!this.props.channel.otherUser.timezone) return null
+
+    let text
+    const offsetMinutes =
+      moment()
+        .tz(this.props.channel.otherUser.timezone)
+        .utcOffset() / 60
+
+    if (offsetMinutes < 0)
+      text = `This user's time is ${moment()
+        .tz(this.props.channel.otherUser.timezone)
+        .format('hh:mm A')} - ${this.props.channel.otherUser.timezone} (-${decimalToMinutes(offsetMinutes * -1)})`
+    if (offsetMinutes >= 0)
+      text = `This user's time is ${moment()
+        .tz(this.props.channel.otherUser.timezone)
+        .format('hh:mm A')} - ${this.props.channel.otherUser.timezone} (+${decimalToMinutes(offsetMinutes)})`
+
+    return <Notification text={text} />
+  }
   render() {
     const { teamId, channelId } = this.props.match.params
 
@@ -759,6 +782,7 @@ class ChannelComponent extends React.Component {
 
               <Pinned>
                 {this.renderNotification()}
+                {this.renderOtherUserTimezone()}
                 {this.renderPinnedMessages()}
               </Pinned>
 
@@ -905,7 +929,7 @@ const HeaderTitle = styled.div`
   font-size: 18px;
   font-weight: 400;
   font-style: normal;
-  color: #040b1c;
+  color: #11161c;
   transition: opacity 0.5s;
   display: inline-block;
   width: max-content;
@@ -915,7 +939,7 @@ const HeaderDescription = styled.div`
   font-size: 14px;
   font-weight: 400;
   font-style: normal;
-  color: #acb5bd;
+  color: #aeb5bc;
   transition: opacity 0.5s;
   display: inline-block;
   margin-right: 0px;
@@ -939,7 +963,7 @@ const TotalMembers = styled.div`
   font-size: 13px;
   font-weight: 500;
   font-style: normal;
-  color: #acb5bd;
+  color: #aeb5bc;
   transition: opacity 0.5s;
   display: inline-block;
 `
@@ -966,7 +990,7 @@ const HeaderSearchInput = styled.input`
   outline: none;
 
   &::placeholder {
-    color: #acb5bd;
+    color: #aeb5bc;
   }
 `
 
@@ -1017,7 +1041,7 @@ const Welcome = styled.div`
 const WelcomeTitle = styled.div`
   font-weight: 300;
   font-size: 60px;
-  color: #040b1c;
+  color: #11161c;
   padding-bottom: 10px;
 `
 

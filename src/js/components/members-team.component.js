@@ -337,7 +337,7 @@ export default function MembersTeamComponent(props) {
                 <div className="h5 color-d2 mb-10">
                   {props.totalMembers} {props.totalMembers == 1 ? 'Member' : 'Members'}
                 </div>
-                <div className="p color-d0">
+                <div className="p color-d0 mb-10">
                   Displaying page {page + 1} of {pages}
                 </div>
               </React.Fragment>
