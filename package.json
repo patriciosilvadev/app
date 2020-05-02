@@ -2,7 +2,7 @@
   "name": "yack-app",
   "version": "0.0.7",
   "description": "Yack, a hackable team messaging platform.",
-  "main": "src/js/app.js",
+  "main": "src/js/main.js",
   "scripts": {
     "build:prod": "webpack --config webpack.config.js",
     "build:dev": "webpack --config webpack.config.dev.js",
@@ -13,7 +13,7 @@
     "dev": "npm run watch:dev | npm run serve:dev",
     "test": "jest",
     "lint": "eslint ./src",
-    "electron": "electron .",
+    "electron": "NODE_ENV=dev electron .",
     "deploy:prepare": "aws s3 rm --recursive s3://yack-web --profile yack-cli",
     "deploy:upload": "aws s3 cp ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile yack-cli",
     "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload",
@@ -21,11 +21,25 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "your.id",
+    "appId": "com.yack.${name}",
+    "productName": "Yack",
+    "copyright": "Copyright © 2020 ${author}",
     "mac": {
-      "category": "your.app.category.type"
+      "category": "public.app-category.productivity",
+      "target": [
+        "zip",
+        "dmg"
+      ]
+    },
+    "files": [
+      "dist/*"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "dist"
     }
   },
+  "homepage": "./",
   "author": "Jo du Plessis",
   "license": "ISC",
   "repository": "https://github.com/yack/web",
