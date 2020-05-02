@@ -21,5 +21,9 @@ export default (state = initialState, action) =>
         if (action.payload.teamId != state.id) return
         draft = Object.assign(draft, action.payload)
         break
+
+      case 'UPDATE_TEAM_MEMBER_POSITION':
+        draft.position = action.payload.position
+        break
     }
   })

@@ -23,6 +23,7 @@ import {
   updateUserStatus,
   updateUserMuted,
   updateUserArchived,
+  updateTeamMemberPosition,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@tryyack/elements'
@@ -272,6 +273,8 @@ class ChannelsComponent extends React.Component {
       private: [],
       loading: false,
       error: false,
+      positionCollapsableOpen: false,
+      positionCollapsableInput: '',
       statusCollapsableOpen: false,
       statusCollapsableInput: '',
       dndCollapsableOpen: false,
@@ -287,6 +290,7 @@ class ChannelsComponent extends React.Component {
     this.updateUserPresence = this.updateUserPresence.bind(this)
     this.updateUserDnd = this.updateUserDnd.bind(this)
     this.getCurrentDndIndex = this.getCurrentDndIndex.bind(this)
+    this.handleTeamMemberPositionChange = this.handleTeamMemberPositionChange.bind(this)
 
     this.renderAccountModal = this.renderAccountModal.bind(this)
     this.renderTeamModal = this.renderTeamModal.bind(this)
@@ -297,6 +301,19 @@ class ChannelsComponent extends React.Component {
     this.renderArchived = this.renderArchived.bind(this)
 
     this.dndOptions = [{ option: 'Never', value: 0 }, { option: '1 hour', value: 1 }, { option: '8 hours', value: 8 }, { option: '12 hours', value: 12 }, { option: '24 hours', value: 24 }]
+  }
+
+  async handleTeamMemberPositionChange(position) {
+    try {
+      const teamId = this.props.team.id
+      const userId = this.props.user.id
+
+      await GraphqlService.getInstance().updateTeamMemberPosition(teamId, userId, position)
+
+      this.props.updateTeamMemberPosition(position)
+    } catch (e) {
+      logger(e)
+    }
   }
 
   getCurrentDndIndex() {
@@ -506,7 +523,7 @@ class ChannelsComponent extends React.Component {
         <div className="row pl-25 pr-25 pt-15 pb-15">
           <HeaderTeam>{this.props.team.name}</HeaderTeam>
           <HeaderRole>
-            {this.props.user.role} - {this.props.user.timezone}
+            {this.props.team.position} - {this.props.user.timezone}
           </HeaderRole>
         </div>
 
@@ -571,7 +588,7 @@ class ChannelsComponent extends React.Component {
                 <div className="w-100 p-20 column align-items-center border-bottom">
                   <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
                   <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
-                  <div className="text-center small bold color-l0 mt-5">{this.props.user.role || ''}</div>
+                  <div className="text-center small bold color-l0 mt-5">{this.props.team.position}</div>
                 </div>
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
@@ -601,6 +618,39 @@ class ChannelsComponent extends React.Component {
                         onClick={() => {
                           this.updateUserStatus(this.props.user.id, this.props.team.id, this.state.statusCollapsableInput)
                           this.setState({ statusCollapsableOpen: false })
+                        }}
+                      />
+                    </div>
+                  </Collapsable>
+                </div>
+
+                <div className="w-100 p-20 column align-items-start border-bottom">
+                  <div className="row w-100">
+                    <div className="p regular color-d2 flexer">Team role</div>
+                    <IconComponent
+                      icon={this.state.positionCollapsableOpen ? 'chevron-up' : 'chevron-down'}
+                      size={16}
+                      thickness={3}
+                      color="#acb5bd"
+                      className="button"
+                      onClick={() => {
+                        this.setState({
+                          positionCollapsableOpen: !this.state.positionCollapsableOpen,
+                          positionCollapsableInput: this.props.team.position,
+                        })
+                      }}
+                    />
+                  </div>
+                  <Collapsable className={this.state.positionCollapsableOpen ? 'open' : ''}>
+                    <div className="row w-100 mt-10">
+                      <Input placeholder="Update your role" value={this.state.positionCollapsableInput} onChange={e => this.setState({ positionCollapsableInput: e.target.value })} />
+                      <Button
+                        size="small"
+                        className="ml-10"
+                        text="✓"
+                        onClick={() => {
+                          this.handleTeamMemberPositionChange(this.state.positionCollapsableInput)
+                          this.setState({ positionCollapsableOpen: false })
                         }}
                       />
                     </div>
@@ -956,6 +1006,7 @@ ChannelsComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
+  updateTeamMemberPosition: position => updateTeamMemberPosition(position),
   updateUserDnd: dnd => updateUserDnd(dnd),
   updateUserStatus: status => updateUserStatus(status),
   updateUserPresence: presence => updateUserPresence(presence),

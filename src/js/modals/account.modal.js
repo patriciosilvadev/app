@@ -87,7 +87,6 @@ export default function AccountModal(props) {
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
-  const [role, setRole] = useState('')
   const [description, setDescription] = useState('')
   const [timezone, setTimezone] = useState(0)
   const [emails, setEmails] = useState([])
@@ -116,7 +115,6 @@ export default function AccountModal(props) {
         setImage(user.image)
         setUsername(user.username)
         setName(user.name || '')
-        setRole(user.role || '')
         setDescription(user.description || '')
         setEmails(user.emails)
         setCards(user.cards)
@@ -198,7 +196,7 @@ export default function AccountModal(props) {
     setError(false)
 
     try {
-      const updatedUser = { name, role, description, username, image, timezone: moment.tz.names()[timezone] }
+      const updatedUser = { name, description, username, image, timezone: moment.tz.names()[timezone] }
       const userId = props.id
 
       const { data } = await GraphqlService.getInstance().updateUser(userId, updatedUser)
@@ -413,8 +411,6 @@ export default function AccountModal(props) {
 
           <div className="column p-20 flex-1 scroll w-100">
             <Input label="Full name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter full name" className="mb-20" />
-
-            <Input label="Role" value={role} onChange={e => setRole(e.target.value)} placeholder="Enter your role" className="mb-20" />
 
             <Input label="Username" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" className="mb-20" />
 

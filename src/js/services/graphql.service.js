@@ -172,6 +172,7 @@ export default class GraphqlService {
             id
             name
             shortcode
+            position(userId: $userId)
             slug
             image
             channels(userId: $userId) {
@@ -226,6 +227,7 @@ export default class GraphqlService {
               }
             }
             role(userId: $userId)
+            position(userId: $userId)
             channels(userId: $userId) {
               id
               name
@@ -1230,6 +1232,21 @@ export default class GraphqlService {
       variables: {
         teamId,
         userId,
+      },
+    })
+  }
+
+  updateTeamMemberPosition(teamId, userId, position) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTeamMemberPosition($teamId: String, $userId: String, $position: String) {
+          updateTeamMemberPosition(teamId: $teamId, userId: $userId, position: $position)
+        }
+      `,
+      variables: {
+        teamId,
+        userId,
+        position,
       },
     })
   }

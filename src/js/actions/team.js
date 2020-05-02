@@ -35,3 +35,10 @@ export function createTeam(team) {
     payload: team,
   }
 }
+
+export function updateTeamMemberPosition(position) {
+  return {
+    type: 'UPDATE_TEAM_MEMBER_POSITION',
+    payload: { position },
+  }
+}
