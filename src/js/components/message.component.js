@@ -424,9 +424,9 @@ export default memo(props => {
         </Date>
 
         <div className="row">
-          <IconComponent icon="check" thickness={3} size={15} color="#CFD4D9" />
+          <IconComponent icon="check" thickness={3} size={15} color="#aeb5bc" />
 
-          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#CFD4D9" thickness={3} style={{ marginLeft: -11 }} />}
+          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={3} style={{ marginLeft: -11 }} />}
         </div>
       </React.Fragment>
     )
@@ -458,20 +458,26 @@ export default memo(props => {
           direction="right-top"
           content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => handleCreateChannelMessageReaction(emoji.colons)} />}
         >
-          <IconComponent icon="smile" size={15} color="#CFD4D9" className="button mr-10" onClick={() => setEmoticonMenu(true)} />
+          <Tool onClick={() => setEmoticonMenu(true)} first={true}>
+            <IconComponent icon="smile" size={15} color="#aeb5bc" />
+          </Tool>
         </Popup>
 
-        <IconComponent icon="thumbs-up" size={15} color="#CFD4D9" className="button mr-10" onClick={() => handleChannelLikeOrUnlike()} />
-        <IconComponent icon="star" size={15} color="#CFD4D9" className="button mr-10" onClick={() => handleMessagePin()} />
-        <IconComponent icon="delete" size={15} color="#CFD4D9" className="button mr-10" onClick={() => setConfirmDeleteModal(true)} />
+        <Tool onClick={() => handleChannelLikeOrUnlike()}>
+          <IconComponent icon="thumbs-up" size={15} color="#aeb5bc" />
+        </Tool>
 
-        {!props.message.app && (
-          <React.Fragment>
-            {props.message.user.id == user.id && <IconComponent icon="pen" size={15} color="#CFD4D9" className="button mr-10" onClick={() => props.setUpdateMessage(props.message)} />}
-          </React.Fragment>
-        )}
+        <Tool onClick={() => setConfirmDeleteModal(true)}>
+          <IconComponent icon="delete" size={15} color="#aeb5bc" />
+        </Tool>
 
-        <IconComponent icon="reply" size={15} color="#CFD4D9" className="button mr-10" onClick={() => props.setReplyMessage(props.message)} />
+        {!props.message.app && <Tool onClick={() => props.setUpdateMessage(props.message)}>{props.message.user.id == user.id && <IconComponent icon="pen" size={15} color="#aeb5bc" />}</Tool>}
+
+        <Tool onClick={() => props.setReplyMessage(props.message)}>
+          <IconComponent icon="reply" size={15} color="#aeb5bc" />
+        </Tool>
+
+        <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>
 
         <Popup
           handleDismiss={() => setForwardMenu(false)}
@@ -493,9 +499,9 @@ export default memo(props => {
             </React.Fragment>
           }
         >
-          <div>
-            <IconComponent icon="forward" size={15} color="#CFD4D9" className="button" onClick={() => setForwardMenu(true)} />
-          </div>
+          <Tool onClick={() => setForwardMenu(true)} last={true}>
+            Forward
+          </Tool>
         </Popup>
       </Tools>
     )
@@ -742,14 +748,36 @@ const Bubble = styled.div`
 `
 
 const Tools = styled.div`
-  padding: 10px;
-  background: white;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f1f3f5;
-  border-radius: 5px;
   position: absolute;
   right: 0px;
   top: 0px;
+`
+
+const Tool = styled.div`
+  background: white;
+  border-left: 1px solid #e9edef;
+  border-top: 1px solid #e9edef;
+  border-bottom: 1px solid #e9edef;
+  border-right: ${props => (props.last ? '1' : '0')}px solid #e9edef;
+  border-top-left-radius: ${props => (props.first ? '5' : '0')}px;
+  border-bottom-left-radius: ${props => (props.first ? '5' : '0')}px;
+  border-top-right-radius: ${props => (props.last ? '5' : '0')}px;
+  border-bottom-right-radius: ${props => (props.last ? '5' : '0')}px;
+  padding: 5px 7px 5px 7px;
+  color: #aeb5bc;
+  margin: 0px;
+  height: 25px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 10px;
+
+  &:hover {
+    background: #f2f3f5;
+  }
 `
 
 const Date = styled.div`
