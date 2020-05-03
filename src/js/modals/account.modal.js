@@ -16,7 +16,7 @@ import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, 
 import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
 import { STRIPE_API_KEY } from '../environment'
 import Zero from '@joduplessis/zero'
-import { logger } from '../helpers/util'
+import { logger, stripSpecialChars } from '../helpers/util'
 import { IconComponent } from '../components/icon.component'
 import * as PnService from '../services/pn.service'
 
@@ -412,7 +412,7 @@ export default function AccountModal(props) {
           <div className="column p-20 flex-1 scroll w-100">
             <Input label="Full name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter full name" className="mb-20" />
 
-            <Input label="Username" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" className="mb-20" />
+            <Input label="Username" value={username} onChange={e => setUsername(stripSpecialChars(e.target.value))} placeholder="Username" className="mb-20" />
 
             <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter bio" className="mb-20" rows={2} />
 

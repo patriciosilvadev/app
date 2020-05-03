@@ -21,7 +21,7 @@ module.exports = env => {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.[name].[contenthash].js',
-      publicPath: './',
+      publicPath: '/',
       chunkFilename: 'bundle.[name].js',
     },
     performance: {

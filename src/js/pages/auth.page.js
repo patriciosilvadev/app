@@ -475,7 +475,9 @@ class AuthPage extends React.Component {
               this.signup(values.username, values.email, values.password, values.confirm)
             }}
             validationSchema={Yup.object().shape({
-              username: Yup.string().required('Required'),
+              username: Yup.string()
+                .matches(/[^a-zA-Z0-9 ]/g, { excludeEmptyString: false })
+                .required('Required'),
               email: Yup.string()
                 .email()
                 .required('Required'),

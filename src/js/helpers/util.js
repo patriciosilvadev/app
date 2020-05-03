@@ -176,3 +176,7 @@ export const getPresenceText = presence => {
     return presenceText
   }
 }
+
+export const stripSpecialChars = text => {
+  return text ? text.replace(/[^a-zA-Z0-9 ]/g, '').replace(/ /g, '') : ''
+}

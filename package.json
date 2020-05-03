@@ -2,7 +2,7 @@
   "name": "yack-app",
   "version": "0.0.7",
   "description": "Yack, a hackable team messaging platform.",
-  "main": "src/js/main.js",
+  "main": "src/js/electron.js",
   "scripts": {
     "build:prod": "webpack --config webpack.config.js",
     "build:dev": "webpack --config webpack.config.dev.js",
@@ -58,7 +58,7 @@
     "files": [
       "dist/*",
       "node_modules/**/*",
-      "src/js/main.js"
+      "src/js/electron.js"
     ],
     "directories": {
       "output": "release",

@@ -10,7 +10,7 @@ import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
 import { IconComponent } from '../components/icon.component'
-import { copyToClipboard } from '../helpers/util'
+import { copyToClipboard, stripSpecialChars } from '../helpers/util'
 import { BASE_URL } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
@@ -333,7 +333,7 @@ export default function TeamModal(props) {
               <Button onClick={handleUpdateTeamShortcode} text="Update" theme="muted" />
             </div>
 
-            <Input label="Update your team slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="Enter Slug" className="mb-20" />
+            <Input label="Update your team slug" value={slug} onChange={e => setSlug(stripSpecialChars(e.target.value))} placeholder="Enter Slug" className="mb-20" />
 
             <div className="row mb-30">
               <Button theme="muted" onClick={handleUpdateTeamSlug} text="Update slug" />
