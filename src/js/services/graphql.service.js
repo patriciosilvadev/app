@@ -1019,6 +1019,16 @@ export default class GraphqlService {
             id
             title
             body
+            team {
+              image
+              name
+              id
+            }
+            channel {
+              image
+              name
+              id
+            }
             read
             createdAt
           }

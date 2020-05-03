@@ -9,6 +9,7 @@ import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import { IconComponent } from './icon.component'
 import { logger } from '../helpers/util'
+import { browserHistory } from '../services/browser-history.service'
 
 export default function NotificationsComponent(props) {
   const [page, setPage] = useState(0)
@@ -81,10 +82,26 @@ export default function NotificationsComponent(props) {
                   <Row key={index} className="row">
                     <div className="flexer column">
                       <div className="row w-100 flexer">
-                        <Title read={notification.read}>{notification.title}</Title>
-                        <Created>{moment(notification.createdAt).fromNow()}</Created>
+                        <div className="column w-100">
+                          <div className="row mb-5 w-100">
+                            <Team hasChannel={notification.channel.id}>{notification.team.name}</Team>
+                            {notification.channel.id && (
+                              <Channel
+                                onClick={() => {
+                                  setNotificationsMenu(false)
+                                  browserHistory.push(`/app/team/${notification.team.id}/channel/${notification.channel.id}`)
+                                }}
+                              >
+                                {notification.channel.name}
+                              </Channel>
+                            )}
+                            <div className="flexer" />
+                            <Created>{moment(notification.createdAt).fromNow()}</Created>
+                          </div>
+                          <Title read={notification.read}>{notification.title}</Title>
+                          <Body read={notification.read}>{notification.body}</Body>
+                        </div>
                       </div>
-                      <Body read={notification.read}>{notification.body}</Body>
                       <div className="row">
                         <Button className="button" onClick={() => handleReadButtonClick(notification.id, !notification.read)}>
                           {notification.read ? 'Mark as unread' : 'Mark as read'}
@@ -97,7 +114,7 @@ export default function NotificationsComponent(props) {
 
               {notifications.length == 0 && (
                 <React.Fragment>
-                  <img src="https://yack-app.s3-us-west-2.amazonaws.com/notifications-empty.png" width="125" className="mt-40 mb-20" />
+                  <img src="https://yack-marketing.s3-us-west-2.amazonaws.com/logo-512.png" width="125" className="mt-40 mb-20" />
                   <TitleText>Whoops</TitleText>
                   <SubtitleText>You have no notifications</SubtitleText>
                 </React.Fragment>
@@ -171,17 +188,44 @@ const Created = styled.div`
 `
 
 const Title = styled.div`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: ${props => (props.read ? '400' : '600')};
   color: ${props => (props.read ? '#cfd4da' : '#202529')};
   flex: 1;
 `
 
 const Body = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   font-weight: ${props => (props.read ? '400' : '600')};
   color: ${props => (props.read ? '#cfd4da' : '#343a40')};
   margin-top: 4px;
+`
+
+const Channel = styled.div`
+  font-size: 10px;
+  font-weight: 500;
+  color: #8895a7;
+  background: #f2f3f5;
+  padding: 5px;
+  cursor: pointer;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+
+  :hover {
+    background: #e9edef;
+  }
+`
+
+const Team = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px;
+  color: #8895a7;
+  background: #e9edef;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: ${props => (props.hasChannel ? '0' : '5')}px;
+  border-bottom-right-radius: ${props => (props.hasChannel ? '0' : '5')}px;
 `
 
 const Button = styled.div`
