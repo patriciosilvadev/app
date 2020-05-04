@@ -767,6 +767,7 @@ class ChannelComponent extends React.Component {
 
     return <Notification text={text} />
   }
+
   render() {
     const { teamId, channelId } = this.props.match.params
 
