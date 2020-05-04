@@ -361,7 +361,8 @@ class ChannelComponent extends React.Component {
     const muted = props.user.muted.indexOf(props.channel.id) != -1
     const archived = props.user.archived.indexOf(props.channel.id) != -1
     const hasAdminPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
-    const open = isMember || isPublic
+    const channelIsPartOfThisTeam = props.team.id == props.channel.team.id
+    const open = isMember || (isPublic && channelIsPartOfThisTeam)
     const readonly = props.channel.readonly ? props.channel.readonly && !hasAdminPermission : false
 
     return {

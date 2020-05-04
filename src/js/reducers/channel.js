@@ -29,8 +29,6 @@ export default (state = initialState, action) =>
     if (!action.payload.channelId) return
     if (state.id != action.payload.channelId) return
 
-    console.log(action)
-
     // These are actions that get dispatched against the laoded channel
     // They come from the user or the SocketIO server
     switch (action.type) {
