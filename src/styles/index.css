@@ -4,6 +4,8 @@
   text-decoration: none;
   box-sizing: border-box;
   font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 *:focus {
