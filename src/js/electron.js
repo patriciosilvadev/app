@@ -21,7 +21,7 @@ function createWindow() {
   // and load the index.html of the app.
   // mainWindow.loadURL(`file://${__dirname}/index.html`)
   // win.loadFile('http://localhost:8080/')
-  //win.loadURL(process.env.NODE_ENV == 'dev1' ? 'http://localhost:3000' : `file://${path.join(__dirname, '../../dist/index.html')}`)
+  // win.loadURL(process.env.NODE_ENV == 'dev1' ? 'http://localhost:3000' : `file://${path.join(__dirname, '../../dist/index.html')}`)
   win.loadURL(
     url.format({
       pathname: path.join(__dirname, '../../dist/index.html'),
