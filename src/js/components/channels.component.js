@@ -262,7 +262,7 @@ class ChannelsComponent extends React.Component {
       teamModalStart: 0,
       channelPublicPopup: false,
       channelPrivatePopup: false,
-      accountModal: false,
+      accountModal: true,
       accountMenu: false,
       presenceMenu: false,
       archivedVisible: false,
@@ -614,7 +614,8 @@ class ChannelsComponent extends React.Component {
                       <Button
                         size="small"
                         className="ml-10"
-                        text="✓"
+                        text="Ok"
+                        theme="muted"
                         onClick={() => {
                           this.updateUserStatus(this.props.user.id, this.props.team.id, this.state.statusCollapsableInput)
                           this.setState({ statusCollapsableOpen: false })
@@ -647,7 +648,8 @@ class ChannelsComponent extends React.Component {
                       <Button
                         size="small"
                         className="ml-10"
-                        text="✓"
+                        text="Ok"
+                        theme="muted"
                         onClick={() => {
                           this.handleTeamMemberPositionChange(this.state.positionCollapsableInput)
                           this.setState({ positionCollapsableOpen: false })
