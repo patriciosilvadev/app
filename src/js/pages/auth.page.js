@@ -16,7 +16,7 @@ class AuthPage extends React.Component {
     super(props)
 
     this.state = {
-      view: 'signup',
+      view: 'signin',
       verify: false,
       error: null,
       loading: null,
@@ -229,9 +229,9 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" type="submit" disabled={isSubmitting} text="Send me a code" />
-                    <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center bold mt-30 button">
                       Go back to sign in
-                    </SmallTextButton>
+                    </div>
                   </Footer>
                 </Form>
               )
@@ -332,9 +332,9 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" type="submit" disabled={isSubmitting} text="Update Password" />
-                    <SmallTextButton onClick={() => this.setState({ verify: false, error: null })} className="mt-30">
+                    <div onClick={() => this.setState({ verify: false, error: null })} className="color-l0 bold text-center mt-30 button">
                       Get another code
-                    </SmallTextButton>
+                    </div>
                   </Footer>
                 </Form>
               )
@@ -370,8 +370,8 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h1 mt-30 color-d3 text-center">Tell us a bit about yourself</div>
-                  <div className="h4 mb-30 mt-20 color-d0 text-center">Add some more detail about yourself</div>
+                  <div className="h1 mt-30 color-d3 text-center">Almost there!</div>
+                  <div className="h4 mb-30 mt-20 color-d0 text-center">Add a bit more information about yourself</div>
 
                   <InputContainer>
                     <Input
@@ -422,13 +422,16 @@ class AuthPage extends React.Component {
                   </InputContainer>
 
                   <Footer className="column align-items-center">
-                    <Button size="large" type="submit" disabled={isSubmitting} text="Complete" />
-                    <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                    <Button size="large" type="submit" disabled={isSubmitting} text="Go to Yack" />
+                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 bold text-center mt-30 button">
                       Just let me sign in already
-                    </SmallTextButton>
-                    <a href="https://yack.co" target="_blank" className="color-l1 a text-center mt-10">
-                      By creating an account & using Yack, you agree to our <strong>terms & conditions</strong>
-                    </a>
+                    </div>
+                    <div className="color-l0 a text-center mt-10">
+                      By creating an account & using Yack, you agree to our{' '}
+                      <a href="https://yack.co/termsofuse" target="_blank">
+                        <strong>terms of use</strong>
+                      </a>
+                    </div>
                   </Footer>
                 </Form>
               )
@@ -447,10 +450,10 @@ class AuthPage extends React.Component {
         <Container className="column justify-content-center align-content-center align-items-stretch">
           <Formik
             initialValues={{
-              username: 'johannes',
-              email: 'johannes.duplessis@gmail.com',
-              password: 'a',
-              confirm: 'a',
+              username: '',
+              email: '',
+              password: '',
+              confirm: '',
             }}
             onSubmit={(values, actions) => {
               actions.resetForm()
@@ -540,10 +543,10 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" type="submit" disabled={isSubmitting} text="Sign up" />
-                    <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
+                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 bold text-center mt-30 button">
                       Go back to sign in
-                    </SmallTextButton>
-                    <div className="color-l1 a text-center mt-10">
+                    </div>
+                    <div className="color-l0 a text-center mt-10">
                       By creating an account, you agree to our{' '}
                       <a href="https://yack.co/termsofuse" target="_blank">
                         <strong>terms of use</strong>
@@ -624,12 +627,12 @@ class AuthPage extends React.Component {
                   <Spacer />
 
                   <Button size="large" type="submit" disabled={isSubmitting} text="Sign in" />
-                  <SmallTextButton onClick={() => this.setState({ view: 'password', error: null })} className="mt-30">
+                  <div onClick={() => this.setState({ view: 'password', error: null })} className="color-l0 text-center mt-30 button">
                     I've lost my password
-                  </SmallTextButton>
-                  <SmallTextButton onClick={() => this.setState({ view: 'signup', error: null })} className="mt-10">
+                  </div>
+                  <div onClick={() => this.setState({ view: 'signup', error: null })} className="color-l0 text-center mt-10 button">
                     Create an account
-                  </SmallTextButton>
+                  </div>
                 </Form>
               )
             }}
@@ -732,22 +735,6 @@ const Text = styled.div`
   text-align: center;
 `
 
-const SmallText = styled.div`
-  color: #202529;
-  font-size: 20px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-`
-
-const SmallTextFaded = styled.div`
-  color: #cfd4d9;
-  font-size: 20px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-`
-
 const Header = styled.div`
   border-bottom: 1px solid #f1f3f5;
   width: 100%;
@@ -809,19 +796,6 @@ const UpdateButton = styled.div`
 
   &:hover svg {
     fill: #007af5 !important;
-  }
-`
-
-const SmallTextButton = styled.div`
-  color: #adb5bd;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  text-align: center;
-
-  &:hover {
-    color: #007af5;
   }
 `
 

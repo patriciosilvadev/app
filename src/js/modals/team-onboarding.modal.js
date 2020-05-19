@@ -232,8 +232,7 @@ export default function TeamOnboardingModal(props) {
             </Inner>
 
             <Logo>
-              <img src="logo.svg" height="20" alt="Yack" />
-              <LogoText>yack</LogoText>
+              <img src="icon.svg" height="20" alt="Yack" />
             </Logo>
           </Container>
         </React.Fragment>
@@ -283,16 +282,6 @@ const Logo = styled.div`
   align-content: center;
   align-items: center;
   margin-right: auto;
-`
-
-const LogoText = styled.div`
-  padding-left: 5px;
-  position: relative;
-  bottom: 2px;
-  color: #007af5;
-  font-size: 22px;
-  font-weight: 400;
-  font-family: 'hk_groteskmedium', helvetica;
 `
 
 const InputContainer = styled.div`

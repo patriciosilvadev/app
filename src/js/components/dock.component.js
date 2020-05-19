@@ -95,7 +95,7 @@ export default function DockComponent(props) {
       <NotificationsComponent style={{ marginTop: 20 }} />
 
       <div className="flexer"></div>
-      <img src="logo.svg" width="30" />
+      <img src="icon.svg" width="20" />
     </Dock>
   )
 }
