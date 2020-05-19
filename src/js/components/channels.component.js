@@ -262,7 +262,7 @@ class ChannelsComponent extends React.Component {
       teamModalStart: 0,
       channelPublicPopup: false,
       channelPrivatePopup: false,
-      accountModal: true,
+      accountModal: false,
       accountMenu: false,
       presenceMenu: false,
       archivedVisible: false,
