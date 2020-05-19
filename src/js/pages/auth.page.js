@@ -16,7 +16,7 @@ class AuthPage extends React.Component {
     super(props)
 
     this.state = {
-      view: 'signin',
+      view: 'signup',
       verify: false,
       error: null,
       loading: null,
@@ -355,7 +355,6 @@ class AuthPage extends React.Component {
             initialValues={{
               name: '',
               description: '',
-              role: '',
             }}
             onSubmit={(values, actions) => {
               actions.resetForm()
@@ -364,7 +363,6 @@ class AuthPage extends React.Component {
             validationSchema={Yup.object().shape({
               name: Yup.string().required('Required'),
               description: Yup.string().required('Required'),
-              role: Yup.string().required('Required'),
             })}
           >
             {props => {
@@ -390,22 +388,6 @@ class AuthPage extends React.Component {
                   </InputContainer>
 
                   {errors.name && touched.name && <ErrorText>{errors.name}</ErrorText>}
-
-                  <InputContainer>
-                    <Input
-                      type="text"
-                      name="role"
-                      inputSize="large"
-                      autocomplete="off"
-                      value={values.role}
-                      placeholder="Current role"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={errors.role && touched.role ? 'error' : null}
-                    />
-                  </InputContainer>
-
-                  {errors.role && touched.role && <ErrorText>{errors.role}</ErrorText>}
 
                   <InputContainer>
                     <Textarea
@@ -465,10 +447,10 @@ class AuthPage extends React.Component {
         <Container className="column justify-content-center align-content-center align-items-stretch">
           <Formik
             initialValues={{
-              username: '',
-              email: '',
-              password: '',
-              confirm: '',
+              username: 'johannes',
+              email: 'johannes.duplessis@gmail.com',
+              password: 'a',
+              confirm: 'a',
             }}
             onSubmit={(values, actions) => {
               actions.resetForm()
@@ -476,7 +458,7 @@ class AuthPage extends React.Component {
             }}
             validationSchema={Yup.object().shape({
               username: Yup.string()
-                .matches(/[^a-zA-Z0-9 ]/g, { excludeEmptyString: false })
+                .matches(/^[a-z0-9](-?[a-z0-9])*$/, { message: 'Only letters, numbers & hyphens are allowed', excludeEmptyString: false })
                 .required('Required'),
               email: Yup.string()
                 .email()

@@ -78,12 +78,10 @@ export default class GraphqlService {
               address
               confirmed
             }
-            color
             username
             timezone
             password
             name
-            role
             theme
             starred
             muted
@@ -97,12 +95,6 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
-            cards {
-              token
-              vendor
-              card
-              active
-            }
           }
         }
       `,
@@ -247,10 +239,8 @@ export default class GraphqlService {
                 address
                 confirmed
               }
-              color
               username
               timezone
-              role
               image
             }
           }
@@ -454,7 +444,6 @@ export default class GraphqlService {
                   name
                   image
                   username
-                  color
                   timezone
                 }
                 app {
@@ -517,7 +506,6 @@ export default class GraphqlService {
                   name
                   image
                   username
-                  color
                   timezone
                 }
                 app {
@@ -607,10 +595,8 @@ export default class GraphqlService {
                 address
                 confirmed
               }
-              color
               username
               timezone
-              role
               image
             }
           }
@@ -696,7 +682,6 @@ export default class GraphqlService {
                 name
                 image
                 username
-                color
                 timezone
               }
               app {
@@ -727,7 +712,6 @@ export default class GraphqlService {
               dnd
               dndUntil
               username
-              color
               timezone
             }
             message
@@ -802,7 +786,6 @@ export default class GraphqlService {
                 timezone
                 status
                 presence
-                color
               }
               message
               createdAt
@@ -816,7 +799,6 @@ export default class GraphqlService {
               dnd
               dndUntil
               username
-              color
               timezone
             }
             message
@@ -867,7 +849,6 @@ export default class GraphqlService {
                 timezone
                 status
                 presence
-                color
               }
               message
               createdAt
@@ -880,7 +861,6 @@ export default class GraphqlService {
               presence
               username
               timezone
-              color
             }
             message
             attachments {
@@ -1404,7 +1384,6 @@ export default class GraphqlService {
                 image
                 username
                 timezone
-                color
               }
               message
               createdAt
@@ -1460,7 +1439,6 @@ export default class GraphqlService {
                 image
                 username
                 timezone
-                color
               }
               message
               createdAt
