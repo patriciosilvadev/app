@@ -453,13 +453,11 @@ AccountModal.propTypes = {
 const EmailAddressRow = props => {
   return (
     <tr>
-      <TableCell width="40%">
+      <TableCell width="50%">
         <MailAddress>{props.email.address}</MailAddress>
+        <MailStatus>{props.email.confirmed ? '✓ Confirmed' : 'Not confirmed'}</MailStatus>
       </TableCell>
-      <TableCell width="20%">
-        <MailStatus>{props.email.confirmed ? '✓ Confirmed' : '✕ Not confirmed'}</MailStatus>
-      </TableCell>
-      <TableCell width="40%">
+      <TableCell width="50%">
         <div className="row w-100 justify-content-end">
           {!props.email.confirmed && (
             <MailButtonConfirm onClick={() => props.onConfirm(props.email.address)} className="button">
@@ -496,6 +494,8 @@ const MailStatus = styled.div`
   color: #858e96;
   font-size: 12px;
   font-weight: 400;
+  margin-top: 3px;
+  margin-bottom: 5px;
 `
 
 const MailButtonConfirm = styled.span`
