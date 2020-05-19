@@ -1,5 +1,6 @@
 import MessagingService from '../services/messaging.service'
 import GraphqlService from '../services/graphql.service'
+import AuthService from '../services/auth.service'
 import DatabaseService from '../services/database.service'
 import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
@@ -80,6 +81,17 @@ export function fetchUser(userId) {
 
     try {
       const user = await GraphqlService.getInstance().user(userId)
+
+      // This can happen when someone is logged into a defunct account
+      if (!user.data.user) {
+        updateLoading(false)
+        updateError(null)
+
+        await AuthService.signout()
+        await GraphqlService.signout()
+
+        browserHistory.push('/auth')
+      }
 
       dispatch(updateLoading(false))
       dispatch({

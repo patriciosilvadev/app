@@ -176,6 +176,7 @@ class AppPage extends React.Component {
   }
 
   render() {
+    if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
 
     return (
