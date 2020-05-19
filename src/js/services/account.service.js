@@ -159,43 +159,4 @@ export default class AuthService {
       body: JSON.stringify(payload),
     })
   }
-
-  static addCard(userId, token, vendor, card, active) {
-    const jwtToken = StorageService.getStorage(JWT)
-
-    return fetch(`${API_HOST}/account/${userId}/card/add`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + jwtToken,
-      },
-      body: JSON.stringify({ token, vendor, card, active }),
-    })
-  }
-
-  static deleteCard(userId, token) {
-    const jwtToken = StorageService.getStorage(JWT)
-
-    return fetch(`${API_HOST}/account/${userId}/card/delete`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + jwtToken,
-      },
-      body: JSON.stringify({ token }),
-    })
-  }
-
-  static activateCard(userId, token) {
-    const jwtToken = StorageService.getStorage(JWT)
-
-    return fetch(`${API_HOST}/account/${userId}/card/activate`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + jwtToken,
-      },
-      body: JSON.stringify({ token }),
-    })
-  }
 }

@@ -13,7 +13,6 @@ import PropTypes from 'prop-types'
 import { updateUser } from '../actions'
 import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select, Toggle } from '@tryyack/elements'
-import { CardElement, injectStripe, StripeProvider, Elements } from 'react-stripe-elements'
 import { STRIPE_API_KEY } from '../environment'
 import Zero from '@joduplessis/zero'
 import { logger, stripSpecialChars } from '../helpers/util'
@@ -21,64 +20,6 @@ import { IconComponent } from '../components/icon.component'
 import * as PnService from '../services/pn.service'
 
 const moment = require('moment-timezone')
-
-const createStripeElementOptions = {
-  style: {
-    base: {
-      'fontSize': '16px',
-      'color': '#424770',
-      'fontFamily': 'Open Sans, sans-serif',
-      'letterSpacing': '0.025em',
-      '::placeholder': {
-        color: '#aab7c4',
-      },
-    },
-    invalid: {
-      color: '#c23d4b',
-    },
-  },
-}
-
-class _CardForm extends React.Component {
-  state = {
-    errorMessage: '',
-  }
-
-  handleChange = ({ error }) => {
-    if (error) {
-      this.setState({ errorMessage: error.message })
-    }
-  }
-
-  handleSubmit = evt => {
-    evt.preventDefault()
-
-    if (this.props.stripe) {
-      this.props.stripe.createToken().then(this.props.handleResult)
-    } else {
-      console.log("Stripe.js hasn't loaded yet.")
-    }
-  }
-
-  render() {
-    return (
-      <form className="border-top mt-20 pt-20">
-        <CardElement onChange={this.handleChange} {...createStripeElementOptions} />
-
-        <div className="p color-red mt-20" role="alert">
-          {this.state.errorMessage}
-        </div>
-
-        <div className="row mt-20">
-          <Button onClick={this.handleSubmit.bind(this)} text="Add" muted className="mr-10" />
-          <Button onClick={this.props.onCancel} text="Cancel" muted />
-        </div>
-      </form>
-    )
-  }
-}
-
-const CardForm = injectStripe(_CardForm)
 
 export default function AccountModal(props) {
   const [error, setError] = useState(null)
@@ -90,9 +31,6 @@ export default function AccountModal(props) {
   const [description, setDescription] = useState('')
   const [timezone, setTimezone] = useState(0)
   const [emails, setEmails] = useState([])
-  const [invoices, setInvoices] = useState([])
-  const [cards, setCards] = useState([])
-  const [newCard, setNewCard] = useState(false)
   const [newEmailAddress, setNewEmailAddress] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -117,8 +55,6 @@ export default function AccountModal(props) {
         setName(user.name || '')
         setDescription(user.description || '')
         setEmails(user.emails)
-        setCards(user.cards)
-        setInvoices(user.invoices)
         setTimezone(moment.tz.names().indexOf(user.timezone))
         setLoading(false)
       } catch (e) {
@@ -521,71 +457,6 @@ export default function AccountModal(props) {
     )
   }
 
-  const renderCreditCards = () => {
-    return (
-      <div className="row align-items-start w-100">
-        <div className="column w-100">
-          {error && <Error message={error} onDismiss={() => setError(false)} />}
-          {loading && <Spinner />}
-          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
-
-          <div className="column p-20 flex-1 scroll w-100">
-            <Text className="color-d2 h5 mb-10">Credit Cards</Text>
-            <Text className="color-d0 p mb-30">Add multiple cards, only 1 can be active at a time.</Text>
-
-            <Table width="100%">
-              <tbody>
-                {cards.map((card, index) => (
-                  <CreditCardRow key={index} onDelete={handleCardDelete} onActive={handleCardActive} card={card} />
-                ))}
-              </tbody>
-            </Table>
-
-            {!newCard && (
-              <div className="row mt-20">
-                <Button text="Add New Card" theme="muted" onClick={() => setNewCard(true)} />
-              </div>
-            )}
-
-            {newCard && (
-              <div className="w-100">
-                <StripeProvider apiKey={STRIPE_API_KEY}>
-                  <Elements>
-                    <CardForm handleResult={handleCardAdd} onCancel={() => setNewCard(false)} />
-                  </Elements>
-                </StripeProvider>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const renderInvoices = () => {
-    return (
-      <div className="row align-items-start w-100">
-        <div className="column w-100">
-          {error && <Error message={error} onDismiss={() => setError(false)} />}
-          {loading && <Spinner />}
-          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
-
-          <div className="column p-20 flex-1 scroll w-100">
-            <Text className="color-d2 h5 mb-10">Invoices</Text>
-
-            <Table width="100%">
-              <tbody>
-                {invoices.map((invoice, index) => (
-                  <InvoiceRow key={index} invoice={invoice} />
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   const renderNotifications = () => {
     return (
       <div className="row align-items-start w-100">
@@ -634,16 +505,6 @@ export default function AccountModal(props) {
               content: renderSecurity(),
             },
             {
-              title: 'Credit Cards',
-              show: false,
-              content: renderCreditCards(),
-            },
-            {
-              title: 'Invoices',
-              show: false,
-              content: renderInvoices(),
-            },
-            {
               title: 'Notifications',
               show: false,
               content: renderNotifications(),
@@ -663,60 +524,6 @@ export default function AccountModal(props) {
 AccountModal.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
-}
-
-const InvoiceRow = props => {
-  const [over, setOver] = useState(false)
-
-  return (
-    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <TableCell width="40%">
-        <InvoiceDescription>{props.invoice.team.name}</InvoiceDescription>
-      </TableCell>
-      <TableCell width="30%">
-        <InvoiceDate>{moment(props.invoice.createdAt).format('mm dd YYYY')}</InvoiceDate>
-      </TableCell>
-      <TableCell>
-        {over && (
-          <React.Fragment>
-            <InvoiceDownloadButton href={`${API_HOST}/billing/download_invoice/${props.invoice.id}`} target="_blank" className="button mr-20">
-              Download
-            </InvoiceDownloadButton>
-          </React.Fragment>
-        )}
-      </TableCell>
-    </tr>
-  )
-}
-
-const CreditCardRow = props => {
-  const [over, setOver] = useState(false)
-
-  return (
-    <tr onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)}>
-      <TableCell width="40%">
-        <CardNumber>xxxx-xxxx-xxxx-{props.card.card}</CardNumber>
-      </TableCell>
-      <TableCell width="30%">
-        <CardStatus>{props.card.active ? 'Active' : ''}</CardStatus>
-      </TableCell>
-      <TableCell>
-        {over && (
-          <React.Fragment>
-            {!props.card.active && (
-              <CardButtonActive onClick={() => props.onActive(props.card.token)} className="button mr-20">
-                Make active
-              </CardButtonActive>
-            )}
-
-            <CardButtonDelete onClick={() => props.onDelete(props.card.token)} className="button">
-              Delete
-            </CardButtonDelete>
-          </React.Fragment>
-        )}
-      </TableCell>
-    </tr>
-  )
 }
 
 const EmailAddressRow = props => {
@@ -776,54 +583,6 @@ const MailButtonConfirm = styled.span`
 `
 
 const MailButtonDelete = styled.span`
-  color: #d93025;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const InvoiceDescription = styled.div`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 600;
-`
-
-const InvoiceDate = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-`
-
-const InvoiceDownloadButton = styled.a`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const CardNumber = styled.div`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 600;
-`
-
-const CardStatus = styled.div`
-  color: #858e96;
-  font-size: 12px;
-  font-weight: 400;
-`
-
-const CardButtonActive = styled.span`
-  color: #007af5;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-left: 10px;
-`
-
-const CardButtonDelete = styled.span`
   color: #d93025;
   font-size: 12px;
   font-weight: 800;

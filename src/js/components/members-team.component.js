@@ -20,23 +20,10 @@ const TableRow = props => {
   const presences = useSelector(state => state.presences)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
-  const [confirmMemberBillingModal, setConfirmMemberBillingModal] = useState(false)
   const [roles, setRoles] = useState(false)
 
   return (
     <React.Fragment>
-      {confirmMemberBillingModal && (
-        <ConfirmModal
-          onOkay={() => {
-            props.onBilling(member.user.id)
-            setConfirmMemberBillingModal(false)
-          }}
-          onCancel={() => setConfirmMemberBillingModal(false)}
-          text="Are you sure you want to make this person the billing contact?"
-          title="Are you sure?"
-        />
-      )}
-
       {confirmSelfDeleteModal && (
         <ConfirmModal
           onOkay={() => {
@@ -60,17 +47,6 @@ const TableRow = props => {
           title="Are you sure?"
         />
       )}
-
-      {/*
-        TODO: Re-enable
-        {(props.billing && false )(
-          <tr>
-            <td className="p-5 p color-d1 background-l5" colSpan={5}>
-              {member.user.name} is the billing contact for this team
-            </td>
-          </tr>
-        )}
-      */}
 
       <tr>
         <Td width={30}>
@@ -130,12 +106,6 @@ const TableRow = props => {
                     text: 'Start conversation',
                     onClick: () => props.onConversationStart(member.user),
                   },
-                  {
-                    hide: true /* TODO: Re-enable with (props.billing || !props.admin) */,
-                    icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
-                    text: 'Make billing contact',
-                    onClick: () => setConfirmMemberBillingModal(true),
-                  },
                 ]}
               />
             }
@@ -154,7 +124,6 @@ export default function MembersTeamComponent(props) {
   const [notification, setNotification] = useState(null)
   const [page, setPage] = useState(0)
   const [pages, setPages] = useState(0)
-  const [billingUser, setBillingUser] = useState({})
   const [members, setMembers] = useState([])
   const [totalMembers, setTotalMembers] = useState(0)
   const [filter, setFilter] = useState('')
@@ -163,27 +132,6 @@ export default function MembersTeamComponent(props) {
   const user = useSelector(state => state.user)
   const limit = PAGE_LIMIT
   const filterRef = useRef(null)
-
-  const handleTeamMemberBilling = async userId => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const teamId = props.id
-      const updatedBillingUser = members.filter(member => member.user.id == userId).flatten().user
-
-      await GraphqlService.getInstance().updateTeamBillingUser(teamId, userId)
-
-      setLoading(false)
-      setBillingUser(updatedBillingUser)
-
-      // Now update the parent
-      props.onBillingUserUpdate(updatedBillingUser)
-    } catch (e) {
-      setLoading(false)
-      setError('Error setting admin')
-    }
-  }
 
   const handleTeamMemberRoleChange = async (userId, role) => {
     setLoading(true)
@@ -203,7 +151,6 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamMemberDelete = async userId => {
-    // if (billing.id == userId) return setError('Please change the billing contact first')
     setLoading(true)
     setError(null)
 
@@ -224,7 +171,6 @@ export default function MembersTeamComponent(props) {
   }
 
   const handleTeamLeave = async () => {
-    // if (billing.id == user.id) return setError('Please change the billing contact first')
     setLoading(true)
     setError(null)
 
@@ -315,7 +261,6 @@ export default function MembersTeamComponent(props) {
   useEffect(() => {
     if (!props.id || props.totalMembers == 0) return
 
-    setBillingUser(props.billingUser)
     setPages(Math.ceil(props.totalMembers / limit))
     fetchTeamMembers(page)
 
@@ -384,18 +329,15 @@ export default function MembersTeamComponent(props) {
           <tbody>
             {members.map((member, index) => {
               const memberUserId = member.user.id
-              const billingUserId = billingUser ? billingUser.id : null
 
               return (
                 <TableRow
-                  billing={memberUserId == billingUserId}
                   admin={props.admin}
                   key={index}
                   member={member}
                   user={user}
                   onLeave={handleTeamLeave}
                   onDelete={handleTeamMemberDelete}
-                  onBilling={handleTeamMemberBilling}
                   onConversationStart={handleTeamMemberConversationStart}
                   onRoleChange={handleTeamMemberRoleChange}
                 />
@@ -414,7 +356,6 @@ MembersTeamComponent.propTypes = {
   onClose: PropTypes.func,
   id: PropTypes.string,
   admin: PropTypes.bool,
-  billing: PropTypes.any,
 }
 
 const Input = styled.input`

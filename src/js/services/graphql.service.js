@@ -78,23 +78,6 @@ export default class GraphqlService {
               address
               confirmed
             }
-            invoices {
-              id
-              processed
-              number
-              items {
-                description
-                amount
-                cost
-              }
-              team {
-                id
-                name
-                image
-              }
-              createdAt
-              updatedAt
-            }
             color
             username
             timezone
@@ -215,17 +198,6 @@ export default class GraphqlService {
             totalMembers
             description
             image
-            billing {
-              next
-              strikes
-              plan
-              user {
-                id
-                name
-                image
-                username
-              }
-            }
             role(userId: $userId)
             position(userId: $userId)
             channels(userId: $userId) {
@@ -1210,21 +1182,6 @@ export default class GraphqlService {
     })
   }
 
-  updateTeamBilling(teamId, plan, userId) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation updateTeamBilling($teamId: String, $plan: String, $userId: String) {
-          updateTeamBilling(teamId: $teamId, plan: $plan, userId: $userId)
-        }
-      `,
-      variables: {
-        teamId,
-        plan,
-        userId,
-      },
-    })
-  }
-
   deleteTeam(teamId) {
     return this.client.mutate({
       mutation: gql`
@@ -1234,20 +1191,6 @@ export default class GraphqlService {
       `,
       variables: {
         teamId,
-      },
-    })
-  }
-
-  updateTeamBillingUser(teamId, userId) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation updateTeamBillingUser($teamId: String, $userId: String) {
-          updateTeamBillingUser(teamId: $teamId, userId: $userId)
-        }
-      `,
-      variables: {
-        teamId,
-        userId,
       },
     })
   }

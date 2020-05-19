@@ -127,7 +127,7 @@ class AuthPage extends React.Component {
 
       this.setState({ loading: false })
 
-      if (auth.status != 200) return this.setState({ error: 'Incorrect details' })
+      if (auth.status != 200) return this.setState({ error: 'Sorry, we could not find your details' })
       if (auth.status == 200) {
         const { token, userId } = data
 
@@ -177,12 +177,12 @@ class AuthPage extends React.Component {
 
       this.setState({ loading: false })
 
-      if (auth.status != 200) return this.setState({ error: 'Not found' })
+      if (auth.status != 200) return this.setState({ error: 'We couldn not find your account' })
       if (auth.status == 200) return this.setState({ verify: false, view: 'signin' })
     } catch (e) {
       this.setState({
         loading: false,
-        error: 'Not found',
+        error: 'Account not found',
       })
     }
   }
@@ -561,16 +561,16 @@ class AuthPage extends React.Component {
                     <SmallTextButton onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30">
                       Go back to sign in
                     </SmallTextButton>
-                    <a href="https://yack.co" target="_blank" className="color-l1 a text-center mt-10">
-                      By creating an account, you agree to our
+                    <div className="color-l1 a text-center mt-10">
+                      By creating an account, you agree to our{' '}
                       <a href="https://yack.co/termsofuse" target="_blank">
                         <strong>terms of use</strong>
                       </a>{' '}
-                      &
+                      &{' '}
                       <a href="https://yack.co/privacypolicy" target="_blank">
                         <strong>privacy policy</strong>
                       </a>
-                    </a>
+                    </div>
                   </Footer>
                 </Form>
               )
@@ -667,7 +667,6 @@ class AuthPage extends React.Component {
         <Auth>
           <Logo>
             <img src="logo.svg" height="20" alt="Yack" />
-            <LogoText>yack</LogoText>
           </Logo>
 
           <Loading show={this.state.loading} />
@@ -860,16 +859,6 @@ const Logo = styled.div`
   align-content: center;
   align-items: center;
   margin-right: auto;
-`
-
-const LogoText = styled.div`
-  padding-left: 5px;
-  position: relative;
-  bottom: 2px;
-  color: #007af5;
-  font-size: 22px;
-  font-weight: 400;
-  font-family: 'hk_groteskmedium', helvetica;
 `
 
 const Form = styled.form`
