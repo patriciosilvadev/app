@@ -88,7 +88,7 @@ export default function DockComponent(props) {
         )
       })}
 
-      <Avatar dark className="button" onClick={e => setTeamOnboardingModal(true)}>
+      <Avatar dark size="medium-large" className="button" onClick={e => setTeamOnboardingModal(true)}>
         <IconComponent icon="plus" size={20} color="#007af5" />
       </Avatar>
 

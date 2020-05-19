@@ -49,7 +49,7 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar dark muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.name} />
+        <Avatar dark muted={props.muted} presence={props.presence} size="small-medium" image={props.image} title={props.name} />
 
         <ChannelContents>
           <ChannelInnerContents>
@@ -562,7 +562,7 @@ class ChannelsComponent extends React.Component {
           >
             <Avatar
               dark
-              size="medium"
+              size="medium-large"
               image={this.props.user.image}
               title={this.props.user.name}
               className="mr-10"
