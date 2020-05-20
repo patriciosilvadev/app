@@ -65,9 +65,27 @@ const TableRow = props => {
             content={
               <Menu
                 items={[
-                  { text: `Admin ${member.role == 'ADMIN' ? '(current)' : ''}`, onClick: () => props.onRoleChange(member.user.id, 'ADMIN') },
-                  { text: `Member ${member.role == 'MEMBER' ? '(current)' : ''}`, onClick: () => props.onRoleChange(member.user.id, 'MEMBER') },
-                  { text: `Guest ${member.role == 'GUEST' ? '(current)' : ''}`, onClick: () => props.onRoleChange(member.user.id, 'GUEST') },
+                  {
+                    text: `Admin ${member.role == 'ADMIN' ? '(current)' : ''}`,
+                    onClick: () => {
+                      props.onRoleChange(member.user.id, 'ADMIN')
+                      setMenu(false)
+                    },
+                  },
+                  {
+                    text: `Member ${member.role == 'MEMBER' ? '(current)' : ''}`,
+                    onClick: () => {
+                      props.onRoleChange(member.user.id, 'MEMBER')
+                      setMenu(false)
+                    },
+                  },
+                  {
+                    text: `Guest ${member.role == 'GUEST' ? '(current)' : ''}`,
+                    onClick: () => {
+                      props.onRoleChange(member.user.id, 'GUEST')
+                      setMenu(false)
+                    },
+                  },
                 ]}
               />
             }
@@ -102,6 +120,7 @@ const TableRow = props => {
                     onClick: () => setConfirmMemberDeleteModal(true),
                   },
                   {
+                    hide: member.user.id == user.id,
                     icon: <IconComponent icon="message-circle" size={20} color="#acb5bd" />,
                     text: 'Start conversation',
                     onClick: () => props.onConversationStart(member.user),
@@ -156,14 +175,14 @@ export default function MembersTeamComponent(props) {
 
     try {
       const teamId = props.id
-      const userIds = [userId]
       const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
 
       // Set loading to false
       setLoading(false)
+      setTotalMembers(totalMembers - 1)
 
       // And refetch people
-      fetchTeamMembers(page, filter)
+      //fetchTeamMembers(page, filter)
     } catch (e) {
       setLoading(false)
       setError('Error deleting team member')
@@ -180,6 +199,7 @@ export default function MembersTeamComponent(props) {
       const deleteTeamMember = await GraphqlService.getInstance().deleteTeamMember(teamId, userId)
 
       setLoading(false)
+      setTotalMembers(totalMembers - 1)
 
       // Don't sync this one - because its just for us
       // false is for syncing here
@@ -262,6 +282,7 @@ export default function MembersTeamComponent(props) {
     if (!props.id || props.totalMembers == 0) return
 
     setPages(Math.ceil(props.totalMembers / limit))
+    setTotalMembers(props.totalMembers)
     fetchTeamMembers(page)
 
     // Make sure this is null
@@ -280,7 +301,7 @@ export default function MembersTeamComponent(props) {
             {filter == '' && (
               <React.Fragment>
                 <div className="h5 color-d2 mb-10">
-                  {props.totalMembers} {props.totalMembers == 1 ? 'Member' : 'Members'}
+                  {totalMembers} {totalMembers == 1 ? 'Member' : 'Members'}
                 </div>
                 <div className="p color-d0 mb-10">
                   Displaying page {page + 1} of {pages}

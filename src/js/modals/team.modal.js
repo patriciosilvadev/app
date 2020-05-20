@@ -313,8 +313,9 @@ export default function TeamModal(props) {
   return (
     <ModalPortal>
       <Modal title={`Team ${name}`} width={800} height="90%" onClose={props.onClose}>
+        {/* props.start */}
         <Tabbed
-          start={props.start}
+          start={1}
           onChange={i => {
             setNotification(null)
             setError(null)

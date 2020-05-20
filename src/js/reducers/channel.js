@@ -169,6 +169,10 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'DECREASE_CHANNEL_TOTAL_MEMBERS':
+        draft.totalMembers = state.totalMembers - 1
+        break
+
       case 'INCREASE_CHANNEL_TOTAL_MEMBERS':
         draft.totalMembers = state.totalMembers + 1
         break
