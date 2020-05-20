@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
 import { Button, Modal, Input, Textarea, Avatar, Notification, Spinner, Error } from '@tryyack/elements'
-import { validEmail, logger } from '../helpers/util'
+import { validEmail, logger, validateEmail } from '../helpers/util'
 import { createTeam } from '../actions'
 import MessagingService from '../services/messaging.service'
 
@@ -16,6 +16,7 @@ export default function TeamOnboardingModal(props) {
   const [error, setError] = useState(null)
   const [step, setStep] = useState(1)
   const [image, setImage] = useState('')
+  const [teamId, setTeamId] = useState('')
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [shortcode, setShortcode] = useState('')
@@ -66,6 +67,7 @@ export default function TeamOnboardingModal(props) {
 
       setSlug(data.createTeam.slug)
       setShortcode(data.createTeam.shortcode)
+      setTeamId(data.createTeam.id)
       setLoading(false)
       setStep(3)
       dispatch(createTeam(data.createTeam))
@@ -111,7 +113,11 @@ export default function TeamOnboardingModal(props) {
       setLoading(true)
       setError(null)
 
-      await GraphqlService.getInstance().inviteTeamMembers(name, slug, shortcode, emails.join(','))
+      const removeSpaces = emails.join(',').replace(/ /g, '')
+      const emailArray = removeSpaces.split(',').filter(email => email != '' && validateEmail(email))
+      const emailsString = emailArray.join(',')
+
+      await GraphqlService.getInstance().inviteTeamMembers(teamId, emailsString)
 
       // Stop the loading
       setLoading(false)
