@@ -10,7 +10,7 @@ import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@tryyack/elements'
 import { IconComponent } from '../components/icon.component'
-import { copyToClipboard, stripSpecialChars } from '../helpers/util'
+import { copyToClipboard, stripSpecialChars, validateEmail } from '../helpers/util'
 import { BASE_URL } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
@@ -138,7 +138,12 @@ export default function TeamModal(props) {
       setError(null)
       setNotification(null)
 
-      await GraphqlService.getInstance().inviteTeamMembers(props.id, emails)
+      const removeSpaces = emails.replace(/ /g, '')
+      const emailArray = removeSpaces.split(',').filter(email => email != '' && validateEmail(email))
+      const emailsString = emailArray.join(',')
+      const teamId = props.id
+
+      await GraphqlService.getInstance().inviteTeamMembers(teamId, emailsString)
 
       setLoading(false)
       setNotification('Successfully sent invites')
