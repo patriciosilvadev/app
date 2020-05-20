@@ -249,18 +249,20 @@ export default function TeamModal(props) {
             <Text className="color-d2 h5 mb-10">Outside access</Text>
             <Text className="color-d0 p mb-30">{`Allow anybody to join your team using a shortcode at ${BASE_URL}/t/${slug}`}</Text>
 
+            <div className="row mb-20 w-100">
+              <div className="pr-10 color-d0 p">{`${BASE_URL}/t/`}</div>
+              <Input value={slug} onChange={e => setSlug(stripSpecialChars(e.target.value))} placeholder="Enter Slug" />
+            </div>
+
+            <div className="row pb-30 mb-30 w-100 border-bottom">
+              <Button theme="muted" onClick={handleUpdateTeamSlug} text="Update slug" />
+              <Button theme="muted" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
+            </div>
+
             <Input label="Update your team shortcode" value={shortcode} onChange={e => setShortcode(e.target.value)} placeholder="Enter shortcode" className="mb-20" />
 
             <div className="row mb-30">
-              <Button onClick={handleUpdateTeamShortcode} text="Update" theme="muted" />
-            </div>
-
-            <Input label="Update your team slug" value={slug} onChange={e => setSlug(stripSpecialChars(e.target.value))} placeholder="Enter Slug" className="mb-20" />
-
-            <div className="row mb-30">
-              <Button theme="muted" onClick={handleUpdateTeamSlug} text="Update slug" />
-
-              <Button theme="muted" onClick={() => copyToClipboard(`${BASE_URL}/t/${slug}`)} text="Copy URL" className="ml-5" />
+              <Button onClick={handleUpdateTeamShortcode} text="Update shortcode" theme="muted" />
             </div>
           </div>
         </div>
