@@ -178,7 +178,7 @@ export const getPresenceText = presence => {
 }
 
 export const stripSpecialChars = text => {
-  return text ? text.replace(/[^a-zA-Z0-9 ]/g, '').replace(/ /g, '') : ''
+  return text ? text.replace(/[`~!@#$%^&*()|+\= ?;:'",.<>\{\}\[\]\\\/]/gi, '') : ''
 }
 
 export const isElectron = () => {
