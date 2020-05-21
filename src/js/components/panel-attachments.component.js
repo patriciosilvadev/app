@@ -127,7 +127,7 @@ class PanelAttachmentsComponent extends React.Component {
                       </span>
                     </div>
 
-                    <Text>{shortenMarkdownText(message.message)}</Text>
+                    <Text>{shortenMarkdownText(message.body)}</Text>
                   </React.Fragment>
                 )
               })}

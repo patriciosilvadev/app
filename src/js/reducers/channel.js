@@ -286,7 +286,7 @@ export default (state = initialState, action) =>
             let updatedMessage = message
 
             // Because these aren\t guaranteed
-            if (action.payload.message.message) updatedMessage.message = action.payload.message.message
+            if (action.payload.message.body) updatedMessage.body = action.payload.message.body
             if (action.payload.message.attachments) updatedMessage.attachments = action.payload.message.attachments
 
             // If there is an app - there should be

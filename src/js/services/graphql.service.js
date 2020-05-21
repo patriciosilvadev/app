@@ -454,7 +454,7 @@ export default class GraphqlService {
                     image
                   }
                 }
-                message
+                body
                 createdAt
               }
               user {
@@ -465,7 +465,7 @@ export default class GraphqlService {
                 name
                 image
               }
-              message
+              body
               createdAt
               app {
                 resourceId
@@ -516,7 +516,7 @@ export default class GraphqlService {
                     image
                   }
                 }
-                message
+                body
                 createdAt
               }
               user {
@@ -527,7 +527,7 @@ export default class GraphqlService {
                 name
                 image
               }
-              message
+              body
               attachments {
                 _id
                 id
@@ -692,7 +692,7 @@ export default class GraphqlService {
                   image
                 }
               }
-              message
+              body
               createdAt
             }
             forwardingOriginalTime
@@ -714,7 +714,7 @@ export default class GraphqlService {
               username
               timezone
             }
-            message
+            body
             attachments {
               _id
               id
@@ -787,7 +787,7 @@ export default class GraphqlService {
                 status
                 presence
               }
-              message
+              body
               createdAt
             }
             user {
@@ -801,7 +801,7 @@ export default class GraphqlService {
               username
               timezone
             }
-            message
+            body
             attachments {
               _id
               id
@@ -850,7 +850,7 @@ export default class GraphqlService {
                 status
                 presence
               }
-              message
+              body
               createdAt
             }
             user {
@@ -862,7 +862,7 @@ export default class GraphqlService {
               username
               timezone
             }
-            message
+            body
             attachments {
               _id
               id
@@ -1361,7 +1361,7 @@ export default class GraphqlService {
               username
               timezone
             }
-            message
+            body
             reactions
             device
             likes
@@ -1385,7 +1385,7 @@ export default class GraphqlService {
                 username
                 timezone
               }
-              message
+              body
               createdAt
             }
             createdAt
@@ -1412,7 +1412,7 @@ export default class GraphqlService {
               username
               timezone
             }
-            message
+            body
             read
             reactions
             device
@@ -1440,7 +1440,7 @@ export default class GraphqlService {
                 username
                 timezone
               }
-              message
+              body
               createdAt
             }
             createdAt

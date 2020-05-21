@@ -153,7 +153,7 @@ export function initialize(userId) {
               const { timezone, dnd, dndUntil } = getState().user
               const currentDate = moment()
               const currentDateIsAfterDndDate = currentDate.isAfter(moment(dndUntil).tz(timezone))
-              const showNotification = () => showLocalPushNotification('New Message', message.message)
+              const showNotification = () => showLocalPushNotification('New Message', message.body)
 
               // Don't do a PN or unread increment if we are on the same channel
               // as the message

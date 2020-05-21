@@ -144,16 +144,16 @@ class ComposeComponent extends React.Component {
     }
   }
 
-  async createChannelMessage(channelId, message, attachments, parentId) {
+  async createChannelMessage(channelId, body, attachments, parentId) {
     const userName = this.props.user.name
     const userId = this.props.user.id
-    const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
+    const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
     const teamId = this.props.team.id
     const device = DEVICE
 
     // Get a list of mentions
     // but also strip punctuation
-    const mentions = message
+    const mentions = body
       .replace('/./g', ' ')
       .replace('/,/g', ' ')
       .split(' ')
@@ -167,7 +167,7 @@ class ComposeComponent extends React.Component {
         user: userId,
         team: teamId,
         parent: parentId,
-        message,
+        body,
         attachments,
         excerpt,
       })
@@ -191,15 +191,15 @@ class ComposeComponent extends React.Component {
     } catch (e) {}
   }
 
-  async updateChannelMessage(channelId, messageId, message, attachments) {
+  async updateChannelMessage(channelId, messageId, body, attachments) {
     const userName = this.props.user.name
     const userId = this.props.user.id
-    const excerpt = userName.toString().split(' ')[0] + ': ' + message || message
+    const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
     const teamId = this.props.team.id
 
     // Get a list of mentions
     // but also strip punctuation
-    const mentions = message
+    const mentions = body
       .replace('/./g', ' ')
       .replace('/,/g', ' ')
       .split(' ')
@@ -208,13 +208,13 @@ class ComposeComponent extends React.Component {
     try {
       const { data } = await GraphqlService.getInstance().updateChannelMessage(messageId, {
         mentions,
-        message,
+        body,
         attachments,
         excerpt,
       })
 
       const channelMessage = {
-        message: { message, attachments },
+        message: { body, attachments },
         messageId,
         channelId,
         teamId,

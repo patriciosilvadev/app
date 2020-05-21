@@ -37,7 +37,7 @@ import uuidv1 from 'uuid/v1'
 import PreviewComponent from './preview.component'
 
 export default memo(props => {
-  const [message, setMessage] = useState(false)
+  const [body, setBody] = useState(false)
   const [preview, setPreview] = useState(null)
   const [over, setOver] = useState(false)
   const [forwardMenu, setForwardMenu] = useState(false)
@@ -104,9 +104,9 @@ export default memo(props => {
 
     const userName = user.name
     const userId = user.id
-    const excerpt = userName.toString().split(' ')[0] + ': ' + props.message.message || props.message.message
+    const excerpt = userName.toString().split(' ')[0] + ': ' + props.message.body || props.message.body
     const teamId = team.id
-    const forwardedMessageContents = props.message.message
+    const forwardedMessageContents = props.message.body
     const forwardingOriginalTime = props.message.createdAt
     const forwardedMessageUser = props.message.user.id
     const forwardedMessageAttachments = props.message.attachments
@@ -118,7 +118,7 @@ export default memo(props => {
         forwardingUser: userId,
         forwardingOriginalTime,
         team: teamId,
-        message: forwardedMessageContents,
+        body: forwardedMessageContents,
         attachments: forwardedMessageAttachments,
       })
 
@@ -238,7 +238,7 @@ export default memo(props => {
 
   // General app & send info setup
   useEffect(() => {
-    const parseUrls = urlParser(props.message.message)
+    const parseUrls = urlParser(props.message.body)
     const firstUrl = parseUrls ? parseUrls[0] : null
 
     // Just fetch the first URL
@@ -247,7 +247,7 @@ export default memo(props => {
 
     // Display all images
     setImages(
-      props.message.message
+      props.message.body
         .split(' ')
         .filter(p => imageUrlParser(p))
         .map(p => imageUrlParser(p))
@@ -255,7 +255,7 @@ export default memo(props => {
 
     // All Youtube videos
     setYoutubeVideos(
-      props.message.message
+      props.message.body
         .split(' ')
         .filter(p => youtubeUrlParser(p))
         .map(p => youtubeUrlParser(p))
@@ -263,7 +263,7 @@ export default memo(props => {
 
     // All vimeo videos
     setVimeoVideos(
-      props.message.message
+      props.message.body
         .split(' ')
         .filter(p => vimeoUrlParser(p))
         .map(p => vimeoUrlParser(p))
@@ -363,7 +363,7 @@ export default memo(props => {
 
   // Here we start processing the markdown & text highighting
   useEffect(() => {
-    setMessage(parseMessageMarkdown(props.message.message, props.highlight))
+    setBody(parseMessageMarkdown(props.message.body, props.highlight))
   }, [props.highlight, props.message])
 
   // Message reads - runs once
@@ -425,7 +425,7 @@ export default memo(props => {
         {props.message.app && <App>App</App>}
 
         <Date>
-          {props.message.system && <span>{props.message.message} - </span>}
+          {props.message.system && <span>{props.message.body} - </span>}
 
           {moment(props.message.forwardingOriginalTime ? props.message.forwardingOriginalTime : props.message.createdAt)
             .tz(user.timezone)
@@ -531,7 +531,7 @@ export default memo(props => {
                   <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
                 </div>
                 <ParentMessage>
-                  <ReactMarkdown source={props.message.parent.message} />
+                  <ReactMarkdown source={props.message.parent.body} />
                 </ParentMessage>
               </div>
             </ParentContainer>
@@ -681,7 +681,7 @@ export default memo(props => {
     // Do not render the message text if it's a system message
     if (props.message.system) return null
 
-    return <Text dangerouslySetInnerHTML={{ __html: message }} />
+    return <Text dangerouslySetInnerHTML={{ __html: body }} />
   }
 
   const renderForwardingUser = () => {
