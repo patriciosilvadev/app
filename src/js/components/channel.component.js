@@ -58,6 +58,7 @@ class ChannelComponent extends React.Component {
       readonly: false,
       muted: false,
       archived: false,
+      otherUserIsTeamMember: true,
     }
 
     this.shortcodeRef = React.createRef()
@@ -98,6 +99,8 @@ class ChannelComponent extends React.Component {
     this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
     this.renderChannelModal = this.renderChannelModal.bind(this)
     this.renderOtherUserTimezone = this.renderOtherUserTimezone.bind(this)
+    this.renderNonTeamMemberNotice = this.renderNonTeamMemberNotice.bind(this)
+    this.renderCompose = this.renderCompose.bind(this)
   }
 
   async updateChannelShortcode(generateNewCode) {
@@ -170,6 +173,17 @@ class ChannelComponent extends React.Component {
       this.setState({ busy: true })
 
       const { data } = await GraphqlService.getInstance().channel(channelId)
+      let otherUserIsTeamMember = true
+
+      // We do a check call to see if the other user is paert of this team
+      // Only do this if the channel is privates
+      if (data.channel.private) {
+        const userId = data.channel.otherUser.id
+        const teamId = this.props.team.id
+        const isTeamMember = await GraphqlService.getInstance().isTeamMember(teamId, userId)
+
+        otherUserIsTeamMember = isTeamMember.data.isTeamMember
+      }
 
       // Populate our channel - this will fetch page 0 of messages
       this.props.hydrateChannel(data.channel)
@@ -183,6 +197,7 @@ class ChannelComponent extends React.Component {
           page: this.state.page + 1,
           busy: false,
           manualScrolling: false,
+          otherUserIsTeamMember,
         },
         () => this.scrollToBottom()
       )
@@ -516,7 +531,7 @@ class ChannelComponent extends React.Component {
                         />
                         <Button
                           size="small"
-                          text="Copy"
+                          text="Copy link"
                           className="mt-5"
                           onClick={() => {
                             this.shortcodeRef.focus()
@@ -646,6 +661,12 @@ class ChannelComponent extends React.Component {
     )
   }
 
+  renderNonTeamMemberNotice() {
+    if (!this.state.otherUserIsTeamMember && this.props.channel.private) return <Error message="This person is no longer part of your team, you cannot message them" />
+
+    return null
+  }
+
   renderNotification() {
     if (!this.state.open) return <Error message="Sorry, you are not allowed to view this" />
     if (this.props.channel.public && !this.props.channel.public) return <Notification text="This team channel is public" />
@@ -768,6 +789,24 @@ class ChannelComponent extends React.Component {
     return <Notification text={text} />
   }
 
+  renderCompose() {
+    if (!this.state.open) return null
+    if (!this.state.otherUserIsTeamMember && this.props.channel.private) return null
+
+    return (
+      <ComposeComponent
+        disabled={this.state.readonly}
+        reply={this.state.reply}
+        update={this.state.update}
+        message={this.state.message}
+        clearMessage={() => {
+          this.setState({ message: null, update: false, reply: false })
+          sendFocusComposeInputEvent()
+        }}
+      />
+    )
+  }
+
   render() {
     const { teamId, channelId } = this.props.match.params
 
@@ -777,6 +816,7 @@ class ChannelComponent extends React.Component {
 
         <ChannelContainer>
           {this.renderHeader()}
+          {this.renderNonTeamMemberNotice()}
 
           <ChannelBodyContainer>
             <ChannelBody ref={ref => (this.dropZone = ref)}>
@@ -794,19 +834,7 @@ class ChannelComponent extends React.Component {
               </MessagesContainer>
 
               {this.renderTypingNames()}
-
-              {this.state.open && (
-                <ComposeComponent
-                  disabled={this.state.readonly}
-                  reply={this.state.reply}
-                  update={this.state.update}
-                  message={this.state.message}
-                  clearMessage={() => {
-                    this.setState({ message: null, update: false, reply: false })
-                    sendFocusComposeInputEvent()
-                  }}
-                />
-              )}
+              {this.renderCompose()}
             </ChannelBody>
 
             {this.renderPanelMembers()}

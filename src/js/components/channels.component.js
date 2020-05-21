@@ -258,7 +258,7 @@ class ChannelsComponent extends React.Component {
     this.state = {
       filter: '',
       results: [],
-      teamModal: true,
+      teamModal: false,
       teamModalStart: 0,
       channelPublicPopup: false,
       channelPrivatePopup: false,
@@ -388,10 +388,22 @@ class ChannelsComponent extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const starredChannels = props.channels
       .filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
-      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(channel => {
+        if (channel.otherUser.name) {
+          return channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+        } else {
+          return channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+        }
+      })
     const archivedChannels = props.channels
       .filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
-      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(channel => {
+        if (channel.otherUser.name) {
+          return channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+        } else {
+          return channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+        }
+      })
     const publicChannels = props.channels
       .filter((channel, index) => !channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
       .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
