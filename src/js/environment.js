@@ -9,5 +9,5 @@ export const PN = ''
 export const APPSTORE_URL = ''
 export const STRIPE_API_KEY = ''
 export const SENTRY_DSN = ''
-export const PAGE_LIMIT = 5
+export const PAGE_LIMIT = 10
 export const DEVICE = 'WEB'
