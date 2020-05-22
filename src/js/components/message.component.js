@@ -388,13 +388,14 @@ export default memo(props => {
       const { reads, read } = props.message
       const { totalMembers } = channel
       const channelId = channel.id
+      const teamId = team.id
       const userId = user.id
       const messageId = props.message.id
 
       // Only do this is the message is not all read
       if (!read) {
         // Add another read
-        ReadService.addMessageRead(messageId, userId, channelId)
+        ReadService.addMessageRead(messageId, userId, channelId, teamId)
 
         // Tell everyone else
         dispatch(updateChannelMessageReadCount(channelId, messageId))
