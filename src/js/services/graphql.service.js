@@ -1293,15 +1293,16 @@ export default class GraphqlService {
     })
   }
 
-  deleteChannel(channelId) {
+  deleteChannel(channelId, teamId) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteChannel($channelId: String) {
-          deleteChannel(channelId: $channelId)
+        mutation deleteChannel($channelId: String, $teamId: String) {
+          deleteChannel(channelId: $channelId, teamId: $teamId)
         }
       `,
       variables: {
         channelId,
+        teamId,
       },
     })
   }

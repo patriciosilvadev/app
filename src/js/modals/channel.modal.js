@@ -63,7 +63,7 @@ export default function ChannelModal(props) {
     try {
       const channelId = channel.id
       const teamId = team.id
-      const { data } = await GraphqlService.getInstance().deleteChannel(channelId)
+      const { data } = await GraphqlService.getInstance().deleteChannel(channelId, teamId)
 
       // Sync this one for everyone
       dispatch(deleteChannel(channelId, true))
