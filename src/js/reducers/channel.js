@@ -70,7 +70,6 @@ export default (state = initialState, action) =>
         draft.messages = state.messages.map((message, _) => {
           // If it's the correct message
           if (message.id == action.payload.messageId) {
-            console.log(action.payload, message)
             // Bump the read count
             return { ...message, reads: message.reads + 1 }
           }

@@ -10,7 +10,7 @@ import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@tryyack/elements'
-import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent } from '../helpers/util'
+import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent, getMentions } from '../helpers/util'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import { DEVICE } from '../environment'
@@ -150,14 +150,7 @@ class ComposeComponent extends React.Component {
     const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
     const teamId = this.props.team.id
     const device = DEVICE
-
-    // Get a list of mentions
-    // but also strip punctuation
-    const mentions = body
-      .replace('/./g', ' ')
-      .replace('/,/g', ' ')
-      .split(' ')
-      .filter(part => part[0] == '@')
+    const mentions = getMentions(body)
 
     try {
       const { data } = await GraphqlService.getInstance().createChannelMessage({

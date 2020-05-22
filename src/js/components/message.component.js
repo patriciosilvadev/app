@@ -26,7 +26,7 @@ import {
   updateChannelDeleteMessagePin,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip } from '@tryyack/elements'
-import { urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
+import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
@@ -110,6 +110,7 @@ export default memo(props => {
     const forwardingOriginalTime = props.message.createdAt
     const forwardedMessageUser = props.message.user.id
     const forwardedMessageAttachments = props.message.attachments
+    const mentions = getMentions(forwardedMessageContents)
 
     try {
       const { data } = await GraphqlService.getInstance().createChannelMessage({
@@ -120,6 +121,7 @@ export default memo(props => {
         team: teamId,
         body: forwardedMessageContents,
         attachments: forwardedMessageAttachments,
+        mentions,
       })
 
       // The extra values are used for processing other info
@@ -132,7 +134,9 @@ export default memo(props => {
       // Create the message
       dispatch(createChannelMessage(channelId, channelMessage))
       dispatch(updateChannel(channelId, { excerpt }))
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const handleActionClick = async action => {
