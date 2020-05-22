@@ -67,7 +67,7 @@ class ComposeComponent extends React.Component {
     this.renderUpdate = this.renderUpdate.bind(this)
     this.renderAttachments = this.renderAttachments.bind(this)
     this.renderCommands = this.renderCommands.bind(this)
-    this.renderReplyMessage = this.renderReplyMessage.bind(this)
+    this.renderReply = this.renderReply.bind(this)
     this.renderInput = this.renderInput.bind(this)
     this.renderFooter = this.renderFooter.bind(this)
   }
@@ -229,7 +229,9 @@ class ComposeComponent extends React.Component {
 
       // Tell the channel component to scroll down
       EventService.getInstance().emit('SCROLL_TO_BOTTOM', null)
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   clearMessage() {
@@ -457,7 +459,7 @@ class ComposeComponent extends React.Component {
       return {
         id: props.message.id,
         attachments: props.message.attachments,
-        text: props.message.message,
+        text: props.message.body,
         parent: props.message.parent,
       }
     }
@@ -545,7 +547,7 @@ class ComposeComponent extends React.Component {
     )
   }
 
-  renderReplyMessage() {
+  renderReply() {
     if (this.props.message && this.props.reply) {
       return (
         <ReplyPadding className="column align-items-stretch flexer">
@@ -556,7 +558,7 @@ class ComposeComponent extends React.Component {
                 <ReplyName>{this.props.message.app ? this.props.message.app.name : this.props.message.user.name}</ReplyName>
                 <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
               </div>
-              <ReplyMessage dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(this.props.message.message) }} />
+              <ReplyMessage dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(this.props.message.body) }} />
             </div>
             <IconComponent icon="x" size={20} color="#565456" className="ml-15 button" onClick={this.props.clearMessage} />
           </ReplyContainer>
@@ -663,7 +665,7 @@ class ComposeComponent extends React.Component {
         {this.renderAttachments()}
         {this.renderMembers()}
         {this.renderCommands()}
-        {this.renderReplyMessage()}
+        {this.renderReply()}
         {this.renderInput()}
         {this.renderFooter()}
       </Compose>
@@ -692,6 +694,7 @@ const mapDispatchToProps = {
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannelMessage: (channelId, channelMessage) => updateChannelMessage(channelId, channelMessage),
   updateChannelAddTyping: (channelId, userName, userId) => updateChannelAddTyping(channelId, userName, userId),
+  updateChannelUpdateMessagePin: (channelId, channelMessage) => updateChannelUpdateMessagePin(channelId, channelMessage),
   updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
   openApp: action => openApp(action),
 }

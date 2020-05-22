@@ -1414,6 +1414,7 @@ export default class GraphqlService {
             }
             body
             read
+            reads
             reactions
             device
             likes

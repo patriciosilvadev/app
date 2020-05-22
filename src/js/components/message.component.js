@@ -390,7 +390,7 @@ export default memo(props => {
       // Only do this is the message is not all read
       if (!read) {
         // Add another read
-        ReadService.addMessageRead(messageId, userId)
+        ReadService.addMessageRead(messageId, userId, channelId)
 
         // Tell everyone else
         dispatch(updateChannelMessageReadCount(channelId, messageId))
@@ -408,7 +408,11 @@ export default memo(props => {
   const renderDeviceIcons = () => {
     switch (props.message.device) {
       case 'WEB':
-        return <IconComponent icon="compass" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
+        return <IconComponent icon="monitor" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
+      case 'APP':
+        return <IconComponent icon="monitor" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
+      case 'MOBILE':
+        return <IconComponent icon="smartphone" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
       default:
         return null
     }

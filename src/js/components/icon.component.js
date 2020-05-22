@@ -43,6 +43,8 @@ import {
   Package,
   Compass,
   Hash,
+  Monitor,
+  Smartphone,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -55,6 +57,10 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'monitor':
+        return <Monitor width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'smartphone':
+        return <Smartphone width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'hash':
         return <Hash width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'compass':
