@@ -394,7 +394,7 @@ export default function AccountModal(props) {
             <Text className="color-d0 p mb-30">Manage notifications you receive.</Text>
 
             <div className="row">
-              <Toggle on={false} onChange={on => console.log(on)} />
+              <Toggle on={false} onChange={on => logger(on)} />
               <Text className="p color-blue button bold pl-10">{false ? 'Receive notifications for new messages' : "Don't receive notifications for new messages"}</Text>
             </div>
           </div>

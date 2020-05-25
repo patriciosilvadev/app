@@ -10,7 +10,7 @@ import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
 import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@tryyack/elements'
-import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent, getMentions } from '../helpers/util'
+import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent, getMentions, logger } from '../helpers/util'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import { DEVICE } from '../environment'
@@ -166,7 +166,7 @@ class ComposeComponent extends React.Component {
       })
 
       // Catch it
-      if (!data.createChannelMessage) return console.log('data.createChannelMessage is null')
+      if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
 
       // The extra values are used for processing other info
       const channelMessage = {
@@ -223,7 +223,7 @@ class ComposeComponent extends React.Component {
       // Tell the channel component to scroll down
       EventService.getInstance().emit('SCROLL_TO_BOTTOM', null)
     } catch (e) {
-      console.log(e)
+      logger(e)
     }
   }
 

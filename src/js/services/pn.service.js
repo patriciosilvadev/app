@@ -2,7 +2,7 @@ import GraphqlService from './graphql.service'
 import CookieService from './storage.service'
 import AuthService from './auth.service'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
-import { urlBase64ToUint8Array } from '../helpers/util'
+import { urlBase64ToUint8Array, logger } from '../helpers/util'
 
 export const subscribeUser = async () => {
   const { token } = await AuthService.currentAuthenticatedUser()
@@ -34,7 +34,7 @@ export const subscribeUser = async () => {
         })
       }
     } catch (e) {
-      console.log(e)
+      logger(e)
     }
   })
 }

@@ -408,52 +408,6 @@ const Td = styled.td`
   border-top: 1px solid #e9edef;
 `
 
-const Text = styled.div`
-  font-size: 14px;
-  color: #acb5bd;
-  font-weight: 400;
-
-  line-height: 1.2;
-  padding: 0px 0px 20px 0px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  width: 100%;
-
-  strong {
-    font-weight: bold;
-  }
-
-  p {
-    padding: 0px;
-    margin: 0px;
-  }
-
-  code {
-    background: white;
-    border: 1px solid #eaeaea;
-    border-left: 5px solid #007af5;
-    color: #495057;
-    border-radius: 2px;
-    page-break-inside: avoid;
-    font-family: Menlo, monospace;
-    font-size: 10px;
-    margin-top: 5px;
-    line-height: 1.6;
-    max-width: 100%;
-    overflow: auto;
-    padding: 1em 1.5em;
-    display: block;
-    word-wrap: break-word;
-  }
-
-  pre {
-  }
-`
-
 const Members = styled.div`
   padding: 20px;
   padding-top: 10px;

@@ -18,7 +18,7 @@ import PanelAttachmentsComponent from '../components/panel-attachments.component
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
-import { showLocalPushNotification, urlBase64ToUint8Array } from '../helpers/util'
+import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../helpers/util'
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 
@@ -121,14 +121,14 @@ class AppPage extends React.Component {
               this.checkPushNotificationsAreEnabled()
             }
           } catch (e) {
-            console.log(e)
+            logger(e)
           }
         })
       } catch (e) {
-        console.log(e)
+        logger(e)
       }
     } else {
-      console.log('Service workers are not supported in this browser')
+      logger('Service workers are not supported in this browser')
     }
   }
 

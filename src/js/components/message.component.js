@@ -135,7 +135,7 @@ export default memo(props => {
       dispatch(createChannelMessage(channelId, channelMessage))
       dispatch(updateChannel(channelId, { excerpt }))
     } catch (e) {
-      console.log(e)
+      logger(e)
     }
   }
 
@@ -348,7 +348,7 @@ export default memo(props => {
   // Specifically watch our resizeId
   useEffect(() => {
     EventService.getInstance().on('SYNC_MESSAGE_HEIGHT', data => {
-      console.log('SYNC_MESSAGE_HEIGHT → ', data)
+      logger('SYNC_MESSAGE_HEIGHT → ', data)
 
       // AUTO_ADJUST_MESSAGE_HEIGHT will be received by ALL MESSAGE COMPONENTS
       // resizeId is auto generated to identify THIS SPECIFIC MESSAGE COMPONENT
@@ -870,6 +870,12 @@ const Text = styled.div`
   }
 
   code {
+    color: #495057;
+    font-weight: 600;
+    font-family: monospace !important;
+  }
+
+  pre {
     background: white;
     border: 1px solid #eaeaea;
     border-left: 5px solid #007af5;
@@ -878,18 +884,13 @@ const Text = styled.div`
     page-break-inside: avoid;
     font-family: monospace !important;
     font-size: 12px;
-    margin-top: 5px;
+    margin-top: 0px;
     line-height: 1.6;
     max-width: 100%;
     overflow: auto;
     padding: 1em 1.5em;
-    display: block;
+    display: inline-block;
     word-wrap: break-word;
-  }
-
-  pre {
-    font-size: 14px;
-    font-family: monospace !important;
   }
 `
 

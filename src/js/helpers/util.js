@@ -3,6 +3,7 @@ import marked from 'marked'
 import ReactDOMServer from 'react-dom/server'
 import React from 'react'
 import EventService from '../services/event.service'
+import { NODE_ENV } from '../environment'
 
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
@@ -70,6 +71,8 @@ export const copyToClipboard = value => {
 }
 
 export const logger = (log, additional) => {
+  if (NODE_ENV == 'production') return
+
   if (additional) {
     console.log(log, additional)
   } else {

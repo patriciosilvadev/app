@@ -22,7 +22,7 @@ import MessagesComponent from './messages.component'
 import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes } from '../helpers/util'
+import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
 import ToolbarComponent from './toolbar.component'
 import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
@@ -520,7 +520,7 @@ class ChannelComponent extends React.Component {
                       <div className="column w-100 mt-10">
                         <ShortcodeInput
                           placeholder="Shortcode URL"
-                          onChange={e => console.log('Do nothing')}
+                          onChange={e => logger('Do nothing')}
                           value={`${BASE_URL}/c/${this.props.channel.shortcode}`}
                           ref={ref => (this.shortcodeRef = ref)}
                           className="p color-l0"
