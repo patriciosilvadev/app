@@ -67,7 +67,8 @@ const store = createStore(
     user,
     app,
   }),
-  applyMiddleware(thunk, sync, logger)
+  applyMiddleware(thunk, sync)
+  //applyMiddleware(thunk, sync, logger)
 )
 
 ReactDOM.render(

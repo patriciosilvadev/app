@@ -14,6 +14,8 @@ import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent, getMenti
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import { DEVICE } from '../environment'
+import { Subject } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
 
 class ComposeComponent extends React.Component {
   constructor(props) {
@@ -62,6 +64,10 @@ class ComposeComponent extends React.Component {
     this.handleActionClick = this.handleActionClick.bind(this)
     this.clearMessage = this.clearMessage.bind(this)
     this.focusComposeInput = this.focusComposeInput.bind(this)
+    this.fetchResults = this.fetchResults.bind(this)
+
+    this.onSearch$ = new Subject()
+    this.subscription = null
 
     this.renderMembers = this.renderMembers.bind(this)
     this.renderUpdate = this.renderUpdate.bind(this)
@@ -279,7 +285,7 @@ class ComposeComponent extends React.Component {
     // Enter & Shift
     if (keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
-    // Update typing only with alpha numeric
+    // Update typing only with alpha numeric - not the following (can change)
     if (
       (keyCode > 47 && keyCode < 58) || // number keys
       (keyCode == 32 || keyCode == 13) || // spacebar & return key(s)
@@ -293,15 +299,11 @@ class ComposeComponent extends React.Component {
   handleComposeChange(e) {
     const text = e.target.value
 
-    this.setState({ text }, () => {
+    this.setState({ text, commands: [] }, () => {
       // If the first word is the command shorthand
       // Then pass only the first word to look for available commands
       // First also remove the slash
-      if (text[0] == '/') {
-        return this.populateCommands(text)
-      } else {
-        return this.setState({ commands: [] })
-      }
+      if (text[0] == '/') return this.populateCommands(text)
 
       const { selectionStart } = this.composeRef
       const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
@@ -321,6 +323,7 @@ class ComposeComponent extends React.Component {
   handleKeyUp(e) {
     this.updateComposeHeight()
 
+    // Right Shift
     if (e.keyCode == 16) this.setState({ shift: false })
   }
 
@@ -351,16 +354,9 @@ class ComposeComponent extends React.Component {
   }
 
   filterMembers(username) {
-    // Create the Regex test against the remaining word
-    // Return 5 there is no match
-    // Cap them at 5 for the match too
-    const members =
-      username == ''
-        ? this.props.channel.members.filter((member, index) => index < 5)
-        : this.props.channel.members.filter((member, index) => member.user.name.toLowerCase().match(new RegExp(username.toLowerCase() + '.*'))).filter((member, index) => index < 5)
+    this.onSearch$.next(username)
 
-    // Create the brand the state object the component should use
-    this.setState({ members })
+    if (username == '') this.setState({ members: [] })
   }
 
   updateComposeHeight() {
@@ -442,6 +438,43 @@ class ComposeComponent extends React.Component {
     EventService.getInstance().on('FOCUS_COMPOSE_INPUT', data => {
       this.focusComposeInput()
     })
+
+    // Here we handle the delay for the yser typing in the mentions
+    this.subscription = this.onSearch$.pipe(debounceTime(1000)).subscribe(username => this.fetchResults(username))
+  }
+
+  componentWillUnmount() {
+    // Remove the search filter
+    if (this.subscription) this.subscription.unsubscribe()
+  }
+
+  async fetchResults(username) {
+    if (username == '') return
+
+    this.setState({
+      loading: true,
+      error: null,
+    })
+
+    try {
+      const channelId = this.props.channel.id
+      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, username)
+      const members = data.searchChannelMembers ? data.searchChannelMembers : []
+
+      // Remove ourselves / cap at 5
+      const filteredMembers = members.filter((member, index) => member.user.username != this.props.user.username).filter((member, index) => index < 5)
+
+      // Update our users & bump the page
+      this.setState({
+        loading: false,
+        members: filteredMembers,
+      })
+    } catch (e) {
+      this.setState({
+        loading: false,
+        error: 'Error searching members',
+      })
+    }
   }
 
   static getDerivedStateFromProps(props, state) {
