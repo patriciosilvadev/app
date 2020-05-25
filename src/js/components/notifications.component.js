@@ -114,9 +114,9 @@ export default function NotificationsComponent(props) {
 
               {notifications.length == 0 && (
                 <React.Fragment>
-                  <img src="https://yack-marketing.s3-us-west-2.amazonaws.com/logo-512.png" width="125" className="mt-40 mb-20" />
-                  <TitleText>Whoops</TitleText>
-                  <SubtitleText>You have no notifications</SubtitleText>
+                  <img src="icon.svg" width="100" className="mt-40 mb-20" />
+                  <TitleText>Hooray</TitleText>
+                  <SubtitleText>You are all caught up</SubtitleText>
                 </React.Fragment>
               )}
 
@@ -126,7 +126,7 @@ export default function NotificationsComponent(props) {
 
             <LoadContainer onClick={() => handleLoadButtonClick()} className="button row justify-content-center">
               <IconComponent icon="refresh" size={15} color="#acb5bd" className="mt-5 mb-5" />
-              <LoadText>Refresh</LoadText>
+              <LoadText>More</LoadText>
             </LoadContainer>
           </Inner>
         </Container>
