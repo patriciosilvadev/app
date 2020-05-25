@@ -263,7 +263,7 @@ class ChannelsComponent extends React.Component {
       channelPublicPopup: false,
       channelPrivatePopup: false,
       accountModal: false,
-      accountMenu: false,
+      accountMenu: true,
       presenceMenu: false,
       archivedVisible: false,
       starred: [],
@@ -299,6 +299,7 @@ class ChannelsComponent extends React.Component {
     this.renderPublic = this.renderPublic.bind(this)
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
+    this.renderDnd = this.renderDnd.bind(this)
 
     this.dndOptions = [{ option: 'Never', value: 0 }, { option: '1 hour', value: 1 }, { option: '8 hours', value: 8 }, { option: '12 hours', value: 12 }, { option: '24 hours', value: 24 }]
   }
@@ -529,6 +530,38 @@ class ChannelsComponent extends React.Component {
 
   // Child render functions that compose the
   // parts of the channels sidebar
+  renderDnd() {
+    const { dnd, dndUntil, timezone } = this.props.user
+    const currentDateTime = moment()
+    const dndUntilDateTime = moment(dndUntil).tz(timezone)
+    const isDndDateInPast = currentDateTime.isAfter(dndUntilDateTime)
+    const dndIsSet = !!this.props.user.dnd
+
+    return (
+      <div className="w-100 p-20 column align-items-start border-bottom">
+        <div className="row w-100">
+          <div className="p regular color-d2 flexer">Do not disturb</div>
+          <Toggle
+            on={dndIsSet && !isDndDateInPast}
+            onChange={() => {
+              if (!dndIsSet || isDndDateInPast) {
+                this.updateUserDnd(1)
+              } else {
+                this.updateUserDnd(0)
+              }
+            }}
+          />
+        </div>
+        <Collapsable className={dndIsSet && !isDndDateInPast ? 'open' : ''}>
+          <div className="column w-100 mt-10">
+            <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
+            <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />
+          </div>
+        </Collapsable>
+      </div>
+    )
+  }
+
   renderHeader() {
     return (
       <div className="column w-100">
@@ -671,27 +704,7 @@ class ChannelsComponent extends React.Component {
                   </Collapsable>
                 </div>
 
-                <div className="w-100 p-20 column align-items-start border-bottom">
-                  <div className="row w-100">
-                    <div className="p regular color-d2 flexer">Do not disturb</div>
-                    <Toggle
-                      on={!!this.props.user.dnd}
-                      onChange={() => {
-                        if (!!this.props.user.dnd) {
-                          this.updateUserDnd(0)
-                        } else {
-                          this.updateUserDnd(1)
-                        }
-                      }}
-                    />
-                  </div>
-                  <Collapsable className={!!this.props.user.dnd ? 'open' : ''}>
-                    <div className="column w-100 mt-10">
-                      <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
-                      <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />
-                    </div>
-                  </Collapsable>
-                </div>
+                {this.renderDnd()}
 
                 <Menu
                   items={[
