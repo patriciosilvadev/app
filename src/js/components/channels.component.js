@@ -532,19 +532,19 @@ class ChannelsComponent extends React.Component {
   // parts of the channels sidebar
   renderDnd() {
     const { dnd, dndUntil, timezone } = this.props.user
-    const currentDateTime = moment()
-    const dndUntilDateTime = moment(dndUntil).tz(timezone)
-    const isDndDateInPast = currentDateTime.isAfter(dndUntilDateTime)
-    const dndIsSet = !!this.props.user.dnd
+    const currentDate = moment()
+    const dndUntilDate = moment(dndUntil).tz(timezone)
+    const currentDateIsAfterDndDate = currentDate.isAfter(dndUntilDate)
+    const dndIsSet = !!dnd
 
     return (
       <div className="w-100 p-20 column align-items-start border-bottom">
         <div className="row w-100">
           <div className="p regular color-d2 flexer">Do not disturb</div>
           <Toggle
-            on={dndIsSet && !isDndDateInPast}
+            on={dndIsSet && !currentDateIsAfterDndDate}
             onChange={() => {
-              if (!dndIsSet || isDndDateInPast) {
+              if (!dndIsSet || currentDateIsAfterDndDate) {
                 this.updateUserDnd(1)
               } else {
                 this.updateUserDnd(0)
@@ -552,7 +552,7 @@ class ChannelsComponent extends React.Component {
             }}
           />
         </div>
-        <Collapsable className={dndIsSet && !isDndDateInPast ? 'open' : ''}>
+        <Collapsable className={dndIsSet && !currentDateIsAfterDndDate ? 'open' : ''}>
           <div className="column w-100 mt-10">
             <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
             <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />

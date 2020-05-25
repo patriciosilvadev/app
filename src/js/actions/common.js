@@ -150,21 +150,26 @@ export function initialize(userId) {
               const isStarred = getState().user.starred.indexOf(channelId) != -1
               const isArchived = getState().user.archived.indexOf(channelId) != -1
               const isCurrentChannel = channelId == getState().channel.id
-              const { timezone, dnd, dndUntil } = getState().user
-              const currentDate = moment()
-              const currentDateIsAfterDndDate = currentDate.isAfter(moment(dndUntil).tz(timezone))
               const showNotification = () => showLocalPushNotification('New Message', message.body)
 
               // Don't do a PN or unread increment if we are on the same channel
               // as the message
               if (isArchived || isStarred || isCurrentChannel) return
 
+              // Process DO NOT DISTURB TIMES
+              const { timezone, dnd, dndUntil } = getState().user
+              const currentDate = moment()
+              const dndUntilDate = moment(dndUntil).tz(timezone)
+              const currentDateIsAfterDndDate = currentDate.isAfter(dndUntilDate)
+              const dndIsSet = !!dnd
+
               // Trigger a push notification
-              if (dnd == 0 || dnd == undefined || dndUntil == undefined) {
-                showNotification()
-              } else {
-                if (currentDateIsAfterDndDate) showNotification()
-              }
+              // If the DND date is set
+              // And if now is after their date
+              if (dndIsSet && currentDateIsAfterDndDate) showNotification()
+
+              // If it's not set process it
+              if (!dndIsSet) showNotification()
 
               // Create an unread marker
               // Channel will be null, which is good
