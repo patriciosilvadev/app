@@ -134,6 +134,7 @@ export function initialize(userId) {
       // if (action.sender == _id) return;
       // These message are sent from the API
       // We need to process these specifically
+      // We now process the ones we send
       switch (message.messageType) {
         case 'SYNC':
           {
