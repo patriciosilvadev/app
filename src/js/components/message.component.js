@@ -275,7 +275,7 @@ export default memo(props => {
 
     // Set sender details - and accommodate SYSTEM messages & APP messages
     setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
-    setSenderName(props.message.system ? '' : props.message.app ? props.message.app.app.name : props.message.user.name)
+    setSenderName(props.message.system ? '' : props.message.user.name)
     setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
 
     // Only do this for human senders
@@ -384,7 +384,8 @@ export default memo(props => {
         - make API call to mark MONGO message as read
   */
   useEffect(() => {
-    if (channel && user && props.message) {
+    // We set this on a timeout so all other variables have time to propagate
+    setTimeout(() => {
       const { reads, read } = props.message
       const { totalMembers } = channel
       const channelId = channel.id
@@ -401,13 +402,13 @@ export default memo(props => {
         dispatch(updateChannelMessageReadCount(channelId, messageId))
 
         // If the total members are the same as all the reads
-        if (totalMembers <= reads + 1) {
+        if (totalMembers <= reads) {
           // We don't bother with syncing the READ property
           // here because users will already be checking for the read count
           ReadService.updateMessageAsRead(messageId)
         }
       }
-    }
+    }, 500)
   }, [])
 
   const renderDeviceIcons = () => {
@@ -431,7 +432,7 @@ export default memo(props => {
     return (
       <React.Fragment>
         {!props.message.system && <User>{senderName}</User>}
-        {props.message.app && <App>App</App>}
+        {props.message.app && <App>{props.message.app.app.name}</App>}
 
         <Date>
           {props.message.system && <span>{props.message.body} - </span>}
@@ -444,7 +445,7 @@ export default memo(props => {
         <div className="row">
           <IconComponent icon="check" thickness={2} size={15} color="#aeb5bc" />
 
-          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />}
+          {(channel.totalMembers < props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />}
 
           {renderDeviceIcons()}
         </div>
