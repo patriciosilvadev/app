@@ -356,9 +356,9 @@ export default memo(props => {
       if (data.resizeId == resizeId) {
         if (data.resizeHeight) {
           // Resize the app message window
-          setAppHeight(parseInt(data.resizeHeight))
+          setAppHeight(data.resizeHeight)
 
-          // Tell the channel component to scroll down
+          // Tell the channel component to scroll down if it's the most recent message
           EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
         }
       }
