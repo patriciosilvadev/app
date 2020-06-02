@@ -24,7 +24,8 @@
     "pack:mac": "electron-builder --mac --dir",
     "pack:win": "electron-builder --win --dir",
     "pack:linux": "electron-builder --linux --dir",
-    "dist": "electron-builder"
+    "release": "electron-builder",
+    "release:all": "electron-builder -mwl"
   },
   "build": {
     "appId": "com.yack.${name}",

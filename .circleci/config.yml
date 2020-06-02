@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build_windows:
+    docker:
+      - image: electronuserland/builder:wine
+    steps:
+      - checkout
+      - run: npm run build:electron
+      - run: npm run pack:win
+      - store_artifacts:
+          path: /root/yack/release
+    filters:
+      tags:
+        only: /^v.*/
+      branches:
+        only:
+          - master
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_windows
