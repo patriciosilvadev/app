@@ -40,7 +40,7 @@ module.exports = env => {
         filename: '[name].[contenthash].css',
         chunkFilename: '[id].[contenthash].css',
       }),
-      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.staging.js'),
+      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.dev.js'),
       new WorkboxPlugin.InjectManifest({
         swSrc: './src/js/sw.staging.js',
         swDest: 'sw.js',

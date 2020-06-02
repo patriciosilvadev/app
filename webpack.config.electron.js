@@ -38,7 +38,7 @@ module.exports = env => {
         filename: '[name].[contenthash].css',
         chunkFilename: '[id].[contenthash].css',
       }),
-      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.production.js'),
+      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.electron.js'),
       new WorkboxPlugin.InjectManifest({
         swSrc: './src/js/sw.production.js',
         swDest: 'sw.js',
