@@ -5,6 +5,7 @@ jobs:
       - image: electronuserland/builder:wine
     steps:
       - checkout
+      - run: npm i
       - run: npm run build:electron
       - run: npm run pack:win
       - store_artifacts:
