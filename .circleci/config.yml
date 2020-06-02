@@ -9,7 +9,7 @@ jobs:
       - run: npm run build:electron
       - run: npm run pack:win
       - store_artifacts:
-          path: /root/yack/release
+          path: /root/project/release
     filters:
       tags:
         only: /^v.*/

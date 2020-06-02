@@ -54,11 +54,26 @@
       ]
     },
     "win": {
-      "asar": false,
       "target": [
-        "nsis"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable"
+        }
       ],
       "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "runAfterFinish": true,
+      "installerIcon": "build/icon.ico",
+      "artifactName": "electron-circleci-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "electron-circleci.exe"
     },
     "files": [
       "dist/*",
