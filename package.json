@@ -78,7 +78,8 @@
     "files": [
       "dist/*",
       "node_modules/**/*",
-      "src/js/electron.js"
+      "src/js/electron.js",
+      "build/*"
     ],
     "directories": {
       "output": "release",
