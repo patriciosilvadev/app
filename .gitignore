@@ -19,5 +19,6 @@ dist/
 
 environment.production.js
 environment.staging.js
+environment.electron.js
 
 release

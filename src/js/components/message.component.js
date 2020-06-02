@@ -415,7 +415,7 @@ export default memo(props => {
     switch (props.message.device) {
       case 'WEB':
         return <IconComponent icon="monitor" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
-      case 'APP':
+      case 'DESKTOP':
         return <IconComponent icon="monitor" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
       case 'MOBILE':
         return <IconComponent icon="smartphone" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
