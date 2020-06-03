@@ -41,7 +41,7 @@
         "Type": "Application",
         "Categories": "Messaging;Office;"
       },
-      "icon": "build/icon.ico",
+      "icon": "build/icon.png",
       "executableName": "yack-app",
       "maintainer": "support@yack.co",
       "target": [
