@@ -13,9 +13,9 @@ jobs:
     filters:
       tags:
         only: /^v.*/
-      #branches:
-      #only:
-      #- master
+      branches:
+        only:
+          - master
 
 workflows:
   version: 2

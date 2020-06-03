@@ -58,11 +58,11 @@
     "win": {
       "asar": false,
       "target": "nsis",
-      "icon": "build/icon.ico"
+      "icon": "build/icon-win.ico"
     },
     "nsis": {
-      "installerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico",
+      "installerIcon": "build/icon-win.ico",
+      "installerHeaderIcon": "build/icon-win.ico",
       "deleteAppDataOnUninstall": true
     },
     "files": [
