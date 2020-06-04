@@ -997,6 +997,7 @@ class ChannelsComponent extends React.Component {
   }
 
   render() {
+    console.log(this.props.presences)
     return (
       <Channels className="column">
         {this.renderAccountModal()}

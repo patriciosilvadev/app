@@ -52,7 +52,7 @@ export function initialize(userId) {
     }
 
     // Tell our current team about our status
-    setInterval(presenceAdd, 60000)
+    setInterval(presenceAdd, 15000)
 
     // Clean our presence array every 5 seconds
     setInterval(presenceDelete, 120000)
