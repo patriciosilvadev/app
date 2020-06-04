@@ -63,7 +63,9 @@ export default (state = initialState, action) =>
         break
 
       case 'CREATE_CHANNEL_MESSAGE':
-        draft.messages = [...state.messages, action.payload.message]
+        const channelAlreadyContainsMessage = state.messages.filter(message => message.id == action.payload.message.id).length > 0
+
+        if (!channelAlreadyContainsMessage) draft.messages = [...state.messages, action.payload.message]
         break
 
       case 'UPDATE_CHANNEL_MESSAGE_READ_COUNT':
