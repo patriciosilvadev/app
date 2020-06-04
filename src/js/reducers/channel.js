@@ -68,6 +68,22 @@ export default (state = initialState, action) =>
         if (!channelAlreadyContainsMessage) draft.messages = [...state.messages, action.payload.message]
         break
 
+      case 'UPDATE_CHANNEL_MESSAGE_INITIAL_READ_COUNT':
+        draft.messages = state.messages.map((message, _) => {
+          // If it's the correct message
+          if (message.id == action.payload.messageId) {
+            // Bump the read count from what we've got from the API
+            return {
+              ...message,
+              reads: action.payload.channelMessageReadCount,
+            }
+          }
+
+          // Otherwise default
+          return message
+        })
+        break
+
       case 'UPDATE_CHANNEL_MESSAGE_READ_COUNT':
         draft.messages = state.messages.map((message, _) => {
           // If it's the correct message

@@ -22,6 +22,7 @@ import {
   updateChannel,
   updateChannelMessage,
   updateChannelMessageReadCount,
+  updateChannelMessageInitialReadCount,
   updateChannelCreateMessagePin,
   updateChannelDeleteMessagePin,
 } from '../actions'
@@ -278,10 +279,6 @@ export default memo(props => {
     setSenderName(props.message.system ? '' : props.message.user.name)
     setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
 
-    // Only do this for human senders
-    // Add the presence to the avatar
-    if (!props.message.app && !props.message.system) setSenderPresence(getPresenceText(presences[props.message.user.id]))
-
     // Only set this for non apps & valid timezones
     if (!props.message.app && props.message.user) {
       if (props.message.user.timezone) {
@@ -345,6 +342,18 @@ export default memo(props => {
     }
   }, [props.message])
 
+  // Handling presence updates
+  useEffect(() => {
+    // Only do this for human senders
+    // Add the presence to the avatar
+    // Only update if changes
+    if (!props.message.app && !props.message.system) {
+      if (senderPresence != getPresenceText(presences[props.message.user.id])) {
+        setSenderPresence(getPresenceText(presences[props.message.user.id]))
+      }
+    }
+  }, [presences])
+
   // Specifically watch our resizeId
   useEffect(() => {
     EventService.getInstance().on('SYNC_MESSAGE_HEIGHT', data => {
@@ -386,7 +395,7 @@ export default memo(props => {
   useEffect(() => {
     // We set this on a timeout so all other variables have time to propagate
     setTimeout(() => {
-      const { reads, read } = props.message
+      const { read } = props.message
       const { totalMembers } = channel
       const channelId = channel.id
       const teamId = team.id
@@ -395,18 +404,31 @@ export default memo(props => {
 
       // Only do this is the message is not all read
       if (!read) {
-        // Add another read
-        ReadService.addMessageRead(messageId, userId, channelId, teamId)
+        GraphqlService.getInstance()
+          .channelMessageReadCount(messageId, teamId, channelId)
+          .then(result => {
+            const { channelMessageReadCount } = result.data
 
-        // Tell everyone else
-        dispatch(updateChannelMessageReadCount(channelId, messageId))
+            // Set the initial count first
+            dispatch(updateChannelMessageInitialReadCount(channelId, messageId, channelMessageReadCount))
 
-        // If the total members are the same as all the reads
-        if (totalMembers <= reads) {
-          // We don't bother with syncing the READ property
-          // here because users will already be checking for the read count
-          ReadService.updateMessageAsRead(messageId)
-        }
+            // Now add our read to the mix - sync this with other people
+            dispatch(updateChannelMessageReadCount(channelId, messageId))
+
+            // If the total members are the same as all the reads then mark it as read
+            // We're accounting here for the fact that we've read it
+            if (totalMembers <= channelMessageReadCount + 1) {
+              // We don't bother with syncing the READ property
+              // here because users will already be checking for the read count
+              ReadService.updateMessageAsRead(messageId)
+            } else {
+              // If not and not everyone has read this yet, then add our read
+              ReadService.addMessageRead(messageId, userId, channelId, teamId)
+            }
+          })
+          .catch(error => {
+            logger(error)
+          })
       }
     }, 500)
   }, [])
@@ -433,7 +455,7 @@ export default memo(props => {
       <React.Fragment>
         {!props.message.system && <User>{senderName}</User>}
         {props.message.app && <App>{props.message.app.app.name}</App>}
-
+        {props.message.reads}
         <Date>
           {props.message.system && <span>{props.message.body} - </span>}
 
@@ -443,9 +465,8 @@ export default memo(props => {
         </Date>
 
         <div className="row">
-          <IconComponent icon="check" thickness={2} size={15} color="#aeb5bc" />
-
-          {(channel.totalMembers < props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />}
+          {!props.message.system && <IconComponent icon="check" thickness={2} size={15} color="#aeb5bc" />}
+          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />}
 
           {renderDeviceIcons()}
         </div>
@@ -455,9 +476,10 @@ export default memo(props => {
 
   const renderAvatar = () => {
     if (!props.append && !props.message.system) {
+      console.log(senderPresence)
       return (
         <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
-          <Avatar image={senderImage} title={senderImage} presence={senderPresence} size="medium" />
+          <Avatar image={senderImage} title={senderName} presence={senderPresence} size="medium" />
         </Tooltip>
       )
     }

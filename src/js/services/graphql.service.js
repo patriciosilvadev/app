@@ -658,6 +658,21 @@ export default class GraphqlService {
     })
   }
 
+  channelMessageReadCount(messageId, teamId, channelId) {
+    return this.client.query({
+      query: gql`
+        query channelMessageReadCount($messageId: String, $teamId: String, $channelId: String) {
+          channelMessageReadCount(messageId: $messageId, teamId: $teamId, channelId: $channelId)
+        }
+      `,
+      variables: {
+        messageId,
+        teamId,
+        channelId,
+      },
+    })
+  }
+
   channelMessages(channelId, page) {
     return this.client.query({
       query: gql`
