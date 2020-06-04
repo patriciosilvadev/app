@@ -458,9 +458,18 @@ class ComposeComponent extends React.Component {
 
     try {
       const channelId = this.props.channel.id
+      const teamId = this.props.team.id
       const page = 0
-      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, username, page)
-      const members = data.searchChannelMembers ? data.searchChannelMembers : []
+      let members
+
+      // If it's a public channel, then we want to search team members
+      if (this.props.channel.public && !this.props.channel.private) {
+        const searchTeamMembers = await GraphqlService.getInstance().searchTeamMembers(teamId, username, page)
+        members = searchTeamMembers.data.searchTeamMembers ? searchTeamMembers.data.searchTeamMembers : []
+      } else {
+        const searchChannelMembers = await GraphqlService.getInstance().searchChannelMembers(channelId, username, page)
+        members = searchChannelMembers.data.searchChannelMembers ? searchChannelMembers.data.searchChannelMembers : []
+      }
 
       // Remove ourselves / cap at 5
       const filteredMembers = members.filter((member, index) => member.user.username != this.props.user.username).filter((member, index) => index < 5)

@@ -936,6 +936,7 @@ export default class GraphqlService {
         query searchChannelMembers($channelId: String, $query: String, $page: Float) {
           searchChannelMembers(channelId: $channelId, query: $query, page: $page) {
             id
+            role
             user {
               id
               name

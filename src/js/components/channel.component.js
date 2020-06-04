@@ -490,10 +490,13 @@ class ChannelComponent extends React.Component {
 
         {!this.props.channel.private && (
           <React.Fragment>
-            <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true })}>
-              <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
-              <IconComponent icon="users" size={26} thickness={1.25} color="#aeb5bc" className="ml-5" />
-            </HeaderButton>
+            {/* Only display amount for locked channels */}
+            {!this.props.channel.public && (
+              <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true })}>
+                <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
+                <IconComponent icon="users" size={26} thickness={1.25} color="#aeb5bc" className="ml-5" />
+              </HeaderButton>
+            )}
 
             <Popup
               handleDismiss={() => this.setState({ channelMenu: false })}
