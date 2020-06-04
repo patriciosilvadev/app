@@ -10,7 +10,7 @@ import { Formik } from 'formik'
 import ConfirmModal from './confirm.modal'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
-import { updateUser } from '../actions'
+import { updateUser, updateChannelUserNameImage } from '../actions'
 import ModalPortal from '../portals/modal.portal'
 import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select, Toggle } from '@tryyack/elements'
 import { STRIPE_API_KEY } from '../environment'
@@ -150,6 +150,9 @@ export default function AccountModal(props) {
         dispatch(updateUser(updatedUser))
         setError(null)
         setNotification('Succesfully updated')
+
+        // We want to notifu all the team we belong in
+        teams.map(team => dispatch(updateChannelUserNameImage(userId, team.id, name, image)))
       }
     } catch (e) {
       setLoading(false)

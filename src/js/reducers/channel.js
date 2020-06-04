@@ -86,7 +86,6 @@ export default (state = initialState, action) =>
         draft.messages = state.messages.map((message, _) => {
           // If it's the correct message
           if (message.id == action.payload.messageId) {
-            console.log(action.payload.message)
             return {
               ...message,
               ...action.payload.message,
