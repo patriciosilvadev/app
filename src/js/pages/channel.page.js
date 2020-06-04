@@ -27,15 +27,17 @@ export default props => {
 
       setLoading(false)
 
-      if (!data.joinTeam) setError('Could not join channel')
-      if (data.joinTeam) {
+      if (!data.joinChannel) {
+        setError('Could not join channel')
+      }
+      if (data.joinChannel) {
         setJoined(true)
         setNotification('Successfully joined channel')
       }
     } catch (e) {
       setLoading(false)
       setNotification(false)
-      setError('Could not join team')
+      setError('Could not join channel')
     }
   }
 
