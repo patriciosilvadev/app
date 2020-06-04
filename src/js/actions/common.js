@@ -241,12 +241,16 @@ export function initialize(userId) {
           {
             // Just use the Redux acttion
             const channelId = message.messagePayload
+            const currentChannelId = getState().channel.id
+            const teamId = getState().team.id
 
             // Unsub from this SOCKET
             MessagingService.getInstance().leave(channelId)
 
             // And then remove it - but just for us
             dispatch(deleteChannel(channelId, false))
+
+            if (channelId == currentChannelId) browserHistory.push(`/app/team/${teamId}/`)
           }
           break
 
@@ -254,8 +258,11 @@ export function initialize(userId) {
         case 'LEAVE_TEAM':
           {
             const teamId = message.messagePayload
+            const currentTeamId = getState().team.id
             MessagingService.getInstance().leave(teamId)
             dispatch(deleteTeam(teamId, false))
+
+            if (teamId == currentTeamId) browserHistory.push(`/app/`)
           }
           break
 

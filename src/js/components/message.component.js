@@ -455,7 +455,6 @@ export default memo(props => {
       <React.Fragment>
         {!props.message.system && <User>{senderName}</User>}
         {props.message.app && <App>{props.message.app.app.name}</App>}
-        {props.message.reads}
         <Date>
           {props.message.system && <span>{props.message.body} - </span>}
 
@@ -466,7 +465,9 @@ export default memo(props => {
 
         <div className="row">
           {!props.message.system && <IconComponent icon="check" thickness={2} size={15} color="#aeb5bc" />}
-          {(channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />}
+          {!props.message.system && (channel.totalMembers <= props.message.reads || props.message.read) && (
+            <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />
+          )}
 
           {renderDeviceIcons()}
         </div>
@@ -476,7 +477,6 @@ export default memo(props => {
 
   const renderAvatar = () => {
     if (!props.append && !props.message.system) {
-      console.log(senderPresence)
       return (
         <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
           <Avatar image={senderImage} title={senderName} presence={senderPresence} size="medium" />
