@@ -228,7 +228,8 @@ class PanelMembersComponent extends React.Component {
 
     try {
       const { channelId } = this.props
-      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, this.state.filter)
+      const page = 0
+      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, this.state.filter, page)
 
       // Update our users & bump the page
       this.setState({

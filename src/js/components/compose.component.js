@@ -458,7 +458,8 @@ class ComposeComponent extends React.Component {
 
     try {
       const channelId = this.props.channel.id
-      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, username)
+      const page = 0
+      const { data } = await GraphqlService.getInstance().searchChannelMembers(channelId, username, page)
       const members = data.searchChannelMembers ? data.searchChannelMembers : []
 
       // Remove ourselves / cap at 5

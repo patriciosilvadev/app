@@ -930,11 +930,11 @@ export default class GraphqlService {
     })
   }
 
-  searchChannelMembers(channelId, query) {
+  searchChannelMembers(channelId, query, page) {
     return this.client.query({
       query: gql`
-        query searchChannelMembers($channelId: String, $query: String) {
-          searchChannelMembers(channelId: $channelId, query: $query) {
+        query searchChannelMembers($channelId: String, $query: String, $page: Float) {
+          searchChannelMembers(channelId: $channelId, query: $query, page: $page) {
             id
             user {
               id
@@ -949,6 +949,7 @@ export default class GraphqlService {
       variables: {
         channelId,
         query,
+        page,
       },
     })
   }
