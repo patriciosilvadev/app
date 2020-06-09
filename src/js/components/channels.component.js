@@ -32,6 +32,7 @@ import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
 import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
 import moment from 'moment'
+import { browserHistory } from '../services/browser-history.service'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -474,6 +475,9 @@ class ChannelsComponent extends React.Component {
         },
       })
 
+      // Debug
+      logger({ otherUser, thisUser })
+
       const channelData = data.createChannel
       const channelId = channelData.id
       const newChannel = await GraphqlService.getInstance().channel(channelId)
@@ -486,7 +490,9 @@ class ChannelsComponent extends React.Component {
 
       // Navigate there
       browserHistory.push(`/app/team/${teamId}/channel/${channelId}`)
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
   componentDidMount() {

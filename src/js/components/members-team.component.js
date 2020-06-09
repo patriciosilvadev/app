@@ -181,8 +181,8 @@ export default function MembersTeamComponent(props) {
       setLoading(false)
       setTotalMembers(totalMembers - 1)
 
-      // And refetch people
-      //fetchTeamMembers(page, filter)
+      // And refetch people so we remove them from the list
+      fetchTeamMembers(page, filter)
     } catch (e) {
       setLoading(false)
       setError('Error deleting team member')

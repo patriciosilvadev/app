@@ -11,3 +11,4 @@ export const STRIPE_API_KEY = ''
 export const SENTRY_DSN = 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390'
 export const PAGE_LIMIT = 10
 export const DEVICE = 'WEB'
+export const MQTT_PREFIX = 'WEB'

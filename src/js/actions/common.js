@@ -114,6 +114,9 @@ export function initialize(userId) {
       // It's straight from Redux
       const message = JSON.parse(payload)
 
+      // Debug
+      logger(message)
+
       // If this is null, then do nothing
       // Every message has this format / structure
       // So bounce a message that doesn't

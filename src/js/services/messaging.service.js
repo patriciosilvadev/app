@@ -1,4 +1,4 @@
-import { MQTT_HOST, JWT } from '../environment'
+import { MQTT_HOST, JWT, MQTT_PREFIX } from '../environment'
 import { logger } from '../helpers/util'
 import StorageService from './storage.service'
 import mqtt from 'mqtt'

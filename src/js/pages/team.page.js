@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { Loading, Error, Input, Button, Notification, Avatar } from '@tryyack/elements'
 import GraphqlService from '../services/graphql.service'
+import { logger } from '../helpers/util'
 
 export default props => {
   const [error, setError] = useState(null)
@@ -56,8 +57,9 @@ export default props => {
         setName(data.teamSlug.name)
         setLoading(false)
       } catch (e) {
+        logger(e)
         setLoading(false)
-        setError('This team does not exist')
+        setError('Something has gone wrong')
       }
     })()
   }, [])
