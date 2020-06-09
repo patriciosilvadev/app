@@ -3,6 +3,7 @@ import { logger } from '../helpers/util'
 import StorageService from './storage.service'
 import mqtt from 'mqtt'
 import AuthService from './auth.service'
+import uuid from 'uuid/v4'
 
 export default class MessagingService {
   static instance
@@ -11,13 +12,14 @@ export default class MessagingService {
   constructor() {
     const token = StorageService.getStorage(JWT)
     const { userId } = AuthService.parseJwt(token)
+    const clientId = MQTT_PREFIX + '-' + uuid() // MQTT_PREFIX + '-' + userId
 
     // This token will be used on the EMQX server to authenticate the client
     this.client = mqtt.connect(MQTT_HOST, {
-      clientId: userId + '-web',
+      clientId: clientId,
       username: userId,
       password: token,
-      clean: false,
+      clean: true,
       queueQoSZero: true,
       useSSL: false,
       will: {
