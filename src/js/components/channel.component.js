@@ -930,7 +930,7 @@ const Header = styled.div`
   width: 100%;
   border-bottom: 1px solid #eaedef;
   position: relative;
-  z-index: 3;
+  z-index: 5;
   padding 0px 25px 0px 25px;
   height: 75px;
   display: flex;
@@ -940,6 +940,7 @@ const Header = styled.div`
 const HeaderButton = styled.div`
   border: 1px solid #eaedef;
   position: relative;
+  z-index: 5;
   height: 35px;
   border-radius: 10px;
   margin-left: 5px;
@@ -1039,7 +1040,7 @@ const Typing = styled.div`
 const Pinned = styled.div`
   position: absolute;
   width: 100%;
-  z-index: 2;
+  z-index: 4;
 `
 
 const PinnedMessages = styled.div`
@@ -1047,6 +1048,7 @@ const PinnedMessages = styled.div`
   padding: 20px;
   border-bottom: 1px solid #f5f5ba;
   background: #f5f5e1;
+  position: relative;
 `
 
 const MessagesContainer = styled.div`

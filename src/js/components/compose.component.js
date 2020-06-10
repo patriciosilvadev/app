@@ -823,7 +823,7 @@ const Compose = styled.div`
   width: 100%;
   padding: 0px;
   border-sizing: box-border;
-  z-index: 2;
+  z-index: 4;
 `
 
 const InputContainer = styled.div`
@@ -840,6 +840,7 @@ const Attachments = styled.div`
   top: -1px;
   left: 0px;
   transform: translateY(-100%);
+  z-index: 4;
 `
 
 const Footer = styled.div`
