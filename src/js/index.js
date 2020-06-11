@@ -54,6 +54,9 @@ const logger = createLogger({
   collapsed: true,
 })
 
+// Check for dev
+const middleWare = NODE_ENV == 'development' ? applyMiddleware(thunk, sync, logger) : applyMiddleware(thunk, sync)
+
 // Redux with our middlewares
 const store = createStore(
   combineReducers({
@@ -67,8 +70,7 @@ const store = createStore(
     user,
     app,
   }),
-  //applyMiddleware(thunk, sync)
-  applyMiddleware(thunk, sync, logger)
+  middleWare
 )
 
 ReactDOM.render(

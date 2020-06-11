@@ -71,12 +71,12 @@ export const copyToClipboard = value => {
 }
 
 export const logger = (log, additional) => {
-  if (NODE_ENV == 'production') return
-
-  if (additional) {
-    console.log(log, additional)
-  } else {
-    console.log(log)
+  if (NODE_ENV == 'development') {
+    if (additional) {
+      console.log(log, additional)
+    } else {
+      console.log(log)
+    }
   }
 }
 
