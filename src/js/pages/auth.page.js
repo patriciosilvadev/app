@@ -79,14 +79,16 @@ class AuthPage extends React.Component {
     } catch (e) {}
   }
 
-  async signup(username, email, password, confirm) {
+  async signup(closingTestingCode, username, email, password, confirm) {
+    if (confirm != password) return
+
     this.setState({
       loading: true,
       error: null,
     })
 
     try {
-      const request = await this.AccountService.signup(email, username, password)
+      const request = await this.AccountService.signup(closingTestingCode, email, username, password)
       const result = await request.json()
 
       this.setState({ loading: false })
@@ -450,6 +452,7 @@ class AuthPage extends React.Component {
         <Container className="column justify-content-center align-content-center align-items-stretch">
           <Formik
             initialValues={{
+              closingTestingCode: '',
               username: '',
               email: '',
               password: '',
@@ -457,12 +460,13 @@ class AuthPage extends React.Component {
             }}
             onSubmit={(values, actions) => {
               actions.resetForm()
-              this.signup(values.username, values.email, values.password, values.confirm)
+              this.signup(values.closingTestingCode, values.username, values.email, values.password, values.confirm)
             }}
             validationSchema={Yup.object().shape({
               username: Yup.string()
                 .matches(/^[a-z0-9](-?[a-z0-9])*$/, { message: 'Only letters, numbers & hyphens are allowed', excludeEmptyString: false })
                 .required('Required'),
+              closingTestingCode: Yup.string().required('Required'),
               email: Yup.string()
                 .email()
                 .required('Required'),
@@ -476,6 +480,20 @@ class AuthPage extends React.Component {
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
                   <div className="h1 mb-30 mt-30 color-d3">Create an account</div>
+
+                  <InputContainer>
+                    <Input
+                      type="text"
+                      name="closingTestingCode"
+                      inputSize="large"
+                      autocomplete="off"
+                      value={values.closingTestingCode}
+                      placeholder="Testing code"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={errors.closingTestingCode && touched.closingTestingCode ? 'error' : null}
+                    />
+                  </InputContainer>
 
                   <InputContainer>
                     <Input

@@ -87,7 +87,7 @@ export default class AuthService {
     })
   }
 
-  static signup(email, username, password) {
+  static signup(closingTestingCode, email, username, password) {
     const token = StorageService.getStorage(JWT)
 
     return fetch(API_HOST + '/account/signup', {
@@ -102,6 +102,7 @@ export default class AuthService {
       redirect: 'follow',
       referrer: 'no-referrer',
       body: JSON.stringify({
+        closingTestingCode,
         email,
         username,
         password,
