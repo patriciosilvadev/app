@@ -276,7 +276,7 @@ export default memo(props => {
 
     // Set sender details - and accommodate SYSTEM messages & APP messages
     setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
-    setSenderName(props.message.system ? '' : props.message.user.name)
+    setSenderName(props.message.system ? '' : props.message.user ? props.message.user.name : 'Autobot')
     setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
 
     // Only set this for non apps & valid timezones
