@@ -306,7 +306,6 @@ export default memo(props => {
       // This might be null
       const channelAppMessageButtons = props.message.app.app.message.buttons || []
       const appResourceId = props.message.app.resourceId
-      const uniqueIdForResizeId = uuidv1()
 
       // resourceId is what we use to ID the resource on the app's server
       // This could be an ID - when a user creates a message they add this
