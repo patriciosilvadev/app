@@ -332,10 +332,14 @@ export default memo(props => {
         const { url } = props.message.app.app.message
 
         // If the user has already added a query string or not
-        if (url.indexOf('?') == -1) {
-          setAppUrl(`${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
-        } else {
-          setAppUrl(`${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+        if (url) {
+          if (url != '') {
+            if (url.indexOf('?') == -1) {
+              setAppUrl(`${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+            } else {
+              setAppUrl(`${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+            }
+          }
         }
       }
     }
