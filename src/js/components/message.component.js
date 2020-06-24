@@ -644,6 +644,7 @@ export default memo(props => {
 
   const renderApp = () => {
     if (!appUrl) return null
+    if (appUrl == '') return null
 
     return (
       <AppUrl>
