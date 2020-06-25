@@ -36,8 +36,7 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text:
-        'In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Wikipedia',
+      text: '',
       mention: null,
       position: 0,
       members: [],
@@ -184,9 +183,6 @@ class ComposeComponent extends React.Component {
       // Create the message
       this.props.createChannelMessage(channelId, channelMessage)
       this.props.updateChannel(channelId, { excerpt })
-
-      // Tell the channel component to scroll down
-      EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
     } catch (e) {}
   }
 

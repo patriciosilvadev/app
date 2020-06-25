@@ -235,9 +235,6 @@ export default memo(props => {
       const basePath = processedUrl.split(' / ')[0]
 
       setOgImage(fullPath ? firstImageUrl : `${basePath}/${firstImageUrl}`)
-
-      // Tell the channel component to scroll down
-      EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
     }
   }
 
@@ -367,11 +364,7 @@ export default memo(props => {
       // Only adjust this specific height when received
       if (data.resizeId == resizeId) {
         if (data.resizeHeight) {
-          // Resize the app message window
           setAppHeight(data.resizeHeight)
-
-          // Tell the channel component to scroll down if it's the most recent message
-          EventService.getInstance().emit('FORCE_SCROLL_TO_BOTTOM', null)
         }
       }
     })

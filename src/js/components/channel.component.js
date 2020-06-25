@@ -61,6 +61,8 @@ class ChannelComponent extends React.Component {
       otherUserIsTeamMember: true,
     }
 
+    this.scrollInterval = null
+
     this.shortcodeRef = React.createRef()
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
@@ -161,8 +163,10 @@ class ChannelComponent extends React.Component {
     // Toggle whether the user is scrolling or not
     // If not, then we handle the scrolling
     if (this.scrollRef.offsetHeight >= offsetHeight) {
+      logger('manualScrolling - false')
       this.setState({ manualScrolling: false })
     } else {
+      logger('manualScrolling - true')
       this.setState({ manualScrolling: true })
     }
   }
@@ -289,11 +293,8 @@ class ChannelComponent extends React.Component {
       }
     })
 
-    // Listen for scroll messages
-    // Also force the scroll down
-    EventService.getInstance().on('FORCE_SCROLL_TO_BOTTOM', data => {
-      this.setState({ manualScrolling: false }, () => this.scrollToBottom())
-    })
+    // Keep it scrolled down
+    this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
   }
 
   componentDidUpdate(prevProps) {
@@ -303,9 +304,6 @@ class ChannelComponent extends React.Component {
     if (this.props.match.params.channelId != prevProps.match.params.channelId) {
       if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
     }
-
-    // Scroll down
-    this.scrollToBottom()
   }
 
   componentWillUnmount() {
@@ -316,6 +314,8 @@ class ChannelComponent extends React.Component {
     this.dropMask.removeEventListener('drop', this.onDrop)
 
     if (this.subscription) this.subscription.unsubscribe()
+
+    clearInterval(this.scrollInterval)
   }
 
   async updateUserStarred(starred) {

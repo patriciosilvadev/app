@@ -55,7 +55,7 @@ const logger = createLogger({
 })
 
 // Check for dev
-const middleWare = NODE_ENV == 'development' ? applyMiddleware(thunk, sync) : applyMiddleware(thunk, sync)
+const middleWare = NODE_ENV == 'development' ? applyMiddleware(thunk, sync, logger) : applyMiddleware(thunk, sync)
 
 // Redux with our middlewares
 const store = createStore(
