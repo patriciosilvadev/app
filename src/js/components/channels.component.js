@@ -50,7 +50,7 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.name} />
+        <Avatar muted={props.muted} presence={props.presence} size="small" image={props.image} title={props.name} />
 
         <ChannelContents>
           <ChannelInnerContents>
