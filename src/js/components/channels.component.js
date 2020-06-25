@@ -50,12 +50,12 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar dark muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.name} />
+        <Avatar muted={props.muted} presence={props.presence} size="medium" image={props.image} title={props.name} />
 
         <ChannelContents>
           <ChannelInnerContents>
-            {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? 'white' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
-            {props.readonly && <IconComponent icon="radio" color={props.active ? 'white' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
+            {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
+            {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
 
             <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
 
@@ -133,7 +133,7 @@ Channel.propTypes = {
 }
 
 const ChannelContainer = styled.div`
-  background: ${props => (props.active ? '#201F27' : 'transparent')};
+  background: ${props => (props.active ? '#E9ECEE' : 'transparent')};
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -171,7 +171,7 @@ const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 14px;
   font-weight: ${props => (props.active ? '500' : '400')};
-  color: ${props => (props.active ? 'white' : '#626d7a')};
+  color: ${props => (props.active ? '#18181d' : '#626d7a')};
   white-space: wrap;
   max-width: 140px;
   /*letter-spacing: -0.5px;*/
@@ -612,7 +612,6 @@ class ChannelsComponent extends React.Component {
             }
           >
             <Avatar
-              dark
               size="medium-large"
               image={this.props.user.image}
               title={this.props.user.name}
@@ -1075,7 +1074,7 @@ const Channels = styled.div`
   position: relative;
   z-index: 4;
   background: white;
-  background: #18181d;
+  background: #f8f9fa;
   border-right: 0px solid #1f2d3d;
 `
 
@@ -1100,10 +1099,10 @@ const HeaderTitles = styled.div`
 const HeaderTeam = styled.span`
   font-size: 8px;
   font-weight: 500;
-  color: #8895a7;
+  color: #adb5bd;
   padding: 5px;
   border-radius: 3px;
-  background: #343a40;
+  background: #f2f3f5;
   text-transform: uppercase;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
@@ -1112,12 +1111,12 @@ const HeaderTeam = styled.span`
 const HeaderRole = styled.span`
   font-size: 8px;
   font-weight: 700;
-  color: #5f6b7a;
+  color: #adb5bd;
   padding: 5px;
   border-radius: 3px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
-  background: #202529;
+  background: #f2f3f5;
   text-transform: uppercase;
 `
 
@@ -1125,7 +1124,7 @@ const HeaderTitle = styled.div`
   font-size: 15px;
   font-weight: 500;
   font-style: normal;
-  color: white;
+  color: #18181d;
   transition: opacity 0.5s;
   display: inline-block;
   margin-top: 0px;
@@ -1138,37 +1137,6 @@ const HeaderSubtitle = styled.div`
   font-weight: 400;
   color: #626d7a;
   overflow: hidden;
-`
-
-const SearchInput = styled.input`
-  font-size: 14px;
-  border: none;
-  width: 100%;
-  padding: 5px;
-  color: white;
-  font-weight: 500;
-  background: transparent;
-
-  &::placeholder {
-    color: #626d7a;
-  }
-`
-
-const SearchContainer = styled.div`
-  width: 100%;
-  background: #1d1c24;
-  display: none;
-`
-
-const SearchInner = styled.div`
-  border-radius: 3px;
-  flex: 1;
-  margin: 10px;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding: 5px;
-  padding-top: 10px;
-  padding-bottom: 10px;
 `
 
 const Heading = styled.div`

@@ -115,7 +115,7 @@ export function initialize(userId) {
       const message = JSON.parse(payload)
 
       // Debug
-      logger(message)
+      // logger(message)
 
       // If this is null, then do nothing
       // Every message has this format / structure

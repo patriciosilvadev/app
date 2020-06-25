@@ -82,13 +82,13 @@ export default function DockComponent(props) {
               marginBottom: 10,
             }}
           >
-            <Avatar dark badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
+            <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
             <Team>{t.name}</Team>
           </Link>
         )
       })}
 
-      <Avatar dark size="medium-large" className="button" onClick={e => setTeamOnboardingModal(true)}>
+      <Avatar size="medium-large" className="button" onClick={e => setTeamOnboardingModal(true)}>
         <IconComponent icon="plus" size={20} color="#007af5" />
       </Avatar>
 
@@ -109,10 +109,9 @@ const Dock = styled.div`
   display: flex;
   height: 100%;
   position: relative;
-  background: #f6f7fa;
   background: #18181d;
+  background: #f8f9fa;
   border-right: 1px solid #eaedef;
-  border-right: 1px solid #202027;
 `
 
 const Team = styled.div`
