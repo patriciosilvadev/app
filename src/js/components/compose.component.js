@@ -36,7 +36,8 @@ class ComposeComponent extends React.Component {
       scrollHeight: 0,
       attachments: [],
       parent: [],
-      text: '',
+      text:
+        'In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Wikipedia',
       mention: null,
       position: 0,
       members: [],
@@ -58,7 +59,6 @@ class ComposeComponent extends React.Component {
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.insertAtCursor = this.insertAtCursor.bind(this)
     this.handleComposeChange = this.handleComposeChange.bind(this)
-    this.updateComposeHeight = this.updateComposeHeight.bind(this)
     this.replaceWordAtCursor = this.replaceWordAtCursor.bind(this)
     this.onSend = this.onSend.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
@@ -264,7 +264,6 @@ class ComposeComponent extends React.Component {
       },
       () => {
         this.composeRef.focus()
-        this.updateComposeHeight()
       }
     )
   }
@@ -321,8 +320,6 @@ class ComposeComponent extends React.Component {
 
   // Fires 3rd
   handleKeyUp(e) {
-    this.updateComposeHeight()
-
     // Right Shift
     if (e.keyCode == 16) this.setState({ shift: false })
   }
@@ -359,10 +356,6 @@ class ComposeComponent extends React.Component {
     if (username == '') this.setState({ members: [] })
   }
 
-  updateComposeHeight() {
-    this.setState({ height: this.state.text.split('\n').length * 25 })
-  }
-
   replaceWordAtCursor(word) {
     const { selectionStart } = this.composeRef
     const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
@@ -395,9 +388,6 @@ class ComposeComponent extends React.Component {
 
   componentDidMount() {
     this.focusComposeInput()
-
-    // Resize compose initiallyl
-    this.updateComposeHeight()
 
     // Listen for file changes in attachments
     Keg.keg('compose').tap(
@@ -606,6 +596,13 @@ class ComposeComponent extends React.Component {
   }
 
   renderInput() {
+    if (this.composeRef) {
+      if (this.composeRef.style) {
+        this.composeRef.style.height = '1px'
+        this.composeRef.style.height = this.composeRef.scrollHeight + 'px'
+      }
+    }
+
     return (
       <React.Fragment>
         {this.props.disabled && <Notification text="You can not create messages" />}
@@ -615,7 +612,6 @@ class ComposeComponent extends React.Component {
 
           <Input
             disabled={this.props.disabled}
-            style={{ height: this.state.height }}
             ref={ref => (this.composeRef = ref)}
             placeholder="Say something"
             value={this.state.text}
@@ -864,13 +860,13 @@ const Input = styled.textarea`
   word-wrap: break-word;
   border: none;
   resize: none;
-  overflow-y: scroll;
-  transition: height 0.05s linear;
+  overflow: none;
   display: block;
   background: transparent;
   color: #212123;
   font-size: 20px;
   font-weight: 400;
+  height: auto;
 
   &::placeholder {
     color: #cfd4d9;
