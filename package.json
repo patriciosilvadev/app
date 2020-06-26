@@ -18,7 +18,7 @@
     "test": "jest",
     "lint": "eslint ./src",
     "deploy:prepare": "aws s3 rm --recursive s3://yack-web --profile yack-cli",
-    "deploy:upload": "aws s3 cp ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile yack-cli",
+    "deploy:upload": "aws s3 cp --metadata-directive REPLACE --cache-control max-age=0,s-maxage=0 ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile yack-cli",
     "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload",
     "electron": "NODE_ENV=dev electron .",
     "pack:mac": "electron-builder --mac --dir",
