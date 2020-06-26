@@ -28,6 +28,7 @@ import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
 import PanelMembersComponent from './panel-members.component'
 import { BASE_URL } from '../environment'
+import * as chroma from 'chroma-js'
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -399,12 +400,20 @@ class ChannelComponent extends React.Component {
     const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : null
     const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name
     const avatarPresence = this.props.channel.private ? getPresenceText(this.props.presences[this.props.channel.otherUser.id]) : 'invisible'
+    const avatarTextColor = this.props.channel.private
+      ? null
+      : this.props.channel.color
+      ? chroma(this.props.channel.color)
+          .desaturate(2)
+          .brighten(2.25)
+          .toString()
+      : '#007af5'
 
     return (
       <Header className="row">
         <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
-        <Avatar color={avatarColor} image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large">
+        <Avatar textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large">
           {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color="#007af5" thickness={2} /> : null}
         </Avatar>
 

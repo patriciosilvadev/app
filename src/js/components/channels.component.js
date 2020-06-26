@@ -65,14 +65,18 @@ const Channel = props => {
     '#FF7803',
     '#FF7803',
     '#FF7803',
-    '#F0F3F5',
+    //'#F0F3F5',
   ]
-  const avatarTextColor = props.color
+  const avatarTextColor = props.private
+    ? null
+    : props.color
     ? chroma(props.color)
         .desaturate(2)
         .brighten(2.25)
         .toString()
-    : '#f1f3f5'
+    : '#007af5'
+
+  console.log(props.name, avatarTextColor, props.icon)
 
   const handleUpdateIcon = async icon => {
     try {
