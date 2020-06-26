@@ -155,6 +155,8 @@ export default class GraphqlService {
               name
               image
               public
+              color
+              icon
               excerpt
               private
               readonly
@@ -199,6 +201,8 @@ export default class GraphqlService {
               url
               image
               public
+              color
+              icon
               readonly
               excerpt
               private
@@ -316,6 +320,8 @@ export default class GraphqlService {
             image
             public
             private
+            color
+            icon
             readonly
             shortcode
             isMember
@@ -635,6 +641,8 @@ export default class GraphqlService {
             url
             image
             public
+            color
+            icon
             excerpt
             private
             otherUser {
@@ -1258,6 +1266,8 @@ export default class GraphqlService {
             id
             name
             description
+            color
+            icon
             createdAt
             public
             private
@@ -1294,6 +1304,8 @@ export default class GraphqlService {
             description
             createdAt
             public
+            color
+            icon
             private
             team {
               id

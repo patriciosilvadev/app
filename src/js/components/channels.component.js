@@ -34,9 +34,58 @@ import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 
+const IconCircle = styled.div`
+  background: ${props => (props.selected ? '#F0F3F5' : 'white')};
+  border-radius: 50%;
+  padding: 5px;
+
+  &:hover {
+    background: #f0f3f5;
+  }
+`
+
+const ColorCircle = styled.div`
+  background: ${props => props.color};
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  border: 1px solid ${props => (props.selected ? '#F0F3F5' : 'white')}
+
+  &:hover {
+    opacity: 0.75;
+  }
+`
+
 const Channel = props => {
-  const [over, setOver] = useState(false)
-  const [menu, setMenu] = useState(false)
+  const [over, setOver] = useState(true)
+  const [menu, setMenu] = useState(true)
+  const [iconCollapsable, setIconCollapsable] = useState(true)
+  const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check']
+  const colors = [
+    '#810002',
+    '#E50203',
+    '#FF3F80',
+    '#FF7FAA',
+    '#F806EA',
+    '#EA80FB',
+    '#BF54EB',
+    '#9B59B6',
+    '#7C4DFF',
+    '#0262e8',
+    '#81B1FF',
+    '#3182B6',
+    '#0BBCD4',
+    '#1CBC9B',
+    '#2DCD6E',
+    '#F9D900',
+    '#B07E2D',
+    '#FF7803',
+    '#FF7803',
+    '#FF7803',
+    '#FF7803',
+  ]
 
   return (
     <ChannelContainer
@@ -78,22 +127,56 @@ const Channel = props => {
           width={200}
           direction="right-bottom"
           content={
-            <Menu
-              items={[
-                {
-                  text: props.archived ? 'Unarchive' : 'Archive',
-                  onClick: e => {
-                    props.onArchivedClick()
+            <React.Fragment>
+              <Menu
+                items={[
+                  {
+                    text: props.archived ? 'Unarchive' : 'Archive',
+                    onClick: e => {
+                      props.onArchivedClick()
+                    },
                   },
-                },
-                {
-                  text: props.muted ? 'Unmute' : 'Mute',
-                  onClick: e => {
-                    props.onMutedClick()
+                  {
+                    text: props.muted ? 'Unmute' : 'Mute',
+                    onClick: e => {
+                      props.onMutedClick()
+                    },
                   },
-                },
-              ]}
-            />
+                ]}
+              />
+
+              <div className="p regular color-d2 flexer">Color</div>
+              <div className="row wrap p-15">
+                {colors.map(color => (
+                  <ColorCircle color={color} current={color == props.color} />
+                ))}
+              </div>
+
+              <div className="w-100 p-20 column align-items-start border-bottom">
+                <div className="row w-100">
+                  <div className="p regular color-d2 flexer">Icon</div>
+                  <IconComponent
+                    icon={iconCollapsable ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    thickness={3}
+                    color="#acb5bd"
+                    className="button"
+                    onClick={() => setIconCollapsable(!iconCollapsable)}
+                  />
+                </div>
+                <Collapsable className={iconCollapsable ? 'open' : ''}>
+                  <div className="row wrap w-100 mt-10">
+                    {icons.map(icon => {
+                      return (
+                        <IconCircle current={icon == props.icon}>
+                          <IconComponent icon={icon} size={16} color="#ACB5BD" thickness={1.5} />
+                        </IconCircle>
+                      )
+                    })}
+                  </div>
+                </Collapsable>
+              </div>
+            </React.Fragment>
           }
         >
           <ChannelMoreIcon
