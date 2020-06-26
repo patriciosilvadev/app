@@ -13,6 +13,7 @@ import { Avatar, Loading, Error, Notification } from '@tryyack/elements'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
+import { IconComponent } from '../components/icon.component'
 import PanelAppComponent from '../components/panel-app.component'
 import PanelAttachmentsComponent from '../components/panel-attachments.component'
 import AppModal from '../modals/app.modal'
@@ -203,6 +204,24 @@ class AppPage extends React.Component {
         />
         */}
 
+        <Bar className="row">
+          <Team>Yack</Team>
+          <Role>(Founder)</Role>
+          <Timezone>(Africa/Egypt)</Timezone>
+          <IconComponent icon="chevron-down" color="#f5c8ff" size={14} thickness={2} />
+          <div className="flexer"></div>
+          <div className="row">
+            <Pill className="row">
+              <IconComponent icon="video" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
+              Meet
+            </Pill>
+            <Pill className="row">
+              <IconComponent icon="check" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
+              Tasks
+            </Pill>
+          </div>
+        </Bar>
+
         <App className="row">
           <Router history={browserHistory}>
             <Route path="/app" component={DockComponent} />
@@ -259,6 +278,37 @@ const App = styled.div`
   flex: 1;
   overflow: hidden;
   width: 100%;
+`
+
+const Bar = styled.div`
+  background: #7c4dff;
+  width: 100%;
+  padding: 7px;
+`
+
+const Team = styled.div`
+  color: #f5c8ff;
+  font-weight: 800;
+  margin-right: 5px;
+`
+
+const Role = styled.div`
+  color: #f5c8ff;
+  margin-right: 5px;
+`
+
+const Timezone = styled.div`
+  color: #f5c8ff;
+  margin-right: 5px;
+  display: none;
+`
+
+const Pill = styled.div`
+  color: #f5c8ff;
+  padding: 7px 15px 7px 15px;
+  border-radius: 20px;
+  background: #653ade;
+  margin-left: 5px;
 `
 
 const Loader = () => (

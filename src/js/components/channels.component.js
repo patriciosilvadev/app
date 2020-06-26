@@ -696,14 +696,14 @@ class ChannelsComponent extends React.Component {
   renderHeader() {
     return (
       <div className="column w-100">
-        <div className="row pl-25 pr-25 pt-15 pb-15">
+        <div className="row pl-25 pr-25 pt-15 pb-15 hide">
           <HeaderTeam>{this.props.team.name}</HeaderTeam>
           <HeaderRole>
             {this.props.team.position} - {this.props.user.timezone}
           </HeaderRole>
         </div>
 
-        <Header className="row">
+        <Header className="row mt-20 pt-5">
           <Popup
             handleDismiss={() => this.setState({ presenceMenu: false })}
             visible={this.state.presenceMenu}

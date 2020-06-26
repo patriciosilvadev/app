@@ -45,6 +45,8 @@ import {
   Hash,
   Monitor,
   Smartphone,
+  Video,
+  Mic,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -57,6 +59,10 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'video':
+        return <Video width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'mic':
+        return <Mic width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'monitor':
         return <Monitor width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'smartphone':
