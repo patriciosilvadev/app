@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { connect } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -24,6 +25,7 @@ import {
   updateUserMuted,
   updateUserArchived,
   updateTeamMemberPosition,
+  updateChannel,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@tryyack/elements'
@@ -33,36 +35,14 @@ import { version } from '../../../package.json'
 import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
-
-const IconCircle = styled.div`
-  background: ${props => (props.selected ? '#F0F3F5' : 'white')};
-  border-radius: 50%;
-  padding: 5px;
-
-  &:hover {
-    background: #f0f3f5;
-  }
-`
-
-const ColorCircle = styled.div`
-  background: ${props => props.color};
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  margin-right: 3px;
-  margin-bottom: 3px;
-  border: 1px solid ${props => (props.selected ? '#F0F3F5' : 'white')}
-
-  &:hover {
-    opacity: 0.75;
-  }
-`
+import * as chroma from 'chroma-js'
 
 const Channel = props => {
-  const [over, setOver] = useState(true)
-  const [menu, setMenu] = useState(true)
+  const [over, setOver] = useState(false)
+  const [menu, setMenu] = useState(false)
+  const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(true)
-  const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check']
+  const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
   const colors = [
     '#810002',
     '#E50203',
@@ -85,7 +65,34 @@ const Channel = props => {
     '#FF7803',
     '#FF7803',
     '#FF7803',
+    '#F0F3F5',
   ]
+  const avatarTextColor = props.color
+    ? chroma(props.color)
+        .desaturate(2)
+        .brighten(2.25)
+        .toString()
+    : '#f1f3f5'
+
+  const handleUpdateIcon = async icon => {
+    try {
+      await GraphqlService.getInstance().updateChannel(props.id, { icon })
+
+      dispatch(updateChannel(props.id, { icon }))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleUpdateColor = async color => {
+    try {
+      await GraphqlService.getInstance().updateChannel(props.id, { color })
+
+      dispatch(updateChannel(props.id, { color }))
+    } catch (e) {
+      logger(e)
+    }
+  }
 
   return (
     <ChannelContainer
@@ -99,7 +106,9 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar muted={props.muted} presence={props.presence} size="small" image={props.image} title={props.name} />
+        <Avatar muted={props.muted} color={props.color} presence={props.presence} textColor={avatarTextColor} size="small" image={props.private ? props.image : null} title={props.name}>
+          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2} /> : null}
+        </Avatar>
 
         <ChannelContents>
           <ChannelInnerContents>
@@ -145,37 +154,40 @@ const Channel = props => {
                 ]}
               />
 
-              <div className="p regular color-d2 flexer">Color</div>
-              <div className="row wrap p-15">
-                {colors.map(color => (
-                  <ColorCircle color={color} current={color == props.color} />
-                ))}
-              </div>
-
-              <div className="w-100 p-20 column align-items-start border-bottom">
-                <div className="row w-100">
-                  <div className="p regular color-d2 flexer">Icon</div>
-                  <IconComponent
-                    icon={iconCollapsable ? 'chevron-up' : 'chevron-down'}
-                    size={16}
-                    thickness={3}
-                    color="#acb5bd"
-                    className="button"
-                    onClick={() => setIconCollapsable(!iconCollapsable)}
-                  />
-                </div>
-                <Collapsable className={iconCollapsable ? 'open' : ''}>
-                  <div className="row wrap w-100 mt-10">
-                    {icons.map(icon => {
-                      return (
-                        <IconCircle current={icon == props.icon}>
-                          <IconComponent icon={icon} size={16} color="#ACB5BD" thickness={1.5} />
-                        </IconCircle>
-                      )
-                    })}
+              {!props.private && (
+                <React.Fragment>
+                  <div className="row wrap p-15 border-top">
+                    {colors.map((color, index) => (
+                      <ColorCircle color={color} current={color == props.color} key={index} onClick={() => handleUpdateColor(color)} />
+                    ))}
                   </div>
-                </Collapsable>
-              </div>
+
+                  <div className="w-100 p-20 column align-items-start border-top">
+                    <div className="row w-100">
+                      <div className="p regular color-d2 flexer">Icon</div>
+                      <IconComponent
+                        icon={iconCollapsable ? 'chevron-up' : 'chevron-down'}
+                        size={16}
+                        thickness={3}
+                        color="#acb5bd"
+                        className="button"
+                        onClick={() => setIconCollapsable(!iconCollapsable)}
+                      />
+                    </div>
+                    <Collapsable className={iconCollapsable ? 'open' : ''}>
+                      <div className="row wrap w-100 mt-10">
+                        {icons.map((icon, index) => {
+                          return (
+                            <IconCircle current={icon == props.icon} key={index}>
+                              <IconComponent icon={icon} size={16} color="#ACB5BD" thickness={1.5} onClick={() => handleUpdateIcon(icon)} />
+                            </IconCircle>
+                          )
+                        })}
+                      </div>
+                    </Collapsable>
+                  </div>
+                </React.Fragment>
+              )}
             </React.Fragment>
           }
         >
@@ -214,6 +226,36 @@ Channel.propTypes = {
   onMutedClick: PropTypes.any,
   onArchivedClick: PropTypes.any,
 }
+
+const IconCircle = styled.div`
+  background: ${props => (props.selected ? '#F0F3F5' : 'white')};
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f0f3f5;
+  }
+`
+
+const ColorCircle = styled.div`
+  background: ${props => props.color};
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  border: 1px solid ${props => (props.selected ? '#F0F3F5' : 'white')}
+
+  &:hover {
+    opacity: 0.75;
+  }
+`
 
 const ChannelContainer = styled.div`
   background: ${props => (props.active ? '#E9ECEE' : 'transparent')};
@@ -855,6 +897,9 @@ class ChannelsComponent extends React.Component {
           return (
             <Channel
               key={index}
+              id={channel.id}
+              color={channel.color}
+              icon={channel.icon}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
               name={channel.private ? channel.otherUser.name : channel.name}
@@ -908,6 +953,9 @@ class ChannelsComponent extends React.Component {
           return (
             <Channel
               key={index}
+              id={channel.id}
+              color={channel.color}
+              icon={channel.icon}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
               name={channel.name}
@@ -970,6 +1018,9 @@ class ChannelsComponent extends React.Component {
           return (
             <Channel
               key={index}
+              id={channel.id}
+              color={channel.color}
+              icon={channel.icon}
               presence={otherUserPresenceText}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
@@ -1014,6 +1065,9 @@ class ChannelsComponent extends React.Component {
               return (
                 <Channel
                   key={index}
+                  id={channel.id}
+                  color={channel.color}
+                  icon={channel.icon}
                   active={pathname.indexOf(channel.id) != -1}
                   unread={muted ? 0 : unreadCount}
                   name={channel.private ? channel.otherUser.name : channel.name}

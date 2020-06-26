@@ -395,7 +395,8 @@ class ChannelComponent extends React.Component {
     if (!this.state.open) return null
 
     // Calculate presences
-    const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : this.props.channel.image
+    const avatarColor = this.props.channel.private ? null : this.props.channel.color
+    const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : null
     const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name
     const avatarPresence = this.props.channel.private ? getPresenceText(this.props.presences[this.props.channel.otherUser.id]) : 'invisible'
 
@@ -403,7 +404,9 @@ class ChannelComponent extends React.Component {
       <Header className="row">
         <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
-        <Avatar image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large" />
+        <Avatar color={avatarColor} image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large">
+          {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color="#007af5" thickness={2} /> : null}
+        </Avatar>
 
         <div className="column ml-10">
           <div className="row">
