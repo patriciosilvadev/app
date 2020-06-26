@@ -132,6 +132,7 @@ export default function ChannelModal(props) {
             )}
 
             <Row className="row align-items-start">
+              {/* 
               <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
 
               <div className="column">
@@ -143,6 +144,7 @@ export default function ChannelModal(props) {
                   </Link>
                 )}
               </div>
+               */}
 
               <Column className="column">
                 <Input label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="New channel name" className="mb-20" disable={!props.hasAdminPermission} />
@@ -204,7 +206,7 @@ const Link = styled.div`
 
 const Column = styled.div`
   flex: 1;
-  padding-left: 20px;
+  padding-left: 0px;
 `
 
 const Supported = styled.div`

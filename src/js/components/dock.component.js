@@ -74,12 +74,16 @@ export default function DockComponent(props) {
 
         return (
           <Link
-            className="column align-items-center"
+            className="column align-items-center align-content-center justify-content-center"
             key={index}
             to={`/app/team/${t.id}`}
             style={{
-              opacity: lastPathname != 'starred' && t.id == team.id ? 1 : 0.5,
-              marginBottom: 10,
+              width: '100%',
+              boxSizing: 'border-box',
+              paddingTop: 7,
+              paddingBottom: 7,
+              backgroundColor: lastPathname != 'starred' && t.id == team.id ? '#F0F3F5' : 'transparent',
+              borderLeft: lastPathname != 'starred' && t.id == team.id ? '3px solid #007af5' : 'none',
             }}
           >
             <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
@@ -88,8 +92,8 @@ export default function DockComponent(props) {
         )
       })}
 
-      <Avatar size="medium-large" className="button" onClick={e => setTeamOnboardingModal(true)}>
-        <IconComponent icon="plus" size={20} color="#007af5" />
+      <Avatar size="medium-large" className="button mt-10" onClick={e => setTeamOnboardingModal(true)}>
+        <IconComponent icon="plus" size={20} color="#007af5" thickness={2} />
       </Avatar>
 
       <NotificationsComponent style={{ marginTop: 20 }} />
@@ -103,7 +107,7 @@ export default function DockComponent(props) {
 DockComponent.propTypes = {}
 
 const Dock = styled.div`
-  width: 80px;
+  width: 75px;
   padding-top: 20px;
   padding-bottom: 20px;
   display: flex;
@@ -122,4 +126,5 @@ const Team = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: none;
 `

@@ -65,7 +65,7 @@ const Channel = props => {
     '#FF7803',
     '#FF7803',
     '#FF7803',
-    //'#F0F3F5',
+    //'#F0F3F5', need to handle light backgorunds with Chrome first
   ]
   const avatarTextColor = props.private
     ? null
@@ -75,8 +75,6 @@ const Channel = props => {
         .brighten(2.25)
         .toString()
     : '#007af5'
-
-  console.log(props.name, avatarTextColor, props.icon)
 
   const handleUpdateIcon = async icon => {
     try {
@@ -116,8 +114,8 @@ const Channel = props => {
 
         <ChannelContents>
           <ChannelInnerContents>
-            {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
-            {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#626d7a'} size={12} thickness={2.5} className="mr-5" />}
+            {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+            {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
 
             <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
 
@@ -201,7 +199,7 @@ const Channel = props => {
               setMenu(true)
             }}
           >
-            <IconComponent icon="more-h" color="#626d7a" size={15} thickness={1.5} />
+            <IconComponent icon="more-h" color="#858E96" size={15} thickness={1.5} />
           </ChannelMoreIcon>
         </Popup>
       )}
@@ -262,9 +260,9 @@ const ColorCircle = styled.div`
 `
 
 const ChannelContainer = styled.div`
-  background: ${props => (props.active ? '#E9ECEE' : 'transparent')};
   display: flex;
   flex-direction: row;
+  background: ${props => (props.active ? '#F0F3F5' : 'transparent')};
   align-items: center;
   align-content: center;
   justify-content: center;
@@ -276,7 +274,7 @@ const ChannelContainer = styled.div`
 
 const ChannelContainerPadding = styled.div`
   flex: 1;
-  padding: 3px 0px 3px 25px;
+  padding: 5px 0px 5px 25px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -289,7 +287,6 @@ const ChannelBadge = styled.div`
   padding: 3px 7px 3px 7px;
   border-radius: 10px;
   background-color: #007af5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 11px;
   color: white;
   font-weight: 600;
@@ -299,13 +296,12 @@ const ChannelBadge = styled.div`
 const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 14px;
-  font-weight: ${props => (props.active ? '500' : '400')};
-  color: ${props => (props.active ? '#18181d' : '#626d7a')};
+  font-weight: ${props => (props.active ? '600' : '500')};
+  color: ${props => (props.active ? '#18181d' : '#858E96')};
   white-space: wrap;
   max-width: 140px;
   /*letter-spacing: -0.5px;*/
   margin-right: 5px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 `
 
 const ChannelExcerpt = styled.div`
@@ -330,7 +326,7 @@ const ChannelExcerptTextContainer = styled.div`
 
 const ChannelExcerptText = styled.span`
   font-size: 14px;
-  color: #626d7a;
+  color: #858e96;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -875,7 +871,7 @@ class ChannelsComponent extends React.Component {
               </React.Fragment>
             }
           >
-            <IconComponent icon="settings" size={16} thickness={2} color="#626d7a" className="button" onClick={this._openUserMenu.bind(this)} />
+            <IconComponent icon="settings" size={16} thickness={2} color="#858E96" className="button" onClick={this._openUserMenu.bind(this)} />
           </Popup>
         </Header>
       </div>
@@ -943,7 +939,7 @@ class ChannelsComponent extends React.Component {
               handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
+              <IconComponent icon="plus-circle" size={15} color="#858E96" thickness={2} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
             </QuickInputComponent>
           )}
         </div>
@@ -1005,7 +1001,7 @@ class ChannelsComponent extends React.Component {
               this.setState({ channelPrivatePopup: false })
             }}
           >
-            <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
+            <IconComponent icon="plus-circle" size={15} color="#858E96" thickness={2} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
           </QuickUserComponent>
         </div>
 
@@ -1239,11 +1235,10 @@ const HeaderTitles = styled.div`
 
 const HeaderTeam = styled.span`
   font-size: 8px;
-  font-weight: 500;
+  font-weight: 800;
   color: #adb5bd;
   padding: 5px;
   border-radius: 3px;
-  background: #f2f3f5;
   text-transform: uppercase;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
@@ -1251,13 +1246,12 @@ const HeaderTeam = styled.span`
 
 const HeaderRole = styled.span`
   font-size: 8px;
-  font-weight: 700;
+  font-weight: 800;
   color: #adb5bd;
   padding: 5px;
   border-radius: 3px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
-  background: #f2f3f5;
   text-transform: uppercase;
 `
 
@@ -1276,7 +1270,7 @@ const HeaderTitle = styled.div`
 const HeaderSubtitle = styled.div`
   font-size: 14px;
   font-weight: 400;
-  color: #626d7a;
+  color: #858e96;
   overflow: hidden;
 `
 
@@ -1284,7 +1278,7 @@ const Heading = styled.div`
   margin: 25px 25px 15px 25px;
   font-size: 10px;
   font-weight: 500;
-  color: #626d7a;
+  color: #858e96;
   /*letter-spacing: 1px;*/
   text-transform: uppercase;
   flex: 1;
