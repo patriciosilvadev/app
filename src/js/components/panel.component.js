@@ -26,7 +26,7 @@ PanelComponent.propTypes = {
 
 const Container = styled.div`
   display: flex;
-  width: 350px;
+  width: 300px;
   height: 100%;
   border-left: 1px solid #f1f3f5;
 `

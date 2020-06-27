@@ -14,7 +14,7 @@ import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
 import { IconComponent } from '../components/icon.component'
-import PanelAppComponent from '../components/panel-app.component'
+import AppComponent from '../components/app.component'
 import PanelAttachmentsComponent from '../components/panel-attachments.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
@@ -37,6 +37,7 @@ class AppPage extends React.Component {
     this.dismissPushNotifications = this.dismissPushNotifications.bind(this)
     this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(this)
     this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
+    this.renderApp = this.renderApp.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -176,6 +177,12 @@ class AppPage extends React.Component {
     this.setState({ pushNotificationsNotification: false })
   }
 
+  renderApp() {
+    if (!this.props.app.panel) return null
+
+    return <AppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
+  }
+
   render() {
     if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
@@ -227,6 +234,9 @@ class AppPage extends React.Component {
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
+            <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
+
+            {this.renderApp()}
           </Router>
         </App>
       </AppContainer>

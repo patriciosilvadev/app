@@ -23,8 +23,6 @@ import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
 import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
-import ToolbarComponent from './toolbar.component'
-import PanelAppComponent from './panel-app.component'
 import PanelAttachmentsComponent from './panel-attachments.component'
 import PanelMembersComponent from './panel-members.component'
 import { BASE_URL } from '../environment'
@@ -96,8 +94,6 @@ class ChannelComponent extends React.Component {
     this.renderNotification = this.renderNotification.bind(this)
     this.renderTypingNames = this.renderTypingNames.bind(this)
     this.renderDropzone = this.renderDropzone.bind(this)
-    this.renderToolbar = this.renderToolbar.bind(this)
-    this.renderPanelApp = this.renderPanelApp.bind(this)
     this.renderPanelMembers = this.renderPanelMembers.bind(this)
     this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
     this.renderChannelModal = this.renderChannelModal.bind(this)
@@ -175,7 +171,14 @@ class ChannelComponent extends React.Component {
   async fetchChannel(channelId) {
     try {
       // Set it as busy to not allow more messages to be fetch
-      this.setState({ busy: true })
+      this.setState({
+        busy: true,
+        attachmentsPanel: false,
+        membersPanel: false,
+      })
+
+      // If it's open
+      this.props.closeAppPanel()
 
       const { data } = await GraphqlService.getInstance().channel(channelId)
       let otherUserIsTeamMember = true
@@ -206,7 +209,9 @@ class ChannelComponent extends React.Component {
         },
         () => this.scrollToBottom()
       )
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
   async fetchChannelMessages() {
@@ -490,11 +495,10 @@ class ChannelComponent extends React.Component {
         <HeaderButton
           className="row"
           onClick={() => {
-            // Close the app panel first
-            this.props.closeAppPanel()
-
-            // Open the attachments panel
-            this.setState({ attachmentsPanel: true })
+            this.setState({
+              attachmentsPanel: true,
+              membersPanel: false,
+            })
           }}
         >
           <IconComponent icon="attachment" size={18} thickness={1.75} color="#aeb5bc" />
@@ -504,7 +508,7 @@ class ChannelComponent extends React.Component {
           <React.Fragment>
             {/* Only display amount for locked channels */}
             {!this.props.channel.public && (
-              <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true })}>
+              <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
                 <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
                 <IconComponent icon="users" size={26} thickness={1.25} color="#aeb5bc" className="ml-5" />
               </HeaderButton>
@@ -730,18 +734,8 @@ class ChannelComponent extends React.Component {
     )
   }
 
-  renderToolbar() {
-    return <ToolbarComponent />
-  }
-
-  renderPanelApp() {
-    if (!this.props.app.panel) return null
-
-    return <PanelAppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
-  }
-
   renderPanelMembers() {
-    if (!this.state.membersPanel || this.props.app.panel) return null
+    if (!this.state.membersPanel) return null
 
     const { channelId, teamId } = this.props.match.params
 
@@ -759,7 +753,7 @@ class ChannelComponent extends React.Component {
   }
 
   renderPanelAttachments() {
-    if (!this.state.attachmentsPanel || this.props.app.panel) return null
+    if (!this.state.attachmentsPanel) return null
 
     const { channelId, teamId } = this.props.match.params
 
@@ -854,11 +848,8 @@ class ChannelComponent extends React.Component {
 
             {this.renderPanelMembers()}
             {this.renderPanelAttachments()}
-            {this.renderPanelApp()}
           </ChannelBodyContainer>
         </ChannelContainer>
-
-        {this.renderToolbar()}
       </React.Fragment>
     )
   }
@@ -946,7 +937,6 @@ const Header = styled.div`
   padding 0px 25px 0px 25px;
   height: 75px;
   display: flex;
-  /* box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.05); */
 `
 
 const HeaderButton = styled.div`
