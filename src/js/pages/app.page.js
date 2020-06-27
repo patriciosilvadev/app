@@ -38,6 +38,7 @@ class AppPage extends React.Component {
     this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(this)
     this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
     this.renderApp = this.renderApp.bind(this)
+    this.renderBar = this.renderBar.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -183,6 +184,32 @@ class AppPage extends React.Component {
     return <AppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
   }
 
+  renderBar() {
+    if (!this.props.team) return null
+    if (!this.props.team.name) return null
+
+    return (
+      <Bar className="row">
+        <Team>{this.props.team.name}</Team>
+        <Role>{this.props.team.position}</Role>
+        <Timezone>{this.props.user.timezone}</Timezone>
+        <div className="flexer"></div>
+        <IconComponent icon="chevron-down" color="#f5c8ff" size={14} thickness={2} className="hide" />
+
+        <div className="row hide">
+          <Pill className="row">
+            <IconComponent icon="video" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
+            Meet
+          </Pill>
+          <Pill className="row">
+            <IconComponent icon="check" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
+            Tasks
+          </Pill>
+        </div>
+      </Bar>
+    )
+  }
+
   render() {
     if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
@@ -199,35 +226,7 @@ class AppPage extends React.Component {
           <Notification text="Push notifications are disabled" actionText="Enable" onActionClick={this.handlePushNotificationsSetup} onDismissIconClick={this.dismissPushNotifications} theme="solid" />
         )}
 
-        {/*
-        <Notification
-          text="Yack is currently is QA/testing mode - please click on the link to report bugs"
-          actionText="support@yack.co"
-          onDismissIconClick={null}
-          theme="dark-pink"
-          onActionClick={() => {
-            window.location.href = 'mailto:support@yack.co?subject=I%20found%20a%20bug&body=Please%20add%20as%20much%20detail%20as%20you%20can%20here...'
-          }}
-        />
-        */}
-
-        <Bar className="row">
-          <Team>Yack</Team>
-          <Role>(Founder)</Role>
-          <Timezone>(Africa/Egypt)</Timezone>
-          <IconComponent icon="chevron-down" color="#f5c8ff" size={14} thickness={2} />
-          <div className="flexer"></div>
-          <div className="row">
-            <Pill className="row">
-              <IconComponent icon="video" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
-              Meet
-            </Pill>
-            <Pill className="row">
-              <IconComponent icon="check" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
-              Tasks
-            </Pill>
-          </div>
-        </Bar>
+        {this.renderBar()}
 
         <App className="row">
           <Router history={browserHistory}>
@@ -247,6 +246,7 @@ class AppPage extends React.Component {
 AppPage.propTypes = {
   common: PropTypes.any,
   user: PropTypes.any,
+  team: PropTypes.any,
   app: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
@@ -266,6 +266,7 @@ const mapStateToProps = state => {
     common: state.common,
     user: state.user,
     app: state.app,
+    team: state.team,
   }
 }
 
@@ -310,7 +311,6 @@ const Role = styled.div`
 const Timezone = styled.div`
   color: #f5c8ff;
   margin-right: 5px;
-  display: none;
 `
 
 const Pill = styled.div`
