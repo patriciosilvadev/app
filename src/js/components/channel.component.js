@@ -24,7 +24,7 @@ import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
 import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
 import AttachmentsComponent from './attachments.component'
-import MembersChannelComponent from './panel-members.component'
+import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
 

@@ -15,13 +15,13 @@ import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
 import { IconComponent } from '../components/icon.component'
 import AppComponent from '../components/app.component'
-import PanelAttachmentsComponent from '../components/panel-attachments.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
 import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../helpers/util'
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
+import * as chroma from 'chroma-js'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -180,22 +180,38 @@ class AppPage extends React.Component {
   renderBar() {
     if (!this.props.team) return null
     if (!this.props.team.name) return null
+    if (!this.props.channel) return null
+    if (!this.props.channel.id) return null
+
+    const pillBackgroundColor = this.props.channel.private
+      ? '#E8EBED'
+      : this.props.channel.color
+      ? chroma(this.props.channel.color)
+          .darken(0.25)
+          .toString()
+      : '#E8EBED'
+    const textColor = this.props.channel.private
+      ? '#007af5'
+      : this.props.channel.color
+      ? chroma(this.props.channel.color)
+          .desaturate(2)
+          .brighten(2.25)
+          .toString()
+      : '#007af5'
 
     return (
-      <Bar className="row">
-        <Team>{this.props.team.name}</Team>
-        <Role>{this.props.team.position}</Role>
-        <Timezone>{this.props.user.timezone}</Timezone>
+      <Bar className="row" backgroundColor={this.props.channel.color}>
+        <Team textColor={textColor}>{this.props.team.name}</Team>
+        <Role textColor={textColor}>{this.props.team.position}</Role>
+        <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
         <div className="flexer"></div>
-        <IconComponent icon="chevron-down" color="#f5c8ff" size={14} thickness={2} className="hide" />
-
-        <div className="row hide">
-          <Pill className="row">
-            <IconComponent icon="video" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
+        <div className="row">
+          <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
+            <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
             Meet
           </Pill>
-          <Pill className="row">
-            <IconComponent icon="check" color="#f5c8ff" size={14} thickness={2} className="mr-5" />
+          <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
+            <IconComponent icon="check" color={textColor} size={14} thickness={2} className="mr-5" />
             Tasks
           </Pill>
         </div>
@@ -239,6 +255,7 @@ AppPage.propTypes = {
   common: PropTypes.any,
   user: PropTypes.any,
   team: PropTypes.any,
+  channel: PropTypes.any,
   app: PropTypes.any,
   initialize: PropTypes.func,
   fetchUser: PropTypes.func,
@@ -258,6 +275,7 @@ const mapStateToProps = state => {
     common: state.common,
     user: state.user,
     app: state.app,
+    channel: state.channel,
     team: state.team,
   }
 }
@@ -284,32 +302,32 @@ const App = styled.div`
 `
 
 const Bar = styled.div`
-  background: #7c4dff;
+  background: ${props => (props.backgroundColor ? props.backgroundColor : '#F0F3F5')};
   width: 100%;
   padding: 7px;
 `
 
 const Team = styled.div`
-  color: #f5c8ff;
+  color: ${props => props.textColor};
   font-weight: 800;
   margin-right: 5px;
 `
 
 const Role = styled.div`
-  color: #f5c8ff;
+  color: ${props => props.textColor};
   margin-right: 5px;
 `
 
 const Timezone = styled.div`
-  color: #f5c8ff;
+  color: ${props => props.textColor};
   margin-right: 5px;
 `
 
 const Pill = styled.div`
-  color: #f5c8ff;
+  color: ${props => props.textColor};
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
-  background: #653ade;
+  background-color: ${props => props.backgroundColor};
   margin-left: 5px;
 `
 

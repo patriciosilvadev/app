@@ -5,7 +5,6 @@ import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import { Button, Modal } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
-import PanelComponent from './panel.component'
 import { closeAppPanel } from '../actions'
 
 export default function AppComponent(props) {
