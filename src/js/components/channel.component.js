@@ -23,8 +23,8 @@ import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
 import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
-import PanelAttachmentsComponent from './panel-attachments.component'
-import PanelMembersComponent from './panel-members.component'
+import AttachmentsComponent from './attachments.component'
+import MembersChannelComponent from './panel-members.component'
 import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
 
@@ -94,8 +94,8 @@ class ChannelComponent extends React.Component {
     this.renderNotification = this.renderNotification.bind(this)
     this.renderTypingNames = this.renderTypingNames.bind(this)
     this.renderDropzone = this.renderDropzone.bind(this)
-    this.renderPanelMembers = this.renderPanelMembers.bind(this)
-    this.renderPanelAttachments = this.renderPanelAttachments.bind(this)
+    this.renderMembersChannel = this.renderMembersChannel.bind(this)
+    this.renderAttachments = this.renderAttachments.bind(this)
     this.renderChannelModal = this.renderChannelModal.bind(this)
     this.renderOtherUserTimezone = this.renderOtherUserTimezone.bind(this)
     this.renderNonTeamMemberNotice = this.renderNonTeamMemberNotice.bind(this)
@@ -734,13 +734,13 @@ class ChannelComponent extends React.Component {
     )
   }
 
-  renderPanelMembers() {
+  renderMembersChannel() {
     if (!this.state.membersPanel) return null
 
     const { channelId, teamId } = this.props.match.params
 
     return (
-      <PanelMembersComponent
+      <MembersChannelComponent
         channelId={channelId}
         teamId={teamId}
         hasAdminPermission={this.state.hasAdminPermission}
@@ -752,13 +752,13 @@ class ChannelComponent extends React.Component {
     )
   }
 
-  renderPanelAttachments() {
+  renderAttachments() {
     if (!this.state.attachmentsPanel) return null
 
     const { channelId, teamId } = this.props.match.params
 
     return (
-      <PanelAttachmentsComponent
+      <AttachmentsComponent
         channelId={channelId}
         teamId={teamId}
         onClose={() => {
@@ -846,8 +846,8 @@ class ChannelComponent extends React.Component {
               {this.renderCompose()}
             </ChannelBody>
 
-            {this.renderPanelMembers()}
-            {this.renderPanelAttachments()}
+            {this.renderMembersChannel()}
+            {this.renderAttachments()}
           </ChannelBodyContainer>
         </ChannelContainer>
       </React.Fragment>

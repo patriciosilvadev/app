@@ -11,9 +11,8 @@ import PreviewComponent from './preview.component'
 import { parseMessageMarkdown, shortenMarkdownText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
-import PanelComponent from './panel.component'
 
-class PanelAttachmentsComponent extends React.Component {
+class AttachmentsComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -83,7 +82,12 @@ class PanelAttachmentsComponent extends React.Component {
 
   render() {
     return (
-      <PanelComponent title="Channel Files" onClose={this.props.onClose}>
+      <Container className="column">
+        <Header className="row">
+          <HeaderTitle>Channel Files</HeaderTitle>
+          <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={this.props.onClose} />
+        </Header>
+
         {this.state.preview && <PreviewComponent onClose={() => this.setState({ preview: null })} image={this.state.preview} />}
         {this.state.error && <Error message={this.state.error} />}
         {this.state.loading && <Spinner />}
@@ -134,7 +138,7 @@ class PanelAttachmentsComponent extends React.Component {
             </div>
           </AttachmentsScrollContainer>
         </Attachments>
-      </PanelComponent>
+      </Container>
     )
   }
 }
@@ -152,9 +156,9 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(PanelAttachmentsComponent)
+)(AttachmentsComponent)
 
-PanelAttachmentsComponent.propTypes = {
+AttachmentsComponent.propTypes = {
   onClose: PropTypes.func,
   user: PropTypes.any,
   team: PropTypes.any,
@@ -162,6 +166,35 @@ PanelAttachmentsComponent.propTypes = {
   channelId: PropTypes.string,
   teamId: PropTypes.string,
 }
+
+const Container = styled.div`
+  display: flex;
+  width: 300px;
+  height: 100%;
+  border-left: 1px solid #f1f3f5;
+`
+
+const Header = styled.div`
+  width: 100%;
+  background: transparent;
+  border-bottom: 1px solid #f1f3f5;
+  background: white;
+  padding 15px 25px 15px 25px;
+  display: flex;
+  position: relative;
+`
+
+const HeaderTitle = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  font-style: normal;
+  color: #040b1c;
+  transition: opacity 0.5s;
+  display: inline-block;
+  margin-bottom: 2px;
+  width: max-content;
+  flex: 1;
+`
 
 const Text = styled.div`
   font-size: 14px;

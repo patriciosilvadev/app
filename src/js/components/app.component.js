@@ -6,31 +6,38 @@ import PropTypes from 'prop-types'
 import { Button, Modal } from '@tryyack/elements'
 import { IconComponent } from './icon.component'
 import PanelComponent from './panel.component'
+import { closeAppPanel } from '../actions'
 
 export default function AppComponent(props) {
   const user = useSelector(state => state.user)
+  const app = useSelector(state => state.app)
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
-  const [url, setUrl] = useState(props.action.payload.url)
+  let url
 
-  // If a user has submitted a command
-  // then this will be attached to the webhook, panel or modal
-  useEffect(() => {
-    // If the user has already added a query string
-    if (props.action.payload.url.indexOf('?') == -1) {
-      setUrl(`${props.action.payload.url}?token=${props.action.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
-    } else {
-      setUrl(`${props.action.payload.url}&token=${props.action.token}&userId=${user.id}${props.action.userCommand ? '&userCommand=' + props.action.userCommand : ''}`)
-    }
-  }, [props.action])
+  // If there is no app panel action - then don't display this component
+  if (!app.panel) return null
+
+  // app.panel is an APP ACTION
+  // If the user has already added a query string
+  // Payload consists of URL/WIDTH/HEIGHT
+  // We maange the dimensions because this is the panel - so we only want the URL
+  // -----------------------
+  // User commands are added dynamically by the compose component
+  // they refer to the / (slash) commands when users interact with an app
+  if (app.panel.payload.url.indexOf('?') == -1) {
+    url = `${app.panel.payload.url}?token=${app.panel.token}&userId=${user.id}${app.panel.userCommand ? '&userCommand=' + app.panel.userCommand : ''}`
+  } else {
+    url = `${app.panel.payload.url}&token=${app.panel.token}&userId=${user.id}${app.panel.userCommand ? '&userCommand=' + app.panel.userCommand : ''}`
+  }
 
   return (
     <Container className="column">
       <Header className="row">
-        <HeaderTitle>{props.action.name}</HeaderTitle>
+        <HeaderTitle>{app.panel.name}</HeaderTitle>
         <Tooltip>App</Tooltip>
         <div className="flexer"></div>
-        <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={props.onClose} />
+        <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={() => dispatch(closeAppPanel())} />
       </Header>
       <IframeContainer>
         <Iframe border="0" src={url} width="100%" height="100%"></Iframe>
@@ -40,7 +47,6 @@ export default function AppComponent(props) {
 }
 
 AppComponent.propTypes = {
-  onClose: PropTypes.func,
   action: PropTypes.any,
 }
 

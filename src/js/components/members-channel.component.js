@@ -13,7 +13,6 @@ import PreviewComponent from './preview.component'
 import { parseMessageMarkdown, getPresenceText, logger } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
-import PanelComponent from './panel.component'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MembersModal from '../modals/members.modal'
@@ -83,7 +82,7 @@ const TableRow = props => {
   )
 }
 
-class PanelMembersComponent extends React.Component {
+class MembersChannelComponent extends React.Component {
   constructor(props) {
     super(props)
 
@@ -275,7 +274,12 @@ class PanelMembersComponent extends React.Component {
           />
         )}
 
-        <PanelComponent title="Channel Members" onClose={this.props.onClose}>
+        <Container className="column">
+          <Header className="row">
+            <HeaderTitle>Channel Members</HeaderTitle>
+            <IconComponent icon="x" size={25} color="#040b1c" className="mr-5 button" onClick={this.props.onClose} />
+          </Header>
+
           {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
           {this.state.loading && <Spinner />}
@@ -347,7 +351,7 @@ class PanelMembersComponent extends React.Component {
               </div>
             </MembersScrollContainer>
           </Members>
-        </PanelComponent>
+        </Container>
       </React.Fragment>
     )
   }
@@ -366,9 +370,9 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(PanelMembersComponent)
+)(MembersChannelComponent)
 
-PanelMembersComponent.propTypes = {
+MembersChannelComponent.propTypes = {
   onClose: PropTypes.func,
   onMemberAdd: PropTypes.func,
   hasAdminPermission: PropTypes.bool,
@@ -378,6 +382,35 @@ PanelMembersComponent.propTypes = {
   team: PropTypes.any,
   channel: PropTypes.any,
 }
+
+const Container = styled.div`
+  display: flex;
+  width: 300px;
+  height: 100%;
+  border-left: 1px solid #f1f3f5;
+`
+
+const Header = styled.div`
+  width: 100%;
+  background: transparent;
+  border-bottom: 1px solid #f1f3f5;
+  background: white;
+  padding 15px 25px 15px 25px;
+  display: flex;
+  position: relative;
+`
+
+const HeaderTitle = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  font-style: normal;
+  color: #040b1c;
+  transition: opacity 0.5s;
+  display: inline-block;
+  margin-bottom: 2px;
+  width: max-content;
+  flex: 1;
+`
 
 const Input = styled.input`
   font-size: 14px;

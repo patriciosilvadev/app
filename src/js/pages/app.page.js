@@ -37,7 +37,6 @@ class AppPage extends React.Component {
     this.dismissPushNotifications = this.dismissPushNotifications.bind(this)
     this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(this)
     this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
-    this.renderApp = this.renderApp.bind(this)
     this.renderBar = this.renderBar.bind(this)
   }
 
@@ -178,12 +177,6 @@ class AppPage extends React.Component {
     this.setState({ pushNotificationsNotification: false })
   }
 
-  renderApp() {
-    if (!this.props.app.panel) return null
-
-    return <AppComponent action={this.props.app.panel} onClose={this.props.closeAppPanel} />
-  }
-
   renderBar() {
     if (!this.props.team) return null
     if (!this.props.team.name) return null
@@ -234,8 +227,7 @@ class AppPage extends React.Component {
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
-
-            {this.renderApp()}
+            <Route path="/app/team/:teamId/channel/:channelId" component={AppComponent} />
           </Router>
         </App>
       </AppContainer>
