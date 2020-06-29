@@ -38,6 +38,7 @@ class AppPage extends React.Component {
     this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(this)
     this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
     this.renderBar = this.renderBar.bind(this)
+    this.renderWelcome = this.renderWelcome.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -180,42 +181,58 @@ class AppPage extends React.Component {
   renderBar() {
     if (!this.props.team) return null
     if (!this.props.team.name) return null
-    if (!this.props.channel) return null
-    if (!this.props.channel.id) return null
 
-    const pillBackgroundColor = this.props.channel.private
-      ? '#E8EBED'
-      : this.props.channel.color
-      ? chroma(this.props.channel.color)
-          .darken(0.25)
-          .toString()
-      : '#E8EBED'
-    const textColor = this.props.channel.private
-      ? '#007af5'
-      : this.props.channel.color
-      ? chroma(this.props.channel.color)
-          .desaturate(2)
-          .brighten(2.25)
-          .toString()
+    const backgroundColor = this.props.channel ? (this.props.channel.color ? this.props.channel.color : '#112640') : '#112640'
+    const pillBackgroundColor = this.props.channel
+      ? this.props.channel.private
+        ? '#0a1a2e'
+        : this.props.channel.color
+        ? chroma(this.props.channel.color)
+            .darken(0.25)
+            .toString()
+        : '#0a1a2e'
+      : '#0a1a2e'
+    const textColor = this.props.channel
+      ? this.props.channel.private
+        ? '#007af5'
+        : this.props.channel.color
+        ? chroma(this.props.channel.color)
+            .desaturate(2)
+            .brighten(2.25)
+            .toString()
+        : '#007af5'
       : '#007af5'
 
     return (
-      <Bar className="row" backgroundColor={this.props.channel.color}>
-        <Team textColor={textColor}>{this.props.team.name}</Team>
+      <Bar className="row" backgroundColor={backgroundColor}>
+        <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
+          {this.props.team.name}
+        </Team>
         <Role textColor={textColor}>{this.props.team.position}</Role>
         <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
         <div className="flexer"></div>
-        <div className="row">
-          <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
-            <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
-            Meet
-          </Pill>
-          <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
-            <IconComponent icon="check" color={textColor} size={14} thickness={2} className="mr-5" />
-            Tasks
-          </Pill>
-        </div>
+        {this.props.channel.id && (
+          <div className="row">
+            <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
+              <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
+              Meet
+            </Pill>
+            <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
+              <IconComponent icon="check" color={textColor} size={14} thickness={2} className="mr-5" />
+              Tasks
+            </Pill>
+          </div>
+        )}
       </Bar>
+    )
+  }
+
+  renderWelcome() {
+    if (window.location.pathname.indexOf('channel') != -1) return null
+    return (
+      <div className="flexer column justify-content-center align-content-center align-items-center">
+        <img src="icon-muted.svg" width="100" />
+      </div>
     )
   }
 
@@ -241,6 +258,7 @@ class AppPage extends React.Component {
           <Router history={browserHistory}>
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
+            <Route path="/app" render={props => this.renderWelcome()} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={AppComponent} />
@@ -304,23 +322,30 @@ const App = styled.div`
 const Bar = styled.div`
   background: ${props => (props.backgroundColor ? props.backgroundColor : '#F0F3F5')};
   width: 100%;
-  padding: 7px;
+  padding: 0 10px 0 10px;
+  height: 50px;
 `
 
 const Team = styled.div`
   color: ${props => props.textColor};
   font-weight: 800;
   margin-right: 5px;
+  background-color: ${props => props.backgroundColor};
+  padding: 5px;
+  border-radius: 3px;
+  margin-right: 10px;
 `
 
 const Role = styled.div`
   color: ${props => props.textColor};
   margin-right: 5px;
+  font-weight: 500;
 `
 
 const Timezone = styled.div`
   color: ${props => props.textColor};
   margin-right: 5px;
+  opacity: 0.75;
 `
 
 const Pill = styled.div`

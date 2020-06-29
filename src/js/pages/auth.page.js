@@ -211,8 +211,8 @@ class AuthPage extends React.Component {
               const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
               return (
-                <Form onSubmit={handleSubmit} className="column align-items-center">
-                  <div className="h5 color-d0 p-30 text-center">Enter your email address and we'll send you a verification code to reset your password.</div>
+                <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                  <div className="h3 mb-20 color-d3">Reset your password</div>
 
                   <InputContainer>
                     <Input
@@ -230,9 +230,12 @@ class AuthPage extends React.Component {
                   {errors.email && touched.email && <ErrorText>{errors.email}</ErrorText>}
 
                   <Footer className="column align-items-center">
-                    <Button size="large" type="submit" disabled={isSubmitting} text="Send me a code" />
-                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center bold mt-30 button">
-                      Go back to sign in
+                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Send me a code" />
+                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
+                      ← Go back to sign in
+                    </div>
+                    <div onClick={() => this.setState({ view: 'password', verify: true, error: null })} className="color-l0 text-center mt-10 button">
+                      I have a code →
                     </div>
                   </Footer>
                 </Form>
@@ -271,8 +274,9 @@ class AuthPage extends React.Component {
               const { values, touched, errors, dirty, isSubmitting, handleChange, handleBlur, handleSubmit, handleReset } = props
 
               return (
-                <Form onSubmit={handleSubmit} className="column align-items-center">
-                  <div className="p-30 h5 color-d0 text-center">Enter your verification code & new password.</div>
+                <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                  <div className="h3 mb-20 color-d3">Update your password</div>
+                  <div className="h5 color-d0 mb-20">Enter your verification code & new password.</div>
 
                   <InputContainer>
                     <Input
@@ -333,8 +337,11 @@ class AuthPage extends React.Component {
                   {errors.code && touched.code && <ErrorText>{errors.code}</ErrorText>}
 
                   <Footer className="column align-items-center">
-                    <Button size="large" type="submit" disabled={isSubmitting} text="Update Password" />
-                    <div onClick={() => this.setState({ verify: false, error: null })} className="color-l0 bold text-center mt-30 button">
+                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Update Password" />
+                    <div onClick={() => this.setState({ view: 'password', verify: false, error: null })} className="color-l0 text-center mt-30 button">
+                      ← Go back
+                    </div>
+                    <div onClick={() => this.setState({ verify: false, error: null })} className="color-l0 text-center mt-10 button">
                       Get another code
                     </div>
                   </Footer>
@@ -372,8 +379,8 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h1 mt-30 color-d3 text-center">Almost there!</div>
-                  <div className="h4 mb-30 mt-20 color-d0 text-center">Add a bit more information about yourself</div>
+                  <div className="h3 mb-20 color-d3">Almost there!</div>
+                  <div className="h5 color-d0 mb-20">Add a bit more information about yourself</div>
 
                   <InputContainer>
                     <Input
@@ -424,8 +431,8 @@ class AuthPage extends React.Component {
                   </InputContainer>
 
                   <Footer className="column align-items-center">
-                    <Button size="large" type="submit" disabled={isSubmitting} text="Go to Yack" />
-                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 bold text-center mt-30 button">
+                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Go to Yack" />
+                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
                       Just let me sign in already
                     </div>
                     <div className="color-l0 a text-center mt-10">
@@ -479,7 +486,7 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h1 mb-30 mt-30 color-d3">Create an account</div>
+                  <div className="h3 mb-20 color-d3">Create an account</div>
 
                   <InputContainer>
                     <Input
@@ -560,9 +567,9 @@ class AuthPage extends React.Component {
                   {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
 
                   <Footer className="column align-items-center">
-                    <Button size="large" type="submit" disabled={isSubmitting} text="Sign up" />
-                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 bold text-center mt-30 button">
-                      Go back to sign in
+                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Sign up" />
+                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
+                      ← Go back to sign in
                     </div>
                     <div className="color-l0 a text-center mt-10">
                       By creating an account, you agree to our{' '}
@@ -590,10 +597,6 @@ class AuthPage extends React.Component {
     if (this.state.view == 'signin') {
       return (
         <Container className="column justify-content-center align-content-center align-items-stretch">
-          <div className="h1 mb-30 mt-30 color-d3">Sign in</div>
-
-          <div className="h5 color-d0">Please log in using your username & password</div>
-
           <Formik
             initialValues={{ username: '', password: '' }}
             onSubmit={(values, actions) => {
@@ -610,6 +613,9 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
+                  <div className="h3 mb-10 color-d3">Sign in</div>
+                  <div className="h5 color-d0 mb-20">Please log in using your username & password</div>
+
                   <InputContainer>
                     <Input
                       name="username"
@@ -644,7 +650,8 @@ class AuthPage extends React.Component {
 
                   <Spacer />
 
-                  <Button size="large" type="submit" disabled={isSubmitting} text="Sign in" />
+                  <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Sign in" />
+
                   <div onClick={() => this.setState({ view: 'password', error: null })} className="color-l0 text-center mt-30 button">
                     I've lost my password
                   </div>
@@ -669,17 +676,13 @@ class AuthPage extends React.Component {
 
         <Auth>
           <Logo>
-            <img src="logo.svg" height="20" alt="Yack" />
+            <img src="logo-white.svg" height="20" alt="Yack" />
           </Logo>
 
           <Loading show={this.state.loading} />
-          {this.state.view == 'password' && (
-            <Container className="column justify-content-center align-content-center align-items-stretch">
-              {this.renderPasswordReset()}
-              {this.renderPasswordUpdate()}
-            </Container>
-          )}
 
+          {this.renderPasswordReset()}
+          {this.renderPasswordUpdate()}
           {this.renderSignupOnboarding()}
           {this.renderSignup()}
           {this.renderSignin()}
@@ -714,26 +717,22 @@ const Auth = styled.div`
   align-content: center;
   justify-content: center;
   background: #f3f3f3;
+  background: linear-gradient(45deg, #3d9ee1, #a63de1);
   position: relative;
 `
 
 const Container = styled.div`
   background: white;
   position: relative;
-  width: 550px;
-  border-radius: 30px;
+  width: 500px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   align-content: center;
   justify-content: center;
   flex-direction: column;
-  padding-top: 50px;
-  padding-bottom: 50px;
-`
-
-const Content = styled.div`
-  flex: 1;
-  width: 100%;
+  padding-top: 30px;
+  padding-bottom: 30px;
 `
 
 const ErrorText = styled.div`
@@ -745,81 +744,9 @@ const ErrorText = styled.div`
   font-weight: 700;
 `
 
-const Text = styled.div`
-  color: #202529;
-  font-size: 28px;
-  font-weight: 600;
-  padding: 20px;
-  text-align: center;
-`
-
-const Header = styled.div`
-  border-bottom: 1px solid #f1f3f5;
-  width: 100%;
-`
-
 const Footer = styled.div`
   width: 100%;
   padding: 20px;
-`
-
-const Avatar = styled.div`
-  padding: 50px;
-  width: 100%;
-`
-
-const Usernames = styled.div`
-  width: 100%;
-  border-top: 1px solid #f1f3f5;
-
-  &::placeholder {
-    color: #ebedef;
-  }
-`
-
-const UsernamesInput = styled.input`
-  color: #202529;
-  font-size: 14px;
-  font-weight: 400;
-  padding: 20px;
-  width: 100%;
-  text-align: left;
-  flex: 1;
-  border: none;
-
-  &::placeholder {
-    color: #ebedef;
-  }
-`
-
-const UpdateButton = styled.div`
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: white;
-  border-radius: 100px;
-  width: 30px;
-  height: 30px;
-  z-index: 10;
-  cursor: pointer;
-  transition: background 0.25s;
-
-  &:hover {
-    background: #0f081f;
-  }
-
-  svg {
-    transition: fill 0.25s;
-  }
-
-  &:hover svg {
-    fill: #007af5 !important;
-  }
-`
-
-const Members = styled.div`
-  padding: 0px 50px 0px 50px;
-  border-top: 1px solid #f1f3f5;
 `
 
 const Logo = styled.div`

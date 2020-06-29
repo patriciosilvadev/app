@@ -92,11 +92,19 @@ export default function DockComponent(props) {
         )
       })}
 
-      <Avatar size="medium-large" className="button mt-10" onClick={e => setTeamOnboardingModal(true)}>
-        <IconComponent icon="plus" size={20} color="#007af5" thickness={2} />
-      </Avatar>
+      <div className="mt-30 mb-0">
+        <Avatar size="medium-large" color="transparent" className="button" onClick={e => setTeamOnboardingModal(true)}>
+          <IconComponent icon="plus" size={20} color="#112640" thickness={2} />
+        </Avatar>
+      </div>
 
-      <NotificationsComponent style={{ marginTop: 20 }} />
+      <div className="mt-0 mb-10">
+        <Avatar size="medium-large" color="transparent" className="button" onClick={e => window.open('mailto:support@yack.co')}>
+          <IconComponent icon="question" size={20} color="#112640" thickness={1.75} />
+        </Avatar>
+      </div>
+
+      <NotificationsComponent style={{ marginTop: 0 }} />
 
       <div className="flexer"></div>
       <img src="icon.svg" width="20" />

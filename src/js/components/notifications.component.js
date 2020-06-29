@@ -134,7 +134,7 @@ export default function NotificationsComponent(props) {
     >
       <div style={{ ...props.style }} className="button" onClick={e => setNotificationsMenu(true)}>
         {hasNotification && <Badge />}
-        <IconComponent icon="bell" size={20} color={hasNotification ? '#626d7a' : '#475669'} thickness={1.5} />
+        <IconComponent icon="bell" size={20} color="#112640" thickness={1.75} />
       </div>
     </Popup>
   )

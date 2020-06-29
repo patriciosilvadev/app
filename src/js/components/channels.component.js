@@ -1277,7 +1277,7 @@ const HeaderSubtitle = styled.div`
 const Heading = styled.div`
   margin: 25px 25px 15px 25px;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 700;
   color: #858e96;
   /*letter-spacing: 1px;*/
   text-transform: uppercase;
