@@ -1,7 +1,7 @@
 {
   "name": "yack-app",
   "version": "0.0.9",
-  "description": "Yack, a hackable team messaging platform.",
+  "description": "Yack, a hackable team messaging platform",
   "main": "src/js/electron.js",
   "scripts": {
     "build:prod": "webpack --config webpack.config.js",
