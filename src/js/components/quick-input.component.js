@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import GraphqlService from '../services/graphql.service'
-import { Popup } from '@tryyack/elements'
+import { Popup } from '@weekday/elements'
 import PropTypes from 'prop-types'
 
 export default class QuickInputComponent extends React.Component {

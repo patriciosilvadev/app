@@ -53,8 +53,8 @@ export const showLocalPushNotification = (title, body) => {
     if (serviceWorkerRegistration) {
       serviceWorkerRegistration.showNotification(title, {
         body,
-        icon: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
-        image: 'https://weekday-marketing.s3-us-west-2.amazonaws.com/logo-transparent.png',
+        icon: 'https://weekday-assets.s3-us-west-2.amazonaws.com/logo-transparent.png',
+        image: 'https://weekday-assets.s3-us-west-2.amazonaws.com/logo-transparent.png',
       })
     }
   })

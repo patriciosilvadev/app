@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
-import { Button, Modal } from '@tryyack/elements'
+import { Button, Modal } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import { closeAppPanel } from '../actions'
 

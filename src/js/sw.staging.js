@@ -12,11 +12,11 @@ addEventListener('push', event => {
     data = event.data.json()
   }
 
-  const title = data.title || 'Yack'
+  const title = data.title || 'Weekday'
   const body = data.body || 'This is the default message'
-  const icon = 'https://yack-marketing.s3-us-west-2.amazonaws.com/logo.png'
-  const image = 'https://yack-marketing.s3-us-west-2.amazonaws.com/logo.png'
-  const tag = 'yack-notification'
+  const icon = 'https://weekday-assets.s3-us-west-2.amazonaws.com/logo.png'
+  const image = 'https://weekday-assets.s3-us-west-2.amazonaws.com/logo.png'
+  const tag = 'weekday-notification'
 
   self.registration.showNotification(title, {
     body,
@@ -28,7 +28,7 @@ addEventListener('push', event => {
   /*
   notification.addEventListener('click', function() {
     if (clients.openWindow) {
-      clients.openWindow('https://yack.app')
+      clients.openWindow('https://weekday.app')
     }
   })
   */

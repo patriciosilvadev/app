@@ -28,7 +28,7 @@ import {
   updateChannel,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@tryyack/elements'
+import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'

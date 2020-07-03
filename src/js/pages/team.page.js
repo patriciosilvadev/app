@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Loading, Error, Input, Button, Notification, Avatar } from '@tryyack/elements'
+import { Loading, Error, Input, Button, Notification, Avatar } from '@weekday/elements'
 import GraphqlService from '../services/graphql.service'
 import { logger } from '../helpers/util'
 
@@ -98,7 +98,7 @@ export default props => {
         )}
 
         <Logo onClick={() => props.history.push('/app')}>
-          <img src="logo.svg" height="20" alt="Yack" />
+          <img src="logo.svg" height="20" alt="Weekday" />
         </Logo>
       </Container>
     </React.Fragment>

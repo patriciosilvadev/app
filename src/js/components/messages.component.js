@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo } from 'react'
 import '../helpers/extensions'
 import styled from 'styled-components'
 import { logger } from '../helpers/util'
-import { Popup, Menu, Avatar, Spinner } from '@tryyack/elements'
+import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import MessageComponent from '../components/message.component'
 import moment from 'moment'
 

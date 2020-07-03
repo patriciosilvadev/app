@@ -26,7 +26,7 @@ import {
   updateChannelCreateMessagePin,
   updateChannelDeleteMessagePin,
 } from '../actions'
-import { Attachment, Popup, Avatar, Menu, Tooltip } from '@tryyack/elements'
+import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
 import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import { openApp } from '../actions'
 import { IconComponent } from '../components/icon.component'
 import ModalPortal from '../portals/modal.portal'
-import { Button, Modal } from '@tryyack/elements'
+import { Button, Modal } from '@weekday/elements'
 import { APPSTORE_URL } from '../environment'
 import AuthService from '../services/auth.service'
 

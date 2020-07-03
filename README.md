@@ -1,6 +1,6 @@
-# Yack
+# Weekday
 
-### Yack is a hackable team messaging platform.
+### Weekday is a hackable team messaging platform.
 
 > This project is in a pre-alpha state right now, so expect things to break/change without notice. It uses an internal GraphQL API, which has not rolled out yet (more soon about that).
 

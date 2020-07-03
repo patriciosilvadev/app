@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { hydrateTeams, updateNotifications, hydrateNotifications } from '../actions'
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
-import { Toggle, Popup, Menu, Avatar, Channel } from '@tryyack/elements'
+import { Toggle, Popup, Menu, Avatar, Channel } from '@weekday/elements'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
@@ -99,7 +99,7 @@ export default function DockComponent(props) {
       </div>
 
       <div className="mt-0 mb-10">
-        <Avatar size="medium-large" color="transparent" className="button" onClick={e => window.open('mailto:support@yack.co')}>
+        <Avatar size="medium-large" color="transparent" className="button" onClick={e => window.open('mailto:support@weekdayapp.com')}>
           <IconComponent icon="question" size={20} color="#112640" thickness={1.75} />
         </Avatar>
       </div>

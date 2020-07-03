@@ -1,7 +1,7 @@
 {
-  "name": "yack-app",
+  "name": "weekday-app",
   "version": "0.0.9",
-  "description": "Yack, a hackable team messaging platform",
+  "description": "Weekday, a hackable team messaging platform",
   "main": "src/js/electron.js",
   "scripts": {
     "build:prod": "webpack --config webpack.config.js",
@@ -17,8 +17,8 @@
     "dev:electron": "npm run watch:electron | npm run serve:electron | npm run electron",
     "test": "jest",
     "lint": "eslint ./src",
-    "deploy:prepare": "aws s3 rm --recursive s3://yack-web --profile yack-cli",
-    "deploy:upload": "aws s3 cp --metadata-directive REPLACE --cache-control max-age=0,s-maxage=0 ./dist s3://yack-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile yack-cli",
+    "deploy:prepare": "aws s3 rm --recursive s3://weekday-web --profile weekday-cli",
+    "deploy:upload": "aws s3 cp --metadata-directive REPLACE --cache-control max-age=0,s-maxage=0 ./dist s3://weekday-web --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --recursive --profile weekday-cli",
     "deploy": "npm run build:prod && npm run deploy:prepare && npm run deploy:upload",
     "electron": "NODE_ENV=dev electron .",
     "pack:mac": "electron-builder --mac --dir",
@@ -28,22 +28,22 @@
     "release:all": "electron-builder -mwl"
   },
   "build": {
-    "appId": "com.yack.${name}",
-    "productName": "Yack",
+    "appId": "com.weekday.${name}",
+    "productName": "Weekday",
     "copyright": "Copyright © 2020 ${author}",
     "linux": {
       "category": "Productivity",
       "desktop": {
-        "Comment": "Yack, a hackable team messaging platform.",
-        "Name": "Yack",
+        "Comment": "Weekday, a hackable team messaging platform.",
+        "Name": "Weekday",
         "StartupNotify": "true",
         "Terminal": "false",
         "Type": "Application",
         "Categories": "Messaging;Office;"
       },
       "icon": "build/icon.png",
-      "executableName": "yack-app",
-      "maintainer": "support@yack.co",
+      "executableName": "weekday-app",
+      "maintainer": "support@weekdayapp.com",
       "target": [
         "AppImage"
       ]
@@ -79,13 +79,13 @@
   "homepage": "./",
   "author": "Jo du Plessis",
   "license": "ISC",
-  "repository": "https://github.com/yack/web",
-  "url": "https://github.com/yack/web",
+  "repository": "https://github.com/weekday/web",
+  "url": "https://github.com/weekday/web",
   "dependencies": {
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",
     "@sentry/browser": "^5.5.0",
-    "@tryyack/elements": "^0.8.8",
+    "@weekday/elements": "^0.8.8",
     "apollo-cache-inmemory": "^1.2.10",
     "apollo-client": "^2.4.2",
     "apollo-link": "^1.2.13",

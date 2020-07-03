@@ -12,7 +12,7 @@ import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { updateUser, updateChannelUserNameImage } from '../actions'
 import ModalPortal from '../portals/modal.portal'
-import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select, Toggle } from '@tryyack/elements'
+import { Avatar, Button, Input, Textarea, Notification, Modal, Tabbed, Spinner, Error, Select, Toggle } from '@weekday/elements'
 import { STRIPE_API_KEY } from '../environment'
 import Zero from '@joduplessis/zero'
 import { logger, stripSpecialChars } from '../helpers/util'
@@ -310,7 +310,7 @@ export default function AccountModal(props) {
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Connected email addresses</Text>
-            <Text className="color-d0 p mb-30">Use your Yack account with more than just 1 email address.</Text>
+            <Text className="color-d0 p mb-30">Use your Weekday account with more than just 1 email address.</Text>
 
             <Table width="100%">
               <tbody>
@@ -374,7 +374,7 @@ export default function AccountModal(props) {
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-red h5 mb-10">Here be dragons!</Text>
             <Text className="color-d0 p mb-30">
-              Once you delete your account, you will only be able to re-activate it by contacting <a href="mailto:support@yack.co">support@yack.co</a>.
+              Once you delete your account, you will only be able to re-activate it by contacting <a href="mailto:support@weekdayapp.com">support@weekdayapp.com</a>.
             </Text>
 
             <Button theme="red" text="Delete" onClick={() => setConfirmAccountDeleteModal(true)} />

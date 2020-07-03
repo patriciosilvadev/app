@@ -5,7 +5,7 @@ import ModalPortal from '../portals/modal.portal'
 import PropTypes from 'prop-types'
 import GraphqlService from '../services/graphql.service'
 import UploadService from '../services/upload.service'
-import { Button, Modal, Input, Textarea, Avatar, Notification, Spinner, Error } from '@tryyack/elements'
+import { Button, Modal, Input, Textarea, Avatar, Notification, Spinner, Error } from '@weekday/elements'
 import { validEmail, logger, validateEmail } from '../helpers/util'
 import { createTeam } from '../actions'
 import MessagingService from '../services/messaging.service'
@@ -238,7 +238,7 @@ export default function TeamOnboardingModal(props) {
             </Inner>
 
             <Logo>
-              <img src="icon.svg" height="20" alt="Yack" />
+              <img src="icon.svg" height="20" alt="Weekday" />
             </Logo>
           </Container>
         </React.Fragment>

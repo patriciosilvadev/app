@@ -7,7 +7,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import PropTypes from 'prop-types'
 import { fetchUser } from '../actions'
-import { Loading, Button, Error, Input, Textarea, Select } from '@tryyack/elements'
+import { Loading, Button, Error, Input, Textarea, Select } from '@weekday/elements'
 import Zero from '@joduplessis/zero'
 import moment from 'moment'
 
@@ -431,13 +431,13 @@ class AuthPage extends React.Component {
                   </InputContainer>
 
                   <Footer className="column align-items-center">
-                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Go to Yack" />
+                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Go to Weekday" />
                     <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
                       Just let me sign in already
                     </div>
                     <div className="color-l0 a text-center mt-10">
-                      By creating an account & using Yack, you agree to our{' '}
-                      <a href="https://yack.co/termsofuse" target="_blank">
+                      By creating an account & using Weekday, you agree to our{' '}
+                      <a href="https://weekdayapp.com/termsofuse" target="_blank">
                         <strong>terms of use</strong>
                       </a>
                     </div>
@@ -573,11 +573,11 @@ class AuthPage extends React.Component {
                     </div>
                     <div className="color-l0 a text-center mt-10">
                       By creating an account, you agree to our{' '}
-                      <a href="https://yack.co/termsofuse" target="_blank">
+                      <a href="https://weekdayapp.com/termsofuse" target="_blank">
                         <strong>terms of use</strong>
                       </a>{' '}
                       &{' '}
-                      <a href="https://yack.co/privacypolicy" target="_blank">
+                      <a href="https://weekdayapp.com/privacypolicy" target="_blank">
                         <strong>privacy policy</strong>
                       </a>
                     </div>
@@ -676,7 +676,7 @@ class AuthPage extends React.Component {
 
         <Auth>
           <Logo>
-            <img src="logo-white.svg" height="20" alt="Yack" />
+            <img src="logo-white.svg" height="20" alt="Weekday" />
           </Logo>
 
           <Loading show={this.state.loading} />
