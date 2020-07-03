@@ -4,7 +4,7 @@
 
 > This project is in a pre-alpha state right now, so expect things to break/change without notice. It uses an internal GraphQL API, which has not rolled out yet (more soon about that).
 
-![Screenshot](https://yack-marketing.s3-us-west-2.amazonaws.com/screenshot.png 'Screenshot')
+![Screenshot](http://weekdayapp.com/static/images/screenshot.png 'Screenshot')
 
 ## Installation
 
