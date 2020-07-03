@@ -28,7 +28,7 @@ addEventListener('push', event => {
   /*
   notification.addEventListener('click', function() {
     if (clients.openWindow) {
-      clients.openWindow('https://weekday.app')
+      clients.openWindow('https://app.weekdayapp.com')
     }
   })
   */
