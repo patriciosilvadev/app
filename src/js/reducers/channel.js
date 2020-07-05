@@ -188,6 +188,10 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'DECREASE_CHANNEL_USER_PREVIEW':
+        draft.userPreviews = state.userPreviews.filter(user => user.id != action.payload.userId)
+        break
+
       case 'DECREASE_CHANNEL_TOTAL_MEMBERS':
         draft.totalMembers = state.totalMembers - 1
         break
