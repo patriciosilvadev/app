@@ -27,6 +27,7 @@ import AttachmentsComponent from './attachments.component'
 import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
+import { AvatarComponent } from '@weekday/elements/lib/avatar'
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -501,18 +502,39 @@ class ChannelComponent extends React.Component {
             })
           }}
         >
-          <IconComponent icon="attachment" size={18} thickness={1.75} color="#aeb5bc" />
+          <IconComponent icon="attachment" size={18} thickness={2} color="#aeb5bc" />
         </HeaderButton>
+
+        <div className="row" style={{ marginLeft: 10 }}>
+          {this.props.channel.userPreviews.map((userPreview, index) => {
+            const userPreviewTextColor = userPreview.color
+              ? chroma(userPreview.color)
+                  .desaturate(2)
+                  .brighten(2.25)
+                  .toString()
+              : '#007af5'
+
+            return (
+              <div key={index} style={{ marginLeft: -10 }}>
+                <Avatar textColor={userPreviewTextColor} color={userPreview.color} image={userPreview.image} title={userPreview.name} style={{ border: '2px solid white' }} size="medium" />
+              </div>
+            )
+          })}
+
+          <div onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })} style={{ marginLeft: -10 }}>
+            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" />
+          </div>
+        </div>
 
         {!this.props.channel.private && (
           <React.Fragment>
             {/* Only display amount for locked channels */}
-            {!this.props.channel.public && (
+            {/* !this.props.channel.public && (
               <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
                 <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
                 <IconComponent icon="users" size={26} thickness={1.25} color="#aeb5bc" className="ml-5" />
               </HeaderButton>
-            )}
+            )} */}
 
             <Popup
               handleDismiss={() => this.setState({ channelMenu: false })}
@@ -940,7 +962,7 @@ const Header = styled.div`
 `
 
 const HeaderButton = styled.div`
-  border: 1px solid #eaedef;
+  border: 0px solid #eaedef;
   position: relative;
   z-index: 5;
   height: 35px;

@@ -326,6 +326,12 @@ export default class GraphqlService {
             shortcode
             isMember
             totalMembers
+            userPreviews {
+              id
+              image
+              color
+              name
+            }
             otherUser {
               id
               name

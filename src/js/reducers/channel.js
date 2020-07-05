@@ -11,6 +11,7 @@ const initialState = {
   isMember: false,
   totalMembers: 0,
   messages: [],
+  userPreviews: [],
   pinnedMessages: [],
   members: [],
   apps: [],
