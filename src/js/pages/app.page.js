@@ -18,10 +18,11 @@ import AppComponent from '../components/app.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
-import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../helpers/util'
+import { showLocalPushNotification, urlBase64ToUint8Array, logger, getCurrentExtensionName } from '../helpers/util'
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
+import { VideoExtension } from '../extensions/video/video.extension'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -202,6 +203,7 @@ class AppPage extends React.Component {
             .toString()
         : '#007af5'
       : '#007af5'
+    const extensionActive = getCurrentExtensionName()
 
     return (
       <Bar className="row" backgroundColor={backgroundColor}>
@@ -213,14 +215,18 @@ class AppPage extends React.Component {
         <div className="flexer"></div>
         {this.props.channel.id && (
           <div className="row">
-            <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
-              <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
-              Meet
-            </Pill>
-            <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor}>
-              <IconComponent icon="check" color={textColor} size={14} thickness={2} className="mr-5" />
-              Tasks
-            </Pill>
+            <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
+              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={extensionActive == 'video'}>
+                <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
+                Meet
+              </Pill>
+            </Link>
+            <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
+              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={extensionActive == 'tasks'}>
+                <IconComponent icon="check" color={textColor} size={14} thickness={2} className="mr-5" />
+                Tasks
+              </Pill>
+            </Link>
           </div>
         )}
       </Bar>
@@ -261,7 +267,7 @@ class AppPage extends React.Component {
             <Route path="/app" render={props => this.renderWelcome()} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
-            <Route path="/app/team/:teamId/channel/:channelId" component={AppComponent} />
+            <Route path="/app/team/:teamId/channel/:channelId/video" component={VideoExtension} />
           </Router>
         </App>
       </AppContainer>
@@ -354,6 +360,7 @@ const Pill = styled.div`
   border-radius: 20px;
   background-color: ${props => props.backgroundColor};
   margin-left: 5px;
+  border: ${props => (props.active ? '2px solid white' : '2px solid ' + props.backgroundColor)};
 `
 
 const Loader = () => (

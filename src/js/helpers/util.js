@@ -5,6 +5,13 @@ import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
 
+export const getCurrentExtensionName = () => {
+  const urlParts = window.location.pathname.split('/')
+  const extensionActive = urlParts[urlParts.length - 1].split('?')[0]
+
+  return extensionActive
+}
+
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
   if (bytes == 0) return '0 Byte'

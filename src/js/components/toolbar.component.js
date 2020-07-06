@@ -107,7 +107,6 @@ const Toolbar = styled.div`
   height: 100%;
   position: relative;
   border-left: 1px solid #eaedef;
-  border-right: 0px solid #eaedef;
 `
 
 const AppIconContainer = styled.div`

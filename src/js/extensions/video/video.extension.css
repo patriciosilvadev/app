@@ -1,0 +1,21 @@
+.extension-container {
+  width: 40%;
+  height: 100%;
+  border-left: 1px solid #eaedef;
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
+  flex-flow: row wrap;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+}
+
+.participant {
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  padding: 10px;
+}

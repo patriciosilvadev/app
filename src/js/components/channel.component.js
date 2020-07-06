@@ -505,7 +505,7 @@ class ChannelComponent extends React.Component {
           <IconComponent icon="attachment" size={18} thickness={2} color="#aeb5bc" />
         </HeaderButton>
 
-        <div className="row" style={{ marginLeft: 10 }}>
+        <div className="row" style={{ marginLeft: 20 }}>
           {this.props.channel.userPreviews.map((userPreview, index) => {
             const userPreviewTextColor = userPreview.color
               ? chroma(userPreview.color)
@@ -521,8 +521,8 @@ class ChannelComponent extends React.Component {
             )
           })}
 
-          <div onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })} style={{ marginLeft: -10 }}>
-            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" />
+          <div style={{ marginLeft: -10 }} onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
+            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} />
           </div>
         </div>
 
