@@ -32,6 +32,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
+      extensionLayout: 1,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -183,6 +184,7 @@ class AppPage extends React.Component {
     if (!this.props.team) return null
     if (!this.props.team.name) return null
 
+    const extensionActive = getCurrentExtensionName()
     const backgroundColor = this.props.channel ? (this.props.channel.color ? this.props.channel.color : '#112640') : '#112640'
     const pillBackgroundColor = this.props.channel
       ? this.props.channel.private
@@ -203,7 +205,6 @@ class AppPage extends React.Component {
             .toString()
         : '#007af5'
       : '#007af5'
-    const extensionActive = getCurrentExtensionName()
 
     return (
       <Bar className="row" backgroundColor={backgroundColor}>
@@ -215,6 +216,40 @@ class AppPage extends React.Component {
         <div className="flexer"></div>
         {this.props.channel.id && (
           <div className="row">
+            <div className="row mr-10">
+              <LayoutIconButton>
+                <IconComponent
+                  icon="square"
+                  color={this.state.extensionLayout == 3 && !!extensionActive ? textColor : 'rgba(255,255,255,0.25)'}
+                  size={18}
+                  thickness={2}
+                  onClick={() => this.setState({ extensionLayout: 3 })}
+                />
+              </LayoutIconButton>
+              {/** 
+              TODO: this needs some more work - so hiding it for now
+              <LayoutIconButton>
+                <IconComponent 
+                  icon="sidebar" 
+                  color={this.state.extensionLayout == 2 && !!extensionActive ? textColor : 'rgba(255,255,255,0.25)'} 
+                  size={18} 
+                  thickness={2} 
+                  onClick={() => this.setState({ extensionLayout: 2 })}
+                />
+              </LayoutIconButton>
+              */}
+              <LayoutIconButton>
+                <IconComponent
+                  icon="sidebar"
+                  color={this.state.extensionLayout == 1 && !!extensionActive ? textColor : 'rgba(255,255,255,0.25)'}
+                  size={18}
+                  thickness={2}
+                  onClick={() => this.setState({ extensionLayout: 1 })}
+                  style={{ transform: 'rotate(180deg)' }}
+                />
+              </LayoutIconButton>
+            </div>
+
             <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
               <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={extensionActive == 'video'}>
                 <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
@@ -267,7 +302,33 @@ class AppPage extends React.Component {
             <Route path="/app" render={props => this.renderWelcome()} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
             <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
-            <Route path="/app/team/:teamId/channel/:channelId/video" component={VideoExtension} />
+            <Route
+              path="/app/team/:teamId/channel/:channelId/video"
+              render={props => {
+                switch (this.state.extensionLayout) {
+                  case 1:
+                    return (
+                      <Layout1>
+                        <VideoExtension {...props} />
+                      </Layout1>
+                    )
+                  case 2:
+                    return (
+                      <Layout2>
+                        <VideoExtension {...props} />
+                      </Layout2>
+                    )
+                  case 3:
+                    return (
+                      <Layout3>
+                        <VideoExtension {...props} />
+                      </Layout3>
+                    )
+                  default:
+                    return null
+                }
+              }}
+            />
           </Router>
         </App>
       </AppContainer>
@@ -308,6 +369,44 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AppPage)
+
+const Layout1 = styled.div`
+  width: 30%;
+  height: 100%;
+`
+
+const Layout2 = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  z-index: 1000;
+`
+
+const Layout3 = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  z-index: 1000;
+`
+
+const LayoutIconButton = styled.div`
+  padding: 5px;
+  opacity: 1;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.25s;
+
+  &:hover {
+    opacity: 0.75;
+  }
+`
 
 const AppContainer = styled.div`
   background-color: #202027;
@@ -360,7 +459,7 @@ const Pill = styled.div`
   border-radius: 20px;
   background-color: ${props => props.backgroundColor};
   margin-left: 5px;
-  border: ${props => (props.active ? '2px solid white' : '2px solid ' + props.backgroundColor)};
+  border: ${props => (props.active ? '2px solid ' + props.textColor : '2px solid ' + props.backgroundColor)};
 `
 
 const Loader = () => (

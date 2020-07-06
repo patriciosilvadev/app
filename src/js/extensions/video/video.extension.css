@@ -1,5 +1,5 @@
 .extension-container {
-  width: 40%;
+  width: 100%;
   height: 100%;
   border-left: 1px solid #eaedef;
   flex-direction: row;
@@ -9,6 +9,7 @@
   align-items: center;
   align-content: center;
   flex-wrap: wrap;
+  background: white;
 }
 
 .participant {

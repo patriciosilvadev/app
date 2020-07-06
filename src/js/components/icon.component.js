@@ -47,6 +47,8 @@ import {
   Smartphone,
   Video,
   Mic,
+  Sidebar,
+  Square,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -59,6 +61,10 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'square':
+        return <Square width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'sidebar':
+        return <Sidebar width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'video':
         return <Video width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'mic':
