@@ -1276,11 +1276,11 @@ const HeaderSubtitle = styled.div`
 
 const Heading = styled.div`
   margin: 25px 25px 15px 25px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: #858e96;
-  /*letter-spacing: 1px;*/
-  text-transform: uppercase;
+  /*letter-spacing: 1px;
+  text-transform: uppercase;*/
   flex: 1;
 `
 

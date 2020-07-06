@@ -18,7 +18,7 @@ import AppComponent from '../components/app.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
-import { showLocalPushNotification, urlBase64ToUint8Array, logger, getCurrentExtensionName } from '../helpers/util'
+import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../helpers/util'
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
@@ -184,7 +184,8 @@ class AppPage extends React.Component {
     if (!this.props.team) return null
     if (!this.props.team.name) return null
 
-    const extensionActive = getCurrentExtensionName()
+    const urlParts = window.location.pathname.split('/')
+    const lastUrlPart = urlParts[urlParts.length - 1].split('?')[0]
     const backgroundColor = this.props.channel ? (this.props.channel.color ? this.props.channel.color : '#112640') : '#112640'
     const pillBackgroundColor = this.props.channel
       ? this.props.channel.private
@@ -220,7 +221,7 @@ class AppPage extends React.Component {
               <LayoutIconButton>
                 <IconComponent
                   icon="square"
-                  color={this.state.extensionLayout == 3 && !!extensionActive ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == 3 ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
                   onClick={() => this.setState({ extensionLayout: 3 })}
@@ -241,7 +242,7 @@ class AppPage extends React.Component {
               <LayoutIconButton>
                 <IconComponent
                   icon="sidebar"
-                  color={this.state.extensionLayout == 1 && !!extensionActive ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == 1 ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
                   onClick={() => this.setState({ extensionLayout: 1 })}
@@ -251,14 +252,14 @@ class AppPage extends React.Component {
             </div>
 
             <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
-              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={extensionActive == 'video'}>
-                <IconComponent icon="video" color={textColor} size={14} thickness={2} className="mr-5" />
+              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
+                <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                 Meet
               </Pill>
             </Link>
             <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
-              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={extensionActive == 'tasks'}>
-                <IconComponent icon="check" color={textColor} size={14} thickness={2} className="mr-5" />
+              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
+                <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                 Tasks
               </Pill>
             </Link>
@@ -371,8 +372,10 @@ export default connect(
 )(AppPage)
 
 const Layout1 = styled.div`
-  width: 30%;
+  width: 35%;
+  border-left: 1px solid #eaedef;
   height: 100%;
+  background: white;
 `
 
 const Layout2 = styled.div`
@@ -381,12 +384,14 @@ const Layout2 = styled.div`
   position: absolute;
   left: 0px;
   z-index: 1000;
+  background: white;
 `
 
 const Layout3 = styled.div`
   width: 100%;
   height: 100%;
   position: absolute;
+  background: white;
   left: 0px;
   z-index: 1000;
 `
@@ -454,12 +459,12 @@ const Timezone = styled.div`
 `
 
 const Pill = styled.div`
-  color: ${props => props.textColor};
+  color: ${props => (props.active ? props.backgroundColor : props.textColor)};
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
-  background-color: ${props => props.backgroundColor};
+  background-color: ${props => (props.active ? props.textColor : props.backgroundColor)};
   margin-left: 5px;
-  border: ${props => (props.active ? '2px solid ' + props.textColor : '2px solid ' + props.backgroundColor)};
+  font-weight: 600;
 `
 
 const Loader = () => (

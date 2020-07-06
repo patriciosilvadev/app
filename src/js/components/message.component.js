@@ -26,7 +26,7 @@ import {
   updateChannelCreateMessagePin,
   updateChannelDeleteMessagePin,
 } from '../actions'
-import { Attachment, Popup, Avatar, Menu, Tooltip } from '@weekday/elements'
+import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
 import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
@@ -729,6 +729,10 @@ export default memo(props => {
     )
   }
 
+  const renderCall = () => {
+    return <Button text="Join call now" className="mt-10 mb-5" icon={<IconComponent icon="video" size={14} thickness={2} color="white" />} />
+  }
+
   return (
     <Message
       className="column"
@@ -761,6 +765,7 @@ export default memo(props => {
             {renderApp()}
             {renderAppButtons()}
             {renderReactionsLikes()}
+            {renderCall()}
           </Bubble>
         </div>
       </div>
