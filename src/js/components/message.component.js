@@ -765,7 +765,7 @@ export default memo(props => {
             {renderApp()}
             {renderAppButtons()}
             {renderReactionsLikes()}
-            {renderCall()}
+            {/* {renderCall()} */}
           </Bubble>
         </div>
       </div>

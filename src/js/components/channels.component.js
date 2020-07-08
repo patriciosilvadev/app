@@ -1209,7 +1209,7 @@ const Channels = styled.div`
   width: 300px;
   height: 100%;
   position: relative;
-  z-index: 4;
+  z-index: 6;
   background: white;
   background: #f8f9fa;
   border-right: 0px solid #1f2d3d;
