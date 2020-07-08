@@ -1224,7 +1224,7 @@ const ChannelsContainer = styled.div`
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding 0px 25px 0px 25px;
+  padding 0px 25px 10px 25px;
   transition: background-color 0.5s;
 `
 
@@ -1275,7 +1275,7 @@ const HeaderSubtitle = styled.div`
 `
 
 const Heading = styled.div`
-  margin: 25px 25px 15px 25px;
+  padding: 20px 25px 20px 25px;
   font-size: 13px;
   font-weight: 600;
   color: #858e96;
