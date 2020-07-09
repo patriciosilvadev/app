@@ -4,12 +4,35 @@ import './video.extension.css'
 import { Avatar, Tooltip, Button, Input } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
 import '../../../assets/downgrade.png'
+import { Janus } from './util/janus'
+import './util/videoroom'
+import { getQueryStringValue } from '../../helpers/util'
 
 function VideoExtension(props) {
   const [participantFocus, setParticipantFocus] = useState(true)
   const channel = useSelector(state => state.channel)
   const dispatch = useDispatch()
   const [topic, setTopic] = useState('')
+
+  var server = 'http://http://94.130.230.216/:8088/janus'
+  var janus = null
+  var sfutest = null
+  var opaqueId = 'videoroomtest-' + Janus.randomString(12)
+  var myroom = 1234
+  var myusername = null
+  var myid = null
+  var mystream = null
+  var feeds = []
+  var bitrateTimer = []
+  var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
+  var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
+
+  // We use this other ID just to map our subscriptions to us
+  var mypvtid = null
+
+  useEffect(() => {
+    console.log(Janus.randomString(12))
+  }, [])
 
   const renderJoinCall = () => {
     return null

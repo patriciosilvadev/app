@@ -5,6 +5,13 @@ import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
 
+export function getQueryStringValue(name) {
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
+  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
+    results = regex.exec(location.search)
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '))
+}
+
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
   if (bytes == 0) return '0 Byte'
