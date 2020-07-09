@@ -149,7 +149,7 @@ const Badge = styled.span`
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background-color: #007af5;
+  background-color: #ef4056;
   border: 1px solid #f8f9fa;
 `
 

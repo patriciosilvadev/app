@@ -83,7 +83,7 @@ export default function DockComponent(props) {
               paddingTop: 7,
               paddingBottom: 7,
               backgroundColor: lastPathname != 'starred' && t.id == team.id ? '#F0F3F5' : 'transparent',
-              borderLeft: lastPathname != 'starred' && t.id == team.id ? '3px solid #007af5' : 'none',
+              borderLeft: lastPathname != 'starred' && t.id == team.id ? '3px solid #21262A' : 'none',
             }}
           >
             <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
@@ -107,7 +107,7 @@ export default function DockComponent(props) {
       <NotificationsComponent style={{ marginTop: 0 }} />
 
       <div className="flexer"></div>
-      <img src="icon.svg" width="20" />
+      <img src="icon-light.svg" width="20" />
     </Dock>
   )
 }

@@ -251,13 +251,13 @@ class AppPage extends React.Component {
               </LayoutIconButton>
             </div>
 
-            <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
+            <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
               <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
                 <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                 Meet
               </Pill>
             </Link>
-            <Link to={`/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
+            <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
               <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
                 <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                 Tasks
