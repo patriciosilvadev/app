@@ -5,7 +5,7 @@ import { Avatar, Tooltip, Button, Input } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
 import '../../../assets/downgrade.png'
 import { Janus } from './util/janus'
-import './util/videoroom'
+//import './util/videoroom'
 import { getQueryStringValue } from '../../helpers/util'
 
 function VideoExtension(props) {
@@ -14,7 +14,7 @@ function VideoExtension(props) {
   const dispatch = useDispatch()
   const [topic, setTopic] = useState('')
 
-  var server = 'http://http://94.130.230.216/:8088/janus'
+  var server = 'http://94.130.230.216:8088/janus'
   var janus = null
   var sfutest = null
   var opaqueId = 'videoroomtest-' + Janus.randomString(12)
