@@ -66,33 +66,15 @@ function VideoExtension(props) {
           webrtcState: function(on) {
             Janus.log('Janus says our WebRTC PeerConnection is ' + (on ? 'up' : 'down') + ' now')
 
-            $('#videolocal')
-              .parent()
-              .parent()
-              .unblock()
+            // Show DIV
+            // $('#videolocal') (unhide) <- this is a div
             if (!on) return
-            $('#publish').remove()
+
             // This controls allows us to override the global room bitrate cap
-            $('#bitrate')
-              .parent()
-              .parent()
-              .removeClass('hide')
-              .show()
-            $('#bitrate a').click(function() {
-              var id = $(this).attr('id')
-              var bitrate = parseInt(id) * 1000
-              if (bitrate === 0) {
-                Janus.log('Not limiting bandwidth via REMB')
-              } else {
-                Janus.log('Capping bandwidth to ' + bitrate + ' via REMB')
-              }
-              $('#bitrateset')
-                .html($(this).html() + '<span class="caret"></span>')
-                .parent()
-                .removeClass('open')
-              sfutest.send({ message: { request: 'configure', bitrate: bitrate } })
-              return false
-            })
+            // 0 == unlimited
+            // var bitrate = 0 / 128 / 256 / 1014 / 1500 / 2000
+            // sfutest.send({ message: { request: 'configure', bitrate: bitrate } })
+            return false
           },
           onmessage: function(msg, jsep) {
             Janus.debug(' ::: Got a message (publisher) :::', msg)
@@ -207,72 +189,42 @@ function VideoExtension(props) {
               var audio = msg['audio_codec']
               if (mystream && mystream.getAudioTracks() && mystream.getAudioTracks().length > 0 && !audio) {
                 // Audio has been rejected
-                toastr.warning("Our audio stream has been rejected, viewers won't hear us")
+                console.warning("Our audio stream has been rejected, viewers won't hear us")
               }
               var video = msg['video_codec']
               if (mystream && mystream.getVideoTracks() && mystream.getVideoTracks().length > 0 && !video) {
                 // Video has been rejected
-                toastr.warning("Our video stream has been rejected, viewers won't see us")
-                // Hide the webcam video
-                $('#myvideo').hide()
-                $('#videolocal').append(
-                  '<div class="no-video-container">' +
-                    '<i class="fa fa-video-camera fa-5 no-video-icon" style="height: 100%;"></i>' +
-                    '<span class="no-video-text" style="font-size: 16px;">Video rejected, no webcam</span>' +
-                    '</div>'
-                )
+                console.warning("Our video stream has been rejected, viewers won't see us")
+                // Hide the webcam video element REF - see below where it attached
+                // $('#myvideo').hide()
+                // Show the user something for this
               }
             }
           },
           onlocalstream: function(stream) {
             Janus.debug(' ::: Got a local stream :::', stream)
+
+            // Set this global
             mystream = stream
-            $('#videojoin').hide()
-            $('#videos')
-              .removeClass('hide')
-              .show()
-            if ($('#myvideo').length === 0) {
-              $('#videolocal').append('<video class="rounded centered" id="myvideo" width="100%" height="100%" autoplay playsinline muted="muted"/>')
-              // Add a 'mute' button
-              $('#videolocal').append('<button class="btn btn-warning btn-xs" id="mute" style="position: absolute; bottom: 0px; left: 0px; margin: 15px;">Mute</button>')
-              $('#mute').click(toggleMute)
-              // Add an 'unpublish' button
-              $('#videolocal').append('<button class="btn btn-warning btn-xs" id="unpublish" style="position: absolute; bottom: 0px; right: 0px; margin: 15px;">Unpublish</button>')
-              $('#unpublish').click(unpublishOwnFeed)
-            }
-            $('#publisher')
-              .removeClass('hide')
-              .html(myusername)
-              .show()
-            Janus.attachMediaStream($('#myvideo').get(0), stream)
-            $('#myvideo').get(0).muted = 'muted'
+
+            // Show all other videos
+            // <video class="rounded centered" id="myvideo" width="100%" height="100%" autoplay playsinline muted="muted"/>
+            // Get this element as a native ref
+            // Janus.attachMediaStream($('#myvideo').get(0), stream)
+            // $('#myvideo').get(0).muted = 'muted'
             if (sfutest.webrtcStuff.pc.iceConnectionState !== 'completed' && sfutest.webrtcStuff.pc.iceConnectionState !== 'connected') {
-              $('#videolocal')
-                .parent()
-                .parent()
-                .block({
-                  message: '<b>Publishing...</b>',
-                  css: {
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    color: 'white',
-                  },
-                })
+              // Show an indicator for the user to say we're publishing
             }
+
+            // Get all the video trackcs from this device
             var videoTracks = stream.getVideoTracks()
+
+            // Get our video tracks
             if (!videoTracks || videoTracks.length === 0) {
               // No webcam
-              $('#myvideo').hide()
-              if ($('#videolocal .no-video-container').length === 0) {
-                $('#videolocal').append(
-                  '<div class="no-video-container">' + '<i class="fa fa-video-camera fa-5 no-video-icon"></i>' + '<span class="no-video-text">No webcam available</span>' + '</div>'
-                )
-              }
+              // Show something for the user for this
             } else {
-              $('#videolocal .no-video-container').remove()
-              $('#myvideo')
-                .removeClass('hide')
-                .show()
+              // Show the video element above
             }
           },
           onremotestream: function(stream) {
@@ -281,19 +233,8 @@ function VideoExtension(props) {
           oncleanup: function() {
             Janus.log(' ::: Got a cleanup notification: we are unpublished now :::')
             mystream = null
-            $('#videolocal').html('<button id="publish" class="btn btn-primary">Publish</button>')
-            $('#publish').click(function() {
-              publishOwnFeed(true)
-            })
-            $('#videolocal')
-              .parent()
-              .parent()
-              .unblock()
-            $('#bitrate')
-              .parent()
-              .parent()
-              .addClass('hide')
-            $('#bitrate a').unbind('click')
+            // Add a publish button
+            // publishOwnFeed(true)
           },
         })
       },
