@@ -42,50 +42,20 @@ function VideoExtension(props) {
           plugin: 'janus.plugin.videoroom',
           opaqueId: opaqueId,
           success: function(pluginHandle) {
-            $('#details').remove()
             sfutest = pluginHandle
             Janus.log('Plugin attached! (' + sfutest.getPlugin() + ', id=' + sfutest.getId() + ')')
             Janus.log('  -- This is a publisher/manager')
-            // Prepare the username registration
-            $('#videojoin')
-              .removeClass('hide')
-              .show()
-            $('#registernow')
-              .removeClass('hide')
-              .show()
-            $('#register').click(registerUsername)
-            $('#username').focus()
-            $('#start')
-              .removeAttr('disabled')
-              .html('Stop')
-              .click(function() {
-                $(this).attr('disabled', true)
-                janus.destroy()
-              })
+            // We can call this to kill the process
+            // janus.destroy()
           },
           error: function(error) {
             Janus.error('  -- Error attaching plugin...', error)
-            bootbox.alert('Error attaching plugin... ' + error)
+            console.log('Error attaching plugin... ' + error)
           },
           consentDialog: function(on) {
             Janus.debug('Consent dialog should be ' + (on ? 'on' : 'off') + ' now')
-            if (on) {
-              // Darken screen and show hint
-              $.blockUI({
-                message: '<div><img src="up_arrow.png"/></div>',
-                css: {
-                  border: 'none',
-                  padding: '15px',
-                  backgroundColor: 'transparent',
-                  color: '#aaa',
-                  top: '10px',
-                  left: navigator.mozGetUserMedia ? '-100px' : '300px',
-                },
-              })
-            } else {
-              // Restore screen
-              $.unblockUI()
-            }
+            // navigator.mozGetUserMedia
+            // Check for consent
           },
           iceState: function(state) {
             Janus.log('ICE state changed to ' + state)
@@ -95,6 +65,7 @@ function VideoExtension(props) {
           },
           webrtcState: function(on) {
             Janus.log('Janus says our WebRTC PeerConnection is ' + (on ? 'up' : 'down') + ' now')
+
             $('#videolocal')
               .parent()
               .parent()
@@ -150,9 +121,7 @@ function VideoExtension(props) {
               } else if (event === 'destroyed') {
                 // The room has been destroyed
                 Janus.warn('The room has been destroyed!')
-                bootbox.alert('The room has been destroyed', function() {
-                  window.location.reload()
-                })
+                console.log('The room has been destroyed')
               } else if (event === 'event') {
                 // Any new feed to attach to?
                 if (msg['publishers']) {
@@ -214,7 +183,7 @@ function VideoExtension(props) {
                 } else if (msg['error']) {
                   if (msg['error_code'] === 426) {
                     // This is a "no such room" error: give a more meaningful description
-                    bootbox.alert(
+                    console.log(
                       '<p>Apparently room <code>' +
                         myroom +
                         '</code> (the one this demo uses as a test room) ' +
@@ -225,7 +194,7 @@ function VideoExtension(props) {
                         'from that sample in your current configuration file, then restart Janus and try again.'
                     )
                   } else {
-                    bootbox.alert(msg['error'])
+                    console.log(msg['error'])
                   }
                 }
               }
@@ -347,6 +316,7 @@ function VideoExtension(props) {
     })
   }, [])
 
+  // This gets called when a user submits his username
   function registerUsername() {
     if ($('#username').length === 0) {
       // Create fields to register
@@ -427,7 +397,7 @@ function VideoExtension(props) {
         if (useAudio) {
           publishOwnFeed(false)
         } else {
-          bootbox.alert('WebRTC error... ' + error.message)
+          console.log('WebRTC error... ' + error.message)
           $('#publish')
             .removeAttr('disabled')
             .click(function() {
@@ -490,14 +460,14 @@ function VideoExtension(props) {
       },
       error: function(error) {
         Janus.error('  -- Error attaching plugin...', error)
-        bootbox.alert('Error attaching plugin... ' + error)
+        console.log('Error attaching plugin... ' + error)
       },
       onmessage: function(msg, jsep) {
         Janus.debug(' ::: Got a message (subscriber) :::', msg)
         var event = msg['videoroom']
         Janus.debug('Event: ' + event)
         if (msg['error']) {
-          bootbox.alert(msg['error'])
+          console.log(msg['error'])
         } else if (event) {
           if (event === 'attached') {
             // Subscriber created and attached
@@ -553,7 +523,7 @@ function VideoExtension(props) {
             },
             error: function(error) {
               Janus.error('WebRTC error:', error)
-              bootbox.alert('WebRTC error... ' + error.message)
+              console.log('WebRTC error... ' + error.message)
             },
           })
         }
