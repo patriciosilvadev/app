@@ -4,8 +4,7 @@ import './video.extension.css'
 import { Avatar, Tooltip, Button, Input } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
 import '../../../assets/downgrade.png'
-import { Janus } from './util/janus'
-//import './util/videoroom'
+import { Janus } from './lib/janus'
 import { getQueryStringValue } from '../../helpers/util'
 
 function VideoExtension(props) {
