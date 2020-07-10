@@ -259,57 +259,20 @@ function VideoExtension(props) {
 
   // This gets called when a user submits his username
   function registerUsername() {
-    if ($('#username').length === 0) {
-      // Create fields to register
-      $('#register').click(registerUsername)
-      $('#username').focus()
-    } else {
-      // Try a registration
-      $('#username').attr('disabled', true)
-      $('#register')
-        .attr('disabled', true)
-        .unbind('click')
-      var username = $('#username').val()
-      if (username === '') {
-        $('#you')
-          .removeClass()
-          .addClass('label label-warning')
-          .html('Insert your display name (e.g., pippo)')
-        $('#username').removeAttr('disabled')
-        $('#register')
-          .removeAttr('disabled')
-          .click(registerUsername)
-        return
-      }
-      if (/[^a-zA-Z0-9]/.test(username)) {
-        $('#you')
-          .removeClass()
-          .addClass('label label-warning')
-          .html('Input is not alphanumeric')
-        $('#username')
-          .removeAttr('disabled')
-          .val('')
-        $('#register')
-          .removeAttr('disabled')
-          .click(registerUsername)
-        return
-      }
-      var register = {
-        request: 'join',
-        room: myroom,
-        ptype: 'publisher',
-        display: username,
-      }
-      myusername = username
-      sfutest.send({ message: register })
+    const username = 'jo'
+    if (/[^a-zA-Z0-9]/.test(username)) return null
+
+    var register = {
+      request: 'join',
+      room: myroom,
+      ptype: 'publisher',
+      display: username,
     }
+    myusername = username
+    sfutest.send({ message: register })
   }
 
   function publishOwnFeed(useAudio) {
-    // Publish our stream
-    $('#publish')
-      .attr('disabled', true)
-      .unbind('click')
     sfutest.createOffer({
       // Add data:true here if you want to publish datachannels as well
       media: { audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true }, // Publishers are sendonly
@@ -339,11 +302,8 @@ function VideoExtension(props) {
           publishOwnFeed(false)
         } else {
           console.log('WebRTC error... ' + error.message)
-          $('#publish')
-            .removeAttr('disabled')
-            .click(function() {
-              publishOwnFeed(true)
-            })
+          // Reshow this button:
+          // publishOwnFeed(true)
         }
       },
     })
@@ -355,14 +315,9 @@ function VideoExtension(props) {
     if (muted) sfutest.unmuteAudio()
     else sfutest.muteAudio()
     muted = sfutest.isAudioMuted()
-    $('#mute').html(muted ? 'Unmute' : 'Mute')
   }
 
   function unpublishOwnFeed() {
-    // Unpublish our stream
-    $('#unpublish')
-      .attr('disabled', true)
-      .unbind('click')
     var unpublish = { request: 'unpublish' }
     sfutest.send({ message: unpublish })
   }
@@ -370,6 +325,7 @@ function VideoExtension(props) {
   function newRemoteFeed(id, display, audio, video) {
     // A new feed has been published, create a new plugin handle and attach to it as a subscriber
     var remoteFeed = null
+    console.log(display, audio, video, id)
     janus.attach({
       plugin: 'janus.plugin.videoroom',
       opaqueId: opaqueId,
@@ -393,7 +349,7 @@ function VideoExtension(props) {
         // For example, if the publisher is VP8 and this is Safari, let's avoid video
         if (Janus.webRTCAdapter.browserDetails.browser === 'safari' && (video === 'vp9' || (video === 'vp8' && !Janus.safariVp8))) {
           if (video) video = video.toUpperCase()
-          toastr.warning('Publisher is using ' + video + ", but Safari doesn't support it: disabling video")
+          console.warning('Publisher is using ' + video + ", but Safari doesn't support it: disabling video")
           subscribe['offer_video'] = false
         }
         remoteFeed.videoCodec = video
@@ -421,17 +377,18 @@ function VideoExtension(props) {
             }
             remoteFeed.rfid = msg['id']
             remoteFeed.rfdisplay = msg['display']
+            // Not sure what the spinner here is?
             if (!remoteFeed.spinner) {
-              var target = document.getElementById('videoremote' + remoteFeed.rfindex)
-              remoteFeed.spinner = new Spinner({ top: 100 }).spin(target)
+              // Target is the video element ref for the remote feed that we create
+              // var target = document.getElementById('videoremote' + remoteFeed.rfindex)
+              // remoteFeed.spinner = new Spinner({ top: 100 }).spin(target)
             } else {
               remoteFeed.spinner.spin()
             }
             Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
-            $('#remote' + remoteFeed.rfindex)
-              .removeClass('hide')
-              .html(remoteFeed.rfdisplay)
-              .show()
+            // remoteFeed.rfdisplay <- is HTML
+            // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
+            console.log(remoteFeed.rfdisplay)
           } else if (event === 'event') {
             // Check if we got an event on a simulcast-related event from this publisher
             var substream = msg['substream']
@@ -620,7 +577,7 @@ function VideoExtension(props) {
       .addClass('btn-primary')
       .unbind('click')
       .click(function() {
-        toastr.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
+        console.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
         if (!$('#sl' + index + '-2').hasClass('btn-success'))
           $('#sl' + index + '-2')
             .removeClass('btn-primary btn-info')
@@ -639,7 +596,7 @@ function VideoExtension(props) {
       .addClass('btn-primary')
       .unbind('click')
       .click(function() {
-        toastr.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
+        console.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
         if (!$('#sl' + index + '-2').hasClass('btn-success'))
           $('#sl' + index + '-2')
             .removeClass('btn-primary btn-info')
@@ -658,7 +615,7 @@ function VideoExtension(props) {
       .addClass('btn-primary')
       .unbind('click')
       .click(function() {
-        toastr.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
+        console.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
         $('#sl' + index + '-2')
           .removeClass('btn-primary btn-info btn-success')
           .addClass('btn-info')
@@ -683,7 +640,7 @@ function VideoExtension(props) {
       .addClass('btn-primary')
       .unbind('click')
       .click(function() {
-        toastr.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
+        console.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
         if (!$('#tl' + index + '-2').hasClass('btn-success'))
           $('#tl' + index + '-2')
             .removeClass('btn-primary btn-info')
@@ -702,7 +659,7 @@ function VideoExtension(props) {
       .addClass('btn-primary')
       .unbind('click')
       .click(function() {
-        toastr.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
+        console.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
         if (!$('#tl' + index + '-2').hasClass('btn-success'))
           $('#tl' + index + '-2')
             .removeClass('btn-primary btn-info')
@@ -721,7 +678,7 @@ function VideoExtension(props) {
       .addClass('btn-primary')
       .unbind('click')
       .click(function() {
-        toastr.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
+        console.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
         $('#tl' + index + '-2')
           .removeClass('btn-primary btn-info btn-success')
           .addClass('btn-info')
@@ -741,7 +698,7 @@ function VideoExtension(props) {
     // Check the substream
     /* var index = feed
     if (substream === 0) {
-      toastr.success('Switched simulcast substream! (lower quality)', null, { timeOut: 2000 })
+      console.success('Switched simulcast substream! (lower quality)', null, { timeOut: 2000 })
       $('#sl' + index + '-2')
         .removeClass('btn-primary btn-success')
         .addClass('btn-primary')
@@ -752,7 +709,7 @@ function VideoExtension(props) {
         .removeClass('btn-primary btn-info btn-success')
         .addClass('btn-success')
     } else if (substream === 1) {
-      toastr.success('Switched simulcast substream! (normal quality)', null, { timeOut: 2000 })
+      console.success('Switched simulcast substream! (normal quality)', null, { timeOut: 2000 })
       $('#sl' + index + '-2')
         .removeClass('btn-primary btn-success')
         .addClass('btn-primary')
@@ -763,7 +720,7 @@ function VideoExtension(props) {
         .removeClass('btn-primary btn-success')
         .addClass('btn-primary')
     } else if (substream === 2) {
-      toastr.success('Switched simulcast substream! (higher quality)', null, { timeOut: 2000 })
+      console.success('Switched simulcast substream! (higher quality)', null, { timeOut: 2000 })
       $('#sl' + index + '-2')
         .removeClass('btn-primary btn-info btn-success')
         .addClass('btn-success')
@@ -776,7 +733,7 @@ function VideoExtension(props) {
     }
     // Check the temporal layer
     if (temporal === 0) {
-      toastr.success('Capped simulcast temporal layer! (lowest FPS)', null, { timeOut: 2000 })
+      console.success('Capped simulcast temporal layer! (lowest FPS)', null, { timeOut: 2000 })
       $('#tl' + index + '-2')
         .removeClass('btn-primary btn-success')
         .addClass('btn-primary')
@@ -787,7 +744,7 @@ function VideoExtension(props) {
         .removeClass('btn-primary btn-info btn-success')
         .addClass('btn-success')
     } else if (temporal === 1) {
-      toastr.success('Capped simulcast temporal layer! (medium FPS)', null, { timeOut: 2000 })
+      console.success('Capped simulcast temporal layer! (medium FPS)', null, { timeOut: 2000 })
       $('#tl' + index + '-2')
         .removeClass('btn-primary btn-success')
         .addClass('btn-primary')
@@ -798,7 +755,7 @@ function VideoExtension(props) {
         .removeClass('btn-primary btn-success')
         .addClass('btn-primary')
     } else if (temporal === 2) {
-      toastr.success('Capped simulcast temporal layer! (highest FPS)', null, { timeOut: 2000 })
+      console.success('Capped simulcast temporal layer! (highest FPS)', null, { timeOut: 2000 })
       $('#tl' + index + '-2')
         .removeClass('btn-primary btn-info btn-success')
         .addClass('btn-success')
