@@ -45,6 +45,10 @@ import Zero from '@joduplessis/zero'
 import AccountService from './services/account.service'
 import * as Sentry from '@sentry/browser'
 
+// When we want to debug and nog have other logging pollute the console
+// Set this to true - also affects util.js in the logger method
+window.SILENCE = true
+
 // Set up Sentry
 if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })
 
@@ -58,7 +62,7 @@ const logger = createLogger({
 })
 
 // Check for dev
-const middleWare = NODE_ENV == 'development_no' ? applyMiddleware(thunk, sync, logger) : applyMiddleware(thunk, sync)
+const middleWare = NODE_ENV == 'development' && !window.SILENCE ? applyMiddleware(thunk, sync, logger) : applyMiddleware(thunk, sync)
 
 // Redux with our middlewares
 const store = createStore(

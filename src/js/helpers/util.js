@@ -77,12 +77,10 @@ export const copyToClipboard = value => {
   document.body.removeChild(tempInput)
 }
 
-export const logger = (log, additional) => {
-  if (NODE_ENV == 'development') {
-    if (additional) {
-      console.log(log, additional)
-    } else {
-      console.log(log)
+export const logger = function() {
+  if (NODE_ENV == 'development' && !window.SILENCE) {
+    for (let argument of arguments) {
+      console.log(argument)
     }
   }
 }
