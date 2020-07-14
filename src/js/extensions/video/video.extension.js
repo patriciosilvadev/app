@@ -1,33 +1,550 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import './video.extension.css'
-import { Avatar, Tooltip, Button, Input } from '@weekday/elements'
+import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
 import '../../../assets/downgrade.png'
 import { Janus } from './lib/janus'
-import { getQueryStringValue } from '../../helpers/util'
+import { getQueryStringValue, logger } from '../../helpers/util'
+
+var server = 'http://94.130.230.216:8088/janus'
+var janus = null
+var sfu = null
+var opaqueId = 'videoroomtest-' + Janus.randomString(12)
+var room = 9999
+var myid = null
+var mystream = null
+var feeds = []
+var bitrateTimer = []
+var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
+var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
+var mypvtid = null // We use this other ID just to map our subscriptions to us
+
+function registerUsername(username) {
+  sfu.send({
+    message: {
+      request: 'join',
+      room: room,
+      ptype: 'publisher',
+      display: username,
+    },
+  })
+}
+
+function publishOwnFeed(useAudio) {
+  sfu.createOffer({
+    // Add data:true here if you want to publish datachannels as well
+    media: { audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true }, // Publishers are sendonly
+    // If you want to test simulcasting (Chrome and Firefox only), then
+    // pass a ?simulcast=true when opening this demo page: it will turn
+    // the following 'simulcast' property to pass to janus.js to true
+    simulcast: doSimulcast,
+    simulcast2: doSimulcast2,
+    success: function(jsep) {
+      Janus.debug('Got publisher SDP!', jsep)
+      var publish = { request: 'configure', audio: useAudio, video: true }
+      // You can force a specific codec to use when publishing by using the
+      // audiocodec and videocodec properties, for instance:
+      // 		publish["audiocodec"] = "opus"
+      // to force Opus as the audio codec to use, or:
+      // 		publish["videocodec"] = "vp9"
+      // to force VP9 as the videocodec to use. In both case, though, forcing
+      // a codec will only work if: (1) the codec is actually in the SDP (and
+      // so the browser supports it), and (2) the codec is in the list of
+      // allowed codecs in a room. With respect to the point (2) above,
+      // refer to the text in janus.plugin.videoroom.jcfg for more details
+      sfu.send({ message: publish, jsep: jsep })
+    },
+    error: function(error) {
+      Janus.error('WebRTC error:', error)
+      if (useAudio) {
+        publishOwnFeed(false)
+      } else {
+        console.log('WebRTC error... ' + error.message)
+        // Reshow this button:
+        // publishOwnFeed(true)
+      }
+    },
+  })
+}
+
+function toggleMute() {
+  var muted = sfu.isAudioMuted()
+  Janus.log((muted ? 'Unmuting' : 'Muting') + ' local stream...')
+  if (muted) sfu.unmuteAudio()
+  else sfu.muteAudio()
+  muted = sfu.isAudioMuted()
+}
+
+function unpublishOwnFeed() {
+  var unpublish = { request: 'unpublish' }
+  sfu.send({ message: unpublish })
+}
+
+function newRemoteFeed(id, display, audio, video) {
+  var remoteFeed = null
+
+  janus.attach({
+    plugin: 'janus.plugin.videoroom',
+    opaqueId: opaqueId,
+    success: function(pluginHandle) {
+      remoteFeed = pluginHandle
+      remoteFeed.simulcastStarted = false
+
+      Janus.log('Plugin attached! (' + remoteFeed.getPlugin() + ', id=' + remoteFeed.getId() + ')')
+      Janus.log('  -- This is a subscriber')
+
+      // We wait for the plugin to send us an offer
+      var subscribe = {
+        request: 'join',
+        room: room,
+        ptype: 'subscriber',
+        feed: id,
+        private_id: mypvtid,
+      }
+
+      // In case you don't want to receive audio, video or data, even if the
+      // publisher is sending them, set the 'offer_audio', 'offer_video' or
+      // 'offer_data' properties to false (they're true by default), e.g.:
+      // 		subscribe["offer_video"] = false;
+      // For example, if the publisher is VP8 and this is Safari, let's avoid video
+      if (Janus.webRTCAdapter.browserDetails.browser === 'safari' && (video === 'vp9' || (video === 'vp8' && !Janus.safariVp8))) {
+        if (video) video = video.toUpperCase()
+        console.warning('Publisher is using ' + video + ", but Safari doesn't support it: disabling video")
+        subscribe['offer_video'] = false
+      }
+
+      remoteFeed.videoCodec = video
+      remoteFeed.send({ message: subscribe })
+    },
+    error: function(error) {
+      Janus.error('  -- Error attaching plugin...', error)
+      console.log('Error attaching plugin... ' + error)
+    },
+    onmessage: function(msg, jsep) {
+      Janus.debug(' ::: Got a message (subscriber) :::', msg)
+      var event = msg['videoroom']
+      Janus.debug('Event: ' + event)
+      if (msg['error']) {
+        console.log(msg['error'])
+      } else if (event) {
+        if (event === 'attached') {
+          // Subscriber created and attached
+          for (var i = 1; i < 6; i++) {
+            if (!feeds[i]) {
+              feeds[i] = remoteFeed
+              remoteFeed.rfindex = i
+              break
+            }
+          }
+          remoteFeed.rfid = msg['id']
+          remoteFeed.rfdisplay = msg['display']
+          // Not sure what the spinner here is?
+          if (!remoteFeed.spinner) {
+            // Target is the video element ref for the remote feed that we create
+            // var target = document.getElementById('videoremote' + remoteFeed.rfindex)
+            // remoteFeed.spinner = new Spinner({ top: 100 }).spin(target)
+          } else {
+            remoteFeed.spinner.spin()
+          }
+          Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
+          // remoteFeed.rfdisplay <- is HTML
+          // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
+          console.log(remoteFeed.rfdisplay)
+        } else if (event === 'event') {
+          // Check if we got an event on a simulcast-related event from this publisher
+          var substream = msg['substream']
+          var temporal = msg['temporal']
+          if ((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
+            if (!remoteFeed.simulcastStarted) {
+              remoteFeed.simulcastStarted = true
+              // Add some new buttons
+              addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === 'vp8' || remoteFeed.videoCodec === 'h264')
+            }
+            // We just received notice that there's been a switch, update the buttons
+            updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
+          }
+        } else {
+          // What has just happened?
+        }
+      }
+      if (jsep) {
+        Janus.debug('Handling SDP as well...', jsep)
+        // Answer and attach
+        remoteFeed.createAnswer({
+          jsep: jsep,
+          // Add data:true here if you want to subscribe to datachannels as well
+          // (obviously only works if the publisher offered them in the first place)
+          media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
+          success: function(jsep) {
+            Janus.debug('Got SDP!', jsep)
+            var body = { request: 'start', room: room }
+            remoteFeed.send({ message: body, jsep: jsep })
+          },
+          error: function(error) {
+            Janus.error('WebRTC error:', error)
+            console.log('WebRTC error... ' + error.message)
+          },
+        })
+      }
+    },
+    iceState: function(state) {
+      Janus.log('ICE state of this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') changed to ' + state)
+    },
+    webrtcState: function(on) {
+      Janus.log('Janus says this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') is ' + (on ? 'up' : 'down') + ' now')
+    },
+    onlocalstream: function(stream) {
+      // The subscriber stream is recvonly, we don't expect anything here
+    },
+    onremotestream: function(stream) {
+      Janus.debug('Remote feed #' + remoteFeed.rfindex + ', stream:', stream)
+      var addButtons = false
+      if ($('#remotevideo' + remoteFeed.rfindex).length === 0) {
+        addButtons = true
+        // No remote video yet
+        $('#videoremote' + remoteFeed.rfindex).append('<video class="rounded centered" id="waitingvideo' + remoteFeed.rfindex + '" width=320 height=240 />')
+        $('#videoremote' + remoteFeed.rfindex).append('<video class="rounded centered relative hide" id="remotevideo' + remoteFeed.rfindex + '" width="100%" height="100%" autoplay playsinline/>')
+        $('#videoremote' + remoteFeed.rfindex).append(
+          '<span class="label label-primary hide" id="curres' +
+            remoteFeed.rfindex +
+            '" style="position: absolute; bottom: 0px; left: 0px; margin: 15px;"></span>' +
+            '<span class="label label-info hide" id="curbitrate' +
+            remoteFeed.rfindex +
+            '" style="position: absolute; bottom: 0px; right: 0px; margin: 15px;"></span>'
+        )
+        // Show the video, hide the spinner and show the resolution when we get a playing event
+        $('#remotevideo' + remoteFeed.rfindex).bind('playing', function() {
+          if (remoteFeed.spinner) remoteFeed.spinner.stop()
+          remoteFeed.spinner = null
+          $('#waitingvideo' + remoteFeed.rfindex).remove()
+          if (this.videoWidth)
+            $('#remotevideo' + remoteFeed.rfindex)
+              .removeClass('hide')
+              .show()
+          var width = this.videoWidth
+          var height = this.videoHeight
+          $('#curres' + remoteFeed.rfindex)
+            .removeClass('hide')
+            .text(width + 'x' + height)
+            .show()
+          if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
+            // Firefox Stable has a bug: width and height are not immediately available after a playing
+            setTimeout(function() {
+              var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
+              var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
+              $('#curres' + remoteFeed.rfindex)
+                .removeClass('hide')
+                .text(width + 'x' + height)
+                .show()
+            }, 2000)
+          }
+        })
+      }
+      Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
+      var videoTracks = stream.getVideoTracks()
+      if (!videoTracks || videoTracks.length === 0) {
+        // No remote video
+        $('#remotevideo' + remoteFeed.rfindex).hide()
+        if ($('#videoremote' + remoteFeed.rfindex + ' .no-video-container').length === 0) {
+          $('#videoremote' + remoteFeed.rfindex).append(
+            '<div class="no-video-container">' + '<i class="fa fa-video-camera fa-5 no-video-icon"></i>' + '<span class="no-video-text">No remote video available</span>' + '</div>'
+          )
+        }
+      } else {
+        $('#videoremote' + remoteFeed.rfindex + ' .no-video-container').remove()
+        $('#remotevideo' + remoteFeed.rfindex)
+          .removeClass('hide')
+          .show()
+      }
+      if (!addButtons) return
+      if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
+        $('#curbitrate' + remoteFeed.rfindex)
+          .removeClass('hide')
+          .show()
+        bitrateTimer[remoteFeed.rfindex] = setInterval(function() {
+          // Display updated bitrate, if supported
+          var bitrate = remoteFeed.getBitrate()
+          $('#curbitrate' + remoteFeed.rfindex).text(bitrate)
+          // Check if the resolution changed too
+          var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
+          var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
+          if (width > 0 && height > 0)
+            $('#curres' + remoteFeed.rfindex)
+              .removeClass('hide')
+              .text(width + 'x' + height)
+              .show()
+        }, 1000)
+      }
+    },
+    oncleanup: function() {
+      Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::')
+      if (remoteFeed.spinner) remoteFeed.spinner.stop()
+      remoteFeed.spinner = null
+      $('#remotevideo' + remoteFeed.rfindex).remove()
+      $('#waitingvideo' + remoteFeed.rfindex).remove()
+      $('#novideo' + remoteFeed.rfindex).remove()
+      $('#curbitrate' + remoteFeed.rfindex).remove()
+      $('#curres' + remoteFeed.rfindex).remove()
+      if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
+      bitrateTimer[remoteFeed.rfindex] = null
+      remoteFeed.simulcastStarted = false
+      $('#simulcast' + remoteFeed.rfindex).remove()
+    },
+  })
+}
+
+function addSimulcastButtons(feed, temporal) {
+  /* var index = feed
+  $('#remote' + index)
+    .parent()
+    .append(
+      '<div id="simulcast' +
+        index +
+        '" class="btn-group-vertical btn-group-vertical-xs pull-right">' +
+        '	<div class"row">' +
+        '		<div class="btn-group btn-group-xs" style="width: 100%">' +
+        '			<button id="sl' +
+        index +
+        '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to higher quality" style="width: 33%">SL 2</button>' +
+        '			<button id="sl' +
+        index +
+        '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to normal quality" style="width: 33%">SL 1</button>' +
+        '			<button id="sl' +
+        index +
+        '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to lower quality" style="width: 34%">SL 0</button>' +
+        '		</div>' +
+        '	</div>' +
+        '	<div class"row">' +
+        '		<div class="btn-group btn-group-xs hide" style="width: 100%">' +
+        '			<button id="tl' +
+        index +
+        '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 2" style="width: 34%">TL 2</button>' +
+        '			<button id="tl' +
+        index +
+        '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 1" style="width: 33%">TL 1</button>' +
+        '			<button id="tl' +
+        index +
+        '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 0" style="width: 33%">TL 0</button>' +
+        '		</div>' +
+        '	</div>' +
+        '</div>'
+    )
+  // Enable the simulcast selection buttons
+  $('#sl' + index + '-0')
+    .removeClass('btn-primary btn-success')
+    .addClass('btn-primary')
+    .unbind('click')
+    .click(function() {
+      console.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
+      if (!$('#sl' + index + '-2').hasClass('btn-success'))
+        $('#sl' + index + '-2')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      if (!$('#sl' + index + '-1').hasClass('btn-success'))
+        $('#sl' + index + '-1')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      $('#sl' + index + '-0')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-info')
+      feeds[index].send({ message: { request: 'configure', substream: 0 } })
+    })
+  $('#sl' + index + '-1')
+    .removeClass('btn-primary btn-success')
+    .addClass('btn-primary')
+    .unbind('click')
+    .click(function() {
+      console.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
+      if (!$('#sl' + index + '-2').hasClass('btn-success'))
+        $('#sl' + index + '-2')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      $('#sl' + index + '-1')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-info')
+      if (!$('#sl' + index + '-0').hasClass('btn-success'))
+        $('#sl' + index + '-0')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      feeds[index].send({ message: { request: 'configure', substream: 1 } })
+    })
+  $('#sl' + index + '-2')
+    .removeClass('btn-primary btn-success')
+    .addClass('btn-primary')
+    .unbind('click')
+    .click(function() {
+      console.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
+      $('#sl' + index + '-2')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-info')
+      if (!$('#sl' + index + '-1').hasClass('btn-success'))
+        $('#sl' + index + '-1')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      if (!$('#sl' + index + '-0').hasClass('btn-success'))
+        $('#sl' + index + '-0')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      feeds[index].send({ message: { request: 'configure', substream: 2 } })
+    })
+  if (!temporal)
+    // No temporal layer support
+    return
+  $('#tl' + index + '-0')
+    .parent()
+    .removeClass('hide')
+  $('#tl' + index + '-0')
+    .removeClass('btn-primary btn-success')
+    .addClass('btn-primary')
+    .unbind('click')
+    .click(function() {
+      console.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
+      if (!$('#tl' + index + '-2').hasClass('btn-success'))
+        $('#tl' + index + '-2')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      if (!$('#tl' + index + '-1').hasClass('btn-success'))
+        $('#tl' + index + '-1')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      $('#tl' + index + '-0')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-info')
+      feeds[index].send({ message: { request: 'configure', temporal: 0 } })
+    })
+  $('#tl' + index + '-1')
+    .removeClass('btn-primary btn-success')
+    .addClass('btn-primary')
+    .unbind('click')
+    .click(function() {
+      console.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
+      if (!$('#tl' + index + '-2').hasClass('btn-success'))
+        $('#tl' + index + '-2')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      $('#tl' + index + '-1')
+        .removeClass('btn-primary btn-info')
+        .addClass('btn-info')
+      if (!$('#tl' + index + '-0').hasClass('btn-success'))
+        $('#tl' + index + '-0')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      feeds[index].send({ message: { request: 'configure', temporal: 1 } })
+    })
+  $('#tl' + index + '-2')
+    .removeClass('btn-primary btn-success')
+    .addClass('btn-primary')
+    .unbind('click')
+    .click(function() {
+      console.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
+      $('#tl' + index + '-2')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-info')
+      if (!$('#tl' + index + '-1').hasClass('btn-success'))
+        $('#tl' + index + '-1')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      if (!$('#tl' + index + '-0').hasClass('btn-success'))
+        $('#tl' + index + '-0')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-primary')
+      feeds[index].send({ message: { request: 'configure', temporal: 2 } })
+    }) */
+}
+
+function updateSimulcastButtons(feed, substream, temporal) {
+  // Check the substream
+  /* var index = feed
+  if (substream === 0) {
+    console.success('Switched simulcast substream! (lower quality)', null, { timeOut: 2000 })
+    $('#sl' + index + '-2')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#sl' + index + '-1')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#sl' + index + '-0')
+      .removeClass('btn-primary btn-info btn-success')
+      .addClass('btn-success')
+  } else if (substream === 1) {
+    console.success('Switched simulcast substream! (normal quality)', null, { timeOut: 2000 })
+    $('#sl' + index + '-2')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#sl' + index + '-1')
+      .removeClass('btn-primary btn-info btn-success')
+      .addClass('btn-success')
+    $('#sl' + index + '-0')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+  } else if (substream === 2) {
+    console.success('Switched simulcast substream! (higher quality)', null, { timeOut: 2000 })
+    $('#sl' + index + '-2')
+      .removeClass('btn-primary btn-info btn-success')
+      .addClass('btn-success')
+    $('#sl' + index + '-1')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#sl' + index + '-0')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+  }
+  // Check the temporal layer
+  if (temporal === 0) {
+    console.success('Capped simulcast temporal layer! (lowest FPS)', null, { timeOut: 2000 })
+    $('#tl' + index + '-2')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#tl' + index + '-1')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#tl' + index + '-0')
+      .removeClass('btn-primary btn-info btn-success')
+      .addClass('btn-success')
+  } else if (temporal === 1) {
+    console.success('Capped simulcast temporal layer! (medium FPS)', null, { timeOut: 2000 })
+    $('#tl' + index + '-2')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#tl' + index + '-1')
+      .removeClass('btn-primary btn-info btn-success')
+      .addClass('btn-success')
+    $('#tl' + index + '-0')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+  } else if (temporal === 2) {
+    console.success('Capped simulcast temporal layer! (highest FPS)', null, { timeOut: 2000 })
+    $('#tl' + index + '-2')
+      .removeClass('btn-primary btn-info btn-success')
+      .addClass('btn-success')
+    $('#tl' + index + '-1')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+    $('#tl' + index + '-0')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+  } */
+}
 
 function VideoExtension(props) {
   const [participantFocus, setParticipantFocus] = useState(true)
   const channel = useSelector(state => state.channel)
+  const user = useSelector(state => state.channel)
   const dispatch = useDispatch()
-  const [topic, setTopic] = useState('')
+  const [topic, setTopic] = useState('My awesome call')
+  const [error, setError] = useState(null)
+  const [notification, setNotification] = useState(null)
+  const [loading, setLoading] = useState(null)
+  const [view, setView] = useState('')
 
-  var server = 'http://94.130.230.216:8088/janus'
-  var janus = null
-  var sfutest = null
-  var opaqueId = 'videoroomtest-' + Janus.randomString(12)
-  var myroom = 1234
-  var myusername = null
-  var myid = null
-  var mystream = null
-  var feeds = []
-  var bitrateTimer = []
-  var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
-  var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
+  const stopCall = () => {
+    janus.destroy()
+  }
 
-  // We use this other ID just to map our subscriptions to us
-  var mypvtid = null
+  const startCall = () => {
+    registerUsername(user.username)
+  }
 
   const initJanusVideoRoom = () => {
     if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
@@ -41,20 +558,35 @@ function VideoExtension(props) {
           plugin: 'janus.plugin.videoroom',
           opaqueId: opaqueId,
           success: function(pluginHandle) {
-            sfutest = pluginHandle
-            Janus.log('Plugin attached! (' + sfutest.getPlugin() + ', id=' + sfutest.getId() + ')')
+            sfu = pluginHandle
+
+            // Logging
+            Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
             Janus.log('  -- This is a publisher/manager')
-            // We can call this to kill the process
-            // janus.destroy()
+
+            // Create a new room
+            sfu.send({
+              message: {
+                request: 'create',
+                record: true,
+                publishers: 6,
+                room: room,
+                ptype: 'publisher',
+                is_private: false,
+              },
+            })
+
+            // Show the username
+            setView('start')
           },
           error: function(error) {
+            setError('Error attaching video room plugin')
             Janus.error('  -- Error attaching plugin...', error)
-            console.log('Error attaching plugin... ' + error)
           },
           consentDialog: function(on) {
             Janus.debug('Consent dialog should be ' + (on ? 'on' : 'off') + ' now')
-            // navigator.mozGetUserMedia
-            // Check for consent
+            // Check consent has been given
+            // console.log(!!navigator.mozGetUserMedia)
           },
           iceState: function(state) {
             Janus.log('ICE state changed to ' + state)
@@ -72,8 +604,7 @@ function VideoExtension(props) {
             // This controls allows us to override the global room bitrate cap
             // 0 == unlimited
             // var bitrate = 0 / 128 / 256 / 1014 / 1500 / 2000
-            // sfutest.send({ message: { request: 'configure', bitrate: bitrate } })
-            return false
+            sfu.send({ message: { request: 'configure', bitrate: 1014 } })
           },
           onmessage: function(msg, jsep) {
             Janus.debug(' ::: Got a message (publisher) :::', msg)
@@ -142,7 +673,7 @@ function VideoExtension(props) {
                   Janus.log('Publisher left: ' + unpublished)
                   if (unpublished === 'ok') {
                     // That's us
-                    sfutest.hangup()
+                    sfu.hangup()
                     return
                   }
                   var remoteFeed = null
@@ -166,11 +697,11 @@ function VideoExtension(props) {
                     // This is a "no such room" error: give a more meaningful description
                     console.log(
                       '<p>Apparently room <code>' +
-                        myroom +
+                        room +
                         '</code> (the one this demo uses as a test room) ' +
                         'does not exist...</p><p>Do you have an updated <code>janus.plugin.videoroom.jcfg</code> ' +
                         'configuration file? If not, make sure you copy the details of room <code>' +
-                        myroom +
+                        room +
                         '</code> ' +
                         'from that sample in your current configuration file, then restart Janus and try again.'
                     )
@@ -182,7 +713,7 @@ function VideoExtension(props) {
             }
             if (jsep) {
               Janus.debug('Handling SDP as well...', jsep)
-              sfutest.handleRemoteJsep({ jsep: jsep })
+              sfu.handleRemoteJsep({ jsep: jsep })
               // Check if any of the media we wanted to publish has
               // been rejected (e.g., wrong or unsupported codec)
               var audio = msg['audio_codec']
@@ -211,7 +742,7 @@ function VideoExtension(props) {
             // Get this element as a native ref
             // Janus.attachMediaStream($('#myvideo').get(0), stream)
             // $('#myvideo').get(0).muted = 'muted'
-            if (sfutest.webrtcStuff.pc.iceConnectionState !== 'completed' && sfutest.webrtcStuff.pc.iceConnectionState !== 'connected') {
+            if (sfu.webrtcStuff.pc.iceConnectionState !== 'completed' && sfu.webrtcStuff.pc.iceConnectionState !== 'connected') {
               // Show an indicator for the user to say we're publishing
             }
 
@@ -239,7 +770,6 @@ function VideoExtension(props) {
       },
       error: function(error) {
         Janus.error(error)
-        console.log('error', error)
       },
       destroyed: function() {
         console.log('destroyed')
@@ -256,519 +786,9 @@ function VideoExtension(props) {
     })
   }, [])
 
-  // This gets called when a user submits his username
-  function registerUsername() {
-    const username = 'jo'
-    if (/[^a-zA-Z0-9]/.test(username)) return null
-
-    var register = {
-      request: 'join',
-      room: myroom,
-      ptype: 'publisher',
-      display: username,
-    }
-    myusername = username
-    sfutest.send({ message: register })
-  }
-
-  function publishOwnFeed(useAudio) {
-    sfutest.createOffer({
-      // Add data:true here if you want to publish datachannels as well
-      media: { audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true }, // Publishers are sendonly
-      // If you want to test simulcasting (Chrome and Firefox only), then
-      // pass a ?simulcast=true when opening this demo page: it will turn
-      // the following 'simulcast' property to pass to janus.js to true
-      simulcast: doSimulcast,
-      simulcast2: doSimulcast2,
-      success: function(jsep) {
-        Janus.debug('Got publisher SDP!', jsep)
-        var publish = { request: 'configure', audio: useAudio, video: true }
-        // You can force a specific codec to use when publishing by using the
-        // audiocodec and videocodec properties, for instance:
-        // 		publish["audiocodec"] = "opus"
-        // to force Opus as the audio codec to use, or:
-        // 		publish["videocodec"] = "vp9"
-        // to force VP9 as the videocodec to use. In both case, though, forcing
-        // a codec will only work if: (1) the codec is actually in the SDP (and
-        // so the browser supports it), and (2) the codec is in the list of
-        // allowed codecs in a room. With respect to the point (2) above,
-        // refer to the text in janus.plugin.videoroom.jcfg for more details
-        sfutest.send({ message: publish, jsep: jsep })
-      },
-      error: function(error) {
-        Janus.error('WebRTC error:', error)
-        if (useAudio) {
-          publishOwnFeed(false)
-        } else {
-          console.log('WebRTC error... ' + error.message)
-          // Reshow this button:
-          // publishOwnFeed(true)
-        }
-      },
-    })
-  }
-
-  function toggleMute() {
-    var muted = sfutest.isAudioMuted()
-    Janus.log((muted ? 'Unmuting' : 'Muting') + ' local stream...')
-    if (muted) sfutest.unmuteAudio()
-    else sfutest.muteAudio()
-    muted = sfutest.isAudioMuted()
-  }
-
-  function unpublishOwnFeed() {
-    var unpublish = { request: 'unpublish' }
-    sfutest.send({ message: unpublish })
-  }
-
-  function newRemoteFeed(id, display, audio, video) {
-    // A new feed has been published, create a new plugin handle and attach to it as a subscriber
-    var remoteFeed = null
-    console.log(display, audio, video, id)
-    janus.attach({
-      plugin: 'janus.plugin.videoroom',
-      opaqueId: opaqueId,
-      success: function(pluginHandle) {
-        remoteFeed = pluginHandle
-        remoteFeed.simulcastStarted = false
-        Janus.log('Plugin attached! (' + remoteFeed.getPlugin() + ', id=' + remoteFeed.getId() + ')')
-        Janus.log('  -- This is a subscriber')
-        // We wait for the plugin to send us an offer
-        var subscribe = {
-          request: 'join',
-          room: myroom,
-          ptype: 'subscriber',
-          feed: id,
-          private_id: mypvtid,
-        }
-        // In case you don't want to receive audio, video or data, even if the
-        // publisher is sending them, set the 'offer_audio', 'offer_video' or
-        // 'offer_data' properties to false (they're true by default), e.g.:
-        // 		subscribe["offer_video"] = false;
-        // For example, if the publisher is VP8 and this is Safari, let's avoid video
-        if (Janus.webRTCAdapter.browserDetails.browser === 'safari' && (video === 'vp9' || (video === 'vp8' && !Janus.safariVp8))) {
-          if (video) video = video.toUpperCase()
-          console.warning('Publisher is using ' + video + ", but Safari doesn't support it: disabling video")
-          subscribe['offer_video'] = false
-        }
-        remoteFeed.videoCodec = video
-        remoteFeed.send({ message: subscribe })
-      },
-      error: function(error) {
-        Janus.error('  -- Error attaching plugin...', error)
-        console.log('Error attaching plugin... ' + error)
-      },
-      onmessage: function(msg, jsep) {
-        Janus.debug(' ::: Got a message (subscriber) :::', msg)
-        var event = msg['videoroom']
-        Janus.debug('Event: ' + event)
-        if (msg['error']) {
-          console.log(msg['error'])
-        } else if (event) {
-          if (event === 'attached') {
-            // Subscriber created and attached
-            for (var i = 1; i < 6; i++) {
-              if (!feeds[i]) {
-                feeds[i] = remoteFeed
-                remoteFeed.rfindex = i
-                break
-              }
-            }
-            remoteFeed.rfid = msg['id']
-            remoteFeed.rfdisplay = msg['display']
-            // Not sure what the spinner here is?
-            if (!remoteFeed.spinner) {
-              // Target is the video element ref for the remote feed that we create
-              // var target = document.getElementById('videoremote' + remoteFeed.rfindex)
-              // remoteFeed.spinner = new Spinner({ top: 100 }).spin(target)
-            } else {
-              remoteFeed.spinner.spin()
-            }
-            Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
-            // remoteFeed.rfdisplay <- is HTML
-            // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
-            console.log(remoteFeed.rfdisplay)
-          } else if (event === 'event') {
-            // Check if we got an event on a simulcast-related event from this publisher
-            var substream = msg['substream']
-            var temporal = msg['temporal']
-            if ((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
-              if (!remoteFeed.simulcastStarted) {
-                remoteFeed.simulcastStarted = true
-                // Add some new buttons
-                addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === 'vp8' || remoteFeed.videoCodec === 'h264')
-              }
-              // We just received notice that there's been a switch, update the buttons
-              updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
-            }
-          } else {
-            // What has just happened?
-          }
-        }
-        if (jsep) {
-          Janus.debug('Handling SDP as well...', jsep)
-          // Answer and attach
-          remoteFeed.createAnswer({
-            jsep: jsep,
-            // Add data:true here if you want to subscribe to datachannels as well
-            // (obviously only works if the publisher offered them in the first place)
-            media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
-            success: function(jsep) {
-              Janus.debug('Got SDP!', jsep)
-              var body = { request: 'start', room: myroom }
-              remoteFeed.send({ message: body, jsep: jsep })
-            },
-            error: function(error) {
-              Janus.error('WebRTC error:', error)
-              console.log('WebRTC error... ' + error.message)
-            },
-          })
-        }
-      },
-      iceState: function(state) {
-        Janus.log('ICE state of this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') changed to ' + state)
-      },
-      webrtcState: function(on) {
-        Janus.log('Janus says this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') is ' + (on ? 'up' : 'down') + ' now')
-      },
-      onlocalstream: function(stream) {
-        // The subscriber stream is recvonly, we don't expect anything here
-      },
-      onremotestream: function(stream) {
-        Janus.debug('Remote feed #' + remoteFeed.rfindex + ', stream:', stream)
-        var addButtons = false
-        if ($('#remotevideo' + remoteFeed.rfindex).length === 0) {
-          addButtons = true
-          // No remote video yet
-          $('#videoremote' + remoteFeed.rfindex).append('<video class="rounded centered" id="waitingvideo' + remoteFeed.rfindex + '" width=320 height=240 />')
-          $('#videoremote' + remoteFeed.rfindex).append('<video class="rounded centered relative hide" id="remotevideo' + remoteFeed.rfindex + '" width="100%" height="100%" autoplay playsinline/>')
-          $('#videoremote' + remoteFeed.rfindex).append(
-            '<span class="label label-primary hide" id="curres' +
-              remoteFeed.rfindex +
-              '" style="position: absolute; bottom: 0px; left: 0px; margin: 15px;"></span>' +
-              '<span class="label label-info hide" id="curbitrate' +
-              remoteFeed.rfindex +
-              '" style="position: absolute; bottom: 0px; right: 0px; margin: 15px;"></span>'
-          )
-          // Show the video, hide the spinner and show the resolution when we get a playing event
-          $('#remotevideo' + remoteFeed.rfindex).bind('playing', function() {
-            if (remoteFeed.spinner) remoteFeed.spinner.stop()
-            remoteFeed.spinner = null
-            $('#waitingvideo' + remoteFeed.rfindex).remove()
-            if (this.videoWidth)
-              $('#remotevideo' + remoteFeed.rfindex)
-                .removeClass('hide')
-                .show()
-            var width = this.videoWidth
-            var height = this.videoHeight
-            $('#curres' + remoteFeed.rfindex)
-              .removeClass('hide')
-              .text(width + 'x' + height)
-              .show()
-            if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
-              // Firefox Stable has a bug: width and height are not immediately available after a playing
-              setTimeout(function() {
-                var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
-                var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
-                $('#curres' + remoteFeed.rfindex)
-                  .removeClass('hide')
-                  .text(width + 'x' + height)
-                  .show()
-              }, 2000)
-            }
-          })
-        }
-        Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
-        var videoTracks = stream.getVideoTracks()
-        if (!videoTracks || videoTracks.length === 0) {
-          // No remote video
-          $('#remotevideo' + remoteFeed.rfindex).hide()
-          if ($('#videoremote' + remoteFeed.rfindex + ' .no-video-container').length === 0) {
-            $('#videoremote' + remoteFeed.rfindex).append(
-              '<div class="no-video-container">' + '<i class="fa fa-video-camera fa-5 no-video-icon"></i>' + '<span class="no-video-text">No remote video available</span>' + '</div>'
-            )
-          }
-        } else {
-          $('#videoremote' + remoteFeed.rfindex + ' .no-video-container').remove()
-          $('#remotevideo' + remoteFeed.rfindex)
-            .removeClass('hide')
-            .show()
-        }
-        if (!addButtons) return
-        if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
-          $('#curbitrate' + remoteFeed.rfindex)
-            .removeClass('hide')
-            .show()
-          bitrateTimer[remoteFeed.rfindex] = setInterval(function() {
-            // Display updated bitrate, if supported
-            var bitrate = remoteFeed.getBitrate()
-            $('#curbitrate' + remoteFeed.rfindex).text(bitrate)
-            // Check if the resolution changed too
-            var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
-            var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
-            if (width > 0 && height > 0)
-              $('#curres' + remoteFeed.rfindex)
-                .removeClass('hide')
-                .text(width + 'x' + height)
-                .show()
-          }, 1000)
-        }
-      },
-      oncleanup: function() {
-        Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::')
-        if (remoteFeed.spinner) remoteFeed.spinner.stop()
-        remoteFeed.spinner = null
-        $('#remotevideo' + remoteFeed.rfindex).remove()
-        $('#waitingvideo' + remoteFeed.rfindex).remove()
-        $('#novideo' + remoteFeed.rfindex).remove()
-        $('#curbitrate' + remoteFeed.rfindex).remove()
-        $('#curres' + remoteFeed.rfindex).remove()
-        if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
-        bitrateTimer[remoteFeed.rfindex] = null
-        remoteFeed.simulcastStarted = false
-        $('#simulcast' + remoteFeed.rfindex).remove()
-      },
-    })
-  }
-
-  // Helper to parse query string
-
-  // Helpers to create Simulcast-related UI, if enabled
-  function addSimulcastButtons(feed, temporal) {
-    /* var index = feed
-    $('#remote' + index)
-      .parent()
-      .append(
-        '<div id="simulcast' +
-          index +
-          '" class="btn-group-vertical btn-group-vertical-xs pull-right">' +
-          '	<div class"row">' +
-          '		<div class="btn-group btn-group-xs" style="width: 100%">' +
-          '			<button id="sl' +
-          index +
-          '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to higher quality" style="width: 33%">SL 2</button>' +
-          '			<button id="sl' +
-          index +
-          '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to normal quality" style="width: 33%">SL 1</button>' +
-          '			<button id="sl' +
-          index +
-          '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to lower quality" style="width: 34%">SL 0</button>' +
-          '		</div>' +
-          '	</div>' +
-          '	<div class"row">' +
-          '		<div class="btn-group btn-group-xs hide" style="width: 100%">' +
-          '			<button id="tl' +
-          index +
-          '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 2" style="width: 34%">TL 2</button>' +
-          '			<button id="tl' +
-          index +
-          '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 1" style="width: 33%">TL 1</button>' +
-          '			<button id="tl' +
-          index +
-          '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 0" style="width: 33%">TL 0</button>' +
-          '		</div>' +
-          '	</div>' +
-          '</div>'
-      )
-    // Enable the simulcast selection buttons
-    $('#sl' + index + '-0')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(function() {
-        console.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
-        if (!$('#sl' + index + '-2').hasClass('btn-success'))
-          $('#sl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#sl' + index + '-1').hasClass('btn-success'))
-          $('#sl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#sl' + index + '-0')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        feeds[index].send({ message: { request: 'configure', substream: 0 } })
-      })
-    $('#sl' + index + '-1')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(function() {
-        console.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
-        if (!$('#sl' + index + '-2').hasClass('btn-success'))
-          $('#sl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#sl' + index + '-1')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        if (!$('#sl' + index + '-0').hasClass('btn-success'))
-          $('#sl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', substream: 1 } })
-      })
-    $('#sl' + index + '-2')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(function() {
-        console.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
-        $('#sl' + index + '-2')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        if (!$('#sl' + index + '-1').hasClass('btn-success'))
-          $('#sl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#sl' + index + '-0').hasClass('btn-success'))
-          $('#sl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', substream: 2 } })
-      })
-    if (!temporal)
-      // No temporal layer support
-      return
-    $('#tl' + index + '-0')
-      .parent()
-      .removeClass('hide')
-    $('#tl' + index + '-0')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(function() {
-        console.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
-        if (!$('#tl' + index + '-2').hasClass('btn-success'))
-          $('#tl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#tl' + index + '-1').hasClass('btn-success'))
-          $('#tl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#tl' + index + '-0')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        feeds[index].send({ message: { request: 'configure', temporal: 0 } })
-      })
-    $('#tl' + index + '-1')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(function() {
-        console.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
-        if (!$('#tl' + index + '-2').hasClass('btn-success'))
-          $('#tl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#tl' + index + '-1')
-          .removeClass('btn-primary btn-info')
-          .addClass('btn-info')
-        if (!$('#tl' + index + '-0').hasClass('btn-success'))
-          $('#tl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', temporal: 1 } })
-      })
-    $('#tl' + index + '-2')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(function() {
-        console.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
-        $('#tl' + index + '-2')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        if (!$('#tl' + index + '-1').hasClass('btn-success'))
-          $('#tl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#tl' + index + '-0').hasClass('btn-success'))
-          $('#tl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', temporal: 2 } })
-      }) */
-  }
-
-  function updateSimulcastButtons(feed, substream, temporal) {
-    // Check the substream
-    /* var index = feed
-    if (substream === 0) {
-      console.success('Switched simulcast substream! (lower quality)', null, { timeOut: 2000 })
-      $('#sl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-0')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-    } else if (substream === 1) {
-      console.success('Switched simulcast substream! (normal quality)', null, { timeOut: 2000 })
-      $('#sl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-1')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#sl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    } else if (substream === 2) {
-      console.success('Switched simulcast substream! (higher quality)', null, { timeOut: 2000 })
-      $('#sl' + index + '-2')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#sl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    }
-    // Check the temporal layer
-    if (temporal === 0) {
-      console.success('Capped simulcast temporal layer! (lowest FPS)', null, { timeOut: 2000 })
-      $('#tl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-0')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-    } else if (temporal === 1) {
-      console.success('Capped simulcast temporal layer! (medium FPS)', null, { timeOut: 2000 })
-      $('#tl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-1')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#tl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    } else if (temporal === 2) {
-      console.success('Capped simulcast temporal layer! (highest FPS)', null, { timeOut: 2000 })
-      $('#tl' + index + '-2')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#tl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    } */
-  }
-
   const renderJoinCall = () => {
-    return null
+    if (view != 'join') return null
+
     return (
       <React.Fragment>
         <img src="icon-muted.svg" height="200" />
@@ -782,6 +802,8 @@ function VideoExtension(props) {
   }
 
   const renderStartCall = () => {
+    if (view != 'start') return null
+
     return (
       <React.Fragment>
         <img src="icon-muted.svg" height="200" className="mb-20" />
@@ -789,13 +811,14 @@ function VideoExtension(props) {
         <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
           <Input placeholder="Enter call topic" inputSize="large" value={topic} onChange={e => setTopic(e.target.value)} className="mb-20" />
         </div>
-        <Button text="Start a call" size="large" theme="muted" />
+        <Button text="Start a call" size="large" theme="muted" onClick={() => startCall()} />
       </React.Fragment>
     )
   }
 
   const renderCall = () => {
-    return null
+    if (view != 'call') return null
+
     return (
       <React.Fragment>
         <div className="main-screen">
@@ -860,7 +883,7 @@ function VideoExtension(props) {
           <div className="flexer"></div>
 
           <Tooltip text="End call" direction="left">
-            <div className="control-button red">
+            <div className="control-button red" onClick={() => stopCall()}>
               <IconComponent icon="x" color="white" thickness={1.75} size={20} />
             </div>
           </Tooltip>
@@ -871,6 +894,10 @@ function VideoExtension(props) {
 
   return (
     <div className={`video-extension ${participantFocus ? '' : 'all'}`}>
+      {error && <Error message={error} onDismiss={() => setError(false)} />}
+      {loading && <Spinner />}
+      {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+
       {renderJoinCall()}
       {renderStartCall()}
       {renderCall()}
