@@ -7,7 +7,7 @@ import '../../../assets/downgrade.png'
 import { Janus } from './lib/janus'
 import { getQueryStringValue, logger } from '../../helpers/util'
 
-var server = 'http://94.130.230.216:8088/janus'
+var server = 'http://159.69.150.191:8088/janus'
 var janus = null
 var sfu = null
 var opaqueId = 'videoroomtest-' + Janus.randomString(12)
