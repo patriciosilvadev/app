@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import './video.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
@@ -122,11 +122,12 @@ function newRemoteFeed(id, display, audio, video) {
       console.log('Error attaching plugin... ' + error)
     },
     onmessage: function(msg, jsep) {
-      Janus.debug(' ::: Got a message (subscriber) :::', msg)
+      Janus.debug(' ::: Got a message (subscriber) :::', msg, msg['videoroom'])
+
       var event = msg['videoroom']
-      Janus.debug('Event: ' + event)
+
       if (msg['error']) {
-        console.log(msg['error'])
+        console.log('newRemoteFeed', msg['error'])
       } else if (event) {
         if (event === 'attached') {
           // Subscriber created and attached
@@ -168,6 +169,7 @@ function newRemoteFeed(id, display, audio, video) {
           // What has just happened?
         }
       }
+
       if (jsep) {
         Janus.debug('Handling SDP as well...', jsep)
         // Answer and attach
@@ -537,6 +539,7 @@ function VideoExtension(props) {
   const [notification, setNotification] = useState(null)
   const [loading, setLoading] = useState(null)
   const [view, setView] = useState('')
+  const localVideoRef = useRef(null)
 
   const stopCall = () => {
     janus.destroy()
@@ -544,6 +547,7 @@ function VideoExtension(props) {
 
   const startCall = () => {
     registerUsername(user.username)
+    setView('call')
   }
 
   const initJanusVideoRoom = () => {
@@ -562,7 +566,7 @@ function VideoExtension(props) {
 
             // Logging
             Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
-            Janus.log('  -- This is a publisher/manager')
+            Janus.log('This is a publisher/manager')
 
             // Create a new room
             sfu.send({
@@ -607,9 +611,10 @@ function VideoExtension(props) {
             sfu.send({ message: { request: 'configure', bitrate: 1014 } })
           },
           onmessage: function(msg, jsep) {
-            Janus.debug(' ::: Got a message (publisher) :::', msg)
+            Janus.debug(' ::: Got a message (publisher) :::', msg, msg['videoroom'])
+
             var event = msg['videoroom']
-            Janus.debug('Event: ' + event)
+
             if (event) {
               if (event === 'joined') {
                 // Publisher/manager created, negotiate WebRTC and attach to existing feeds, if any
@@ -711,6 +716,7 @@ function VideoExtension(props) {
                 }
               }
             }
+
             if (jsep) {
               Janus.debug('Handling SDP as well...', jsep)
               sfu.handleRemoteJsep({ jsep: jsep })
@@ -742,8 +748,12 @@ function VideoExtension(props) {
             // Get this element as a native ref
             // Janus.attachMediaStream($('#myvideo').get(0), stream)
             // $('#myvideo').get(0).muted = 'muted'
+            const videoElement = localVideoRef.current
+
+            Janus.attachMediaStream(videoElement, stream)
+
             if (sfu.webrtcStuff.pc.iceConnectionState !== 'completed' && sfu.webrtcStuff.pc.iceConnectionState !== 'connected') {
-              // Show an indicator for the user to say we're publishing
+              // Show an indicator/notice for the user to say we're publishing
             }
 
             // Get all the video trackcs from this device
@@ -753,8 +763,10 @@ function VideoExtension(props) {
             if (!videoTracks || videoTracks.length === 0) {
               // No webcam
               // Show something for the user for this
+              console.warn('No webcam available!')
             } else {
               // Show the video element above
+              // localVideoRef.current
             }
           },
           onremotestream: function(stream) {
@@ -833,7 +845,7 @@ function VideoExtension(props) {
           <div className="scroll-container">
             <div className="inner-content">
               <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 1" size="x-large" />
+                <video ref={localVideoRef} width="100%" height="100%" autoPlay muted="muted" />
               </div>
               <div className="participant" onClick={() => setParticipantFocus(true)}>
                 <Avatar title="part 2" size="x-large" />
