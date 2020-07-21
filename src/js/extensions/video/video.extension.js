@@ -743,17 +743,18 @@ function VideoExtension(props) {
             // Set this global
             mystream = stream
 
-            // Show all other videos
-            // <video class="rounded centered" id="myvideo" width="100%" height="100%" autoplay playsinline muted="muted"/>
             // Get this element as a native ref
-            // Janus.attachMediaStream($('#myvideo').get(0), stream)
-            // $('#myvideo').get(0).muted = 'muted'
             const videoElement = localVideoRef.current
 
+            // So no echo (because it's us)
+            videoElement.muted = 'muted'
+
+            // Atthac the MediaStram to the video
             Janus.attachMediaStream(videoElement, stream)
 
             if (sfu.webrtcStuff.pc.iceConnectionState !== 'completed' && sfu.webrtcStuff.pc.iceConnectionState !== 'connected') {
               // Show an indicator/notice for the user to say we're publishing
+              // Do nothing here for now
             }
 
             // Get all the video trackcs from this device
@@ -766,7 +767,7 @@ function VideoExtension(props) {
               console.warn('No webcam available!')
             } else {
               // Show the video element above
-              // localVideoRef.current
+              // localVideoRef.current - already showing
             }
           },
           onremotestream: function(stream) {
