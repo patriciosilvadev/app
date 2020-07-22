@@ -101,6 +101,36 @@
   height: 80px;
   overflow: hidden;
   border-radius: 20px;
+  position: relative;
+}
+
+.video-extension .participants .participant .name {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.video-extension .participants .participant:hover .name {
+  opacity: 1;
+}
+
+.video-extension .participants .participant .name .text {
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px;
+  text-align: center;
+  width: 100%;
 }
 
 .video-extension .participants .participant:last-child {

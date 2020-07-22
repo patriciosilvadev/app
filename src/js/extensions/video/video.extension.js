@@ -532,13 +532,15 @@ function updateSimulcastButtons(feed, substream, temporal) {
 function VideoExtension(props) {
   const [participantFocus, setParticipantFocus] = useState(true)
   const channel = useSelector(state => state.channel)
-  const user = useSelector(state => state.channel)
+  const user = useSelector(state => state.user)
   const dispatch = useDispatch()
   const [topic, setTopic] = useState('My awesome call')
   const [error, setError] = useState(null)
   const [notification, setNotification] = useState(null)
   const [loading, setLoading] = useState(null)
   const [view, setView] = useState('')
+  const [muted, setMuted] = useState(false)
+  const [published, setPublished] = useState(false)
   const localVideoRef = useRef(null)
 
   const stopCall = () => {
@@ -548,6 +550,22 @@ function VideoExtension(props) {
   const startCall = () => {
     registerUsername(user.username)
     setView('call')
+  }
+
+  const mute = on => {
+    console.log('setting mute to ', on)
+    setMuted(on)
+    toggleMute()
+  }
+
+  const publish = on => {
+    setPublished(on)
+
+    if (on) {
+      publishOwnFeed(true)
+    } else {
+      unpublishOwnFeed()
+    }
   }
 
   const initJanusVideoRoom = () => {
@@ -755,6 +773,7 @@ function VideoExtension(props) {
             if (sfu.webrtcStuff.pc.iceConnectionState !== 'completed' && sfu.webrtcStuff.pc.iceConnectionState !== 'connected') {
               // Show an indicator/notice for the user to say we're publishing
               // Do nothing here for now
+              setPublished(true)
             }
 
             // Get all the video trackcs from this device
@@ -764,7 +783,7 @@ function VideoExtension(props) {
             if (!videoTracks || videoTracks.length === 0) {
               // No webcam
               // Show something for the user for this
-              console.warn('No webcam available!')
+              setError('No webcam available!')
             } else {
               // Show the video element above
               // localVideoRef.current - already showing
@@ -845,9 +864,15 @@ function VideoExtension(props) {
         <div className="participants">
           <div className="scroll-container">
             <div className="inner-content">
+              {/* The first one is always us */}
               <div className="participant" onClick={() => setParticipantFocus(true)}>
+                <div className="name">
+                  <div className="text">{user.name}</div>
+                </div>
                 <video ref={localVideoRef} width="100%" height="100%" autoPlay muted="muted" />
               </div>
+
+              {/* the rest of them */}
               <div className="participant" onClick={() => setParticipantFocus(true)}>
                 <Avatar title="part 2" size="x-large" />
               </div>
@@ -877,16 +902,20 @@ function VideoExtension(props) {
         </div>
 
         <div className="controls">
-          <div className="control-button">
-            <IconComponent icon="video" color="#343a40" thickness={1.75} size={20} />
+          <div className="control-button" onClick={() => publish(!published)}>
+            <IconComponent icon={published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
           </div>
-          <div className="control-button">
-            <IconComponent icon="mic" color="#343a40" thickness={1.75} size={20} />
+
+          <div className="control-button" onClick={() => mute(!muted)}>
+            <IconComponent icon={muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
           </div>
+
+          {/* share to channel */}
           <div className="control-button">
             <IconComponent icon="share1" color="#343a40" thickness={1.75} size={20} />
           </div>
 
+          {/* share screen */}
           <Tooltip text="Share screen" direction="right">
             <div className="control-button">
               <IconComponent icon="maximize" color="#343a40" thickness={1.75} size={20} />
