@@ -318,6 +318,7 @@ export default class GraphqlService {
             url
             description
             topic
+            roomId
             image
             public
             private

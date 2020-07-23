@@ -13,8 +13,8 @@ import { updateChannel } from '../../actions'
 var server = 'http://159.69.150.191:8088/janus'
 var janus = null
 var sfu = null
+var room = 0
 var opaqueId = 'videoroomtest-' + Janus.randomString(12)
-var room = 9999
 var myid = null
 var mystream = null
 var feeds = []
@@ -427,13 +427,10 @@ function VideoExtension(props) {
           private_id: mypvtid,
         }
 
-        // In case you don't want to receive audio, video or data, even if the
-        // publisher is sending them, set the 'offer_audio', 'offer_video' or
-        // 'offer_data' properties to false (they're true by default), e.g.:
-        // 		subscribe["offer_video"] = false;
         // For example, if the publisher is VP8 and this is Safari, let's avoid video
         if (Janus.webRTCAdapter.browserDetails.browser === 'safari' && (video === 'vp9' || (video === 'vp8' && !Janus.safariVp8))) {
           if (video) video = video.toUpperCase()
+
           console.warning('Publisher is using ' + video + ", but Safari doesn't support it: disabling video")
           subscribe['offer_video'] = false
         }
@@ -444,6 +441,7 @@ function VideoExtension(props) {
       error: function(error) {
         Janus.error('  -- Error attaching plugin...', error)
         console.log('Error attaching plugin... ' + error)
+        setError('Error getting remote feed')
       },
       onmessage: function(msg, jsep) {
         Janus.debug(' ::: Got a message (subscriber) :::', msg, msg['videoroom'])
@@ -496,6 +494,7 @@ function VideoExtension(props) {
 
         if (jsep) {
           Janus.debug('Handling SDP as well...', jsep)
+
           // Answer and attach
           remoteFeed.createAnswer({
             jsep: jsep,
@@ -525,6 +524,7 @@ function VideoExtension(props) {
       },
       onremotestream: function(stream) {
         Janus.debug('Remote feed #' + remoteFeed.rfindex + ', stream:', stream)
+
         var addButtons = false
         if ($('#remotevideo' + remoteFeed.rfindex).length === 0) {
           addButtons = true
@@ -539,6 +539,7 @@ function VideoExtension(props) {
               remoteFeed.rfindex +
               '" style="position: absolute; bottom: 0px; right: 0px; margin: 15px;"></span>'
           )
+
           // Show the video, hide the spinner and show the resolution when we get a playing event
           $('#remotevideo' + remoteFeed.rfindex).bind('playing', function() {
             if (remoteFeed.spinner) remoteFeed.spinner.stop()
@@ -554,6 +555,7 @@ function VideoExtension(props) {
               .removeClass('hide')
               .text(width + 'x' + height)
               .show()
+
             if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
               // Firefox Stable has a bug: width and height are not immediately available after a playing
               setTimeout(function() {
@@ -567,8 +569,11 @@ function VideoExtension(props) {
             }
           })
         }
+
         Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
+
         var videoTracks = stream.getVideoTracks()
+
         if (!videoTracks || videoTracks.length === 0) {
           // No remote video
           $('#remotevideo' + remoteFeed.rfindex).hide()
@@ -583,7 +588,9 @@ function VideoExtension(props) {
             .removeClass('hide')
             .show()
         }
+
         if (!addButtons) return
+
         if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
           $('#curbitrate' + remoteFeed.rfindex)
             .removeClass('hide')
@@ -620,8 +627,11 @@ function VideoExtension(props) {
     })
   }
 
-  const initJanusVideoRoom = () => {
+  const initJanusVideoRoom = roomId => {
     if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
+
+    // Save our ID
+    room = roomId
 
     // Create session
     janus = new Janus({
@@ -637,6 +647,15 @@ function VideoExtension(props) {
             // Logging
             Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
             Janus.log('This is a publisher/manager')
+
+            sfu.send({
+              message: {
+                request: 'list',
+              },
+              success: res => {
+                console.log(res)
+              },
+            })
 
             // Check if the room exists
             sfu.send({
@@ -893,13 +912,19 @@ function VideoExtension(props) {
   }
 
   useEffect(() => {
-    Janus.init({
-      debug: 'all',
-      callback: () => {
-        initJanusVideoRoom()
-      },
-    })
-  }, [])
+    if (channel.roomId > 0) {
+      console.log('Room ID (should be called only once): ', channel.roomId, channel.topic)
+
+      // Once the room Id is set
+      // We can start Janus
+      Janus.init({
+        debug: 'all',
+        callback: () => {
+          initJanusVideoRoom(channel.roomId)
+        },
+      })
+    }
+  }, [channel.roomId])
 
   const renderJoinCall = () => {
     if (view != 'join') return null
