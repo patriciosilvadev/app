@@ -530,7 +530,7 @@ function updateSimulcastButtons(feed, substream, temporal) {
 }
 
 function VideoExtension(props) {
-  const [participantFocus, setParticipantFocus] = useState(true)
+  const [participantFocus, setParticipantFocus] = useState(false)
   const channel = useSelector(state => state.channel)
   const user = useSelector(state => state.user)
   const dispatch = useDispatch()
@@ -902,31 +902,31 @@ function VideoExtension(props) {
         </div>
 
         <div className="controls">
-          <div className="control-button" onClick={() => publish(!published)}>
-            <IconComponent icon={published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
-          </div>
-
-          <div className="control-button" onClick={() => mute(!muted)}>
-            <IconComponent icon={muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
-          </div>
-
-          {/* share to channel */}
-          <div className="control-button">
-            <IconComponent icon="share1" color="#343a40" thickness={1.75} size={20} />
-          </div>
-
-          {/* share screen */}
-          <Tooltip text="Share screen" direction="right">
-            <div className="control-button">
-              <IconComponent icon="maximize" color="#343a40" thickness={1.75} size={20} />
+          {/* toggle video media publishing */}
+          <Tooltip text="Toggle video feed" direction="top">
+            <div className="control-button" onClick={() => publish(!published)}>
+              <IconComponent icon={published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
             </div>
           </Tooltip>
 
-          <div className="flexer"></div>
+          {/* toggle audio media publishing */}
+          <Tooltip text="Toggle muting" direction="top">
+            <div className="control-button" onClick={() => mute(!muted)}>
+              <IconComponent icon={muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
+            </div>
+          </Tooltip>
 
-          <Tooltip text="End call" direction="left">
-            <div className="control-button red" onClick={() => stopCall()}>
-              <IconComponent icon="x" color="white" thickness={1.75} size={20} />
+          {/* share to channel */}
+          <Tooltip text="Share to channel" direction="top">
+            <div className="control-button">
+              <IconComponent icon="share1" color="#343a40" thickness={1.75} size={20} />
+            </div>
+          </Tooltip>
+
+          {/* share screen */}
+          <Tooltip text="Share screen" direction="top">
+            <div className="control-button">
+              <IconComponent icon="maximize" color="#343a40" thickness={1.75} size={20} />
             </div>
           </Tooltip>
         </div>
@@ -939,6 +939,17 @@ function VideoExtension(props) {
       {error && <Error message={error} onDismiss={() => setError(false)} />}
       {loading && <Spinner />}
       {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+      {view == 'call' && (
+        <div className="header">
+          <div className="title">{topic}</div>
+          <div className="flexer"></div>
+          <Tooltip text="End call" direction="left">
+            <div className="control-button red" onClick={() => stopCall()}>
+              <IconComponent icon="x" color="white" thickness={1.75} size={20} />
+            </div>
+          </Tooltip>
+        </div>
+      )}
 
       {renderJoinCall()}
       {renderStartCall()}
