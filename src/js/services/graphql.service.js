@@ -317,6 +317,7 @@ export default class GraphqlService {
             name
             url
             description
+            topic
             image
             public
             private

@@ -6,6 +6,8 @@ import { IconComponent } from '../../components/icon.component'
 import '../../../assets/downgrade.png'
 import { Janus } from './lib/janus'
 import { getQueryStringValue, logger } from '../../helpers/util'
+import GraphqlService from '../../services/graphql.service'
+import { updateChannel } from '../../actions'
 
 // Variables from the Janus videoroom example
 var server = 'http://159.69.150.191:8088/janus'
@@ -267,6 +269,7 @@ function VideoExtension(props) {
   const user = useSelector(state => state.user)
   const dispatch = useDispatch()
   const [topic, setTopic] = useState('My awesome call')
+  const [participants, setParticipants] = useState([])
   const [error, setError] = useState(null)
   const [notification, setNotification] = useState(null)
   const [loading, setLoading] = useState(null)
@@ -275,13 +278,40 @@ function VideoExtension(props) {
   const [published, setPublished] = useState(false)
   const localVideoRef = useRef(null)
 
+  const handleUpdateChannelTopic = async () => {
+    setError(null)
+
+    try {
+      await GraphqlService.getInstance().updateChannel(channel.id, { topic })
+
+      dispatch(updateChannel(channel.id, { topic }))
+    } catch (e) {
+      setError('Error updating channel topic')
+    }
+  }
+
   const stopCall = () => {
     janus.destroy()
   }
 
   const startCall = () => {
-    registerUsername(user.username)
-    setView('call')
+    sfu.send({
+      message: {
+        request: 'create',
+        description: topic,
+        record: false,
+        room: room,
+        ptype: 'publisher',
+        is_private: false,
+        secret: '',
+      },
+      success: ({ videoroom, room, permanent, error_code, error }) => {
+        if (error) return setError(error)
+
+        handleUpdateChannelTopic()
+        registerUsername()
+      },
+    })
   }
 
   const mute = on => {
@@ -300,13 +330,27 @@ function VideoExtension(props) {
     }
   }
 
-  const registerUsername = username => {
+  const registerUsername = () => {
     sfu.send({
       message: {
         request: 'join',
         room: room,
         ptype: 'publisher',
-        display: username,
+        display: user.username,
+      },
+    })
+  }
+
+  const destroyCall = () => {
+    sfu.send({
+      message: {
+        request: 'destroy',
+        room,
+        //"secret" : "<room secret, mandatory if configured>",
+        //"permanent" : <true|false, whether the room should be also removed from the config file, default=false>
+      },
+      success: ({ videoroom, room, permanent, error_code, error }) => {
+        console.log(videoroom, room, permanent, error_code, error)
       },
     })
   }
@@ -361,7 +405,7 @@ function VideoExtension(props) {
     muted = sfu.isAudioMuted()
   }
 
-  newRemoteFeed = (id, display, audio, video) => {
+  const newRemoteFeed = (id, display, audio, video) => {
     var remoteFeed = null
 
     janus.attach({
@@ -594,20 +638,36 @@ function VideoExtension(props) {
             Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
             Janus.log('This is a publisher/manager')
 
-            // Create a new room
+            // Check if the room exists
             sfu.send({
               message: {
-                request: 'create',
-                record: true,
-                publishers: 6,
+                request: 'exists',
                 room: room,
-                ptype: 'publisher',
-                is_private: false,
+              },
+              success: ({ videoroom, room, exists, error_code, error }) => {
+                if (error) return setError(error)
+                if (exists) {
+                  // Check for participants
+                  sfu.send({
+                    message: {
+                      request: 'listparticipants',
+                      room: room,
+                    },
+                    success: res => {
+                      if (res.error) return setError(res.error)
+
+                      console.log(res.participants)
+
+                      setParticipants(res.participants)
+                      setTopic(channel.topic)
+                      setView('join')
+                    },
+                  })
+                } else {
+                  setView('start')
+                }
               },
             })
-
-            // Show the username
-            setView('start')
           },
           error: function(error) {
             setError('Error attaching video room plugin')
@@ -650,6 +710,7 @@ function VideoExtension(props) {
                 Janus.log('Successfully joined room ' + msg['room'] + ' with ID ' + myid)
 
                 publishOwnFeed(true)
+                setView('call')
 
                 // Any new feed to attach to?
                 if (msg['publishers']) {
@@ -846,9 +907,9 @@ function VideoExtension(props) {
     return (
       <React.Fragment>
         <img src="icon-muted.svg" height="200" />
-        <div className="pt-20 mb-20 color-d0 h3">Daily standup</div>
+        <div className="pt-20 mb-20 color-d0 h3">{channel.topic}</div>
         <div className="pb-30 color-d0 h5">
-          There is currently a call with <strong>3</strong> participants going on.
+          There is currently a call with <strong>{participants.length}</strong> {participants.length == 1 ? 'participant' : 'participants'} going on.
         </div>
         <Button text="Join the call now" size="large" />
       </React.Fragment>
