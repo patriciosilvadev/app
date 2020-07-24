@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { connect } from 'react-redux'
 import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import './video.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
@@ -9,6 +10,7 @@ import { getQueryStringValue, logger } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
 import { updateChannel } from '../../actions'
 import adapter from 'webrtc-adapter'
+import PropTypes from 'prop-types'
 
 const Video = ({ stream }) => {
   const videoRef = useRef(null)
@@ -36,11 +38,11 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
 
 /* 
 
-  These are the simulcast functions from the Janus videoroom example
+  These are the simulcast s from the Janus videoroom example
   They still need to be refactored & integrated into the React codebase
   Keeping them here for the meantime
 
-  function addSimulcastButtons(feed, temporal) {
+   addSimulcastButtons(feed, temporal) {
     var index = feed
     $('#remote' + index)
       .parent()
@@ -81,7 +83,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       .removeClass('btn-primary btn-success')
       .addClass('btn-primary')
       .unbind('click')
-      .click(function() {
+      .click(() {
         console.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
         if (!$('#sl' + index + '-2').hasClass('btn-success'))
           $('#sl' + index + '-2')
@@ -100,7 +102,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       .removeClass('btn-primary btn-success')
       .addClass('btn-primary')
       .unbind('click')
-      .click(function() {
+      .click(() {
         console.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
         if (!$('#sl' + index + '-2').hasClass('btn-success'))
           $('#sl' + index + '-2')
@@ -119,7 +121,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       .removeClass('btn-primary btn-success')
       .addClass('btn-primary')
       .unbind('click')
-      .click(function() {
+      .click(() {
         console.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
         $('#sl' + index + '-2')
           .removeClass('btn-primary btn-info btn-success')
@@ -144,7 +146,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       .removeClass('btn-primary btn-success')
       .addClass('btn-primary')
       .unbind('click')
-      .click(function() {
+      .click(() {
         console.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
         if (!$('#tl' + index + '-2').hasClass('btn-success'))
           $('#tl' + index + '-2')
@@ -163,7 +165,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       .removeClass('btn-primary btn-success')
       .addClass('btn-primary')
       .unbind('click')
-      .click(function() {
+      .click(() {
         console.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
         if (!$('#tl' + index + '-2').hasClass('btn-success'))
           $('#tl' + index + '-2')
@@ -182,7 +184,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       .removeClass('btn-primary btn-success')
       .addClass('btn-primary')
       .unbind('click')
-      .click(function() {
+      .click(() {
         console.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
         $('#tl' + index + '-2')
           .removeClass('btn-primary btn-info btn-success')
@@ -199,7 +201,7 @@ var mypvtid = null // We use this other ID just to map our subscriptions to us
       })
   }
 
-  function updateSimulcastButtons(feed, substream, temporal) {
+   updateSimulcastButtons(feed, substream, temporal) {
     // Check the substream
     var index = feed
     if (substream === 0) {
@@ -289,6 +291,7 @@ class VideoExtension extends React.Component {
       muted: false,
       published: false,
       remoteParticipants: [],
+      roomId: null,
     }
 
     this.localVideoRef = React.createRef()
@@ -307,7 +310,7 @@ class VideoExtension extends React.Component {
     this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
     this.renderCall = this.renderCall.bind(this)
     this.renderJoinCall = this.renderJoinCall.bind(this)
-    this.renderStartCall = this.renderStartCallv
+    this.renderStartCall = this.renderStartCall.bind(this)
   }
 
   handleUpdateChannelTopic = async () => {
@@ -346,14 +349,14 @@ class VideoExtension extends React.Component {
     })
   }
 
-  mute = on => {
+  mute = mute => {
     console.log('setting mute to ', on)
-    this.setState({ mute: on })
+    this.setState({ mute })
     this.toggleMute()
   }
 
-  publish = on => {
-    this.setState({ published: on })
+  publish = published => {
+    this.setState({ published })
 
     if (on) {
       this.publishOwnFeed(true)
@@ -368,7 +371,7 @@ class VideoExtension extends React.Component {
         request: 'join',
         room: room,
         ptype: 'publisher',
-        display: user.name,
+        display: this.props.user.name,
       },
     })
   }
@@ -396,7 +399,7 @@ class VideoExtension extends React.Component {
       // the following 'simulcast' property to pass to janus.js to true
       simulcast: doSimulcast,
       simulcast2: doSimulcast2,
-      success: function(jsep) {
+      success: jsep => {
         Janus.debug('Got publisher SDP!', jsep)
 
         var publish = { request: 'configure', audio: useAudio, video: true }
@@ -412,7 +415,7 @@ class VideoExtension extends React.Component {
         // refer to the text in janus.plugin.videoroom.jcfg for more details
         sfu.send({ message: publish, jsep: jsep })
       },
-      error: function(error) {
+      error: error => {
         Janus.error('WebRTC error:', error)
 
         if (useAudio) {
@@ -445,7 +448,7 @@ class VideoExtension extends React.Component {
     janus.attach({
       plugin: 'janus.plugin.videoroom',
       opaqueId: opaqueId,
-      success: function(pluginHandle) {
+      success: pluginHandle => {
         remoteFeed = pluginHandle
         remoteFeed.simulcastStarted = false
 
@@ -472,12 +475,12 @@ class VideoExtension extends React.Component {
         remoteFeed.videoCodec = video
         remoteFeed.send({ message: subscribe })
       },
-      error: function(error) {
+      error: error => {
         Janus.error('  -- Error attaching plugin...', error)
         console.log('Error attaching plugin... ' + error)
         this.setState({ error: 'Error getting remote feed' })
       },
-      onmessage: function(msg, jsep) {
+      onmessage: (msg, jsep) => {
         Janus.debug(' ::: Got a message (subscriber) :::', msg, msg['videoroom'])
 
         var event = msg['videoroom']
@@ -507,9 +510,10 @@ class VideoExtension extends React.Component {
             Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
             // remoteFeed.rfdisplay <- is HTML
             // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
-            console.log('remoteParticipant: ', remoteFeed, remoteParticipants)
+            console.log('remoteParticipant: ', remoteFeed, this.state.remoteParticipants)
 
-            this.setState({ remoteParticipants: [...remoteParticipants, remoteFeed] })
+            // Update our state with the new remote feed
+            this.setState({ remoteParticipants: [...this.state.remoteParticipants, remoteFeed] })
           } else if (event === 'event') {
             // Check if we got an event on a simulcast-related event from this publisher
             var substream = msg['substream']
@@ -537,30 +541,33 @@ class VideoExtension extends React.Component {
             // Add data:true here if you want to subscribe to datachannels as well
             // (obviously only works if the publisher offered them in the first place)
             media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
-            success: function(jsep) {
+            success: jsep => {
               Janus.debug('Got SDP!', jsep)
               var body = { request: 'start', room: room }
               remoteFeed.send({ message: body, jsep: jsep })
             },
-            error: function(error) {
+            error: error => {
               Janus.error('WebRTC error:', error)
               console.log('WebRTC error... ' + error.message)
             },
           })
         }
       },
-      iceState: function(state) {
+      iceState: state => {
         Janus.log('ICE state of this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') changed to ' + state)
       },
-      webrtcState: function(on) {
+      webrtcState: on => {
         Janus.log('Janus says this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') is ' + (on ? 'up' : 'down') + ' now')
       },
-      onlocalstream: function(stream) {
+      onlocalstream: stream => {
         // The subscriber stream is recvonly, we don't expect anything here
       },
-      onremotestream: function(stream) {
+      onremotestream: stream => {
         Janus.log('Remote feed #' + remoteFeed.rfindex + ', stream:', stream, remoteFeed)
 
+        console.log(this.state.remoteParticipants)
+
+        // Now we update the state and add the stream
         this.setState({
           remoteParticipants: this.state.remoteParticipants.map(remoteParticipant => {
             return remoteParticipant.rfindex == remoteFeed.rfindex ? { ...remoteFeed, stream } : remoteParticipant
@@ -587,7 +594,7 @@ class VideoExtension extends React.Component {
           )
 
           // Show the video, hide the spinner and show the resolution when we get a playing event
-          $('#remotevideo' + remoteFeed.rfindex).bind('playing', function() {
+          $('#remotevideo' + remoteFeed.rfindex).bind('playing', () {
             if (remoteFeed.spinner) remoteFeed.spinner.stop()
             remoteFeed.spinner = null
             $('#waitingvideo' + remoteFeed.rfindex).remove()
@@ -604,7 +611,7 @@ class VideoExtension extends React.Component {
 
             if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
               // Firefox Stable has a bug: width and height are not immediately available after a playing
-              setTimeout(function() {
+              setTimeout(() {
                 var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
                 var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
                 $('#curres' + remoteFeed.rfindex)
@@ -641,7 +648,7 @@ class VideoExtension extends React.Component {
           $('#curbitrate' + remoteFeed.rfindex)
             .removeClass('hide')
             .show()
-          bitrateTimer[remoteFeed.rfindex] = setInterval(function() {
+          bitrateTimer[remoteFeed.rfindex] = setInterval(() {
             // Display updated bitrate, if supported
             var bitrate = remoteFeed.getBitrate()
             $('#curbitrate' + remoteFeed.rfindex).text(bitrate)
@@ -656,7 +663,7 @@ class VideoExtension extends React.Component {
           }, 1000)
         } */
       },
-      oncleanup: function() {
+      oncleanup: () => {
         Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::')
         /* if (remoteFeed.spinner) remoteFeed.spinner.stop()
         remoteFeed.spinner = null
@@ -677,17 +684,17 @@ class VideoExtension extends React.Component {
     if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
 
     // Save our ID
-    room = roomId
+    room = this.state.roomId
 
     // Create session
     janus = new Janus({
       server: server,
-      success: function() {
+      success: () => {
         // Attach to VideoRoom plugin
         janus.attach({
           plugin: 'janus.plugin.videoroom',
           opaqueId: opaqueId,
-          success: function(pluginHandle) {
+          success: pluginHandle => {
             sfu = pluginHandle
 
             // Logging
@@ -727,31 +734,35 @@ class VideoExtension extends React.Component {
                         participants: res.participants,
                         topic: this.props.channel.topic,
                         view: 'join',
+                        loading: false,
                       })
                     },
                   })
                 } else {
-                  this.setState({ view: 'start' })
+                  this.setState({
+                    view: 'start',
+                    loading: false,
+                  })
                 }
               },
             })
           },
-          error: function(error) {
+          error: error => {
             this.setState({ error })
             Janus.error('  -- Error attaching plugin...', error)
           },
-          consentDialog: function(on) {
+          consentDialog: on => {
             Janus.debug('Consent dialog should be ' + (on ? 'on' : 'off') + ' now')
             // Check consent has been given
             // console.log(!!navigator.mozGetUserMedia)
           },
-          iceState: function(state) {
+          iceState: state => {
             Janus.log('ICE state changed to ' + state)
           },
-          mediaState: function(medium, on) {
+          mediaState: (medium, on) => {
             Janus.log('Janus ' + (on ? 'started' : 'stopped') + ' receiving our ' + medium)
           },
-          webrtcState: function(on) {
+          webrtcState: on => {
             Janus.log('Janus says our WebRTC PeerConnection is ' + (on ? 'up' : 'down') + ' now')
 
             // Show DIV
@@ -763,7 +774,7 @@ class VideoExtension extends React.Component {
             // var bitrate = 0 / 128 / 256 / 1014 / 1500 / 2000
             sfu.send({ message: { request: 'configure', bitrate: 1014 } })
           },
-          onmessage: function(msg, jsep) {
+          onmessage: (msg, jsep) => {
             Janus.debug(' ::: Got a message (publisher) :::', msg, msg['videoroom'])
 
             var event = msg['videoroom']
@@ -905,14 +916,14 @@ class VideoExtension extends React.Component {
               }
             }
           },
-          onlocalstream: function(stream) {
+          onlocalstream: stream => {
             Janus.debug(' ::: Got a local stream :::', stream)
 
             // Set this global
             mystream = stream
 
             // Get this element as a native ref
-            const videoElement = localVideoRef.current
+            const videoElement = this.localVideoRef
 
             // So no echo (because it's us)
             videoElement.muted = 'muted'
@@ -939,10 +950,10 @@ class VideoExtension extends React.Component {
               // localVideoRef.current - already showing
             }
           },
-          onremotestream: function(stream) {
+          onremotestream: stream => {
             // The publisher stream is sendonly, we don't expect anything here
           },
-          oncleanup: function() {
+          oncleanup: () => {
             Janus.log(' ::: Got a cleanup notification: we are unpublished now :::')
             mystream = null
             // Add a publish button
@@ -950,26 +961,42 @@ class VideoExtension extends React.Component {
           },
         })
       },
-      error: function(error) {
+      error: error => {
         Janus.error(error)
       },
-      destroyed: function() {
+      destroyed: () => {
         console.log('destroyed')
       },
     })
   }
 
-  componentDidMount() {
-    console.log('Room ID (should be called only once): ', this.props.channel.roomId, this.props.channel.topic)
+  componentDidUpdate() {
+    if (this.props.channel.roomId) {
+      if (this.props.channel.roomId != this.state.roomId) {
+        this.setState(
+          {
+            roomId: this.props.channel.roomId,
+            loading: true,
+          },
+          () => {
+            console.log('Room ID (should be called only once): ', this.state.roomId, this.props.channel.topic)
 
-    // Once the room Id is set
-    // We can start Janus
-    Janus.init({
-      debug: 'all',
-      callback: () => {
-        this.initJanusVideoRoom(channel.roomId)
-      },
-    })
+            // Once the room Id is set
+            // We can start Janus
+            Janus.init({
+              debug: 'all',
+              callback: () => {
+                this.initJanusVideoRoom(this.props.channel.roomId)
+              },
+            })
+          }
+        )
+      }
+    }
+  }
+
+  componentDidMount() {
+    console.warn('VIDEO EXT')
   }
 
   renderJoinCall = () => {
@@ -1021,7 +1048,7 @@ class VideoExtension extends React.Component {
               {/* The first one is always us */}
               <div className="participant" onClick={() => this.setState({ participantFocus: true })}>
                 <div className="name">
-                  <div className="text">{this.prop.user.name}</div>
+                  <div className="text">{this.props.user.name}</div>
                 </div>
                 <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" />
               </div>

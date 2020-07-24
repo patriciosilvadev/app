@@ -22,7 +22,7 @@ import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../hel
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
-import { VideoExtension } from '../extensions/video/video.extension'
+import VideoExtension from '../extensions/video/video.extension'
 
 class AppPage extends React.Component {
   constructor(props) {
