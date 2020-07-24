@@ -281,8 +281,8 @@ class VideoExtension extends React.Component {
     super(props)
 
     this.state = {
-      participantFocus: true,
-      participantToFocus: -1,
+      participantFocus: false,
+      participantToFocus: -1, // Always us
       topic: '',
       participants: [],
       error: null,
@@ -1005,14 +1005,14 @@ class VideoExtension extends React.Component {
     if (this.state.view != 'join') return null
 
     return (
-      <React.Fragment>
+      <div className="join-start">
         <img src="icon-muted.svg" height="200" />
         <div className="pt-20 mb-20 color-d0 h3">{this.props.channel.topic}</div>
         <div className="pb-30 color-d0 h5">
           There is currently a call with <strong>{this.state.participants.length}</strong> {this.state.participants.length == 1 ? 'participant' : 'participants'} going on.
         </div>
         <Button text="Join the call now" size="large" onClick={() => this.registerUsername()} />
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -1020,14 +1020,14 @@ class VideoExtension extends React.Component {
     if (this.state.view != 'start') return null
 
     return (
-      <React.Fragment>
+      <div className="join-start">
         <img src="icon-muted.svg" height="200" className="mb-20" />
         <div className="pb-30 color-d0 h5">Let others know what the call is about.</div>
         <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
           <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
         </div>
         <Button text="Start a call" size="large" theme="muted" onClick={() => this.startCall()} />
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -1036,52 +1036,49 @@ class VideoExtension extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="main-screen">
-          <div className="main-feed">
-            <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-              <IconComponent icon="x" color="white" thickness={2} size={20} />
-            </div>
-            <video ref={ref => (this.focusVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" />
-          </div>
-        </div>
+        {this.state.participantFocus && <div className="flexer" />}
 
         <div className="participants">
           <div className="scroll-container">
             <div className="inner-content">
               {/* The first one is always us */}
               <div
-                className="participant"
-                onClick={() => {
-                  this.setState({ participantFocus: true, participantToFocus: -1 })
-
-                  // Get this element as a native ref
-                  const videoElement = this.focusVideoRef
-                  const { stream } = videoElement
-
-                  console.log(stream)
-
-                  // So no echo (because it's us)
-                  videoElement.muted = 'muted'
-
-                  // Atthac the MediaStram to the video
-                  Janus.attachMediaStream(videoElement, stream)
-                }}
+                className={this.state.participantFocus && this.state.participantToFocus == -1 ? 'participant focus' : 'participant'}
+                onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: -1 })}
               >
                 <div className="name">
                   <div className="text">{this.props.user.name}</div>
                 </div>
+
+                {this.state.participantFocus && (
+                  <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
+                    <IconComponent icon="x" color="white" thickness={2} size={20} />
+                  </div>
+                )}
+
+                {/* local video stream */}
                 <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" />
               </div>
 
               {/* the rest of them - iterate over them */}
               {this.state.remoteParticipants.map((remoteParticipant, index) => {
                 return (
-                  <div className="participant" onClick={() => this.setState({ participantFocus: true, participantToFocus: index })} key={index}>
+                  <div
+                    className={this.state.participantFocus && this.state.participantToFocus == index ? 'participant focus' : 'participant'}
+                    onClick={() => this.setState({ participantFocus: true, participantToFocus: index })}
+                    key={index}
+                  >
                     <div className="name">
                       <div className="text">{remoteParticipant.rfdisplay}</div>
                     </div>
 
-                    {/* src={URL.createObjectURL(remoteParticipant.stream)} */}
+                    {this.state.participantFocus && (
+                      <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
+                        <IconComponent icon="x" color="white" thickness={2} size={20} />
+                      </div>
+                    )}
+
+                    {/* remote participant video stream */}
                     {remoteParticipant.stream && <Video stream={remoteParticipant.stream} />}
                   </div>
                 )
@@ -1143,7 +1140,7 @@ class VideoExtension extends React.Component {
 
         {this.renderJoinCall()}
         {this.renderStartCall()}
-        {this.renderCall()}
+        <div className="flexer column w-100">{this.renderCall()}</div>
       </div>
     )
   }
