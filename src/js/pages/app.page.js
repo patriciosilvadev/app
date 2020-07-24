@@ -32,7 +32,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: 2,
+      extensionLayout: 'FULL',
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -221,10 +221,10 @@ class AppPage extends React.Component {
               <LayoutIconButton>
                 <IconComponent
                   icon="square"
-                  color={this.state.extensionLayout == 3 ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == 'FULL' ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
-                  onClick={() => this.setState({ extensionLayout: 3 })}
+                  onClick={() => this.setState({ extensionLayout: 'FULL' })}
                 />
               </LayoutIconButton>
               {/** 
@@ -242,10 +242,10 @@ class AppPage extends React.Component {
               <LayoutIconButton>
                 <IconComponent
                   icon="sidebar"
-                  color={this.state.extensionLayout == 1 ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == 'SIDE' ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
-                  onClick={() => this.setState({ extensionLayout: 1 })}
+                  onClick={() => this.setState({ extensionLayout: 'SIDE' })}
                   style={{ transform: 'rotate(180deg)' }}
                 />
               </LayoutIconButton>
@@ -306,28 +306,11 @@ class AppPage extends React.Component {
             <Route
               path="/app/team/:teamId/channel/:channelId/video"
               render={props => {
-                switch (this.state.extensionLayout) {
-                  case 1:
-                    return (
-                      <Layout1>
-                        <VideoExtension {...props} />
-                      </Layout1>
-                    )
-                  case 2:
-                    return (
-                      <Layout2>
-                        <VideoExtension {...props} />
-                      </Layout2>
-                    )
-                  case 3:
-                    return (
-                      <Layout3>
-                        <VideoExtension {...props} />
-                      </Layout3>
-                    )
-                  default:
-                    return null
-                }
+                return (
+                  <Layout layout={this.state.extensionLayout}>
+                    <VideoExtension {...props} />
+                  </Layout>
+                )
               }}
             />
           </Router>
@@ -371,27 +354,12 @@ export default connect(
   mapDispatchToProps
 )(AppPage)
 
-const Layout1 = styled.div`
-  width: 35%;
+const Layout = styled.div`
+  width: ${props => (props.layout == 'SIDE' ? '35%' : '100%')};
   border-left: 1px solid #eaedef;
   height: 100%;
   background: white;
-`
-
-const Layout2 = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0px;
-  z-index: 1000;
-  background: white;
-`
-
-const Layout3 = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background: white;
+  position: ${props => (props.layout == 'SIDE' ? 'relative' : 'absolute')};
   left: 0px;
   z-index: 1000;
 `
