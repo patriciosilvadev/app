@@ -8,6 +8,17 @@ import { Janus } from './lib/janus'
 import { getQueryStringValue, logger } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
 import { updateChannel } from '../../actions'
+import adapter from 'webrtc-adapter'
+
+const Video = ({ stream }) => {
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    Janus.attachMediaStream(videoRef.current, stream)
+  }, [stream])
+
+  return <video ref={videoRef} width="100%" height="100%" autoPlay />
+}
 
 // Variables from the Janus videoroom example
 var server = 'http://159.69.150.191:8088/janus'
@@ -22,6 +33,7 @@ var bitrateTimer = []
 var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
 var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
 var mypvtid = null // We use this other ID just to map our subscriptions to us
+var remoteParticipants = []
 
 /* 
 
@@ -268,7 +280,7 @@ function VideoExtension(props) {
   const channel = useSelector(state => state.channel)
   const user = useSelector(state => state.user)
   const dispatch = useDispatch()
-  const [topic, setTopic] = useState('My awesome call')
+  const [topic, setTopic] = useState('')
   const [participants, setParticipants] = useState([])
   const [error, setError] = useState(null)
   const [notification, setNotification] = useState(null)
@@ -277,6 +289,11 @@ function VideoExtension(props) {
   const [muted, setMuted] = useState(false)
   const [published, setPublished] = useState(false)
   const localVideoRef = useRef(null)
+  const [rerender, setRerender] = useState(0)
+
+  const forceRender = () => {
+    setRerender(rerender + 1)
+  }
 
   const handleUpdateChannelTopic = async () => {
     setError(null)
@@ -336,7 +353,7 @@ function VideoExtension(props) {
         request: 'join',
         room: room,
         ptype: 'publisher',
-        display: user.username,
+        display: user.name,
       },
     })
   }
@@ -473,7 +490,9 @@ function VideoExtension(props) {
             Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
             // remoteFeed.rfdisplay <- is HTML
             // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
-            console.log(remoteFeed.rfdisplay)
+            console.log('remoteParticipant: ', remoteFeed, remoteParticipants)
+
+            remoteParticipants = [...remoteParticipants, remoteFeed]
           } else if (event === 'event') {
             // Check if we got an event on a simulcast-related event from this publisher
             var substream = msg['substream']
@@ -523,9 +542,19 @@ function VideoExtension(props) {
         // The subscriber stream is recvonly, we don't expect anything here
       },
       onremotestream: function(stream) {
-        Janus.debug('Remote feed #' + remoteFeed.rfindex + ', stream:', stream)
+        Janus.log('Remote feed #' + remoteFeed.rfindex + ', stream:', stream, remoteFeed)
 
-        var addButtons = false
+        remoteParticipants = remoteParticipants.map(remoteParticipant => {
+          return remoteParticipant.rfindex == remoteFeed.rfindex ? { ...remoteFeed, stream } : remoteParticipant
+        })
+
+        forceRender()
+
+        //  ($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
+
+        // ⚠️ Add users name from "display name" when they joined the call
+        /* var addButtons = false
+
         if ($('#remotevideo' + remoteFeed.rfindex).length === 0) {
           addButtons = true
           // No remote video yet
@@ -608,11 +637,11 @@ function VideoExtension(props) {
                 .text(width + 'x' + height)
                 .show()
           }, 1000)
-        }
+        } */
       },
       oncleanup: function() {
         Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::')
-        if (remoteFeed.spinner) remoteFeed.spinner.stop()
+        /* if (remoteFeed.spinner) remoteFeed.spinner.stop()
         remoteFeed.spinner = null
         $('#remotevideo' + remoteFeed.rfindex).remove()
         $('#waitingvideo' + remoteFeed.rfindex).remove()
@@ -622,7 +651,7 @@ function VideoExtension(props) {
         if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
         bitrateTimer[remoteFeed.rfindex] = null
         remoteFeed.simulcastStarted = false
-        $('#simulcast' + remoteFeed.rfindex).remove()
+        $('#simulcast' + remoteFeed.rfindex).remove() */
       },
     })
   }
@@ -653,7 +682,7 @@ function VideoExtension(props) {
                 request: 'list',
               },
               success: res => {
-                console.log(res)
+                console.log('All rooms: ', res)
               },
             })
 
@@ -675,7 +704,7 @@ function VideoExtension(props) {
                     success: res => {
                       if (res.error) return setError(res.error)
 
-                      console.log(res.participants)
+                      console.log('Participants: ', res.participants)
 
                       setParticipants(res.participants)
                       setTopic(channel.topic)
@@ -936,7 +965,7 @@ function VideoExtension(props) {
         <div className="pb-30 color-d0 h5">
           There is currently a call with <strong>{participants.length}</strong> {participants.length == 1 ? 'participant' : 'participants'} going on.
         </div>
-        <Button text="Join the call now" size="large" />
+        <Button text="Join the call now" size="large" onClick={() => registerUsername()} />
       </React.Fragment>
     )
   }
@@ -981,30 +1010,18 @@ function VideoExtension(props) {
               </div>
 
               {/* the rest of them */}
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 2" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 3" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 4" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 5" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 6" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 7" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 8" size="x-large" />
-              </div>
-              <div className="participant" onClick={() => setParticipantFocus(true)}>
-                <Avatar title="part 9" size="x-large" />
-              </div>
+              {remoteParticipants.map((remoteParticipant, index) => {
+                return (
+                  <div className="participant" onClick={() => setParticipantFocus(true)} key={index}>
+                    <div className="name">
+                      <div className="text">{remoteParticipant.rfdisplay}</div>
+                    </div>
+
+                    {/* src={URL.createObjectURL(remoteParticipant.stream)} */}
+                    {remoteParticipant.stream && <Video stream={remoteParticipant.stream} />}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>
