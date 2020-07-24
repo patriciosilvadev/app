@@ -281,7 +281,8 @@ class VideoExtension extends React.Component {
     super(props)
 
     this.state = {
-      participantFocus: false,
+      participantFocus: true,
+      participantToFocus: -1,
       topic: '',
       participants: [],
       error: null,
@@ -295,6 +296,7 @@ class VideoExtension extends React.Component {
     }
 
     this.localVideoRef = React.createRef()
+    this.focusVideoRef = React.createRef()
 
     this.handleUpdateChannelTopic = this.handleUpdateChannelTopic.bind(this)
     this.stopCall = this.stopCall.bind(this)
@@ -1039,6 +1041,7 @@ class VideoExtension extends React.Component {
             <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
               <IconComponent icon="x" color="white" thickness={2} size={20} />
             </div>
+            <video ref={ref => (this.focusVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" />
           </div>
         </div>
 
@@ -1046,17 +1049,34 @@ class VideoExtension extends React.Component {
           <div className="scroll-container">
             <div className="inner-content">
               {/* The first one is always us */}
-              <div className="participant" onClick={() => this.setState({ participantFocus: true })}>
+              <div
+                className="participant"
+                onClick={() => {
+                  this.setState({ participantFocus: true, participantToFocus: -1 })
+
+                  // Get this element as a native ref
+                  const videoElement = this.focusVideoRef
+                  const { stream } = videoElement
+
+                  console.log(stream)
+
+                  // So no echo (because it's us)
+                  videoElement.muted = 'muted'
+
+                  // Atthac the MediaStram to the video
+                  Janus.attachMediaStream(videoElement, stream)
+                }}
+              >
                 <div className="name">
                   <div className="text">{this.props.user.name}</div>
                 </div>
                 <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" />
               </div>
 
-              {/* the rest of them */}
+              {/* the rest of them - iterate over them */}
               {this.state.remoteParticipants.map((remoteParticipant, index) => {
                 return (
-                  <div className="participant" onClick={() => this.setState({ participantFocus: true })} key={index}>
+                  <div className="participant" onClick={() => this.setState({ participantFocus: true, participantToFocus: index })} key={index}>
                     <div className="name">
                       <div className="text">{remoteParticipant.rfdisplay}</div>
                     </div>
