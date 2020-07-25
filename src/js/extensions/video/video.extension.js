@@ -351,9 +351,9 @@ class VideoExtension extends React.Component {
     })
   }
 
-  mute = mute => {
-    console.log('setting mute to ', mute)
-    this.setState({ mute })
+  mute = muted => {
+    console.log('setting mute to ', muted)
+    this.setState({ muted })
     this.toggleMute()
   }
 
@@ -388,6 +388,7 @@ class VideoExtension extends React.Component {
       },
       success: ({ videoroom, room, permanent, error_code, error }) => {
         console.log(videoroom, room, permanent, error_code, error)
+        this.setState({ view: 'start' })
       },
     })
   }
@@ -492,14 +493,6 @@ class VideoExtension extends React.Component {
         } else if (event) {
           if (event === 'attached') {
             // Subscriber created and attached
-            for (var i = 1; i < 6; i++) {
-              if (!feeds[i]) {
-                feeds[i] = remoteFeed
-                remoteFeed.rfindex = i
-                break
-              }
-            }
-
             remoteFeed.rfid = msg['id']
             remoteFeed.rfdisplay = msg['display']
 
@@ -514,9 +507,7 @@ class VideoExtension extends React.Component {
               remoteFeed.spinner.spin()
             }
 
-            Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
-            // remoteFeed.rfdisplay <- is HTML
-            // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
+            console.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
             console.log('remoteParticipant: ', remoteFeed, this.state.remoteParticipants)
 
             // Update our state with the new remote feed
@@ -610,7 +601,7 @@ class VideoExtension extends React.Component {
         // Handle bitrate display
         if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
           bitrateTimer[remoteFeed.rfindex] = setInterval(() => {
-            console.log('Bitrate for ' + remoteFeed.rfindex, remoteFeed.getBitrate())
+            // console.log('Bitrate for ' + remoteFeed.rfindex, remoteFeed.getBitrate())
           }, 1000)
         }
       },
@@ -628,7 +619,6 @@ class VideoExtension extends React.Component {
         if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
         bitrateTimer[remoteFeed.rfindex] = null
         remoteFeed.simulcastStarted = false
-
         // We don't handle simulcast yet
         // $('#simulcast' + remoteFeed.rfindex).remove()
       },
@@ -736,7 +726,7 @@ class VideoExtension extends React.Component {
 
             if (event) {
               if (event === 'joined') {
-                // Publisher/manager created, negotiate WebRTC and attach to existing feeds, if any
+                // Publisher/manager created, negotiate WebRTC and attach to existing publihers, if any
                 myid = msg['id']
                 mypvtid = msg['private_id']
 
@@ -746,10 +736,11 @@ class VideoExtension extends React.Component {
                 this.setState({ view: 'call' })
 
                 // Any new feed to attach to?
+                // These attach all the exisitng pushers that are there when the room starts
                 if (msg['publishers']) {
                   var list = msg['publishers']
 
-                  Janus.debug('Got a list of available publishers/feeds:', list)
+                  Janus.debug('Got a list of available publishers:', list)
 
                   for (var f in list) {
                     var id = list[f]['id']
@@ -760,20 +751,19 @@ class VideoExtension extends React.Component {
                     Janus.debug('  >> [' + id + '] ' + display + ' (audio: ' + audio + ', video: ' + video + ')')
 
                     // Create a new remote feed
-                    // ⚠️ this fires even for our local feed
                     this.newRemoteFeed(id, display, audio, video)
                   }
                 }
               } else if (event === 'destroyed') {
                 // The room has been destroyed
-                Janus.warn('The room has been destroyed!')
                 console.log('The room has been destroyed')
+                this.setState({ participants: [], view: 'start' })
               } else if (event === 'event') {
-                // Any new feed to attach to?
+                // Attach any new feeds that join
                 if (msg['publishers']) {
                   var list = msg['publishers']
 
-                  Janus.debug('Got a list of available publishers/feeds:', list)
+                  Janus.debug('Got a list of available publishers:', list)
 
                   for (var f in list) {
                     var id = list[f]['id']
@@ -787,48 +777,45 @@ class VideoExtension extends React.Component {
                   }
                 } else if (msg['leaving']) {
                   // One of the publishers has gone away?
+                  // Closed the browser maybe
                   var leaving = msg['leaving']
-                  Janus.log('Publisher left: ' + leaving)
-                  var remoteFeed = null
-                  for (var i = 1; i < 6; i++) {
-                    if (feeds[i] && feeds[i].rfid == leaving) {
-                      remoteFeed = feeds[i]
-                      break
-                    }
-                  }
+                  var remoteFeed = this.state.participants.filter(participant => participant.rfid == leaving)[0]
+
+                  Janus.log('Publisher leaving: ' + leaving, remoteFeed)
+
+                  // Only if they exist
                   if (remoteFeed != null) {
-                    Janus.debug('Feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
-                    $('#remote' + remoteFeed.rfindex)
-                      .empty()
-                      .hide()
-                    $('#videoremote' + remoteFeed.rfindex).empty()
-                    feeds[remoteFeed.rfindex] = null
+                    Janus.debug('Feed found - ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
+
+                    // Update our state & remove the participant / remoteFeed
+                    this.setState({ participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid) })
+
+                    // Remove the participant
                     remoteFeed.detach()
                   }
                 } else if (msg['unpublished']) {
                   // One of the publishers has unpublished?
                   var unpublished = msg['unpublished']
-                  Janus.log('Publisher left: ' + unpublished)
-                  if (unpublished === 'ok') {
-                    // That's us
-                    sfu.hangup()
-                    return
-                  }
-                  var remoteFeed = null
-                  for (var i = 1; i < 6; i++) {
-                    if (feeds[i] && feeds[i].rfid == unpublished) {
-                      remoteFeed = feeds[i]
-                      break
-                    }
-                  }
+                  var remoteFeed = this.state.participants.filter(participant => participant.rfid == leaving)[0]
+
+                  Janus.log('Publisher unpublished: ' + unpublished)
+
+                  // Only if they exist - this might also be us
                   if (remoteFeed != null) {
                     Janus.debug('Feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
-                    $('#remote' + remoteFeed.rfindex)
-                      .empty()
-                      .hide()
-                    $('#videoremote' + remoteFeed.rfindex).empty()
-                    feeds[remoteFeed.rfindex] = null
+
+                    // Update our state & remove the participant / remoteFeed
+                    this.setState({ participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid) })
+
+                    // Remove the participant
                     remoteFeed.detach()
+                  }
+
+                  // If we are the last one out - then we kill the call as well
+                  if (unpublished === 'ok') {
+                    if (this.state.participants.length == 0) this.destroyCall()
+                    sfu.hangup()
+                    return
                   }
                 } else if (msg['error']) {
                   if (msg['error_code'] === 426) {
@@ -1018,7 +1005,7 @@ class VideoExtension extends React.Component {
                 return (
                   <div
                     className={this.state.participantFocus && this.state.participantToFocus == index ? 'participant focus' : 'participant'}
-                    onClick={() => this.setState({ participantFocus: true, participantToFocus: index })}
+                    onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: index })}
                     key={index}
                   >
                     <div className="name">
