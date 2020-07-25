@@ -352,7 +352,7 @@ class VideoExtension extends React.Component {
   }
 
   mute = mute => {
-    console.log('setting mute to ', on)
+    console.log('setting mute to ', mute)
     this.setState({ mute })
     this.toggleMute()
   }
@@ -360,7 +360,7 @@ class VideoExtension extends React.Component {
   publish = published => {
     this.setState({ published })
 
-    if (on) {
+    if (published) {
       this.publishOwnFeed(true)
     } else {
       this.unpublishOwnFeed()
@@ -488,7 +488,7 @@ class VideoExtension extends React.Component {
         var event = msg['videoroom']
 
         if (msg['error']) {
-          console.log('newRemoteFeed', msg['error'])
+          console.log('newRemoteFeed error: ', msg['error'])
         } else if (event) {
           if (event === 'attached') {
             // Subscriber created and attached
@@ -499,9 +499,13 @@ class VideoExtension extends React.Component {
                 break
               }
             }
+
             remoteFeed.rfid = msg['id']
             remoteFeed.rfdisplay = msg['display']
+
             // Not sure what the spinner here is?
+            // I think loading event hitching a ride on remoteFeed ⚠️
+            // TODO: Implement loading mechanism
             if (!remoteFeed.spinner) {
               // Target is the video element ref for the remote feed that we create
               // var target = document.getElementById('videoremote' + remoteFeed.rfindex)
@@ -509,6 +513,7 @@ class VideoExtension extends React.Component {
             } else {
               remoteFeed.spinner.spin()
             }
+
             Janus.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
             // remoteFeed.rfdisplay <- is HTML
             // $('#remote' + remoteFeed.rfindex).removeClass('hide').html(remoteFeed.rfdisplay).show()
@@ -520,14 +525,17 @@ class VideoExtension extends React.Component {
             // Check if we got an event on a simulcast-related event from this publisher
             var substream = msg['substream']
             var temporal = msg['temporal']
+
             if ((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
               if (!remoteFeed.simulcastStarted) {
-                remoteFeed.simulcastStarted = true
+                // remoteFeed.simulcastStarted = true
                 // Add some new buttons
-                addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === 'vp8' || remoteFeed.videoCodec === 'h264')
+                // Unsupported FOR NOW ⚠️
+                // addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === 'vp8' || remoteFeed.videoCodec === 'h264')
               }
               // We just received notice that there's been a switch, update the buttons
-              updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
+              // Unsupported FOR NOW ⚠️
+              // updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
             }
           } else {
             // What has just happened?
@@ -567,8 +575,22 @@ class VideoExtension extends React.Component {
       onremotestream: stream => {
         Janus.log('Remote feed #' + remoteFeed.rfindex + ', stream:', stream, remoteFeed)
 
-        console.log(this.state.remoteParticipants)
+        console.log('Current remote particicpants: ', this.state.remoteParticipants)
 
+        const remoteParticipant = this.state.remoteParticipants.filter(remoteParticipant => remoteParticipant.rfindex == remoteFeed.rfindex)
+
+        if (remoteParticipant.length === 0) {
+          console.log(remoteFeed.spinner)
+
+          // Firefox Stable has a bug: width and height are not immediately available after a playing
+          if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
+            setTimeout(() => {
+              // Adjust width & height here
+            }, 2000)
+          }
+        }
+
+        // Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
         // Now we update the state and add the stream
         this.setState({
           remoteParticipants: this.state.remoteParticipants.map(remoteParticipant => {
@@ -576,108 +598,39 @@ class VideoExtension extends React.Component {
           }),
         })
 
-        //  ($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
-
-        // ⚠️ Add users name from "display name" when they joined the call
-        /* var addButtons = false
-
-        if ($('#remotevideo' + remoteFeed.rfindex).length === 0) {
-          addButtons = true
-          // No remote video yet
-          $('#videoremote' + remoteFeed.rfindex).append('<video class="rounded centered" id="waitingvideo' + remoteFeed.rfindex + '" width=320 height=240 />')
-          $('#videoremote' + remoteFeed.rfindex).append('<video class="rounded centered relative hide" id="remotevideo' + remoteFeed.rfindex + '" width="100%" height="100%" autoplay playsinline/>')
-          $('#videoremote' + remoteFeed.rfindex).append(
-            '<span class="label label-primary hide" id="curres' +
-              remoteFeed.rfindex +
-              '" style="position: absolute; bottom: 0px; left: 0px; margin: 15px;"></span>' +
-              '<span class="label label-info hide" id="curbitrate' +
-              remoteFeed.rfindex +
-              '" style="position: absolute; bottom: 0px; right: 0px; margin: 15px;"></span>'
-          )
-
-          // Show the video, hide the spinner and show the resolution when we get a playing event
-          $('#remotevideo' + remoteFeed.rfindex).bind('playing', () {
-            if (remoteFeed.spinner) remoteFeed.spinner.stop()
-            remoteFeed.spinner = null
-            $('#waitingvideo' + remoteFeed.rfindex).remove()
-            if (this.videoWidth)
-              $('#remotevideo' + remoteFeed.rfindex)
-                .removeClass('hide')
-                .show()
-            var width = this.videoWidth
-            var height = this.videoHeight
-            $('#curres' + remoteFeed.rfindex)
-              .removeClass('hide')
-              .text(width + 'x' + height)
-              .show()
-
-            if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
-              // Firefox Stable has a bug: width and height are not immediately available after a playing
-              setTimeout(() {
-                var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
-                var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
-                $('#curres' + remoteFeed.rfindex)
-                  .removeClass('hide')
-                  .text(width + 'x' + height)
-                  .show()
-              }, 2000)
-            }
-          })
-        }
-
-        Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
-
         var videoTracks = stream.getVideoTracks()
 
         if (!videoTracks || videoTracks.length === 0) {
           // No remote video
-          $('#remotevideo' + remoteFeed.rfindex).hide()
-          if ($('#videoremote' + remoteFeed.rfindex + ' .no-video-container').length === 0) {
-            $('#videoremote' + remoteFeed.rfindex).append(
-              '<div class="no-video-container">' + '<i class="fa fa-video-camera fa-5 no-video-icon"></i>' + '<span class="no-video-text">No remote video available</span>' + '</div>'
-            )
-          }
+          // Hide the remote video feed
         } else {
-          $('#videoremote' + remoteFeed.rfindex + ' .no-video-container').remove()
-          $('#remotevideo' + remoteFeed.rfindex)
-            .removeClass('hide')
-            .show()
+          // Show the remote video
         }
 
-        if (!addButtons) return
-
+        // Handle bitrate display
         if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
-          $('#curbitrate' + remoteFeed.rfindex)
-            .removeClass('hide')
-            .show()
-          bitrateTimer[remoteFeed.rfindex] = setInterval(() {
-            // Display updated bitrate, if supported
-            var bitrate = remoteFeed.getBitrate()
-            $('#curbitrate' + remoteFeed.rfindex).text(bitrate)
-            // Check if the resolution changed too
-            var width = $('#remotevideo' + remoteFeed.rfindex).get(0).videoWidth
-            var height = $('#remotevideo' + remoteFeed.rfindex).get(0).videoHeight
-            if (width > 0 && height > 0)
-              $('#curres' + remoteFeed.rfindex)
-                .removeClass('hide')
-                .text(width + 'x' + height)
-                .show()
+          bitrateTimer[remoteFeed.rfindex] = setInterval(() => {
+            console.log('Bitrate for ' + remoteFeed.rfindex, remoteFeed.getBitrate())
           }, 1000)
-        } */
+        }
       },
       oncleanup: () => {
         Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::')
-        /* if (remoteFeed.spinner) remoteFeed.spinner.stop()
+
+        if (remoteFeed.spinner) remoteFeed.spinner.stop()
         remoteFeed.spinner = null
-        $('#remotevideo' + remoteFeed.rfindex).remove()
-        $('#waitingvideo' + remoteFeed.rfindex).remove()
-        $('#novideo' + remoteFeed.rfindex).remove()
-        $('#curbitrate' + remoteFeed.rfindex).remove()
-        $('#curres' + remoteFeed.rfindex).remove()
+
+        // Remove the video
+        this.setState({
+          remoteParticipants: this.state.remoteParticipants.filter(remoteParticipant => remoteParticipant.rfindex != remoteFeed.rfindex),
+        })
+
         if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
         bitrateTimer[remoteFeed.rfindex] = null
         remoteFeed.simulcastStarted = false
-        $('#simulcast' + remoteFeed.rfindex).remove() */
+
+        // We don't handle simulcast yet
+        // $('#simulcast' + remoteFeed.rfindex).remove()
       },
     })
   }
@@ -1050,7 +1003,7 @@ class VideoExtension extends React.Component {
                   <div className="text">{this.props.user.name}</div>
                 </div>
 
-                {this.state.participantFocus && (
+                {this.state.participantFocus && this.state.participantToFocus == -1 && (
                   <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
                     <IconComponent icon="x" color="white" thickness={2} size={20} />
                   </div>
@@ -1072,7 +1025,7 @@ class VideoExtension extends React.Component {
                       <div className="text">{remoteParticipant.rfdisplay}</div>
                     </div>
 
-                    {this.state.participantFocus && (
+                    {this.state.participantFocus && this.state.participantToFocus == index && (
                       <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
                         <IconComponent icon="x" color="white" thickness={2} size={20} />
                       </div>
