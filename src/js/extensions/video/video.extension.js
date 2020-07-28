@@ -974,8 +974,7 @@ class VideoExtension extends React.Component {
   }
 
   stopCapture() {
-    screenstream = null
-
+    // screenstream = nulls
     // Cleanup
     // let tracks = this.videoElement.srcObject.getTracks()
     //tracks.forEach(track => track.stop())
