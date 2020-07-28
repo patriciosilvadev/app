@@ -30,6 +30,7 @@ var room = 0
 var opaqueId = 'videoroomtest-' + Janus.randomString(12)
 var myid = null
 var mystream = null
+var screenstream = null
 var feeds = []
 var bitrateTimer = []
 var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
@@ -293,6 +294,7 @@ class VideoExtension extends React.Component {
       published: false,
       remoteParticipants: [],
       roomId: null,
+      screenSharing: false,
     }
 
     this.localVideoRef = React.createRef()
@@ -313,6 +315,9 @@ class VideoExtension extends React.Component {
     this.renderCall = this.renderCall.bind(this)
     this.renderJoinCall = this.renderJoinCall.bind(this)
     this.renderStartCall = this.renderStartCall.bind(this)
+    this.startCapture = this.startCapture.bind(this)
+    this.stopCapture = this.stopCapture.bind(this)
+    this.toggleScreenSharing = this.toggleScreenSharing.bind(this)
   }
 
   handleUpdateChannelTopic = async () => {
@@ -379,10 +384,12 @@ class VideoExtension extends React.Component {
   }
 
   destroyCall = () => {
+    return
+    // TODO: Re-enable
     sfu.send({
       message: {
         request: 'destroy',
-        room,
+        room: this.state.roomId,
         //"secret" : "<room secret, mandatory if configured>",
         //"permanent" : <true|false, whether the room should be also removed from the config file, default=false>
       },
@@ -394,9 +401,20 @@ class VideoExtension extends React.Component {
   }
 
   publishOwnFeed = useAudio => {
+    // Publishers are sendonly
+    // Add data:true here if you want to publish datachannels as well
+    let media = {
+      audioRecv: false,
+      videoRecv: false,
+      audioSend: useAudio,
+      videoSend: true,
+    }
+
+    if (this.state.screenSharing) media.video = 'screen'
+
+    // Create the offer for Janus
     sfu.createOffer({
-      // Add data:true here if you want to publish datachannels as well
-      media: { audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true }, // Publishers are sendonly
+      media,
       // If you want to test simulcasting (Chrome and Firefox only), then
       // pass a ?simulcast=true when opening this demo page: it will turn
       // the following 'simulcast' property to pass to janus.js to true
@@ -675,11 +693,12 @@ class VideoExtension extends React.Component {
 
                       console.log('Participants: ', res.participants)
 
+                      // And then make them join
                       this.setState({
                         participants: res.participants,
                         topic: this.props.channel.topic,
-                        view: 'join',
                         loading: false,
+                        view: 'join',
                       })
                     },
                   })
@@ -732,7 +751,10 @@ class VideoExtension extends React.Component {
 
                 Janus.log('Successfully joined room ' + msg['room'] + ' with ID ' + myid)
 
+                // We have the feed
                 this.publishOwnFeed(true)
+
+                // Set the call to active
                 this.setState({ view: 'call' })
 
                 // Any new feed to attach to?
@@ -813,7 +835,9 @@ class VideoExtension extends React.Component {
 
                   // If we are the last one out - then we kill the call as well
                   if (unpublished === 'ok') {
-                    if (this.state.participants.length == 0) this.destroyCall()
+                    if (this.state.participants.length == 0) {
+                      this.destroyCall()
+                    }
                     sfu.hangup()
                     return
                   }
@@ -941,6 +965,57 @@ class VideoExtension extends React.Component {
     console.warn('VIDEO EXT')
   }
 
+  toggleScreenSharing() {
+    if (this.state.screenSharing) {
+      this.stopCapture()
+    } else {
+      this.startCapture()
+    }
+  }
+
+  stopCapture() {
+    screenstream = null
+
+    // Cleanup
+    // let tracks = this.videoElement.srcObject.getTracks()
+    //tracks.forEach(track => track.stop())
+
+    // Reconnect
+    // Tell janus we're sharing
+    this.setState({ screenSharing: false }, () => {
+      // First unpublish & then publish
+      sfu.hangup()
+
+      // publishOwnFeed will now use our feed
+      this.publishOwnFeed(true)
+    })
+  }
+
+  async startCapture() {
+    try {
+      // Set up our screen
+      // Save this globally
+      /* screenstream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+      }) */
+
+      // Tell janus we're sharing
+      this.setState({ screenSharing: true }, () => {
+        // First unpublish & then publish
+        sfu.hangup()
+
+        // publishOwnFeed will now use our feed
+        this.publishOwnFeed(true)
+      })
+    } catch (err) {
+      this.setState({
+        error: 'Error starting screensharing',
+        screenSharing: false,
+      })
+    }
+  }
+
   renderJoinCall = () => {
     if (this.state.view != 'join') return null
 
@@ -1043,16 +1118,16 @@ class VideoExtension extends React.Component {
           </Tooltip>
 
           {/* share to channel */}
-          <Tooltip text="Share to channel" direction="top">
-            <div className="control-button">
-              <IconComponent icon="share1" color="#343a40" thickness={1.75} size={20} />
+          <Tooltip text="Share screen" direction="top">
+            <div className="control-button" onClick={() => this.toggleScreenSharing()}>
+              <IconComponent icon="maximize" color={this.state.screenSharing ? '#ef4056' : '#343a40'} thickness={1.75} size={20} />
             </div>
           </Tooltip>
 
           {/* share screen */}
-          <Tooltip text="Share screen" direction="top">
+          <Tooltip text="Share to channel" direction="top">
             <div className="control-button">
-              <IconComponent icon="maximize" color="#343a40" thickness={1.75} size={20} />
+              <IconComponent icon="share1" color="#343a40" thickness={1.75} size={20} />
             </div>
           </Tooltip>
         </div>
@@ -1077,7 +1152,6 @@ class VideoExtension extends React.Component {
             </Tooltip>
           </div>
         )}
-
         {this.renderJoinCall()}
         {this.renderStartCall()}
         <div className="flexer column w-100">{this.renderCall()}</div>
