@@ -845,7 +845,7 @@ class ChannelComponent extends React.Component {
       <React.Fragment>
         {this.renderChannelModal()}
 
-        <ChannelContainer>
+        <ChannelContainer hide={this.props.hide}>
           {this.renderHeader()}
           {this.renderNonTeamMemberNotice()}
 
@@ -889,6 +889,7 @@ ChannelComponent.propTypes = {
   updateUserStarred: PropTypes.func,
   openApp: PropTypes.func,
   closeAppPanel: PropTypes.func,
+  hide: PropTypes.bool,
 }
 
 const mapDispatchToProps = {
@@ -921,7 +922,7 @@ const ChannelContainer = styled.div`
   position: relative;
   overflow: hidden;
   flex-direction: column;
-  display: flex;
+  display: ${props => (props.hide ? 'none' : 'flex')};
   align-items: stretch;
 `
 

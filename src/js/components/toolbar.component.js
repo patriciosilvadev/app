@@ -62,7 +62,7 @@ export default function ToolbarComponent(props) {
   }, [channel.apps])
 
   return (
-    <Toolbar className="column">
+    <Toolbar className="column" hide={props.hide}>
       {store && (
         <ModalPortal>
           <CloseIcon className="button" onClick={() => setStore(false)}>
@@ -91,7 +91,9 @@ export default function ToolbarComponent(props) {
   )
 }
 
-ToolbarComponent.propTypes = {}
+ToolbarComponent.propTypes = {
+  hide: PropTypes.bool,
+}
 
 const CloseIcon = styled.div`
   position: fixed;
@@ -107,6 +109,7 @@ const Toolbar = styled.div`
   height: 100%;
   position: relative;
   border-left: 1px solid #eaedef;
+  display: ${props => (props.hide ? 'none' : 'block')};
 `
 
 const AppIconContainer = styled.div`

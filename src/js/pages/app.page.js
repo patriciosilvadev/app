@@ -227,18 +227,15 @@ class AppPage extends React.Component {
                   onClick={() => this.setState({ extensionLayout: 'FULL' })}
                 />
               </LayoutIconButton>
-              {/** 
-              TODO: this needs some more work - so hiding it for now
               <LayoutIconButton>
-                <IconComponent 
-                  icon="sidebar" 
-                  color={this.state.extensionLayout == 2 && !!extensionActive ? textColor : 'rgba(255,255,255,0.25)'} 
-                  size={18} 
-                  thickness={2} 
-                  onClick={() => this.setState({ extensionLayout: 2 })}
+                <IconComponent
+                  icon="sidebar"
+                  color={this.state.extensionLayout == 'MAIN' ? textColor : 'rgba(255,255,255,0.25)'}
+                  size={18}
+                  thickness={2}
+                  onClick={() => this.setState({ extensionLayout: 'MAIN' })}
                 />
               </LayoutIconButton>
-              */}
               <LayoutIconButton>
                 <IconComponent
                   icon="sidebar"
@@ -301,8 +298,26 @@ class AppPage extends React.Component {
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
             <Route path="/app" render={props => this.renderWelcome()} />
-            <Route path="/app/team/:teamId/channel/:channelId" component={ChannelComponent} />
-            <Route path="/app/team/:teamId/channel/:channelId" component={ToolbarComponent} />
+
+            {/* Main channel screen with messaging */}
+            {/* Only hide this if the layout is MAIN (we want to keep the sidebar) */}
+            <Route
+              path="/app/team/:teamId/channel/:channelId"
+              render={props => {
+                return <ChannelComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
+              }}
+            />
+
+            {/* Toolbar for apps */}
+            {/* Only hide this if the layout is MAIN (we want to keep the sidebar) */}
+            <Route
+              path="/app/team/:teamId/channel/:channelId"
+              render={props => {
+                return <ToolbarComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
+              }}
+            />
+
+            {/* Extensions */}
             <Route
               path="/app/team/:teamId/channel/:channelId/video"
               render={props => {
@@ -356,10 +371,12 @@ export default connect(
 
 const Layout = styled.div`
   width: ${props => (props.layout == 'SIDE' ? '35%' : '100%')};
+  position: ${props => (props.layout == 'SIDE' || props.layout == 'MAIN' ? 'relative' : 'absolute')};
+  display: ${props => (props.layout == 'MAIN' ? 'flex' : 'block')};
   border-left: 1px solid #eaedef;
+  flex: 1;
   height: 100%;
   background: white;
-  position: ${props => (props.layout == 'SIDE' ? 'relative' : 'absolute')};
   left: 0px;
   z-index: 1000;
 `
