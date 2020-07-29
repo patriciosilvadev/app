@@ -1015,7 +1015,7 @@ class VideoExtension extends React.Component {
     }
   }
 
-  renderJoinCall = () => {
+  renderJoinCall() {
     if (this.state.view != 'join') return null
 
     return (
@@ -1030,7 +1030,7 @@ class VideoExtension extends React.Component {
     )
   }
 
-  renderStartCall = () => {
+  renderStartCall() {
     if (this.state.view != 'start') return null
 
     return (
@@ -1045,7 +1045,7 @@ class VideoExtension extends React.Component {
     )
   }
 
-  renderCall = () => {
+  renderCall() {
     if (this.state.view != 'call') return null
 
     return (

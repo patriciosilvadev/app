@@ -596,6 +596,30 @@ export default class GraphqlService {
     })
   }
 
+  channelTasks(channelId) {
+    return this.client.query({
+      query: gql`
+        query channelTasks($channelId: String!) {
+          channelTasks(channelId: $channelId) {
+            id
+            title
+            order
+            done
+            parent {
+              id
+              parent {
+                id
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        channelId,
+      },
+    })
+  }
+
   channelMembers(channelId, page) {
     return this.client.query({
       query: gql`

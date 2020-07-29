@@ -22,6 +22,7 @@ import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../hel
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
+import TasksExtension from '../extensions/tasks/tasks.extension'
 import VideoExtension from '../extensions/video/video.extension'
 
 class AppPage extends React.Component {
@@ -32,7 +33,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: 'FULL',
+      extensionLayout: 'MAIN',
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -317,13 +318,25 @@ class AppPage extends React.Component {
               }}
             />
 
-            {/* Extensions */}
+            {/* Video extension */}
             <Route
               path="/app/team/:teamId/channel/:channelId/video"
               render={props => {
                 return (
                   <Layout layout={this.state.extensionLayout}>
                     <VideoExtension {...props} />
+                  </Layout>
+                )
+              }}
+            />
+
+            {/* Tasks extension */}
+            <Route
+              path="/app/team/:teamId/channel/:channelId/tasks"
+              render={props => {
+                return (
+                  <Layout layout={this.state.extensionLayout}>
+                    <TasksExtension {...props} />
                   </Layout>
                 )
               }}
