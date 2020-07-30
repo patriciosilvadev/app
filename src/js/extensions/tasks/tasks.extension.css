@@ -24,7 +24,7 @@
 }
 
 .tasks-extension .header .progress {
-  padding: 10px;
+  padding: 7px;
   text-align: center;
   position: relative;
   background: #f2f3f5;
@@ -32,23 +32,9 @@
   color: #adb5bd;
   border-radius: 3px;
   margin-left: 10px;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .tasks-extension .tasks {
   padding: 15px;
-}
-
-.tasks-extension .tasks .task {
-  width: 100%;
-  padding: 10px;
-}
-
-.tasks-extension .tasks .task .title {
-  color: #11171d;
-  font-size: 14px;
-  font-weight: 500;
-  border: 0;
-  resize: none;
-  width: 100%;
 }

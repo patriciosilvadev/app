@@ -1,0 +1,21 @@
+.tasks-extension .tasks .task {
+  width: 100%;
+  padding: 10px;
+}
+
+.tasks-extension .tasks .task .title {
+  color: #11171d;
+  font-size: 14px;
+  font-weight: 500;
+  border: 0;
+  resize: none;
+  width: 100%;
+}
+
+.tasks-extension .tasks .task.done .title {
+  color: #858e96;
+}
+
+.tasks-extension .tasks .task input::placeholder {
+  color: #cfd4d9;
+}

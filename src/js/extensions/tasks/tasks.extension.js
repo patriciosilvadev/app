@@ -8,6 +8,7 @@ import { getQueryStringValue, logger } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
 import { updateChannel } from '../../actions'
 import PropTypes from 'prop-types'
+import TaskComponent from './components/task.component'
 
 class TasksExtension extends React.Component {
   constructor(props) {
@@ -73,12 +74,13 @@ class TasksExtension extends React.Component {
         </div>
 
         <div className="column tasks w-100">
-          <div className="row task">
-            <IconComponent icon="circle" color="#11171D" thickness={1.5} size={16} className="mr-10" />
-            <div className="flexer">
-              <input placeholder="Add task title & press enter" value="Video extension work - QA on production" onChange={e => this.setState({ title: e.target.value })} className="title" />
-            </div>
-          </div>
+          <TaskComponent id="123abc1" title="This is a task title" done={false} new={false} />
+
+          <TaskComponent id="123abc2" title="This is aanother task title" done={false} new={false} />
+
+          <TaskComponent id="123abc3" title="And this is one is done" done={true} new={false} />
+
+          <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} />
         </div>
       </div>
     )

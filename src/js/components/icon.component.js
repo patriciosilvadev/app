@@ -55,6 +55,7 @@ import {
   VideoOff,
   Maximize,
   Circle,
+  CheckCircle,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -67,6 +68,8 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'check-circle':
+        return <CheckCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'circle':
         return <Circle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'maximize':
