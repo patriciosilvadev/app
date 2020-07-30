@@ -4,6 +4,7 @@ import './task.component.css'
 import { Popup, Menu } from '@weekday/elements'
 import { IconComponent } from '../../../components/icon.component'
 import PropTypes from 'prop-types'
+import ConfirmModal from '../../../components/confirm.modal'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class TaskComponent extends React.Component {
       title: props.title,
       new: props.new,
       menu: false,
+      deleteModal: false,
       over: false,
     }
 
@@ -37,59 +39,67 @@ class TaskComponent extends React.Component {
     const classNames = this.state.done ? 'row task done' : 'row task'
 
     return (
-      <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={classNames}>
-        <IconComponent
-          icon={this.state.new ? 'plus-circle' : this.state.done ? 'check-circle' : 'circle'}
-          color={this.state.new ? '#CFD4D9' : this.state.done ? '#858E96' : '#11171D'}
-          thickness={1.5}
-          size={16}
-          className="mr-10 button"
-          onClick={() => this.handleTaskIconClick()}
-        />
-
-        <div className="flexer">
-          <input placeholder="Add task title & press enter" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} className="title" />
-        </div>
-
-        {this.state.over && !this.state.new && (
-          <Popup
-            handleDismiss={() => this.setState({ menu: false })}
-            visible={this.state.menu}
-            width={200}
-            direction="right-bottom"
-            content={
-              <Menu
-                items={[
-                  {
-                    text: 'Delete',
-                    onClick: e => {
-                      //props.onArchivedClick()
-                    },
-                  },
-                  {
-                    text: 'Share to channel',
-                    onClick: e => {
-                      //props.onMutedClick()
-                    },
-                  },
-                ]}
-              />
-            }
-          >
-            <IconComponent
-              className="button"
-              icon="more-h"
-              color="#858E96"
-              size={15}
-              thickness={1.5}
-              onClick={e => {
-                e.stopPropagation()
-                this.setState({ menu: true })
-              }}
-            />
-          </Popup>
+      <React.Fragment>
+        {this.state.deleteModal && (
+          <ConfirmModal
+            onOkay={() => console.log('Delete')}
+            onCancel={() => this.setState({ deleteModal: false })}
+            text="Are you sure you want to delete this task, it can not be undone?"
+            title="Are you sure?"
+          />
         )}
-      </div>
+        <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={classNames}>
+          <IconComponent
+            icon={this.state.new ? 'plus-circle' : this.state.done ? 'check-circle' : 'circle'}
+            color={this.state.new ? '#CFD4D9' : this.state.done ? '#858E96' : '#11171D'}
+            thickness={1.5}
+            size={16}
+            className="mr-10 button"
+            onClick={() => this.handleTaskIconClick()}
+          />
+
+          <div className="flexer">
+            <input placeholder="Add task title & press enter" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} className="title" />
+          </div>
+
+          {this.state.over && !this.state.new && (
+            <Popup
+              handleDismiss={() => this.setState({ menu: false })}
+              visible={this.state.menu}
+              width={200}
+              direction="right-bottom"
+              content={
+                <Menu
+                  items={[
+                    {
+                      text: 'Delete',
+                      onClick: e => this.setState({ deleteModal: false }),
+                    },
+                    {
+                      text: 'Share to channel',
+                      onClick: e => {
+                        //props.onMutedClick()
+                      },
+                    },
+                  ]}
+                />
+              }
+            >
+              <IconComponent
+                className="button"
+                icon="more-h"
+                color="#858E96"
+                size={15}
+                thickness={1.5}
+                onClick={e => {
+                  e.stopPropagation()
+                  this.setState({ menu: true })
+                }}
+              />
+            </Popup>
+          )}
+        </div>
+      </React.Fragment>
     )
   }
 }
