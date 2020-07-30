@@ -23,7 +23,6 @@ class TasksExtension extends React.Component {
     }
 
     this.fetchChannelTasks = this.fetchChannelTasks.bind(this)
-    this.renderNoTasks = this.renderNoTasks.bind(this)
   }
 
   async fetchChannelTasks() {
@@ -61,33 +60,26 @@ class TasksExtension extends React.Component {
     console.warn('TASKS EXT')
   }
 
-  renderNoTasks() {
-    if (this.state.tasks.length > 0) return null
-
-    return (
-      <div className="no-tasks">
-        <img src="icon-muted.svg" height="200" className="mb-20" />
-        <div className="pb-30 color-d0 h5">There are no tasks yet - add one now!</div>
-        <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
-          <Input placeholder="Enter task title" inputSize="large" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} className="mb-20" />
-        </div>
-        <Button text="Add now" size="large" theme="muted" onClick={() => this.startCall()} />
-      </div>
-    )
-  }
-
   render() {
     return (
       <div className="tasks-extension">
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
+
         <div className="header">
           <div className="title">Tasks</div>
-          <div className="flexer"></div>
+          <div className="progress">11 / 32</div>
         </div>
 
-        {this.renderNoTasks()}
+        <div className="column tasks w-100">
+          <div className="row task">
+            <IconComponent icon="circle" color="#11171D" thickness={1.5} size={16} className="mr-10" />
+            <div className="flexer">
+              <input placeholder="Add task title & press enter" value="Video extension work - QA on production" onChange={e => this.setState({ title: e.target.value })} className="title" />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }

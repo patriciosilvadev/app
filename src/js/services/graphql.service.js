@@ -607,9 +607,6 @@ export default class GraphqlService {
             done
             parent {
               id
-              parent {
-                id
-              }
             }
           }
         }
