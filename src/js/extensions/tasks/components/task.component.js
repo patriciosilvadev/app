@@ -103,7 +103,7 @@ class TaskComponent extends React.Component {
   }
 
   render() {
-    const classNames = this.state.done ? 'row task done' : 'row task'
+    const classNames = this.state.done ? (this.props.showCompletedTasks ? 'row task done' : 'row task done hide') : 'row task'
 
     // Do this every render
     this.adjustHeight()
@@ -198,6 +198,7 @@ TaskComponent.propTypes = {
   new: PropTypes.bool,
   createTask: PropTypes.func,
   sortIndex: PropTypes.number,
+  showCompletedTasks: PropTypes.bool,
 }
 
 const mapDispatchToProps = {}

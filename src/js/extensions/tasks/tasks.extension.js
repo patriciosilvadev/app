@@ -11,16 +11,17 @@ import PropTypes from 'prop-types'
 import TaskComponent from './components/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
+import StorageService from '../../services/storage.service'
 
-const SortableItem = SortableElement(({ task, index, sortIndex }) => {
-  return <TaskComponent index={index} sortIndex={sortIndex} id={task.id} title={task.title} done={task.done} new={false} />
+const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks }) => {
+  return <TaskComponent index={index} sortIndex={sortIndex} id={task.id} title={task.title} done={task.done} new={false} showCompletedTasks={showCompletedTasks} />
 })
 
-const SortableList = SortableContainer(({ tasks }) => {
+const SortableList = SortableContainer(({ tasks, showCompletedTasks }) => {
   return (
     <ul>
       {tasks.map((task, index) => (
-        <SortableItem key={`item-${task.id}`} index={index} sortIndex={index} task={task} />
+        <SortableItem key={`item-${task.id}`} index={index} sortIndex={index} task={task} showCompletedTasks={showCompletedTasks} />
       ))}
     </ul>
   )
@@ -36,11 +37,13 @@ class TasksExtension extends React.Component {
       notification: null,
       loading: false,
       tasks: [],
+      showCompletedTasks: false,
       title: '',
     }
 
     this.onSortEnd = this.onSortEnd.bind(this)
     this.fetchChannelTasks = this.fetchChannelTasks.bind(this)
+    this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
   }
 
   async fetchChannelTasks() {
@@ -64,7 +67,7 @@ class TasksExtension extends React.Component {
       this.setState({
         tasks: [
           { id: '12342341', title: '1 Get the drag & drop working', done: false },
-          { id: '12342342', title: '2 Fix the blank item when dragging', done: false },
+          { id: '12342342', title: '2 Fix the blank item when dragging', done: true },
           { id: '12342343', title: '3 Enable the button custor wiht hobver', done: false },
         ],
       })
@@ -90,11 +93,27 @@ class TasksExtension extends React.Component {
     }
   }
 
+  toggleCompletedTasks() {
+    if (StorageService.getStorage('SHOW_COMPLETED_TASKS')) {
+      StorageService.deleteStorage('SHOW_COMPLETED_TASKS')
+      this.setState({ showCompletedTasks: false })
+    } else {
+      StorageService.setStorage('SHOW_COMPLETED_TASKS', 'YES')
+      this.setState({ showCompletedTasks: true })
+    }
+  }
+
   componentDidMount() {
-    console.warn('TASKS EXT')
+    if (StorageService.getStorage('SHOW_COMPLETED_TASKS')) {
+      this.setState({ showCompletedTasks: true })
+    } else {
+      this.setState({ showCompletedTasks: false })
+    }
   }
 
   render() {
+    const completed = this.state.tasks.filter(task => task.done).length
+
     return (
       <div className="tasks-extension">
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
@@ -103,14 +122,18 @@ class TasksExtension extends React.Component {
 
         <div className="header">
           <div className="title">Tasks</div>
-          <div className="progress">11 / 32</div>
+          <div className="progress">
+            {completed} / {this.state.tasks.length}
+          </div>
+
+          <Button text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
         </div>
 
         <div className="tasks w-100">
-          <SortableList helperClass="sortableHelper" pressDelay={200} tasks={this.state.tasks} onSortEnd={this.onSortEnd} />
+          <SortableList helperClass="sortableHelper" pressDelay={200} tasks={this.state.tasks} showCompletedTasks={this.state.showCompletedTasks} onSortEnd={this.onSortEnd} />
 
           <ul>
-            <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} />
+            <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} showCompletedTasks={true} />
           </ul>
         </div>
       </div>
