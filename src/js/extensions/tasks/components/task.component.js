@@ -106,7 +106,7 @@ class TaskComponent extends React.Component {
     this.adjustHeight()
 
     return (
-      <React.Fragment>
+      <li>
         {this.state.deleteModal && (
           <ConfirmModal
             onOkay={() => console.log('Delete')}
@@ -137,12 +137,12 @@ class TaskComponent extends React.Component {
 
           {!this.state.compose && !this.state.new && (
             <div
-              className="flexer title"
+              className="flexer title button"
               onClick={() => {
                 this.setState({ compose: true }, () => this.adjustHeight())
               }}
             >
-              <div className="overlay">{this.state.title}</div>
+              {this.state.title}
             </div>
           )}
 
@@ -183,7 +183,7 @@ class TaskComponent extends React.Component {
             </Popup>
           )}
         </div>
-      </React.Fragment>
+      </li>
     )
   }
 }
@@ -194,6 +194,7 @@ TaskComponent.propTypes = {
   done: PropTypes.bool,
   new: PropTypes.bool,
   createTask: PropTypes.func,
+  sortIndex: PropTypes.number,
 }
 
 const mapDispatchToProps = {}

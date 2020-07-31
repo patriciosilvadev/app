@@ -38,3 +38,28 @@
 .tasks-extension .tasks {
   padding: 15px;
 }
+
+.tasks-extension .tasks ul {
+  padding: 0px;
+  margin: 0px;
+  list-style-type: none;
+}
+.tasks-extension .tasks ul li {
+  padding: 0px;
+  margin: 0px;
+  list-style-type: none;
+}
+
+.sortableHelper {
+  z-index: 10000;
+  padding: 0px;
+  margin: 0px;
+  list-style-type: none;
+  padding: 10px;
+}
+
+.sortableHelper .title {
+  color: #11171d;
+  font-size: 14px;
+  font-weight: 500;
+}

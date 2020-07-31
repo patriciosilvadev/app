@@ -9,6 +9,22 @@ import GraphqlService from '../../services/graphql.service'
 import { updateChannel } from '../../actions'
 import PropTypes from 'prop-types'
 import TaskComponent from './components/task.component'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
+import arrayMove from 'array-move'
+
+const SortableItem = SortableElement(({ task, index, sortIndex }) => {
+  return <TaskComponent index={index} sortIndex={sortIndex} id={task.id} title={task.title} done={task.done} new={false} />
+})
+
+const SortableList = SortableContainer(({ tasks }) => {
+  return (
+    <ul>
+      {tasks.map((task, index) => (
+        <SortableItem key={`item-${task.id}`} index={index} sortIndex={index} task={task} />
+      ))}
+    </ul>
+  )
+})
 
 class TasksExtension extends React.Component {
   constructor(props) {
@@ -23,6 +39,7 @@ class TasksExtension extends React.Component {
       title: '',
     }
 
+    this.onSortEnd = this.onSortEnd.bind(this)
     this.fetchChannelTasks = this.fetchChannelTasks.bind(this)
   }
 
@@ -41,6 +58,16 @@ class TasksExtension extends React.Component {
         tasks: tasks ? tasks : [],
         loading: false,
       })
+
+      console.log('Updating')
+
+      this.setState({
+        tasks: [
+          { id: '12342341', title: '1 Get the drag & drop working', done: false },
+          { id: '12342342', title: '2 Fix the blank item when dragging', done: false },
+          { id: '12342343', title: '3 Enable the button custor wiht hobver', done: false },
+        ],
+      })
     } catch (e) {
       logger(e)
       this.setState({
@@ -48,6 +75,12 @@ class TasksExtension extends React.Component {
         loading: false,
       })
     }
+  }
+
+  onSortEnd({ oldIndex, newIndex }) {
+    this.setState({
+      tasks: arrayMove(this.state.tasks, oldIndex, newIndex),
+    })
   }
 
   componentDidUpdate(prevProps) {
@@ -74,15 +107,11 @@ class TasksExtension extends React.Component {
         </div>
 
         <div className="tasks w-100">
-          <TaskComponent id="123abc1" title="Set up the indendation level of the tasks" done={false} new={false} />
-          <TaskComponent id="123abc1" title="Make the indendation adjustable / draggable" done={false} new={false} />
-          <TaskComponent id="123abc1" title="Add collpasable tags" done={false} new={false} />
-          <div className="pl-30">
-            <TaskComponent id="123abc2" title="Hook up the API" done={false} new={false} />
-            <TaskComponent id="123abc2" title="Integrate sharing to channel" done={false} new={false} />
-            <TaskComponent id="123abc2" title="Loose ends & UI update" done={false} new={false} />
-          </div>
-          <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} />
+          <SortableList helperClass="sortableHelper" pressDelay={200} tasks={this.state.tasks} onSortEnd={this.onSortEnd} />
+
+          <ul>
+            <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} />
+          </ul>
         </div>
       </div>
     )
