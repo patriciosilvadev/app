@@ -278,6 +278,7 @@ class ComposeComponent extends React.Component {
     if (keyCode == 13 && !this.state.shift && this.state.members.length == 0) this.onSend()
 
     // Enter & Shift
+    // TODO ⚠️ - this might be redudant
     if (keyCode == 13 && this.state.shift) this.insertAtCursor('\n')
 
     // Update typing only with alpha numeric - not the following (can change)

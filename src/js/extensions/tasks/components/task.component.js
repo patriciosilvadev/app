@@ -4,7 +4,7 @@ import './task.component.css'
 import { Popup, Menu } from '@weekday/elements'
 import { IconComponent } from '../../../components/icon.component'
 import PropTypes from 'prop-types'
-import ConfirmModal from '../../../components/confirm.modal'
+import ConfirmModal from '../../../modals/confirm.modal'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -14,13 +14,68 @@ class TaskComponent extends React.Component {
       id: props.id,
       done: props.done,
       title: props.title,
+      text: props.new ? '' : props.title,
       new: props.new,
       menu: false,
       deleteModal: false,
       over: false,
+      compose: false,
     }
 
+    this.composeRef = React.createRef()
+
     this.handleTaskIconClick = this.handleTaskIconClick.bind(this)
+    this.handleKeyUp = this.handleKeyUp.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
+    this.insertAtCursor = this.insertAtCursor.bind(this)
+    this.handleComposeChange = this.handleComposeChange.bind(this)
+    this.updateOrCreateTask = this.updateOrCreateTask.bind(this)
+    this.adjustHeight = this.adjustHeight.bind(this)
+  }
+
+  insertAtCursor(text) {
+    const { selectionStart } = this.composeRef
+    const updatedText = [this.state.text.slice(0, selectionStart), text, this.state.text.slice(selectionStart)].join('')
+
+    // Update the text & clos the menu
+    // If it was an emoji, close it
+    this.setState({ text: updatedText }, () => {
+      this.composeRef.focus()
+    })
+  }
+
+  updateOrCreateTask() {
+    if (this.state.new) {
+      console.log('Create a task')
+    } else {
+      console.log('Update a task')
+    }
+
+    // Hide the ccompose field
+    this.setState({
+      compose: false,
+      title: this.state.text,
+    })
+  }
+
+  // Fires 1st
+  handleKeyDown(e) {
+    const { keyCode } = e
+
+    // Enter
+    if (keyCode == 13) this.updateOrCreateTask()
+  }
+
+  // Fires 2nd
+  handleComposeChange(e) {
+    const text = e.target.value
+
+    this.setState({ text })
+  }
+
+  // Handle the shift being released
+  handleKeyUp(e) {
+    // Do nothing here
   }
 
   componentDidUpdate(prevProps) {}
@@ -35,8 +90,20 @@ class TaskComponent extends React.Component {
     }
   }
 
+  adjustHeight() {
+    if (this.composeRef) {
+      if (this.composeRef.style) {
+        this.composeRef.style.height = '1px'
+        this.composeRef.style.height = this.composeRef.scrollHeight + 'px'
+      }
+    }
+  }
+
   render() {
     const classNames = this.state.done ? 'row task done' : 'row task'
+
+    // Do this every render
+    this.adjustHeight()
 
     return (
       <React.Fragment>
@@ -58,9 +125,26 @@ class TaskComponent extends React.Component {
             onClick={() => this.handleTaskIconClick()}
           />
 
-          <div className="flexer">
-            <input placeholder="Add task title & press enter" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} className="title" />
-          </div>
+          <textarea
+            placeholder="Add task title & press enter"
+            value={this.state.text}
+            className={this.state.compose || this.state.new ? 'title' : 'hide title'}
+            onKeyUp={this.handleKeyUp}
+            onKeyDown={this.handleKeyDown}
+            onChange={this.handleComposeChange}
+            ref={ref => (this.composeRef = ref)}
+          />
+
+          {!this.state.compose && !this.state.new && (
+            <div
+              className="flexer title button"
+              onClick={() => {
+                this.setState({ compose: true }, () => this.adjustHeight())
+              }}
+            >
+              {this.state.title}
+            </div>
+          )}
 
           {this.state.over && !this.state.new && (
             <Popup

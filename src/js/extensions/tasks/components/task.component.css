@@ -19,3 +19,8 @@
 .tasks-extension .tasks .task input::placeholder {
   color: #cfd4d9;
 }
+
+.tasks-extension .tasks .task textarea {
+  width: 100%;
+  resize: none;
+}
