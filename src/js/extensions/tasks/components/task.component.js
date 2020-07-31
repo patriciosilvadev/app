@@ -66,7 +66,7 @@ class TaskComponent extends React.Component {
     if (keyCode == 13) this.updateOrCreateTask()
 
     // Escape
-    if (keyCode == 27) this.setState({ compose: false, text: this.state.title })
+    if (keyCode == 27 && this.state.compose) this.setState({ compose: false, text: this.state.title })
   }
 
   // Fires 2nd
