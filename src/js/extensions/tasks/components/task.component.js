@@ -137,12 +137,12 @@ class TaskComponent extends React.Component {
 
           {!this.state.compose && !this.state.new && (
             <div
-              className="flexer title button"
+              className="flexer title"
               onClick={() => {
                 this.setState({ compose: true }, () => this.adjustHeight())
               }}
             >
-              {this.state.title}
+              <div className="overlay">{this.state.title}</div>
             </div>
           )}
 

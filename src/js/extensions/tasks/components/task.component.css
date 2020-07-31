@@ -14,6 +14,16 @@
 
 .tasks-extension .tasks .task.done .title {
   color: #858e96;
+  position: relative;
+}
+
+.tasks-extension .tasks .task.done .title .overlay {
+  background: black;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
 }
 
 .tasks-extension .tasks .task input::placeholder {

@@ -73,13 +73,15 @@ class TasksExtension extends React.Component {
           <div className="progress">11 / 32</div>
         </div>
 
-        <div className="column tasks w-100">
-          <TaskComponent id="123abc1" title="This is a task title" done={false} new={false} />
-
-          <TaskComponent id="123abc2" title="This is aanother task title" done={false} new={false} />
-
-          <TaskComponent id="123abc3" title="And this is one is done" done={true} new={false} />
-
+        <div className="tasks w-100">
+          <TaskComponent id="123abc1" title="Set up the indendation level of the tasks" done={false} new={false} />
+          <TaskComponent id="123abc1" title="Make the indendation adjustable / draggable" done={false} new={false} />
+          <TaskComponent id="123abc1" title="Add collpasable tags" done={false} new={false} />
+          <div className="pl-30">
+            <TaskComponent id="123abc2" title="Hook up the API" done={false} new={false} />
+            <TaskComponent id="123abc2" title="Integrate sharing to channel" done={false} new={false} />
+            <TaskComponent id="123abc2" title="Loose ends & UI update" done={false} new={false} />
+          </div>
           <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} />
         </div>
       </div>
