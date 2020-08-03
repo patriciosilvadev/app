@@ -937,32 +937,35 @@ class VideoExtension extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.props.channel.roomId) {
-      if (this.props.channel.roomId != this.state.roomId) {
-        this.setState(
-          {
-            roomId: this.props.channel.roomId,
-            loading: true,
-          },
-          () => {
-            console.log('Room ID (should be called only once): ', this.state.roomId, this.props.channel.topic)
+    console.warn('VIDEO EXT UPDATE', this.props.channel.roomId, this.state.view)
 
-            // Once the room Id is set
-            // We can start Janus
-            Janus.init({
-              debug: 'all',
-              callback: () => {
-                this.initJanusVideoRoom(this.props.channel.roomId)
-              },
-            })
-          }
-        )
-      }
+    if (this.props.channel.roomId != this.state.roomId) {
+      this.setState(
+        {
+          roomId: this.props.channel.roomId,
+        },
+        () => {
+          console.log('Room ID (should be called only once): ', this.state.roomId, this.props.channel.topic)
+
+          // Once the room Id is set
+          // We can start Janus
+          Janus.init({
+            debug: 'all',
+            callback: () => {
+              this.initJanusVideoRoom(this.props.channel.roomId)
+            },
+          })
+        }
+      )
     }
   }
 
+  componentWillUnmount() {
+    janus = null
+  }
+
   componentDidMount() {
-    console.warn('VIDEO EXT')
+    this.setState({ loading: true })
   }
 
   toggleScreenSharing() {
