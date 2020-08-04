@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import moment from 'moment'
 import styled from 'styled-components'
 import { Picker, Emoji } from 'emoji-mart'
+import { browserHistory } from '../services/browser-history.service'
 import chroma from 'chroma-js'
 import ReactMarkdown from 'react-markdown'
 import ModalPortal from '../portals/modal.portal'
@@ -730,7 +731,18 @@ export default memo(props => {
   }
 
   const renderCall = () => {
-    return <Button text="Join call now" className="mt-10 mb-5" icon={<IconComponent icon="video" size={14} thickness={2} color="white" />} />
+    if (!props.message.roomId) return null
+    const call = channel.calls.filter(call => call.roomId == props.message.roomId)[0]
+    const topic = call ? call.topic : 'Join now'
+
+    return (
+      <Button
+        text={topic}
+        className="mt-10 mb-5"
+        onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/video`)}
+        icon={<IconComponent icon="video" size={14} thickness={2} color="white" />}
+      />
+    )
   }
 
   return (
@@ -765,7 +777,7 @@ export default memo(props => {
             {renderApp()}
             {renderAppButtons()}
             {renderReactionsLikes()}
-            {/* {renderCall()} */}
+            {renderCall()}
           </Bubble>
         </div>
       </div>
