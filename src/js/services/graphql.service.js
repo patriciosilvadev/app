@@ -317,8 +317,11 @@ export default class GraphqlService {
             name
             url
             description
-            topic
-            roomId
+            calls {
+              topic
+              roomId
+              createdAt
+            }
             image
             public
             private
@@ -1305,6 +1308,38 @@ export default class GraphqlService {
       `,
       variables: {
         payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  createChannelCall(channelId, topic) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelCall($channelId: String, $topic: String) {
+          createChannelCall(channelId: $channelId, topic: $topic) {
+            topic
+            roomId
+            createdAt
+          }
+        }
+      `,
+      variables: {
+        channelId,
+        topic,
+      },
+    })
+  }
+
+  deleteChannelCall(channelId, roomId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteChannelCall($channelId: String, $roomId: Float) {
+          deleteChannelCall(channelId: $channelId, roomId: $roomId)
+        }
+      `,
+      variables: {
+        channelId,
+        roomId,
       },
     })
   }

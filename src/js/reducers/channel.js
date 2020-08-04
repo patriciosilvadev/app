@@ -18,6 +18,7 @@ const initialState = {
   user: {},
   team: {},
   typing: [],
+  calls: [],
 }
 
 export default (state = initialState, action) =>

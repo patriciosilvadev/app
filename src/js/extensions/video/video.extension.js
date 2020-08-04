@@ -11,6 +11,7 @@ import GraphqlService from '../../services/graphql.service'
 import { updateChannel } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
+import moment from 'moment'
 
 const Video = ({ stream }) => {
   const videoRef = useRef(null)
@@ -37,246 +38,6 @@ var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringVa
 var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
 var mypvtid = null // We use this other ID just to map our subscriptions to us
 
-/* 
-
-  These are the simulcast s from the Janus videoroom example
-  They still need to be refactored & integrated into the React codebase
-  Keeping them here for the meantime
-
-   addSimulcastButtons(feed, temporal) {
-    var index = feed
-    $('#remote' + index)
-      .parent()
-      .append(  
-        '<div id="simulcast' +
-          index +
-          '" class="btn-group-vertical btn-group-vertical-xs pull-right">' +
-          '	<div class"row">' +
-          '		<div class="btn-group btn-group-xs" style="width: 100%">' +
-          '			<button id="sl' +
-          index +
-          '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to higher quality" style="width: 33%">SL 2</button>' +
-          '			<button id="sl' +
-          index +
-          '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to normal quality" style="width: 33%">SL 1</button>' +
-          '			<button id="sl' +
-          index +
-          '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to lower quality" style="width: 34%">SL 0</button>' +
-          '		</div>' +
-          '	</div>' +
-          '	<div class"row">' +
-          '		<div class="btn-group btn-group-xs hide" style="width: 100%">' +
-          '			<button id="tl' +
-          index +
-          '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 2" style="width: 34%">TL 2</button>' +
-          '			<button id="tl' +
-          index +
-          '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 1" style="width: 33%">TL 1</button>' +
-          '			<button id="tl' +
-          index +
-          '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 0" style="width: 33%">TL 0</button>' +
-          '		</div>' +
-          '	</div>' +
-          '</div>'
-      )
-    // Enable the simulcast selection buttons
-    $('#sl' + index + '-0')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(() {
-        console.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
-        if (!$('#sl' + index + '-2').hasClass('btn-success'))
-          $('#sl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#sl' + index + '-1').hasClass('btn-success'))
-          $('#sl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#sl' + index + '-0')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        feeds[index].send({ message: { request: 'configure', substream: 0 } })
-      })
-    $('#sl' + index + '-1')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(() {
-        console.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
-        if (!$('#sl' + index + '-2').hasClass('btn-success'))
-          $('#sl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#sl' + index + '-1')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        if (!$('#sl' + index + '-0').hasClass('btn-success'))
-          $('#sl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', substream: 1 } })
-      })
-    $('#sl' + index + '-2')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(() {
-        console.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
-        $('#sl' + index + '-2')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        if (!$('#sl' + index + '-1').hasClass('btn-success'))
-          $('#sl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#sl' + index + '-0').hasClass('btn-success'))
-          $('#sl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', substream: 2 } })
-      })
-    if (!temporal)
-      // No temporal layer support
-      return
-    $('#tl' + index + '-0')
-      .parent()
-      .removeClass('hide')
-    $('#tl' + index + '-0')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(() {
-        console.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
-        if (!$('#tl' + index + '-2').hasClass('btn-success'))
-          $('#tl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#tl' + index + '-1').hasClass('btn-success'))
-          $('#tl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#tl' + index + '-0')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        feeds[index].send({ message: { request: 'configure', temporal: 0 } })
-      })
-    $('#tl' + index + '-1')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(() {
-        console.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
-        if (!$('#tl' + index + '-2').hasClass('btn-success'))
-          $('#tl' + index + '-2')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        $('#tl' + index + '-1')
-          .removeClass('btn-primary btn-info')
-          .addClass('btn-info')
-        if (!$('#tl' + index + '-0').hasClass('btn-success'))
-          $('#tl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', temporal: 1 } })
-      })
-    $('#tl' + index + '-2')
-      .removeClass('btn-primary btn-success')
-      .addClass('btn-primary')
-      .unbind('click')
-      .click(() {
-        console.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
-        $('#tl' + index + '-2')
-          .removeClass('btn-primary btn-info btn-success')
-          .addClass('btn-info')
-        if (!$('#tl' + index + '-1').hasClass('btn-success'))
-          $('#tl' + index + '-1')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        if (!$('#tl' + index + '-0').hasClass('btn-success'))
-          $('#tl' + index + '-0')
-            .removeClass('btn-primary btn-info')
-            .addClass('btn-primary')
-        feeds[index].send({ message: { request: 'configure', temporal: 2 } })
-      })
-  }
-
-   updateSimulcastButtons(feed, substream, temporal) {
-    // Check the substream
-    var index = feed
-    if (substream === 0) {
-      console.success('Switched simulcast substream! (lower quality)', null, { timeOut: 2000 })
-      $('#sl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-0')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-    } else if (substream === 1) {
-      console.success('Switched simulcast substream! (normal quality)', null, { timeOut: 2000 })
-      $('#sl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-1')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#sl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    } else if (substream === 2) {
-      console.success('Switched simulcast substream! (higher quality)', null, { timeOut: 2000 })
-      $('#sl' + index + '-2')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#sl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#sl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    }
-    // Check the temporal layer
-    if (temporal === 0) {
-      console.success('Capped simulcast temporal layer! (lowest FPS)', null, { timeOut: 2000 })
-      $('#tl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-0')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-    } else if (temporal === 1) {
-      console.success('Capped simulcast temporal layer! (medium FPS)', null, { timeOut: 2000 })
-      $('#tl' + index + '-2')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-1')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#tl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    } else if (temporal === 2) {
-      console.success('Capped simulcast temporal layer! (highest FPS)', null, { timeOut: 2000 })
-      $('#tl' + index + '-2')
-        .removeClass('btn-primary btn-info btn-success')
-        .addClass('btn-success')
-      $('#tl' + index + '-1')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-      $('#tl' + index + '-0')
-        .removeClass('btn-primary btn-success')
-        .addClass('btn-primary')
-    }
-  }
- */
-
 class VideoExtension extends React.Component {
   constructor(props) {
     super(props)
@@ -300,60 +61,28 @@ class VideoExtension extends React.Component {
     this.localVideoRef = React.createRef()
     this.focusVideoRef = React.createRef()
 
-    this.handleUpdateChannelTopic = this.handleUpdateChannelTopic.bind(this)
     this.stopCall = this.stopCall.bind(this)
-    this.startCall = this.startCall.bind(this)
     this.mute = this.mute.bind(this)
     this.publish = this.publish.bind(this)
     this.registerUsername = this.registerUsername.bind(this)
-    this.destroyCall = this.destroyCall.bind(this)
     this.publishOwnFeed = this.publishOwnFeed.bind(this)
     this.unpublishOwnFeed = this.unpublishOwnFeed.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
     this.newRemoteFeed = this.newRemoteFeed.bind(this)
     this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
     this.renderCall = this.renderCall.bind(this)
-    this.renderJoinCall = this.renderJoinCall.bind(this)
     this.renderStartCall = this.renderStartCall.bind(this)
+    this.renderCallList = this.renderCallList.bind(this)
+    this.handleChannelDeleteCall = this.handleChannelDeleteCall.bind(this)
+    this.handleChannelCreateCall = this.handleChannelCreateCall.bind(this)
     this.startCapture = this.startCapture.bind(this)
     this.stopCapture = this.stopCapture.bind(this)
     this.toggleScreenSharing = this.toggleScreenSharing.bind(this)
-  }
-
-  handleUpdateChannelTopic = async () => {
-    this.setState({ error: null })
-
-    try {
-      await GraphqlService.getInstance().updateChannel(channel.id, { topic })
-
-      this.props.updateChannel(channel.id, { topic })
-    } catch (e) {
-      this.setState({ error: 'Error updating channel topic' })
-    }
+    this.getRoomParticipants = this.getRoomParticipants.bind(this)
   }
 
   stopCall = () => {
     janus.destroy()
-  }
-
-  startCall = () => {
-    sfu.send({
-      message: {
-        request: 'create',
-        description: topic,
-        record: false,
-        room: room,
-        ptype: 'publisher',
-        is_private: false,
-        secret: '',
-      },
-      success: ({ videoroom, room, permanent, error_code, error }) => {
-        if (error) return this.setState({ error })
-
-        this.handleUpdateChannelTopic()
-        this.registerUsername()
-      },
-    })
   }
 
   mute = muted => {
@@ -372,30 +101,15 @@ class VideoExtension extends React.Component {
     }
   }
 
-  registerUsername = () => {
+  registerUsername = roomId => {
+    room = roomId
+
     sfu.send({
       message: {
         request: 'join',
-        room: room,
+        room: roomId,
         ptype: 'publisher',
         display: this.props.user.name,
-      },
-    })
-  }
-
-  destroyCall = () => {
-    return
-    // TODO: Re-enable
-    sfu.send({
-      message: {
-        request: 'destroy',
-        room: this.state.roomId,
-        //"secret" : "<room secret, mandatory if configured>",
-        //"permanent" : <true|false, whether the room should be also removed from the config file, default=false>
-      },
-      success: ({ videoroom, room, permanent, error_code, error }) => {
-        console.log(videoroom, room, permanent, error_code, error)
-        this.setState({ view: 'start' })
       },
     })
   }
@@ -643,6 +357,21 @@ class VideoExtension extends React.Component {
     })
   }
 
+  getRoomParticipants(roomId) {
+    sfu.send({
+      message: {
+        request: 'listparticipants',
+        room: roomId,
+      },
+      success: res => {
+        if (res.error) return this.setState({ error })
+
+        // And then make them join
+        this.setState({ participants: res.participants })
+      },
+    })
+  }
+
   initJanusVideoRoom = roomId => {
     if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
 
@@ -664,6 +393,7 @@ class VideoExtension extends React.Component {
             Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
             Janus.log('This is a publisher/manager')
 
+            /* 
             sfu.send({
               message: {
                 request: 'list',
@@ -709,7 +439,8 @@ class VideoExtension extends React.Component {
                   })
                 }
               },
-            })
+            })    
+            */
           },
           error: error => {
             this.setState({ error })
@@ -779,7 +510,9 @@ class VideoExtension extends React.Component {
               } else if (event === 'destroyed') {
                 // The room has been destroyed
                 console.log('The room has been destroyed')
-                this.setState({ participants: [], view: 'start' })
+
+                // Reset the UI
+                this.setState({ participants: [], view: '' })
               } else if (event === 'event') {
                 // Attach any new feeds that join
                 if (msg['publishers']) {
@@ -835,10 +568,48 @@ class VideoExtension extends React.Component {
 
                   // If we are the last one out - then we kill the call as well
                   if (unpublished === 'ok') {
+                    /* 
+                     * Don't auto destroy the call yet
+                     * Lat the user manage that
+                     * 
+                     
                     if (this.state.participants.length == 0) {
-                      this.destroyCall()
-                    }
+                      destroyCall = (uniqueRoomId, callback) => {
+                        sfu.send({
+                          message: {
+                            request: 'destroy',
+                            room: uniqueRoomId,
+                            //"secret" : "<room secret, mandatory if configured>",
+                            //"permanent" : <true|false, whether the room should be also removed from the config file, default=false>
+                          },
+                          success: ({ videoroom, room, permanent, error_code, error }) => {
+                            if (!error_code) callback(true, null)
+                            if (error_code) callback(null, true)
+                            
+                            console.log(videoroom, room, permanent, error_code, error)
+                          },
+                        })
+                      }
+                      
+                      this.destroyCall(this.state.roomId, (success, error) => {
+                        if (error) this.setState({ view: '', error: 'Could not destroy call - is it empty?' })
+                        if (success) {
+                          // Destroy the call first from Janus
+                          // Kill the call from the API
+                          this.setState({ view: '' })
+                          this.handleChannelDeleteCall(this.state.roomId)
+                        }
+                      })
+                    } 
+                    */
+
+                    // Simply hang up
                     sfu.hangup()
+
+                    // And change the view
+                    this.setState({ view: '' })
+
+                    // and
                     return
                   }
                 } else if (msg['error']) {
@@ -937,7 +708,9 @@ class VideoExtension extends React.Component {
   }
 
   componentDidUpdate() {
-    console.warn('VIDEO EXT UPDATE', this.props.channel.roomId, this.state.view)
+    //console.warn('VIDEO EXT UPDATE', this.props.channel.roomId, this.state.view)
+
+    console.log(this.props.channel)
 
     if (this.props.channel.roomId != this.state.roomId) {
       this.setState(
@@ -949,12 +722,12 @@ class VideoExtension extends React.Component {
 
           // Once the room Id is set
           // We can start Janus
-          Janus.init({
+          /* Janus.init({
             debug: 'all',
             callback: () => {
               this.initJanusVideoRoom(this.props.channel.roomId)
             },
-          })
+          }) */
         }
       )
     }
@@ -965,7 +738,7 @@ class VideoExtension extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ loading: true })
+    //this.setState({ loading: true })
   }
 
   toggleScreenSharing() {
@@ -1018,33 +791,25 @@ class VideoExtension extends React.Component {
     }
   }
 
-  renderJoinCall() {
-    if (this.state.view != 'join') return null
-
-    return (
-      <div className="join-start">
-        <img src="icon-muted.svg" height="200" />
-        <div className="pt-20 mb-20 color-d0 h3">{this.props.channel.topic}</div>
-        <div className="pb-30 color-d0 h5">
-          There is currently a call with <strong>{this.state.participants.length}</strong> {this.state.participants.length == 1 ? 'participant' : 'participants'} going on.
-        </div>
-        <Button text="Join the call now" size="large" onClick={() => this.registerUsername()} />
-      </div>
-    )
-  }
-
   renderStartCall() {
     if (this.state.view != 'start') return null
 
     return (
-      <div className="join-start">
-        <img src="icon-muted.svg" height="200" className="mb-20" />
-        <div className="pb-30 color-d0 h5">Let others know what the call is about.</div>
-        <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
-          <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
+      <React.Fragment>
+        <div className="header">
+          <Button text="Go back" theme="muted" className="ml-25" onClick={() => this.setState({ view: '' })} icon={<IconComponent icon="chevron-left" color="#617691" thickness={2} size={16} />} />
+          <div className="flexer"></div>
         </div>
-        <Button text="Start a call" size="large" theme="muted" onClick={() => this.startCall()} />
-      </div>
+
+        <div className="join-start">
+          <img src="icon-muted.svg" height="200" className="mb-20" />
+          <div className="pb-30 color-d0 h5">Create a new call</div>
+          <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
+            <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
+          </div>
+          <Button text="Start a call" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
+        </div>
+      </React.Fragment>
     )
   }
 
@@ -1137,6 +902,149 @@ class VideoExtension extends React.Component {
     )
   }
 
+  async handleChannelJoinCall(topic, room) {
+    // Do nothing
+  }
+
+  async handleChannelCreateCall(topic) {
+    this.setState({ error: null })
+
+    try {
+      const { data } = await GraphqlService.getInstance().createChannelCall(this.props.channel.id, topic)
+      const call = data.createChannelCall
+      const calls = [...this.props.channel.calls, call]
+      const { roomId } = call
+
+      // Update this channel's call list so is accessible
+      this.props.updateChannel(channel.id, { calls })
+
+      // 1. Update our state with the call's details
+      // 2. And create the room on Janus
+      // ------------------------------------------
+      // 1.
+      this.setState(
+        {
+          topic,
+          roomId,
+        },
+        () => {
+          // 2.
+          sfu.send({
+            message: {
+              request: 'create',
+              description: topic,
+              record: false,
+              room: roomId,
+              ptype: 'publisher',
+              is_private: false,
+              secret: '',
+            },
+            success: ({ videoroom, room, permanent, error_code, error }) => {
+              if (error) return this.setState({ error })
+
+              console.log(videoroom, room, permanent, error_code, error)
+            },
+          })
+        }
+      )
+    } catch (e) {
+      this.setState({ error: 'Error creating call from API' })
+    }
+  }
+
+  async handleChannelDeleteCall(roomId) {
+    this.setState({ error: null })
+
+    try {
+      const { data } = await GraphqlService.getInstance().deleteChannelCall(this.props.channel.id, roomId)
+      const call = data.createChannelCall
+
+      if (!call) return this.setState({ error: 'Error deleting call from API' })
+
+      // Remove this call from the call array
+      const calls = this.props.channel.calls.filter(call => call.roomId != roomId)
+
+      // Remove this call from the channel
+      this.props.updateChannel(channel.id, { calls })
+
+      // Reset the UI
+      this.setState(
+        {
+          view: '',
+          topic: '',
+        },
+        () => {
+          // Destroy the Janus room
+          sfu.send({
+            message: {
+              request: 'destroy',
+              room: roomId,
+            },
+            success: ({ videoroom, room, permanent, error_code, error }) => {
+              if (error) return this.setState({ error })
+
+              console.log(videoroom, room, permanent, error_code, error)
+            },
+          })
+        }
+      )
+    } catch (e) {
+      this.setState({ error: 'Error deleting call from API' })
+    }
+  }
+
+  renderCallList() {
+    if (this.state.view != '') return null
+
+    return (
+      <React.Fragment>
+        <div className="header">
+          <div className="title">Channel calls</div>
+          <div className="flexer"></div>
+          <Button text="Create" theme="muted" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
+        </div>
+
+        {this.props.channel.calls.map((call, index) => {
+          return (
+            <div className="call" key={index}>
+              <div className="column flexer">
+                <div className="topic">{call.topic}</div>
+                <div className="date">Started {moment(call.createdAt).fromNow()}</div>
+              </div>
+              <Button
+                theme="muted"
+                text="Join"
+                className="mr-10"
+                size="small"
+                onClick={() => {
+                  this.setState(
+                    {
+                      topic: call.topic,
+                      roomId: call.roomId,
+                    },
+                    () => {
+                      this.getRoomParticipants(call.roomId)
+                      this.registerUsername(topic, call.roomId)
+                    }
+                  )
+                }}
+              />
+              <Button theme="red" text="Remove" size="small" onClick={() => this.handleChannelDeleteCall(call.roomId)} />
+            </div>
+          )
+        })}
+
+        {this.props.channel.calls.length == 0 && (
+          <div className="list">
+            <img src="icon-muted.svg" height="200" className="mb-20" />
+            <div className="pb-30 color-d0 h5">There are no calls</div>
+            <Button text="Start one now" size="large" theme="muted" onClick={() => this.setState({ view: 'start' })} />
+          </div>
+        )}
+      </React.Fragment>
+    )
+  }
+
   render() {
     return (
       <div className={`video-extension ${this.state.participantFocus ? '' : 'all'}`}>
@@ -1145,6 +1053,7 @@ class VideoExtension extends React.Component {
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
         {this.state.view == 'call' && (
           <div className="header">
+            <div className="subtitle">Call</div>
             <div className="title">{this.state.topic}</div>
             <div className="flexer"></div>
             <Tooltip text="End call" direction="left">
@@ -1154,7 +1063,8 @@ class VideoExtension extends React.Component {
             </Tooltip>
           </div>
         )}
-        {this.renderJoinCall()}
+
+        {this.renderCallList()}
         {this.renderStartCall()}
         <div className="flexer column w-100">{this.renderCall()}</div>
       </div>
@@ -1182,3 +1092,243 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(VideoExtension)
+
+/* 
+
+  These are the simulcast s from the Janus videoroom example
+  They still need to be refactored & integrated into the React codebase
+  Keeping them here for the meantime
+
+   addSimulcastButtons(feed, temporal) {
+    var index = feed
+    $('#remote' + index)
+      .parent()
+      .append(  
+        '<div id="simulcast' +
+          index +
+          '" class="btn-group-vertical btn-group-vertical-xs pull-right">' +
+          '	<div class"row">' +
+          '		<div class="btn-group btn-group-xs" style="width: 100%">' +
+          '			<button id="sl' +
+          index +
+          '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to higher quality" style="width: 33%">SL 2</button>' +
+          '			<button id="sl' +
+          index +
+          '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to normal quality" style="width: 33%">SL 1</button>' +
+          '			<button id="sl' +
+          index +
+          '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Switch to lower quality" style="width: 34%">SL 0</button>' +
+          '		</div>' +
+          '	</div>' +
+          '	<div class"row">' +
+          '		<div class="btn-group btn-group-xs hide" style="width: 100%">' +
+          '			<button id="tl' +
+          index +
+          '-2" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 2" style="width: 34%">TL 2</button>' +
+          '			<button id="tl' +
+          index +
+          '-1" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 1" style="width: 33%">TL 1</button>' +
+          '			<button id="tl' +
+          index +
+          '-0" type="button" class="btn btn-primary" data-toggle="tooltip" title="Cap to temporal layer 0" style="width: 33%">TL 0</button>' +
+          '		</div>' +
+          '	</div>' +
+          '</div>'
+      )
+    // Enable the simulcast selection buttons
+    $('#sl' + index + '-0')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+      .unbind('click')
+      .click(() {
+        console.info('Switching simulcast substream, wait for it... (lower quality)', null, { timeOut: 2000 })
+        if (!$('#sl' + index + '-2').hasClass('btn-success'))
+          $('#sl' + index + '-2')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        if (!$('#sl' + index + '-1').hasClass('btn-success'))
+          $('#sl' + index + '-1')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        $('#sl' + index + '-0')
+          .removeClass('btn-primary btn-info btn-success')
+          .addClass('btn-info')
+        feeds[index].send({ message: { request: 'configure', substream: 0 } })
+      })
+    $('#sl' + index + '-1')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+      .unbind('click')
+      .click(() {
+        console.info('Switching simulcast substream, wait for it... (normal quality)', null, { timeOut: 2000 })
+        if (!$('#sl' + index + '-2').hasClass('btn-success'))
+          $('#sl' + index + '-2')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        $('#sl' + index + '-1')
+          .removeClass('btn-primary btn-info btn-success')
+          .addClass('btn-info')
+        if (!$('#sl' + index + '-0').hasClass('btn-success'))
+          $('#sl' + index + '-0')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        feeds[index].send({ message: { request: 'configure', substream: 1 } })
+      })
+    $('#sl' + index + '-2')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+      .unbind('click')
+      .click(() {
+        console.info('Switching simulcast substream, wait for it... (higher quality)', null, { timeOut: 2000 })
+        $('#sl' + index + '-2')
+          .removeClass('btn-primary btn-info btn-success')
+          .addClass('btn-info')
+        if (!$('#sl' + index + '-1').hasClass('btn-success'))
+          $('#sl' + index + '-1')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        if (!$('#sl' + index + '-0').hasClass('btn-success'))
+          $('#sl' + index + '-0')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        feeds[index].send({ message: { request: 'configure', substream: 2 } })
+      })
+    if (!temporal)
+      // No temporal layer support
+      return
+    $('#tl' + index + '-0')
+      .parent()
+      .removeClass('hide')
+    $('#tl' + index + '-0')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+      .unbind('click')
+      .click(() {
+        console.info('Capping simulcast temporal layer, wait for it... (lowest FPS)', null, { timeOut: 2000 })
+        if (!$('#tl' + index + '-2').hasClass('btn-success'))
+          $('#tl' + index + '-2')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        if (!$('#tl' + index + '-1').hasClass('btn-success'))
+          $('#tl' + index + '-1')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        $('#tl' + index + '-0')
+          .removeClass('btn-primary btn-info btn-success')
+          .addClass('btn-info')
+        feeds[index].send({ message: { request: 'configure', temporal: 0 } })
+      })
+    $('#tl' + index + '-1')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+      .unbind('click')
+      .click(() {
+        console.info('Capping simulcast temporal layer, wait for it... (medium FPS)', null, { timeOut: 2000 })
+        if (!$('#tl' + index + '-2').hasClass('btn-success'))
+          $('#tl' + index + '-2')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        $('#tl' + index + '-1')
+          .removeClass('btn-primary btn-info')
+          .addClass('btn-info')
+        if (!$('#tl' + index + '-0').hasClass('btn-success'))
+          $('#tl' + index + '-0')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        feeds[index].send({ message: { request: 'configure', temporal: 1 } })
+      })
+    $('#tl' + index + '-2')
+      .removeClass('btn-primary btn-success')
+      .addClass('btn-primary')
+      .unbind('click')
+      .click(() {
+        console.info('Capping simulcast temporal layer, wait for it... (highest FPS)', null, { timeOut: 2000 })
+        $('#tl' + index + '-2')
+          .removeClass('btn-primary btn-info btn-success')
+          .addClass('btn-info')
+        if (!$('#tl' + index + '-1').hasClass('btn-success'))
+          $('#tl' + index + '-1')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        if (!$('#tl' + index + '-0').hasClass('btn-success'))
+          $('#tl' + index + '-0')
+            .removeClass('btn-primary btn-info')
+            .addClass('btn-primary')
+        feeds[index].send({ message: { request: 'configure', temporal: 2 } })
+      })
+  }
+
+   updateSimulcastButtons(feed, substream, temporal) {
+    // Check the substream
+    var index = feed
+    if (substream === 0) {
+      console.success('Switched simulcast substream! (lower quality)', null, { timeOut: 2000 })
+      $('#sl' + index + '-2')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#sl' + index + '-1')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#sl' + index + '-0')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-success')
+    } else if (substream === 1) {
+      console.success('Switched simulcast substream! (normal quality)', null, { timeOut: 2000 })
+      $('#sl' + index + '-2')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#sl' + index + '-1')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-success')
+      $('#sl' + index + '-0')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+    } else if (substream === 2) {
+      console.success('Switched simulcast substream! (higher quality)', null, { timeOut: 2000 })
+      $('#sl' + index + '-2')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-success')
+      $('#sl' + index + '-1')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#sl' + index + '-0')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+    }
+    // Check the temporal layer
+    if (temporal === 0) {
+      console.success('Capped simulcast temporal layer! (lowest FPS)', null, { timeOut: 2000 })
+      $('#tl' + index + '-2')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#tl' + index + '-1')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#tl' + index + '-0')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-success')
+    } else if (temporal === 1) {
+      console.success('Capped simulcast temporal layer! (medium FPS)', null, { timeOut: 2000 })
+      $('#tl' + index + '-2')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#tl' + index + '-1')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-success')
+      $('#tl' + index + '-0')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+    } else if (temporal === 2) {
+      console.success('Capped simulcast temporal layer! (highest FPS)', null, { timeOut: 2000 })
+      $('#tl' + index + '-2')
+        .removeClass('btn-primary btn-info btn-success')
+        .addClass('btn-success')
+      $('#tl' + index + '-1')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+      $('#tl' + index + '-0')
+        .removeClass('btn-primary btn-success')
+        .addClass('btn-primary')
+    }
+  }
+ */
