@@ -12,16 +12,7 @@ import { updateChannel } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-
-const Video = ({ stream }) => {
-  const videoRef = useRef(null)
-
-  useEffect(() => {
-    Janus.attachMediaStream(videoRef.current, stream)
-  }, [stream])
-
-  return <video ref={videoRef} width="100%" height="100%" autoPlay />
-}
+import VideoComponent from './components/video.component'
 
 // Variables from the Janus videoroom example
 var server = 'http://159.69.150.191:8088/janus'
@@ -81,17 +72,17 @@ class VideoExtension extends React.Component {
     this.getRoomParticipants = this.getRoomParticipants.bind(this)
   }
 
-  stopCall = () => {
+  stopCall() {
     janus.destroy()
   }
 
-  mute = muted => {
+  mute(muted) {
     console.log('setting mute to ', muted)
     this.setState({ muted })
     this.toggleMute()
   }
 
-  publish = published => {
+  publish(published) {
     this.setState({ published })
 
     if (published) {
@@ -101,20 +92,29 @@ class VideoExtension extends React.Component {
     }
   }
 
-  registerUsername = roomId => {
+  registerUsername(roomId) {
     room = roomId
 
+    // Get some fo the user details we'll use
+    // | This is not allowed in URLs
+    const { image, name } = this.props.user
+    const display = btoa(name + '|' + image)
+
+    console.log(display)
+
+    // there is no sucecss callback here
+    // Base 64 encode
     sfu.send({
       message: {
         request: 'join',
         room: roomId,
         ptype: 'publisher',
-        display: this.props.user.name,
+        display: display,
       },
     })
   }
 
-  publishOwnFeed = useAudio => {
+  publishOwnFeed(useAudio) {
     // Publishers are sendonly
     // Add data:true here if you want to publish datachannels as well
     let media = {
@@ -164,12 +164,12 @@ class VideoExtension extends React.Component {
     })
   }
 
-  unpublishOwnFeed = () => {
+  unpublishOwnFeed() {
     var unpublish = { request: 'unpublish' }
     sfu.send({ message: unpublish })
   }
 
-  toggleMute = () => {
+  toggleMute() {
     var muted = sfu.isAudioMuted()
     Janus.log((muted ? 'Unmuting' : 'Muting') + ' local stream...')
     if (muted) sfu.unmuteAudio()
@@ -177,7 +177,7 @@ class VideoExtension extends React.Component {
     muted = sfu.isAudioMuted()
   }
 
-  newRemoteFeed = (id, display, audio, video) => {
+  newRemoteFeed(id, display, audio, video) {
     var remoteFeed = null
 
     janus.attach({
@@ -366,13 +366,15 @@ class VideoExtension extends React.Component {
       success: res => {
         if (res.error) return this.setState({ error })
 
+        console.log('Room participants: ', res.participants)
+
         // And then make them join
         this.setState({ participants: res.participants })
       },
     })
   }
 
-  initJanusVideoRoom = roomId => {
+  initJanusVideoRoom() {
     if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
 
     // Save our ID
@@ -707,38 +709,15 @@ class VideoExtension extends React.Component {
     })
   }
 
-  componentDidUpdate() {
-    //console.warn('VIDEO EXT UPDATE', this.props.channel.roomId, this.state.view)
-
-    console.log(this.props.channel)
-
-    if (this.props.channel.roomId != this.state.roomId) {
-      this.setState(
-        {
-          roomId: this.props.channel.roomId,
-        },
-        () => {
-          console.log('Room ID (should be called only once): ', this.state.roomId, this.props.channel.topic)
-
-          // Once the room Id is set
-          // We can start Janus
-          /* Janus.init({
-            debug: 'all',
-            callback: () => {
-              this.initJanusVideoRoom(this.props.channel.roomId)
-            },
-          }) */
-        }
-      )
-    }
-  }
-
   componentWillUnmount() {
     janus = null
   }
 
   componentDidMount() {
-    //this.setState({ loading: true })
+    Janus.init({
+      debug: 'all',
+      callback: () => this.initJanusVideoRoom(),
+    })
   }
 
   toggleScreenSharing() {
@@ -789,117 +768,6 @@ class VideoExtension extends React.Component {
         screenSharing: false,
       })
     }
-  }
-
-  renderStartCall() {
-    if (this.state.view != 'start') return null
-
-    return (
-      <React.Fragment>
-        <div className="header">
-          <Button text="Go back" theme="muted" className="ml-25" onClick={() => this.setState({ view: '' })} icon={<IconComponent icon="chevron-left" color="#617691" thickness={2} size={16} />} />
-          <div className="flexer"></div>
-        </div>
-
-        <div className="join-start">
-          <img src="icon-muted.svg" height="200" className="mb-20" />
-          <div className="pb-30 color-d0 h5">Create a new call</div>
-          <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
-            <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
-          </div>
-          <Button text="Start a call" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
-        </div>
-      </React.Fragment>
-    )
-  }
-
-  renderCall() {
-    if (this.state.view != 'call') return null
-
-    return (
-      <React.Fragment>
-        {this.state.participantFocus && <div className="flexer" />}
-
-        <div className="participants">
-          <div className="scroll-container">
-            <div className="inner-content">
-              {/* The first one is always us */}
-              <div
-                className={this.state.participantFocus && this.state.participantToFocus == -1 ? 'participant focus' : 'participant'}
-                onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: -1 })}
-              >
-                <div className="name">
-                  <div className="text">{this.props.user.name}</div>
-                </div>
-
-                {this.state.participantFocus && this.state.participantToFocus == -1 && (
-                  <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-                    <IconComponent icon="x" color="white" thickness={2} size={20} />
-                  </div>
-                )}
-
-                {/* local video stream */}
-                <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" />
-              </div>
-
-              {/* the rest of them - iterate over them */}
-              {this.state.remoteParticipants.map((remoteParticipant, index) => {
-                return (
-                  <div
-                    className={this.state.participantFocus && this.state.participantToFocus == index ? 'participant focus' : 'participant'}
-                    onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: index })}
-                    key={index}
-                  >
-                    <div className="name">
-                      <div className="text">{remoteParticipant.rfdisplay}</div>
-                    </div>
-
-                    {this.state.participantFocus && this.state.participantToFocus == index && (
-                      <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-                        <IconComponent icon="x" color="white" thickness={2} size={20} />
-                      </div>
-                    )}
-
-                    {/* remote participant video stream */}
-                    {remoteParticipant.stream && <Video stream={remoteParticipant.stream} />}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="controls">
-          {/* toggle video media publishing */}
-          <Tooltip text="Toggle video feed" direction="top">
-            <div className="control-button" onClick={() => this.publish(!this.state.published)}>
-              <IconComponent icon={this.state.published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
-            </div>
-          </Tooltip>
-
-          {/* toggle audio media publishing */}
-          <Tooltip text="Toggle muting" direction="top">
-            <div className="control-button" onClick={() => this.mute(!this.state.muted)}>
-              <IconComponent icon={this.state.muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
-            </div>
-          </Tooltip>
-
-          {/* share to channel */}
-          <Tooltip text="Share screen" direction="top">
-            <div className="control-button" onClick={() => this.toggleScreenSharing()}>
-              <IconComponent icon="maximize" color={this.state.screenSharing ? '#ef4056' : '#343a40'} thickness={1.75} size={20} />
-            </div>
-          </Tooltip>
-
-          {/* share screen */}
-          <Tooltip text="Share to channel" direction="top">
-            <div className="control-button">
-              <IconComponent icon="share1" color="#343a40" thickness={1.75} size={20} />
-            </div>
-          </Tooltip>
-        </div>
-      </React.Fragment>
-    )
   }
 
   async handleChannelJoinCall(topic, room) {
@@ -1024,7 +892,7 @@ class VideoExtension extends React.Component {
                     },
                     () => {
                       this.getRoomParticipants(call.roomId)
-                      this.registerUsername(topic, call.roomId)
+                      this.registerUsername(call.roomId)
                     }
                   )
                 }}
@@ -1041,6 +909,124 @@ class VideoExtension extends React.Component {
             <Button text="Start one now" size="large" theme="muted" onClick={() => this.setState({ view: 'start' })} />
           </div>
         )}
+      </React.Fragment>
+    )
+  }
+
+  renderStartCall() {
+    if (this.state.view != 'start') return null
+
+    return (
+      <React.Fragment>
+        <div className="header">
+          <Button text="Go back" theme="muted" className="ml-25" onClick={() => this.setState({ view: '' })} icon={<IconComponent icon="chevron-left" color="#617691" thickness={2} size={16} />} />
+          <div className="flexer"></div>
+        </div>
+
+        <div className="join-start">
+          <img src="icon-muted.svg" height="200" className="mb-20" />
+          <div className="pb-30 color-d0 h5">Create a new call</div>
+          <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
+            <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
+          </div>
+          <Button text="Start a call" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
+        </div>
+      </React.Fragment>
+    )
+  }
+
+  renderCall() {
+    if (this.state.view != 'call') return null
+
+    return (
+      <React.Fragment>
+        {this.state.participantFocus && <div className="flexer" />}
+
+        <div className="participants">
+          <div className="scroll-container">
+            <div className="inner-content">
+              {/* The first one is always us */}
+              <div
+                className={this.state.participantFocus && this.state.participantToFocus == -1 ? 'participant focus' : 'participant'}
+                onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: -1 })}
+              >
+                <div className="name">
+                  <div className="text">{this.props.user.name}</div>
+                </div>
+
+                {this.state.participantFocus && this.state.participantToFocus == -1 && (
+                  <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
+                    <IconComponent icon="x" color="white" thickness={2} size={20} />
+                  </div>
+                )}
+
+                {/* local video stream */}
+                <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" poster={this.props.user.image} />
+              </div>
+
+              {/* the rest of them - iterate over them */}
+              {this.state.remoteParticipants.map((remoteParticipant, index) => {
+                let userFullName = 'NA'
+                let userAvatar = null
+
+                // These get passed everytime they join
+                // We decode the base64 values
+                if (remoteParticipant.rfdisplay) {
+                  const normalString = atob(remoteParticipant.rfdisplay)
+                  const displayNameParts = normalString.split('|')
+
+                  userFullName = displayNameParts[0]
+                  userAvatar = displayNameParts[1]
+                }
+
+                return (
+                  <div
+                    className={this.state.participantFocus && this.state.participantToFocus == index ? 'participant focus' : 'participant'}
+                    onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: index })}
+                    key={index}
+                  >
+                    <div className="name">
+                      <div className="text">{userFullName}</div>
+                    </div>
+
+                    {this.state.participantFocus && this.state.participantToFocus == index && (
+                      <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
+                        <IconComponent icon="x" color="white" thickness={2} size={20} />
+                      </div>
+                    )}
+
+                    {/* remote participant video stream */}
+                    {remoteParticipant.stream && <VideoComponent stream={remoteParticipant.stream} poster={userAvatar} />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="controls">
+          {/* toggle video media publishing */}
+          <Tooltip text="Toggle video feed" direction="top">
+            <div className="control-button" onClick={() => this.publish(!this.state.published)}>
+              <IconComponent icon={this.state.published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
+            </div>
+          </Tooltip>
+
+          {/* toggle audio media publishing */}
+          <Tooltip text="Toggle muting" direction="top">
+            <div className="control-button" onClick={() => this.mute(!this.state.muted)}>
+              <IconComponent icon={this.state.muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
+            </div>
+          </Tooltip>
+
+          {/* share to channel */}
+          <div className="control-button" onClick={() => this.toggleScreenSharing()}>
+            Share screen
+          </div>
+
+          {/* share screen */}
+          <div className="control-button">Share to channel</div>
+        </div>
       </React.Fragment>
     )
   }
