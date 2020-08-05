@@ -11,6 +11,7 @@ import PreviewComponent from './preview.component'
 import { parseMessageMarkdown, shortenMarkdownText } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
+import { MIME_TYPES } from '../constants'
 
 class AttachmentsComponent extends React.Component {
   constructor(props) {
@@ -105,7 +106,11 @@ class AttachmentsComponent extends React.Component {
                 return (
                   <React.Fragment key={index1}>
                     {message.attachments.map((attachment, index2) => {
-                      const isImage = attachment.mime.split('/')[0]
+                      const { mime } = attachment
+
+                      // Don't who the calls / tasks stuff just yet
+                      // TODO: Eventually handle this here too
+                      if (mime == MIME_TYPES.CALLS || mime == MIME_TYPES.TASKS) return null
 
                       return (
                         <Attachment
@@ -117,7 +122,7 @@ class AttachmentsComponent extends React.Component {
                           uri={attachment.uri}
                           name={attachment.name}
                           createdAt={attachment.createdAt}
-                          onPreviewClick={isImage ? () => this.setState({ preview: attachment.uri }) : null}
+                          onPreviewClick={mime.split('/')[0] == 'image' ? () => this.setState({ preview: attachment.uri }) : null}
                         />
                       )
                     })}

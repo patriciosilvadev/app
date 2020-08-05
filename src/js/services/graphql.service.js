@@ -445,7 +445,6 @@ export default class GraphqlService {
             pinnedMessages {
               id
               reactions
-              roomId
               device
               read
               reads
@@ -499,7 +498,6 @@ export default class GraphqlService {
             messages {
               id
               reactions
-              roomId
               device
               read
               reads
@@ -722,7 +720,6 @@ export default class GraphqlService {
           channelMessages(channelId: $channelId, page: $page) {
             id
             reactions
-            roomId
             device
             read
             reads
@@ -832,7 +829,6 @@ export default class GraphqlService {
           channelAttachments(channelId: $channelId, page: $page) {
             id
             reactions
-            roomId
             device
             likes
             system
@@ -890,7 +886,6 @@ export default class GraphqlService {
           searchMessages(channelId: $channelId, query: $query) {
             id
             reactions
-            roomId
             device
             read
             pinned
@@ -1462,7 +1457,6 @@ export default class GraphqlService {
             }
             body
             reactions
-            roomId
             device
             likes
             attachments {
@@ -1516,7 +1510,6 @@ export default class GraphqlService {
             read
             reads
             reactions
-            roomId
             device
             likes
             attachments {

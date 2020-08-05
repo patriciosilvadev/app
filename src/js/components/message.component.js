@@ -37,6 +37,7 @@ import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import uuidv1 from 'uuid/v1'
 import PreviewComponent from './preview.component'
+import { MIME_TYPES } from '../constants'
 
 export default memo(props => {
   const [body, setBody] = useState(false)
@@ -587,20 +588,37 @@ export default memo(props => {
     return (
       <Attachments>
         {props.message.attachments.map((attachment, index) => {
-          const isImage = attachment.mime.split('/')[0]
+          const { mime, name, uri } = attachment
 
-          return (
-            <Attachment
-              key={index}
-              size={attachment.size}
-              mime={attachment.mime}
-              preview={attachment.preview}
-              uri={attachment.uri}
-              name={attachment.name}
-              createdAt={attachment.createdAt}
-              onPreviewClick={isImage ? () => setPreview(attachment.uri) : null}
-            />
-          )
+          switch (mime) {
+            case MIME_TYPES.CALLS:
+              // We don't really need the URI here because we're just navigating to the list
+              // Bu tthe URI here will be the room ID if we ever need better integration
+              return (
+                <Button
+                  key={index}
+                  text="Join the call"
+                  className="mt-10 mb-5"
+                  onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/video`)}
+                  icon={<IconComponent icon="video" size={14} thickness={2} color="white" />}
+                />
+              )
+
+            default:
+              // Default here is simply the normal attacchments
+              return (
+                <Attachment
+                  key={index}
+                  size={attachment.size}
+                  mime={attachment.mime}
+                  preview={attachment.preview}
+                  uri={attachment.uri}
+                  name={attachment.name}
+                  createdAt={attachment.createdAt}
+                  onPreviewClick={mime.split('/')[0] == 'image' ? () => setPreview(attachment.uri) : null}
+                />
+              )
+          }
         })}
       </Attachments>
     )
@@ -730,21 +748,6 @@ export default memo(props => {
     )
   }
 
-  const renderCall = () => {
-    if (!props.message.roomId) return null
-    const call = channel.calls.filter(call => call.roomId == props.message.roomId)[0]
-    const topic = call ? call.topic : 'Join now'
-
-    return (
-      <Button
-        text={topic}
-        className="mt-10 mb-5"
-        onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/video`)}
-        icon={<IconComponent icon="video" size={14} thickness={2} color="white" />}
-      />
-    )
-  }
-
   return (
     <Message
       className="column"
@@ -777,7 +780,6 @@ export default memo(props => {
             {renderApp()}
             {renderAppButtons()}
             {renderReactionsLikes()}
-            {renderCall()}
           </Bubble>
         </div>
       </div>

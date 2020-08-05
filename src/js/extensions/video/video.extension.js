@@ -6,13 +6,15 @@ import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@w
 import { IconComponent } from '../../components/icon.component'
 import '../../../assets/downgrade.png'
 import { Janus } from './lib/janus'
-import { getQueryStringValue, logger } from '../../helpers/util'
+import { getQueryStringValue, logger, getMentions } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
-import { updateChannel } from '../../actions'
+import { updateChannel, createChannelMessage } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import VideoComponent from './components/video.component'
+import { DEVICE } from '../../environment'
+import { MIME_TYPES } from '../../constants'
 
 // Variables from the Janus videoroom example
 var server = 'http://159.69.150.191:8088/janus'
@@ -69,7 +71,62 @@ class VideoExtension extends React.Component {
     this.startCapture = this.startCapture.bind(this)
     this.stopCapture = this.stopCapture.bind(this)
     this.toggleScreenSharing = this.toggleScreenSharing.bind(this)
+    this.shareToChannel = this.shareToChannel.bind(this)
     this.getRoomParticipants = this.getRoomParticipants.bind(this)
+  }
+
+  async shareToChannel() {
+    const { roomId, topic } = this.state
+    const body = `> ${topic}`
+    const userName = this.props.user.name
+    const userId = this.props.user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
+    const teamId = this.props.team.id
+    const channelId = this.props.channel.id
+    const device = DEVICE
+    const parentId = null
+    const mentions = getMentions(body)
+    const attachments = [
+      {
+        name: topic,
+        uri: roomId,
+        preview: '',
+        mime: MIME_TYPES.CALLS,
+        size: 0,
+      },
+    ]
+
+    try {
+      const { data } = await GraphqlService.getInstance().createChannelMessage({
+        device,
+        mentions,
+        channel: channelId,
+        user: userId,
+        team: teamId,
+        parent: parentId,
+        body,
+        excerpt,
+        attachments,
+      })
+
+      console.log(data)
+
+      // Catch it
+      if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
+
+      // The extra values are used for processing other info
+      const channelMessage = {
+        message: data.createChannelMessage,
+        channelId,
+        teamId,
+      }
+
+      // Create the message
+      this.props.createChannelMessage(channelId, channelMessage)
+      this.props.updateChannel(channelId, { excerpt })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   stopCall() {
@@ -99,8 +156,6 @@ class VideoExtension extends React.Component {
     // | This is not allowed in URLs
     const { image, name } = this.props.user
     const display = btoa(name + '|' + image)
-
-    console.log(display)
 
     // there is no sucecss callback here
     // Base 64 encode
@@ -1025,7 +1080,9 @@ class VideoExtension extends React.Component {
           </div>
 
           {/* share screen */}
-          <div className="control-button">Share to channel</div>
+          <div className="control-button" onClick={() => this.shareToChannel()}>
+            Share to channel
+          </div>
         </div>
       </React.Fragment>
     )
@@ -1060,16 +1117,21 @@ class VideoExtension extends React.Component {
 
 VideoExtension.propTypes = {
   user: PropTypes.any,
+  team: PropTypes.any,
   channel: PropTypes.any,
+  createChannelMessage: PropTypes.func,
+  updateChannel: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
+  createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
 }
 
 const mapStateToProps = state => {
   return {
     user: state.user,
+    team: state.team,
     channel: state.channel,
   }
 }
