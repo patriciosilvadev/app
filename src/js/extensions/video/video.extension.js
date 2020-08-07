@@ -450,7 +450,6 @@ class VideoExtension extends React.Component {
             Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
             Janus.log('This is a publisher/manager')
 
-            /* 
             sfu.send({
               message: {
                 request: 'list',
@@ -460,44 +459,19 @@ class VideoExtension extends React.Component {
               },
             })
 
-            // Check if the room exists
+            // Debug
+            // Destroy the Janus room
             sfu.send({
               message: {
-                request: 'exists',
-                room: room,
+                request: 'destroy',
+                room: 695635,
+                secret: '',
+                permanent: true,
               },
-              success: ({ videoroom, room, exists, error_code, error }) => {
-                if (error) return this.setState({ error })
-                if (exists) {
-                  // Check for participants
-                  sfu.send({
-                    message: {
-                      request: 'listparticipants',
-                      room: room,
-                    },
-                    success: res => {
-                      if (res.error) return this.setState({ error })
-
-                      console.log('Participants: ', res.participants)
-
-                      // And then make them join
-                      this.setState({
-                        participants: res.participants,
-                        topic: this.props.channel.topic,
-                        loading: false,
-                        view: 'join',
-                      })
-                    },
-                  })
-                } else {
-                  this.setState({
-                    view: 'start',
-                    loading: false,
-                  })
-                }
+              success: ({ videoroom, room, permanent, error_code, error }) => {
+                console.log('Deleted: ', videoroom, room, permanent, error_code, error)
               },
-            })    
-            */
+            })
           },
           error: error => {
             this.setState({ error })
@@ -800,6 +774,22 @@ class VideoExtension extends React.Component {
     })
   }
 
+  // Placeholder - we do nohting with this so far
+  checkIfRoomExistsFirst(roomId) {
+    sfu.send({
+      message: {
+        request: 'exists',
+        room: roomId,
+      },
+      success: ({ videoroom, room, exists, error_code, error }) => {
+        if (error) return this.setState({ error })
+        if (exists) {
+        } else {
+        }
+      },
+    })
+  }
+
   async startCapture() {
     try {
       // Set up our screen
@@ -830,7 +820,10 @@ class VideoExtension extends React.Component {
   }
 
   async handleChannelCreateCall(topic) {
-    this.setState({ error: null })
+    this.setState({
+      error: null,
+      notification: null,
+    })
 
     try {
       const { data } = await GraphqlService.getInstance().createChannelCall(this.props.channel.id, topic)
@@ -838,8 +831,10 @@ class VideoExtension extends React.Component {
       const calls = [...this.props.channel.calls, call]
       const { roomId } = call
 
+      console.log(call)
+
       // Update this channel's call list so is accessible
-      this.props.updateChannel(channel.id, { calls })
+      this.props.updateChannel(this.props.channel.id, { calls })
 
       // 1. Update our state with the call's details
       // 2. And create the room on Janus
@@ -861,11 +856,13 @@ class VideoExtension extends React.Component {
               ptype: 'publisher',
               is_private: false,
               secret: '',
+              permanent: true,
             },
             success: ({ videoroom, room, permanent, error_code, error }) => {
+              // console.log(videoroom, room, permanent, error_code, error)
               if (error) return this.setState({ error })
 
-              console.log(videoroom, room, permanent, error_code, error)
+              this.setState({ view: '' })
             },
           })
         }
@@ -876,11 +873,14 @@ class VideoExtension extends React.Component {
   }
 
   async handleChannelDeleteCall(roomId) {
-    this.setState({ error: null })
+    this.setState({
+      error: null,
+      notification: null,
+    })
 
     try {
       const { data } = await GraphqlService.getInstance().deleteChannelCall(this.props.channel.id, roomId)
-      const call = data.createChannelCall
+      const call = data.deleteChannelCall
 
       if (!call) return this.setState({ error: 'Error deleting call from API' })
 
@@ -888,7 +888,7 @@ class VideoExtension extends React.Component {
       const calls = this.props.channel.calls.filter(call => call.roomId != roomId)
 
       // Remove this call from the channel
-      this.props.updateChannel(channel.id, { calls })
+      this.props.updateChannel(this.props.channel.id, { calls })
 
       // Reset the UI
       this.setState(
@@ -902,16 +902,20 @@ class VideoExtension extends React.Component {
             message: {
               request: 'destroy',
               room: roomId,
+              permanent: true,
+              secret: '',
             },
             success: ({ videoroom, room, permanent, error_code, error }) => {
+              // console.log(videoroom, room, permanent, error_code, error)
               if (error) return this.setState({ error })
 
-              console.log(videoroom, room, permanent, error_code, error)
+              this.setState({ notification: 'Successfully deleted' })
             },
           })
         }
       )
     } catch (e) {
+      console.log('>>', e)
       this.setState({ error: 'Error deleting call from API' })
     }
   }
@@ -932,7 +936,9 @@ class VideoExtension extends React.Component {
             <div className="call" key={index}>
               <div className="column flexer">
                 <div className="topic">{call.topic}</div>
-                <div className="date">Started {moment(call.createdAt).fromNow()}</div>
+                <div className="date">
+                  Started {moment(call.createdAt).fromNow()} - #{call.roomId}
+                </div>
               </div>
               <Button
                 theme="muted"
@@ -984,7 +990,7 @@ class VideoExtension extends React.Component {
           <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
             <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
           </div>
-          <Button text="Start a call" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
+          <Button text="Create now" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
         </div>
       </React.Fragment>
     )
