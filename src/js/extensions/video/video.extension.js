@@ -56,7 +56,6 @@ class VideoExtension extends React.Component {
       view: '',
       muted: false,
       published: false,
-      remoteParticipants: [],
       roomId: null,
       screenSharing: false,
     }
@@ -146,18 +145,33 @@ class VideoExtension extends React.Component {
 
   exitCall(roomId) {
     // Stops the video camera
-    // sfu.hangup()
+    sfu.hangup()
+
     // Remove ourselves as a publisher
     this.unpublishOwnFeed()
 
     // Showing the user a list
-    this.setState({ view: '' })
+    this.setState({ view: '', participants: [] })
 
     // Now leaving the room
     sfu.send({
       message: {
         request: 'leave',
         room: roomId,
+      },
+    })
+  }
+
+  destroyRoom(roomId) {
+    sfu.send({
+      message: {
+        request: 'destroy',
+        room: roomId,
+        secret: '',
+        permanent: true,
+      },
+      success: ({ videoroom, room, permanent, error_code, error }) => {
+        console.log('Deleted: ', videoroom, room, permanent, error_code, error)
       },
     })
   }
@@ -182,7 +196,7 @@ class VideoExtension extends React.Component {
     // Get some fo the user details we'll use
     // | This is not allowed in URLs
     const { image, name } = this.props.user
-    const display = btoa(name + '|' + image)
+    const display = btoa(`${name}|${image}`)
 
     // there is no sucecss callback here
     // Base 64 encode
@@ -192,6 +206,7 @@ class VideoExtension extends React.Component {
         room: roomId,
         ptype: 'publisher',
         display: display,
+        //close_pc: false,
       },
     })
   }
@@ -299,6 +314,7 @@ class VideoExtension extends React.Component {
           ptype: 'subscriber',
           feed: id,
           private_id: mypvtid,
+          //close_pc: false,
         }
 
         // For example, if the publisher is VP8 and this is Safari, let's avoid video
@@ -342,10 +358,10 @@ class VideoExtension extends React.Component {
             }
 
             console.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
-            console.log('remoteParticipant: ', remoteFeed, this.state.remoteParticipants)
+            console.log('remoteParticipant: ', remoteFeed, this.state.participants)
 
             // Update our state with the new remote feed
-            this.setState({ remoteParticipants: [...this.state.remoteParticipants, remoteFeed] })
+            this.setState({ participants: [...this.state.participants, remoteFeed] })
           } else if (event === 'event') {
             // Check if we got an event on a simulcast-related event from this publisher
             var substream = msg['substream']
@@ -400,9 +416,9 @@ class VideoExtension extends React.Component {
       onremotestream: stream => {
         Janus.log('Remote feed #' + remoteFeed.rfindex + ', stream:', stream, remoteFeed)
 
-        console.log('Current remote particicpants: ', this.state.remoteParticipants)
+        console.log('Current remote particicpants: ', this.state.participants)
 
-        const remoteParticipant = this.state.remoteParticipants.filter(remoteParticipant => remoteParticipant.rfindex == remoteFeed.rfindex)
+        const remoteParticipant = this.state.participants.filter(remoteParticipant => remoteParticipant.rfindex == remoteFeed.rfindex)
 
         if (remoteParticipant.length === 0) {
           console.log(remoteFeed.spinner)
@@ -418,7 +434,7 @@ class VideoExtension extends React.Component {
         // Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
         // Now we update the state and add the stream
         this.setState({
-          remoteParticipants: this.state.remoteParticipants.map(remoteParticipant => {
+          participants: this.state.participants.map(remoteParticipant => {
             return remoteParticipant.rfindex == remoteFeed.rfindex ? { ...remoteFeed, stream } : remoteParticipant
           }),
         })
@@ -447,7 +463,7 @@ class VideoExtension extends React.Component {
 
         // Remove the video
         this.setState({
-          remoteParticipants: this.state.remoteParticipants.filter(remoteParticipant => remoteParticipant.rfindex != remoteFeed.rfindex),
+          participants: this.state.participants.filter(remoteParticipant => remoteParticipant.rfindex != remoteFeed.rfindex),
         })
 
         if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
@@ -459,28 +475,38 @@ class VideoExtension extends React.Component {
     })
   }
 
-  getRoomParticipants(roomId) {
+  getRoomParticipants(roomId, callback) {
     sfu.send({
       message: {
         request: 'listparticipants',
         room: roomId,
       },
       success: res => {
-        if (res.error) return this.setState({ error })
-
-        console.log('Room participants: ', res.participants)
-
-        // And then make them join
-        this.setState({ participants: res.participants })
+        if (res.error) callback(null, res.error)
+        if (!res.error) callback(res.participants, null)
       },
     })
   }
 
-  initJanusVideoRoom() {
+  getServerRoomList() {
+    sfu.send({
+      message: {
+        request: 'list',
+      },
+      success: res => {
+        console.log('All rooms: ', res)
+      },
+    })
+  }
+
+  initJanusVideoRoom(roomId) {
     if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
 
-    // Save our ID
-    room = this.state.roomId
+    // global
+    room = roomId
+
+    // Start loading
+    this.setState({ loading: true })
 
     // Create session
     janus = new Janus({
@@ -500,32 +526,8 @@ class VideoExtension extends React.Component {
             // Mkae things active
             this.setState({ loading: false })
 
-            /* 
-            // Debug
-            // Get a list of roomm
-            sfu.send({
-              message: {
-                request: 'list',
-              },
-              success: res => {
-                console.log('All rooms: ', res)
-              },
-            })
-
-            // Debug
-            // Destroy the Janus room
-            sfu.send({
-              message: {
-                request: 'destroy',
-                room: 695635,
-                secret: '',
-                permanent: true,
-              },
-              success: ({ videoroom, room, permanent, error_code, error }) => {
-                console.log('Deleted: ', videoroom, room, permanent, error_code, error)
-              },
-            })
-             */
+            // Join the room
+            this.registerUsername(roomId)
           },
           error: error => {
             this.setState({ error })
@@ -667,6 +669,8 @@ class VideoExtension extends React.Component {
                     return
                   }
                 } else if (msg['error']) {
+                  console.error(msg)
+
                   if (msg['error_code'] === 426) {
                     // If the room doesn't exist, then direct them to the list
                     this.setState({
@@ -771,17 +775,10 @@ class VideoExtension extends React.Component {
   }
 
   componentDidMount() {
-    this.setState(
-      {
-        loading: true,
-      },
-      () => {
-        Janus.init({
-          debug: 'all',
-          callback: () => this.initJanusVideoRoom(),
-        })
-      }
-    )
+    Janus.init({
+      debug: 'all',
+      callback: () => console.log('All good'),
+    })
   }
 
   toggleScreenSharing() {
@@ -989,12 +986,7 @@ class VideoExtension extends React.Component {
                       notification: null,
                     },
                     () => {
-                      // global
-                      room = call.roomId
-
-                      // Initialize
-                      this.getRoomParticipants(call.roomId)
-                      this.registerUsername(call.roomId)
+                      this.initJanusVideoRoom(call.roomId)
                     }
                   )
                 }}
@@ -1067,7 +1059,7 @@ class VideoExtension extends React.Component {
               </div>
 
               {/* the rest of them - iterate over them */}
-              {this.state.remoteParticipants.map((remoteParticipant, index) => {
+              {this.state.participants.map((remoteParticipant, index) => {
                 let userFullName = 'NA'
                 let userAvatar = null
 
