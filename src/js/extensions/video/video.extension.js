@@ -188,6 +188,7 @@ class VideoExtension extends React.Component {
     if (published) {
       this.publishOwnFeed(true)
     } else {
+      this.attachLocalStreamToVideoEl(null)
       this.unpublishOwnFeed()
     }
   }
@@ -418,15 +419,14 @@ class VideoExtension extends React.Component {
 
         console.log('Current remote particicpants: ', this.state.participants)
 
+        // Look for existing remoteParticipants
         const remoteParticipant = this.state.participants.filter(remoteParticipant => remoteParticipant.rfindex == remoteFeed.rfindex)
 
         if (remoteParticipant.length === 0) {
-          console.log(remoteFeed.spinner)
-
           // Firefox Stable has a bug: width and height are not immediately available after a playing
           if (Janus.webRTCAdapter.browserDetails.browser === 'firefox') {
             setTimeout(() => {
-              // Adjust width & height here
+              // Adjust width & height here --> we do this with CSS
             }, 2000)
           }
         }
@@ -536,7 +536,7 @@ class VideoExtension extends React.Component {
           consentDialog: on => {
             Janus.debug('Consent dialog should be ' + (on ? 'on' : 'off') + ' now')
             // Check consent has been given
-            // console.log(!!navigator.mozGetUserMedia)
+            console.log(!!navigator.mozGetUserMedia)
           },
           iceState: state => {
             Janus.log('ICE state changed to ' + state)
@@ -554,7 +554,12 @@ class VideoExtension extends React.Component {
             // This controls allows us to override the global room bitrate cap
             // 0 == unlimited
             // var bitrate = 0 / 128 / 256 / 1014 / 1500 / 2000
-            sfu.send({ message: { request: 'configure', bitrate: 1014 } })
+            sfu.send({
+              message: {
+                request: 'configure',
+                bitrate: 1014,
+              },
+            })
           },
           onmessage: (msg, jsep) => {
             Janus.debug(' ::: Got a message (publisher) :::', msg, msg['videoroom'])
@@ -623,9 +628,6 @@ class VideoExtension extends React.Component {
                   var leaving = msg['leaving']
                   var remoteFeed = this.state.participants.filter(participant => participant.rfid == leaving)[0]
 
-                  // Debug
-                  Janus.log('Publisher leaving: ' + leaving, remoteFeed)
-
                   // Only if they exist & they're not us
                   // msg['leaving'] == "ok" if it's us leaving
                   if (remoteFeed) {
@@ -642,16 +644,16 @@ class VideoExtension extends React.Component {
                 } else if (msg['unpublished']) {
                   // One of the publishers has unpublished?
                   var unpublished = msg['unpublished']
-                  var remoteFeed = this.state.participants.filter(participant => participant.rfid == leaving)[0]
-
-                  Janus.log('Publisher unpublished: ' + unpublished)
+                  var remoteFeed = this.state.participants.filter(participant => participant.rfid == unpublished)[0]
 
                   // Only if they exist - this might also be us
                   if (remoteFeed) {
                     Janus.debug('Feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
 
                     // Update our state & remove the participant / remoteFeed
-                    this.setState({ participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid) })
+                    this.setState({
+                      participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid),
+                    })
 
                     // Remove the participant
                     remoteFeed.detach()
@@ -660,36 +662,30 @@ class VideoExtension extends React.Component {
                   // If we are unpublished
                   if (unpublished === 'ok') {
                     // Simply hang up our camera
-                    sfu.hangup()
-
+                    // sfu.hangup()
                     // And change the view to the listing
-                    this.setState({ view: '' })
-
+                    // this.setState({ view: '' })
                     // and
                     return
                   }
                 } else if (msg['error']) {
                   console.error(msg)
 
-                  if (msg['error_code'] === 426) {
+                  switch (msg['error_code']) {
                     // If the room doesn't exist, then direct them to the list
-                    this.setState({
-                      error: 'This room does not exist',
-                      view: '',
-                    })
-                  } else if (msg['error_code'] === 425) {
+                    case 426:
+                      this.setState({
+                        error: 'This room does not exist',
+                        view: '',
+                      })
+                      break
+
                     // User already a publisher here
                     // The room ID would have been updated from the "Join" button
-                    console.warn('User already a publisher here -- showing them the room & publishing')
-
-                    // This user is already a publisher
-                    // Show them the call screen
-                    this.setState({ view: 'call' })
-
-                    // Publish the feed
-                    this.publishOwnFeed(true)
-                  } else {
-                    console.log(msg['error'])
+                    case 425:
+                      this.setState({ view: 'call' })
+                      this.publishOwnFeed(true)
+                      break
                   }
                 }
               }
@@ -719,21 +715,14 @@ class VideoExtension extends React.Component {
           onlocalstream: stream => {
             Janus.debug(' ::: Got a local stream :::', stream)
 
-            // Set this global
-            mystream = stream
+            // Update our local stream
+            this.attachLocalStreamToVideoEl(stream)
 
-            // Get this element as a native ref
-            const videoElement = this.localVideoRef
-
-            // So no echo (because it's us)
-            videoElement.muted = 'muted'
-
-            // Atthac the MediaStram to the video
-            Janus.attachMediaStream(videoElement, stream)
-
+            // Handle the ice connection - making sure we're published here for the user
             if (sfu.webrtcStuff.pc.iceConnectionState !== 'completed' && sfu.webrtcStuff.pc.iceConnectionState !== 'connected') {
               // Show an indicator/notice for the user to say we're publishing
               // Do nothing here for now
+              // Will be handled by the loading indicator
               this.setState({ published: true })
             }
 
@@ -742,12 +731,7 @@ class VideoExtension extends React.Component {
 
             // Get our video tracks
             if (!videoTracks || videoTracks.length === 0) {
-              // No webcam
-              // Show something for the user for this
               this.setState({ error: 'No webcam!' })
-            } else {
-              // Show the video element above
-              // localVideoRef.current - already showing
             }
           },
           onremotestream: stream => {
@@ -756,8 +740,7 @@ class VideoExtension extends React.Component {
           oncleanup: () => {
             Janus.log(' ::: Got a cleanup notification: we are unpublished now :::')
             mystream = null
-            // Add a publish button
-            // this.publishOwnFeed(true)
+            // Add a publish button to trigger --> this.publishOwnFeed(true)
           },
         })
       },
@@ -768,6 +751,20 @@ class VideoExtension extends React.Component {
         console.log('destroyed')
       },
     })
+  }
+
+  attachLocalStreamToVideoEl(stream) {
+    // Set this globallly so that any messages can access it
+    mystream = stream
+
+    // Get this element as a native ref
+    const videoElement = this.localVideoRef
+
+    // So no echo (because it's us)
+    videoElement.muted = 'muted'
+
+    // Atthac the MediaStram to the video
+    Janus.attachMediaStream(videoElement, stream)
   }
 
   componentWillUnmount() {
@@ -806,22 +803,6 @@ class VideoExtension extends React.Component {
     })
   }
 
-  // Placeholder - we do nohting with this so far
-  checkIfRoomExistsFirst(roomId) {
-    sfu.send({
-      message: {
-        request: 'exists',
-        room: roomId,
-      },
-      success: ({ videoroom, room, exists, error_code, error }) => {
-        if (error) return this.setState({ error })
-        if (exists) {
-        } else {
-        }
-      },
-    })
-  }
-
   async startCapture() {
     try {
       // Set up our screen
@@ -845,6 +826,22 @@ class VideoExtension extends React.Component {
         screenSharing: false,
       })
     }
+  }
+
+  // Placeholder - we do nohting with this so far
+  checkIfRoomExistsFirst(roomId) {
+    sfu.send({
+      message: {
+        request: 'exists',
+        room: roomId,
+      },
+      success: ({ videoroom, room, exists, error_code, error }) => {
+        if (error) return this.setState({ error })
+        if (exists) {
+        } else {
+        }
+      },
+    })
   }
 
   async handleChannelJoinCall(topic, room) {
