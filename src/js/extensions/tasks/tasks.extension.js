@@ -46,6 +46,40 @@ class TasksExtension extends React.Component {
     this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
   }
 
+  async handleCreateTask() {
+    try {
+      this.setState({
+        loading: true,
+        error: null,
+      })
+
+      const { channelId } = this.state
+      const { data } = await GraphqlService.getInstance().createTask(channelId)
+      const tasks = data.channelTasks
+
+      this.setState({
+        tasks: tasks ? tasks : [],
+        loading: false,
+      })
+
+      console.log('Updating')
+
+      this.setState({
+        tasks: [
+          { id: '12342341', title: '1 Get the drag & drop working', done: false },
+          { id: '12342342', title: '2 Fix the blank item when dragging', done: true },
+          { id: '12342343', title: '3 Enable the button custor wiht hobver', done: false },
+        ],
+      })
+    } catch (e) {
+      logger(e)
+      this.setState({
+        error: 'Error fetching tasks',
+        loading: false,
+      })
+    }
+  }
+
   async fetchChannelTasks() {
     try {
       this.setState({

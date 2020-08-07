@@ -1603,4 +1603,51 @@ export default class GraphqlService {
       },
     })
   }
+
+  createTask(payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createTask($payload: String) {
+          createTask(payload: $payload) {
+            id
+            title
+            order
+            done
+            parent
+            channel
+          }
+        }
+      `,
+      variables: {
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  updateTask(taskId, payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateTask($taskId: String, $payload: String) {
+          updateTask(taskId: $taskId, payload: $payload)
+        }
+      `,
+      variables: {
+        taskId,
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  deleteTask(taskId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteTask($taskId: String) {
+          deleteTask(taskId: $taskId)
+        }
+      `,
+      variables: {
+        taskId,
+      },
+    })
+  }
 }
