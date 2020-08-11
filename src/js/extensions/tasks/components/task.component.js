@@ -5,6 +5,8 @@ import { Popup, Menu } from '@weekday/elements'
 import { IconComponent } from '../../../components/icon.component'
 import PropTypes from 'prop-types'
 import ConfirmModal from '../../../modals/confirm.modal'
+import { logger } from '../../../helpers/util'
+import GraphqlService from '../../../services/graphql.service'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -24,13 +26,14 @@ class TaskComponent extends React.Component {
 
     this.composeRef = React.createRef()
 
-    this.handleTaskIconClick = this.handleTaskIconClick.bind(this)
+    this.handleDoneIconClick = this.handleDoneIconClick.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.insertAtCursor = this.insertAtCursor.bind(this)
     this.handleComposeChange = this.handleComposeChange.bind(this)
     this.updateOrCreateTask = this.updateOrCreateTask.bind(this)
     this.adjustHeight = this.adjustHeight.bind(this)
+    this.handleBlur = this.handleBlur.bind(this)
   }
 
   insertAtCursor(text) {
@@ -45,17 +48,35 @@ class TaskComponent extends React.Component {
   }
 
   updateOrCreateTask() {
-    if (this.state.new) {
-      console.log('Create a task')
-    } else {
-      console.log('Update a task')
-    }
+    const { id, done, text } = this.state
 
-    // Hide the ccompose field
-    this.setState({
-      compose: false,
-      title: this.state.text,
-    })
+    if (this.state.new) {
+      this.props.createTask({ title: this.state.text })
+
+      // Reset these
+      this.setState({
+        compose: false,
+        text: '',
+      })
+    } else {
+      // Do the API call
+      this.props.updateTask({
+        id,
+        done,
+        title: text,
+      })
+
+      // Update the task here
+      this.setState({
+        title: text,
+        done,
+        compose: false,
+      })
+    }
+  }
+
+  handleBlur(e) {
+    this.setState({ compose: false, text: this.state.title })
   }
 
   // Fires 1st
@@ -63,7 +84,10 @@ class TaskComponent extends React.Component {
     const { keyCode } = e
 
     // Enter
-    if (keyCode == 13) this.updateOrCreateTask()
+    if (keyCode == 13) {
+      e.preventDefault()
+      this.updateOrCreateTask()
+    }
 
     // Escape
     if (keyCode == 27 && this.state.compose) this.setState({ compose: false, text: this.state.title })
@@ -77,19 +101,17 @@ class TaskComponent extends React.Component {
   }
 
   // Handle the shift being released
-  handleKeyUp(e) {
-    // Do nothing here
-  }
+  handleKeyUp(e) {}
 
   componentDidUpdate(prevProps) {}
 
   componentDidMount() {}
 
-  handleTaskIconClick() {
+  handleDoneIconClick() {
     if (this.state.new) {
-      // Create a new task
+      // Create a new task - do nothing here
     } else {
-      this.setState({ done: !this.state.done })
+      this.setState({ done: !this.state.done }, () => this.updateOrCreateTask())
     }
   }
 
@@ -112,7 +134,7 @@ class TaskComponent extends React.Component {
       <li>
         {this.state.deleteModal && (
           <ConfirmModal
-            onOkay={() => console.log('Delete')}
+            onOkay={() => this.props.deleteTask(this.state.id)}
             onCancel={() => this.setState({ deleteModal: false })}
             text="Are you sure you want to delete this task, it can not be undone?"
             title="Are you sure?"
@@ -125,7 +147,7 @@ class TaskComponent extends React.Component {
             thickness={1.5}
             size={16}
             className="mr-10 button"
-            onClick={() => this.handleTaskIconClick()}
+            onClick={() => this.handleDoneIconClick()}
           />
 
           <textarea
@@ -135,6 +157,7 @@ class TaskComponent extends React.Component {
             onKeyUp={this.handleKeyUp}
             onKeyDown={this.handleKeyDown}
             onChange={this.handleComposeChange}
+            onBlur={this.handleBlur}
             ref={ref => (this.composeRef = ref)}
           />
 
@@ -160,7 +183,7 @@ class TaskComponent extends React.Component {
                   items={[
                     {
                       text: 'Delete',
-                      onClick: e => this.setState({ deleteModal: false }),
+                      onClick: e => this.setState({ deleteModal: true }),
                     },
                     {
                       text: 'Share to channel',
@@ -197,6 +220,8 @@ TaskComponent.propTypes = {
   done: PropTypes.bool,
   new: PropTypes.bool,
   createTask: PropTypes.func,
+  deleteTask: PropTypes.func,
+  updateTask: PropTypes.func,
   sortIndex: PropTypes.number,
   showCompletedTasks: PropTypes.bool,
 }

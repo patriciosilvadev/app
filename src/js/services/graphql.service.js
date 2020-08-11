@@ -1604,21 +1604,20 @@ export default class GraphqlService {
     })
   }
 
-  createTask(payload) {
+  createTask(channelId, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTask($payload: String) {
-          createTask(payload: $payload) {
+        mutation createTask($channelId: String, $payload: String) {
+          createTask(channelId: $channelId, payload: $payload) {
             id
             title
             order
             done
-            parent
-            channel
           }
         }
       `,
       variables: {
+        channelId,
         payload: JSON.stringify(payload),
       },
     })

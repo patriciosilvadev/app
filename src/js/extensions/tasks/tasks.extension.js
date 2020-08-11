@@ -13,15 +13,27 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
 
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks }) => {
-  return <TaskComponent index={index} sortIndex={sortIndex} id={task.id} title={task.title} done={task.done} new={false} showCompletedTasks={showCompletedTasks} />
+const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask }) => {
+  return (
+    <TaskComponent
+      index={index}
+      sortIndex={sortIndex}
+      id={task.id}
+      title={task.title}
+      done={task.done}
+      new={false}
+      showCompletedTasks={showCompletedTasks}
+      deleteTask={deleteTask}
+      updateTask={updateTask}
+    />
+  )
 })
 
-const SortableList = SortableContainer(({ tasks, showCompletedTasks }) => {
+const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask }) => {
   return (
     <ul>
       {tasks.map((task, index) => (
-        <SortableItem key={`item-${task.id}`} index={index} sortIndex={index} task={task} showCompletedTasks={showCompletedTasks} />
+        <SortableItem key={`item-${task.id}`} index={index} sortIndex={index} task={task} showCompletedTasks={showCompletedTasks} deleteTask={deleteTask} updateTask={updateTask} />
       ))}
     </ul>
   )
@@ -44,9 +56,13 @@ class TasksExtension extends React.Component {
     this.onSortEnd = this.onSortEnd.bind(this)
     this.fetchChannelTasks = this.fetchChannelTasks.bind(this)
     this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
+    this.handleDeleteTask = this.handleDeleteTask.bind(this)
+    this.handleUpdateTaskPosition = this.handleUpdateTaskPosition.bind(this)
+    this.handleCreateTask = this.handleCreateTask.bind(this)
+    this.handleUpdateTask = this.handleUpdateTask.bind(this)
   }
 
-  async handleCreateTask() {
+  async handleDeleteTask(taskId) {
     try {
       this.setState({
         loading: true,
@@ -54,22 +70,83 @@ class TasksExtension extends React.Component {
       })
 
       const { channelId } = this.state
-      const { data } = await GraphqlService.getInstance().createTask(channelId)
-      const tasks = data.channelTasks
+      const { data } = await GraphqlService.getInstance().deleteTask(taskId)
+      const tasks = data.deleteTask
 
+      // Remove the task
       this.setState({
-        tasks: tasks ? tasks : [],
+        tasks: this.state.tasks.filter(task => task.id != taskId),
         loading: false,
       })
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        error: 'Error deleting task',
+        loading: false,
+      })
+    }
+  }
 
-      console.log('Updating')
+  async handleUpdateTaskPosition(taskId, order) {
+    try {
+      this.setState({
+        loading: true,
+        error: null,
+      })
+
+      const { id, done, text } = this.state
+
+      // We don't need any return here
+      await GraphqlService.getInstance().updateTask(id, { done, title })
+
+      // Remove the task
+      this.setState({
+        tasks: tasks.filter(task => task.id != taskId),
+        loading: false,
+      })
+    } catch (e) {
+      logger(e)
+      this.setState({
+        error: 'Error deleting task',
+        loading: false,
+      })
+    }
+  }
+
+  async handleUpdateTask({ id, done, title }) {
+    try {
+      await GraphqlService.getInstance().updateTask(id, { done, title })
+      this.setState({
+        tasks: this.state.tasks.map(task => {
+          if (task.id != id) return task
+
+          return {
+            ...task,
+            title,
+            done,
+          }
+        }),
+      })
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
+  }
+
+  async handleCreateTask({ title }) {
+    try {
+      this.setState({
+        loading: true,
+        error: null,
+      })
+
+      const channelId = this.props.channel.id
+      const { data } = await GraphqlService.getInstance().createTask(channelId, { title })
+      const task = data.createTask
 
       this.setState({
-        tasks: [
-          { id: '12342341', title: '1 Get the drag & drop working', done: false },
-          { id: '12342342', title: '2 Fix the blank item when dragging', done: true },
-          { id: '12342343', title: '3 Enable the button custor wiht hobver', done: false },
-        ],
+        tasks: [...this.state.tasks, task],
+        loading: false,
       })
     } catch (e) {
       logger(e)
@@ -91,19 +168,11 @@ class TasksExtension extends React.Component {
       const { data } = await GraphqlService.getInstance().channelTasks(channelId)
       const tasks = data.channelTasks
 
+      console.log(tasks)
+
       this.setState({
         tasks: tasks ? tasks : [],
         loading: false,
-      })
-
-      console.log('Updating')
-
-      this.setState({
-        tasks: [
-          { id: '12342341', title: '1 Get the drag & drop working', done: false },
-          { id: '12342342', title: '2 Fix the blank item when dragging', done: true },
-          { id: '12342343', title: '3 Enable the button custor wiht hobver', done: false },
-        ],
       })
     } catch (e) {
       logger(e)
@@ -164,10 +233,18 @@ class TasksExtension extends React.Component {
         </div>
 
         <div className="tasks w-100">
-          <SortableList helperClass="sortableHelper" pressDelay={200} tasks={this.state.tasks} showCompletedTasks={this.state.showCompletedTasks} onSortEnd={this.onSortEnd} />
+          <SortableList
+            helperClass="sortableHelper"
+            pressDelay={200}
+            tasks={this.state.tasks}
+            deleteTask={this.handleDeleteTask}
+            updateTask={this.handleUpdateTask}
+            showCompletedTasks={this.state.showCompletedTasks}
+            onSortEnd={this.onSortEnd}
+          />
 
           <ul>
-            <TaskComponent id="" title="" done={true} new={true} createTask={() => console.log('CREATE!')} showCompletedTasks={true} />
+            <TaskComponent id="" title="" done={true} new={true} createTask={this.handleCreateTask} showCompletedTasks={true} />
           </ul>
         </div>
       </div>
