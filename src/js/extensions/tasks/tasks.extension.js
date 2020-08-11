@@ -57,7 +57,7 @@ class TasksExtension extends React.Component {
     this.fetchChannelTasks = this.fetchChannelTasks.bind(this)
     this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
     this.handleDeleteTask = this.handleDeleteTask.bind(this)
-    this.handleUpdateTaskPosition = this.handleUpdateTaskPosition.bind(this)
+    this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
   }
@@ -87,35 +87,19 @@ class TasksExtension extends React.Component {
     }
   }
 
-  async handleUpdateTaskPosition(taskId, order) {
+  async handleUpdateTaskOrder(taskId, order) {
     try {
-      this.setState({
-        loading: true,
-        error: null,
-      })
-
-      const { id, done, text } = this.state
-
-      // We don't need any return here
-      await GraphqlService.getInstance().updateTask(id, { done, title })
-
-      // Remove the task
-      this.setState({
-        tasks: tasks.filter(task => task.id != taskId),
-        loading: false,
-      })
+      await GraphqlService.getInstance().updateTask(taskId, { order })
     } catch (e) {
-      logger(e)
-      this.setState({
-        error: 'Error deleting task',
-        loading: false,
-      })
+      console.log(e)
     }
   }
 
   async handleUpdateTask({ id, done, title }) {
     try {
       await GraphqlService.getInstance().updateTask(id, { done, title })
+
+      // Update the state
       this.setState({
         tasks: this.state.tasks.map(task => {
           if (task.id != id) return task
@@ -141,7 +125,8 @@ class TasksExtension extends React.Component {
       })
 
       const channelId = this.props.channel.id
-      const { data } = await GraphqlService.getInstance().createTask(channelId, { title })
+      const order = this.state.tasks.length
+      const { data } = await GraphqlService.getInstance().createTask(channelId, { title, order })
       const task = data.createTask
 
       this.setState({
@@ -166,9 +151,7 @@ class TasksExtension extends React.Component {
 
       const { channelId } = this.state
       const { data } = await GraphqlService.getInstance().channelTasks(channelId)
-      const tasks = data.channelTasks
-
-      console.log(tasks)
+      const tasks = data.channelTasks.sort((a, b) => a.order - b.order)
 
       this.setState({
         tasks: tasks ? tasks : [],
@@ -184,6 +167,26 @@ class TasksExtension extends React.Component {
   }
 
   onSortEnd({ oldIndex, newIndex }) {
+    const taskId = this.state.tasks[oldIndex].id
+    const highestOrder = this.state.tasks.reduce((acc, task) => (task.order > acc ? task.order : acc), 0)
+    const lowestOrder = this.state.tasks.reduce((acc, task) => (task.order < acc ? task.order : acc), 0)
+    const taskOrderAtNewIndex = this.state.tasks[newIndex] ? this.state.tasks[newIndex].order : 0
+    const taskOrderBeforeNewIndex = this.state.tasks[newIndex - 1] ? this.state.tasks[newIndex - 1].order : 0
+
+    //const currentTaskOrderAtNewIndex = this.state.tasks[newIndex].order
+    //const taskOrderAfterThisOne = this.state.tasks[newIndex + 1] ? this.state.tasks[newIndex + 1].order : (highestOrder + 1)
+    //const betweenCurrentAndBefore = (currentTaskOrderAtNewIndex - taskOrderBeforeThisOne) / 2
+    //const betweenCurrentAndAfter = (taskOrderAfterThisOne - currentTaskOrderAtNewIndex) / 2
+    if (newIndex > oldIndex) this.handleUpdateTaskOrder(taskId, taskOrderAtNewIndex + 0.001)
+    if (newIndex < oldIndex) {
+      if (newIndex == 0) {
+        this.handleUpdateTaskOrder(taskId, lowestOrder - 0.001)
+      } else {
+        this.handleUpdateTaskOrder(taskId, taskOrderBeforeNewIndex + 0.001)
+      }
+    }
+
+    // Update the task list
     this.setState({
       tasks: arrayMove(this.state.tasks, oldIndex, newIndex),
     })
