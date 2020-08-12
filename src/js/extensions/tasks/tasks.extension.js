@@ -6,7 +6,7 @@ import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@w
 import { IconComponent } from '../../components/icon.component'
 import { getQueryStringValue, logger } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
-import { updateChannel } from '../../actions'
+import { updateChannel, updateChannelMessageTaskAttachment, deleteChannelMessageTaskAttachment } from '../../actions'
 import PropTypes from 'prop-types'
 import TaskComponent from './components/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
@@ -280,8 +280,8 @@ TasksExtension.propTypes = {
 
 const mapDispatchToProps = {
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
-  updateChannelMessageTaskAttachment: (channelId, channelMessageTaskAttachment) => updateChannel(channelId, channelMessageTaskAttachment),
-  deleteChannelMessageTaskAttachment: (channelId, taskId) => updateChannel(channelId, taskId),
+  updateChannelMessageTaskAttachment: (channelId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, channelMessageTaskAttachment),
+  deleteChannelMessageTaskAttachment: (channelId, taskId) => deleteChannelMessageTaskAttachment(channelId, taskId),
 }
 
 const mapStateToProps = state => {
