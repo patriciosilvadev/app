@@ -186,11 +186,8 @@ class TaskComponent extends React.Component {
                       onClick: e => this.setState({ deleteModal: true }),
                     },
                     {
-                      hide: true,
-                      text: 'Share to channel (coming soon)',
-                      onClick: e => {
-                        //props.onMutedClick()
-                      },
+                      text: 'Share to channel',
+                      onClick: e => this.props.shareToChannel(this.state.id),
                     },
                   ]}
                 />
@@ -225,6 +222,7 @@ TaskComponent.propTypes = {
   updateTask: PropTypes.func,
   sortIndex: PropTypes.number,
   showCompletedTasks: PropTypes.bool,
+  shareToChannel: PropTypes.func,
 }
 
 const mapDispatchToProps = {}

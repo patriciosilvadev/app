@@ -33,7 +33,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: 'MAIN',
+      extensionLayout: 'SIDE',
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)

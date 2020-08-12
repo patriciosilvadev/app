@@ -185,10 +185,14 @@ export function updateChannelDeleteTyping(channelId, userId) {
   }
 }
 
-export function updateChannelMessageTaskAttachment(channelId, channelMessageTaskAttachment) {
+export function updateChannelMessageTaskAttachment(channelId, taskId, task) {
   return {
     type: 'UPDATE_CHANNEL_MESSAGE_TASK_ATTACHMENT',
-    payload: channelMessageTaskAttachment,
+    payload: {
+      channelId,
+      taskId,
+      task,
+    },
     sync: channelId,
   }
 }

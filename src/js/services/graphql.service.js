@@ -608,14 +608,29 @@ export default class GraphqlService {
             title
             order
             done
-            parent {
-              id
-            }
           }
         }
       `,
       variables: {
         channelId,
+      },
+    })
+  }
+
+  channelTask(taskId) {
+    return this.client.query({
+      query: gql`
+        query channelTask($taskId: String!) {
+          channelTask(taskId: $taskId) {
+            id
+            title
+            order
+            done
+          }
+        }
+      `,
+      variables: {
+        taskId,
       },
     })
   }

@@ -26,6 +26,7 @@ import {
   updateChannelMessageInitialReadCount,
   updateChannelCreateMessagePin,
   updateChannelDeleteMessagePin,
+  updateChannelMessageTaskAttachment,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
 import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
@@ -72,6 +73,20 @@ export default memo(props => {
   const [ogImage, setOgImage] = useState(null)
   const [ogUrl, setOgUrl] = useState(null)
   const iframeRef = useRef(null)
+
+  const fetchTaskExtensionMetaData = async taskId => {
+    try {
+      const { data } = await GraphqlService.getInstance().channelTask(taskId)
+      let task = data.channelTask
+
+      // Probably deleted
+      if (!task) task = { id: taskId, done: false, title: '', deleted: true }
+
+      dispatch(updateChannelMessageTaskAttachment(channel.id, taskId, task))
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   const handleMessagePin = async () => {
     try {
@@ -344,6 +359,18 @@ export default memo(props => {
     }
   }, [props.message])
 
+  // See if there are any extension attachments
+  // We also use this set up the extensions based on the
+  // attachments' detail
+  // URI -> usually extension resource ID
+  useEffect(() => {
+    props.message.attachments.map(attachment => {
+      if (attachment.mime == MIME_TYPES.TASKS) {
+        fetchTaskExtensionMetaData(attachment.uri)
+      }
+    })
+  }, [])
+
   // Handling presence updates
   useEffect(() => {
     // Only do this for human senders
@@ -588,7 +615,7 @@ export default memo(props => {
     return (
       <Attachments>
         {props.message.attachments.map((attachment, index) => {
-          const { mime, name, uri } = attachment
+          const { mime, name, uri, meta } = attachment
 
           switch (mime) {
             case MIME_TYPES.CALLS:
@@ -602,6 +629,27 @@ export default memo(props => {
                   onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/video`)}
                   icon={<IconComponent icon="video" size={14} thickness={2} color="white" />}
                 />
+              )
+
+            case MIME_TYPES.TASKS:
+              // This is the actual task details
+              // ⚠️ Meta does no exist in the DB schema
+              if (!meta) return null
+              if (!meta.id) return null
+              if (meta.deleted) return null
+
+              // Return a nice looking display
+              return (
+                <div key={index} className="row mb-10">
+                  {!meta.deleted && (
+                    <React.Fragment>
+                      <IconComponent icon={meta.done ? 'check' : 'square'} size={16} thickness={2} color="#333a40" />
+                      <div className="h5 color-d3 pl-10">{meta.title}</div>
+                    </React.Fragment>
+                  )}
+
+                  {meta.deleted && <div className="h5 color-d0">Deleted</div>}
+                </div>
               )
 
             default:

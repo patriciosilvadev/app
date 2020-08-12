@@ -4,9 +4,9 @@ import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import './tasks.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
-import { getQueryStringValue, logger } from '../../helpers/util'
+import { getQueryStringValue, logger, getMentions } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
-import { updateChannel, updateChannelMessageTaskAttachment, deleteChannelMessageTaskAttachment } from '../../actions'
+import { updateChannel, createChannelMessage, updateChannelMessageTaskAttachment, deleteChannelMessageTaskAttachment } from '../../actions'
 import PropTypes from 'prop-types'
 import TaskComponent from './components/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
@@ -15,7 +15,7 @@ import StorageService from '../../services/storage.service'
 import { DEVICE } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask }) => {
+const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel }) => {
   return (
     <TaskComponent
       index={index}
@@ -23,6 +23,7 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
       id={task.id}
       title={task.title}
       done={task.done}
+      shareToChannel={shareToChannel}
       new={false}
       showCompletedTasks={showCompletedTasks}
       deleteTask={deleteTask}
@@ -31,11 +32,20 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
   )
 })
 
-const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask }) => {
+const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel }) => {
   return (
     <ul>
       {tasks.map((task, index) => (
-        <SortableItem key={`item-${task.id}`} index={index} sortIndex={index} task={task} showCompletedTasks={showCompletedTasks} deleteTask={deleteTask} updateTask={updateTask} />
+        <SortableItem
+          key={`item-${task.id}`}
+          index={index}
+          sortIndex={index}
+          task={task}
+          shareToChannel={shareToChannel}
+          showCompletedTasks={showCompletedTasks}
+          deleteTask={deleteTask}
+          updateTask={updateTask}
+        />
       ))}
     </ul>
   )
@@ -63,6 +73,57 @@ class TasksExtension extends React.Component {
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
+  }
+
+  async shareToChannel(taskId) {
+    const body = `> Task details`
+    const userName = this.props.user.name
+    const userId = this.props.user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
+    const teamId = this.props.team.id
+    const channelId = this.props.channel.id
+    const device = DEVICE
+    const parentId = null
+    const mentions = getMentions(body)
+    const attachments = [
+      {
+        name: '',
+        uri: taskId,
+        preview: '',
+        mime: MIME_TYPES.TASKS,
+        size: 0,
+      },
+    ]
+
+    try {
+      const { data } = await GraphqlService.getInstance().createChannelMessage({
+        device,
+        mentions,
+        channel: channelId,
+        user: userId,
+        team: teamId,
+        parent: parentId,
+        body,
+        excerpt,
+        attachments,
+      })
+
+      // Catch it
+      if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
+
+      // The extra values are used for processing other info
+      const channelMessage = {
+        message: data.createChannelMessage,
+        channelId,
+        teamId,
+      }
+
+      // Create the message
+      this.props.createChannelMessage(channelId, channelMessage)
+      this.props.updateChannel(channelId, { excerpt })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async handleDeleteTask(taskId) {
@@ -110,8 +171,6 @@ class TasksExtension extends React.Component {
         tasks: this.state.tasks.map(task => {
           if (task.id != id) return task
 
-          tas
-
           return {
             ...task,
             title,
@@ -121,7 +180,7 @@ class TasksExtension extends React.Component {
       })
 
       // Update the task if it's been posted on a message
-      this.props.updateChannelMessageTaskAttachment(this.props.channel.id, {
+      this.props.updateChannelMessageTaskAttachment(this.props.channel.id, id, {
         id,
         done,
         title,
@@ -259,6 +318,7 @@ class TasksExtension extends React.Component {
             updateTask={this.handleUpdateTask}
             showCompletedTasks={this.state.showCompletedTasks}
             onSortEnd={this.onSortEnd}
+            shareToChannel={this.shareToChannel}
           />
 
           <ul>
@@ -273,14 +333,17 @@ class TasksExtension extends React.Component {
 TasksExtension.propTypes = {
   user: PropTypes.any,
   channel: PropTypes.any,
+  team: PropTypes.any,
   updateChannel: PropTypes.func,
   updateChannelMessageTaskAttachment: PropTypes.func,
   deleteChannelMessageTaskAttachment: PropTypes.func,
+  createChannelMessage: PropTypes.func,
 }
 
 const mapDispatchToProps = {
+  createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
-  updateChannelMessageTaskAttachment: (channelId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, channelMessageTaskAttachment),
+  updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),
   deleteChannelMessageTaskAttachment: (channelId, taskId) => deleteChannelMessageTaskAttachment(channelId, taskId),
 }
 
@@ -288,6 +351,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     channel: state.channel,
+    team: state.team,
   }
 }
 

@@ -119,8 +119,6 @@ class VideoExtension extends React.Component {
         attachments,
       })
 
-      console.log(data)
-
       // Catch it
       if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
 

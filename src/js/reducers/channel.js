@@ -354,7 +354,7 @@ export default (state = initialState, action) =>
                 if (attachment.uri == action.payload.taskId) {
                   return {
                     ...attachment,
-                    meta: action.payload,
+                    meta: action.payload.task,
                   }
                 }
               }
@@ -373,11 +373,11 @@ export default (state = initialState, action) =>
               // Filter the right task
               if (attachment.mime == MIME_TYPES.TASKS) {
                 if (attachment.uri == action.payload.taskId) {
-                  return true
+                  return false
                 }
               }
 
-              return false
+              return true
             }),
           }
         })
