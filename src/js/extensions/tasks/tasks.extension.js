@@ -12,6 +12,8 @@ import TaskComponent from './components/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
+import { DEVICE } from '../../environment'
+import { MIME_TYPES } from '../../constants'
 
 const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask }) => {
   return (
@@ -60,6 +62,7 @@ class TasksExtension extends React.Component {
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
+    this.shareToChannel = this.shareToChannel.bind(this)
   }
 
   async handleDeleteTask(taskId) {
@@ -78,6 +81,9 @@ class TasksExtension extends React.Component {
         tasks: this.state.tasks.filter(task => task.id != taskId),
         loading: false,
       })
+
+      // Delete it
+      this.props.deleteChannelMessageTaskAttachment(channelId, taskId)
     } catch (e) {
       console.log(e)
       this.setState({
@@ -104,12 +110,21 @@ class TasksExtension extends React.Component {
         tasks: this.state.tasks.map(task => {
           if (task.id != id) return task
 
+          tas
+
           return {
             ...task,
             title,
             done,
           }
         }),
+      })
+
+      // Update the task if it's been posted on a message
+      this.props.updateChannelMessageTaskAttachment(this.props.channel.id, {
+        id,
+        done,
+        title,
       })
     } catch (e) {
       console.log(e)
@@ -258,10 +273,15 @@ class TasksExtension extends React.Component {
 TasksExtension.propTypes = {
   user: PropTypes.any,
   channel: PropTypes.any,
+  updateChannel: PropTypes.func,
+  updateChannelMessageTaskAttachment: PropTypes.func,
+  deleteChannelMessageTaskAttachment: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
+  updateChannelMessageTaskAttachment: (channelId, channelMessageTaskAttachment) => updateChannel(channelId, channelMessageTaskAttachment),
+  deleteChannelMessageTaskAttachment: (channelId, taskId) => updateChannel(channelId, taskId),
 }
 
 const mapStateToProps = state => {

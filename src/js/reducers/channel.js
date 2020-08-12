@@ -1,4 +1,5 @@
 import produce from 'immer'
+import { MIME_TYPES } from '../constants'
 
 const initialState = {
   id: '',
@@ -253,8 +254,9 @@ export default (state = initialState, action) =>
         })
         break
 
-      // There are the app reducer functions
+      // These are the app reducer functions
       // Just so there is some seperation
+      // -----------------------------------
 
       case 'CREATE_CHANNEL_APP':
         draft.apps = [...state.apps, action.payload.app]
@@ -336,6 +338,48 @@ export default (state = initialState, action) =>
 
           // Remove it if it's there
           return !messageIdPresentWithmessageIds
+        })
+        break
+
+      // Reducer action types for messages tasks
+      // -----------------------------------
+
+      case 'UPDATE_CHANNEL_MESSAGE_TASK_ATTACHMENT':
+        draft.messages = state.messages.map(message => {
+          return {
+            ...message,
+            attachments: message.attachments.map(attachment => {
+              // Find the right task & update the meta info
+              if (attachment.mime == MIME_TYPES.TASKS) {
+                if (attachment.uri == action.payload.taskId) {
+                  return {
+                    ...attachment,
+                    meta: action.payload,
+                  }
+                }
+              }
+
+              return attachment
+            }),
+          }
+        })
+        break
+
+      case 'DELETE_CHANNEL_MESSAGE_TASK_ATTACHMENT':
+        draft.messages = state.messages.map(message => {
+          return {
+            ...message,
+            attachments: message.attachments.filter(attachment => {
+              // Filter the right task
+              if (attachment.mime == MIME_TYPES.TASKS) {
+                if (attachment.uri == action.payload.taskId) {
+                  return true
+                }
+              }
+
+              return false
+            }),
+          }
         })
         break
     }

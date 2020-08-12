@@ -186,7 +186,8 @@ class TaskComponent extends React.Component {
                       onClick: e => this.setState({ deleteModal: true }),
                     },
                     {
-                      text: 'Share to channel',
+                      hide: true,
+                      text: 'Share to channel (coming soon)',
                       onClick: e => {
                         //props.onMutedClick()
                       },
