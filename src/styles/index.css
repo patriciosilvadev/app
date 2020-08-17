@@ -33,7 +33,7 @@ a:visited {
 }
 
 video {
-  background: black;
+  background: #acb5bd !important;
   object-fit: cover !important;
 }
 

@@ -70,6 +70,7 @@ class VideoExtension extends React.Component {
     this.publishOwnFeed = this.publishOwnFeed.bind(this)
     this.unpublishOwnFeed = this.unpublishOwnFeed.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
+    this.toggleVideo = this.toggleVideo.bind(this)
     this.newRemoteFeed = this.newRemoteFeed.bind(this)
     this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
     this.renderCall = this.renderCall.bind(this)
@@ -181,14 +182,19 @@ class VideoExtension extends React.Component {
   }
 
   publish(published) {
+    console.log('setting video to ', published)
     this.setState({ published })
+    this.toggleVideo()
+
+    /* this.setState({ published })
 
     if (published) {
-      this.publishOwnFeed(true)
+      this.publishOwnFeed(true, true)
     } else {
       this.attachLocalStreamToVideoEl(null)
       this.unpublishOwnFeed()
-    }
+      this.publishOwnFeed(true, false)
+    } */
   }
 
   registerUsername(roomId) {
@@ -210,14 +216,14 @@ class VideoExtension extends React.Component {
     })
   }
 
-  publishOwnFeed(useAudio) {
+  publishOwnFeed(useAudio, useVideo) {
     // Publishers are sendonly
     // Add data:true here if you want to publish datachannels as well
     let media = {
       audioRecv: false,
       videoRecv: false,
       audioSend: useAudio,
-      videoSend: true,
+      videoSend: useVideo,
     }
 
     if (this.state.screenSharing) media.video = 'screen'
@@ -266,11 +272,12 @@ class VideoExtension extends React.Component {
         } else {
           // As normal
           if (useAudio) {
-            this.publishOwnFeed(false)
+            this.publishOwnFeed(false, true)
           } else {
             console.log('WebRTC error... ' + error.message)
             // Reshow this button:
             // this.publishOwnFeed(true)
+            this.setState({ error: error.message })
           }
         }
       },
@@ -287,10 +294,18 @@ class VideoExtension extends React.Component {
 
   toggleMute() {
     var muted = sfu.isAudioMuted()
-    Janus.log((muted ? 'Unmuting' : 'Muting') + ' local stream...')
+    Janus.log('Audio: ' + (muted ? 'Unmuting' : 'Muting') + ' local stream...')
     if (muted) sfu.unmuteAudio()
     else sfu.muteAudio()
     muted = sfu.isAudioMuted()
+  }
+
+  toggleVideo() {
+    var muted = sfu.isVideoMuted()
+    Janus.log('Video: ' + (muted ? 'Unmuting' : 'Muting') + ' local stream...')
+    if (muted) sfu.unmuteVideo()
+    else sfu.muteVideo()
+    muted = sfu.isVideoMuted()
   }
 
   newRemoteFeed(id, display, audio, video) {
@@ -442,14 +457,17 @@ class VideoExtension extends React.Component {
         if (!videoTracks || videoTracks.length === 0) {
           // No remote video
           // Hide the remote video feed
+          console.log('HIDE THE REMOTE VIDEO')
         } else {
           // Show the remote video
+          console.log('SHOW THE REMOTE VIDEO')
         }
 
         // Handle bitrate display
         if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
+          console.log('BITRATE: ', remoteFeed.rfindex)
           bitrateTimer[remoteFeed.rfindex] = setInterval(() => {
-            // console.log('Bitrate for ' + remoteFeed.rfindex, remoteFeed.getBitrate())
+            //console.log(remoteParticipant.rfindex, 'Bitrate for ' + remoteFeed.rfindex, remoteFeed.getBitrate())
           }, 1000)
         }
       },
@@ -573,7 +591,7 @@ class VideoExtension extends React.Component {
                 Janus.log('Successfully joined room ' + msg['room'] + ' with ID ' + myid)
 
                 // We have the feed
-                this.publishOwnFeed(true)
+                this.publishOwnFeed(true, true)
 
                 // Set the call to active
                 this.setState({ view: 'call' })
@@ -644,6 +662,8 @@ class VideoExtension extends React.Component {
                   var unpublished = msg['unpublished']
                   var remoteFeed = this.state.participants.filter(participant => participant.rfid == unpublished)[0]
 
+                  console.log('>>>>>>>>', msg['unpublished'], this.state.participants)
+
                   // Only if they exist - this might also be us
                   if (remoteFeed) {
                     Janus.debug('Feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
@@ -682,7 +702,7 @@ class VideoExtension extends React.Component {
                     // The room ID would have been updated from the "Join" button
                     case 425:
                       this.setState({ view: 'call' })
-                      this.publishOwnFeed(true)
+                      this.publishOwnFeed(true, true)
                       break
                   }
                 }
@@ -729,7 +749,7 @@ class VideoExtension extends React.Component {
 
             // Get our video tracks
             if (!videoTracks || videoTracks.length === 0) {
-              this.setState({ error: 'No webcam!' })
+              this.setState({ error: 'Webcam feed is off, or not present.' })
             }
           },
           onremotestream: stream => {
@@ -797,7 +817,7 @@ class VideoExtension extends React.Component {
       sfu.hangup()
 
       // publishOwnFeed will now use our feed
-      this.publishOwnFeed(true)
+      this.publishOwnFeed(true, true)
     })
   }
 
@@ -816,7 +836,7 @@ class VideoExtension extends React.Component {
         sfu.hangup()
 
         // publishOwnFeed will now use our feed
-        this.publishOwnFeed(true)
+        this.publishOwnFeed(true, true)
       })
     } catch (err) {
       this.setState({
@@ -953,7 +973,7 @@ class VideoExtension extends React.Component {
     return (
       <React.Fragment>
         <div className="header">
-          <div className="title">Channel calls</div>
+          <div className="title">Rooms</div>
           <div className="flexer"></div>
           <Button text="Create" theme="muted" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
         </div>
@@ -1050,7 +1070,17 @@ class VideoExtension extends React.Component {
                 )}
 
                 {/* local video stream */}
-                <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" poster={this.props.user.image} />
+                <video
+                  ref={ref => (this.localVideoRef = ref)}
+                  width="100%"
+                  height="100%"
+                  autoPlay
+                  muted="muted"
+                  poster={this.props.user.image}
+                  onChange={e => {
+                    console.log(e)
+                  }}
+                />
               </div>
 
               {/* the rest of them - iterate over them */}
