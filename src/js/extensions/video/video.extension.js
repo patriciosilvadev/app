@@ -328,7 +328,6 @@ class VideoExtension extends React.Component {
           ptype: 'subscriber',
           feed: id,
           private_id: mypvtid,
-          //close_pc: false,
         }
 
         // For example, if the publisher is VP8 and this is Safari, let's avoid video
@@ -365,7 +364,7 @@ class VideoExtension extends React.Component {
             // TODO: Implement loading mechanism
             if (!remoteFeed.spinner) {
               // Target is the video element ref for the remote feed that we create
-              // var target = document.getElementById('videoremote' + remoteFeed.rfindex)
+              // var target = document.getElementById('videoremote' + remoteFeed.id)
               // remoteFeed.spinner = new Spinner({ top: 100 }).spin(target)
             } else {
               remoteFeed.spinner.spin()
@@ -386,11 +385,11 @@ class VideoExtension extends React.Component {
                 // remoteFeed.simulcastStarted = true
                 // Add some new buttons
                 // Unsupported FOR NOW ⚠️
-                // addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === 'vp8' || remoteFeed.videoCodec === 'h264')
+                // addSimulcastButtons(remoteFeed.id, remoteFeed.videoCodec === 'vp8' || remoteFeed.videoCodec === 'h264')
               }
               // We just received notice that there's been a switch, update the buttons
               // Unsupported FOR NOW ⚠️
-              // updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
+              // updateSimulcastButtons(remoteFeed.id, substream, temporal)
             }
           } else {
             // What has just happened?
@@ -419,21 +418,21 @@ class VideoExtension extends React.Component {
         }
       },
       iceState: state => {
-        Janus.log('ICE state of this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') changed to ' + state)
+        Janus.log('ICE state of this WebRTC PeerConnection (feed #' + remoteFeed.id + ') changed to ' + state)
       },
       webrtcState: on => {
-        Janus.log('Janus says this WebRTC PeerConnection (feed #' + remoteFeed.rfindex + ') is ' + (on ? 'up' : 'down') + ' now')
+        Janus.log('Janus says this WebRTC PeerConnection (feed #' + remoteFeed.id + ') is ' + (on ? 'up' : 'down') + ' now')
       },
       onlocalstream: stream => {
         // The subscriber stream is recvonly, we don't expect anything here
       },
       onremotestream: stream => {
-        Janus.log('Remote feed #' + remoteFeed.rfindex + ', stream:', stream, remoteFeed)
+        Janus.log('Remote feed #' + remoteFeed.id + ', stream:', stream, remoteFeed)
 
         console.log('Current remote particicpants: ', this.state.participants)
 
         // Look for existing remoteParticipants
-        const remoteParticipant = this.state.participants.filter(remoteParticipant => remoteParticipant.rfindex == remoteFeed.rfindex)
+        const remoteParticipant = this.state.participants.filter(remoteParticipant => remoteParticipant.id == remoteFeed.id)
 
         if (remoteParticipant.length === 0) {
           // Firefox Stable has a bug: width and height are not immediately available after a playing
@@ -444,11 +443,11 @@ class VideoExtension extends React.Component {
           }
         }
 
-        // Janus.attachMediaStream($('#remotevideo' + remoteFeed.rfindex).get(0), stream)
+        // Janus.attachMediaStream($('#remotevideo' + remoteFeed.id).get(0), stream)
         // Now we update the state and add the stream
         this.setState({
           participants: this.state.participants.map(remoteParticipant => {
-            return remoteParticipant.rfindex == remoteFeed.rfindex ? { ...remoteFeed, stream } : remoteParticipant
+            return remoteParticipant.id == remoteFeed.id ? { ...remoteFeed, stream } : remoteParticipant
           }),
         })
 
@@ -465,28 +464,27 @@ class VideoExtension extends React.Component {
 
         // Handle bitrate display
         if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
-          console.log('BITRATE: ', remoteFeed.rfindex)
-          bitrateTimer[remoteFeed.rfindex] = setInterval(() => {
-            //console.log(remoteParticipant.rfindex, 'Bitrate for ' + remoteFeed.rfindex, remoteFeed.getBitrate())
+          bitrateTimer[remoteFeed.id] = setInterval(() => {
+            console.log('Bitrate for ' + remoteFeed.id, remoteFeed.getBitrate())
           }, 1000)
         }
       },
       oncleanup: () => {
-        Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::')
+        Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::', remoteFeed.id)
 
         if (remoteFeed.spinner) remoteFeed.spinner.stop()
         remoteFeed.spinner = null
 
         // Remove the video
         this.setState({
-          participants: this.state.participants.filter(remoteParticipant => remoteParticipant.rfindex != remoteFeed.rfindex),
+          participants: this.state.participants.filter(remoteParticipant => remoteParticipant.id != remoteFeed.id),
         })
 
-        if (bitrateTimer[remoteFeed.rfindex]) clearInterval(bitrateTimer[remoteFeed.rfindex])
-        bitrateTimer[remoteFeed.rfindex] = null
+        if (bitrateTimer[remoteFeed.id]) clearInterval(bitrateTimer[remoteFeed.id])
+        bitrateTimer[remoteFeed.id] = null
         remoteFeed.simulcastStarted = false
         // We don't handle simulcast yet
-        // $('#simulcast' + remoteFeed.rfindex).remove()
+        // $('#simulcast' + remoteFeed.id).remove()
       },
     })
   }
