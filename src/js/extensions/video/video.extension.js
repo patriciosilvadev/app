@@ -12,15 +12,15 @@ import { updateChannel, createChannelMessage } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { DEVICE } from '../../environment'
+import { DEVICE, WEBRTC_URL } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 
 // Variables from the Janus videoroom example
-var server = 'http://159.69.150.191:8088/janus'
+var server = WEBRTC_URL
 var janus = null
 var sfu = null
 var room = 0
-var opaqueId = 'videoroomtest-' + Janus.randomString(12)
+var opaqueId = 'videoroom-' + Janus.randomString(12)
 var myid = null
 var mystream = null
 var screenstream = null
