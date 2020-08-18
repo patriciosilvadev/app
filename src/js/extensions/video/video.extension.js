@@ -30,7 +30,7 @@ var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringVa
 var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
 var mypvtid = null // We use this other ID just to map our subscriptions to us
 
-const Video = ({ stream, poster }) => {
+const Video = ({ stream, poster, viewable }) => {
   const videoRef = useRef(null)
 
   useEffect(() => {
@@ -38,7 +38,16 @@ const Video = ({ stream, poster }) => {
     Janus.attachMediaStream(videoRef.current, stream)
   }, [stream])
 
-  return <video ref={videoRef} width="100%" height="100%" autoPlay poster={poster} />
+  return (
+    <React.Fragment>
+      {!viewable && (
+        <div className="not-viewable">
+          <IconComponent icon="video-off" color="#11161c" thickness={2} size={20} />
+        </div>
+      )}
+      <video ref={videoRef} width="100%" height="100%" autoPlay poster={poster} />
+    </React.Fragment>
+  )
 }
 
 class VideoExtension extends React.Component {
@@ -58,6 +67,7 @@ class VideoExtension extends React.Component {
       published: false,
       roomId: null,
       screenSharing: false,
+      viewable: true,
     }
 
     this.localVideoRef = React.createRef()
@@ -306,6 +316,7 @@ class VideoExtension extends React.Component {
     if (muted) sfu.unmuteVideo()
     else sfu.muteVideo()
     muted = sfu.isVideoMuted()
+    this.setState({ viewable: !muted })
   }
 
   newRemoteFeed(id, display, audio, video) {
@@ -445,29 +456,80 @@ class VideoExtension extends React.Component {
 
         // Janus.attachMediaStream($('#remotevideo' + remoteFeed.id).get(0), stream)
         // Now we update the state and add the stream
-        this.setState({
-          participants: this.state.participants.map(remoteParticipant => {
-            return remoteParticipant.id == remoteFeed.id ? { ...remoteFeed, stream } : remoteParticipant
-          }),
-        })
+        this.setState(
+          {
+            participants: this.state.participants.map(remoteParticipant => {
+              return remoteParticipant.id == remoteFeed.id ? { ...remoteFeed, stream, viewable: true } : remoteParticipant
+            }),
+          },
+          () => {
+            // AFTER our state update
+            // Handle bitrate / streams
+            let videoTracks = stream.getVideoTracks()
+            let bitrates = {}
 
-        var videoTracks = stream.getVideoTracks()
+            if (!videoTracks || videoTracks.length === 0) {
+              // No remote video
+              // Hide the remote video feed
+              console.log('HIDE THE REMOTE VIDEO')
 
-        if (!videoTracks || videoTracks.length === 0) {
-          // No remote video
-          // Hide the remote video feed
-          console.log('HIDE THE REMOTE VIDEO')
-        } else {
-          // Show the remote video
-          console.log('SHOW THE REMOTE VIDEO')
-        }
+              this.setState({
+                participants: this.state.participants.map(remoteParticipant => {
+                  return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: false } : remoteParticipant
+                }),
+              })
+            } else {
+              // Show the remote video
+              console.log('SHOW THE REMOTE VIDEO')
 
-        // Handle bitrate display
-        if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
-          bitrateTimer[remoteFeed.id] = setInterval(() => {
-            console.log('Bitrate for ' + remoteFeed.id, remoteFeed.getBitrate())
-          }, 1000)
-        }
+              this.setState({
+                participants: this.state.participants.map(remoteParticipant => {
+                  return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: true } : remoteParticipant
+                }),
+              })
+            }
+
+            // Handle bitrate display
+            if (Janus.webRTCAdapter.browserDetails.browser === 'chrome' || Janus.webRTCAdapter.browserDetails.browser === 'firefox' || Janus.webRTCAdapter.browserDetails.browser === 'safari') {
+              bitrateTimer[remoteFeed.id] = setInterval(() => {
+                // Strip the stirng off
+                const bitrate = remoteFeed.getBitrate().split(' ')[0]
+
+                // If the bitrate drop below 10
+                // Then don't show anything
+                // But only do this once (so it doesn't stress the browsaer out)
+                if (bitrate < 10) {
+                  if (bitrates[remoteFeed.id]) {
+                    bitrates[remoteFeed.id] = false
+
+                    this.setState({
+                      participants: this.state.participants.map(remoteParticipant => {
+                        return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: false } : remoteParticipant
+                      }),
+                    })
+                  }
+                }
+
+                // If the bitrate exceeds 10
+                // Then show the video feed
+                // But only do this once (so it doesn't stress the browsaer out
+                if (bitrate > 10) {
+                  if (!bitrates[remoteFeed.id]) {
+                    bitrates[remoteFeed.id] = true
+
+                    this.setState({
+                      participants: this.state.participants.map(remoteParticipant => {
+                        return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: true } : remoteParticipant
+                      }),
+                    })
+                  }
+                }
+
+                console.log(remoteFeed.id, bitrate, bitrates[remoteFeed.id])
+              }, 1000)
+            }
+          }
+        )
       },
       oncleanup: () => {
         Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::', remoteFeed.id)
@@ -1067,6 +1129,12 @@ class VideoExtension extends React.Component {
                   </div>
                 )}
 
+                {!this.state.viewable && (
+                  <div className="not-viewable">
+                    <IconComponent icon="video-off" color="#11161c" thickness={2} size={20} />
+                  </div>
+                )}
+
                 {/* local video stream */}
                 <video
                   ref={ref => (this.localVideoRef = ref)}
@@ -1113,7 +1181,7 @@ class VideoExtension extends React.Component {
                     )}
 
                     {/* remote participant video stream */}
-                    {remoteParticipant.stream && <Video stream={remoteParticipant.stream} poster={userAvatar} />}
+                    {remoteParticipant.stream && <Video stream={remoteParticipant.stream} viewable={remoteParticipant.viewable} poster={userAvatar} />}
                   </div>
                 )
               })}
