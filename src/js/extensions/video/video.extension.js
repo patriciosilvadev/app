@@ -439,7 +439,6 @@ class VideoExtension extends React.Component {
       },
       onremotestream: stream => {
         Janus.log('Remote feed #' + remoteFeed.id + ', stream:', stream, remoteFeed)
-
         console.log('Current remote particicpants: ', this.state.participants)
 
         // Look for existing remoteParticipants
@@ -465,28 +464,26 @@ class VideoExtension extends React.Component {
           () => {
             // AFTER our state update
             // Handle bitrate / streams
-            let videoTracks = stream.getVideoTracks()
             let bitrates = {}
+            const videoTracks = stream.getVideoTracks()
+            const makeRemoteParticipantViewable = viewable => {
+              this.setState({
+                participants: this.state.participants.map(remoteParticipant => {
+                  return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable } : remoteParticipant
+                }),
+              })
+            }
 
+            // Handle whether or not there are video tracks
             if (!videoTracks || videoTracks.length === 0) {
               // No remote video
               // Hide the remote video feed
               console.log('HIDE THE REMOTE VIDEO')
-
-              this.setState({
-                participants: this.state.participants.map(remoteParticipant => {
-                  return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: false } : remoteParticipant
-                }),
-              })
+              makeRemoteParticipantViewable(false)
             } else {
               // Show the remote video
               console.log('SHOW THE REMOTE VIDEO')
-
-              this.setState({
-                participants: this.state.participants.map(remoteParticipant => {
-                  return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: true } : remoteParticipant
-                }),
-              })
+              makeRemoteParticipantViewable(true)
             }
 
             // Handle bitrate display
@@ -501,12 +498,7 @@ class VideoExtension extends React.Component {
                 if (bitrate < 10) {
                   if (bitrates[remoteFeed.id]) {
                     bitrates[remoteFeed.id] = false
-
-                    this.setState({
-                      participants: this.state.participants.map(remoteParticipant => {
-                        return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: false } : remoteParticipant
-                      }),
-                    })
+                    makeRemoteParticipantViewable(false)
                   }
                 }
 
@@ -516,12 +508,7 @@ class VideoExtension extends React.Component {
                 if (bitrate > 10) {
                   if (!bitrates[remoteFeed.id]) {
                     bitrates[remoteFeed.id] = true
-
-                    this.setState({
-                      participants: this.state.participants.map(remoteParticipant => {
-                        return remoteParticipant.id == remoteFeed.id ? { ...remoteParticipant, viewable: true } : remoteParticipant
-                      }),
-                    })
+                    makeRemoteParticipantViewable(true)
                   }
                 }
 
@@ -534,6 +521,8 @@ class VideoExtension extends React.Component {
       oncleanup: () => {
         Janus.log(' ::: Got a cleanup notification (remote feed ' + id + ') :::', remoteFeed.id)
 
+        // Not sure what spinner is - think jQuery object
+        // ⚠️ TODO: invesigate and remove
         if (remoteFeed.spinner) remoteFeed.spinner.stop()
         remoteFeed.spinner = null
 
