@@ -19,12 +19,12 @@ import { MIME_TYPES } from '../../constants'
 var server = WEBRTC_URL
 var janus = null
 var sfu = null
+var sfu_screen = null
 var room = 0
 var opaqueId = 'videoroom-' + Janus.randomString(12)
 var myid = null
 var mystream = null
 var screenstream = null
-var feeds = []
 var bitrateTimer = []
 var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
 var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
@@ -77,8 +77,11 @@ class VideoExtension extends React.Component {
     this.mute = this.mute.bind(this)
     this.publish = this.publish.bind(this)
     this.registerUsername = this.registerUsername.bind(this)
+    this.registerScreensharing = this.registerScreensharing.bind(this)
+    this.publishOwnScreenFeed = this.publishOwnScreenFeed.bind(this)
     this.publishOwnFeed = this.publishOwnFeed.bind(this)
     this.unpublishOwnFeed = this.unpublishOwnFeed.bind(this)
+    this.unpublishOwnScreenFeed = this.unpublishOwnScreenFeed.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
     this.toggleVideo = this.toggleVideo.bind(this)
     this.newRemoteFeed = this.newRemoteFeed.bind(this)
@@ -195,16 +198,24 @@ class VideoExtension extends React.Component {
     console.log('setting video to ', published)
     this.setState({ published })
     this.toggleVideo()
+  }
 
-    /* this.setState({ published })
+  registerScreensharing(roomId) {
+    // Get some fo the user details we'll use
+    // | This is not allowed in URLs
+    const { image, name } = this.props.user
+    const display = btoa(`${name}|${image}`)
 
-    if (published) {
-      this.publishOwnFeed(true, true)
-    } else {
-      this.attachLocalStreamToVideoEl(null)
-      this.unpublishOwnFeed()
-      this.publishOwnFeed(true, false)
-    } */
+    // there is no sucecss callback here
+    // Base 64 encode
+    sfu_screen.send({
+      message: {
+        request: 'join',
+        room: roomId,
+        ptype: 'publisher',
+        display: display,
+      },
+    })
   }
 
   registerUsername(roomId) {
@@ -221,81 +232,80 @@ class VideoExtension extends React.Component {
         room: roomId,
         ptype: 'publisher',
         display: display,
-        //close_pc: false,
       },
     })
   }
 
   publishOwnFeed(useAudio, useVideo) {
-    // Publishers are sendonly
-    // Add data:true here if you want to publish datachannels as well
-    let media = {
-      audioRecv: false,
-      videoRecv: false,
-      audioSend: useAudio,
-      videoSend: useVideo,
-    }
-
-    if (this.state.screenSharing) media.video = 'screen'
-
-    // Create the offer for Janus
     sfu.createOffer({
-      media,
-      // If you want to test simulcasting (Chrome and Firefox only), then
-      // pass a ?simulcast=true when opening this demo page: it will turn
-      // the following 'simulcast' property to pass to janus.js to true
+      media: {
+        audioRecv: false,
+        videoRecv: false,
+        audioSend: useAudio,
+        videoSend: useVideo,
+      },
       simulcast: doSimulcast,
       simulcast2: doSimulcast2,
       success: jsep => {
-        Janus.debug('Got publisher SDP!', jsep)
-
-        var publish = { request: 'configure', audio: useAudio, video: true }
-        // You can force a specific codec to use when publishing by using the
-        // audiocodec and videocodec properties, for instance:
-        // 		publish["audiocodec"] = "opus"
-        // to force Opus as the audio codec to use, or:
-        // 		publish["videocodec"] = "vp9"
-        // to force VP9 as the videocodec to use. In both case, though, forcing
-        // a codec will only work if: (1) the codec is actually in the SDP (and
-        // so the browser supports it), and (2) the codec is in the list of
-        // allowed codecs in a room. With respect to the point (2) above,
-        // refer to the text in janus.plugin.videoroom.jcfg for more details
-        sfu.send({ message: publish, jsep: jsep })
+        sfu.send({
+          message: {
+            request: 'configure',
+            audio: useAudio,
+            video: useVideo,
+          },
+          jsep: jsep,
+        })
       },
       error: error => {
-        Janus.error('WebRTC error:', error)
-
-        // The user not allowed their feed
-        if (this.state.screenSharing) {
-          this.setState(
-            {
-              screenSharing: false,
-              error: 'Media was not allowed - please allow screen sharing',
-            },
-            () => {
-              // First unpublish & then publish
-              // sfu.hangup()
-              // publishOwnFeed will now use our feed
-              // this.publishOwnFeed(true)
-            }
-          )
+        if (useAudio) {
+          this.publishOwnFeed(false, true)
         } else {
-          // As normal
-          if (useAudio) {
-            this.publishOwnFeed(false, true)
-          } else {
-            console.log('WebRTC error... ' + error.message)
-            // Reshow this button:
-            // this.publishOwnFeed(true)
-            this.setState({ error: error.message })
-          }
+          this.setState({ error: error.message })
         }
+      },
+    })
+  }
+
+  publishOwnScreenFeed(useAudio, useVideo) {
+    sfu_screen.createOffer({
+      media: {
+        audioRecv: false,
+        videoRecv: false,
+        audioSend: useAudio,
+        videoSend: useVideo,
+        video: 'screen',
+      },
+      simulcast: doSimulcast,
+      simulcast2: doSimulcast2,
+      success: jsep => {
+        sfu_screen.send({
+          message: {
+            request: 'configure',
+            audio: useAudio,
+            video: useVideo,
+          },
+          jsep: jsep,
+        })
+      },
+      error: error => {
+        this.setState({
+          screenSharing: false,
+          error: error.message,
+        })
       },
     })
   }
 
   unpublishOwnFeed() {
     sfu.send({
+      message: {
+        request: 'unpublish',
+      },
+    })
+  }
+
+  unpublishOwnScreenFeed() {
+    sfu_screen.send({
       message: {
         request: 'unpublish',
       },
@@ -329,9 +339,6 @@ class VideoExtension extends React.Component {
         remoteFeed = pluginHandle
         remoteFeed.simulcastStarted = false
 
-        Janus.log('Plugin attached! (' + remoteFeed.getPlugin() + ', id=' + remoteFeed.getId() + ')')
-        Janus.log('  -- This is a subscriber')
-
         // We wait for the plugin to send us an offer
         var subscribe = {
           request: 'join',
@@ -344,8 +351,6 @@ class VideoExtension extends React.Component {
         // For example, if the publisher is VP8 and this is Safari, let's avoid video
         if (Janus.webRTCAdapter.browserDetails.browser === 'safari' && (video === 'vp9' || (video === 'vp8' && !Janus.safariVp8))) {
           if (video) video = video.toUpperCase()
-
-          console.warning('Publisher is using ' + video + ", but Safari doesn't support it: disabling video")
           subscribe['offer_video'] = false
         }
 
@@ -353,13 +358,9 @@ class VideoExtension extends React.Component {
         remoteFeed.send({ message: subscribe })
       },
       error: error => {
-        Janus.error('  -- Error attaching plugin...', error)
-        console.log('Error attaching plugin... ' + error)
         this.setState({ error: 'Error getting remote feed' })
       },
       onmessage: (msg, jsep) => {
-        Janus.debug(' ::: Got a message (subscriber) :::', msg, msg['videoroom'])
-
         var event = msg['videoroom']
 
         if (msg['error']) {
@@ -492,6 +493,9 @@ class VideoExtension extends React.Component {
                 // Strip the stirng off
                 const bitrate = remoteFeed.getBitrate().split(' ')[0]
 
+                // Only deal with numbers
+                if (isNaN(bitrate)) return
+
                 // If the bitrate drop below 10
                 // Then don't show anything
                 // But only do this once (so it doesn't stress the browsaer out)
@@ -512,7 +516,7 @@ class VideoExtension extends React.Component {
                   }
                 }
 
-                console.log(remoteFeed.id, bitrate, bitrates[remoteFeed.id])
+                // console.log(remoteFeed.id, bitrate, bitrates[remoteFeed.id])
               }, 1000)
             }
           }
@@ -854,23 +858,10 @@ class VideoExtension extends React.Component {
   }
 
   stopCapture() {
-    // screenstream = nulls
-    // Cleanup
-    // let tracks = this.videoElement.srcObject.getTracks()
-    //tracks.forEach(track => track.stop())
-
-    // Reconnect
-    // Tell janus we're sharing
-    this.setState({ screenSharing: false }, () => {
-      // First unpublish & then publish
-      sfu.hangup()
-
-      // publishOwnFeed will now use our feed
-      this.publishOwnFeed(true, true)
-    })
+    this.unpublishOwnScreenFeed()
   }
 
-  async startCapture() {
+  startCapture() {
     try {
       // Set up our screen
       // Save this globally
@@ -881,11 +872,93 @@ class VideoExtension extends React.Component {
 
       // Tell janus we're sharing
       this.setState({ screenSharing: true }, () => {
-        // First unpublish & then publish
-        sfu.hangup()
+        janus.attach({
+          plugin: 'janus.plugin.videoroom',
+          opaqueId: opaqueId,
+          success: pluginHandle => {
+            sfu_screen = pluginHandle
+            this.registerScreensharing(this.state.roomId)
+          },
+          error: error => {
+            this.setState({ error })
+          },
+          consentDialog: on => {},
+          iceState: state => {},
+          mediaState: (medium, on) => {},
+          webrtcState: on => {
+            if (!on) return
+            // This controls allows us to override the global room bitrate cap
+            // 0 == unlimited
+            // var bitrate = 0 / 128 / 256 / 1014 / 1500 / 2000
+            sfu_screen.send({
+              message: {
+                request: 'configure',
+                bitrate: 1014,
+              },
+            })
+          },
+          onmessage: (msg, jsep) => {
+            var event = msg['videoroom']
 
-        // publishOwnFeed will now use our feed
-        this.publishOwnFeed(true, true)
+            if (event) {
+              if (event === 'joined') {
+                myid = msg['id']
+                mypvtid = msg['private_id']
+
+                // We have the feed
+                this.publishOwnScreenFeed(true, true)
+              } else if (event === 'destroyed') {
+              } else if (event === 'event') {
+                // Attach any new feeds that join
+                if (msg['publishers']) {
+                } else if (msg['leaving']) {
+                } else if (msg['unpublished']) {
+                } else if (msg['error']) {
+                }
+              }
+            }
+
+            if (jsep) {
+              sfu_screen.handleRemoteJsep({ jsep: jsep })
+
+              var audio = msg['audio_codec']
+              var video = msg['video_codec']
+
+              // Audio has been rejected
+              if (screenstream && screenstream.getAudioTracks() && screenstream.getAudioTracks().length > 0 && !audio) {
+                this.setState({ error: "Our audio stream has been rejected, viewers won't hear us" })
+              }
+
+              // Video has been rejected
+              // Hide the webcam video element REF - see below where it attached
+              if (screenstream && screenstream.getVideoTracks() && screenstream.getVideoTracks().length > 0 && !video) {
+                this.setState({ error: "Our video stream has been rejected, viewers won't see us" })
+              }
+            }
+          },
+          onlocalstream: stream => {
+            screenstream = stream
+
+            // Handle the ice connection - making sure we're published here for the user
+            if (sfu_screen.webrtcStuff.pc.iceConnectionState !== 'completed' && sfu_screen.webrtcStuff.pc.iceConnectionState !== 'connected') {
+              // Show an indicator/notice for the user to say we're publishing
+              // Do nothing here for now
+              // Will be handled by the loading indicator
+            }
+
+            // Get all the video trackcs from this device
+            var videoTracks = screenstream.getVideoTracks()
+
+            // Get our video tracks
+            if (!videoTracks || videoTracks.length === 0) {
+              this.setState({ error: 'Screensharing feed is off, or not present.' })
+            }
+          },
+          onremotestream: stream => {},
+          oncleanup: () => {
+            screenstream = null
+          },
+        })
       })
     } catch (err) {
       this.setState({
@@ -1125,17 +1198,7 @@ class VideoExtension extends React.Component {
                 )}
 
                 {/* local video stream */}
-                <video
-                  ref={ref => (this.localVideoRef = ref)}
-                  width="100%"
-                  height="100%"
-                  autoPlay
-                  muted="muted"
-                  poster={this.props.user.image}
-                  onChange={e => {
-                    console.log(e)
-                  }}
-                />
+                <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" poster={this.props.user.image} />
               </div>
 
               {/* the rest of them - iterate over them */}
