@@ -1,6 +1,6 @@
 {
   "name": "weekday-app",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Weekday, a hackable team messaging platform",
   "main": "src/js/electron.js",
   "scripts": {
