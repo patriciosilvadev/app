@@ -18,17 +18,24 @@ import { MIME_TYPES } from '../../constants'
 // Variables from the Janus videoroom example
 var server = WEBRTC_URL
 var janus = null
+var opaqueId = 'videoroom-' + Janus.randomString(12)
+var bitrateTimer = []
+
+// Plugin handles
 var sfu = null
 var sfu_screen = null
-var room = 0
-var opaqueId = 'videoroom-' + Janus.randomString(12)
-var myid = null
 var mystream = null
 var screenstream = null
-var bitrateTimer = []
+
+// Not used yet
 var doSimulcast = getQueryStringValue('simulcast') === 'yes' || getQueryStringValue('simulcast') === 'true'
 var doSimulcast2 = getQueryStringValue('simulcast2') === 'yes' || getQueryStringValue('simulcast2') === 'true'
-var mypvtid = null // We use this other ID just to map our subscriptions to us
+
+// Use these to map the subscriptions to us
+var myid = null
+var mypvtid = null
+var myid_screen = null
+var mypvtid_screen = null
 
 const Video = ({ stream, poster, viewable }) => {
   const videoRef = useRef(null)
@@ -70,33 +77,41 @@ class VideoExtension extends React.Component {
       viewable: true,
     }
 
-    this.localVideoRef = React.createRef()
-    this.focusVideoRef = React.createRef()
+    this.localVideoRef = React.createRef() // Small screen
+    this.focusVideoRef = React.createRef() // Big screen (when user is clicked on)
 
+    this.shareToChannel = this.shareToChannel.bind(this)
     this.stopCall = this.stopCall.bind(this)
+    this.hangup = this.hangup.bind(this)
+    this.leave = this.leave.bind(this)
+    this.exitCall = this.exitCall.bind(this)
+    this.resetGlobalValues = this.resetGlobalValues.bind(this)
+    this.destroyRoom = this.destroyRoom.bind(this)
     this.mute = this.mute.bind(this)
     this.publish = this.publish.bind(this)
-    this.registerUsername = this.registerUsername.bind(this)
     this.registerScreensharing = this.registerScreensharing.bind(this)
-    this.publishOwnScreenFeed = this.publishOwnScreenFeed.bind(this)
+    this.registerUsername = this.registerUsername.bind(this)
     this.publishOwnFeed = this.publishOwnFeed.bind(this)
+    this.publishOwnScreenFeed = this.publishOwnScreenFeed.bind(this)
     this.unpublishOwnFeed = this.unpublishOwnFeed.bind(this)
     this.unpublishOwnScreenFeed = this.unpublishOwnScreenFeed.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
     this.toggleVideo = this.toggleVideo.bind(this)
     this.newRemoteFeed = this.newRemoteFeed.bind(this)
-    this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
-    this.renderCall = this.renderCall.bind(this)
-    this.renderStartCall = this.renderStartCall.bind(this)
-    this.renderCallList = this.renderCallList.bind(this)
-    this.handleChannelDeleteCall = this.handleChannelDeleteCall.bind(this)
-    this.handleChannelCreateCall = this.handleChannelCreateCall.bind(this)
-    this.startCapture = this.startCapture.bind(this)
-    this.stopCapture = this.stopCapture.bind(this)
-    this.toggleScreenSharing = this.toggleScreenSharing.bind(this)
-    this.shareToChannel = this.shareToChannel.bind(this)
     this.getRoomParticipants = this.getRoomParticipants.bind(this)
-    this.exitCall = this.exitCall.bind(this)
+    this.getServerRoomList = this.getServerRoomList.bind(this)
+    this.removeRemoteFeed = this.removeRemoteFeed.bind(this)
+    this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
+    this.attachLocalStreamToVideoEl = this.attachLocalStreamToVideoEl.bind(this)
+    this.toggleScreenSharing = this.toggleScreenSharing.bind(this)
+    this.stopCapture = this.stopCapture.bind(this)
+    this.startCapture = this.startCapture.bind(this)
+    this.checkIfRoomExistsFirst = this.checkIfRoomExistsFirst.bind(this)
+    this.handleChannelCreateCall = this.handleChannelCreateCall.bind(this)
+    this.handleChannelDeleteCall = this.handleChannelDeleteCall.bind(this)
+    this.renderCallList = this.renderCallList.bind(this)
+    this.renderStartCall = this.renderStartCall.bind(this)
+    this.renderCall = this.renderCall.bind(this)
   }
 
   async shareToChannel() {
@@ -155,23 +170,63 @@ class VideoExtension extends React.Component {
     janus.destroy()
   }
 
-  exitCall(roomId) {
-    // Stops the video camera
-    sfu.hangup()
-
-    // Remove ourselves as a publisher
-    this.unpublishOwnFeed()
-
-    // Showing the user a list
-    this.setState({ view: '', participants: [] })
-
-    // Now leaving the room
+  leave(roomId) {
     sfu.send({
       message: {
         request: 'leave',
         room: roomId,
       },
     })
+
+    if (sfu_screen) {
+      sfu_screen.send({
+        message: {
+          request: 'leave',
+          room: roomId,
+        },
+      })
+    }
+  }
+
+  hangup() {
+    sfu.hangup()
+    if (sfu_screen) sfu_screen.hangup()
+  }
+
+  exitCall() {
+    const { roomId, published } = this.state
+
+    // Only do it once
+    if (!published) return
+
+    // Showing the user a list
+    this.setState(
+      {
+        view: '',
+        participants: [],
+        published: false,
+      },
+      () => {
+        this.unpublishOwnFeed()
+        this.unpublishOwnScreenFeed()
+        this.leave(roomId)
+        this.hangup()
+        // this.stopCall() <-- Seems to hang ⚠️ Investigate
+        this.resetGlobalValues()
+      }
+    )
+  }
+
+  resetGlobalValues() {
+    myid = null
+    mypvtid = null
+    myid_screen = null
+    mypvtid_screen = null
+    sfu = null
+    sfu_screen = null
+    mystream = null
+    screenstream = null
+    janus = null
   }
 
   destroyRoom(roomId) {
@@ -305,6 +360,8 @@ class VideoExtension extends React.Component {
   }
 
   unpublishOwnScreenFeed() {
+    if (!sfu_screen) return
+
     sfu_screen.send({
       message: {
         request: 'unpublish',
@@ -342,7 +399,7 @@ class VideoExtension extends React.Component {
         // We wait for the plugin to send us an offer
         var subscribe = {
           request: 'join',
-          room: room,
+          room: this.state.roomId,
           ptype: 'subscriber',
           feed: id,
           private_id: mypvtid,
@@ -367,7 +424,6 @@ class VideoExtension extends React.Component {
           console.log('newRemoteFeed error: ', msg['error'])
         } else if (event) {
           if (event === 'attached') {
-            // Subscriber created and attached
             remoteFeed.rfid = msg['id']
             remoteFeed.rfdisplay = msg['display']
 
@@ -382,13 +438,9 @@ class VideoExtension extends React.Component {
               remoteFeed.spinner.spin()
             }
 
-            console.log('Successfully attached to feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') in room ' + msg['room'])
-            console.log('remoteParticipant: ', remoteFeed, this.state.participants)
-
             // Update our state with the new remote feed
             this.setState({ participants: [...this.state.participants, remoteFeed] })
           } else if (event === 'event') {
-            // Check if we got an event on a simulcast-related event from this publisher
             var substream = msg['substream']
             var temporal = msg['temporal']
 
@@ -409,23 +461,16 @@ class VideoExtension extends React.Component {
         }
 
         if (jsep) {
-          Janus.debug('Handling SDP as well...', jsep)
-
-          // Answer and attach
           remoteFeed.createAnswer({
             jsep: jsep,
             // Add data:true here if you want to subscribe to datachannels as well
             // (obviously only works if the publisher offered them in the first place)
             media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
             success: jsep => {
-              Janus.debug('Got SDP!', jsep)
-              var body = { request: 'start', room: room }
+              var body = { request: 'start', room: this.state.roomId }
               remoteFeed.send({ message: body, jsep: jsep })
             },
-            error: error => {
-              Janus.error('WebRTC error:', error)
-              console.log('WebRTC error... ' + error.message)
-            },
+            error: error => {},
           })
         }
       },
@@ -568,11 +613,23 @@ class VideoExtension extends React.Component {
     })
   }
 
-  initJanusVideoRoom(roomId) {
-    if (!Janus.isWebrtcSupported()) return alert('No WebRTC support... ')
+  removeRemoteFeed(rfid) {
+    var remoteFeed = this.state.participants.filter(participant => participant.rfid == rfid)[0]
 
-    // global
-    room = roomId
+    // Only if they exist & they're not us
+    // msg['leaving'] == "ok" if it's us leaving
+    if (remoteFeed) {
+      this.setState({
+        participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid),
+      })
+
+      // Remove the participant
+      remoteFeed.detach()
+    }
+  }
+
+  initJanusVideoRoom(roomId) {
+    if (!Janus.isWebrtcSupported()) return this.setState({ error: 'No WebRTC support... ' })
 
     // Start loading
     this.setState({ loading: true })
@@ -588,10 +645,10 @@ class VideoExtension extends React.Component {
           success: pluginHandle => {
             sfu = pluginHandle
 
-            // Logging
-            Janus.log('Plugin attached! (' + sfu.getPlugin() + ', id=' + sfu.getId() + ')')
-            Janus.log('This is a publisher/manager')
+            // Debug
+            this.getServerRoomList()
 
+            // sfu.getPlugin() / sfu.getId()
             // Mkae things active
             this.setState({ loading: false })
 
@@ -600,29 +657,14 @@ class VideoExtension extends React.Component {
           },
           error: error => {
             this.setState({ error })
-            Janus.error('  -- Error attaching plugin...', error)
           },
-          consentDialog: on => {
-            Janus.debug('Consent dialog should be ' + (on ? 'on' : 'off') + ' now')
-            // Check consent has been given
-            console.log(!!navigator.mozGetUserMedia)
-          },
-          iceState: state => {
-            Janus.log('ICE state changed to ' + state)
-          },
-          mediaState: (medium, on) => {
-            Janus.log('Janus ' + (on ? 'started' : 'stopped') + ' receiving our ' + medium)
-          },
+          consentDialog: on => {},
+          iceState: state => {},
+          mediaState: (medium, on) => {},
           webrtcState: on => {
-            Janus.log('Janus says our WebRTC PeerConnection is ' + (on ? 'up' : 'down') + ' now')
-
-            // Show DIV
-            // $('#videolocal') (unhide) <- this is a div
             if (!on) return
 
-            // This controls allows us to override the global room bitrate cap
-            // 0 == unlimited
-            // var bitrate = 0 / 128 / 256 / 1014 / 1500 / 2000
+            // var bitrate = 0 (unlimited) / 128 / 256 / 1014 / 1500 / 2000
             sfu.send({
               message: {
                 request: 'configure',
@@ -631,17 +673,12 @@ class VideoExtension extends React.Component {
             })
           },
           onmessage: (msg, jsep) => {
-            Janus.debug(' ::: Got a message (publisher) :::', msg, msg['videoroom'])
-
             var event = msg['videoroom']
 
             if (event) {
               if (event === 'joined') {
-                // Publisher/manager created, negotiate WebRTC and attach to existing publihers, if any
                 myid = msg['id']
                 mypvtid = msg['private_id']
-
-                Janus.log('Successfully joined room ' + msg['room'] + ' with ID ' + myid)
 
                 // We have the feed
                 this.publishOwnFeed(true, true)
@@ -649,37 +686,24 @@ class VideoExtension extends React.Component {
                 // Set the call to active
                 this.setState({ view: 'call' })
 
-                // Any new feed to attach to?
                 // These attach all the exisitng pushers that are there when the room starts
                 if (msg['publishers']) {
                   var list = msg['publishers']
 
-                  Janus.debug('Got a list of available publishers:', list)
-
                   for (var f in list) {
                     var id = list[f]['id']
                     var display = list[f]['display']
                     var audio = list[f]['audio_codec']
                     var video = list[f]['video_codec']
 
-                    Janus.debug('  >> [' + id + '] ' + display + ' (audio: ' + audio + ', video: ' + video + ')')
-
-                    // Create a new remote feed
                     this.newRemoteFeed(id, display, audio, video)
                   }
                 }
               } else if (event === 'destroyed') {
-                // The room has been destroyed
-                console.log('The room has been destroyed')
-
-                // Reset the UI
                 this.setState({ participants: [], view: '' })
               } else if (event === 'event') {
-                // Attach any new feeds that join
                 if (msg['publishers']) {
                   var list = msg['publishers']
-
-                  Janus.debug('Got a list of available publishers:', list)
 
                   for (var f in list) {
                     var id = list[f]['id']
@@ -687,61 +711,19 @@ class VideoExtension extends React.Component {
                     var audio = list[f]['audio_codec']
                     var video = list[f]['video_codec']
 
-                    Janus.debug('  >> [' + id + '] ' + display + ' (audio: ' + audio + ', video: ' + video + ')')
-
                     this.newRemoteFeed(id, display, audio, video)
                   }
                 } else if (msg['leaving']) {
-                  // One of the publishers has gone away?
-                  // Closed the browser maybe
-                  var leaving = msg['leaving']
-                  var remoteFeed = this.state.participants.filter(participant => participant.rfid == leaving)[0]
-
-                  // Only if they exist & they're not us
-                  // msg['leaving'] == "ok" if it's us leaving
-                  if (remoteFeed) {
-                    Janus.debug('Feed found - ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
-
-                    // Update our state & remove the participant / remoteFeed
-                    this.setState({
-                      participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid),
-                    })
-
-                    // Remove the participant
-                    remoteFeed.detach()
-                  }
+                  this.removeRemoteFeed(msg['leaving'])
                 } else if (msg['unpublished']) {
-                  // One of the publishers has unpublished?
                   var unpublished = msg['unpublished']
-                  var remoteFeed = this.state.participants.filter(participant => participant.rfid == unpublished)[0]
 
-                  console.log('>>>>>>>>', msg['unpublished'], this.state.participants)
-
-                  // Only if they exist - this might also be us
-                  if (remoteFeed) {
-                    Janus.debug('Feed ' + remoteFeed.rfid + ' (' + remoteFeed.rfdisplay + ') has left the room, detaching')
-
-                    // Update our state & remove the participant / remoteFeed
-                    this.setState({
-                      participants: this.state.participants.filter(participant => participant.rfid != remoteFeed.rfid),
-                    })
-
-                    // Remove the participant
-                    remoteFeed.detach()
-                  }
+                  // Remove it from the list
+                  this.removeRemoteFeed(unpublished)
 
                   // If we are unpublished
-                  if (unpublished === 'ok') {
-                    // Simply hang up our camera
-                    // sfu.hangup()
-                    // And change the view to the listing
-                    // this.setState({ view: '' })
-                    // and
-                    return
-                  }
+                  if (unpublished === 'ok') return this.exitCall()
                 } else if (msg['error']) {
-                  console.error(msg)
-
                   switch (msg['error_code']) {
                     // If the room doesn't exist, then direct them to the list
                     case 426:
@@ -763,7 +745,6 @@ class VideoExtension extends React.Component {
             }
 
             if (jsep) {
-              Janus.debug('Handling SDP as well...', jsep)
               sfu.handleRemoteJsep({ jsep: jsep })
 
               // Check if any of the media we wanted to publish has
@@ -784,9 +765,6 @@ class VideoExtension extends React.Component {
             }
           },
           onlocalstream: stream => {
-            Janus.debug(' ::: Got a local stream :::', stream)
-
-            // Update our local stream
             this.attachLocalStreamToVideoEl(stream)
 
             // Handle the ice connection - making sure we're published here for the user
@@ -805,22 +783,16 @@ class VideoExtension extends React.Component {
               this.setState({ error: 'Webcam feed is off, or not present.' })
             }
           },
-          onremotestream: stream => {
-            // The publisher stream is sendonly, we don't expect anything here
-          },
+          onremotestream: stream => {},
           oncleanup: () => {
-            Janus.log(' ::: Got a cleanup notification: we are unpublished now :::')
             mystream = null
-            // Add a publish button to trigger --> this.publishOwnFeed(true)
           },
         })
       },
       error: error => {
-        Janus.error(error)
+        console.error(error)
       },
-      destroyed: () => {
-        console.log('destroyed')
-      },
+      destroyed: () => {},
     })
   }
 
@@ -839,7 +811,7 @@ class VideoExtension extends React.Component {
   }
 
   componentWillUnmount() {
-    janus = null
+    this.resetGlobalValues()
   }
 
   componentDidMount() {
@@ -902,8 +874,8 @@ class VideoExtension extends React.Component {
 
             if (event) {
               if (event === 'joined') {
-                myid = msg['id']
-                mypvtid = msg['private_id']
+                myid_screen = msg['id']
+                mypvtid_screen = msg['private_id']
 
                 // We have the feed
                 this.publishOwnScreenFeed(true, true)
@@ -982,10 +954,6 @@ class VideoExtension extends React.Component {
         }
       },
     })
-  }
-
-  async handleChannelJoinCall(topic, room) {
-    // Do nothing
   }
 
   async handleChannelCreateCall(topic) {
@@ -1093,7 +1061,7 @@ class VideoExtension extends React.Component {
     if (this.state.view != '') return null
 
     return (
-      <React.Fragment>
+      <div className="flexer w-100">
         <div className="header">
           <div className="title">Rooms</div>
           <div className="flexer"></div>
@@ -1140,7 +1108,7 @@ class VideoExtension extends React.Component {
             <Button text="Start one now" size="large" theme="muted" onClick={() => this.setState({ view: 'start' })} />
           </div>
         )}
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -1148,7 +1116,7 @@ class VideoExtension extends React.Component {
     if (this.state.view != 'start') return null
 
     return (
-      <React.Fragment>
+      <div className="flexer w-100">
         <div className="header">
           <Button text="Go back" theme="muted" className="ml-25" onClick={() => this.setState({ view: '' })} icon={<IconComponent icon="chevron-left" color="#617691" thickness={2} size={16} />} />
           <div className="flexer"></div>
@@ -1162,7 +1130,7 @@ class VideoExtension extends React.Component {
           </div>
           <Button text="Create now" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -1171,99 +1139,112 @@ class VideoExtension extends React.Component {
 
     return (
       <React.Fragment>
-        {this.state.participantFocus && <div className="flexer" />}
-
-        <div className="participants">
-          <div className="scroll-container">
-            <div className="inner-content">
-              {/* The first one is always us */}
-              <div
-                className={this.state.participantFocus && this.state.participantToFocus == -1 ? 'participant focus' : 'participant'}
-                onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: -1 })}
-              >
-                <div className="name">
-                  <div className="text">{this.props.user.name}</div>
-                </div>
-
-                {this.state.participantFocus && this.state.participantToFocus == -1 && (
-                  <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-                    <IconComponent icon="x" color="white" thickness={2} size={20} />
-                  </div>
-                )}
-
-                {!this.state.viewable && (
-                  <div className="not-viewable">
-                    <IconComponent icon="video-off" color="#11161c" thickness={2} size={20} />
-                  </div>
-                )}
-
-                {/* local video stream */}
-                <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" poster={this.props.user.image} />
-              </div>
-
-              {/* the rest of them - iterate over them */}
-              {this.state.participants.map((remoteParticipant, index) => {
-                let userFullName = 'NA'
-                let userAvatar = null
-
-                // These get passed everytime they join
-                // We decode the base64 values
-                if (remoteParticipant.rfdisplay) {
-                  const normalString = atob(remoteParticipant.rfdisplay)
-                  const displayNameParts = normalString.split('|')
-
-                  userFullName = displayNameParts[0]
-                  userAvatar = displayNameParts[1]
-                }
-
-                return (
-                  <div
-                    className={this.state.participantFocus && this.state.participantToFocus == index ? 'participant focus' : 'participant'}
-                    onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: index })}
-                    key={index}
-                  >
-                    <div className="name">
-                      <div className="text">{userFullName}</div>
-                    </div>
-
-                    {this.state.participantFocus && this.state.participantToFocus == index && (
-                      <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-                        <IconComponent icon="x" color="white" thickness={2} size={20} />
-                      </div>
-                    )}
-
-                    {/* remote participant video stream */}
-                    {remoteParticipant.stream && <Video stream={remoteParticipant.stream} viewable={remoteParticipant.viewable} poster={userAvatar} />}
-                  </div>
-                )
-              })}
+        <div className="header">
+          <div className="subtitle">Call</div>
+          <div className="title">{this.state.topic}</div>
+          <div className="flexer"></div>
+          <Tooltip text="End call" direction="left">
+            <div className="control-button red" onClick={() => this.exitCall()}>
+              <IconComponent icon="x" color="white" thickness={1.75} size={20} />
             </div>
-          </div>
+          </Tooltip>
         </div>
 
-        <div className="controls">
-          {/* toggle video media publishing */}
-          <Tooltip text="Toggle video feed" direction="top">
-            <div className="control-button" onClick={() => this.publish(!this.state.published)}>
-              <IconComponent icon={this.state.published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
-            </div>
-          </Tooltip>
+        <div className="flexer column w-100">
+          {this.state.participantFocus && <div className="flexer" />}
 
-          {/* toggle audio media publishing */}
-          <Tooltip text="Toggle muting" direction="top">
-            <div className="control-button" onClick={() => this.mute(!this.state.muted)}>
-              <IconComponent icon={this.state.muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
-            </div>
-          </Tooltip>
+          <div className="participants">
+            <div className="scroll-container">
+              <div className="inner-content">
+                {/* The first one is always us */}
+                <div
+                  className={this.state.participantFocus && this.state.participantToFocus == -1 ? 'participant focus' : 'participant'}
+                  onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: -1 })}
+                >
+                  <div className="name">
+                    <div className="text">{this.props.user.name}</div>
+                  </div>
 
-          {/* share to channel */}
-          <div className="control-button" onClick={() => this.toggleScreenSharing()}>
-            {this.state.screenSharing ? 'Stop sharing' : 'Share screen'}
+                  {this.state.participantFocus && this.state.participantToFocus == -1 && (
+                    <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
+                      <IconComponent icon="x" color="white" thickness={2} size={20} />
+                    </div>
+                  )}
+
+                  {!this.state.viewable && (
+                    <div className="not-viewable">
+                      <IconComponent icon="video-off" color="#11161c" thickness={2} size={20} />
+                    </div>
+                  )}
+
+                  {/* local video stream */}
+                  <video ref={ref => (this.localVideoRef = ref)} width="100%" height="100%" autoPlay muted="muted" poster={this.props.user.image} />
+                </div>
+
+                {/* the rest of them - iterate over them */}
+                {this.state.participants.map((remoteParticipant, index) => {
+                  let userFullName = 'NA'
+                  let userAvatar = null
+
+                  // These get passed everytime they join
+                  // We decode the base64 values
+                  if (remoteParticipant.rfdisplay) {
+                    const normalString = atob(remoteParticipant.rfdisplay)
+                    const displayNameParts = normalString.split('|')
+
+                    userFullName = displayNameParts[0]
+                    userAvatar = displayNameParts[1]
+                  }
+
+                  return (
+                    <div
+                      className={this.state.participantFocus && this.state.participantToFocus == index ? 'participant focus' : 'participant'}
+                      onClick={() => this.setState({ participantFocus: !this.state.participantFocus, participantToFocus: index })}
+                      key={index}
+                    >
+                      <div className="name">
+                        <div className="text">{userFullName}</div>
+                      </div>
+
+                      {this.state.participantFocus && this.state.participantToFocus == index && (
+                        <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
+                          <IconComponent icon="x" color="white" thickness={2} size={20} />
+                        </div>
+                      )}
+
+                      {/* remote participant video stream */}
+                      {remoteParticipant.stream && <Video stream={remoteParticipant.stream} viewable={remoteParticipant.viewable} poster={userAvatar} />}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* share screen */}
-          <div className="control-button" onClick={() => this.shareToChannel()}>
-            Share to channel
+          <div className="controls">
+            {/* toggle video media publishing */}
+            <Tooltip text="Toggle video feed" direction="top">
+              <div className="control-button" onClick={() => this.publish(!this.state.published)}>
+                <IconComponent icon={this.state.published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
+              </div>
+            </Tooltip>
+
+            {/* toggle audio media publishing */}
+            <Tooltip text="Toggle muting" direction="top">
+              <div className="control-button" onClick={() => this.mute(!this.state.muted)}>
+                <IconComponent icon={this.state.muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
+              </div>
+            </Tooltip>
+
+            {/* share to channel */}
+            <div className="control-button" onClick={() => this.toggleScreenSharing()}>
+              {this.state.screenSharing ? 'Stop sharing' : 'Share screen'}
+            </div>
+
+            {/* share screen */}
+            <div className="control-button" onClick={() => this.shareToChannel()}>
+              Share to channel
+            </div>
           </div>
         </div>
       </React.Fragment>
@@ -1276,22 +1257,9 @@ class VideoExtension extends React.Component {
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
-        {this.state.view == 'call' && (
-          <div className="header">
-            <div className="subtitle">Call</div>
-            <div className="title">{this.state.topic}</div>
-            <div className="flexer"></div>
-            <Tooltip text="End call" direction="left">
-              <div className="control-button red" onClick={() => this.exitCall()}>
-                <IconComponent icon="x" color="white" thickness={1.75} size={20} />
-              </div>
-            </Tooltip>
-          </div>
-        )}
-
         {this.renderCallList()}
         {this.renderStartCall()}
-        <div className="flexer column w-100">{this.renderCall()}</div>
+        {this.renderCall()}
       </div>
     )
   }
