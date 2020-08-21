@@ -2,7 +2,7 @@ import { API_HOST, JWT } from '../environment'
 import StorageService from './storage.service'
 
 export default class UploadService {
-  static getUploadUrl(filename, mime) {
+  static getUploadUrl(filename, mime, secured) {
     const token = StorageService.getStorage(JWT)
 
     return fetch(`${API_HOST}/upload/url`, {
@@ -11,7 +11,7 @@ export default class UploadService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token,
       },
-      body: JSON.stringify({ filename, mime }),
+      body: JSON.stringify({ filename, mime, secured }),
     })
   }
 

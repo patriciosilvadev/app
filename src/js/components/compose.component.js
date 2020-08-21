@@ -393,15 +393,18 @@ class ComposeComponent extends React.Component {
         this.setState({ error: null, loading: true })
 
         const { name, type, size } = file
+        const secured = true
 
-        UploadService.getUploadUrl(name, type)
+        UploadService.getUploadUrl(name, type, secured)
           .then(raw => raw.json())
           .then(res => {
-            const { url } = res
+            const { url, gurl } = res
+
+            console.log(gurl)
 
             UploadService.uploadFile(url, file, type)
               .then(upload => {
-                const uri = upload.url.split('?')[0]
+                const uri = secured ? gurl : upload.url.split('?')[0]
                 const mime = type
 
                 // Add the new files & increase the index

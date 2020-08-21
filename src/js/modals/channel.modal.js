@@ -40,7 +40,7 @@ export default function ChannelModal(props) {
       const file = e.target.files[0]
       const { type, size } = file
       const fileName = file.name
-      const raw = await UploadService.getUploadUrl(fileName, type)
+      const raw = await UploadService.getUploadUrl(fileName, type, false)
       const { url } = await raw.json()
       const upload = await UploadService.uploadFile(url, file, type)
       const uri = upload.url.split('?')[0]
