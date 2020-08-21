@@ -420,7 +420,7 @@ class ComposeComponent extends React.Component {
                 const uri = upload.url.split('?')[0]
                 const mime = type
 
-                UploadService.getSignedGetUrl(url)
+                UploadService.getSignedGetUrl(uri)
                   .then(raw => raw.json())
                   .then(res1 => {
                     // Add the new files & increase the index
@@ -429,9 +429,7 @@ class ComposeComponent extends React.Component {
                       {
                         attachments: [...this.state.attachments, { uri: res1.url, mime, size, name }],
                       },
-                      () => {
-                        pour()
-                      }
+                      () => pour()
                     )
                   })
                   .catch(err => {
