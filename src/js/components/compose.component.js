@@ -383,36 +383,45 @@ class ComposeComponent extends React.Component {
     if (this.composeRef) this.composeRef.focus()
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.focusComposeInput()
 
     // Listen for file changes in attachments
     Keg.keg('compose').tap(
       'uploads',
-      async (file, pour) => {
+      (file, pour) => {
         this.setState({ error: null, loading: true })
 
-        try {
-          const { name, type, size } = file
-          const raw = await UploadService.getUploadUrl(name, type)
-          const { url } = await raw.json()
-          const upload = await UploadService.uploadFile(url, file, type)
-          const uri = upload.url.split('?')[0]
-          const mime = type
+        const { name, type, size } = file
 
-          // Add the new files & increase the index
-          // And pour again to process the next file
-          this.setState(
-            {
-              attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
-            },
-            () => {
-              pour()
-            }
-          )
-        } catch (e) {
-          this.setState({ error: e, loading: false })
-        }
+        UploadService.getUploadUrl(name, type)
+          .then(raw => raw.json())
+          .then(res => {
+            const { url } = res
+
+            UploadService.uploadFile(url, file, type)
+              .then(upload => {
+                const uri = upload.url.split('?')[0]
+                const mime = type
+
+                // Add the new files & increase the index
+                // And pour again to process the next file
+                this.setState(
+                  {
+                    attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
+                  },
+                  () => {
+                    pour()
+                  }
+                )
+              })
+              .catch(err => {
+                this.setState({ error: 'Error getting URL', loading: false })
+              })
+          })
+          .catch(err => {
+            this.setState({ error: 'Error getting URL', loading: false })
+          })
       },
       () => {
         // This is the empty() callback
