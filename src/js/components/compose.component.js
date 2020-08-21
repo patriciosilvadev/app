@@ -166,14 +166,21 @@ class ComposeComponent extends React.Component {
         team: teamId,
         parent: parentId,
         body,
-        attachments,
         excerpt,
+        // ⚠️ Strip the query string
+        attachments: attachments.map(attachment => {
+          return {
+            ...attachment,
+            uri: attachment.split('?')[0],
+          }
+        }),
       })
 
       // Catch it
       if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
 
       // The extra values are used for processing other info
+      // ⚠️ We are adding the getObject URL from the server
       const channelMessage = {
         message: data.createChannelMessage,
         channelId,
@@ -204,10 +211,18 @@ class ComposeComponent extends React.Component {
       const { data } = await GraphqlService.getInstance().updateChannelMessage(messageId, {
         mentions,
         body,
-        attachments,
         excerpt,
+        // ⚠️ Strip the query string
+        attachments: attachments.map(attachment => {
+          return {
+            ...attachment,
+            uri: attachment.split('?')[0],
+          }
+        }),
       })
 
+      // ⚠️ DO NOT STRIP THE QUERY STRING OFF HERE
+      // We keep it so other people can get the getObject access code
       const channelMessage = {
         message: { body, attachments },
         messageId,
@@ -398,25 +413,30 @@ class ComposeComponent extends React.Component {
         UploadService.getUploadUrl(name, type, secured)
           .then(raw => raw.json())
           .then(res => {
-            const { url, gurl } = res
-
-            console.log(gurl)
+            const { url } = res
 
             UploadService.uploadFile(url, file, type)
               .then(upload => {
-                const uri = secured ? gurl : upload.url.split('?')[0]
+                const uri = upload.url.split('?')[0]
                 const mime = type
 
-                // Add the new files & increase the index
-                // And pour again to process the next file
-                this.setState(
-                  {
-                    attachments: [...this.state.attachments, ...[{ uri, mime, size, name }]],
-                  },
-                  () => {
-                    pour()
-                  }
-                )
+                UploadService.getSignedGetUrl(url)
+                  .then(raw => raw.json())
+                  .then(res1 => {
+                    // Add the new files & increase the index
+                    // And pour again to process the next file
+                    this.setState(
+                      {
+                        attachments: [...this.state.attachments, { uri: res1.url, mime, size, name }],
+                      },
+                      () => {
+                        pour()
+                      }
+                    )
+                  })
+                  .catch(err => {
+                    this.setState({ error: 'Error getting URL', loading: false })
+                  })
               })
               .catch(err => {
                 this.setState({ error: 'Error getting URL', loading: false })

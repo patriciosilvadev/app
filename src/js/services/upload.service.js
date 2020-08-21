@@ -15,6 +15,19 @@ export default class UploadService {
     })
   }
 
+  static getSignedGetUrl(filename) {
+    const token = StorageService.getStorage(JWT)
+
+    return fetch(`${API_HOST}/upload/get_url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify({ filename }),
+    })
+  }
+
   static uploadFile(url, file, mime) {
     return fetch(url, {
       method: 'PUT',
