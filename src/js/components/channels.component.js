@@ -144,12 +144,14 @@ const Channel = props => {
                   {
                     text: props.archived ? 'Unarchive' : 'Archive',
                     onClick: e => {
+                      setMenu(false)
                       props.onArchivedClick()
                     },
                   },
                   {
                     text: props.muted ? 'Unmute' : 'Mute',
                     onClick: e => {
+                      setMenu(false)
                       props.onMutedClick()
                     },
                   },
@@ -160,7 +162,16 @@ const Channel = props => {
                 <React.Fragment>
                   <div className="row wrap p-15 border-top">
                     {colors.map((color, index) => (
-                      <ColorCircle color={color} current={color == props.color} key={index} onClick={() => handleUpdateColor(color)} />
+                      <ColorCircle
+                        color={color}
+                        current={color == props.color}
+                        key={index}
+                        onClick={e => {
+                          e.stopPropagation()
+                          setMenu(false)
+                          handleUpdateColor(color)
+                        }}
+                      />
                     ))}
                   </div>
 
@@ -181,7 +192,17 @@ const Channel = props => {
                         {icons.map((icon, index) => {
                           return (
                             <IconCircle current={icon == props.icon} key={index}>
-                              <IconComponent icon={icon} size={16} color="#ACB5BD" thickness={1.5} onClick={() => handleUpdateIcon(icon)} />
+                              <IconComponent
+                                icon={icon}
+                                size={16}
+                                color="#ACB5BD"
+                                thickness={1.5}
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  setMenu(false)
+                                  handleUpdateIcon(icon)
+                                }}
+                              />
                             </IconCircle>
                           )
                         })}
