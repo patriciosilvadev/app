@@ -364,9 +364,20 @@ export default memo(props => {
   // attachments' detail
   // URI -> usually extension resource ID
   useEffect(() => {
+    const dummyFunctionForHooks = () => console.log('')
+
+    // Because useEffect requires a return being a function
+    if (!props.message) return dummyFunctionForHooks
+    if (!props.message.attachments) return dummyFunctionForHooks
+    if (!props.message.attachments.length) return dummyFunctionForHooks
+    if (props.message.attachments.length == 0) return dummyFunctionForHooks
+
+    // Only valid attachments please
     props.message.attachments.map(attachment => {
-      if (attachment.mime == MIME_TYPES.TASKS) {
-        fetchTaskExtensionMetaData(attachment.uri)
+      if (attachment) {
+        if (attachment.mime == MIME_TYPES.TASKS) {
+          fetchTaskExtensionMetaData(attachment.uri)
+        }
       }
     })
   }, [])
@@ -615,6 +626,8 @@ export default memo(props => {
     return (
       <Attachments>
         {props.message.attachments.map((attachment, index) => {
+          if (attachment == null || attachment == undefined) return null
+
           const { mime, name, uri, meta } = attachment
 
           switch (mime) {
