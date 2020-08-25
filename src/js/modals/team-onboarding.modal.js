@@ -136,17 +136,15 @@ export default function TeamOnboardingModal(props) {
 
     return (
       <React.Fragment>
-        <img src="./team-onboarding.png" width="90%" />
-
-        <Text className="h1 mb-30 mt-30 color-d3">Start something...</Text>
-        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Create a new team by entering the name below</Text>
+        <Text className="h1 mb-30 mt-30 color-d3">Create a team</Text>
+        <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">What would you like to call your new team?</Text>
 
         <div className="column mt-30 align-items-center w-100">
           <InputContainer>
             <Input placeholder="Team name" inputSize="large" value={name} onChange={e => setName(e.target.value)} />
           </InputContainer>
 
-          <Button onClick={() => (name != '' ? setStep(2) : null)} size="large" text="Next" />
+          <Button onClick={() => (name != '' ? setStep(2) : null)} size="large" text="Next" className="mt-30" />
 
           <div className="mt-30 color-blue h5 button" onClick={props.onCancel}>
             No thanks, not now
@@ -267,7 +265,7 @@ const Container = styled.div`
 const Inner = styled.div`
   background: white;
   position: relative;
-  height: 90%;
+  height: 70%;
   width: 550px;
   border-radius: 30px;
   display: flex;

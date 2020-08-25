@@ -658,6 +658,16 @@ class AuthPage extends React.Component {
                   <div onClick={() => this.setState({ view: 'signup', error: null })} className="color-l0 text-center mt-10 button">
                     Create an account
                   </div>
+                  <div className="color-l0 a text-center mt-40">
+                    Read our{' '}
+                    <a href="https://weekdayapp.com/termsofuse" target="_blank">
+                      <strong>terms of use</strong>
+                    </a>{' '}
+                    &{' '}
+                    <a href="https://weekdayapp.com/privacypolicy" target="_blank">
+                      <strong>privacy policy</strong>
+                    </a>
+                  </div>
                 </Form>
               )
             }}
@@ -676,7 +686,7 @@ class AuthPage extends React.Component {
 
         <Auth>
           <Logo>
-            <img src="logo-white.svg" height="20" alt="Weekday" />
+            <img src="icon-white.svg" height="20" alt="Weekday" />
           </Logo>
 
           <Loading show={this.state.loading} />
@@ -717,7 +727,7 @@ const Auth = styled.div`
   align-content: center;
   justify-content: center;
   background: #f3f3f3;
-  background: linear-gradient(45deg, #3d9ee1, #a63de1);
+  background: linear-gradient(45deg, #8e43e7, #b84592);
   position: relative;
 `
 
@@ -731,8 +741,8 @@ const Container = styled.div`
   align-content: center;
   justify-content: center;
   flex-direction: column;
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding-top: 50px;
+  padding-bottom: 50px;
 `
 
 const ErrorText = styled.div`

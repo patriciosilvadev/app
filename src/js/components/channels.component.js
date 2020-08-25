@@ -109,7 +109,7 @@ const Channel = props => {
     >
       <ChannelContainerPadding>
         <Avatar muted={props.muted} color={props.color} presence={props.presence} textColor={avatarTextColor} size="small" image={props.private ? props.image : null} title={props.name}>
-          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2} /> : null}
+          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2} style={{ position: 'relative', top: -1 }} /> : null}
         </Avatar>
 
         <ChannelContents>

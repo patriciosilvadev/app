@@ -543,7 +543,7 @@ class ChannelComponent extends React.Component {
               direction="right-bottom"
               content={
                 <React.Fragment>
-                  <div className="w-100 p-20 column align-items-start border-bottom">
+                  <div className="w-100 p-20 column align-items-start">
                     <div className="row w-100">
                       <div className="p regular color-d2 flexer">Share</div>
                       <Toggle
@@ -584,42 +584,46 @@ class ChannelComponent extends React.Component {
                     </Collapsable>
                   </div>
 
-                  <Menu
-                    items={[
-                      {
-                        hide: this.props.channel.private,
-                        icon: <IconComponent icon="radio" size={20} color="#aeb5bc" />,
-                        text: this.props.channel.readonly ? 'Disable broadcast' : 'Make broadcast',
-                        label: 'Only you can post messages',
-                        onClick: e => this.updateChannelReadonly(!this.props.channel.readonly),
-                      },
-                      {
-                        hide: this.props.channel.public,
-                        icon: <IconComponent icon="unlock" size={20} color="#aeb5bc" />,
-                        text: 'Make public',
-                        label: 'Everyone in your team has access',
-                        onClick: e => this.updateChannelVisibility({ private: false, public: true }),
-                      },
-                      {
-                        hide: !this.props.channel.public,
-                        icon: <IconComponent icon="lock" size={20} color="#aeb5bc" />,
-                        text: 'Make private',
-                        label: 'Members of this channel only',
-                        onClick: e => this.updateChannelVisibility({ private: false, public: false }),
-                      },
-                      {
-                        hide: false,
-                        icon: <IconComponent icon="pen" size={20} color="#aeb5bc" />,
-                        text: 'Edit',
-                        label: 'Update or remove this channel',
-                        onClick: e => this.setState({ channelModal: true, channelMenu: false }),
-                      },
-                    ]}
-                  />
+                  {this.state.hasAdminPermission && (
+                    <div className="w-100 border-top">
+                      <Menu
+                        items={[
+                          {
+                            hide: this.props.channel.private,
+                            icon: <IconComponent icon="radio" size={20} color="#aeb5bc" />,
+                            text: this.props.channel.readonly ? 'Disable broadcast' : 'Make broadcast',
+                            label: 'Only you can post messages',
+                            onClick: e => this.updateChannelReadonly(!this.props.channel.readonly),
+                          },
+                          {
+                            hide: this.props.channel.public,
+                            icon: <IconComponent icon="unlock" size={20} color="#aeb5bc" />,
+                            text: 'Make public',
+                            label: 'Everyone in your team has access',
+                            onClick: e => this.updateChannelVisibility({ private: false, public: true }),
+                          },
+                          {
+                            hide: !this.props.channel.public,
+                            icon: <IconComponent icon="lock" size={20} color="#aeb5bc" />,
+                            text: 'Make private',
+                            label: 'Members of this channel only',
+                            onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                          },
+                          {
+                            hide: this.props.channel.private,
+                            icon: <IconComponent icon="pen" size={20} color="#aeb5bc" />,
+                            text: 'Edit',
+                            label: 'Update or remove this channel',
+                            onClick: e => this.setState({ channelModal: true, channelMenu: false }),
+                          },
+                        ]}
+                      />
+                    </div>
+                  )}
                 </React.Fragment>
               }
             >
-              <HeaderButton className="row" onClick={() => (this.state.hasAdminPermission ? this.setState({ channelMenu: true }) : null)}>
+              <HeaderButton className="row" onClick={() => this.setState({ channelMenu: true })}>
                 <IconComponent icon="more-v" size={18} thickness={1.8} color="#aeb5bc" className="button" />
               </HeaderButton>
             </Popup>
