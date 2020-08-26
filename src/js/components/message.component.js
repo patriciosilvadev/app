@@ -364,7 +364,7 @@ export default memo(props => {
   // attachments' detail
   // URI -> usually extension resource ID
   useEffect(() => {
-    const dummyFunctionForHooks = () => console.log('')
+    const dummyFunctionForHooks = () => null
 
     // Because useEffect requires a return being a function
     if (!props.message) return dummyFunctionForHooks

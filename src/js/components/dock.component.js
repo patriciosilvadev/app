@@ -99,7 +99,7 @@ export default function DockComponent(props) {
       </div>
 
       <div className="mt-0 mb-10">
-        <Avatar size="medium-large" color="transparent" className="button" onClick={e => window.open('mailto:support@weekdayapp.com')}>
+        <Avatar size="medium-large" color="transparent" className="button" onClick={e => window.open('mailto:support@weekday.freshdesk.com')}>
           <IconComponent icon="question" size={20} color="#112640" thickness={1.75} />
         </Avatar>
       </div>

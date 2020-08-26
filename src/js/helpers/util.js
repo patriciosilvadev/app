@@ -20,6 +20,9 @@ export const bytesToSize = bytes => {
 }
 
 export const urlParser = url => {
+  if (!url) return false
+  if (typeof url != 'string') return false
+
   const match = url.match(/(http[s]?:\/\/.*)/i)
   return match ? match[0].split(' ') : false
 }
