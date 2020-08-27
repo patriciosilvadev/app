@@ -65,6 +65,7 @@ class AttachmentsComponent extends React.Component {
       const { data } = await GraphqlService.getInstance().channelAttachments(channelId, this.state.page)
 
       // Only keep messages with valid attachments
+      // If users' delete tasks, the message attachment will be null
       const messagesWithValidAttachments = data.channelAttachments
         ? data.channelAttachments.filter(message => {
             const allValidAttachments = message.attachments.filter(attachment => !!attachment)
