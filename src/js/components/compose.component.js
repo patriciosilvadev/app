@@ -641,7 +641,7 @@ class ComposeComponent extends React.Component {
             value={this.state.text}
             onKeyUp={this.handleKeyUp}
             onKeyDown={this.handleKeyDown}
-            onChange={e => this.handleComposeChange}
+            onChange={this.handleComposeChange}
           />
 
           {this.props.channel.apps

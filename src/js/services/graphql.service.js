@@ -148,6 +148,7 @@ export default class GraphqlService {
             name
             shortcode
             position(userId: $userId)
+            role(userId: $userId)
             slug
             image
             channels(userId: $userId) {

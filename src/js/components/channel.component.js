@@ -545,7 +545,7 @@ class ChannelComponent extends React.Component {
                 <React.Fragment>
                   <div className="w-100 p-20 column align-items-start">
                     <div className="row w-100">
-                      <div className="p regular color-d2 flexer">Share</div>
+                      <div className="p regular color-d2 flexer">Share with non team members</div>
                       <Toggle
                         on={!!this.props.channel.shortcode}
                         onChange={() => {
