@@ -69,21 +69,21 @@ const TableRow = props => {
                     text: `Admin ${member.role == 'ADMIN' ? '(current)' : ''}`,
                     onClick: () => {
                       props.onRoleChange(member.user.id, 'ADMIN')
-                      setMenu(false)
+                      setRoles(false)
                     },
                   },
                   {
                     text: `Member ${member.role == 'MEMBER' ? '(current)' : ''}`,
                     onClick: () => {
                       props.onRoleChange(member.user.id, 'MEMBER')
-                      setMenu(false)
+                      setRoles(false)
                     },
                   },
                   {
                     text: `Guest ${member.role == 'GUEST' ? '(current)' : ''}`,
                     onClick: () => {
                       props.onRoleChange(member.user.id, 'GUEST')
-                      setMenu(false)
+                      setRoles(false)
                     },
                   },
                 ]}
