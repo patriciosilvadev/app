@@ -279,6 +279,8 @@ class AppPage extends React.Component {
   }
 
   renderDisabledUI(props) {
+    if (!this.props.user.id) return null
+    if (!this.props.team.id) return null
     if (this.props.team.role) return null
 
     return (

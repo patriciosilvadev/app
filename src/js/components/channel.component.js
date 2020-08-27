@@ -29,6 +29,10 @@ import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
 import { AvatarComponent } from '@weekday/elements/lib/avatar'
 
+// We use this so it's not part of React component update cycle
+// Otherwise it's just a shitshow of jittery goodess
+let MANUAL_SCROLLING = false
+
 class ChannelComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -66,10 +70,12 @@ class ChannelComponent extends React.Component {
     this.shortcodeRef = React.createRef()
     this.messagesRef = React.createRef()
     this.scrollRef = React.createRef()
+    this.scrollContainerRef = React.createRef()
     this.dropZone = React.createRef()
     this.dropMask = React.createRef()
 
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
+    this.handleWheelEvent = this.handleWheelEvent.bind(this)
     this.updateChannelVisibility = this.updateChannelVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
@@ -142,34 +148,53 @@ class ChannelComponent extends React.Component {
     // If there is no scroll ref
     if (!this.scrollRef) return
 
-    // If the user is scrolling
-    if (this.state.manualScrolling) return
+    // Why do we do this?
+    // Because the scroll DIV's height we want the same as the container it's in
+    // Because the container it's in is a flex box
+    // And we want to set this to fit nicely
+    // Why not just make scrollRef a flex?
+    // Because if you specify anything else other than a PX value
+    // The scrollTop value starts becomnig a moving target
+    // and the UI becomes jittery - FML
+    this.scrollRef.style.height = this.scrollContainerRef.clientHeight + 'px'
 
-    // Move it right down
+    // If the user is scrolling
+    if (MANUAL_SCROLLING) return
+
+    // Keep it scroll down
     this.scrollRef.scrollTop = this.scrollRef.scrollHeight
+  }
+
+  handleWheelEvent(e) {
+    const { deltaY } = e
+
+    // Scrolling up
+    if (deltaY < 0) {
+      MANUAL_SCROLLING = true
+    } else {
+      // Calculate the difference between the bottom & where the user is
+      const { offsetHeight, scrollHeight, scrollTop } = this.scrollRef
+      const offsetDifference = scrollHeight - scrollTop
+
+      // If they are at the bottom: this.scrollRef.offsetHeight >= offsetHeight
+      // Toggle whether the user is scrolling or not
+      // If not, then we handle the scrolling
+      if (offsetHeight >= offsetDifference) {
+        MANUAL_SCROLLING = false
+      }
+    }
   }
 
   handleScrollEvent(e) {
     // If the user scvrolls up - then fetch more messages
     // 0 = the top of the container
     if (this.scrollRef.scrollTop == 0) this.fetchChannelMessages()
-
-    // Calculate the difference between the bottom & where the user is
-    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
-
-    // If they are at the bottom: this.scrollRef.offsetHeight >= offsetHeight
-    // Toggle whether the user is scrolling or not
-    // If not, then we handle the scrolling
-    if (this.scrollRef.offsetHeight >= offsetHeight) {
-      logger('manualScrolling - false')
-      this.setState({ manualScrolling: false })
-    } else {
-      logger('manualScrolling - true')
-      this.setState({ manualScrolling: true })
-    }
   }
 
   async fetchChannel(channelId) {
+    MANUAL_SCROLLING = false
+    this.scrollToBottom()
+
     try {
       // Set it as busy to not allow more messages to be fetch
       this.setState({
@@ -280,6 +305,7 @@ class ChannelComponent extends React.Component {
 
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
+    this.scrollRef.addEventListener('wheel', this.handleWheelEvent)
 
     // Drag event listeners
     this.dropZone.addEventListener('dragover', this.onDragOver)
@@ -863,9 +889,11 @@ class ChannelComponent extends React.Component {
                 {this.renderPinnedMessages()}
               </Pinned>
 
-              <MessagesContainer ref={ref => (this.scrollRef = ref)}>
-                {this.renderMessages()}
-                {this.renderSearchResults()}
+              <MessagesContainer ref={ref => (this.scrollContainerRef = ref)}>
+                <MessagesContainerInner ref={ref => (this.scrollRef = ref)}>
+                  {this.renderMessages()}
+                  {this.renderSearchResults()}
+                </MessagesContainerInner>
               </MessagesContainer>
 
               {this.renderTypingNames()}
@@ -947,6 +975,30 @@ const ChannelBody = styled.div`
   flex-direction: column;
   align-items: stretch;
   display: flex;
+`
+
+const MessagesContainer = styled.div`
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-bottom: 1px solid #eaedef;
+`
+
+const MessagesContainerInner = styled.div`
+  position: absolute;
+  overflow: scroll;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  scroll-behavior: smooth;
+`
+
+const MessagesInner = styled.div`
+  width: 100%;
+  padding: 25px;
+  height: 1px; /* Important for the height to be set here */
 `
 
 const ShortcodeInput = styled.textarea`
@@ -1078,20 +1130,6 @@ const PinnedMessages = styled.div`
   border-bottom: 1px solid #f5f5ba;
   background: #f5f5e1;
   position: relative;
-`
-
-const MessagesContainer = styled.div`
-  position: relative;
-  flex: 1;
-  overflow: scroll;
-  width: 100%;
-  border-bottom: 1px solid #eaedef;
-`
-
-const MessagesInner = styled.div`
-  width: 100%;
-  padding: 25px;
-  height: 1px; /* Important for the height to be set here */
 `
 
 const Welcome = styled.div`
