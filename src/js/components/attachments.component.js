@@ -64,10 +64,22 @@ class AttachmentsComponent extends React.Component {
       const channelId = this.props.channelId
       const { data } = await GraphqlService.getInstance().channelAttachments(channelId, this.state.page)
 
+      // Only keep messages with valid attachments
+      const messagesWithValidAttachments = data.channelAttachments
+        ? data.channelAttachments.filter(message => {
+            const allValidAttachments = message.attachments.filter(attachment => !!attachment)
+            if (allValidAttachments.length == 0) {
+              return false
+            } else {
+              return true
+            }
+          })
+        : []
+
       // Add the new messages to the channel
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({
-        messages: data.channelAttachments ? [...this.state.messages, ...data.channelAttachments] : [],
+        messages: messagesWithValidAttachments,
         page: this.state.page + 1,
         busy: false,
         loading: false,
@@ -106,6 +118,9 @@ class AttachmentsComponent extends React.Component {
                 return (
                   <React.Fragment key={index1}>
                     {message.attachments.map((attachment, index2) => {
+                      if (!attachment) return null
+                      if (!attachment.mime) return null
+
                       const { mime } = attachment
 
                       // Don't who the calls / tasks stuff just yet
