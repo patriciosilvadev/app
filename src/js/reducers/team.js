@@ -22,6 +22,10 @@ export default (state = initialState, action) =>
         draft = Object.assign(draft, action.payload)
         break
 
+      case 'UPDATE_TEAM_MEMBER_ROLE':
+        draft.role = action.payload.role
+        break
+
       case 'UPDATE_TEAM_MEMBER_POSITION':
         draft.position = action.payload.position
         break

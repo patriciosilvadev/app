@@ -6,8 +6,22 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import StorageService from '../services/storage.service'
 import { showLocalPushNotification, logger } from '../helpers/util'
-import { closeAppModal, closeAppPanel, openApp, createTeam, deleteTeam, createChannel, deleteChannel, updateChannelDeleteTyping, addPresence, deletePresence } from './'
+import {
+  closeAppModal,
+  closeAppPanel,
+  openApp,
+  createTeam,
+  updateTeamMemberRole,
+  updateTeam,
+  deleteTeam,
+  createChannel,
+  deleteChannel,
+  updateChannelDeleteTyping,
+  addPresence,
+  deletePresence,
+} from './'
 import mqtt from 'mqtt'
+import { updateChannel } from './channel'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -247,13 +261,15 @@ export function initialize(userId) {
             const currentChannelId = getState().channel.id
             const teamId = getState().team.id
 
-            // Unsub from this SOCKET
+            // Unsub from this topic
             MessagingService.getInstance().leave(channelId)
 
             // And then remove it - but just for us
             dispatch(deleteChannel(channelId, false))
 
-            if (channelId == currentChannelId) browserHistory.push(`/app/team/${teamId}/`)
+            // Don't navigate them away - simply remove their ability to chat
+            // browserHistory.push(`/app/team/${teamId}/`)
+            if (channelId == currentChannelId) dispatch(updateChannel(channelId, { readonly: true }))
           }
           break
 
@@ -262,10 +278,16 @@ export function initialize(userId) {
           {
             const teamId = message.messagePayload
             const currentTeamId = getState().team.id
+
+            // Unsub from this topic
             MessagingService.getInstance().leave(teamId)
+
+            // Remove this in the side
             dispatch(deleteTeam(teamId, false))
 
-            if (teamId == currentTeamId) browserHistory.push(`/app/`)
+            // Don't navigate them away - simply remove their ability to chat
+            // browserHistory.push(`/app/`)
+            if (teamId == currentTeamId) dispatch(updateTeamMemberRole(null))
           }
           break
 

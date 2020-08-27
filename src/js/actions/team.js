@@ -42,3 +42,10 @@ export function updateTeamMemberPosition(position) {
     payload: { position },
   }
 }
+
+export function updateTeamMemberRole(role) {
+  return {
+    type: 'UPDATE_TEAM_MEMBER_ROLE',
+    payload: { role },
+  }
+}

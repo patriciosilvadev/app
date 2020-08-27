@@ -42,6 +42,7 @@ class AppPage extends React.Component {
     this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
     this.renderBar = this.renderBar.bind(this)
     this.renderWelcome = this.renderWelcome.bind(this)
+    this.renderDisabledUI = this.renderDisabledUI.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -184,6 +185,7 @@ class AppPage extends React.Component {
   renderBar() {
     if (!this.props.team) return null
     if (!this.props.team.name) return null
+    if (!this.props.team.role) return null
 
     const urlParts = window.location.pathname.split('/')
     const lastUrlPart = urlParts[urlParts.length - 1].split('?')[0]
@@ -276,6 +278,25 @@ class AppPage extends React.Component {
     )
   }
 
+  renderDisabledUI(props) {
+    if (this.props.team.role) return null
+
+    return (
+      <DisableUI>
+        <DisableUIText>You don't have access to this team.</DisableUIText>
+        <div className="row">
+          {this.props.teams.map((t, index) => {
+            return (
+              <Link className="m-10" key={index} to={`/app/team/${t.id}`}>
+                <Avatar size="x-large" image={t.image} title={t.name} className="button" />
+              </Link>
+            )
+          })}
+        </div>
+      </DisableUI>
+    )
+  }
+
   render() {
     if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
@@ -298,6 +319,10 @@ class AppPage extends React.Component {
           <Router history={browserHistory}>
             <Route path="/app" component={DockComponent} />
             <Route path="/app/team/:teamId" component={ChannelsComponent} />
+
+            {/* Specifically for people getting deleted from a team */}
+            {/* This disables everything */}
+            <Route path="/app/team/:teamId" render={this.renderDisabledUI} />
             <Route path="/app" render={props => this.renderWelcome()} />
 
             {/* Main channel screen with messaging */}
@@ -352,6 +377,7 @@ AppPage.propTypes = {
   common: PropTypes.any,
   user: PropTypes.any,
   team: PropTypes.any,
+  teams: PropTypes.any,
   channel: PropTypes.any,
   app: PropTypes.any,
   initialize: PropTypes.func,
@@ -374,6 +400,7 @@ const mapStateToProps = state => {
     app: state.app,
     channel: state.channel,
     team: state.team,
+    teams: state.teams,
   }
 }
 
@@ -381,6 +408,28 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AppPage)
+
+const DisableUI = styled.div`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+`
+
+const DisableUIText = styled.div`
+  color: #202027;
+  font-weight: 500;
+  margin-bottom: 20px;
+  font-size: 25px;
+`
 
 const Layout = styled.div`
   width: ${props => (props.layout == 'SIDE' ? '35%' : '100%')};
