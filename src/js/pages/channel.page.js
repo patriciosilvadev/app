@@ -92,7 +92,7 @@ export default props => {
         )}
 
         <Logo onClick={() => props.history.push('/app')}>
-          <img src="logo.svg" height="20" alt="Weekday" />
+          <img src="icon.svg" height="20" alt="Weekday" />
         </Logo>
       </Container>
     </React.Fragment>
