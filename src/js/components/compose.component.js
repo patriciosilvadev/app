@@ -171,7 +171,7 @@ class ComposeComponent extends React.Component {
         attachments: attachments.map(attachment => {
           return {
             ...attachment,
-            uri: attachment.split('?')[0],
+            uri: attachment.uri.split('?')[0],
           }
         }),
       })
@@ -180,7 +180,7 @@ class ComposeComponent extends React.Component {
       if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
 
       // The extra values are used for processing other info
-      // ⚠️ We are adding the getObject URL from the server
+      // ⚠️ We are adding the getObject URL from the server in the resolvers
       const channelMessage = {
         message: data.createChannelMessage,
         channelId,
@@ -190,7 +190,9 @@ class ComposeComponent extends React.Component {
       // Create the message
       this.props.createChannelMessage(channelId, channelMessage)
       this.props.updateChannel(channelId, { excerpt })
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async updateChannelMessage(channelId, messageId, body, attachments) {
@@ -417,9 +419,18 @@ class ComposeComponent extends React.Component {
 
             UploadService.uploadFile(url, file, type)
               .then(upload => {
-                const uri = upload.url.split('?')[0]
                 const mime = type
+                const urlParts = upload.url.split('?')
+                const rawUri = urlParts[0]
+                let uriParts = rawUri.replace('https://', '').split('/')
 
+                // Remove the first index value (AWS URL)
+                uriParts.shift()
+
+                // Combine the KEY for aws
+                const uri = uriParts.join('/')
+
+                // Get the signed URL for this key
                 UploadService.getSignedGetUrl(uri)
                   .then(raw => raw.json())
                   .then(res1 => {

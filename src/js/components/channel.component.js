@@ -992,7 +992,6 @@ const MessagesContainerInner = styled.div`
   height: 100%;
   top: 0px;
   left: 0px;
-  scroll-behavior: smooth;
 `
 
 const MessagesInner = styled.div`
