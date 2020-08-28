@@ -546,12 +546,14 @@ export default memo(props => {
           <IconComponent icon="thumbs-up" size={15} color="#aeb5bc" />
         </Tool>
 
+        {/* only for this user */}
         {!props.message.app && props.message.user.id == user.id && (
           <Tool onClick={() => setConfirmDeleteModal(true)}>
             <IconComponent icon="delete" size={15} color="#aeb5bc" />
           </Tool>
         )}
 
+        {/* only for this user */}
         {!props.message.app && props.message.user.id == user.id && (
           <Tool onClick={() => props.setUpdateMessage(props.message)}>
             <IconComponent icon="pen" size={15} color="#aeb5bc" />
@@ -597,7 +599,7 @@ export default memo(props => {
       if (props.message.parent.channel) {
         return (
           <ParentPadding className="column align-items-stretch flexer">
-            <ParentText>{`Replying to: ${props.message.parent.channel.name}`}</ParentText>
+            <ParentText>{`Replying to:`}</ParentText>
             <ParentContainer className="row justify-content-center">
               <div className="column flexer">
                 <div className="row">

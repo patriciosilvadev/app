@@ -168,7 +168,12 @@ export function initialize(userId) {
               const isStarred = getState().user.starred.indexOf(channelId) != -1
               const isArchived = getState().user.archived.indexOf(channelId) != -1
               const isCurrentChannel = channelId == getState().channel.id
-              const showNotification = () => showLocalPushNotification('New Message', message.body)
+
+              // Only if there is something to show
+              // Message forward won't trigger this (no body)
+              const showNotification = () => {
+                if (message) showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
+              }
 
               // Don't do a PN or unread increment if we are on the same channel
               // as the message
