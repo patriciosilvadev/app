@@ -546,11 +546,17 @@ export default memo(props => {
           <IconComponent icon="thumbs-up" size={15} color="#aeb5bc" />
         </Tool>
 
-        <Tool onClick={() => setConfirmDeleteModal(true)}>
-          <IconComponent icon="delete" size={15} color="#aeb5bc" />
-        </Tool>
+        {!props.message.app && props.message.user.id == user.id && (
+          <Tool onClick={() => setConfirmDeleteModal(true)}>
+            <IconComponent icon="delete" size={15} color="#aeb5bc" />
+          </Tool>
+        )}
 
-        {!props.message.app && <Tool onClick={() => props.setUpdateMessage(props.message)}>{props.message.user.id == user.id && <IconComponent icon="pen" size={15} color="#aeb5bc" />}</Tool>}
+        {!props.message.app && props.message.user.id == user.id && (
+          <Tool onClick={() => props.setUpdateMessage(props.message)}>
+            <IconComponent icon="pen" size={15} color="#aeb5bc" />
+          </Tool>
+        )}
 
         <Tool onClick={() => props.setReplyMessage(props.message)}>
           <IconComponent icon="reply" size={15} color="#aeb5bc" />

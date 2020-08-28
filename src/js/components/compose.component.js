@@ -218,15 +218,19 @@ class ComposeComponent extends React.Component {
         attachments: attachments.map(attachment => {
           return {
             ...attachment,
-            uri: attachment.split('?')[0],
+            uri: attachment.uri.split('?')[0],
           }
         }),
       })
 
       // ⚠️ DO NOT STRIP THE QUERY STRING OFF HERE
       // We keep it so other people can get the getObject access code
+      const { updateChannelMessage } = data
       const channelMessage = {
-        message: { body, attachments },
+        message: {
+          body,
+          attachments: updateChannelMessage.attachments,
+        },
         messageId,
         channelId,
         teamId,
@@ -242,6 +246,7 @@ class ComposeComponent extends React.Component {
       // Tell the channel component to scroll down
       EventService.getInstance().emit('SCROLL_TO_BOTTOM', null)
     } catch (e) {
+      console.log(e)
       logger(e)
     }
   }
