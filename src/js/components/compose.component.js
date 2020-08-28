@@ -731,8 +731,8 @@ class ComposeComponent extends React.Component {
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
 
-        {this.renderUpdate()}
         {this.renderAttachments()}
+        {this.renderUpdate()}
         {this.renderMembers()}
         {this.renderCommands()}
         {this.renderReply()}
@@ -784,8 +784,8 @@ export default connect(
 )(ComposeComponent)
 
 const UpdateContainer = styled.div`
-  position: absolute;
-  transform: translateY(-100%);
+  /*transform: translateY(-100%);*/
+  position: relative; /* absolute */
   background: #f8f9fa;
   border-top: 1px solid #e1e7eb;
   border-bottom: 1px solid #e1e7eb;
@@ -870,10 +870,10 @@ const Attachments = styled.div`
   padding: 20px;
   background: #ffffff;
   border-top: 1px solid #ecf0f2;
-  position: absolute;
+  position: relative; /* absolute */
   top: -1px;
   left: 0px;
-  transform: translateY(-100%);
+  /*transform: translateY(-100%);*/
   z-index: 4;
 `
 
