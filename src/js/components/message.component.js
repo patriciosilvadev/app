@@ -91,8 +91,8 @@ export default memo(props => {
   const handleMessagePin = async () => {
     try {
       const messageId = props.message.id
-      const pinned = !props.message.pinned
       const channelId = channel.id
+      const pinned = !(props.message.pinned || props.pinned)
 
       // Create our base message object
       let channelMessage = { ...props.message, pinned }
@@ -526,70 +526,78 @@ export default memo(props => {
   }
 
   const renderTools = () => {
-    if (!over || props.pinned || props.message.system) return null
+    if (!over || props.message.system) return null
 
     return (
       <Tools className="row">
-        <Popup
-          handleDismiss={() => setEmoticonMenu(false)}
-          visible={emoticonMenu}
-          width={350}
-          direction="right-top"
-          content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => handleCreateChannelMessageReaction(emoji.colons)} />}
-        >
-          <Tool onClick={() => setEmoticonMenu(true)} first={true}>
-            <IconComponent icon="smile" size={15} color="#aeb5bc" />
-          </Tool>
-        </Popup>
+        {!props.pinned && (
+          <Popup
+            handleDismiss={() => setEmoticonMenu(false)}
+            visible={emoticonMenu}
+            width={350}
+            direction="right-top"
+            content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => handleCreateChannelMessageReaction(emoji.colons)} />}
+          >
+            <Tool onClick={() => setEmoticonMenu(true)} first={true}>
+              <IconComponent icon="smile" size={15} color="#aeb5bc" />
+            </Tool>
+          </Popup>
+        )}
 
-        <Tool onClick={() => handleChannelLikeOrUnlike()}>
-          <IconComponent icon="thumbs-up" size={15} color="#aeb5bc" />
-        </Tool>
+        {!props.pinned && (
+          <Tool onClick={() => handleChannelLikeOrUnlike()}>
+            <IconComponent icon="thumbs-up" size={15} color="#aeb5bc" />
+          </Tool>
+        )}
 
         {/* only for this user */}
-        {!props.message.app && props.message.user.id == user.id && (
+        {!props.message.app && props.message.user.id == user.id && !props.pinned && (
           <Tool onClick={() => setConfirmDeleteModal(true)}>
             <IconComponent icon="delete" size={15} color="#aeb5bc" />
           </Tool>
         )}
 
         {/* only for this user */}
-        {!props.message.app && props.message.user.id == user.id && (
+        {!props.message.app && props.message.user.id == user.id && !props.pinned && (
           <Tool onClick={() => props.setUpdateMessage(props.message)}>
             <IconComponent icon="pen" size={15} color="#aeb5bc" />
           </Tool>
         )}
 
-        <Tool onClick={() => props.setReplyMessage(props.message)}>
-          <IconComponent icon="reply" size={15} color="#aeb5bc" />
-        </Tool>
+        {!props.pinned && (
+          <Tool onClick={() => props.setReplyMessage(props.message)}>
+            <IconComponent icon="reply" size={15} color="#aeb5bc" />
+          </Tool>
+        )}
 
         <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>
 
-        <Popup
-          handleDismiss={() => setForwardMenu(false)}
-          visible={forwardMenu}
-          width={275}
-          direction="right-top"
-          content={
-            <React.Fragment>
-              <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
-              <Menu
-                items={channels.map(c => {
-                  const channelName = c.otherUser ? (c.otherUser.name ? c.otherUser.name : c.name) : c.name
-                  return {
-                    text: `${channelName} ${c.id == channel.id ? '(this channel)' : ''}`,
-                    onClick: e => handleForwardMessage(c.id),
-                  }
-                })}
-              />
-            </React.Fragment>
-          }
-        >
-          <Tool onClick={() => setForwardMenu(true)} last={true}>
-            Forward
-          </Tool>
-        </Popup>
+        {!props.pinned && (
+          <Popup
+            handleDismiss={() => setForwardMenu(false)}
+            visible={forwardMenu}
+            width={275}
+            direction="right-top"
+            content={
+              <React.Fragment>
+                <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
+                <Menu
+                  items={channels.map(c => {
+                    const channelName = c.otherUser ? (c.otherUser.name ? c.otherUser.name : c.name) : c.name
+                    return {
+                      text: `${channelName} ${c.id == channel.id ? '(this channel)' : ''}`,
+                      onClick: e => handleForwardMessage(c.id),
+                    }
+                  })}
+                />
+              </React.Fragment>
+            }
+          >
+            <Tool onClick={() => setForwardMenu(true)} last={true}>
+              Forward
+            </Tool>
+          </Popup>
+        )}
       </Tools>
     )
   }

@@ -51,11 +51,14 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_CHANNEL_UPDATE_MESSAGE_PIN':
+        console.log(state.pinnedMessages)
+        console.log(action.payload)
         draft.pinnedMessages = state.pinnedMessages.map(pinnedMessage => {
-          if (pinnedMessage.id == action.payload.messageId) {
+          if (pinnedMessage.id != action.payload.channelMessage.messageId) return pinnedMessage
+          if (pinnedMessage.id == action.payload.channelMessage.messageId) {
             return {
               ...pinnedMessage,
-              ...action.payload.message,
+              ...action.payload.channelMessage.message,
             }
           }
         })
