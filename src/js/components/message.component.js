@@ -75,13 +75,9 @@ export default memo(props => {
   const iframeRef = useRef(null)
 
   const fetchTaskExtensionMetaData = async taskId => {
-    console.log('FETCH_TASK_ID: ', taskId)
-
     try {
       const { data } = await GraphqlService.getInstance().channelTask(taskId)
       let task = data.channelTask
-
-      console.log('FETCHED_TASK: ', taskId, task)
 
       // Probably deleted
       if (!task) task = { id: taskId, done: false, title: '', deleted: true }
@@ -376,8 +372,6 @@ export default memo(props => {
     if (!props.message.attachments) return dummyFunctionForHooks
     if (!props.message.attachments.length) return dummyFunctionForHooks
     if (props.message.attachments.length == 0) return dummyFunctionForHooks
-
-    console.log('MESSAGEID: ', props.message.id)
 
     // Only valid attachments please
     props.message.attachments.map(attachment => {
