@@ -33,4 +33,5 @@
 .tasks-extension .tasks .task textarea {
   width: 100%;
   resize: none;
+  height: 17px;
 }

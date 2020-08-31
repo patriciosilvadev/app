@@ -69,6 +69,7 @@ class TasksExtension extends React.Component {
       loading: false,
       showCompletedTasks: false,
       title: '',
+      tasks: [],
     }
 
     this.onSortEnd = this.onSortEnd.bind(this)
@@ -159,7 +160,15 @@ class TasksExtension extends React.Component {
 
   async handleUpdateTaskOrder(taskId, order) {
     try {
+      // Get the task
+      const task = this.props.channel.tasks.filter(task => task.id == taskId)[0]
+      const channelId = this.props.channel.id
+
+      // Update the order
       await GraphqlService.getInstance().updateTask(taskId, { order })
+
+      // Update the order on our store (so it reflects)
+      this.props.updateChannelUpdateTask(channelId, { ...task, order })
     } catch (e) {
       console.log(e)
     }
@@ -193,7 +202,7 @@ class TasksExtension extends React.Component {
       })
 
       const channelId = this.props.channel.id
-      const order = this.props.channel.tasks.length
+      const order = this.props.channel.tasks.length + 1
       const { data } = await GraphqlService.getInstance().createTask(channelId, { title, order })
       const task = data.createTask
 
@@ -212,29 +221,38 @@ class TasksExtension extends React.Component {
   }
 
   onSortEnd({ oldIndex, newIndex }) {
-    const taskId = this.props.channel.tasks[oldIndex].id
-    const highestOrder = this.props.channel.tasks.reduce((acc, task) => (task.order > acc ? task.order : acc), 0)
-    const lowestOrder = this.props.channel.tasks.reduce((acc, task) => (task.order < acc ? task.order : acc), 0)
-    const taskOrderAtNewIndex = this.props.channel.tasks[newIndex] ? this.props.channel.tasks[newIndex].order : 0
-    const taskOrderBeforeNewIndex = this.props.channel.tasks[newIndex - 1] ? this.props.channel.tasks[newIndex - 1].order : 0
+    const taskId = this.state.tasks[oldIndex].id
+    let taskOrderAtNewIndex = 0
+    let newOrderForTask = 0
+    let taskOrderBeforeNewIndex = 0
+    let taskOrderAfterNewIndex = 0
 
-    //const currentTaskOrderAtNewIndex = this.props.channel.tasks[newIndex].order
-    //const taskOrderAfterThisOne = this.props.channel.tasks[newIndex + 1] ? this.props.channel.tasks[newIndex + 1].order : (highestOrder + 1)
-    //const betweenCurrentAndBefore = (currentTaskOrderAtNewIndex - taskOrderBeforeThisOne) / 2
-    //const betweenCurrentAndAfter = (taskOrderAfterThisOne - currentTaskOrderAtNewIndex) / 2
-    if (newIndex > oldIndex) this.handleUpdateTaskOrder(taskId, taskOrderAtNewIndex + 0.001)
+    // Generally - take the difference between the new index & the top/bottom one
+    // And calucalate mid way
     if (newIndex < oldIndex) {
+      // Take the order at index 0 & -1
       if (newIndex == 0) {
-        this.handleUpdateTaskOrder(taskId, lowestOrder - 0.001)
+        taskOrderAtNewIndex = this.state.tasks[newIndex].order
+        newOrderForTask = taskOrderAtNewIndex - 1
       } else {
-        this.handleUpdateTaskOrder(taskId, taskOrderBeforeNewIndex + 0.001)
+        taskOrderAtNewIndex = this.state.tasks[newIndex].order
+        taskOrderBeforeNewIndex = this.state.tasks[newIndex - 1].order
+        newOrderForTask = (taskOrderAtNewIndex + taskOrderBeforeNewIndex) / 2
+      }
+    } else {
+      // Take the highest order & +1
+      if (newIndex == this.state.tasks.length - 1) {
+        taskOrderAtNewIndex = this.state.tasks[newIndex].order
+        newOrderForTask = taskOrderAtNewIndex + 1
+      } else {
+        taskOrderAtNewIndex = this.state.tasks[newIndex].order
+        taskOrderAfterNewIndex = this.state.tasks[newIndex + 1].order
+        newOrderForTask = (taskOrderAtNewIndex + taskOrderAfterNewIndex) / 2
       }
     }
 
     // Update the task list
-    this.setState({
-      tasks: arrayMove(this.state.tasks, oldIndex, newIndex),
-    })
+    this.handleUpdateTaskOrder(taskId, newOrderForTask)
   }
 
   toggleCompletedTasks() {
@@ -253,6 +271,14 @@ class TasksExtension extends React.Component {
     } else {
       this.setState({ showCompletedTasks: false })
     }
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.channel.id == undefined || props.channel.id == '') return null
+
+    const tasks = props.channel.tasks.sort((a, b) => a.order - b.order)
+
+    return { tasks }
   }
 
   render() {
@@ -277,7 +303,7 @@ class TasksExtension extends React.Component {
           <SortableList
             helperClass="sortableHelper"
             pressDelay={200}
-            tasks={this.props.channel.tasks}
+            tasks={this.state.tasks}
             deleteTask={this.handleDeleteTask}
             updateTask={this.handleUpdateTask}
             showCompletedTasks={this.state.showCompletedTasks}
