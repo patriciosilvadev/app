@@ -68,7 +68,10 @@ class AttachmentsComponent extends React.Component {
       // If users' delete tasks, the message attachment will be null
       const messagesWithValidAttachments = data.channelAttachments
         ? data.channelAttachments.filter(message => {
-            const allValidAttachments = message.attachments.filter(attachment => !!attachment)
+            // Attachments can't be null
+            // And can't be WEEKDAY mime types
+            const allValidAttachments = message.attachments.filter(attachment => !!attachment).filter(attachment => attachment.mime != MIME_TYPES.CALLS && attachment.mime != MIME_TYPES.TASKS)
+
             if (allValidAttachments.length == 0) {
               return false
             } else {
@@ -123,10 +126,6 @@ class AttachmentsComponent extends React.Component {
                       if (!attachment.mime) return null
 
                       const { mime } = attachment
-
-                      // Don't who the calls / tasks stuff just yet
-                      // TODO: Eventually handle this here too
-                      if (mime == MIME_TYPES.CALLS || mime == MIME_TYPES.TASKS) return null
 
                       return (
                         <Attachment
