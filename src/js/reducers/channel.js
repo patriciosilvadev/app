@@ -20,6 +20,7 @@ const initialState = {
   team: {},
   typing: [],
   calls: [],
+  tasks: [],
 }
 
 export default (state = initialState, action) =>
@@ -51,8 +52,6 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_CHANNEL_UPDATE_MESSAGE_PIN':
-        console.log(state.pinnedMessages)
-        console.log(action.payload)
         draft.pinnedMessages = state.pinnedMessages.map(pinnedMessage => {
           if (pinnedMessage.id != action.payload.channelMessage.messageId) return pinnedMessage
           if (pinnedMessage.id == action.payload.channelMessage.messageId) {
@@ -382,6 +381,26 @@ export default (state = initialState, action) =>
 
               return true
             }),
+          }
+        })
+        break
+
+      case 'UPDATE_CHANNEL_CREATE_TASK':
+        draft.tasks = [action.payload.task, ...state.tasks]
+        break
+
+      case 'UPDATE_CHANNEL_DELETE_TASK':
+        draft.tasks = state.tasks.filter(task => task.id != action.payload.taskId)
+        break
+
+      case 'UPDATE_CHANNEL_UPDATE_TASK':
+        draft.tasks = state.tasks.map(task => {
+          if (task.id != action.payload.task.id) return task
+          if (task.id == action.payload.task.id) {
+            return {
+              ...task,
+              ...action.payload.task,
+            }
           }
         })
         break

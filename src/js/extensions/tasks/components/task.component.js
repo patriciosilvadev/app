@@ -103,7 +103,10 @@ class TaskComponent extends React.Component {
   // Handle the shift being released
   handleKeyUp(e) {}
 
-  componentDidUpdate(prevProps) {}
+  componentDidUpdate(prevProps) {
+    if (prevProps.title != this.props.title) this.setState({ title: this.props.title })
+    if (prevProps.done != this.props.done) this.setState({ done: this.props.done })
+  }
 
   componentDidMount() {}
 
@@ -134,7 +137,10 @@ class TaskComponent extends React.Component {
       <li>
         {this.state.deleteModal && (
           <ConfirmModal
-            onOkay={() => this.props.deleteTask(this.state.id)}
+            onOkay={() => {
+              this.props.deleteTask(this.state.id)
+              this.setState({ deleteModal: false })
+            }}
             onCancel={() => this.setState({ deleteModal: false })}
             text="Are you sure you want to delete this task, it can not be undone?"
             title="Are you sure?"

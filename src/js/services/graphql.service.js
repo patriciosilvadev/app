@@ -323,6 +323,12 @@ export default class GraphqlService {
               roomId
               createdAt
             }
+            tasks {
+              id
+              title
+              order
+              done
+            }
             image
             public
             private

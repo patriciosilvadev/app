@@ -222,6 +222,8 @@ class ChannelComponent extends React.Component {
       // Populate our channel - this will fetch page 0 of messages
       this.props.hydrateChannel(data.channel)
 
+      data.channel.messages.map(m => console.log(m.id, m.attachments[0]))
+
       // Clear all the markers for read/unread
       DatabaseService.getInstance().read(channelId)
 
