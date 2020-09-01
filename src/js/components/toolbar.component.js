@@ -39,6 +39,8 @@ export default function ToolbarComponent(props) {
     // TODO: Debugging - remove
     // handleAppStoreClick()
 
+    // go over all the apps
+    // and add only the active ones
     channel.apps
       .filter(app => app.active)
       .map(app => {
@@ -47,6 +49,9 @@ export default function ToolbarComponent(props) {
 
         // Add the channel app details to each button so we can
         // pass them to the action _ for meta data
+        // Also - only apps that have toolbat UI parts
+        // We add the token here so that the app can identifu the channgel
+        // ---> each channel has an auth token
         app.app.tools.map(tool => {
           appButtons.push({
             ...tool,
@@ -109,7 +114,7 @@ const Toolbar = styled.div`
   height: 100%;
   position: relative;
   border-left: 1px solid #eaedef;
-  display: ${props => (props.hide ? 'none' : 'block')};
+  display: ${props => (props.hide ? 'none' : '')};
 `
 
 const AppIconContainer = styled.div`
