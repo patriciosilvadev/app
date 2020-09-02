@@ -325,6 +325,8 @@ class AppPage extends React.Component {
             {/* Specifically for people getting deleted from a team */}
             {/* This disables everything */}
             <Route path="/app/team/:teamId" render={this.renderDisabledUI} />
+
+            {/* If there is nothing selected - welcome image */}
             <Route path="/app" render={props => this.renderWelcome()} />
 
             {/* Main channel screen with messaging */}
@@ -333,6 +335,15 @@ class AppPage extends React.Component {
               path="/app/team/:teamId/channel/:channelId"
               render={props => {
                 return <ChannelComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
+              }}
+            />
+
+            {/* Main channel screen with messaging */}
+            {/* Only hide this if the layout is MAIN (we want to keep the sidebar) */}
+            <Route
+              path="/app/team/:teamId/channel/:channelId"
+              render={props => {
+                return <AppComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
               }}
             />
 
