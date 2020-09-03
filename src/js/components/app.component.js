@@ -30,8 +30,10 @@ export default function AppComponent(props) {
     url = `${app.panel.payload.url}&token=${app.panel.token}&userId=${user.id}${app.panel.userCommand ? '&userCommand=' + app.panel.userCommand : ''}`
   }
 
+  console.log(props.hide)
+
   return (
-    <Container className="column">
+    <Container className="column" hide={props.hide}>
       <Header className="row">
         <HeaderTitle>{app.panel.name}</HeaderTitle>
         <Tooltip>App</Tooltip>
@@ -47,6 +49,7 @@ export default function AppComponent(props) {
 
 AppComponent.propTypes = {
   action: PropTypes.any,
+  hide: PropTypes.bool,
 }
 
 const Iframe = styled.iframe`
@@ -61,7 +64,7 @@ const IframeContainer = styled.div`
 `
 
 const Container = styled.div`
-  display: flex;
+  display: ${props => (props.hide ? 'none' : 'flex')};
   flex-direction: column;
   width: 400px;
   height: 100%;
