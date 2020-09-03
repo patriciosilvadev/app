@@ -163,7 +163,10 @@ export default (state = initialState, action) =>
         break
 
       case 'UPDATE_CHANNEL_DELETE_TYPING':
-        return { ...state, typing: state.typing.filter(t => t.userId != action.payload.userId) }
+        return {
+          ...state,
+          typing: state.typing.filter(t => t.userId != action.payload.userId),
+        }
 
       case 'UPDATE_CHANNEL_MESSAGE_ATTACHMENT_PREVIEW':
         draft.messages = state.messages.map((message, _) => {

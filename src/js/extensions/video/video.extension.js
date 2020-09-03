@@ -994,8 +994,6 @@ class VideoExtension extends React.Component {
       const calls = [...this.props.channel.calls, call]
       const { roomId } = call
 
-      console.log(call)
-
       // Update this channel's call list so is accessible
       this.props.updateChannel(this.props.channel.id, { calls })
 
