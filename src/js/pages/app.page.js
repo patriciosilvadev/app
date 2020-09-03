@@ -18,12 +18,13 @@ import AppComponent from '../components/app.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
-import { showLocalPushNotification, urlBase64ToUint8Array, logger } from '../helpers/util'
+import { showLocalPushNotification, urlBase64ToUint8Array, logger, isExtensionOpen } from '../helpers/util'
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
 import TasksExtension from '../extensions/tasks/tasks.extension'
 import VideoExtension from '../extensions/video/video.extension'
+import { LAYOUTS } from '../constants'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: 'SIDE',
+      extensionLayout: LAYOUTS.SIDE,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -224,28 +225,28 @@ class AppPage extends React.Component {
               <LayoutIconButton>
                 <IconComponent
                   icon="square"
-                  color={this.state.extensionLayout == 'FULL' ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
-                  onClick={() => this.setState({ extensionLayout: 'FULL' })}
+                  onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
                 />
               </LayoutIconButton>
               <LayoutIconButton>
                 <IconComponent
                   icon="sidebar"
-                  color={this.state.extensionLayout == 'MAIN' ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
-                  onClick={() => this.setState({ extensionLayout: 'MAIN' })}
+                  onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
                 />
               </LayoutIconButton>
               <LayoutIconButton>
                 <IconComponent
                   icon="sidebar"
-                  color={this.state.extensionLayout == 'SIDE' ? textColor : 'rgba(255,255,255,0.25)'}
+                  color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
                   size={18}
                   thickness={2}
-                  onClick={() => this.setState({ extensionLayout: 'SIDE' })}
+                  onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
                   style={{ transform: 'rotate(180deg)' }}
                 />
               </LayoutIconButton>
@@ -303,6 +304,12 @@ class AppPage extends React.Component {
     if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
 
+    // See if we need to hide the channel components
+    // - channel
+    // - toolbar
+    // - app
+    const hideChannel = (this.state.extensionLayout == LAYOUTS.MAIN || this.state.extensionLayout == LAYOUTS.FULL) && isExtensionOpen()
+
     return (
       <AppContainer className="column">
         <Loading show={this.props.common.loading} />
@@ -334,7 +341,7 @@ class AppPage extends React.Component {
             <Route
               path="/app/team/:teamId/channel/:channelId"
               render={props => {
-                return <ChannelComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
+                return <ChannelComponent hide={hideChannel} {...props} />
               }}
             />
 
@@ -343,7 +350,7 @@ class AppPage extends React.Component {
             <Route
               path="/app/team/:teamId/channel/:channelId"
               render={props => {
-                return <AppComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
+                return <AppComponent hide={hideChannel} {...props} />
               }}
             />
 
@@ -352,7 +359,7 @@ class AppPage extends React.Component {
             <Route
               path="/app/team/:teamId/channel/:channelId"
               render={props => {
-                return <ToolbarComponent hide={this.state.extensionLayout == 'MAIN'} {...props} />
+                return <ToolbarComponent hide={hideChannel} {...props} />
               }}
             />
 
@@ -445,9 +452,9 @@ const DisableUIText = styled.div`
 `
 
 const Layout = styled.div`
-  width: ${props => (props.layout == 'SIDE' ? '35%' : '100%')};
-  position: ${props => (props.layout == 'SIDE' || props.layout == 'MAIN' ? 'relative' : 'absolute')};
-  display: ${props => (props.layout == 'MAIN' ? 'flex' : 'block')};
+  width: ${props => (props.layout == LAYOUTS.SIDE ? '35%' : '100%')};
+  position: ${props => (props.layout == LAYOUTS.SIDE || props.layout == LAYOUTS.MAIN ? 'relative' : 'absolute')};
+  display: ${props => (props.layout == LAYOUTS.MAIN ? 'flex' : 'block')};
   border-left: 1px solid #eaedef;
   flex: 1;
   height: 100%;

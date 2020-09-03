@@ -12,6 +12,13 @@ export function getQueryStringValue(name) {
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '))
 }
 
+export function isExtensionOpen() {
+  const url = window.location.href
+  const urlParts = url.split('/')
+  const lastPart = urlParts[urlParts.length - 1].toUpperCase()
+  return lastPart == 'VIDEO' || lastPart == 'TASKS'
+}
+
 export const bytesToSize = bytes => {
   var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb']
   if (bytes == 0) return '0 Byte'
