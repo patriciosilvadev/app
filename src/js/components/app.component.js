@@ -30,8 +30,6 @@ export default function AppComponent(props) {
     url = `${app.panel.payload.url}&token=${app.panel.token}&userId=${user.id}${app.panel.userCommand ? '&userCommand=' + app.panel.userCommand : ''}`
   }
 
-  console.log(props.hide)
-
   return (
     <Container className="column" hide={props.hide}>
       <Header className="row">

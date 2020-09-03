@@ -64,6 +64,7 @@ class ComposeComponent extends React.Component {
     this.clearMessage = this.clearMessage.bind(this)
     this.focusComposeInput = this.focusComposeInput.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
+    this.populateCommands = this.populateCommands.bind(this)
 
     this.onSearch$ = new Subject()
     this.subscription = null
@@ -86,8 +87,26 @@ class ComposeComponent extends React.Component {
 
     // If this message is a general (any) app command
     if (this.state.text[0] == '/') {
-      // Remove the / from processing the command
-      const commandText = this.state.text.slice(1).toLowerCase()
+      // Remove the / from processing the command (1st character)
+      // Only make the 1st 2 pieces of text lowercase
+      // those are:
+      // - app slug
+      // - app command
+      const commandTextParts = this.state.text.slice(1).split(' ')
+
+      // Don't process this if it's not complete
+      if (commandTextParts.length <= 2) return
+
+      // If there are more than 2 parts, carry on
+      const commandText = commandTextParts
+        .map((t, i) => {
+          if (i == 0 || i == 1) {
+            return t.toLowerCase()
+          } else {
+            return t
+          }
+        })
+        .join(' ')
 
       // Take the very first word which is the app slug (unique accross apps)
       const slug = commandText.split(' ')[0]
@@ -345,7 +364,10 @@ class ComposeComponent extends React.Component {
 
   populateCommands(text) {
     const commands = []
-    const textToMatch = text
+
+    // This removes the first letter from the string ('/')
+    // Takes the first word (app shortcode)
+    const appShortcodeToMatch = text
       .slice(1)
       .split(' ')[0]
       .toLowerCase()
@@ -356,7 +378,10 @@ class ComposeComponent extends React.Component {
 
       // and see if they have commands to list for the user
       app.app.commands.map(command => {
-        if (command.name.toLowerCase().match(new RegExp(textToMatch + '.*'))) {
+        const matchCommandName = command.name.toLowerCase().match(new RegExp(appShortcodeToMatch + '.*'))
+        const matchAppSlug = app.app.slug.toLowerCase().match(new RegExp(appShortcodeToMatch + '.*'))
+
+        if (matchCommandName || matchAppSlug) {
           commands.push({
             id: app.app.id,
             slug: app.app.slug,
