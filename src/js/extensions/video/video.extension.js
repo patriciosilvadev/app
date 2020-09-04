@@ -220,6 +220,8 @@ class VideoExtension extends React.Component {
   }
 
   resetGlobalValues() {
+    janus.destroy()
+
     myid = null
     mypvtid = null
     myid_screen = null
@@ -633,8 +635,13 @@ class VideoExtension extends React.Component {
   initJanusVideoRoom(roomId) {
     if (!Janus.isWebrtcSupported()) return this.setState({ error: 'No WebRTC support... ' })
 
-    // Start loading
-    this.setState({ loading: true })
+    // ⚠️ LOADING IS SET IN THE BUTTON
+    // If this is null
+    if (!janus)
+      return this.setState({
+        error: 'Video instance is null for this room',
+        loading: false,
+      })
 
     // Attach to VideoRoom plugin
     janus.attach({
@@ -727,16 +734,16 @@ class VideoExtension extends React.Component {
             } else if (msg['error']) {
               switch (msg['error_code']) {
                 // If the room doesn't exist, then direct them to the list
+                // We should show an error here - but we'll simply debug it
                 case 426:
-                  this.setState({
-                    error: 'This room does not exist',
-                    view: '',
-                  })
+                  console.error('ROOM DOES NOT EXIST: ', msg)
+                  this.setState({ view: '' })
                   break
 
                 // User already a publisher here
                 // The room ID would have been updated from the "Join" button
                 case 425:
+                  console.error('ALREADY PUBLISHED IN ROOM: ', msg)
                   this.setState({ view: 'call' })
                   this.publishOwnFeed(true, true)
                   break
@@ -1023,7 +1030,10 @@ class VideoExtension extends React.Component {
               // console.log(videoroom, room, permanent, error_code, error)
               if (error) return this.setState({ error })
 
-              this.setState({ view: '' })
+              this.setState({
+                view: '',
+                topic: '',
+              })
             },
           })
         }
@@ -1034,6 +1044,8 @@ class VideoExtension extends React.Component {
   }
 
   async handleChannelDeleteCall(roomId) {
+    if (!confirm('Are you sure?')) return
+
     this.setState({
       error: null,
       notification: null,
@@ -1109,6 +1121,7 @@ class VideoExtension extends React.Component {
                 onClick={() => {
                   this.setState(
                     {
+                      loading: true,
                       topic: call.topic,
                       roomId: call.roomId,
                       error: null,
