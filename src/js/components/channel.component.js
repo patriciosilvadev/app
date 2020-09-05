@@ -616,6 +616,13 @@ class ChannelComponent extends React.Component {
                         items={[
                           {
                             hide: this.props.channel.private,
+                            icon: <IconComponent icon="users" size={20} color="#aeb5bc" />,
+                            text: 'Members',
+                            label: 'Manage channel members',
+                            onClick: e => this.setState({ channelMenu: false, membersPanel: true, attachmentsPanel: false }),
+                          },
+                          {
+                            hide: this.props.channel.private,
                             icon: <IconComponent icon="radio" size={20} color="#aeb5bc" />,
                             text: this.props.channel.readonly ? 'Disable broadcast' : 'Make broadcast',
                             label: 'Only you can post messages',
@@ -1084,24 +1091,27 @@ const TotalMembers = styled.div`
 
 const HeaderSearchContainer = styled.div`
   border: 1px solid #eaedef;
+  border: 4px solid #f1f3f5;
   border-radius: 10px;
   padding-left: 10px;
   height: 35px;
   padding-right: 10px;
   transition: width 0.5s;
-  width: ${props => (props.focus ? '30%' : '25%')};
   margin-right: 10px;
+  width: ${props => (props.focus ? '30%' : '25%')};
+  box-shadow: ${props => (props.focus ? 'inset 0px 0px 0px 3px #cfd4da;' : 'none')};
 `
 
 const HeaderSearchInput = styled.input`
   font-size: 14px;
   font-weight: 400;
   flex: 1;
-  background: transparent;
+  background: white;
   font-style: normal;
   color: #212123;
   border: none;
   outline: none;
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.02);
 
   &::placeholder {
     color: #aeb5bc;

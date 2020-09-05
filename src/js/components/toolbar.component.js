@@ -119,7 +119,7 @@ const Toolbar = styled.div`
 
 const AppIconContainer = styled.div`
   padding: 5px;
-  margin: 15px;
+  margin: 5px 15px 5px 15px;
   cursor: pointer;
   opacity: 1;
   transition: opacity 0.25s;
@@ -128,6 +128,14 @@ const AppIconContainer = styled.div`
   align-content: center;
   justify-content: center;
   display: flex;
+
+  &:first-child {
+    margin-top: 15px;
+  }
+
+  &:last-child {
+    margin-bottom: 15px;
+  }
 
   &:hover {
     opacity: 0.8;

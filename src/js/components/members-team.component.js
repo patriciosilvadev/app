@@ -8,7 +8,7 @@ import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
-import { Popup, Menu, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
+import { Popup, Menu, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Input } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import { copyToClipboard, getPresenceText } from '../helpers/util'
 import { deleteTeam, updateTeam } from '../actions'
@@ -379,7 +379,7 @@ MembersTeamComponent.propTypes = {
   admin: PropTypes.bool,
 }
 
-const Input = styled.input`
+/* const Input = styled.input`
   font-size: 14px;
   border-radius: 5px;
   width: 100%;
@@ -392,7 +392,7 @@ const Input = styled.input`
   &::placeholder {
     color: #e9edef;
   }
-`
+` */
 
 const Buttons = styled.div`
   div:nth-child(2) {

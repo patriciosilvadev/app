@@ -317,7 +317,7 @@ const ChannelBadge = styled.div`
 const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 14px;
-  font-weight: ${props => (props.active ? '600' : '500')};
+  font-weight: 600; /*${props => (props.active ? '700' : '500')}*/
   color: ${props => (props.active ? '#18181d' : '#858E96')};
   white-space: wrap;
   max-width: 140px;
@@ -749,7 +749,7 @@ class ChannelsComponent extends React.Component {
                     onClick: () => this.updateUserPresence('busy'),
                   },
                   {
-                    icon: <span style={{ fontSize: 14, color: 'rgba(0,0,0,0.1)' }}>&#9679;</span>,
+                    icon: <span style={{ fontSize: 14, color: '#EAEDEF' }}>&#9679;</span>,
                     text: 'Invisible',
                     onClick: () => this.updateUserPresence('invisible'),
                   },

@@ -7,7 +7,7 @@ import moment from 'moment'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import PropTypes from 'prop-types'
-import { Attachment, Popup, Button, Modal, Error, Spinner, Avatar, Menu, Notification } from '@weekday/elements'
+import { Attachment, Popup, Button, Modal, Error, Spinner, Avatar, Menu, Notification, Input } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
 import { parseMessageMarkdown, getPresenceText, logger } from '../helpers/util'
@@ -300,7 +300,7 @@ class MembersChannelComponent extends React.Component {
           <div className="p-20 w-100">
             <div className="row">
               <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
-              <Button text="Add" theme="muted" size="small" onClick={() => this.setState({ membersModal: true })} />
+              <Button text="Add" theme="muted" size="small" className="ml-10" onClick={() => this.setState({ membersModal: true })} />
             </div>
           </div>
 
@@ -412,7 +412,7 @@ const HeaderTitle = styled.div`
   flex: 1;
 `
 
-const Input = styled.input`
+/* const Input = styled.input`
   font-size: 14px;
   border-radius: 5px;
   width: 100%;
@@ -425,7 +425,7 @@ const Input = styled.input`
   &::placeholder {
     color: #e9edef;
   }
-`
+` */
 
 const Th = styled.th`
   text-align: left;
