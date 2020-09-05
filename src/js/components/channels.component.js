@@ -1227,7 +1227,7 @@ export default connect(
 )(ChannelsComponent)
 
 const Channels = styled.div`
-  width: 300px;
+  width: 275px;
   height: 100%;
   position: relative;
   z-index: 6;
