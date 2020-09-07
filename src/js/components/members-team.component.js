@@ -12,7 +12,7 @@ import { Popup, Menu, Textarea, Modal, Tabbed, Notification, Spinner, Error, Use
 import { IconComponent } from './icon.component'
 import { copyToClipboard, getPresenceText } from '../helpers/util'
 import { deleteTeam, updateTeam } from '../actions'
-import { PAGE_LIMIT } from '../environment'
+import { MEMBER_PAGE_LIMIT } from '../constants'
 
 const TableRow = props => {
   const { member, user } = props
@@ -149,8 +149,7 @@ export default function MembersTeamComponent(props) {
   const [filterTimeout, setFilterTimeout] = useState(null)
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-  const limit = PAGE_LIMIT
-  const filterRef = useRef(null)
+  const limit = MEMBER_PAGE_LIMIT
 
   const handleTeamMemberRoleChange = async (userId, role) => {
     setLoading(true)
@@ -334,7 +333,7 @@ export default function MembersTeamComponent(props) {
           )}
         </div>
 
-        <Input value={filter} ref={filterRef} onChange={onSearch} placeholder="Filter members by name" className="mb-20" />
+        <Input value={filter} onChange={onSearch} placeholder="Filter members by name" className="mb-20" />
 
         <table width="100%" border="0" cellPadding={0} cellSpacing={0}>
           <thead>

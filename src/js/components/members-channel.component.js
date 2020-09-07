@@ -99,7 +99,6 @@ class MembersChannelComponent extends React.Component {
     }
 
     this.scrollRef = React.createRef()
-    this.filterRef = React.createRef()
 
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.handleChannelMemberDelete = this.handleChannelMemberDelete.bind(this)
@@ -299,7 +298,7 @@ class MembersChannelComponent extends React.Component {
 
           <div className="p-20 w-100">
             <div className="row">
-              <Input ref={ref => (this.filterRef = ref)} value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
+              <Input value={this.state.filter} onChange={this.onSearch} placeholder="Filter members by name" className="mr-5" />
               <Button text="Add" theme="muted" size="small" className="ml-10" onClick={() => this.setState({ membersModal: true })} />
             </div>
           </div>

@@ -7,3 +7,4 @@ export const LAYOUTS = {
   MAIN: 'MAIN',
   FULL: 'FULL,',
 }
+export const MEMBER_PAGE_LIMIT = 10

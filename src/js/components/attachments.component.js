@@ -83,7 +83,7 @@ class AttachmentsComponent extends React.Component {
       // Add the new messages to the channel
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({
-        messages: messagesWithValidAttachments,
+        messages: [...messagesWithValidAttachments, ...this.state.messages],
         page: this.state.page + 1,
         busy: false,
         loading: false,

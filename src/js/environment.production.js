@@ -9,7 +9,6 @@ export const PN = 'PN'
 export const APPSTORE_URL = 'https://appstore.weekdayapp.com'
 export const STRIPE_API_KEY = ''
 export const SENTRY_DSN = 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390'
-export const PAGE_LIMIT = 10
 export const DEVICE = 'WEB'
 export const MQTT_PREFIX = 'WEB'
 export const WEBRTC_URL = 'http://159.69.150.191:8088/janus'
