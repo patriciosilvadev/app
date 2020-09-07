@@ -739,8 +739,7 @@ class ComposeComponent extends React.Component {
       <Footer className="row">
         <IconComponent icon="markdown" size={20} color="#cfd4d9" className="mr-10" />
         <span>
-          <strong>**bold**</strong> <i>*italic*</i> <code>`code`</code> <del>~~strikeout~~</del>
-          &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+          <strong>**bold**</strong> <i>*italic*</i> <code>`code`</code> <del>~~strikeout~~</del> !!! priority &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
           <strong>/</strong> for available commands
         </span>
       </Footer>

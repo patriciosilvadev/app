@@ -72,7 +72,22 @@ export default memo(props => {
   const [ogDescription, setOgDescription] = useState(null)
   const [ogImage, setOgImage] = useState(null)
   const [ogUrl, setOgUrl] = useState(null)
+  const [priority, setPriority] = useState(null)
   const iframeRef = useRef(null)
+
+  const getMessagePriorityLevel = messageBody => {
+    if (!messageBody) return null
+    if (messageBody.substring(0, 3) == '!!!') return 3
+    if (messageBody.substring(0, 2) == '!!') return 2
+    if (messageBody.substring(0, 1) == '!') return 1
+    return null
+  }
+
+  const stripPriorityLevelFromText = (messageBody, priorityLevel) => {
+    if (priorityLevel) return messageBody.substring(priorityLevel)
+
+    return messageBody
+  }
 
   const fetchTaskExtensionMetaData = async taskId => {
     try {
@@ -413,7 +428,13 @@ export default memo(props => {
 
   // Here we start processing the markdown & text highighting
   useEffect(() => {
-    setBody(parseMessageMarkdown(props.message.body, props.highlight))
+    let messageBody = props.message.body || ''
+    const priorityLevel = getMessagePriorityLevel(messageBody)
+
+    if (priorityLevel) messageBody = stripPriorityLevelFromText(messageBody, priorityLevel)
+
+    setPriority(priorityLevel)
+    setBody(parseMessageMarkdown(messageBody, props.highlight))
   }, [props.highlight, props.message])
 
   // Message reads - runs once
@@ -490,7 +511,7 @@ export default memo(props => {
 
     return (
       <React.Fragment>
-        {!props.message.system && <User>{senderName}</User>}
+        {!props.message.system && <User priority={priority}>{senderName}</User>}
         {props.message.app && <App>{props.message.app.app.name}</App>}
         <Date>
           {props.message.system && <span>{props.message.body} - </span>}
@@ -808,7 +829,7 @@ export default memo(props => {
     // Do not render the message text if it's a system message
     if (props.message.system) return null
 
-    return <Text dangerouslySetInnerHTML={{ __html: body }} />
+    return <Text priority={priority} dangerouslySetInnerHTML={{ __html: body }} />
   }
 
   const renderForwardingUser = () => {
@@ -942,7 +963,18 @@ const ForwardingUser = styled.div`
 `
 
 const User = styled.div`
-  color: #343a40;
+  color: ${props => {
+    switch (props.priority) {
+      case 1:
+        return 'blue'
+      case 2:
+        return 'orange'
+      case 3:
+        return 'red'
+      default:
+        return '#333a40'
+    }
+  }};
   font-weight: 600;
   font-style: normal;
   font-size: 14px;
@@ -951,7 +983,18 @@ const User = styled.div`
 
 const Text = styled.div`
   font-size: 14px;
-  color: #333a40;
+  color: ${props => {
+    switch (props.priority) {
+      case 1:
+        return 'blue'
+      case 2:
+        return 'orange'
+      case 3:
+        return 'red'
+      default:
+        return '#333a40'
+    }
+  }};
   font-weight: 400;
   line-height: 1.4;
   padding-top: 5px;
