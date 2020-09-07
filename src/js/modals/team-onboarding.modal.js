@@ -136,7 +136,7 @@ export default function TeamOnboardingModal(props) {
 
     return (
       <React.Fragment>
-        <Text className="h1 mb-30 mt-30 color-d3">Create a team</Text>
+        <Text className="h1 mb-30 color-d3">Create a team</Text>
         <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">What would you like to call your new team?</Text>
 
         <div className="column mt-30 align-items-center w-100">
@@ -189,7 +189,7 @@ export default function TeamOnboardingModal(props) {
 
     return (
       <React.Fragment>
-        <Text className="h1 mb-30 mt-30 color-d3">Congratulations!</Text>
+        <Text className="h1 mb-30 color-d3">Congratulations!</Text>
         <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Your team has been successfully created.</Text>
         <Text className="h5 color-d0">Add more emails below to invite others to your team.</Text>
 
@@ -265,7 +265,8 @@ const Container = styled.div`
 const Inner = styled.div`
   background: white;
   position: relative;
-  height: 70%;
+  padding-top: 80px;
+  padding-bottom: 80px;
   width: 550px;
   border-radius: 30px;
   display: flex;
