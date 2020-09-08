@@ -480,13 +480,15 @@ class ChannelComponent extends React.Component {
         <HeaderSearchContainer className="row" focus={this.state.searchFocus}>
           <IconComponent icon="search" size={15} color="#aeb5bc" thickness={2} className="ml-10 mr-10" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />
 
-          <HeaderSearchInput
-            placeholder="Search"
-            value={this.state.searchQuery}
-            onChange={this.onSearch}
-            onFocus={() => this.setState({ searchFocus: true })}
-            onBlur={() => this.setState({ searchFocus: false })}
-          />
+          <HeaderSearchInputContainer>
+            <HeaderSearchInput
+              placeholder="Search"
+              value={this.state.searchQuery}
+              onChange={this.onSearch}
+              onFocus={() => this.setState({ searchFocus: true })}
+              onBlur={() => this.setState({ searchFocus: false })}
+            />
+          </HeaderSearchInputContainer>
 
           {this.state.searchResults && <IconComponent icon="x" size={15} thickness={2} color="#aeb5bc" className="button" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />}
         </HeaderSearchContainer>
@@ -1098,20 +1100,24 @@ const HeaderSearchContainer = styled.div`
   padding-right: 10px;
   transition: width 0.5s;
   margin-right: 10px;
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.02);
   width: ${props => (props.focus ? '30%' : '25%')};
   box-shadow: ${props => (props.focus ? 'inset 0px 0px 0px 3px #cfd4da;' : 'none')};
+`
+
+const HeaderSearchInputContainer = styled.div`
+  flex: 1;
 `
 
 const HeaderSearchInput = styled.input`
   font-size: 14px;
   font-weight: 400;
-  flex: 1;
-  background: white;
+  width: 100%;
+  background: transparent;
   font-style: normal;
   color: #212123;
   border: none;
   outline: none;
-  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.02);
 
   &::placeholder {
     color: #aeb5bc;
