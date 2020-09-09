@@ -368,9 +368,9 @@ class AppPage extends React.Component {
               path="/app/team/:teamId/channel/:channelId/video"
               render={props => {
                 return (
-                  <Layout layout={this.state.extensionLayout}>
+                  <ExtensionLayout layout={this.state.extensionLayout}>
                     <VideoExtension {...props} />
-                  </Layout>
+                  </ExtensionLayout>
                 )
               }}
             />
@@ -380,9 +380,9 @@ class AppPage extends React.Component {
               path="/app/team/:teamId/channel/:channelId/tasks"
               render={props => {
                 return (
-                  <Layout layout={this.state.extensionLayout}>
+                  <ExtensionLayout layout={this.state.extensionLayout}>
                     <TasksExtension {...props} />
-                  </Layout>
+                  </ExtensionLayout>
                 )
               }}
             />
@@ -451,7 +451,7 @@ const DisableUIText = styled.div`
   font-size: 25px;
 `
 
-const Layout = styled.div`
+const ExtensionLayout = styled.div`
   width: ${props => (props.layout == LAYOUTS.SIDE ? '35%' : '100%')};
   position: ${props => (props.layout == LAYOUTS.SIDE || props.layout == LAYOUTS.MAIN ? 'relative' : 'absolute')};
   display: ${props => (props.layout == LAYOUTS.MAIN ? 'flex' : 'block')};
