@@ -316,18 +316,24 @@ class AppPage extends React.Component {
         <Error message={this.props.common.error} theme="solid" />
 
         {!this.props.common.connected && <Notification theme="solid" text="Connecting..." />}
+
+        {/* When apps open a modal */}
         {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
 
+        {/* Blue PN bar to ask the user for permission */}
         {this.state.pushNotificationsNotification && (
           <Notification text="Push notifications are disabled" actionText="Enable" onActionClick={this.handlePushNotificationsSetup} onDismissIconClick={this.dismissPushNotifications} theme="solid" />
         )}
 
+        {/* Color channel bar at the top */}
         {this.renderBar()}
 
         <App className="row">
           <Router history={browserHistory}>
-            <Route path="/app" component={DockComponent} />
-            <Route path="/app/team/:teamId" component={ChannelsComponent} />
+            <Drawer>
+              <Route path="/app" component={DockComponent} />
+              <Route path="/app/team/:teamId" component={ChannelsComponent} />
+            </Drawer>
 
             {/* Specifically for people getting deleted from a team */}
             {/* This disables everything */}
@@ -428,6 +434,28 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AppPage)
+
+const Drawer = styled.div`
+  width: 350px;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+
+  @media only screen and (max-width: 768px) {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+    width: 90%;
+    background: white;
+    -webkit-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
+  }
+`
 
 const DisabledUI = styled.div`
   position: absolute;

@@ -1236,11 +1236,7 @@ const Channels = styled.div`
   border-right: 0px solid #1f2d3d;
 
   @media only screen and (max-width: 768px) {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    z-index: 9;
-    display: none;
+    width: 80%;
   }
 `
 
