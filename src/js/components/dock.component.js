@@ -124,6 +124,14 @@ const Dock = styled.div`
   background: #18181d;
   background: #f8f9fa;
   border-right: 1px solid #eaedef;
+
+  @media only screen and (max-width: 768px) {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+    display: none;
+  }
 `
 
 const Team = styled.div`

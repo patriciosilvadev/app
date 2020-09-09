@@ -886,7 +886,7 @@ const Compose = styled.div`
 
 const InputContainer = styled.div`
   flex: 1;
-  padding: 25px 25px 0px 25px;
+  padding: 25px 25px 25px 25px;
 `
 
 const Attachments = styled.div`
@@ -914,6 +914,10 @@ const Footer = styled.div`
 
   strong {
     font-weight: 700;
+  }
+
+  @media only screen and (max-width: 768px) {
+    display: none;
   }
 `
 

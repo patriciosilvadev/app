@@ -285,8 +285,8 @@ class AppPage extends React.Component {
     if (this.props.team.role) return null
 
     return (
-      <DisableUI>
-        <DisableUIText>You don't have access to this team.</DisableUIText>
+      <DisabledUI>
+        <DisabledUIText>You don't have access to this team.</DisabledUIText>
         <div className="row">
           {this.props.teams.map((t, index) => {
             return (
@@ -296,7 +296,7 @@ class AppPage extends React.Component {
             )
           })}
         </div>
-      </DisableUI>
+      </DisabledUI>
     )
   }
 
@@ -429,7 +429,7 @@ export default connect(
   mapDispatchToProps
 )(AppPage)
 
-const DisableUI = styled.div`
+const DisabledUI = styled.div`
   position: absolute;
   top: 0px;
   left: 0px;
@@ -444,7 +444,7 @@ const DisableUI = styled.div`
   justify-content: center;
 `
 
-const DisableUIText = styled.div`
+const DisabledUIText = styled.div`
   color: #202027;
   font-weight: 500;
   margin-bottom: 20px;
@@ -501,6 +501,10 @@ const Bar = styled.div`
   width: 100%;
   padding: 0 10px 0 10px;
   height: 50px;
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 const Team = styled.div`

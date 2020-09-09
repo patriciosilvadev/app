@@ -533,7 +533,7 @@ class ChannelComponent extends React.Component {
           <IconComponent icon="attachment" size={18} thickness={2} color="#aeb5bc" />
         </HeaderButton>
 
-        <div className="row" style={{ marginLeft: 20 }}>
+        <UserPreviews className="row" style={{ marginLeft: 20 }}>
           {this.props.channel.userPreviews.map((userPreview, index) => {
             const userPreviewTextColor = userPreview.color
               ? chroma(userPreview.color)
@@ -552,7 +552,7 @@ class ChannelComponent extends React.Component {
           <div style={{ marginLeft: -10 }} onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
             <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} />
           </div>
-        </div>
+        </UserPreviews>
 
         {!this.props.channel.private && (
           <React.Fragment>
@@ -1091,6 +1091,12 @@ const TotalMembers = styled.div`
   display: inline-block;
 `
 
+const UserPreviews = styled.div`
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+`
+
 const HeaderSearchContainer = styled.div`
   border: 1px solid #eaedef;
   border: 4px solid #f1f3f5;
@@ -1103,6 +1109,10 @@ const HeaderSearchContainer = styled.div`
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.02);
   width: ${props => (props.focus ? '30%' : '25%')};
   box-shadow: ${props => (props.focus ? 'inset 0px 0px 0px 3px #cfd4da;' : 'none')};
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 const HeaderSearchInputContainer = styled.div`

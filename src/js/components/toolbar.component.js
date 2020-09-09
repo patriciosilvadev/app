@@ -100,21 +100,20 @@ ToolbarComponent.propTypes = {
   hide: PropTypes.bool,
 }
 
-const CloseIcon = styled.div`
-  position: fixed;
-  z-index: 100;
-  width: 30px;
-  height: 30px;
-  top: 20px;
-  right: 20px;
-`
-
 const Toolbar = styled.div`
   align-items: center;
   height: 100%;
   position: relative;
   border-left: 1px solid #eaedef;
   display: ${props => (props.hide ? 'none' : '')};
+
+  @media only screen and (max-width: 768px) {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+    display: none;
+  }
 `
 
 const AppIconContainer = styled.div`
@@ -155,4 +154,13 @@ const AppIconImage = styled.div`
 
 const Iframe = styled.iframe`
   border: none;
+`
+
+const CloseIcon = styled.div`
+  position: fixed;
+  z-index: 100;
+  width: 30px;
+  height: 30px;
+  top: 20px;
+  right: 20px;
 `
