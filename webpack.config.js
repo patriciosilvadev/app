@@ -90,6 +90,17 @@ module.exports = env => {
           ],
         },
         {
+          test: /manifest.webmanifest/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: 'manifest.webmanifest',
+              },
+            },
+          ],
+        },
+        {
           test: /\.(svg|png|jpe?g|gif)$/,
           use: [
             {
