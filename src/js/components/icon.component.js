@@ -13,6 +13,7 @@ import {
   Trash2,
   PlusCircle,
   Plus,
+  Menu,
   X,
   Check,
   Bell,
@@ -68,6 +69,8 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'menu':
+        return <Menu width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'check-circle':
         return <CheckCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'circle':

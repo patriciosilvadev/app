@@ -35,6 +35,7 @@ class AppPage extends React.Component {
       userId: null,
       pushNotificationsNotification: false,
       extensionLayout: LAYOUTS.SIDE,
+      drawer: false,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -213,10 +214,16 @@ class AppPage extends React.Component {
 
     return (
       <Bar className="row" backgroundColor={backgroundColor}>
+        <DrawerIcon>
+          <IconComponent icon="menu" size={20} thickness={2} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
+        </DrawerIcon>
+
         <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
           {this.props.team.name}
         </Team>
+
         <Role textColor={textColor}>{this.props.team.position}</Role>
+
         <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
         <div className="flexer"></div>
         {this.props.channel.id && (
@@ -330,7 +337,9 @@ class AppPage extends React.Component {
 
         <App className="row">
           <Router history={browserHistory}>
-            <Drawer>
+            {this.state.drawer && <DrawerOverlay onClick={() => this.setState({ drawer: false })} />}
+
+            <Drawer open={this.state.drawer}>
               <Route path="/app" component={DockComponent} />
               <Route path="/app/team/:teamId" component={ChannelsComponent} />
             </Drawer>
@@ -436,6 +445,8 @@ export default connect(
 )(AppPage)
 
 const Drawer = styled.div`
+  transition: transform 0.25s;
+  transform: translateX(0%);
   width: 350px;
   height: 100%;
   display: flex;
@@ -443,17 +454,44 @@ const Drawer = styled.div`
   align-content: center;
   align-items: center;
   justify-content: center;
+  z-index: 6;
 
   @media only screen and (max-width: 768px) {
+    transform: translateX(${props => (props.open ? '0%' : '-100%')});
     position: absolute;
     top: 0px;
     left: 0px;
     z-index: 10;
     width: 90%;
     background: white;
+    /*
     -webkit-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
     box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
+    */
+  }
+`
+
+const DrawerIcon = styled.div`
+  display: none;
+
+  @media only screen and (max-width: 768px) {
+    display: block;
+  }
+`
+
+const DrawerOverlay = styled.div`
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 4;
+
+  @media only screen and (max-width: 768px) {
+    display: block;
   }
 `
 
@@ -531,7 +569,6 @@ const Bar = styled.div`
   height: 50px;
 
   @media only screen and (max-width: 768px) {
-    display: none;
   }
 `
 
