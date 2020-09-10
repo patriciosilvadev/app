@@ -780,12 +780,12 @@ class ChannelsComponent extends React.Component {
             width={300}
             direction="left-bottom"
             content={
-              <React.Fragment>
-                <div className="w-100 p-20 column align-items-center border-bottom">
+              <div className="w-100">
+                <PopupHeader className="w-100 p-20 border-bottom column align-items-center">
                   <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
                   <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
                   <div className="text-center small bold color-l0 mt-5">{this.props.team.position}</div>
-                </div>
+                </PopupHeader>
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
                   <div className="row w-100">
@@ -889,7 +889,7 @@ class ChannelsComponent extends React.Component {
                 />
 
                 <div className="small regular color-d0 p-20 border-top">Build {version}</div>
-              </React.Fragment>
+              </div>
             }
           >
             <IconComponent icon="settings" size={16} thickness={2} color="#858E96" className="button" onClick={this._openUserMenu.bind(this)} />
@@ -1297,6 +1297,12 @@ const HeaderSubtitle = styled.div`
   font-weight: 400;
   color: #858e96;
   overflow: hidden;
+`
+
+const PopupHeader = styled.div`
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 const Heading = styled.div`
