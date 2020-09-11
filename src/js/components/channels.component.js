@@ -291,6 +291,10 @@ const ChannelContainer = styled.div`
   cursor: pointer;
   margin-bottom: 0px;
   padding-right: 25px;
+
+  @media only screen and (max-width: 768px) {
+    padding-right: 20px;
+  }
 `
 
 const ChannelContainerPadding = styled.div`
@@ -302,6 +306,10 @@ const ChannelContainerPadding = styled.div`
   align-content: center;
   justify-content: center;
   position: relative;
+
+  @media only screen and (max-width: 768px) {
+    padding-left: 20px;
+  }
 `
 
 const ChannelBadge = styled.div`
@@ -716,15 +724,8 @@ class ChannelsComponent extends React.Component {
 
   renderHeader() {
     return (
-      <div className="column w-100">
-        <div className="row pl-25 pr-25 pt-15 pb-15 hide">
-          <HeaderTeam>{this.props.team.name}</HeaderTeam>
-          <HeaderRole>
-            {this.props.team.position} - {this.props.user.timezone}
-          </HeaderRole>
-        </div>
-
-        <Header className="row mt-20 pt-5">
+      <HeaderContainer>
+        <Header>
           <Popup
             handleDismiss={() => this.setState({ presenceMenu: false })}
             visible={this.state.presenceMenu}
@@ -761,17 +762,16 @@ class ChannelsComponent extends React.Component {
               size="medium-large"
               image={this.props.user.image}
               title={this.props.user.name}
-              className="mr-10"
               presence={this.props.user.presence ? (this.props.user.presence == 'invisible' ? 'invisible:user' : this.props.user.presence) : 'online'}
               onPresenceClick={() => this.setState({ presenceMenu: true })}
             />
           </Popup>
 
-          <HeaderTitles className="column">
-            <HeaderTitle className="align-items-center">{this.props.user.name}</HeaderTitle>
-            <HeaderSubtitle>
+          <HeaderTitles>
+            <HeaderName className="align-items-center">{this.props.user.name}</HeaderName>
+            <HeaderRole>
               <div>{this.props.user.status || 'Update your status'}</div>
-            </HeaderSubtitle>
+            </HeaderRole>
           </HeaderTitles>
 
           <Popup
@@ -895,7 +895,7 @@ class ChannelsComponent extends React.Component {
             <IconComponent icon="settings" size={16} thickness={2} color="#858E96" className="button" onClick={this._openUserMenu.bind(this)} />
           </Popup>
         </Header>
-      </div>
+      </HeaderContainer>
     )
   }
 
@@ -906,7 +906,9 @@ class ChannelsComponent extends React.Component {
 
     return (
       <React.Fragment>
-        <Heading>Favourites</Heading>
+        <HeadingRow>
+          <Heading>Favourites</Heading>
+        </HeadingRow>
 
         {this.state.starred.map((channel, index) => {
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
@@ -948,7 +950,7 @@ class ChannelsComponent extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="row pr-25">
+        <HeadingRow>
           <Heading>Channels</Heading>
 
           {this.props.team.role != 'GUEST' && (
@@ -963,7 +965,7 @@ class ChannelsComponent extends React.Component {
               <IconComponent icon="plus-circle" size={15} color="#858E96" thickness={2} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
             </QuickInputComponent>
           )}
-        </div>
+        </HeadingRow>
 
         {this.state.public.map((channel, index) => {
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
@@ -1002,7 +1004,7 @@ class ChannelsComponent extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="row pr-25">
+        <HeadingRow>
           <Heading>Private Conversations</Heading>
 
           <QuickUserComponent
@@ -1024,7 +1026,7 @@ class ChannelsComponent extends React.Component {
           >
             <IconComponent icon="plus-circle" size={15} color="#858E96" thickness={2} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
           </QuickUserComponent>
-        </div>
+        </HeadingRow>
 
         {this.state.private.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
@@ -1070,9 +1072,11 @@ class ChannelsComponent extends React.Component {
 
     return (
       <React.Fragment>
-        <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
-          {this.state.archivedVisible ? 'Hide archived' : 'See archived'}
-        </Heading>
+        <HeadingRow>
+          <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
+            {this.state.archivedVisible ? 'Hide archived' : 'See archived'}
+          </Heading>
+        </HeadingRow>
 
         {this.state.archivedVisible && (
           <React.Fragment>
@@ -1246,41 +1250,49 @@ const ChannelsContainer = styled.div`
   width: 100%;
 `
 
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+`
+
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding 0px 25px 10px 25px;
+  padding 5px 25px 10px 25px;
   transition: background-color 0.5s;
+  display: flex;
+  flex-direction: row;
+  align-content: stretch;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+
+  @media only screen and (max-width: 768px) {
+    padding 20px;
+    margin: 0px;
+  }
 `
 
 const HeaderTitles = styled.div`
   flex: 1;
-  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: flex-start;
+  justify-content: center;
+  padding-left: 15px;
+
+  @media only screen and (max-width: 768px) {
+    padding-left: 10px;
+  }
 `
 
-const HeaderTeam = styled.span`
-  font-size: 8px;
-  font-weight: 800;
-  color: #adb5bd;
-  padding: 5px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-`
-
-const HeaderRole = styled.span`
-  font-size: 8px;
-  font-weight: 800;
-  color: #adb5bd;
-  padding: 5px;
-  border-radius: 3px;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-  text-transform: uppercase;
-`
-
-const HeaderTitle = styled.div`
+const HeaderName = styled.div`
   font-size: 15px;
   font-weight: 500;
   font-style: normal;
@@ -1290,9 +1302,13 @@ const HeaderTitle = styled.div`
   margin-top: 0px;
   margin-bottom: 0px;
   height: 20px;
+
+  @media only screen and (max-width: 768px) {
+    height: fit-content;
+  }
 `
 
-const HeaderSubtitle = styled.div`
+const HeaderRole = styled.div`
   font-size: 14px;
   font-weight: 400;
   color: #858e96;
@@ -1313,6 +1329,23 @@ const Heading = styled.div`
   /*letter-spacing: 1px;
   text-transform: uppercase;*/
   flex: 1;
+
+  @media only screen and (max-width: 768px) {
+    padding-left: 20px;
+  }
+`
+
+const HeadingRow = styled.div`
+  padding-right: 25px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+
+  @media only screen and (max-width: 768px) {
+    padding-right: 20px;
+  }
 `
 
 const Collapsable = styled.div`
