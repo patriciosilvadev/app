@@ -108,10 +108,6 @@ const Toolbar = styled.div`
   display: ${props => (props.hide ? 'none' : '')};
 
   @media only screen and (max-width: 768px) {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    z-index: 10;
     display: none;
   }
 `

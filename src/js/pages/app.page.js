@@ -35,7 +35,7 @@ class AppPage extends React.Component {
       userId: null,
       pushNotificationsNotification: false,
       extensionLayout: LAYOUTS.SIDE,
-      drawer: true,
+      drawer: false,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -457,7 +457,7 @@ const Drawer = styled.div`
   align-content: center;
   align-items: center;
   justify-content: center;
-  z-index: 6;
+  z-index: 7;
 
   @media only screen and (max-width: 768px) {
     transform: translateX(${props => (props.open ? '0%' : '-100%')});
@@ -491,7 +491,7 @@ const DrawerOverlay = styled.div`
   height: 100%;
   background: rgba(0, 0, 0, 0.1);
   display: none;
-  z-index: 4;
+  z-index: 6;
 
   @media only screen and (max-width: 768px) {
     display: block;
@@ -530,6 +530,12 @@ const ExtensionLayout = styled.div`
   background: white;
   left: 0px;
   z-index: 1000;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+    position: absolute;
+    display: block;
+  }
 `
 
 const LayoutIconButton = styled.div`

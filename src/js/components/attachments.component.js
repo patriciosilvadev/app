@@ -192,6 +192,17 @@ const Container = styled.div`
   width: 300px;
   height: 100%;
   border-left: 1px solid #f1f3f5;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+    position: absolute;
+    left: 0px;
+    trop: 0px;
+    height: 100%;
+    background: white;
+    border-left: none;
+    z-index: 5;
+  }
 `
 
 const Header = styled.div`
