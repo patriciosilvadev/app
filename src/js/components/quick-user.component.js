@@ -127,6 +127,16 @@ const MembersContainer = styled.div`
   border-top-right-radius: 3px;
   overflow: hidden;
   z-index: 10000000;
+
+  @media only screen and (max-width: 768px) {
+    border-radius: 0px;
+    bottom: none !important;
+    transform: translateY(0%);
+    position: relative;
+    top: 0px !important;
+    left: 0px;
+    height: fit-content;
+  }
 `
 
 const Filter = styled.input`
