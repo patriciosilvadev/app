@@ -214,21 +214,22 @@ class AppPage extends React.Component {
 
     return (
       <Bar className="row" backgroundColor={backgroundColor}>
-        <DrawerIcon>
-          <IconComponent icon="menu" size={20} thickness={2} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
-        </DrawerIcon>
+        <BarInfo>
+          <DrawerIcon>
+            <IconComponent icon="menu" size={20} thickness={2} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
+          </DrawerIcon>
 
-        <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
-          {this.props.team.name}
-        </Team>
+          <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
+            {this.props.team.name}
+          </Team>
 
-        <Role textColor={textColor}>{this.props.team.position}</Role>
+          <Role textColor={textColor}>{this.props.team.position}</Role>
+          <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
+        </BarInfo>
 
-        <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
-        <div className="flexer"></div>
         {this.props.channel.id && (
-          <div className="row">
-            <div className="row mr-10">
+          <BarExtensions>
+            <LayoutIcons>
               <LayoutIconButton>
                 <IconComponent
                   icon="square"
@@ -257,21 +258,23 @@ class AppPage extends React.Component {
                   style={{ transform: 'rotate(180deg)' }}
                 />
               </LayoutIconButton>
-            </div>
+            </LayoutIcons>
 
-            <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
-              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
-                <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                Meet
-              </Pill>
-            </Link>
-            <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
-              <Pill className="row" backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
-                <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                Tasks
-              </Pill>
-            </Link>
-          </div>
+            <ExtensionLinks>
+              <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
+                <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
+                  <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                  <PillText>Meet</PillText>
+                </Pill>
+              </Link>
+              <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
+                <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
+                  <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                  <PillText>Tasks</PillText>
+                </Pill>
+              </Link>
+            </ExtensionLinks>
+          </BarExtensions>
         )}
       </Bar>
     )
@@ -569,6 +572,70 @@ const Bar = styled.div`
   height: 50px;
 
   @media only screen and (max-width: 768px) {
+    height: fit-content;
+    padding: 10px;
+  }
+`
+
+const BarInfo = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  margin-right: auto;
+`
+
+const BarExtensions = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+`
+
+const LayoutIcons = styled.div`
+  margin-right: 10px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+`
+
+const ExtensionLinks = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+`
+
+const Pill = styled.div`
+  color: ${props => (props.active ? props.backgroundColor : props.textColor)};
+  padding: 7px 15px 7px 15px;
+  border-radius: 20px;
+  background-color: ${props => (props.active ? props.textColor : props.backgroundColor)};
+  margin-left: 5px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+
+  @media only screen and (max-width: 768px) {
+    padding: 7px 5px 7px 10px;
+  }
+`
+
+const PillText = styled.span`
+  @media only screen and (max-width: 768px) {
+    display: none;
   }
 `
 
@@ -586,21 +653,16 @@ const Role = styled.div`
   color: ${props => props.textColor};
   margin-right: 5px;
   font-weight: 500;
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 const Timezone = styled.div`
   color: ${props => props.textColor};
   margin-right: 5px;
   opacity: 0.75;
-`
-
-const Pill = styled.div`
-  color: ${props => (props.active ? props.backgroundColor : props.textColor)};
-  padding: 7px 15px 7px 15px;
-  border-radius: 20px;
-  background-color: ${props => (props.active ? props.textColor : props.backgroundColor)};
-  margin-left: 5px;
-  font-weight: 600;
 `
 
 const Loader = () => (
