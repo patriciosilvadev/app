@@ -35,7 +35,7 @@ class AppPage extends React.Component {
       userId: null,
       pushNotificationsNotification: false,
       extensionLayout: LAYOUTS.SIDE,
-      drawer: true,
+      drawer: false,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)

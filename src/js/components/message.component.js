@@ -510,7 +510,7 @@ export default memo(props => {
     if (props.append) return null
 
     return (
-      <React.Fragment>
+      <div className="row">
         {!props.message.system && <User priority={priority}>{senderName}</User>}
         {props.message.app && <App>{props.message.app.app.name}</App>}
         <Date>
@@ -529,7 +529,7 @@ export default memo(props => {
 
           {renderDeviceIcons()}
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -548,10 +548,10 @@ export default memo(props => {
   }
 
   const renderTools = () => {
-    if (!over || props.message.system) return null
+    if (props.message.system) return null
 
     return (
-      <Tools className="row">
+      <Tools hover={over}>
         {!props.pinned && (
           <Popup
             handleDismiss={() => setEmoticonMenu(false)}
@@ -866,10 +866,10 @@ export default memo(props => {
 
         <div className="column flexer pl-15">
           <Bubble className="column">
-            <div className="row w-100 relative">
+            <HeaderRow>
               {renderName()}
               {renderTools()}
-            </div>
+            </HeaderRow>
 
             {renderParent()}
             {renderMessage()}
@@ -906,10 +906,29 @@ const Bubble = styled.div`
   width: 100%;
 `
 
+const HeaderRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+`
+
 const Tools = styled.div`
   position: absolute;
   right: 0px;
   top: 0px;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+  display: ${props => (props.hover ? 'flex' : 'none')};
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 const Tool = styled.div`
