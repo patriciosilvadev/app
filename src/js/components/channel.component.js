@@ -32,6 +32,7 @@ import { AvatarComponent } from '@weekday/elements/lib/avatar'
 // We use this so it's not part of React component update cycle
 // Otherwise it's just a shitshow of jittery goodess
 let MANUAL_SCROLLING = false
+let CLIENT_Y = 0
 
 class ChannelComponent extends React.Component {
   constructor(props) {
@@ -76,6 +77,9 @@ class ChannelComponent extends React.Component {
 
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.handleWheelEvent = this.handleWheelEvent.bind(this)
+    this.handleTouchMoveEvent = this.handleTouchMoveEvent.bind(this)
+    this.handleTouchStartEvent = this.handleTouchStartEvent.bind(this)
+    this.handleWheelOrDragEvent = this.handleWheelOrDragEvent.bind(this)
     this.updateChannelVisibility = this.updateChannelVisibility.bind(this)
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
@@ -168,6 +172,23 @@ class ChannelComponent extends React.Component {
   handleWheelEvent(e) {
     const { deltaY } = e
 
+    this.handleWheelOrDragEvent(deltaY)
+  }
+
+  handleTouchStartEvent(e) {
+    console.log(e)
+    CLIENT_Y = e.touches[0].clientY
+  }
+
+  handleTouchMoveEvent(e) {
+    if (CLIENT_Y > e.changedTouches[0].clientY) {
+      this.handleWheelOrDragEvent(0)
+    } else {
+      this.handleWheelOrDragEvent(-1)
+    }
+  }
+
+  handleWheelOrDragEvent(deltaY) {
     // Scrolling up
     if (deltaY < 0) {
       MANUAL_SCROLLING = true
@@ -306,6 +327,8 @@ class ChannelComponent extends React.Component {
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
     this.scrollRef.addEventListener('wheel', this.handleWheelEvent)
+    this.scrollRef.addEventListener('touchstart', this.handleTouchStartEvent)
+    this.scrollRef.addEventListener('touchmove', this.handleTouchMoveEvent)
 
     // Drag event listeners
     this.dropZone.addEventListener('dragover', this.onDragOver)
