@@ -35,7 +35,7 @@ class AppPage extends React.Component {
       userId: null,
       pushNotificationsNotification: false,
       extensionLayout: LAYOUTS.SIDE,
-      drawer: false,
+      drawer: true,
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -456,7 +456,7 @@ const Drawer = styled.div`
   flex-direction: row;
   align-content: center;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   z-index: 7;
 
   @media only screen and (max-width: 768px) {
@@ -466,7 +466,7 @@ const Drawer = styled.div`
     left: 0px;
     z-index: 10;
     width: 90%;
-    background: white;
+    background: #f8f9fa;
     /*
     -webkit-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);

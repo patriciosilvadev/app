@@ -212,7 +212,7 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h3 mb-20 color-d3">Reset your password</div>
+                  <Title>Reset your password</Title>
 
                   <InputContainer>
                     <Input
@@ -231,12 +231,12 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Send me a code" />
-                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
+                    <Text onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30 button">
                       ← Go back to sign in
-                    </div>
-                    <div onClick={() => this.setState({ view: 'password', verify: true, error: null })} className="color-l0 text-center mt-10 button">
+                    </Text>
+                    <Text onClick={() => this.setState({ view: 'password', verify: true, error: null })} className="mt-10 button">
                       I have a code →
-                    </div>
+                    </Text>
                   </Footer>
                 </Form>
               )
@@ -275,8 +275,8 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h3 mb-20 color-d3">Update your password</div>
-                  <div className="h5 color-d0 mb-20">Enter your verification code & new password.</div>
+                  <Title>Update your password</Title>
+                  <Subtitle>Enter your verification code & new password.</Subtitle>
 
                   <InputContainer>
                     <Input
@@ -338,12 +338,12 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Update Password" />
-                    <div onClick={() => this.setState({ view: 'password', verify: false, error: null })} className="color-l0 text-center mt-30 button">
+                    <Text onClick={() => this.setState({ view: 'password', verify: false, error: null })} className="mt-30 button">
                       ← Go back
-                    </div>
-                    <div onClick={() => this.setState({ verify: false, error: null })} className="color-l0 text-center mt-10 button">
+                    </Text>
+                    <Text onClick={() => this.setState({ verify: false, error: null })} className="mt-10 button">
                       Get another code
-                    </div>
+                    </Text>
                   </Footer>
                 </Form>
               )
@@ -379,8 +379,8 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h3 mb-20 color-d3">Almost there!</div>
-                  <div className="h5 color-d0 mb-20">Add a bit more information about yourself</div>
+                  <Title>Almost there!</Title>
+                  <Subtitle>Add a bit more information about yourself</Subtitle>
 
                   <InputContainer>
                     <Input
@@ -432,15 +432,15 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Go to Weekday" />
-                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
+                    <Text onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30 button">
                       Just let me sign in already
-                    </div>
-                    <div className="color-l0 a text-center mt-10">
+                    </Text>
+                    <Text className="text-center mt-10">
                       By creating an account & using Weekday, you agree to our{' '}
                       <a href="https://weekdayapp.com/termsofuse" target="_blank">
                         <strong>terms of use</strong>
                       </a>
-                    </div>
+                    </Text>
                   </Footer>
                 </Form>
               )
@@ -486,7 +486,7 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h3 mb-20 color-d3">Create an account</div>
+                  <Title>Create an account</Title>
 
                   <InputContainer>
                     <Input
@@ -568,10 +568,10 @@ class AuthPage extends React.Component {
 
                   <Footer className="column align-items-center">
                     <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Sign up" />
-                    <div onClick={() => this.setState({ view: 'signin', error: null })} className="color-l0 text-center mt-30 button">
+                    <Text onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30 button">
                       ← Go back to sign in
-                    </div>
-                    <div className="color-l0 a text-center mt-10">
+                    </Text>
+                    <Text className="text-center mt-10">
                       By creating an account, you agree to our{' '}
                       <a href="https://weekdayapp.com/termsofuse" target="_blank">
                         <strong>terms of use</strong>
@@ -580,7 +580,7 @@ class AuthPage extends React.Component {
                       <a href="https://weekdayapp.com/privacypolicy" target="_blank">
                         <strong>privacy policy</strong>
                       </a>
-                    </div>
+                    </Text>
                   </Footer>
                 </Form>
               )
@@ -613,8 +613,8 @@ class AuthPage extends React.Component {
 
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
-                  <div className="h3 mb-10 color-d3">Sign in</div>
-                  <div className="h5 color-d0 mb-20">Please log in using your username & password</div>
+                  <Title>Sign in</Title>
+                  <Subtitle>Please log in using your username & password</Subtitle>
 
                   <InputContainer>
                     <Input
@@ -652,13 +652,13 @@ class AuthPage extends React.Component {
 
                   <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Sign in" />
 
-                  <div onClick={() => this.setState({ view: 'password', error: null })} className="color-l0 text-center mt-30 button">
+                  <Text onClick={() => this.setState({ view: 'password', error: null })} className="mt-30 button">
                     I've lost my password
-                  </div>
-                  <div onClick={() => this.setState({ view: 'signup', error: null })} className="color-l0 text-center mt-10 button">
+                  </Text>
+                  <Text onClick={() => this.setState({ view: 'signup', error: null })} className="mt-10 button">
                     Create an account
-                  </div>
-                  <div className="color-l0 a text-center mt-40">
+                  </Text>
+                  <Text className="text-center mt-40">
                     Read our{' '}
                     <a href="https://weekdayapp.com/termsofuse" target="_blank">
                       <strong>terms of use</strong>
@@ -667,7 +667,7 @@ class AuthPage extends React.Component {
                     <a href="https://weekdayapp.com/privacypolicy" target="_blank">
                       <strong>privacy policy</strong>
                     </a>
-                  </div>
+                  </Text>
                 </Form>
               )
             }}
@@ -731,6 +731,43 @@ const Auth = styled.div`
   position: relative;
 `
 
+const Text = styled.div`
+  text-align: center;
+  color: #aeb5bc;
+
+  @media only screen and (max-width: 768px) {
+    color: white;
+
+    a {
+      color: white;
+    }
+  }
+`
+
+const Title = styled.div`
+  margin-bottom: 10px;
+  font-size: 30px;
+  font-weight: 400;
+  color: #343a40;
+  text-align: center;
+
+  @media only screen and (max-width: 768px) {
+    color: white;
+  }
+`
+
+const Subtitle = styled.div`
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #acb5bd;
+  text-align: center;
+
+  @media only screen and (max-width: 768px) {
+    color: white;
+  }
+`
+
 const Container = styled.div`
   background: white;
   position: relative;
@@ -743,6 +780,14 @@ const Container = styled.div`
   flex-direction: column;
   padding-top: 50px;
   padding-bottom: 50px;
+
+  @media only screen and (max-width: 768px) {
+    background: linear-gradient(45deg, #8e43e7, #b84592);
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+    border-radius: 0px;
+  }
 `
 
 const ErrorText = styled.div`
