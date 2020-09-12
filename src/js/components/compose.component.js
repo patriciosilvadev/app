@@ -673,7 +673,7 @@ class ComposeComponent extends React.Component {
 
     return (
       <React.Fragment>
-        <InputContainer className="row">
+        <InputContainer>
           <input className="hide" ref={ref => (this.fileRef = ref)} type="file" multiple onChange={this.handleFileChange} />
 
           <Input
@@ -685,50 +685,52 @@ class ComposeComponent extends React.Component {
             onChange={this.handleComposeChange}
           />
 
-          {this.props.channel.apps
-            .filter(app => app.active)
-            .map((app, index) => {
-              if (!app.app.attachments) return
-              if (app.app.attachments.length == 0) return
+          <InputContainerIcons>
+            {this.props.channel.apps
+              .filter(app => app.active)
+              .map((app, index) => {
+                if (!app.app.attachments) return
+                if (app.app.attachments.length == 0) return
 
-              return (
-                <React.Fragment key={index}>
-                  {app.app.attachments.map((button, i) => {
-                    return (
-                      <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
-                        <AppIconImage image={button.icon} />
-                      </AppIconContainer>
-                    )
-                  })}
-                </React.Fragment>
-              )
-            })}
+                return (
+                  <React.Fragment key={index}>
+                    {app.app.attachments.map((button, i) => {
+                      return (
+                        <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                          <AppIconImage image={button.icon} />
+                        </AppIconContainer>
+                      )
+                    })}
+                  </React.Fragment>
+                )
+              })}
 
-          <Popup
-            handleDismiss={() => this.setState({ emoticonMenu: false })}
-            visible={this.state.emoticonMenu}
-            width={350}
-            direction="right-top"
-            content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
-          >
-            <IconComponent icon="smile" size={19} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.setState({ emoticonMenu: true })} />
-          </Popup>
+            <Popup
+              handleDismiss={() => this.setState({ emoticonMenu: false })}
+              visible={this.state.emoticonMenu}
+              width={350}
+              direction="right-top"
+              content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
+            >
+              <IconComponent icon="smile" size={19} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.setState({ emoticonMenu: true })} />
+            </Popup>
 
-          <IconComponent icon="attachment" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
+            <IconComponent icon="attachment" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
 
-          <IconComponent
-            icon="at"
-            size={18}
-            thickness={1.75}
-            color="#565456"
-            className="ml-10 button"
-            onClick={() => {
-              this.insertAtCursor('@')
-              this.filterMembers('')
-            }}
-          />
+            <IconComponent
+              icon="at"
+              size={18}
+              thickness={1.75}
+              color="#565456"
+              className="ml-10 button"
+              onClick={() => {
+                this.insertAtCursor('@')
+                this.filterMembers('')
+              }}
+            />
 
-          <IconComponent icon="send" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={this.onSend} />
+            <IconComponent icon="send" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={this.onSend} />
+          </InputContainerIcons>
         </InputContainer>
       </React.Fragment>
     )
@@ -886,7 +888,32 @@ const Compose = styled.div`
 
 const InputContainer = styled.div`
   flex: 1;
-  padding: 25px 25px 25px 25px;
+  padding: 25px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+
+  @media only screen and (max-width: 768px) {
+    padding: 15px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+`
+
+const InputContainerIcons = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: flex-start;
+  wqidth: 100%;
+
+  @media only screen and (max-width: 768px) {
+    margin-left: -10px;
+    margin-top: 10px;
+  }
 `
 
 const Attachments = styled.div`

@@ -32,6 +32,13 @@ a:visited {
   margin-bottom: 10px;
 }
 
+@media only screen and (max-width: 768px) {
+  .emoji-mart {
+    width: 100% !important;
+    border: none;
+  }
+}
+
 video {
   background: #acb5bd !important;
   object-fit: cover !important;
