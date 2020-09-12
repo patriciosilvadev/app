@@ -134,6 +134,12 @@ const Inner = styled.div`
   align-content: center;
   justify-content: center;
   flex-direction: column;
+
+  @media only screen and (max-width: 768px) {
+    height: 100%;
+    width: 100%;
+    border-radius: 0px;
+  }
 `
 
 const Logo = styled.div`

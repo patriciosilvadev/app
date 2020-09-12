@@ -77,7 +77,7 @@ export default props => {
             <Avatar image={image} title={name} className="mb-20" size="xx-large" />
             <Text className="h1 mb-30 mt-10 color-d3">{name}</Text>
             <Text className="h3 mb-10 pl-20 pr-20 text-center color-d2">Please enter the shortcode to join this team</Text>
-            <Text className="h5 color-d0">Contact your team admin if you do not know the shortcode</Text>
+            <Text className="h5 color-d0 text-center">Contact your team admin if you do not know the shortcode</Text>
             <Inputs>
               <Input placeholder="Enter shortcode here" inputSize="large" className="mt-30 mb-10" value={shortcode} onChange={e => setShortcode(e.target.value)} />
               <Button onClick={handleTeamJoin} size="large" text="Join Now" />
@@ -140,6 +140,12 @@ const Inner = styled.div`
   align-content: center;
   justify-content: center;
   flex-direction: column;
+
+  @media only screen and (max-width: 768px) {
+    height: 100%;
+    width: 100%;
+    border-radius: 0px;
+  }
 `
 
 const Logo = styled.div`
