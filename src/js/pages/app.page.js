@@ -142,6 +142,9 @@ class AppPage extends React.Component {
   }
 
   async checkPushNotificationsAreEnabled() {
+    // For Safari on iOS (because they don't support PN)
+    if (!navigator.permissions) return
+
     const { state } = await navigator.permissions.query({ name: 'notifications' })
     const cookie = CookieService.getStorage('PN')
 
