@@ -36,6 +36,7 @@ import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
+import { IS_MOBILE } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -108,25 +109,37 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar muted={props.muted} color={props.color} presence={props.presence} textColor={avatarTextColor} size="small" image={props.private ? props.image : null} title={props.name}>
+        <Avatar
+          muted={props.muted}
+          color={props.color}
+          presence={props.presence}
+          textColor={avatarTextColor}
+          size={IS_MOBILE ? 'medium-small' : 'small'}
+          image={props.private ? props.image : null}
+          title={props.name}
+        >
           {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2} style={{ position: 'relative', top: -1 }} /> : null}
         </Avatar>
 
         <ChannelContents>
           <ChannelInnerContents>
-            {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
-            {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+            <ChannelTitleRow>
+              {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+              {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
 
-            <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
+              <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
+            </ChannelTitleRow>
 
-            <ChannelExcerpt>
-              &nbsp;
-              {props.excerpt && (
-                <ChannelExcerptTextContainer>
-                  <ChannelExcerptText active={props.active || props.unread != 0}>{shortenMarkdownText(props.excerpt)}</ChannelExcerptText>
-                </ChannelExcerptTextContainer>
-              )}
-            </ChannelExcerpt>
+            {props.excerpt && (
+              <ChannelExcerpt>
+                &nbsp;
+                {props.excerpt && (
+                  <ChannelExcerptTextContainer>
+                    <ChannelExcerptText active={props.active || props.unread != 0}>{shortenMarkdownText(props.excerpt)}</ChannelExcerptText>
+                  </ChannelExcerptTextContainer>
+                )}
+              </ChannelExcerpt>
+            )}
           </ChannelInnerContents>
         </ChannelContents>
       </ChannelContainerPadding>
@@ -308,7 +321,7 @@ const ChannelContainerPadding = styled.div`
   position: relative;
 
   @media only screen and (max-width: 768px) {
-    padding-left: 20px;
+    padding: 5px 0px 5px 20px;
   }
 `
 
@@ -333,10 +346,22 @@ const ChannelTitle = styled.div`
   margin-right: 5px;
 `
 
+const ChannelTitleRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+`
+
 const ChannelExcerpt = styled.div`
   flex: 1;
   overflow: hidden;
   position: relative;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+  }
 `
 
 const ChannelExcerptTextContainer = styled.div`
@@ -381,8 +406,14 @@ const ChannelInnerContents = styled.div`
   flex-direction: row;
   align-items: center;
   align-content: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
+
+  @media only screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
 `
 
 const ChannelMoreIcon = styled.span`

@@ -85,7 +85,7 @@
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",
     "@sentry/browser": "^5.5.0",
-    "@weekday/elements": "^0.9.13",
+    "@weekday/elements": "^0.9.14",
     "apollo-cache-inmemory": "^1.2.10",
     "apollo-client": "^2.4.2",
     "apollo-link": "^1.2.13",
