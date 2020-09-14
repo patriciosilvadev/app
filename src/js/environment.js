@@ -12,3 +12,4 @@ export const SENTRY_DSN = ''
 export const DEVICE = 'WEB'
 export const MQTT_PREFIX = 'WEB'
 export const WEBRTC_URL = 'http://159.69.150.191:8088/janus'
+export const HASH_HISTORY = false

@@ -192,7 +192,8 @@ class AppPage extends React.Component {
     if (!this.props.team.name) return null
     if (!this.props.team.role) return null
 
-    const urlParts = window.location.pathname.split('/')
+    const { pathname } = this.props.history.location
+    const urlParts = pathname.split('/')
     const lastUrlPart = urlParts[urlParts.length - 1].split('?')[0]
     const backgroundColor = this.props.channel ? (this.props.channel.color ? this.props.channel.color : '#112640') : '#112640'
     const pillBackgroundColor = this.props.channel
@@ -284,7 +285,6 @@ class AppPage extends React.Component {
   }
 
   renderWelcome() {
-    if (window.location.pathname.indexOf('channel') != -1) return null
     return (
       <div className="flexer column justify-content-center align-content-center align-items-center">
         <img src="icon-muted.svg" width="100" />
@@ -355,7 +355,8 @@ class AppPage extends React.Component {
             <Route path="/app/team/:teamId" render={this.renderDisabledUI} />
 
             {/* If there is nothing selected - welcome image */}
-            <Route path="/app" render={props => this.renderWelcome()} />
+            <Route exact path="/app" render={props => this.renderWelcome()} />
+            <Route exact path="/app/team/:teamId" render={props => this.renderWelcome()} />
 
             {/* Main channel screen with messaging */}
             {/* Only hide this if the layout is MAIN (we want to keep the sidebar) */}

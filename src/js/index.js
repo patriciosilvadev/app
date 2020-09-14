@@ -27,34 +27,15 @@ import user from './reducers/user'
 import notifications from './reducers/notifications'
 import { createLogger } from 'redux-logger'
 import moment from 'moment'
-import './environment'
-import './helpers/extensions'
-import '../assets/logo.svg'
-import '../assets/logo-white.svg'
-import '../assets/icon.svg'
-import '../assets/icon48.png'
-import '../assets/icon72.png'
-import '../assets/icon96.png'
-import '../assets/icon144.png'
-import '../assets/icon152.png'
-import '../assets/icon167.png'
-import '../assets/icon168.png'
-import '../assets/icon180.png'
-import '../assets/icon192.png'
-import '../assets/icon.png'
-import '../assets/icon-muted.svg'
-import '../assets/icon-white.svg'
-import '../assets/icon-light.svg'
-import '../assets/favicon.png'
-import '../assets/upgrade.png'
-import '../assets/downgrade.png'
-import '../styles/index.css'
-import '../../node_modules/emoji-mart/css/emoji-mart.css'
-import '../.htaccess'
-import '../assets/manifest.webmanifest'
 import Zero from '@joduplessis/zero'
 import AccountService from './services/account.service'
 import * as Sentry from '@sentry/browser'
+
+// Globally available setups
+import './environment'
+import './helpers/extensions'
+import '../styles/index.css'
+import '../../node_modules/emoji-mart/css/emoji-mart.css'
 
 // When we want to debug and nog have other logging pollute the console
 // Set this to true - also affects util.js in the logger method
@@ -99,10 +80,11 @@ ReactDOM.render(
       <Route
         path="/"
         render={props => {
-          const { pathname } = window.location
+          const { pathname } = props.history.location
           const isElectron = pathname.split('/')[pathname.split('/').length - 1] == 'index.html'
           const isRoot = pathname == '/'
 
+          // See if we're at the root so we only do 1 redirect
           if (isElectron || isRoot) {
             AuthService.currentAuthenticatedUser()
               .then(res => {

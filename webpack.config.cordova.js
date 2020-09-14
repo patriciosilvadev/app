@@ -22,7 +22,7 @@ module.exports = env => {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.[name].js',
-      publicPath: '/',
+      publicPath: '',
       chunkFilename: 'bundle.[name].[contenthash].js',
     },
     performance: {
@@ -34,13 +34,13 @@ module.exports = env => {
       // new BundleAnalyzerPlugin(),
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './src/index.html'),
+        template: path.resolve(__dirname, './src/index.cordova.html'),
       }),
       new MiniCssExtractPlugin({
         filename: '[name].[contenthash].css',
         chunkFilename: '[id].[contenthash].css',
       }),
-      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.dev.js'),
+      new webpack.NormalModuleReplacementPlugin(/src\/js\/environment\.js/, 'environment.cordova.js'),
       new WorkboxPlugin.InjectManifest({
         swSrc: './src/js/sw.staging.js',
         swDest: 'sw.js',

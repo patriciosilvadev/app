@@ -43,7 +43,7 @@ module.exports = env => {
         swSrc: './src/js/sw.production.js',
         swDest: 'sw.js',
       }),
-      new CopyPlugin([{ from: 'src/assets/*', to: '' }]),
+      new CopyPlugin([{ from: 'src/assets', to: '' }]),
     ],
     optimization: {
       splitChunks: {
