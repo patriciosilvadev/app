@@ -13,8 +13,14 @@ yarn-error.log
 *.bundle
 
 dist/
+
 .env
 
 .vscode
 
 release
+
+# Cordova Global
+plugins/
+platforms/
+www/

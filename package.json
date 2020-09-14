@@ -1,7 +1,7 @@
 {
   "name": "weekday-app",
   "version": "0.1.1",
-  "description": "Weekday, a hackable team messaging platform",
+  "description": "Give your team superpowers.",
   "main": "src/js/electron.js",
   "scripts": {
     "build:prod": "webpack --config webpack.config.js",
@@ -86,7 +86,7 @@
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",
     "@sentry/browser": "^5.5.0",
-    "@weekday/elements": "^0.9.14",
+    "@weekday/elements": "^0.9.15",
     "apollo-cache-inmemory": "^1.2.10",
     "apollo-client": "^2.4.2",
     "apollo-link": "^1.2.13",
@@ -139,6 +139,9 @@
     "classnames": "^2.2.6",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.1.1",
+    "cordova-ios": "^6.1.1",
+    "cordova-plugin-statusbar": "^2.4.3",
+    "cordova-plugin-whitelist": "^1.3.4",
     "css-loader": "^1.0.0",
     "dotenv-webpack": "^1.7.0",
     "electron": "^6.0.12",
@@ -184,5 +187,14 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged --print-width 120"
     }
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-statusbar": {}
+    },
+    "platforms": [
+      "ios"
+    ]
   }
 }

@@ -20,7 +20,7 @@ module.exports = env => {
       },
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, 'www'),
       filename: 'bundle.[name].js',
       publicPath: '',
       chunkFilename: 'bundle.[name].[contenthash].js',
@@ -66,7 +66,7 @@ module.exports = env => {
       },
     },
     devServer: {
-      contentBase: path.resolve(__dirname, 'dist'),
+      contentBase: path.resolve(__dirname, 'www'),
       historyApiFallback: true,
     },
     module: {
