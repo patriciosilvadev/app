@@ -92,14 +92,14 @@ class AppPage extends React.Component {
     this.props.fetchUser(userId)
     this.props.initialize(userId)
 
-    this.setupServiceWorker()
-    this.setupCordovaPushNotifications()
+    this.setupServiceWorker(userId)
+    this.setupCordovaPushNotifications(userId)
 
     // Touch this users last seen date
     await PresenceService.updateUserPresence(userId)
   }
 
-  async setupCordovaPushNotifications() {
+  async setupCordovaPushNotifications(userId) {
     // Only for Cordova devices
     if (window.hasOwnProperty('cordova')) {
       // When things are ready
@@ -128,11 +128,12 @@ class AppPage extends React.Component {
             console.log('User accepted notifications: ' + accepted)
           })
 
+          // Tag this user with his own id
+          window.plugins.OneSignal.sendTags({ userId })
           window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
             // Player ID = status.subscriptionStatus.userId
             // Push token = status.subscriptionStatus.pushToken
-            alert('Player ID: ' + status.subscriptionStatus.userId + '\npushToken = ' + status.subscriptionStatus.pushToken)
-
+            // alert('Player ID: ' + status.subscriptionStatus.userId + '\npushToken = ' + status.subscriptionStatus.pushToken)
             // Update their mobile push
             PnService.subscribeUserMobile(status.subscriptionStatus.userId)
           })
@@ -142,7 +143,7 @@ class AppPage extends React.Component {
     }
   }
 
-  async setupServiceWorker() {
+  async setupServiceWorker(userId) {
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
