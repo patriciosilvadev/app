@@ -108,6 +108,7 @@
     "moment-timezone": "^0.5.21",
     "mqtt": "^3.0.0",
     "npm": "^6.14.6",
+    "onesignal-cordova-plugin": "2.11.1",
     "pouchdb": "^7.0.0",
     "pouchdb-find": "^7.0.0",
     "react": "^16.8.6",
@@ -140,6 +141,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.1.1",
     "cordova-ios": "^6.1.1",
+    "cordova-plugin-push": "0.0.1",
     "cordova-plugin-statusbar": "^2.4.3",
     "cordova-plugin-whitelist": "^1.3.4",
     "css-loader": "^1.0.0",
@@ -191,7 +193,8 @@
   "cordova": {
     "plugins": {
       "cordova-plugin-whitelist": {},
-      "cordova-plugin-statusbar": {}
+      "cordova-plugin-statusbar": {},
+      "onesignal-cordova-plugin": {}
     },
     "platforms": [
       "ios"

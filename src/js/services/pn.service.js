@@ -4,6 +4,26 @@ import AuthService from './auth.service'
 import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import { urlBase64ToUint8Array, logger } from '../helpers/util'
 
+export const subscribeUserMobile = async pushToken => {
+  try {
+    const { token } = await AuthService.currentAuthenticatedUser()
+    const { userId } = AuthService.parseJwt(token)
+
+    await fetch(API_HOST + '/pn/subscribe/mobile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: pushToken,
+        userId,
+      }),
+    })
+  } catch (e) {
+    logger(e)
+  }
+}
+
 export const subscribeUser = async () => {
   const { token } = await AuthService.currentAuthenticatedUser()
   const { userId } = AuthService.parseJwt(token)
