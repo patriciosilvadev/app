@@ -24,3 +24,5 @@ release
 plugins/
 platforms/
 www/
+
+build.json
