@@ -14,6 +14,7 @@ import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
+import { IS_CORDOVA } from '../constants'
 
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
@@ -127,6 +128,7 @@ const Dock = styled.div`
 
   @media only screen and (max-width: 768px) {
     width: 20vw;
+    padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '20px')};
   }
 `
 

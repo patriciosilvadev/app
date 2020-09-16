@@ -637,6 +637,7 @@ const Bar = styled.div`
   @media only screen and (max-width: 768px) {
     height: fit-content;
     padding: 10px;
+    padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '10px')};
   }
 `
 

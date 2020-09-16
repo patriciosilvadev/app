@@ -28,7 +28,8 @@
     "release": "electron-builder",
     "release:all": "electron-builder -mwl",
     "cordova:build:release": "cordova build ios --device --release --buildFlag=\"-UseModernBuildSystem=0\"",
-    "cordova:device:ios": "npm run build:cordova && cordova run ios --device"
+    "cordova:run:ios": "npm run build:cordova && cordova run ios --device",
+    "cordova:emulate:ios": "npm run build:cordova && cordova emulate ios --target=\"iPhone-11, 13.7\""
   },
   "build": {
     "appId": "com.weekday.${name}",
@@ -88,7 +89,7 @@
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",
     "@sentry/browser": "^5.5.0",
-    "@weekday/elements": "^0.9.15",
+    "@weekday/elements": "^0.9.16",
     "apollo-cache-inmemory": "^1.2.10",
     "apollo-client": "^2.4.2",
     "apollo-link": "^1.2.13",

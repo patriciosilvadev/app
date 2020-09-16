@@ -4,6 +4,8 @@
     <!-- <base href="/" /> -->
     <title>Weekday</title>
     <meta charset="utf-8" />
+    <meta name="author" content="Weekday" />
+    <meta name="description" content="Give your team superpowers." />
 
     <!-- Taken from Cordova -->
     <!-- ------------------ -->
@@ -26,18 +28,14 @@
     />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, width=device-width, height=device-height, viewport-fit=cover" />
+    <meta name="viewport" content="initial-scale=1, width=device-width, height=device-height, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <!-- ------------------ -->
     <!-- ------------------ -->
     <!-- ------------------ -->
 
-    <!-- As normal -->
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,maximum-scale=1" />
-    <meta name="author" content="Weekday" />
-    <meta name="description" content="Give your team superpowers." />
-
     <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="white" />
     <meta name="apple-mobile-web-app-title" content="Weekday" />
@@ -52,9 +50,9 @@
     <link rel="apple-touch-icon" sizes="167x167" href="icon167.png" />
   </head>
   <body class="h-100">
-    <div id="root" class="h-100 w-100"></div>
     <div id="modal-root" class="modal-root"></div>
     <div id="context-root" class="context-root"></div>
+    <div id="root" class="root"></div>
 
     <!-- Cordova will be supplied by CDV -->
     <script src="cordova.js"></script>
