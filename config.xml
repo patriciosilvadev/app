@@ -9,6 +9,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -16,11 +17,17 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
 
-    <!-- Status bar -->
-    <preference name="StatusBarOverlaysWebView" value="false" />
+    <allow-navigation href="*" />
+    <allow-navigation href="http://*" />
+    <allow-navigation href="https://*" />
+
     <preference name="StatusBarBackgroundColor" value="#000000" />
     <preference name="StatusBarStyle" value="blacktranslucent" />
-    <gap:plugin name="com.phonegap.plugin.statusbar" />
+    <preference name="StatusBarOverlaysWebView" value="true" />
+    <preference name="StatusBarDefaultScrollToTop" value="false" />
+
+    <preference name="FadeSplashScreenDuration" value="750"/>
+    <preference name="SplashScreenDelay" value="1000" />
 
     <platform name="android">
         <allow-intent href="market:*" />
@@ -84,5 +91,22 @@
         <icon src="res/ios/icon-27.5@2x.png" width="55" height="55" />
         <icon src="res/ios/icon-24@2x.png" width="48" height="48" />
         <icon src="res/ios/icon-20.png" width="20" height="20" />
+
+        <splash src="res/screen/ios/Default@2x~iphone~anyany.png" />
+        <splash src="res/screen/ios/Default@2x~iphone~comany.png" />
+        <splash src="res/screen/ios/Default@2x~iphone~comcom.png" />
+        <splash src="res/screen/ios/Default@3x~iphone~anyany.png" />
+        <splash src="res/screen/ios/Default@3x~iphone~anycom.png" />
+        <splash src="res/screen/ios/Default@3x~iphone~comany.png" />
+        <splash src="res/screen/ios/Default@2x~ipad~anyany.png" />
+        <splash src="res/screen/ios/Default@2x~ipad~comany.png" />  
     </platform>
+
+    <!-- Splash -->
+    <splash src="res/screen/ios/Default@2x~universal~anyany.png" />
+    <splash src="res/screen/ios/Default@2x~universal~comany.png" />
+    <splash src="res/screen/ios/Default@2x~universal~comcom.png" />
+    <splash src="res/screen/ios/Default@3x~universal~anyany.png" />
+    <splash src="res/screen/ios/Default@3x~universal~anycom.png" />
+    <splash src="res/screen/ios/Default@3x~universal~comany.png" />
 </widget>

@@ -572,9 +572,10 @@ export default memo(props => {
           </Tool>
         )}
 
-        {/* only for this user */}
         {/* Temporarily disabling this: !props.message.app */}
-        {props.message.user.id == user.id && !props.pinned && (
+        {/* Check here that there is a user! */}
+        {/* And then only for this user - otherwise ALWAYS */}
+        {(props.message.user ? props.message.user.id == user.id : true) && !props.pinned && (
           <Tool onClick={() => setConfirmDeleteModal(true)}>
             <IconComponent icon="delete" size={15} color="#aeb5bc" />
           </Tool>

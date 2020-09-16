@@ -126,7 +126,7 @@ const Dock = styled.div`
   border-right: 1px solid #eaedef;
 
   @media only screen and (max-width: 768px) {
-    width: 20%;
+    width: 20vw;
   }
 `
 

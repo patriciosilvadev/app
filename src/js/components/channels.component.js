@@ -99,7 +99,16 @@ const Channel = props => {
 
   return (
     <ChannelContainer
-      onClick={props.onClick}
+      onClick={e => {
+        e.preventDefault()
+
+        if (!IS_MOBILE) props.onNavigate()
+      }}
+      onTouchEnd={e => {
+        e.preventDefault()
+
+        if (IS_MOBILE) props.onNavigate()
+      }}
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => {
         setOver(false)
@@ -249,6 +258,8 @@ Channel.propTypes = {
   muted: PropTypes.bool,
   archived: PropTypes.bool,
   unread: PropTypes.number,
+  id: PropTypes.string,
+  color: PropTypes.string,
   name: PropTypes.string,
   image: PropTypes.string,
   icon: PropTypes.string,
@@ -258,7 +269,7 @@ Channel.propTypes = {
   private: PropTypes.bool,
   readonly: PropTypes.bool,
   presence: PropTypes.string,
-  onClick: PropTypes.any,
+  onNavigate: PropTypes.any,
   onMutedClick: PropTypes.any,
   onArchivedClick: PropTypes.any,
 }
@@ -964,7 +975,10 @@ class ChannelsComponent extends React.Component {
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
-              onClick={() => this.props.history.push(to)}
+              onNavigate={() => {
+                this.props.toggleDrawer()
+                this.props.history.push(to)
+              }}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -1020,7 +1034,10 @@ class ChannelsComponent extends React.Component {
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
-              onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)}
+              onNavigate={() => {
+                this.props.toggleDrawer()
+                this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)
+              }}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -1086,7 +1103,10 @@ class ChannelsComponent extends React.Component {
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
-              onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)}
+              onNavigate={() => {
+                this.props.toggleDrawer()
+                this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)
+              }}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -1134,7 +1154,10 @@ class ChannelsComponent extends React.Component {
                   readonly={channel.readonly}
                   muted={muted}
                   archived={archived}
-                  onClick={() => this.props.history.push(to)}
+                  onNavigate={() => {
+                    this.props.toggleDrawer()
+                    this.props.history.push(to)
+                  }}
                   onArchivedClick={e => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
                   onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
                 />
@@ -1228,6 +1251,7 @@ ChannelsComponent.propTypes = {
   updateUserStatus: PropTypes.func,
   updateUserMuted: PropTypes.func,
   updateUserArchived: PropTypes.func,
+  toggleDrawer: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -1271,7 +1295,7 @@ const Channels = styled.div`
   border-right: 0px solid #1f2d3d;
 
   @media only screen and (max-width: 768px) {
-    width: 80%;
+    width: 70vw;
   }
 `
 
