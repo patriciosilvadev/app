@@ -27,7 +27,8 @@
     "pack:linux": "electron-builder --linux --dir",
     "release": "electron-builder",
     "release:all": "electron-builder -mwl",
-    "device:ios": "npm run build:cordova && cordova run ios --device"
+    "cordova:build:release": "cordova build ios --device --release --buildFlag=\"-UseModernBuildSystem=0\"",
+    "cordova:device:ios": "npm run build:cordova && cordova run ios --device"
   },
   "build": {
     "appId": "com.weekday.${name}",
