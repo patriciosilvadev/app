@@ -309,7 +309,7 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
+      case 'UPDATE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_ID':
         draft.messages = state.messages.map((message, _) => {
           if (action.payload.messageIds.indexOf(message.id) != -1) {
             // This is the base of the new message object
@@ -336,13 +336,14 @@ export default (state = initialState, action) =>
         })
         break
 
-      case 'DELETE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_IDS':
+      case 'DELETE_CHANNEL_APP_MESSAGES_WITH_RESOURCE_ID':
         draft.messages = state.messages.filter(message => {
-          const { messageIds } = action.payload
-          const messageIdPresentWithmessageIds = messageIds.indexOf(message.id) != -1
+          const { resourceId } = action.payload
 
+          // const messageIdPresentWithmessageIds = messageIds.indexOf(message.id) != -1
           // Remove it if it's there
-          return !messageIdPresentWithmessageIds
+          // return !messageIdPresentWithmessageIds
+          return message.app ? message.app.resourceId != resourceId : true
         })
         break
 
