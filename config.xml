@@ -31,6 +31,7 @@
 
     <platform name="android">
         <allow-intent href="market:*" />
+        
         <!--
             ldpi    : 36x36 px
             mdpi    : 48x48 px
@@ -39,9 +40,7 @@
             xxhdpi  : 144x144 px
             xxxhdpi : 192x192 px
         -->
-        <!--
         <icon src="res/android/ldpi.png" density="ldpi" />
-        -->
         <icon src="res/android/mdpi.png" density="mdpi" />
         <icon src="res/android/hdpi.png" density="hdpi" />
         <icon src="res/android/xhdpi.png" density="xhdpi" />
@@ -51,6 +50,7 @@
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+
         <!-- iOS 8.0+ -->
         <!-- iPhone 6 Plus  -->
         <icon src="res/ios/icon-60@3x.png" width="180" height="180" />
@@ -82,7 +82,6 @@
         <icon src="res/ios/icon-50@2x.png" width="100" height="100" />
         <!-- iPad Pro -->
         <icon src="res/ios/icon-83.5@2x.png" width="167" height="167" />
-
         <!-- Additionals -->
         <icon src="res/ios/icon-1024.png" width="1024" height="1024" />
         <icon src="res/ios/icon-98@2x.png" width="196" height="196" />
@@ -92,6 +91,8 @@
         <icon src="res/ios/icon-24@2x.png" width="48" height="48" />
         <icon src="res/ios/icon-20.png" width="20" height="20" />
 
+        <!-- Launch images specifiically for iOS -->
+        <!-- https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-splashscreen/#ios-specific-information -->
         <splash src="res/screen/ios/Default@2x~iphone~anyany.png" />
         <splash src="res/screen/ios/Default@2x~iphone~comany.png" />
         <splash src="res/screen/ios/Default@2x~iphone~comcom.png" />
