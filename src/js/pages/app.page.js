@@ -10,7 +10,6 @@ import GraphqlService from '../services/graphql.service'
 import * as PresenceService from '../services/presence.service'
 import CookieService from '../services/storage.service'
 import { Avatar, Loading, Error, Notification } from '@weekday/elements'
-import { API_HOST, PUBLIC_VAPID_KEY, PN } from '../environment'
 import ChannelsComponent from '../components/channels.component'
 import ChannelComponent from '../components/channel.component'
 import { IconComponent } from '../components/icon.component'
@@ -25,6 +24,7 @@ import * as chroma from 'chroma-js'
 import TasksExtension from '../extensions/tasks/tasks.extension'
 import VideoExtension from '../extensions/video/video.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE } from '../constants'
+import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -116,7 +116,7 @@ class AppPage extends React.Component {
           iosSettings['kOSSettingsKeyAutoPrompt'] = false
           iosSettings['kOSSettingsKeyInAppLaunchURL'] = false
 
-          window.plugins.OneSignal.startInit('0e932f75-af2f-4998-992d-11571053f729')
+          window.plugins.OneSignal.startInit(ONESIGNAL_KEY)
             .handleNotificationOpened(notificationOpenedCallback)
             .iOSSettings(iosSettings)
             .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
