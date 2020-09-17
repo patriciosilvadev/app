@@ -27,9 +27,12 @@
     "pack:linux": "electron-builder --linux --dir",
     "release": "electron-builder",
     "release:all": "electron-builder -mwl",
-    "cordova:build:release": "cordova build ios --device --release --buildFlag=\"-UseModernBuildSystem=0\"",
+    "cordova:build:release:ios": "cordova build ios --device --release --buildFlag=\"-UseModernBuildSystem=0\"",
+    "cordova:build:release:android": "cordova build android --device --release",
     "cordova:run:ios": "npm run build:cordova && cordova run ios --device",
-    "cordova:emulate:ios": "npm run build:cordova && cordova emulate ios --target=\"iPhone-11, 13.7\""
+    "cordova:run:android": "npm run build:cordova && cordova run android --device",
+    "cordova:emulate:ios": "npm run build:cordova && cordova emulate ios --target=\"iPhone-11, 13.7\"",
+    "cordova:emulate:android": "npm run build:cordova && cordova emulate android"
   },
   "build": {
     "appId": "com.weekday.${name}",
@@ -143,6 +146,7 @@
     "classnames": "^2.2.6",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.1.1",
+    "cordova-android": "^9.0.0",
     "cordova-ios": "^6.1.1",
     "cordova-plugin-push": "0.0.1",
     "cordova-plugin-splashscreen": "^6.0.0",
@@ -202,7 +206,8 @@
       "cordova-plugin-statusbar": {}
     },
     "platforms": [
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }
