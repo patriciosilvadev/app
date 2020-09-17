@@ -524,6 +524,7 @@ const Drawer = styled.div`
     min-width: 20vw;
     width: fit-content;
     background: #f8f9fa;
+    z-index: 2000;
     /*
     -webkit-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
@@ -552,6 +553,7 @@ const DrawerOverlay = styled.div`
 
   @media only screen and (max-width: 768px) {
     display: block;
+    z-index: 1500;
   }
 `
 
@@ -592,6 +594,7 @@ const ExtensionLayout = styled.div`
     width: 100%;
     position: absolute;
     display: block;
+    z-index: 1000;
   }
 `
 

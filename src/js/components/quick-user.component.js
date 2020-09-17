@@ -149,6 +149,10 @@ const Filter = styled.input`
   padding: 15px;
   width: 250px;
 
+  @media only screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+
   &::placeholder {
     color: #acb5bd;
   }
