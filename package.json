@@ -1,5 +1,5 @@
 {
-  "name": "weekday-app",
+  "name": "weekday",
   "version": "0.1.1",
   "description": "Give your team superpowers.",
   "main": "src/js/electron.js",
@@ -35,7 +35,7 @@
     "cordova:emulate:android": "npm run build:cordova && cordova emulate android"
   },
   "build": {
-    "appId": "com.weekday.${name}",
+    "appId": "com.weekdayapp.${name}",
     "productName": "Weekday",
     "copyright": "Copyright © 2020 ${author}",
     "linux": {
@@ -49,7 +49,7 @@
         "Categories": "Messaging;Office;"
       },
       "icon": "build/icon.png",
-      "executableName": "weekday-app",
+      "executableName": "weekday",
       "maintainer": "support@weekdayapp.com",
       "target": [
         "AppImage"
@@ -86,8 +86,8 @@
   "homepage": "./",
   "author": "Weekday",
   "license": "ISC",
-  "repository": "https://github.com/weekday/web",
-  "url": "https://github.com/weekday/web",
+  "repository": "https://github.com/WeekdayApp/app",
+  "url": "https://weekdayapp.com",
   "dependencies": {
     "@joduplessis/keg": "0.0.4",
     "@joduplessis/zero": "0.0.0",
