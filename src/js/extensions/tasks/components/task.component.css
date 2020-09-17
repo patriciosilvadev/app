@@ -1,6 +1,7 @@
 .tasks-extension .tasks .task {
   width: 100%;
   padding: 10px;
+  background: white;
 }
 
 .tasks-extension .tasks .task .title {
@@ -26,6 +27,15 @@
   height: 100%;
 }
 
+.tasks-extension .tasks .task li,
+.tasks-extension .tasks .task li div {
+  background: white;
+}
+
+.tasks-extension .tasks .task input {
+  font-size: 14px;
+}
+
 .tasks-extension .tasks .task input::placeholder {
   color: #cfd4d9;
 }
@@ -34,4 +44,12 @@
   width: 100%;
   resize: none;
   height: 17px;
+  font-size: 14px;
+}
+
+@media only screen and (max-width: 768px) {
+  .tasks-extension .tasks .task input,
+  .tasks-extension .tasks .task textarea {
+    font-size: 16px;
+  }
 }
