@@ -26,3 +26,7 @@ platforms/
 www/
 
 build.json
+
+*.keystore
+*.der
+*.jar
