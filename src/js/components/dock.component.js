@@ -14,7 +14,7 @@ import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
-import { IS_CORDOVA } from '../constants'
+import { IS_CORDOVA, DEVICE } from '../constants'
 
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
@@ -68,6 +68,7 @@ export default function DockComponent(props) {
 
   return (
     <Dock className="column align-items-center">
+      <DockPadding />
       {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
 
       {teams.map((t, index) => {
@@ -115,6 +116,10 @@ export default function DockComponent(props) {
 
 DockComponent.propTypes = {}
 
+const DockPadding = styled.div`
+  height: 20px;
+`
+
 const Dock = styled.div`
   width: 75px;
   padding-top: 20px;
@@ -128,7 +133,7 @@ const Dock = styled.div`
 
   @media only screen and (max-width: 768px) {
     width: 20vw;
-    padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '20px')};
+    padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '0px')};
   }
 `
 

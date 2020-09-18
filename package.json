@@ -32,7 +32,7 @@
     "cordova:run:ios": "npm run build:cordova && cordova run ios --device",
     "cordova:run:android": "npm run build:cordova && cordova run android --device",
     "cordova:emulate:ios": "npm run build:cordova && cordova emulate ios --target=\"iPhone-11, 13.7\"",
-    "cordova:emulate:android": "npm run build:cordova && cordova emulate android --target=\"Nexus_5X_API_28\""
+    "cordova:emulate:android": "npm run build:cordova && cordova emulate android"
   },
   "build": {
     "appId": "com.weekdayapp.${name}",

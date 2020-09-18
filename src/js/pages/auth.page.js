@@ -618,11 +618,11 @@ class AuthPage extends React.Component {
 
                   <InputContainer>
                     <Input
+                      autoComplete="off"
                       name="username"
                       type="text"
                       inputSize="large"
                       placeholder="Username"
-                      autocomplete="off"
                       value={values.username}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -634,11 +634,11 @@ class AuthPage extends React.Component {
 
                   <InputContainer>
                     <Input
+                      autoComplete="off"
                       name="password"
                       type="password"
                       placeholder="Password"
                       inputSize="large"
-                      autocomplete="off"
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}

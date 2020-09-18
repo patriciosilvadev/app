@@ -23,7 +23,7 @@ import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
 import TasksExtension from '../extensions/tasks/tasks.extension'
 import VideoExtension from '../extensions/video/video.extension'
-import { LAYOUTS, IS_CORDOVA, IS_MOBILE } from '../constants'
+import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 
 class AppPage extends React.Component {
@@ -262,71 +262,74 @@ class AppPage extends React.Component {
       : '#007af5'
 
     return (
-      <Bar className="row" backgroundColor={backgroundColor}>
-        <BarInfo>
-          <DrawerIcon>
-            <IconComponent icon="menu" size={20} thickness={2} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
-          </DrawerIcon>
+      <Bar className="column w-100" backgroundColor={backgroundColor}>
+        <BarPadding />
+        <div className="row w-100">
+          <BarInfo>
+            <DrawerIcon>
+              <IconComponent icon="menu" size={20} thickness={2} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
+            </DrawerIcon>
 
-          <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
-            {this.props.team.name}
-          </Team>
+            <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
+              {this.props.team.name}
+            </Team>
 
-          <Role textColor={textColor}>{this.props.team.position}</Role>
-          <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
-        </BarInfo>
+            <Role textColor={textColor}>{this.props.team.position}</Role>
+            <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
+          </BarInfo>
 
-        {this.props.channel.id && (
-          <BarExtensions>
-            <LayoutIcons>
-              <LayoutIconButton>
-                <IconComponent
-                  icon="square"
-                  color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
-                  size={18}
-                  thickness={2}
-                  onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
-                />
-              </LayoutIconButton>
-              <LayoutIconButton>
-                <IconComponent
-                  icon="sidebar"
-                  color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
-                  size={18}
-                  thickness={2}
-                  onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
-                />
-              </LayoutIconButton>
-              <LayoutIconButton>
-                <IconComponent
-                  icon="sidebar"
-                  color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
-                  size={18}
-                  thickness={2}
-                  onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
-                  style={{ transform: 'rotate(180deg)' }}
-                />
-              </LayoutIconButton>
-            </LayoutIcons>
+          {this.props.channel.id && (
+            <BarExtensions>
+              <LayoutIcons>
+                <LayoutIconButton>
+                  <IconComponent
+                    icon="square"
+                    color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
+                    size={18}
+                    thickness={2}
+                    onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
+                  />
+                </LayoutIconButton>
+                <LayoutIconButton>
+                  <IconComponent
+                    icon="sidebar"
+                    color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
+                    size={18}
+                    thickness={2}
+                    onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
+                  />
+                </LayoutIconButton>
+                <LayoutIconButton>
+                  <IconComponent
+                    icon="sidebar"
+                    color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
+                    size={18}
+                    thickness={2}
+                    onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
+                    style={{ transform: 'rotate(180deg)' }}
+                  />
+                </LayoutIconButton>
+              </LayoutIcons>
 
-            <ExtensionLinks>
-              {!IS_CORDOVA && (
-                <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
-                  <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
-                    <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                    <PillText>Meet</PillText>
+              <ExtensionLinks>
+                {!IS_CORDOVA && (
+                  <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
+                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
+                      <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                      <PillText>Meet</PillText>
+                    </Pill>
+                  </Link>
+                )}
+                <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
+                  <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
+                    <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                    <PillText>Tasks</PillText>
                   </Pill>
                 </Link>
-              )}
-              <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
-                <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
-                  <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                  <PillText>Tasks</PillText>
-                </Pill>
-              </Link>
-            </ExtensionLinks>
-          </BarExtensions>
-        )}
+              </ExtensionLinks>
+            </BarExtensions>
+          )}
+        </div>
       </Bar>
     )
   }
@@ -631,6 +634,10 @@ const App = styled.div`
   width: 100%;
 `
 
+const BarPadding = styled.div`
+  height: 10px;
+`
+
 const Bar = styled.div`
   background: ${props => (props.backgroundColor ? props.backgroundColor : '#F0F3F5')};
   width: 100%;
@@ -640,7 +647,7 @@ const Bar = styled.div`
   @media only screen and (max-width: 768px) {
     height: fit-content;
     padding: 10px;
-    padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '10px')};
+    padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '0px')};
   }
 `
 
