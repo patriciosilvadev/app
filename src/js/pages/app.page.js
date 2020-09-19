@@ -591,7 +591,7 @@ const ExtensionLayout = styled.div`
   height: 100%;
   background: white;
   left: 0px;
-  z-index: 1000;
+  z-index: 6; /* 1000 */
 
   @media only screen and (max-width: 768px) {
     width: 100%;
