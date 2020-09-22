@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 jobs:
   build:
     docker:
@@ -8,7 +8,7 @@ jobs:
       - run:
           name: Set up env vars
           command: |
-            echo 'export PATH=/usr/local/bin:/root/.local/bin:$PATH' >> $BASH_ENV
+            echo 'export PATH="/usr/local/bin:/root/.local/bin:$PATH"' >> $BASH_ENV
             source $BASH_ENV
       - run:
           name: Install dependencies
