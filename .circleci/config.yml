@@ -16,7 +16,6 @@ jobs:
             export PATH+=:/usr/local/bin
             which -a python
             sudo python3 get-pip.py --user
-            sudo python3.4 get-pip.py --user
             sudo pip install awscli --upgrade --user
       - run: npm install
       - run: npm run deploy:no-cli
