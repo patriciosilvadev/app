@@ -18,4 +18,9 @@ jobs:
             sudo python3 get-pip.py --user
             sudo /root/.local/bin/pip install awscli --upgrade --user
       - run: npm install
-      - run: npm run deploy:no-cli
+      - run:
+          name: Install dependencies
+          run: /
+            export ${AWS_ACCESS_KEY_ID}
+            export ${AWS_SECRET_ACCESS_KEY}
+            npm run deploy:no-cli
