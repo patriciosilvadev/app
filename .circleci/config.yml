@@ -2,14 +2,14 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:10.15
+      - image: node:10.15
     steps:
       - checkout
       - run:
           name: Install dependencies
           working_directory: /
           command: |
-            echo 'export PATH="/root/.local/bin:$PATH"' >> $BASH_ENV
+            echo 'export PATH=/root/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
             sudo apt-get -y -qq update
             sudo apt-get -y -qq install python3.4
