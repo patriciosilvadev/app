@@ -6,14 +6,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Set up env vars
-          command: |
-            echo 'export PATH="/usr/local/bin:/root/.local/bin:$PATH"' >> $BASH_ENV
-            source $BASH_ENV
-      - run:
           name: Install dependencies
           working_directory: /
           command: |
+            echo 'export PATH="/usr/local/bin:/root/.local/bin:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
             sudo apt-get -y -qq update
             sudo apt-get -y -qq install python3.4
             sudo curl -O https://bootstrap.pypa.io/get-pip.py
