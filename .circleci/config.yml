@@ -13,7 +13,7 @@ jobs:
             export PATH+=:/usr/local/bin
             export PATH+=:/root/.local/bin
             sudo apt-get -y -qq update
-            sudo apt-get -y -qq install python3.7
+            sudo apt-get -y -qq install python3.4
             sudo curl -O https://bootstrap.pypa.io/get-pip.py
             sudo python3 get-pip.py --user
             sudo pip install awscli --upgrade --user
