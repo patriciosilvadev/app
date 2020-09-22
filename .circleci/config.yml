@@ -11,11 +11,11 @@ jobs:
           command: |
             echo 'export PATH=/root/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
-            sudo apt-get -y -qq update
-            sudo apt-get -y -qq install python3.4
-            sudo curl -O https://bootstrap.pypa.io/get-pip.py
-            sudo python3 get-pip.py --user
-            sudo pip install awscli --upgrade --user
+            apt-get -y -qq update
+            apt-get -y -qq install python3.4
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            python3 get-pip.py --user
+            pip install awscli --upgrade --user
       - run: npm install
       - run:
           name: Install dependencies
