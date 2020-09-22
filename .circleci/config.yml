@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/node:10.15
     environment:
-      PATH: /usr/local/bin:/root/.local/bin:$PATH
+      PATH: /usr/local/bin/:/root/.local/bin/:$PATH
     steps:
       - checkout
       - run:
