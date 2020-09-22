@@ -14,7 +14,8 @@ jobs:
             sudo apt-get -y -qq install python3.4
             sudo curl -O https://bootstrap.pypa.io/get-pip.py
             export PATH+=:/usr/local/bin
+            export PATH+=:/root/.local/bin
             sudo python3 get-pip.py --user
-            sudo pip3 install awscli --upgrade --user
+            sudo pip install awscli --upgrade --user
       - run: npm install
       - run: npm run deploy:no-cli
