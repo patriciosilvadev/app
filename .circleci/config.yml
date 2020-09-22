@@ -7,7 +7,9 @@ jobs:
       - checkout
       - run:
           name: Set up env vars
-          command: echo 'export PATH=/usr/local/bin:/root/.local/bin:$PATH' >> $BASH_ENV
+          command: |
+            echo 'export PATH=/usr/local/bin:/root/.local/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: Install dependencies
           working_directory: /
@@ -16,7 +18,7 @@ jobs:
             sudo apt-get -y -qq install python3.4
             sudo curl -O https://bootstrap.pypa.io/get-pip.py
             sudo python3 get-pip.py --user
-            sudo /root/.local/bin/pip install awscli --upgrade --user
+            sudo pip install awscli --upgrade --user
       - run: npm install
       - run:
           name: Install dependencies
