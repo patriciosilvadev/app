@@ -9,7 +9,7 @@ jobs:
           name: Install dependencies
           working_directory: /
           command: |
-            echo 'export PATH="/usr/local/bin:/root/.local/bin:$PATH"' >> $BASH_ENV
+            echo 'export PATH="/root/.local/bin:$PATH"' >> $BASH_ENV
             source $BASH_ENV
             sudo apt-get -y -qq update
             sudo apt-get -y -qq install python3.4
