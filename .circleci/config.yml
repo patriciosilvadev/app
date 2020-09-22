@@ -10,10 +10,10 @@ jobs:
           name: Install dependencies
           working_directory: /
           command: |
-            apt-get -y -qq update
-            apt-get -y -qq install python3.4-dev
-            curl -O https://bootstrap.pypa.io/get-pip.py
-            python3.4 get-pip.py --user
-            pip install awscli --upgrade --user
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install python3.4-dev
+            sudo curl -O https://bootstrap.pypa.io/get-pip.py
+            sudo python3.4 get-pip.py --user
+            sudo pip install awscli --upgrade --user
       - run: npm install
-      - run: npm run deploy
+      - run: npm run deploy:no-cli
