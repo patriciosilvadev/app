@@ -9,15 +9,13 @@ jobs:
           name: Install dependencies
           working_directory: /
           command: |
-            echo ${AWS_ACCESS_KEY_ID}
-            echo ${AWS_SECRET_ACCESS_KEY}
             echo 'export PATH=/root/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
             apt-get -y -qq update
             apt-get -y -qq install python3.4
             curl -O https://bootstrap.pypa.io/get-pip.py
             python3 get-pip.py --user
-            pip install awscli --upgrade --user
+            pip3 install awscli --upgrade --user
       - run: npm install
       - run:
           name: Deploy app
