@@ -1,6 +1,6 @@
 {
   "name": "weekday",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Give your team superpowers.",
   "main": "src/js/electron.js",
   "scripts": {
