@@ -41,6 +41,10 @@
         <string>Need photo library access for teams, profile, channels</string>
     </edit-config>
 
+    <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+        <string>Need location access to help your team mates find you</string>
+    </edit-config>    
+
     <platform name="android">
         <allow-intent href="market:*" />
         
