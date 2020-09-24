@@ -485,6 +485,13 @@ class AuthPage extends React.Component {
               return (
                 <Form onSubmit={handleSubmit} className="column align-items-center w-100">
                   <Title>Create an account</Title>
+                  <Subtitle style={{ color: 'red', fontSize: 15 }}>
+                    We're in alpha! Please{' '}
+                    <a href="mailto:support@weekdayapp.com" style={{ fontWeight: 'bold', textDecoration: 'underline', color: 'red', fontSize: 15 }}>
+                      let us know
+                    </a>{' '}
+                    if something breaks or if there's something you'd like to see.
+                  </Subtitle>
 
                   <InputContainer>
                     <Input
