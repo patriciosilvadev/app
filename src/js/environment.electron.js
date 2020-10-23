@@ -11,6 +11,6 @@ export const STRIPE_API_KEY = ''
 export const SENTRY_DSN = 'https://aab4b362715b436a9180426477e17e2b@sentry.io/1513390'
 export const DEVICE = 'DESKTOP'
 export const MQTT_PREFIX = 'DESKTOP'
-export const WEBRTC_URL = 'http://159.69.150.191:8088/janus'
+export const WEBRTC_URL = 'https://video1.weekdayapp.com/janus'
 export const HASH_HISTORY = false
 export const ONESIGNAL_KEY = '0e932f75-af2f-4998-992d-11571053f729'
