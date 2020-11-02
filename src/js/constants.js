@@ -2,6 +2,7 @@ export const MIME_TYPES = {
   CALLS: 'weekday/calls',
   TASKS: 'weekday/tasks',
 }
+export const QUANTITY = 3
 export const LAYOUTS = {
   SIDE: 'SIDE',
   MAIN: 'MAIN',

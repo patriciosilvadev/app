@@ -11,10 +11,12 @@ import styled from 'styled-components'
 import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
 import { IconComponent } from '../components/icon.component'
 import { copyToClipboard, stripSpecialChars, validateEmail } from '../helpers/util'
-import { BASE_URL } from '../environment'
+import { BASE_URL, APP_TYPE } from '../environment'
 import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
 import moment from 'moment'
+import * as PaymentService from '../services/payment.service'
+import { QUANTITY } from '../constants'
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -22,6 +24,8 @@ export default function TeamModal(props) {
   const [notification, setNotification] = useState(null)
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
+  const [active, setActive] = useState(null)
+  const [quantity, setQuantity] = useState(0)
   const [slug, setSlug] = useState('')
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
@@ -163,6 +167,15 @@ export default function TeamModal(props) {
     }
   }
 
+  const getCustomerPortalUrl = async () => {
+    const res = await PaymentService.getPaymentPortalUrl(props.id)
+    const {
+      session: { url },
+    } = await res.json()
+
+    window.location.href = url
+  }
+
   // Effect loads current team details
   useEffect(() => {
     ;(async () => {
@@ -175,6 +188,8 @@ export default function TeamModal(props) {
         const { team } = data
 
         setImage(team.image)
+        setActive(team.active)
+        setQuantity(team.quantity)
         setName(team.name || '')
         setDescription(team.description || '')
         setShortcode(team.shortcode)
@@ -189,6 +204,20 @@ export default function TeamModal(props) {
     })()
   }, [props.id])
 
+  const renderPremiumNotification = () => {
+    if (active == null) return null
+
+    if (APP_TYPE == 'cordova' || APP_TYPE == 'electron') {
+      return <Notification text="Please manage subscriptions on the web." />
+    }
+
+    const theme = active ? 'solid' : 'dark-pink'
+    const actionText = active ? 'Manage (redirect)' : 'Upgrade'
+    const text = active ? `You're premium! Your plan allows for ${quantity} members.` : `You are using the free version with only ${QUANTITY} allowed team members.`
+
+    return <Notification theme={theme} actionText={actionText} onActionClick={getCustomerPortalUrl} text={text} />
+  }
+
   // Render functions for ease of reading
   const renderOverview = () => {
     return (
@@ -197,6 +226,7 @@ export default function TeamModal(props) {
           {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
           {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+          {renderPremiumNotification()}
 
           <div className="row w-100 p-20">
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
@@ -232,6 +262,8 @@ export default function TeamModal(props) {
   const renderMembers = () => {
     return (
       <div className="column flex-1 w-100 h-100">
+        {renderPremiumNotification()}
+
         <MembersTeamComponent totalMembers={totalMembers} admin={admin} id={props.id} createPrivateChannel={props.createPrivateChannel} onClose={props.onClose} />
       </div>
     )
