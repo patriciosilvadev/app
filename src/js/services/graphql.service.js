@@ -130,6 +130,11 @@ export default class GraphqlService {
             name
             description
             image
+            customer
+            current_period_start
+            current_period_end
+            quantity
+            active
           }
         }
       `,
@@ -193,6 +198,11 @@ export default class GraphqlService {
             totalMembers
             description
             image
+            customer
+            current_period_start
+            current_period_end
+            quantity
+            active
             role(userId: $userId)
             position(userId: $userId)
             channels(userId: $userId) {
