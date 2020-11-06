@@ -558,9 +558,9 @@ class AuthPage extends React.Component {
                   {errors.confirm && touched.confirm && <ErrorText>{errors.confirm}</ErrorText>}
 
                   <Footer className="column align-items-center">
-                    <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Sign up" />
+                    {/* <Button size="large" theme="muted" type="submit" disabled={isSubmitting} text="Sign up" />*/}
 
-                    {/* <Button size="large" theme="muted" disabled={true} text="Closed beta" /> */}
+                    <Button size="large" theme="muted" disabled={true} text="Closed beta" />
 
                     <Text onClick={() => this.setState({ view: 'signin', error: null })} className="mt-30 button">
                       ← Go back to sign in

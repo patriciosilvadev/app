@@ -134,6 +134,7 @@ export default class GraphqlService {
             current_period_start
             current_period_end
             quantity
+            customer
             active
           }
         }
@@ -202,6 +203,7 @@ export default class GraphqlService {
             current_period_start
             current_period_end
             quantity
+            customer
             active
             role(userId: $userId)
             position(userId: $userId)

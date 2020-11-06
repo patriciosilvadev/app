@@ -8,7 +8,7 @@ import MessagingService from '../services/messaging.service'
 import ModalPortal from '../portals/modal.portal'
 import { browserHistory } from '../services/browser-history.service'
 import styled from 'styled-components'
-import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button } from '@weekday/elements'
+import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
 import { IconComponent } from '../components/icon.component'
 import { copyToClipboard, stripSpecialChars, validateEmail } from '../helpers/util'
 import { BASE_URL, APP_TYPE } from '../environment'
@@ -16,7 +16,9 @@ import { deleteTeam, updateTeam } from '../actions'
 import MembersTeamComponent from '../components/members-team.component'
 import moment from 'moment'
 import * as PaymentService from '../services/payment.service'
-import { QUANTITY } from '../constants'
+import { STRIPE, PRICE, QUANTITY } from '../constants'
+
+const { Stripe } = window
 
 export default function TeamModal(props) {
   const [error, setError] = useState(null)
@@ -25,7 +27,9 @@ export default function TeamModal(props) {
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
   const [active, setActive] = useState(null)
+  const [customer, setCustomer] = useState(null)
   const [quantity, setQuantity] = useState(0)
+  const [premiumQuantity, setPremiumQuantity] = useState(5)
   const [slug, setSlug] = useState('')
   const [shortcode, setShortcode] = useState('')
   const [emails, setEmails] = useState('')
@@ -117,9 +121,13 @@ export default function TeamModal(props) {
   }
 
   const handleDeleteTeam = async () => {
-    setLoading(true)
     setError(null)
     setConfirmDeleteModal(false)
+
+    if (active) return setError('Please delete your subscription first.')
+
+    // Now start loading
+    setLoading(true)
 
     try {
       const teamId = props.id
@@ -167,6 +175,22 @@ export default function TeamModal(props) {
     }
   }
 
+  const openCheckout = async () => {
+    try {
+      const stripe = Stripe(STRIPE)
+      const res = await PaymentService.getCheckout(slug, PRICE, premiumQuantity)
+      const { sessionId } = await res.json()
+
+      // Redirect them to the checkout using a sessionId
+      stripe.redirectToCheckout({ sessionId }).then(result => {
+        setError(result.error.message)
+      })
+    } catch (e) {
+      console.log(e)
+      setError('Error directing to Stripe')
+    }
+  }
+
   const getCustomerPortalUrl = async () => {
     const res = await PaymentService.getPaymentPortalUrl(props.id)
     const {
@@ -188,7 +212,7 @@ export default function TeamModal(props) {
         const { team } = data
 
         setImage(team.image)
-        setActive(team.active)
+        setActive(!!team.active)
         setQuantity(team.quantity)
         setName(team.name || '')
         setDescription(team.description || '')
@@ -204,18 +228,35 @@ export default function TeamModal(props) {
     })()
   }, [props.id])
 
-  const renderPremiumNotification = () => {
-    if (active == null) return null
+  const renderSubscription = () => {
+    return (
+      <div className="row align-items-start w-100">
+        <div className="column w-100">
+          {active && <Notification theme="dark-pink" text={`You're premium! Your plan allows for ${quantity} members.`} />}
 
-    if (APP_TYPE == 'cordova' || APP_TYPE == 'electron') {
-      return <Notification text="Please manage subscriptions on the web." />
-    }
+          {!active && <Notification text={`You are using the free version with only ${QUANTITY} allowed team members.`} />}
 
-    const theme = active ? 'solid' : 'dark-pink'
-    const actionText = active ? 'Manage (redirect)' : 'Upgrade'
-    const text = active ? `You're premium! Your plan allows for ${quantity} members.` : `You are using the free version with only ${QUANTITY} allowed team members.`
+          <div className="column p-20 flex-1 scroll w-100">
+            <Text className="color-d2 h5 mb-10">Subscription</Text>
+            <Text className="color-d0 p mb-30">Upgrade or downgrade your team to suit your needs</Text>
 
-    return <Notification theme={theme} actionText={actionText} onActionClick={getCustomerPortalUrl} text={text} />
+            {active && <Button text="Manage subscription" size="large" theme="muted" onClick={() => getCustomerPortalUrl()} />}
+
+            {!active && (
+              <React.Fragment>
+                <Text className="h5 color-d2">Upgrade your team to {premiumQuantity} members.</Text>
+                <div className="pt-30 pb-30 w-100">
+                  <input className="range" type="range" min={QUANTITY} max={1000} value={premiumQuantity} onChange={e => setPremiumQuantity(e.target.value)} />
+                </div>
+                <div className="pt-10 w-100">
+                  <Button text="Upgrade" size="large" theme="muted" onClick={() => openCheckout()} />
+                </div>
+              </React.Fragment>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Render functions for ease of reading
@@ -226,7 +267,6 @@ export default function TeamModal(props) {
           {error && <Error message={error} onDismiss={() => setError(false)} />}
           {loading && <Spinner />}
           {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
-          {renderPremiumNotification()}
 
           <div className="row w-100 p-20">
             <input accept="image/png,image/jpg" type="file" className="hide" ref={fileRef} onChange={handleFileChange} />
@@ -262,8 +302,6 @@ export default function TeamModal(props) {
   const renderMembers = () => {
     return (
       <div className="column flex-1 w-100 h-100">
-        {renderPremiumNotification()}
-
         <MembersTeamComponent totalMembers={totalMembers} admin={admin} id={props.id} createPrivateChannel={props.createPrivateChannel} onClose={props.onClose} />
       </div>
     )
@@ -327,6 +365,10 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
+          {error && <Error message={error} onDismiss={() => setError(false)} />}
+          {loading && <Spinner />}
+          {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
+
           {confirmDeleteModal && (
             <ConfirmModal onOkay={handleDeleteTeam} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this team, it can not be undone?" title="Are you sure?" />
           )}
@@ -371,6 +413,11 @@ export default function TeamModal(props) {
               title: 'Invite & share',
               show: admin,
               content: renderInviteShare(),
+            },
+            {
+              title: 'Subscription',
+              show: admin && APP_TYPE != 'cordova' && APP_TYPE != 'electron',
+              content: renderSubscription(),
             },
             {
               title: 'Danger zone',

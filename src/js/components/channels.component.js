@@ -697,6 +697,11 @@ class ChannelsComponent extends React.Component {
 
     // Fetch the team & channels
     this.fetchData(teamId, userId)
+
+    // TEST
+    setTimeout(() => {
+      //this.setState({ teamModal: true })
+    }, 500)
   }
 
   componentDidUpdate(prevProps) {
@@ -1222,7 +1227,6 @@ class ChannelsComponent extends React.Component {
       <Channels className="column">
         {this.renderAccountModal()}
         {this.renderTeamModal()}
-
         {this.renderHeader()}
 
         <ChannelsContainer>
