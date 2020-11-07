@@ -34,7 +34,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: LAYOUTS.SIDE,
+      extensionLayout: LAYOUTS.FULL,
       drawer: true,
     }
 
@@ -591,7 +591,7 @@ const ExtensionLayout = styled.div`
   height: 100%;
   background: white;
   left: 0px;
-  z-index: 6; /* 1000 */
+  z-index: 8; /* 1000 */
 
   @media only screen and (max-width: 768px) {
     width: 100%;
