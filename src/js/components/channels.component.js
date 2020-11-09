@@ -41,7 +41,7 @@ import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
 import { v4 as uuidv4 } from 'uuid'
-import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX } from '../constants'
+import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -768,8 +768,10 @@ class ChannelsComponent extends React.Component {
     this.fetchData(teamId, userId)
 
     // Toggle channels drawer (from Dock)
-    EventService.getInstance().on('TOGGLE_CHANNELS_DRAWER', data => {
-      this.setState({ hideChannels: !this.state.hideChannels })
+    EventService.getInstance().on(TOGGLE_CHANNELS_DRAWER, data => {
+      this.setState({
+        hideChannels: !this.state.hideChannels,
+      })
     })
   }
 
@@ -1430,7 +1432,9 @@ const Channels = styled.div`
   background: white;
   background: #f8f9fa;
   border-right: 0px solid #1f2d3d;
-  display: ${props => (props.hideChannels ? 'none' : 'flex')} @media only screen and (max-width: 768px) {
+  display: ${props => (props.hideChannels ? 'none' : 'flex')};
+
+  @media only screen and (max-width: 768px) {
     width: 70vw;
   }
 `

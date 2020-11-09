@@ -14,7 +14,7 @@ import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
-import { IS_CORDOVA, DEVICE } from '../constants'
+import { IS_CORDOVA, DEVICE, TOGGLE_CHANNELS_DRAWER } from '../constants'
 import EventService from '../services/event.service'
 
 export default function DockComponent(props) {
@@ -71,7 +71,7 @@ export default function DockComponent(props) {
     <Dock className="column align-items-center">
       <div className="mt-0 mb-15">
         <Tooltip text="Toggle channels drawer" direction="right">
-          <Avatar size="medium-large" color="transparent" className="button" onClick={e => EventService.getInstance().emit('TOGGLE_CHANNELS_DRAWER', true)}>
+          <Avatar size="medium-large" color="transparent" className="button" onClick={e => EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)}>
             <IconComponent icon="menu" size={20} color="#112640" thickness={1.75} />
           </Avatar>
         </Tooltip>
