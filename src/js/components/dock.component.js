@@ -8,13 +8,14 @@ import { BrowserRouter as Router, Link } from 'react-router-dom'
 import { hydrateTeams, updateNotifications, hydrateNotifications } from '../actions'
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
-import { Toggle, Popup, Menu, Avatar, Channel } from '@weekday/elements'
+import { Toggle, Popup, Menu, Avatar, Channel, Tooltip } from '@weekday/elements'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
 import { IS_CORDOVA, DEVICE } from '../constants'
+import EventService from '../services/event.service'
 
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
@@ -68,7 +69,14 @@ export default function DockComponent(props) {
 
   return (
     <Dock className="column align-items-center">
-      <DockPadding />
+      <div className="mt-0 mb-15">
+        <Tooltip text="Toggle channels drawer" direction="right">
+          <Avatar size="medium-large" color="transparent" className="button" onClick={e => EventService.getInstance().emit('TOGGLE_CHANNELS_DRAWER', true)}>
+            <IconComponent icon="menu" size={20} color="#112640" thickness={1.75} />
+          </Avatar>
+        </Tooltip>
+      </div>
+
       {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
 
       {teams.map((t, index) => {
@@ -94,9 +102,11 @@ export default function DockComponent(props) {
         )
       })}
 
-      <div className="mt-30 mb-0">
+      <DockPadding />
+
+      <div className="mt-0 mb-0">
         <Avatar size="medium-large" color="transparent" className="button" onClick={e => setTeamOnboardingModal(true)}>
-          <IconComponent icon="plus" size={20} color="#112640" thickness={2} />
+          <IconComponent icon="plus-circle" size={20} color="#112640" thickness={1.5} />
         </Avatar>
       </div>
 
@@ -109,6 +119,7 @@ export default function DockComponent(props) {
       <NotificationsComponent style={{ marginTop: 0 }} />
 
       <div className="flexer"></div>
+
       <img src="icon-light.svg" width="20" />
     </Dock>
   )
@@ -129,6 +140,7 @@ const Dock = styled.div`
   position: relative;
   background: #18181d;
   background: #f8f9fa;
+  z-index: 7;
   border-right: 1px solid #eaedef;
 
   @media only screen and (max-width: 768px) {

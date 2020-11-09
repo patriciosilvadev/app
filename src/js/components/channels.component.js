@@ -13,6 +13,7 @@ import { debounceTime } from 'rxjs/operators'
 import { IconComponent } from './icon.component'
 import QuickUserComponent from './quick-user.component'
 import PropTypes from 'prop-types'
+import EventService from '../services/event.service'
 import {
   createChannel,
   hydrateChannels,
@@ -476,6 +477,7 @@ class ChannelsComponent extends React.Component {
       statusCollapsableInput: '',
       dndCollapsableOpen: false,
       dndIndex: 0,
+      hideChannels: false,
     }
 
     this.createChannel = this.createChannel.bind(this)
@@ -603,10 +605,10 @@ class ChannelsComponent extends React.Component {
         }
       })
     const publicChannels = props.channels
-      .filter((channel, index) => !channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
+      .filter((channel, index) => !channel.private && props.user.archived.indexOf(channel.id) == -1)
       .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
     const privateChannels = props.channels
-      .filter((channel, index) => channel.private && props.user.starred.indexOf(channel.id) == -1 && props.user.archived.indexOf(channel.id) == -1)
+      .filter((channel, index) => channel.private && props.user.archived.indexOf(channel.id) == -1)
       .filter(channel => channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
 
     return {
@@ -698,10 +700,10 @@ class ChannelsComponent extends React.Component {
     // Fetch the team & channels
     this.fetchData(teamId, userId)
 
-    // TEST
-    setTimeout(() => {
-      //this.setState({ teamModal: true })
-    }, 500)
+    // Toggle channels drawer (from Dock)
+    EventService.getInstance().on('TOGGLE_CHANNELS_DRAWER', data => {
+      this.setState({ hideChannels: !this.state.hideChannels })
+    })
   }
 
   componentDidUpdate(prevProps) {
@@ -1006,7 +1008,7 @@ class ChannelsComponent extends React.Component {
           {this.props.team.role != 'GUEST' && (
             <QuickInputComponent
               visible={this.state.channelPublicPopup}
-              width={250}
+              width={200}
               direction="right-bottom"
               handleDismiss={() => this.setState({ channelPublicPopup: false })}
               handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
@@ -1064,7 +1066,7 @@ class ChannelsComponent extends React.Component {
             teamId={this.props.team.id}
             userId={this.props.user.id}
             visible={this.state.channelPrivatePopup}
-            width={250}
+            width={200}
             direction="right-bottom"
             handleDismiss={() => this.setState({ channelPrivatePopup: false })}
             handleAccept={({ user }) => {
@@ -1224,7 +1226,7 @@ class ChannelsComponent extends React.Component {
 
   render() {
     return (
-      <Channels className="column">
+      <Channels hideChannels={this.state.hideChannels} className="column">
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
@@ -1290,15 +1292,14 @@ export default connect(
 )(ChannelsComponent)
 
 const Channels = styled.div`
-  width: 275px;
+  width: 250px;
   height: 100%;
   position: relative;
   z-index: 6;
   background: white;
   background: #f8f9fa;
   border-right: 0px solid #1f2d3d;
-
-  @media only screen and (max-width: 768px) {
+  display: ${props => (props.hideChannels ? 'none' : 'flex')} @media only screen and (max-width: 768px) {
     width: 70vw;
   }
 `

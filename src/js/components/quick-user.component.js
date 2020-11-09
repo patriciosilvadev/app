@@ -69,7 +69,7 @@ export default class QuickUser extends React.Component {
         handleDismiss={() => {
           this.setState({ filter: '', members: [] }, () => this.props.handleDismiss())
         }}
-        width={this.props.width || 250}
+        width={this.props.width || 200}
         direction={this.props.direction || 'right-bottom'}
         content={
           <div className="column flexer">
@@ -147,7 +147,6 @@ const Filter = styled.input`
   font-size: 15px;
   font-weight: 400;
   padding: 15px;
-  width: 250px;
 
   @media only screen and (max-width: 768px) {
     font-size: 16px;

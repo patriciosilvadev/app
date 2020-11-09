@@ -509,7 +509,7 @@ export default connect(
 const Drawer = styled.div`
   transition: transform 0.25s;
   transform: translateX(0%);
-  width: 350px;
+  width: fit-content;
   height: 100%;
   display: flex;
   flex-direction: row;

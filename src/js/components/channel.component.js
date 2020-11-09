@@ -474,6 +474,7 @@ class ChannelComponent extends React.Component {
 
         <div className="column ml-10">
           <div className="row">
+            {this.props.channel.readonly && <IconComponent icon="radio" size={15} color="#11161c" thickness={2} className="mr-5" />}
             {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#11161c" size={15} thickness={2.5} className="mr-5" />}
             {this.props.channel.private && <HeaderTitle>{this.props.channel.otherUser.name}</HeaderTitle>}
             {!this.props.channel.private && <HeaderTitle>{this.props.channel.name}</HeaderTitle>}
@@ -983,6 +984,7 @@ export default connect(
 const ChannelContainer = styled.div`
   height: 100%;
   flex: 1;
+  z-index: 6;
   position: relative;
   overflow: hidden;
   flex-direction: column;
