@@ -49,7 +49,7 @@ const Channel = props => {
   const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(true)
   const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
-  const colors = [
+  const colors1 = [
     '#810002',
     '#E50203',
     '#FF3F80',
@@ -73,6 +73,7 @@ const Channel = props => {
     '#FF7803',
     //'#F0F3F5', need to handle light backgorunds with Chrome first
   ]
+  const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0']
   const avatarTextColor = props.private
     ? null
     : props.color
