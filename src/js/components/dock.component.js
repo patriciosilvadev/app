@@ -71,7 +71,7 @@ export default function DockComponent(props) {
     <Dock className="column align-items-center">
       <div className="mt-0 mb-15">
         <Tooltip text="Toggle channels drawer" direction="right">
-          <Avatar size="medium-large" color="transparent" className="button" onClick={e => EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)}>
+          <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)}>
             <IconComponent icon="menu" size={20} color="#112640" thickness={1.75} />
           </Avatar>
         </Tooltip>
@@ -105,13 +105,13 @@ export default function DockComponent(props) {
       <DockPadding />
 
       <div className="mt-0 mb-0">
-        <Avatar size="medium-large" color="transparent" className="button" onClick={e => setTeamOnboardingModal(true)}>
+        <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => setTeamOnboardingModal(true)}>
           <IconComponent icon="plus-circle" size={20} color="#112640" thickness={1.5} />
         </Avatar>
       </div>
 
       <div className="mt-0 mb-10">
-        <Avatar size="medium-large" color="transparent" className="button" onClick={e => window.open('mailto:support@weekday.freshdesk.com')}>
+        <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => window.open('mailto:support@weekday.freshdesk.com')}>
           <IconComponent icon="question" size={20} color="#112640" thickness={1.75} />
         </Avatar>
       </div>

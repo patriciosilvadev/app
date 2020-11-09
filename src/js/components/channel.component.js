@@ -451,6 +451,7 @@ class ChannelComponent extends React.Component {
     if (!this.state.open) return null
 
     // Calculate presences
+    const muted = this.props.user.muted.indexOf(this.props.channel.id) != -1
     const avatarColor = this.props.channel.private ? null : this.props.channel.color
     const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : null
     const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name
@@ -459,8 +460,8 @@ class ChannelComponent extends React.Component {
       ? null
       : this.props.channel.color
       ? chroma(this.props.channel.color)
-          .desaturate(2)
-          .brighten(2.25)
+          .saturate(2)
+          .brighten(2)
           .toString()
       : '#007af5'
 
@@ -468,7 +469,7 @@ class ChannelComponent extends React.Component {
       <Header className="row">
         <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
-        <Avatar textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large">
+        <Avatar muted={muted} textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large">
           {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} thickness={2} /> : null}
         </Avatar>
 
@@ -574,7 +575,7 @@ class ChannelComponent extends React.Component {
           })}
 
           <div style={{ marginLeft: -10 }} onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
-            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} />
+            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} textColor="#007af5" />
           </div>
         </UserPreviews>
 

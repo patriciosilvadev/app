@@ -47,39 +47,15 @@ const Channel = props => {
   const [over, setOver] = useState(false)
   const [menu, setMenu] = useState(false)
   const dispatch = useDispatch()
-  const [iconCollapsable, setIconCollapsable] = useState(true)
+  const [iconCollapsable, setIconCollapsable] = useState(false)
   const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
-  const colors1 = [
-    '#810002',
-    '#E50203',
-    '#FF3F80',
-    '#FF7FAA',
-    '#F806EA',
-    '#EA80FB',
-    '#BF54EB',
-    '#9B59B6',
-    '#7C4DFF',
-    '#0262e8',
-    '#81B1FF',
-    '#3182B6',
-    '#0BBCD4',
-    '#1CBC9B',
-    '#2DCD6E',
-    '#F9D900',
-    '#B07E2D',
-    '#FF7803',
-    '#FF7803',
-    '#FF7803',
-    '#FF7803',
-    //'#F0F3F5', need to handle light backgorunds with Chrome first
-  ]
-  const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0']
+  const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0', '#00a98f']
   const avatarTextColor = props.private
     ? null
     : props.color
     ? chroma(props.color)
-        .desaturate(2)
-        .brighten(2.25)
+        .saturate(2)
+        .brighten(2)
         .toString()
     : '#007af5'
 
@@ -133,7 +109,7 @@ const Channel = props => {
           image={props.private ? props.image : null}
           title={props.name}
         >
-          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2} style={{ position: 'relative', top: -1 }} /> : null}
+          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2.25} style={{ position: 'relative', top: -1 }} /> : null}
         </Avatar>
 
         <ChannelContents>
@@ -212,7 +188,11 @@ const Channel = props => {
                         thickness={3}
                         color="#acb5bd"
                         className="button"
-                        onClick={() => setIconCollapsable(!iconCollapsable)}
+                        onClick={e => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setIconCollapsable(!iconCollapsable)
+                        }}
                       />
                     </div>
                     <Collapsable className={iconCollapsable ? 'open' : ''}>
@@ -298,22 +278,23 @@ const IconCircle = styled.div`
 
 const ColorCircle = styled.div`
   background: ${props => props.color};
-  width: 15px;
-  height: 15px;
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
   margin-right: 3px;
   margin-bottom: 3px;
   border: 1px solid ${props => (props.selected ? '#F0F3F5' : 'white')}
+  transition: .2s border;
 
   &:hover {
-    opacity: 0.75;
+    border: 3px solid #F0F3F5;
   }
 `
 
 const ChannelContainer = styled.li`
   display: flex;
   flex-direction: row;
-  background: ${props => (props.active ? '#F0F3F5' : 'transparent')};
+  background-color: ${props => (props.active ? '#F0F3F5' : 'transparent')};
   align-items: center;
   align-content: center;
   justify-content: center;
@@ -321,6 +302,11 @@ const ChannelContainer = styled.li`
   cursor: pointer;
   margin-bottom: 0px;
   padding-right: 25px;
+  transition: 0.2s background-color;
+
+  &:hover {
+    background-color: #f0f3f5;
+  }
 
   @media only screen and (max-width: 768px) {
     padding-right: 20px;
