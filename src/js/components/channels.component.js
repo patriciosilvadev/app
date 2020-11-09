@@ -14,6 +14,9 @@ import { IconComponent } from './icon.component'
 import QuickUserComponent from './quick-user.component'
 import PropTypes from 'prop-types'
 import EventService from '../services/event.service'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
+import StorageService from '../services/storage.service'
+import arrayMove from 'array-move'
 import {
   createChannel,
   hydrateChannels,
@@ -37,7 +40,8 @@ import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
-import { IS_MOBILE } from '../constants'
+import { v4 as uuidv4 } from 'uuid'
+import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -305,7 +309,7 @@ const ColorCircle = styled.div`
   }
 `
 
-const ChannelContainer = styled.div`
+const ChannelContainer = styled.li`
   display: flex;
   flex-direction: row;
   background: ${props => (props.active ? '#F0F3F5' : 'transparent')};
@@ -352,8 +356,10 @@ const ChannelTitle = styled.div`
   font-size: 14px;
   font-weight: 600; /*${props => (props.active ? '700' : '500')}*/
   color: ${props => (props.active ? '#18181d' : '#858E96')};
-  white-space: wrap;
-  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
   /*letter-spacing: -0.5px;*/
   margin-right: 5px;
 `
@@ -449,6 +455,45 @@ const ChannelMoreIcon = styled.span`
   }
 `
 
+const SortableItem = SortableElement(({ pathname, channel, onNavigate, onArchivedClick, onMutedClick }) => {
+  return (
+    <Channel
+      id={channel.id}
+      color={channel.color}
+      icon={channel.icon}
+      active={pathname.indexOf(channel.id) != -1}
+      unread={channel.muted ? 0 : channel.unreadCount}
+      name={channel.name}
+      image={channel.image}
+      excerpt={channel.excerpt}
+      public={channel.public}
+      private={channel.private}
+      readonly={channel.readonly}
+      muted={channel.muted}
+      archived={channel.archived}
+      onNavigate={() => onNavigate(channel.id)}
+      onArchivedClick={() => onArchivedClick(channel.id, !channel.archived)}
+      onMutedClick={() => onMutedClick(channel.id, !channel.muted)}
+    />
+  )
+})
+
+const SortableList = SortableContainer(({ channels, pathname, onNavigate, onArchivedClick, onMutedClick }) => {
+  return (
+    <Ul>
+      {channels.map((channel, index) => {
+        return <SortableItem key={channel.id} index={index} channel={channel} pathname={pathname} onNavigate={onNavigate} onArchivedClick={onArchivedClick} onMutedClick={onMutedClick} />
+      })}
+    </Ul>
+  )
+})
+
+const Ul = styled.ul`
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+`
+
 class ChannelsComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -478,6 +523,7 @@ class ChannelsComponent extends React.Component {
       dndCollapsableOpen: false,
       dndIndex: 0,
       hideChannels: false,
+      hash: null,
     }
 
     this.createChannel = this.createChannel.bind(this)
@@ -586,6 +632,9 @@ class ChannelsComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
+    const unserializedOrder = StorageService.getStorage(CHANNELS_ORDER)
+    let serializedOrder = unserializedOrder ? JSON.parse(unserializedOrder) : {}
+
     const starredChannels = props.channels
       .filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
       .filter(channel => {
@@ -604,12 +653,30 @@ class ChannelsComponent extends React.Component {
           return channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
         }
       })
-    const publicChannels = props.channels
-      .filter((channel, index) => !channel.private && props.user.archived.indexOf(channel.id) == -1)
-      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+
     const privateChannels = props.channels
       .filter((channel, index) => channel.private && props.user.archived.indexOf(channel.id) == -1)
       .filter(channel => channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+
+    const publicChannels = props.channels
+      .filter((channel, index) => !channel.private && props.user.archived.indexOf(channel.id) == -1)
+      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .map((channel, index) => {
+        let mutableChannel = channel
+        const channelId = channel.id
+        const channelOrder = serializedOrder[channelId]
+
+        // If there is a channelOrder value, then assign the property CHANNEL_ORDER_INDEX to it
+        // If there isn't one, then we set the index to the length of the  index
+        // We save add the lenth so we don't interfere with current orderings (so it should be added to the bottom)
+        mutableChannel[CHANNEL_ORDER_INDEX] = channelOrder != null && channelOrder != undefined ? channelOrder : props.channels.length + index
+
+        // Return this (for sorting)
+        return mutableChannel
+      })
+      .sort((a, b) => {
+        return parseFloat(a[CHANNEL_ORDER_INDEX]) - parseFloat(b[CHANNEL_ORDER_INDEX])
+      })
 
     return {
       starred: starredChannels,
@@ -999,6 +1066,24 @@ class ChannelsComponent extends React.Component {
     // Not this one - we want to always show this one
     // if (this.state.public.length == 0) return null
     const { pathname } = this.props.history.location
+    const userId = this.props.user.id
+    const teamId = this.props.team.id
+    const channels = this.state.public.map((channel, index) => {
+      const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
+      const unreadCount = unread ? unread.doc.count : 0
+      const muted = this.props.user.muted.indexOf(channel.id) != -1
+      const archived = this.props.user.archived.indexOf(channel.id) != -1
+
+      return {
+        ...channel,
+        unread,
+        unreadCount,
+        muted,
+        archived,
+      }
+    })
+    const unserializedOrder = StorageService.getStorage(CHANNELS_ORDER)
+    let serializedOrder = unserializedOrder ? JSON.parse(unserializedOrder) : {}
 
     return (
       <React.Fragment>
@@ -1018,6 +1103,50 @@ class ChannelsComponent extends React.Component {
             </QuickInputComponent>
           )}
         </HeadingRow>
+
+        <SortableList
+          helperClass="sortableHelper"
+          pressDelay={200}
+          pathname={pathname}
+          channels={channels}
+          onSortEnd={({ oldIndex, newIndex }) => {
+            arrayMove(channels, oldIndex, newIndex).map((channel, index) => {
+              serializedOrder[channel.id] = index
+            })
+
+            // Save our new order
+            StorageService.setStorage(CHANNELS_ORDER, JSON.stringify(serializedOrder))
+
+            // Force update state
+            this.setState({ hash: uuidv4() })
+          }}
+          onNavigate={channelId => {
+            // close this for mobile
+            this.props.toggleDrawer()
+
+            // And navigate to the channel
+            this.props.history.push(`/app/team/${teamId}/channel/${channelId}`)
+          }}
+          onArchivedClick={(channelId, archived) => {
+            // Archived here would = !channel.archived (so a toggle)
+            this.updateUserArchived(userId, channelId, archived)
+          }}
+          onMutedClick={(channelId, muted) => {
+            // Muted here would = !channel.muted (so a toggle)
+            this.updateUserMuted(userId, channelId, muted)
+          }}
+        />
+
+        {/*
+
+        ⚠️ 
+        --------------------------------------------------------------------------------------
+        I'm keeping this here for reference in case something happens and we need to roll back
+        --------------------------------------------------------------------------------------
+
+        const { pathname } = this.props.history.location
+        const userId = this.props.user.id
+        const teamId = this.props.team.id
 
         {this.state.public.map((channel, index) => {
           const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
@@ -1050,6 +1179,8 @@ class ChannelsComponent extends React.Component {
             />
           )
         })}
+
+        */}
       </React.Fragment>
     )
   }

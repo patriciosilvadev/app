@@ -22,3 +22,6 @@ export const IS_MOBILE =
 
 export const STRIPE = 'pk_live_51H15uJAD6kgvYlyGuze5YxmYZbEUupGssBuEXM6Xq5x3hqt7Ki967HjsgDXjTYKD2wEnjGnpqtENgSda6oG7E0tV00dRVbmlsA'
 export const PRICE = 'price_1Hk3OOAD6kgvYlyG6nDJUOln'
+
+export const CHANNELS_ORDER = 'CHANNELS_ORDER'
+export const CHANNEL_ORDER_INDEX = 'CHANNEL_ORDER_INDEX'
