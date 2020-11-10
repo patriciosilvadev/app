@@ -2,11 +2,13 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './task.component.css'
 import { Popup, Menu } from '@weekday/elements'
-import { IconComponent } from '../../../components/icon.component'
+import { IconComponent } from '../../../../components/icon.component'
 import PropTypes from 'prop-types'
-import ConfirmModal from '../../../modals/confirm.modal'
-import { logger } from '../../../helpers/util'
-import GraphqlService from '../../../services/graphql.service'
+import ConfirmModal from '../../../../modals/confirm.modal'
+import { logger } from '../../../../helpers/util'
+import GraphqlService from '../../../../services/graphql.service'
+import { CheckboxComponent } from '../checkbox/checkbox.component'
+import { classNames } from '../../../../helpers/util'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -17,11 +19,13 @@ class TaskComponent extends React.Component {
       done: props.done,
       title: props.title,
       text: props.new ? '' : props.title,
+      description: props.description,
+      showDescription: false,
       new: props.new,
       menu: false,
       deleteModal: false,
       over: false,
-      compose: false,
+      compose: true,
     }
 
     this.composeRef = React.createRef()
@@ -48,7 +52,7 @@ class TaskComponent extends React.Component {
   }
 
   updateOrCreateTask() {
-    const { id, done, text } = this.state
+    const { id, done, text, description } = this.state
 
     if (this.state.new) {
       this.props.createTask({ title: this.state.text })
@@ -57,6 +61,7 @@ class TaskComponent extends React.Component {
       this.setState({
         compose: false,
         text: '',
+        description: '',
       })
     } else {
       // Do the API call
@@ -64,13 +69,16 @@ class TaskComponent extends React.Component {
         id,
         done,
         title: text,
+        description,
       })
 
       // Update the task here
       this.setState({
         title: text,
+        description,
         done,
         compose: false,
+        showDescription: false,
       })
     }
   }
@@ -128,7 +136,17 @@ class TaskComponent extends React.Component {
   }
 
   render() {
-    const classNames = this.state.done ? (this.props.showCompletedTasks ? 'row task done' : 'row task done hide') : 'row task'
+    const classes = classNames({
+      row: true,
+      task: true,
+      hide: this.state.done && !this.props.showCompletedTasks,
+      done: this.state.done,
+    })
+    const textareaClasses = classNames({
+      row: true,
+      flexer: true,
+      hide: this.state.compose || this.state.new ? false : true,
+    })
 
     // Do this every render
     this.adjustHeight()
@@ -146,26 +164,24 @@ class TaskComponent extends React.Component {
             title="Are you sure?"
           />
         )}
-        <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={classNames}>
-          <IconComponent
-            icon={this.state.new ? 'plus-circle' : this.state.done ? 'check-circle' : 'circle'}
-            color={this.state.new ? '#CFD4D9' : this.state.done ? '#858E96' : '#11171D'}
-            thickness={1.5}
-            size={16}
-            className="mr-10 button"
-            onClick={() => this.handleDoneIconClick()}
-          />
+        <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={classes}>
+          {!this.state.new && <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />}
 
-          <textarea
-            placeholder="Add task title & press enter"
-            value={this.state.text}
-            className={this.state.compose || this.state.new ? 'title' : 'hide title'}
-            onKeyUp={this.handleKeyUp}
-            onKeyDown={this.handleKeyDown}
-            onChange={this.handleComposeChange}
-            onBlur={this.handleBlur}
-            ref={ref => (this.composeRef = ref)}
-          />
+          {this.state.new && <div style={{ width: 30 }} />}
+          {!this.state.new && <div style={{ width: 10 }} />}
+
+          <div className={textareaClasses}>
+            <textarea
+              placeholder="Add task title & press enter"
+              value={this.state.text}
+              className="title"
+              onKeyUp={this.handleKeyUp}
+              onKeyDown={this.handleKeyDown}
+              onChange={this.handleComposeChange}
+              onBlur={this.handleBlur}
+              ref={ref => (this.composeRef = ref)}
+            />
+          </div>
 
           {!this.state.compose && !this.state.new && (
             <div
@@ -179,40 +195,65 @@ class TaskComponent extends React.Component {
           )}
 
           {this.state.over && !this.state.new && (
-            <Popup
-              handleDismiss={() => this.setState({ menu: false })}
-              visible={this.state.menu}
-              width={200}
-              direction="right-bottom"
-              content={
-                <Menu
-                  items={[
-                    {
-                      text: 'Delete',
-                      onClick: e => this.setState({ deleteModal: true }),
-                    },
-                    {
-                      text: 'Share to channel',
-                      onClick: e => this.props.shareToChannel(this.state.id),
-                    },
-                  ]}
-                />
-              }
-            >
+            <React.Fragment>
               <IconComponent
-                className="button"
-                icon="more-h"
-                color="#858E96"
-                size={15}
-                thickness={1.5}
-                onClick={e => {
-                  e.stopPropagation()
-                  this.setState({ menu: true })
-                }}
+                icon={!!this.state.description ? 'file-text' : 'file'}
+                color="#CFD4D9"
+                thickness={2}
+                size={13}
+                className="mr-10 button"
+                onClick={e => this.setState({ showDescription: !this.state.showDescription })}
               />
-            </Popup>
+
+              <Popup
+                handleDismiss={() => this.setState({ menu: false })}
+                visible={this.state.menu}
+                width={200}
+                direction="right-bottom"
+                content={
+                  <Menu
+                    items={[
+                      {
+                        text: 'Delete',
+                        onClick: e => this.setState({ deleteModal: true }),
+                      },
+                      {
+                        text: 'Share to channel',
+                        onClick: e => this.props.shareToChannel(this.state.id),
+                      },
+                    ]}
+                  />
+                }
+              >
+                <IconComponent
+                  className="button"
+                  icon="more-h"
+                  color="#CFD4D9"
+                  size={15}
+                  thickness={2}
+                  onClick={e => {
+                    e.stopPropagation()
+                    this.setState({ menu: true })
+                  }}
+                />
+              </Popup>
+            </React.Fragment>
           )}
         </div>
+
+        {this.state.showDescription && (
+          <div className="row pl-40 pr-20 w-100">
+            <textarea placeholder="Add a description" value={this.state.description} className="description" onChange={e => this.setState({ description: e.target.value })} />
+            <div className="row">
+              <button className="description-button cancel" onClick={e => this.setState({ showDescription: !this.state.showDescription })}>
+                Cancel
+              </button>
+              <button className="description-button" onClick={e => this.updateOrCreateTask()}>
+                Save
+              </button>
+            </div>
+          </div>
+        )}
       </li>
     )
   }

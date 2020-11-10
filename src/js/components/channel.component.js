@@ -1050,6 +1050,7 @@ const Header = styled.div`
   padding 0px 25px 0px 25px;
   height: 75px;
   display: flex;
+  /*box-shadow: 0px 0px 50px 10px rgba(0, 0, 0, 0.05);*/
 `
 
 const HeaderButton = styled.div`

@@ -16,7 +16,7 @@ import {
   updateChannelDeleteTask,
 } from '../../actions'
 import PropTypes from 'prop-types'
-import TaskComponent from './components/task.component'
+import TaskComponent from './components/task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
@@ -30,6 +30,7 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
       sortIndex={sortIndex}
       id={task.id}
       title={task.title}
+      description={task.description}
       done={task.done}
       shareToChannel={shareToChannel}
       new={false}
@@ -174,9 +175,9 @@ class TasksExtension extends React.Component {
     }
   }
 
-  async handleUpdateTask({ id, done, title }) {
+  async handleUpdateTask({ id, done, title, description }) {
     try {
-      await GraphqlService.getInstance().updateTask(id, { done, title })
+      await GraphqlService.getInstance().updateTask(id, { done, title, description })
 
       const channelId = this.props.channel.id
       const taskId = id
@@ -184,6 +185,7 @@ class TasksExtension extends React.Component {
         id,
         done,
         title,
+        description,
       }
 
       // Update the task if it's been posted on a message
@@ -312,7 +314,7 @@ class TasksExtension extends React.Component {
           />
 
           <ul>
-            <TaskComponent id="" title="" done={true} new={true} createTask={this.handleCreateTask} showCompletedTasks={true} />
+            <TaskComponent id="" title="" done={false} new={true} createTask={this.handleCreateTask} showCompletedTasks={true} />
           </ul>
         </div>
       </div>

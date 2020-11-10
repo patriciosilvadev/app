@@ -218,3 +218,13 @@ export const getMentions = text => {
     .filter(part => part[0] == '@')
   return mentions || []
 }
+
+export const classNames = object => {
+  const classArray = []
+
+  for (let property in object) {
+    if (object[property]) classArray.push(property)
+  }
+
+  return classArray.join(' ')
+}

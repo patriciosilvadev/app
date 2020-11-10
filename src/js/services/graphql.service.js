@@ -338,6 +338,7 @@ export default class GraphqlService {
             tasks {
               id
               title
+              description
               order
               done
             }
@@ -645,6 +646,7 @@ export default class GraphqlService {
             title
             order
             done
+            description
           }
         }
       `,
