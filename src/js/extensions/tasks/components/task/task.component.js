@@ -9,6 +9,7 @@ import { logger } from '../../../../helpers/util'
 import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import { classNames } from '../../../../helpers/util'
+import marked from 'marked'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -19,13 +20,14 @@ class TaskComponent extends React.Component {
       done: props.done,
       title: props.title,
       text: props.new ? '' : props.title,
-      description: props.description,
+      description: props.description || '',
       showDescription: false,
+      editDescription: false,
       new: props.new,
       menu: false,
       deleteModal: false,
       over: false,
-      compose: true,
+      compose: false,
     }
 
     this.composeRef = React.createRef()
@@ -78,7 +80,6 @@ class TaskComponent extends React.Component {
         description,
         done,
         compose: false,
-        showDescription: false,
       })
     }
   }
@@ -246,14 +247,45 @@ class TaskComponent extends React.Component {
         </div>
 
         {this.state.showDescription && (
-          <div className="row pl-40 pr-20 w-100">
-            <textarea placeholder="Add a description" value={this.state.description} className="description" onChange={e => this.setState({ description: e.target.value })} />
-            <div className="row">
-              <button className="description-button cancel" onClick={e => this.setState({ showDescription: !this.state.showDescription })}>
-                Cancel
-              </button>
-              <button className="description-button" onClick={e => this.updateOrCreateTask()}>
-                Save
+          <div className="column pl-40 pr-20 w-100 mb-10">
+            {/* Display the editor */}
+            {this.state.editDescription && (
+              <textarea placeholder="Add a description with *markdown*" value={this.state.description} className="description" onChange={e => this.setState({ description: e.target.value })} />
+            )}
+
+            {/* Display the markdown */}
+            {!this.state.editDescription && <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || 'No description') }} />}
+
+            {/* These are the buttons at the bottom of the description */}
+            <div className="row mt-10">
+              {!this.state.editDescription && (
+                <button className="description-button" onClick={e => this.setState({ editDescription: true })}>
+                  Edit
+                </button>
+              )}
+
+              {this.state.editDescription && (
+                <button
+                  className="description-button"
+                  onClick={e => {
+                    this.updateOrCreateTask()
+                    this.setState({ editDescription: false })
+                  }}
+                >
+                  Okay
+                </button>
+              )}
+
+              <button
+                className="description-button cancel"
+                onClick={e => {
+                  this.setState({
+                    showDescription: false,
+                    editDescription: false,
+                  })
+                }}
+              >
+                Close
               </button>
             </div>
           </div>
