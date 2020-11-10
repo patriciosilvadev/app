@@ -153,7 +153,7 @@ class TaskComponent extends React.Component {
     this.adjustHeight()
 
     return (
-      <li>
+      <li className="tasks-extension-li">
         {this.state.deleteModal && (
           <ConfirmModal
             onOkay={() => {
@@ -254,7 +254,7 @@ class TaskComponent extends React.Component {
             )}
 
             {/* Display the markdown */}
-            {!this.state.editDescription && <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || 'No description') }} />}
+            {!this.state.editDescription && <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || '<em><em>No description</em></em>') }} />}
 
             {/* These are the buttons at the bottom of the description */}
             <div className="row mt-10">

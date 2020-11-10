@@ -9,6 +9,11 @@
   justify-content: center;
 }
 
+.tasks-extension .tasks-extension-li {
+  padding: 5px 0px 5px 0px;
+  border-bottom: 1px solid #f0f3f5;
+}
+
 .tasks-extension .icon-container {
   height: 20px;
   width: 20px;
@@ -29,6 +34,13 @@
   color: #11171d;
   font-size: 12px;
   margin: 0px;
+}
+
+.tasks-extension .task-description-markdown em em {
+  color: #cfd4d9;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
 }
 
 .tasks-extension .task-description-markdown {
