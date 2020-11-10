@@ -194,17 +194,21 @@ class TaskComponent extends React.Component {
             </div>
           )}
 
-          {this.state.over && !this.state.new && (
-            <React.Fragment>
+          <div className="icon-container">
+            {((this.state.over && !this.state.new) || !!this.state.description) && (
               <IconComponent
                 icon={!!this.state.description ? 'file-text' : 'file'}
                 color="#CFD4D9"
                 thickness={2}
                 size={13}
-                className="mr-10 button"
+                className="button"
                 onClick={e => this.setState({ showDescription: !this.state.showDescription })}
               />
+            )}
+          </div>
 
+          <div className="icon-container">
+            {this.state.over && !this.state.new && (
               <Popup
                 handleDismiss={() => this.setState({ menu: false })}
                 visible={this.state.menu}
@@ -237,8 +241,8 @@ class TaskComponent extends React.Component {
                   }}
                 />
               </Popup>
-            </React.Fragment>
-          )}
+            )}
+          </div>
         </div>
 
         {this.state.showDescription && (

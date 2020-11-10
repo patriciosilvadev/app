@@ -9,15 +9,25 @@
   justify-content: center;
 }
 
+.tasks-extension .icon-container {
+  height: 20px;
+  width: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
 .tasks-extension textarea.description {
   width: 100%;
   border: 0px;
   padding: 0px;
-  font-weight: 600;
+  font-weight: 500;
   height: 100px;
   resize: none;
   color: #11171d;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .tasks-extension .tasks .task .title {
@@ -38,14 +48,14 @@
 .tasks-extension .description-button {
   padding: 5px 10px 5px 10px;
   font-weight: 600;
-  color: #11171d;
+  color: #adb5bd;
   font-size: 10px;
-  border: none;
-  border-radius: 10px;
+  border: 2px solid transparent;
+  border-radius: 20px;
   margin: 2px;
   background-color: #eaedef;
   cursor: pointer;
-  transition: 0.2s background-color;
+  transition: 0.2s border-color;
 }
 
 .tasks-extension .description-button.cancel {
@@ -53,7 +63,7 @@
 }
 
 .tasks-extension .description-button:hover {
-  background-color: #cfd4d9;
+  border-color: #cfd4d9;
 }
 
 .tasks-extension .tasks .task.done .title .overlay {

@@ -14,7 +14,7 @@ export const CheckboxComponent = props => {
   const channelColor = channel.color ? channel.color : '#065FBA'
   const doneBackgroundColor = chroma(channelColor)
     .saturate(2)
-    .brighten(4)
+    .brighten(3.9)
     .toString()
 
   return (
