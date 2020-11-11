@@ -122,6 +122,7 @@
     "pouchdb-find": "^7.0.0",
     "react": "^16.8.6",
     "react-apollo": "^2.2.4",
+    "react-datepicker": "^3.3.0",
     "react-dom": "^16.8.6",
     "react-feather": "git+https://github.com/joduplessis/react-feather.git",
     "react-markdown": "^4.2.2",

@@ -22,7 +22,7 @@ import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
 import { DEVICE } from '../../environment'
 import { MIME_TYPES } from '../../constants'
-import { ModalComponent } from './components/modal/modal.component'
+import ModalComponent from './components/modal/modal.component'
 
 const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel }) => {
   return (

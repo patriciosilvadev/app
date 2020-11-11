@@ -9,6 +9,77 @@
   width: 100%;
 }
 
+.task-modal-container .clear {
+  padding: 0px;
+  margin: 0px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  background: rgb(255, 228, 228);
+  border-radius: 50%;
+  overflow: hidden;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #ec224b;
+  margin-right: 10px;
+  transition: 0.2s border;
+  position: absolute;
+  right: -10px;
+  top: 0px;
+  z-index: 1;
+}
+
+.task-modal-container .clear.assigned {
+  left: 5px;
+  top: 5px;
+  z-index: 10;
+}
+
+.task-modal-container .clear:hover {
+  border: 2px solid #ec224b;
+}
+
+.task-modal-container .clear span svg {
+  position: relative;
+  top: -2px;
+}
+
+.task-modal-container .clear span {
+  width: 12px;
+  height: 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  padding: 0px;
+  margin: 0px;
+  text-align: center;
+}
+
+.task-modal-container .delete-bar {
+  width: 100%;
+  padding: 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  position: relative;
+  padding: 10px 20px 10px 20px;
+  background: rgb(255, 228, 228);
+}
+
+.task-modal-container .delete-bar .text {
+  color: #ec224b;
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: auto;
+}
+
 .task-modal-container .title-bar {
   width: 100%;
   padding: 0px;
@@ -116,6 +187,7 @@
   resize: none;
   padding: 0px;
   margin: 0px;
+  min-height: 200px !important;
 }
 
 .task-modal-container .content .description .description-button {
@@ -161,4 +233,20 @@
 .task-modal-container .content .description .task-description-markdown p {
   margin: 0px;
   padding: 0px;
+}
+
+.react-datepicker__day--today {
+  background-color: #11171d;
+}
+
+.react-datepicker__header {
+  background-color: #f8f9fa;
+}
+
+.assigned-member {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
 }
