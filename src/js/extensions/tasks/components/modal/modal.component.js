@@ -77,14 +77,11 @@ class ModalComponent extends React.Component {
     // Set up the inital user
     // Which in this case is THIS user
     // So add the (You) part
-    const initialUser = {
-      ...this.props.user,
-      name: this.props.user.name + ' (you)',
-    }
+    const initialUser = { ...this.props.user, name: 'Assign to me' }
 
     return (
       <ModalPortal>
-        <Modal position="right" header={false} title="Task" width={800} height="100%" frameless onClose={this.props.onClose}>
+        <Modal position="right" header={false} title="Task" width="50%" height="100%" frameless onClose={this.props.onClose}>
           {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
           {this.state.loading && <Spinner />}
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
@@ -166,7 +163,7 @@ class ModalComponent extends React.Component {
               </div>
 
               <div className="icon" onClick={this.props.onClose}>
-                <IconComponent icon="x" color="#524150" size="20" thickness="1.5" />
+                <IconComponent icon="x" color="#524150" size="22" thickness="1.5" />
               </div>
             </div>
 
@@ -178,70 +175,75 @@ class ModalComponent extends React.Component {
               </div>
             )}
 
-            <div className="content">
-              <div className="title">
-                <TextareaComponent placeholder="Task title" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} />
-              </div>
+            <div className="panels">
+              <div className="panel" style={{ flex: 1.5 }}>
+                <div className="content">
+                  <div className="title">
+                    <TextareaComponent placeholder="Task title" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} />
+                  </div>
 
-              <div className="description">
-                <div className="heading row">
-                  <IconComponent icon="align-left" color="#adb5bd" size="14" thickness="1.5" onClick={this.props.onClose} />
+                  <div className="description">
+                    <div className="heading row">
+                      <IconComponent icon="align-left" color="#adb5bd" size="14" thickness="1.5" onClick={this.props.onClose} />
 
-                  <div className="flexer" />
+                      <div className="flexer" />
 
-                  {!this.state.editDescription && (
-                    <button className="description-button" onClick={e => this.setState({ editDescription: true })}>
-                      Edit
-                    </button>
-                  )}
+                      {!this.state.editDescription && (
+                        <button className="description-button" onClick={e => this.setState({ editDescription: true })}>
+                          Edit
+                        </button>
+                      )}
 
-                  {this.state.editDescription && (
-                    <button
-                      className="description-button"
-                      onClick={e => {
-                        // this.updateOrCreateTask()
-                        this.setState({ editDescription: false })
-                      }}
-                    >
-                      Okay
-                    </button>
-                  )}
-                </div>
-                <div className="textarea">
-                  <div className="column w-100">
-                    {/* Display the editor */}
-                    {this.state.editDescription && (
-                      <TextareaComponent
-                        placeholder="Add a description with *markdown*"
-                        value={this.state.description}
-                        className="description"
-                        onChange={e => this.setState({ description: e.target.value })}
-                      />
-                    )}
+                      {this.state.editDescription && (
+                        <button
+                          className="description-button"
+                          onClick={e => {
+                            // this.updateOrCreateTask()
+                            this.setState({ editDescription: false })
+                          }}
+                        >
+                          Okay
+                        </button>
+                      )}
+                    </div>
+                    <div className="textarea">
+                      <div className="column w-100">
+                        {/* Display the editor */}
+                        {this.state.editDescription && (
+                          <TextareaComponent
+                            placeholder="Add a description with *markdown*"
+                            value={this.state.description}
+                            className="description"
+                            onChange={e => this.setState({ description: e.target.value })}
+                          />
+                        )}
 
-                    {/* Display the markdown */}
-                    {!this.state.editDescription && (
-                      <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || '<em><em>No description</em></em>') }} />
-                    )}
+                        {/* Display the markdown */}
+                        {!this.state.editDescription && (
+                          <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || '<em><em>No description</em></em>') }} />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="files">
+                    {this.state.files.map(file => {
+                      return <File filename={file.filename} url={file.url} onDelete={() => console.log('DELETE')} />
+                    })}
                   </div>
                 </div>
               </div>
+              <div className="panel">
+                <div className="messages">
+                  {this.state.messages.map(message => {
+                    return <Message user={message.user} body={message.body} createdAt={message.createdAt} />
+                  })}
+                </div>
 
-              <div className="files">
-                {this.state.files.map(file => {
-                  return <File filename={file.filename} url={file.url} onDelete={() => console.log('DELETE')} />
-                })}
+                <div className="compose">
+                  <TextareaComponent placeholder="Use *markdown* and press enter" value={this.state.compose} onChange={e => this.setState({ compose: e.target.value })} />
+                </div>
               </div>
-            </div>
-
-            <div className="messages">
-              {this.state.messages.map(message => {
-                return <Message user={message.user} body={message.body} createdAt={message.createdAt} />
-              })}
-            </div>
-
-            <div className="compose">
-              <TextareaComponent placeholder="Use *markdown* and press enter" value={this.state.compose} onChange={e => this.setState({ compose: e.target.value })} />
             </div>
           </div>
         </Modal>
