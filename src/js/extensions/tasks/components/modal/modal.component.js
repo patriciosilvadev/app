@@ -11,26 +11,10 @@ import QuickUserComponent from '../../../../components/quick-user.component'
 import DatePicker from 'react-datepicker'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import MessageComponent from '../../../../components/message.component'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import './modal.component.css'
-
-class DueDateIcon extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return (
-      <div className="icon">
-        <div className="date" onClick={this.props.onClick}>
-          {!!this.props.value ? this.props.value : 'No date'}
-        </div>
-        <IconComponent icon="calendar" color="#524150" size="20" thickness="1.5" onClick={this.props.onClick} />
-      </div>
-    )
-  }
-}
 
 class ModalComponent extends React.Component {
   constructor(props) {
@@ -40,20 +24,25 @@ class ModalComponent extends React.Component {
       deleteBar: false,
       editDescription: false,
       description: '',
+      compose: '',
       title: '',
       dueDate: null,
       userPopup: true,
-      assigned: {
-        id: '5e4b6c55c052ed74e32866bb',
-        image: 'https://thumbs.dreamstime.com/b/portrait-young-handsome-man-jean-shirt-smiling-looking-camera-crossed-arms-over-white-background-copy-space-96029875.jpg',
-        name: 'Stephen Kennedy',
-        timezone: 'Africa/Accra',
-        username: 'stephen',
-      },
+      assigned: null,
+      messages: [],
+      files: [],
     }
   }
 
   render() {
+    // Set up the inital user
+    // Which in this case is THIS user
+    // So add the (You) part
+    const initialUser = {
+      ...this.props.user,
+      name: this.props.user.name + ' (you)',
+    }
+
     return (
       <ModalPortal>
         <Modal position="right" header={false} title="Task" width={800} height="100%" frameless onClose={this.props.onClose}>
@@ -62,6 +51,7 @@ class ModalComponent extends React.Component {
               <QuickUserComponent
                 userId={this.props.user.id}
                 teamId={this.props.team.id}
+                stickyUser={initialUser}
                 visible={this.state.userPopup}
                 width={250}
                 direction="left-bottom"
@@ -73,7 +63,7 @@ class ModalComponent extends React.Component {
                   })
                 }}
               >
-                <div className="row">
+                <div className="row showclearonhover">
                   {this.state.assigned && (
                     <div className="clear assigned" onClick={() => this.setState({ assigned: null })}>
                       <IconComponent icon="x" color="#ec224b" size="8" thickness="3" />
@@ -91,7 +81,7 @@ class ModalComponent extends React.Component {
                     {this.state.assigned && (
                       <div className="assigned-member">
                         <Avatar size="small-medium" image={this.state.assigned.image} title={this.state.assigned.name} className="mb-5 mr-5" />
-                        <div className="user">{this.state.assigned.name}</div>
+                        <div className="user">{this.state.assigned.id == this.props.user.id ? this.props.user.name + ' (you)' : this.state.assigned.name}</div>
                       </div>
                     )}
                   </div>
@@ -100,7 +90,7 @@ class ModalComponent extends React.Component {
 
               <div className="flexer" />
 
-              <div className="row">
+              <div className="row showclearonhover">
                 {this.state.dueDate && (
                   <div className="clear" onClick={() => this.setState({ dueDate: null })}>
                     <IconComponent icon="x" color="#ec224b" size="8" thickness="3" />
@@ -117,11 +107,15 @@ class ModalComponent extends React.Component {
               </div>
 
               <div className="icon" onClick={this.props.onClose}>
-                <IconComponent icon="share" color="#524150" size="20" thickness="1.5" />
+                <IconComponent icon="attachment" color="#524150" size="18" thickness="1.5" />
+              </div>
+
+              <div className="icon" onClick={this.props.onClose}>
+                <IconComponent icon="share" color="#524150" size="18" thickness="1.5" />
               </div>
 
               <div className="icon" onClick={() => this.setState({ deleteBar: true })}>
-                <IconComponent icon="delete" color="#524150" size="20" thickness="1.5" />
+                <IconComponent icon="delete" color="#524150" size="18" thickness="1.5" />
               </div>
 
               <div className="icon" onClick={this.props.onClose}>
@@ -141,6 +135,7 @@ class ModalComponent extends React.Component {
               <div className="title">
                 <TextareaComponent placeholder="Task title" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} />
               </div>
+
               <div className="description">
                 <div className="heading row">
                   <IconComponent icon="align-left" color="#adb5bd" size="14" thickness="1.5" onClick={this.props.onClose} />
@@ -181,17 +176,77 @@ class ModalComponent extends React.Component {
                     {!this.state.editDescription && (
                       <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || '<em><em>No description</em></em>') }} />
                     )}
-
-                    {/* These are the buttons at the bottom of the description */}
                   </div>
                 </div>
               </div>
+
+              <div className="files">
+                {this.state.files.map(file => {
+                  return <File filename={file.filename} url={file.url} onDelete={() => console.log('DELETE')} />
+                })}
+              </div>
+            </div>
+
+            <div className="messages">
+              {this.state.messages.map(message => {
+                return <Message user={message.user} text={message.text} date={message.date} />
+              })}
+            </div>
+
+            <div className="compose">
+              <TextareaComponent placeholder="Use *markdown* and press enter" value={this.state.compose} onChange={e => this.setState({ compose: e.target.value })} />
             </div>
           </div>
         </Modal>
       </ModalPortal>
     )
   }
+}
+
+class DueDateIcon extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div className="icon">
+        <div className="date" onClick={this.props.onClick}>
+          {!!this.props.value ? this.props.value : 'No date'}
+        </div>
+        <IconComponent icon="calendar" color="#524150" size="18" thickness="1.5" onClick={this.props.onClick} />
+      </div>
+    )
+  }
+}
+
+const Message = ({ user, text, date }) => {
+  return (
+    <div className="message">
+      <Avatar size="small-medium" image={user.image} title={user.name} className="mb-5 mr-5" />
+      <div className="column">
+        <div className="row">
+          <div className="user">{user.name}</div>
+          <div className="date">{date}</div>
+        </div>
+        <div className="text">{text}</div>
+      </div>
+    </div>
+  )
+}
+
+const File = ({ filename, url, onDelete }) => {
+  const [over, setOver] = useState(false)
+
+  return (
+    <div onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)} className="file">
+      <IconComponent icon="attachment" color="#adb5bd" size="12" thickness="2" />
+      <a href={url} className="filename" target="_blank">
+        {filename}
+      </a>
+      {over && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={onDelete} />}
+    </div>
+  )
 }
 
 ModalComponent.propTypes = {
@@ -201,15 +256,7 @@ ModalComponent.propTypes = {
   onClose: PropTypes.func,
 }
 
-const mapDispatchToProps = {
-  createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
-  updateChannel: (channelId, channel) => updateChannel(channelId, channel),
-  updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),
-  deleteChannelMessageTaskAttachment: (channelId, taskId) => deleteChannelMessageTaskAttachment(channelId, taskId),
-  updateChannelCreateTask: (channelId, task) => updateChannelCreateTask(channelId, task),
-  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
-  updateChannelDeleteTask: (channelId, taskId) => updateChannelDeleteTask(channelId, taskId),
-}
+const mapDispatchToProps = {}
 
 const mapStateToProps = state => {
   return {

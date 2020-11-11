@@ -63,6 +63,10 @@ export default class QuickUser extends React.Component {
   }
 
   render() {
+    // So far this is ONLY coming from the modal.component for the tasks.extension
+    // Nowhere else - but good idea to maybe extend this to handle an array
+    const members = this.props.stickyUser ? [{ user: this.props.stickyUser }, ...this.state.members] : this.state.members
+
     return (
       <Popup
         visible={this.props.visible}
@@ -81,7 +85,7 @@ export default class QuickUser extends React.Component {
 
             <MembersContainer>
               <Members
-                members={this.state.members}
+                members={members}
                 handleAccept={member => {
                   this.setState(
                     {
@@ -114,6 +118,7 @@ QuickUser.propTypes = {
   handleAccept: PropTypes.func,
   handleDismiss: PropTypes.func,
   children: PropTypes.any,
+  stickyUser: PropTypes.any, // This is a USER type (not member type)
 }
 
 const MembersContainer = styled.div`

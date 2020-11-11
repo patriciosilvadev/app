@@ -9,6 +9,26 @@
   width: 100%;
 }
 
+.task-modal-container .compose {
+  background: white;
+  border-top: 1px solid #edf0f2;
+  width: 100%;
+  padding: 20px;
+}
+
+.task-modal-container .compose textarea {
+  color: #202529;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  width: 100%;
+  resize: none;
+}
+
+.task-modal-container .compose textarea::placeholder {
+  color: #adb5bd;
+}
+
 .task-modal-container .clear {
   padding: 0px;
   margin: 0px;
@@ -30,6 +50,11 @@
   right: -10px;
   top: 0px;
   z-index: 1;
+  display: none;
+}
+
+.showclearonhover:hover .clear {
+  display: flex;
 }
 
 .task-modal-container .clear.assigned {
@@ -40,24 +65,6 @@
 
 .task-modal-container .clear:hover {
   border: 2px solid #ec224b;
-}
-
-.task-modal-container .clear span svg {
-  position: relative;
-  top: -2px;
-}
-
-.task-modal-container .clear span {
-  width: 12px;
-  height: 12px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  padding: 0px;
-  margin: 0px;
-  text-align: center;
 }
 
 .task-modal-container .delete-bar {
@@ -89,9 +96,9 @@
   align-content: center;
   justify-content: flex-start;
   position: relative;
-  border-bottom: 1px solid #edf0f2;
   padding: 10px 20px 10px 20px;
   background: white;
+  border-bottom: 1px solid #edf0f2;
 }
 
 .task-modal-container .title-bar .title {
@@ -134,11 +141,8 @@
 }
 
 .task-modal-container .content {
-  flex: 1;
   overflow: hidden;
   width: 100%;
-  padding-bottom: 10px;
-  background: #f8f9fa;
 }
 
 .task-modal-container .content .title {
@@ -163,7 +167,6 @@
 
 .task-modal-container .content .description {
   padding: 20px;
-  border-bottom: 2px solid #edf0f2;
   background: white;
 }
 
@@ -188,6 +191,10 @@
   padding: 0px;
   margin: 0px;
   min-height: 200px !important;
+}
+
+.task-modal-container .content .description textarea::placeholder {
+  color: #cfd4d9;
 }
 
 .task-modal-container .content .description .description-button {
@@ -249,4 +256,85 @@
   align-items: center;
   align-content: center;
   justify-content: center;
+}
+
+.task-modal-container .content .files {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  padding: 10px 20px 10px 20px;
+  background: white;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.task-modal-container .content .files .file {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  width: 49%;
+  padding: 2px 5px 2px 5px;
+  border-radius: 7px;
+  margin: 2px;
+}
+
+.task-modal-container .content .files .file a.filename {
+  color: #11171d;
+  font-weight: 600;
+  font-size: 12px;
+  display: block;
+  flex: 1;
+  padding-left: 5px;
+  padding-right: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-modal-container .content .files .file a.filename:hover {
+  text-decoration: underline;
+}
+
+.task-modal-container .messages {
+  flex: 1;
+  padding: 20px;
+  width: 100%;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.task-modal-container .messages .message {
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: center;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+.task-modal-container .messages .message .user {
+  padding-left: 10px;
+  color: #202529;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.task-modal-container .messages .message .date {
+  padding-left: 10px;
+  color: #adb5bd;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.task-modal-container .messages .message .text {
+  padding-left: 10px;
+  color: #202529;
+  font-size: 14px;
+  font-weight: 500;
 }
