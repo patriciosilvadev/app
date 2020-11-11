@@ -27,7 +27,7 @@ class ModalComponent extends React.Component {
       compose: '',
       title: '',
       dueDate: null,
-      userPopup: true,
+      userPopup: false,
       assigned: null,
       messages: [],
       files: [],

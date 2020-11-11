@@ -8,7 +8,7 @@ import ConfirmModal from '../../../../modals/confirm.modal'
 import { logger } from '../../../../helpers/util'
 import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
-import { classNames } from '../../../../helpers/util'
+import { classNames, isTaskHeading } from '../../../../helpers/util'
 import marked from 'marked'
 
 class TaskComponent extends React.Component {
@@ -19,6 +19,7 @@ class TaskComponent extends React.Component {
       id: props.id,
       done: props.done,
       title: props.title,
+      heading: isTaskHeading(props.title),
       text: props.new ? '' : props.title,
       description: props.description || '',
       showDescription: false,
@@ -28,6 +29,7 @@ class TaskComponent extends React.Component {
       deleteModal: false,
       over: false,
       compose: false,
+      childTasksHidden: false,
     }
 
     this.composeRef = React.createRef()
@@ -85,7 +87,11 @@ class TaskComponent extends React.Component {
   }
 
   handleBlur(e) {
-    this.setState({ compose: false, text: this.state.title })
+    this.setState({
+      compose: false,
+      text: this.state.title,
+      heading: isTaskHeading(this.state.title),
+    })
   }
 
   // Fires 1st
@@ -140,8 +146,23 @@ class TaskComponent extends React.Component {
     const classes = classNames({
       row: true,
       task: true,
-      hide: this.state.done && !this.props.showCompletedTasks,
+      hide: (this.state.done && !this.props.showCompletedTasks) || this.props.hide,
       done: this.state.done,
+      heading: this.state.heading,
+    })
+    const liClasses = classNames({
+      'tasks-extension-li': true,
+      'done': this.state.done,
+    })
+    const titleTextareaClasses = classNames({
+      title: true,
+      heading: this.state.heading,
+    })
+    const titleClasses = classNames({
+      flexer: true,
+      button: true,
+      title: true,
+      heading: this.state.heading,
     })
     const textareaClasses = classNames({
       row: true,
@@ -153,7 +174,7 @@ class TaskComponent extends React.Component {
     this.adjustHeight()
 
     return (
-      <li className="tasks-extension-li">
+      <li className={liClasses}>
         {this.state.deleteModal && (
           <ConfirmModal
             onOkay={() => {
@@ -166,16 +187,29 @@ class TaskComponent extends React.Component {
           />
         )}
         <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={classes}>
-          {!this.state.new && <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />}
-
+          {!this.state.new && !this.state.heading && <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />}
           {this.state.new && <div style={{ width: 30 }} />}
-          {!this.state.new && <div style={{ width: 10 }} />}
+          {this.state.heading && <div style={{ width: 20 }} />}
+          {!this.state.new && !this.state.heading && <div style={{ width: 10 }} />}
+
+          {this.state.heading && (
+            <div
+              className="children-hide-icon"
+              onClick={() => {
+                const childTasksHidden = !this.state.childTasksHidden
+                this.setState({ childTasksHidden })
+                this.props.toggleTasksBelowHeadings(this.state.id, childTasksHidden)
+              }}
+            >
+              <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={3} size={16} className="button" />
+            </div>
+          )}
 
           <div className={textareaClasses}>
             <textarea
-              placeholder="Add task title & press enter"
+              placeholder="Add task title & press enter. End the title with ':' for headings."
               value={this.state.text}
-              className="title"
+              className={titleTextareaClasses}
               onKeyUp={this.handleKeyUp}
               onKeyDown={this.handleKeyDown}
               onChange={this.handleComposeChange}
@@ -186,7 +220,7 @@ class TaskComponent extends React.Component {
 
           {!this.state.compose && !this.state.new && (
             <div
-              className="flexer title button"
+              className={titleClasses}
               onClick={() => {
                 this.setState({ compose: true }, () => this.adjustHeight())
               }}
@@ -195,55 +229,59 @@ class TaskComponent extends React.Component {
             </div>
           )}
 
-          <div className="icon-container">
-            {((this.state.over && !this.state.new) || !!this.state.description) && (
-              <IconComponent
-                icon={!!this.state.description ? 'file-text' : 'file'}
-                color="#CFD4D9"
-                thickness={2}
-                size={13}
-                className="button"
-                onClick={e => this.setState({ showDescription: !this.state.showDescription })}
-              />
-            )}
-          </div>
-
-          <div className="icon-container">
-            {this.state.over && !this.state.new && (
-              <Popup
-                handleDismiss={() => this.setState({ menu: false })}
-                visible={this.state.menu}
-                width={200}
-                direction="right-bottom"
-                content={
-                  <Menu
-                    items={[
-                      {
-                        text: 'Delete',
-                        onClick: e => this.setState({ deleteModal: true }),
-                      },
-                      {
-                        text: 'Share to channel',
-                        onClick: e => this.props.shareToChannel(this.state.id),
-                      },
-                    ]}
+          {!this.state.heading && (
+            <React.Fragment>
+              <div className="icon-container">
+                {((this.state.over && !this.state.new) || !!this.state.description) && (
+                  <IconComponent
+                    icon={!!this.state.description ? 'file-text' : 'file'}
+                    color="#CFD4D9"
+                    thickness={2}
+                    size={13}
+                    className="button"
+                    onClick={e => this.setState({ showDescription: !this.state.showDescription })}
                   />
-                }
-              >
-                <IconComponent
-                  className="button"
-                  icon="more-h"
-                  color="#CFD4D9"
-                  size={15}
-                  thickness={2}
-                  onClick={e => {
-                    e.stopPropagation()
-                    this.setState({ menu: true })
-                  }}
-                />
-              </Popup>
-            )}
-          </div>
+                )}
+              </div>
+
+              <div className="icon-container">
+                {this.state.over && !this.state.new && (
+                  <Popup
+                    handleDismiss={() => this.setState({ menu: false })}
+                    visible={this.state.menu}
+                    width={200}
+                    direction="right-bottom"
+                    content={
+                      <Menu
+                        items={[
+                          {
+                            text: 'Delete',
+                            onClick: e => this.setState({ deleteModal: true }),
+                          },
+                          {
+                            text: 'Share to channel',
+                            onClick: e => this.props.shareToChannel(this.state.id),
+                          },
+                        ]}
+                      />
+                    }
+                  >
+                    <IconComponent
+                      className="button"
+                      icon="more-h"
+                      color="#CFD4D9"
+                      size={15}
+                      thickness={2}
+                      onClick={e => {
+                        e.stopPropagation()
+                        this.setState({ menu: true })
+                      }}
+                    />
+                  </Popup>
+                )}
+              </div>
+            </React.Fragment>
+          )}
         </div>
 
         {this.state.showDescription && (
@@ -299,6 +337,7 @@ TaskComponent.propTypes = {
   title: PropTypes.string,
   id: PropTypes.string,
   done: PropTypes.bool,
+  hide: PropTypes.bool,
   new: PropTypes.bool,
   createTask: PropTypes.func,
   deleteTask: PropTypes.func,
@@ -306,6 +345,7 @@ TaskComponent.propTypes = {
   sortIndex: PropTypes.number,
   showCompletedTasks: PropTypes.bool,
   shareToChannel: PropTypes.func,
+  toggleTasksBelowHeadings: PropTypes.func,
 }
 
 const mapDispatchToProps = {}

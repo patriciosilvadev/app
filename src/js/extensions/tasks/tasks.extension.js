@@ -23,8 +23,9 @@ import StorageService from '../../services/storage.service'
 import { DEVICE } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 import ModalComponent from './components/modal/modal.component'
+import { classNames, isTaskHeading } from '../../helpers/util'
 
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel }) => {
+const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings }) => {
   return (
     <TaskComponent
       index={index}
@@ -33,16 +34,18 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
       title={task.title}
       description={task.description}
       done={task.done}
+      hide={task.hide}
       shareToChannel={shareToChannel}
       new={false}
       showCompletedTasks={showCompletedTasks}
       deleteTask={deleteTask}
       updateTask={updateTask}
+      toggleTasksBelowHeadings={toggleTasksBelowHeadings}
     />
   )
 })
 
-const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel }) => {
+const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings }) => {
   return (
     <ul>
       {tasks.map((task, index) => (
@@ -55,6 +58,7 @@ const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask,
           showCompletedTasks={showCompletedTasks}
           deleteTask={deleteTask}
           updateTask={updateTask}
+          toggleTasksBelowHeadings={toggleTasksBelowHeadings}
         />
       ))}
     </ul>
@@ -83,6 +87,38 @@ class TasksExtension extends React.Component {
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
     this.renderModal = this.renderModal.bind(this)
+    this.toggleTasksBelowHeadings = this.toggleTasksBelowHeadings.bind(this)
+  }
+
+  toggleTasksBelowHeadings(taskId, hide) {
+    let foundHeading = false
+    const channelId = this.props.channel.id
+
+    // Go over all the tasks
+    this.state.tasks.map(task => {
+      // If we've found the heading thatt was clicked
+      // We simply say we've found it and move along
+      if (task.id == taskId) {
+        foundHeading = true
+        // Now this should be the next task right after our heading (if it was found)
+        // Of it's just a normal task that is not the one that was clicked
+      } else {
+        // If the VERY NEXT task is also a heading - then we don't want to do anything
+        if (isTaskHeading(task.title)) foundHeading = false
+
+        // If it's a task below a heading, then we tell the task to not display
+        // We need to do this via the redux store
+        if (foundHeading) {
+          this.props.updateChannelUpdateTask(channelId, {
+            hide,
+            id: task.id,
+            done: task.done,
+            title: task.title,
+            description: task.description,
+          })
+        }
+      }
+    })
   }
 
   async shareToChannel(taskId) {
@@ -194,6 +230,7 @@ class TasksExtension extends React.Component {
       // Update the task if it's been posted on a message
       this.props.updateChannelUpdateTask(channelId, task)
       this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
+      this.toggleTasksBelowHeadings(taskId, false)
     } catch (e) {
       logger(e)
     }
@@ -322,10 +359,11 @@ class TasksExtension extends React.Component {
             showCompletedTasks={this.state.showCompletedTasks}
             onSortEnd={this.onSortEnd}
             shareToChannel={this.shareToChannel}
+            toggleTasksBelowHeadings={this.toggleTasksBelowHeadings}
           />
 
           <ul>
-            <TaskComponent id="" title="" done={false} new={true} createTask={this.handleCreateTask} showCompletedTasks={true} />
+            <TaskComponent id="" title="" hide={false} done={false} new={true} createTask={this.handleCreateTask} showCompletedTasks={true} />
           </ul>
         </div>
       </div>

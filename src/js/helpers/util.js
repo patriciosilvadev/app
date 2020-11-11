@@ -228,3 +228,7 @@ export const classNames = object => {
 
   return classArray.join(' ')
 }
+
+export const isTaskHeading = title => {
+  return title[title.length - 1] == ':'
+}

@@ -1,17 +1,17 @@
 .tasks-extension .tasks .task {
   width: 100%;
-  padding: 5px 10px 5px 10px;
+  padding: 7px 10px 7px 10px;
   background: white;
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: stretch;
   justify-content: center;
+  border-bottom: 1px solid #f0f3f5;
 }
 
 .tasks-extension .tasks-extension-li {
   padding: 5px 0px 5px 0px;
-  border-bottom: 1px solid #f0f3f5;
 }
 
 .tasks-extension .icon-container {
@@ -22,6 +22,12 @@
   align-items: center;
   align-content: center;
   justify-content: center;
+}
+
+.tasks-extension .children-hide-icon {
+  position: absolute;
+  left: 10px;
+  top: 10px;
 }
 
 .tasks-extension textarea.description {
@@ -69,10 +75,20 @@
   width: 100%;
 }
 
+.tasks-extension .tasks .task .title.heading {
+  font-weight: 700;
+  font-size: 18px;
+}
+
 .tasks-extension .tasks .task.done .title {
   color: #cfd4d9;
   text-decoration: line-through;
   position: relative;
+}
+
+.tasks-extension .tasks .task.done .title.heading {
+  color: #11171d;
+  text-decoration: none;
 }
 
 .tasks-extension .description-button {
