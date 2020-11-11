@@ -326,7 +326,7 @@ class TasksExtension extends React.Component {
   renderModal() {
     if (!this.state.modal) return null
 
-    return <ModalComponent onClose={() => this.setState({ modal: false })} />
+    return <ModalComponent taskId="5f4cdf94fab1ce9821ea69b3" onClose={() => this.setState({ modal: false })} />
   }
 
   render() {

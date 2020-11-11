@@ -18,6 +18,7 @@ import ChannelPage from './pages/channel.page'
 import AuthService from './services/auth.service'
 import common from './reducers/common'
 import team from './reducers/team'
+import task from './reducers/task'
 import teams from './reducers/teams'
 import presences from './reducers/presences'
 import channel from './reducers/channel'
@@ -60,6 +61,7 @@ const middleWare = NODE_ENV == 'development' && !window.SILENCE ? applyMiddlewar
 const store = createStore(
   combineReducers({
     common,
+    task,
     team,
     teams,
     channel,

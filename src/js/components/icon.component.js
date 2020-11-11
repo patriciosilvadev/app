@@ -209,7 +209,23 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
   }
 
   return (
-    <span style={{ width: size, height: size, display: 'inline-block', ...style }} className={className} onClick={onClick}>
+    <span
+      style={{
+        ...style,
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'row',
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        display: 'inline-block',
+        width: size + 'px',
+        height: size + 'px',
+      }}
+      className={className}
+      onClick={onClick}
+    >
       {getIcon()}
     </span>
   )

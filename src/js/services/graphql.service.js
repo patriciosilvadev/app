@@ -637,6 +637,8 @@ export default class GraphqlService {
     })
   }
 
+  // This gets called when shating a task to a channel
+  // Based on the message's meta data
   channelTask(taskId) {
     return this.client.query({
       query: gql`
@@ -1082,6 +1084,50 @@ export default class GraphqlService {
       variables: {
         userId,
         page,
+      },
+    })
+  }
+
+  task(taskId) {
+    return this.client.query({
+      query: gql`
+        query task($taskId: String!) {
+          task(taskId: $taskId) {
+            id
+            title
+            order
+            description
+            done
+            dueDate
+            files {
+              id
+              url
+              filename
+            }
+            messages {
+              id
+              body
+              user {
+                id
+                name
+                image
+              }
+              createdAt
+            }
+            user {
+              id
+              name
+              username
+              timezone
+              image
+              status
+              presence
+            }
+          }
+        }
+      `,
+      variables: {
+        taskId,
       },
     })
   }

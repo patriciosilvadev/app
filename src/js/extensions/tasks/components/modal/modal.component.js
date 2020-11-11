@@ -12,6 +12,8 @@ import DatePicker from 'react-datepicker'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import MessageComponent from '../../../../components/message.component'
+import GraphqlService from '../../../../services/graphql.service'
+import { CheckboxComponent } from '../checkbox/checkbox.component'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import './modal.component.css'
@@ -21,6 +23,7 @@ class ModalComponent extends React.Component {
     super(props)
 
     this.state = {
+      id: '',
       deleteBar: false,
       editDescription: false,
       description: '',
@@ -31,6 +34,42 @@ class ModalComponent extends React.Component {
       assigned: null,
       messages: [],
       files: [],
+      loading: true,
+      error: null,
+      notification: null,
+    }
+  }
+
+  componentDidMount() {
+    this.fetchTask()
+  }
+
+  async fetchTask() {
+    try {
+      const { taskId } = this.props
+      const { data } = await GraphqlService.getInstance().task(taskId)
+      const {
+        task: { id, description, done, title, user, dueDate, messages, files },
+      } = data
+
+      this.setState({
+        id,
+        description,
+        done,
+        title,
+        user,
+        dueDate,
+        messages,
+        files,
+        loading: false,
+      })
+    } catch (e) {
+      console.log(e)
+
+      this.setState({
+        error: 'Error fetching task',
+        loading: false,
+      })
     }
   }
 
@@ -46,8 +85,16 @@ class ModalComponent extends React.Component {
     return (
       <ModalPortal>
         <Modal position="right" header={false} title="Task" width={800} height="100%" frameless onClose={this.props.onClose}>
+          {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
+          {this.state.loading && <Spinner />}
+          {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
+
           <div className="task-modal-container">
             <div className="title-bar">
+              <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />
+
+              <div style={{ width: 20 }} />
+
               <QuickUserComponent
                 userId={this.props.user.id}
                 teamId={this.props.team.id}
@@ -66,7 +113,7 @@ class ModalComponent extends React.Component {
                 <div className="row showclearonhover">
                   {this.state.assigned && (
                     <div className="clear assigned" onClick={() => this.setState({ assigned: null })}>
-                      <IconComponent icon="x" color="#ec224b" size="8" thickness="3" />
+                      <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
                     </div>
                   )}
 
@@ -93,7 +140,7 @@ class ModalComponent extends React.Component {
               <div className="row showclearonhover">
                 {this.state.dueDate && (
                   <div className="clear" onClick={() => this.setState({ dueDate: null })}>
-                    <IconComponent icon="x" color="#ec224b" size="8" thickness="3" />
+                    <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
                   </div>
                 )}
 
@@ -189,7 +236,7 @@ class ModalComponent extends React.Component {
 
             <div className="messages">
               {this.state.messages.map(message => {
-                return <Message user={message.user} text={message.text} date={message.date} />
+                return <Message user={message.user} body={message.body} createdAt={message.createdAt} />
               })}
             </div>
 
@@ -220,16 +267,16 @@ class DueDateIcon extends React.Component {
   }
 }
 
-const Message = ({ user, text, date }) => {
+const Message = ({ user, body, createdAt }) => {
   return (
     <div className="message">
       <Avatar size="small-medium" image={user.image} title={user.name} className="mb-5 mr-5" />
       <div className="column">
         <div className="row">
           <div className="user">{user.name}</div>
-          <div className="date">{date}</div>
+          <div className="date">{createdAt}</div>
         </div>
-        <div className="text">{text}</div>
+        <div className="text" dangerouslySetInnerHTML={{ __html: marked(body) }}></div>
       </div>
     </div>
   )

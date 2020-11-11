@@ -41,14 +41,13 @@
   background: rgb(255, 228, 228);
   border-radius: 50%;
   overflow: hidden;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border: 1px solid #ec224b;
-  margin-right: 10px;
   transition: 0.2s border;
   position: absolute;
-  right: -10px;
-  top: 0px;
+  right: 5px;
+  top: 5px;
   z-index: 1;
   display: none;
 }
@@ -64,7 +63,7 @@
 }
 
 .task-modal-container .clear:hover {
-  border: 2px solid #ec224b;
+  background: #ffc3cf;
 }
 
 .task-modal-container .delete-bar {
@@ -96,7 +95,8 @@
   align-content: center;
   justify-content: flex-start;
   position: relative;
-  padding: 10px 20px 10px 20px;
+  padding: 0px 20px 0px 20px;
+  height: 55px;
   background: white;
   border-bottom: 1px solid #edf0f2;
 }
@@ -125,7 +125,7 @@
 
 .task-modal-container .title-bar .icon {
   cursor: pointer;
-  padding: 10px 10px 10px 10px;
+  padding: 10px;
   background-color: transparent;
   transition: 0.25s background-color;
   display: flex;
