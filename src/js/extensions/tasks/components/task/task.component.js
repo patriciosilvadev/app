@@ -303,7 +303,7 @@ class TaskComponent extends React.Component {
                 }}
               >
                 <div className="icon-container" onClick={e => this.setState({ userPopup: true })}>
-                  {!!user && <Avatar size="very-small" image={user.image} title={user.name} className="mb-5 mr-5" />}
+                  {!newTask && !!user && <Avatar size="very-small" image={user.image} title={user.name} className="mb-5 mr-5" />}
 
                   {over && !newTask && !user && <IconComponent icon="profile" color="#CFD4D9" thickness={2} size={15} className="button" />}
                 </div>
