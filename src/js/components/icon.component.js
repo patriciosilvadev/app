@@ -61,6 +61,8 @@ import {
   FileText,
   Calendar,
   AlignLeft,
+  LifeBuoy,
+  Inbox,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -73,8 +75,12 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'inbox':
+        return <Inbox width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'align-left':
         return <AlignLeft width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'life-buoy':
+        return <LifeBuoy width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'calendar':
         return <Calendar width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'file':

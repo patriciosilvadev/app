@@ -20,6 +20,7 @@ import EventService from '../services/event.service'
 export default function DockComponent(props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [open, setOpen] = useState(true)
   const [teamOnboardingModal, setTeamOnboardingModal] = useState(false)
   const dispatch = useDispatch()
   const channel = useSelector(state => state.channel)
@@ -69,13 +70,14 @@ export default function DockComponent(props) {
 
   return (
     <Dock className="column align-items-center">
-      <div className="mt-0 mb-15">
-        <Tooltip text="Toggle channels drawer" direction="right">
-          <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)}>
-            <IconComponent icon="menu" size={20} color="#112640" thickness={1.75} />
-          </Avatar>
-        </Tooltip>
-      </div>
+      <ToggleButton
+        onClick={e => {
+          setOpen(!open)
+          EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
+        }}
+      >
+        <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#AEB5BB" thickness={3} style={{ top: -2 }} />
+      </ToggleButton>
 
       {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
 
@@ -93,7 +95,7 @@ export default function DockComponent(props) {
               paddingTop: 7,
               paddingBottom: 7,
               backgroundColor: lastPathname != 'starred' && t.id == team.id ? '#F0F3F5' : 'transparent',
-              borderLeft: lastPathname != 'starred' && t.id == team.id ? '3px solid #21262A' : 'none',
+              borderLeft: lastPathname != 'starred' && t.id == team.id ? '3px solid #AEB5BB' : 'none',
             }}
           >
             <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
@@ -106,13 +108,13 @@ export default function DockComponent(props) {
 
       <div className="mt-0 mb-0">
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => setTeamOnboardingModal(true)}>
-          <IconComponent icon="plus-circle" size={20} color="#112640" thickness={1.5} />
+          <IconComponent icon="plus-circle" size={19} color="#112640" thickness={1.75} />
         </Avatar>
       </div>
 
       <div className="mt-0 mb-10">
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => window.open('mailto:support@weekday.freshdesk.com')}>
-          <IconComponent icon="question" size={20} color="#112640" thickness={1.75} />
+          <IconComponent icon="life-buoy" size={18} color="#112640" thickness={1.75} />
         </Avatar>
       </div>
 
@@ -126,6 +128,32 @@ export default function DockComponent(props) {
 }
 
 DockComponent.propTypes = {}
+
+const ToggleButton = styled.div`
+  position: absolute;
+  z-index: 10;
+  top: 0px;
+  right: 0px;
+  width: 20px;
+  height: 20px;
+  background: #f8f9fa;
+  border-radius: 50%;
+  transform: translate(50%, 50%);
+  box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);
+  border: 1px solid #eaedef;
+  transition: border 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  overflow: hidden;
+
+  &:hover {
+    border: 3px solid #eaedef;
+  }
+`
 
 const DockPadding = styled.div`
   height: 20px;
@@ -151,12 +179,11 @@ const Dock = styled.div`
 `
 
 const Team = styled.div`
-  margin-top: 3px;
-  font-size: 10px;
-  color: #cfd4da;
-  font-weight: 400;
+  margin-top: 5px;
+  font-size: 9px;
+  color: #aeb5bb;
+  font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: none;
 `

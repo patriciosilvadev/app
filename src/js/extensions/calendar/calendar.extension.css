@@ -11,17 +11,22 @@
 }
 
 .calendar-extension .toolbar {
-  padding: 5px;
+  padding-left: 25px;
+  padding-right: 25px;
   width: 100%;
-  height: 50px;
+  height: 75px;
+  border-bottom: 0px solid #eaedef;
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
 }
 
 .calendar-extension .toolbar .date-heading {
-  color: #11171d;
-  font-style: normal;
-  font-weight: 500;
   font-size: 18px;
-  padding-left: 10px;
+  font-weight: 400;
+  color: #11161c;
 }
 
 .calendar-extension .container {
@@ -34,6 +39,7 @@
   justify-content: flex-start;
   align-items: center;
   align-content: stretch;
+  flex: 1;
 }
 
 .calendar-extension .container .week {
