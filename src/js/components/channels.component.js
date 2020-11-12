@@ -36,7 +36,7 @@ import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@we
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
-import { logger, shortenMarkdownText, getPresenceText } from '../helpers/util'
+import { logger, shortenMarkdownText, getPresenceText, isExtensionOpen } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
@@ -532,8 +532,32 @@ class ChannelsComponent extends React.Component {
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
     this.renderDnd = this.renderDnd.bind(this)
+    this.navigate = this.navigate.bind(this)
 
     this.dndOptions = [{ option: 'Never', value: 0 }, { option: '1 hour', value: 1 }, { option: '8 hours', value: 8 }, { option: '12 hours', value: 12 }, { option: '24 hours', value: 24 }]
+  }
+
+  navigate(channelId) {
+    let suffix = ''
+
+    // If there is an extension open,
+    // then add it when browsing
+    // extensions always have the slug at the end
+    if (isExtensionOpen()) {
+      const urlParts = window.location.href.split('/')
+      const extension = urlParts[urlParts.length - 1]
+
+      suffix = `/${extension}`
+    }
+
+    // Consutrct the url we need to go to
+    const to = `/app/team/${this.props.team.id}/channel/${channelId}${suffix}`
+
+    // first close the drawer (mobile!!!)
+    this.props.toggleDrawer()
+
+    // AND GO!
+    this.props.history.push(to)
   }
 
   async handleTeamMemberPositionChange(position) {
@@ -1038,10 +1062,7 @@ class ChannelsComponent extends React.Component {
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
-              onNavigate={() => {
-                this.props.toggleDrawer()
-                this.props.history.push(to)
-              }}
+              onNavigate={() => this.navigate(channel.id)}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -1109,13 +1130,7 @@ class ChannelsComponent extends React.Component {
             // Force update state
             this.setState({ hash: uuidv4() })
           }}
-          onNavigate={channelId => {
-            // close this for mobile
-            this.props.toggleDrawer()
-
-            // And navigate to the channel
-            this.props.history.push(`/app/team/${teamId}/channel/${channelId}`)
-          }}
+          onNavigate={channelId => this.navigate(channelId)}
           onArchivedClick={(channelId, archived) => {
             // Archived here would = !channel.archived (so a toggle)
             this.updateUserArchived(userId, channelId, archived)
@@ -1159,10 +1174,7 @@ class ChannelsComponent extends React.Component {
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
-              onNavigate={() => {
-                this.props.toggleDrawer()
-                this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)
-              }}
+              onNavigate={() => this.navigate(channel.id)}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -1230,10 +1242,7 @@ class ChannelsComponent extends React.Component {
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
-              onNavigate={() => {
-                this.props.toggleDrawer()
-                this.props.history.push(`/app/team/${this.props.team.id}/channel/${channel.id}`)
-              }}
+              onNavigate={() => this.navigate(channel.id)}
               onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
               onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
@@ -1281,10 +1290,7 @@ class ChannelsComponent extends React.Component {
                   readonly={channel.readonly}
                   muted={muted}
                   archived={archived}
-                  onNavigate={() => {
-                    this.props.toggleDrawer()
-                    this.props.history.push(to)
-                  }}
+                  onNavigate={() => this.navigate(channel.id)}
                   onArchivedClick={e => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
                   onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
                 />
