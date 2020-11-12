@@ -280,14 +280,6 @@
   padding: 0px;
 }
 
-.react-datepicker__day--today {
-  background-color: #11171d;
-}
-
-.react-datepicker__header {
-  background-color: #f8f9fa;
-}
-
 .assigned-member {
   display: flex;
   flex-direction: row;

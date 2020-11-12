@@ -4,11 +4,10 @@ import { IconComponent } from '../../../../components/icon.component'
 import { classNames } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
-import { Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
+import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
 import marked from 'marked'
 import { TextareaComponent } from '../../../../components/textarea.component'
 import QuickUserComponent from '../../../../components/quick-user.component'
-import DatePicker from 'react-datepicker'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import MessageComponent from '../../../../components/message.component'
@@ -17,9 +16,11 @@ import { CheckboxComponent } from '../checkbox/checkbox.component'
 import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
 import { TASK_ORDER_INDEX, TASKS_ORDER } from '../../../../constants'
-import 'react-datepicker/dist/react-datepicker.css'
 import './modal.component.css'
 import { hydrateTask } from '../../../../actions'
+import DayPicker from 'react-day-picker'
+import 'react-day-picker/lib/style.css'
+import * as moment from 'moment'
 
 class ModalComponent extends React.Component {
   constructor(props) {
@@ -33,6 +34,7 @@ class ModalComponent extends React.Component {
       compose: '',
       title: '',
       dueDate: null,
+      dueDatePretty: '',
       userPopup: false,
       assigned: null,
       messages: [],
@@ -41,6 +43,7 @@ class ModalComponent extends React.Component {
       error: null,
       notification: null,
       showCompletedTasks: true,
+      dueDatePopup: false,
       taskOrder: {},
       tasks: [
         { order: 0, id: '1', title: 'Everything:', description: 'none', done: false, hide: false },
@@ -91,6 +94,7 @@ class ModalComponent extends React.Component {
         title,
         user,
         dueDate,
+        dueDatePretty: dueDate ? daysjs(dueDate).fromNow() : '',
         messages,
         files,
         loading: false,
@@ -125,7 +129,7 @@ class ModalComponent extends React.Component {
 
     return (
       <ModalPortal>
-        <Modal position="right" header={false} title="Task" width="50%" height="100%" frameless onClose={this.props.onClose}>
+        <Modal position="right" header={false} title="Task" width={800} height="100%" frameless onClose={this.props.onClose}>
           {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
           {this.state.loading && <Spinner />}
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
@@ -180,18 +184,36 @@ class ModalComponent extends React.Component {
 
               <div className="row showclearonhover">
                 {this.state.dueDate && (
-                  <div className="clear" onClick={() => this.setState({ dueDate: null })}>
+                  <div className="clear" onClick={() => this.setState({ dueDate: null, dueDatePretty: null })}>
                     <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
                   </div>
                 )}
 
-                <DatePicker
-                  selected={this.state.dueDate}
-                  onChange={date => this.setState({ dueDate: date })}
-                  customInput={<DueDateIcon />}
-                  placeholderText="This is disabled"
-                  dateFormat="MMMM d, yyyy"
-                />
+                <Popup
+                  handleDismiss={() => this.setState({ dueDatePopup: false })}
+                  visible={this.state.dueDatePopup}
+                  width={250}
+                  direction="right-bottom"
+                  content={
+                    <DayPicker
+                      selectedDays={this.state.dueDate}
+                      onDayClick={date => {
+                        this.setState({
+                          dueDate: moment(date).toDate(),
+                          dueDatePretty: moment(date).fromNow(),
+                          dueDatePopup: false,
+                        })
+                      }}
+                    />
+                  }
+                >
+                  <div className="icon">
+                    <div className="date" onClick={() => this.setState({ dueDatePopup: true })}>
+                      {!!this.state.dueDatePretty ? this.state.dueDatePretty : 'No date'}
+                    </div>
+                    <IconComponent icon="calendar" color="#524150" size="18" thickness="1.5" onClick={() => this.setState({ dueDatePopup: true })} />
+                  </div>
+                </Popup>
               </div>
 
               <div className="icon" onClick={this.props.onClose}>

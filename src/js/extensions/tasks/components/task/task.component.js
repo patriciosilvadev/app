@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import './task.component.css'
-import { Popup, Menu } from '@weekday/elements'
+import { Popup, Menu, Avatar } from '@weekday/elements'
 import { IconComponent } from '../../../../components/icon.component'
 import PropTypes from 'prop-types'
 import ConfirmModal from '../../../../modals/confirm.modal'
@@ -11,6 +11,10 @@ import { CheckboxComponent } from '../checkbox/checkbox.component'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
 import marked from 'marked'
 import { hydrateTask } from '../../../../actions'
+import QuickUserComponent from '../../../../components/quick-user.component'
+import DayPicker from 'react-day-picker'
+import 'react-day-picker/lib/style.css'
+import * as moment from 'moment'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -20,6 +24,9 @@ class TaskComponent extends React.Component {
       id: props.id,
       done: props.done,
       title: props.title,
+      user: props.user,
+      dueDate: props.dueDate,
+      dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
       heading: isTaskHeading(props.title),
       text: props.new ? '' : props.title,
       description: props.description || '',
@@ -31,6 +38,8 @@ class TaskComponent extends React.Component {
       over: false,
       compose: false,
       childTasksHidden: false,
+      userPopup: false,
+      dueDatePopup: false,
     }
 
     this.composeRef = React.createRef()
@@ -144,31 +153,34 @@ class TaskComponent extends React.Component {
   }
 
   render() {
+    const initialUser = { ...this.props.user, name: 'Assign to me' }
+    const { id, over, heading, deleteModal, compose, done, title, description, user, dueDate } = this.state
+    const newTask = this.state.new
     const classes = classNames({
       'tasks-extension-li': true,
-      'done': this.state.done,
+      done,
     })
     const containerClasses = classNames({
       row: true,
       task: true,
-      hide: (this.state.done && !this.props.showCompletedTasks) || this.props.hide,
-      done: this.state.done,
-      heading: this.state.heading,
+      hide: (done && !this.props.showCompletedTasks) || this.props.hide,
+      done: done,
+      heading,
     })
     const titleTextareaClasses = classNames({
       'task-title': true,
-      'heading': this.state.heading,
+      heading,
     })
     const titleClasses = classNames({
       'flexer': true,
       'button': true,
       'task-title': true,
-      'heading': this.state.heading,
+      heading,
     })
     const textareaClasses = classNames({
       row: true,
       flexer: true,
-      hide: this.state.compose || this.state.new ? false : true,
+      hide: compose || newTask ? false : true,
     })
 
     // Do this every render
@@ -176,10 +188,10 @@ class TaskComponent extends React.Component {
 
     return (
       <li className={classes}>
-        {this.state.deleteModal && (
+        {deleteModal && (
           <ConfirmModal
             onOkay={() => {
-              this.props.deleteTask(this.state.id)
+              this.props.deleteTask(id)
               this.setState({ deleteModal: false })
             }}
             onCancel={() => this.setState({ deleteModal: false })}
@@ -187,19 +199,30 @@ class TaskComponent extends React.Component {
             title="Are you sure?"
           />
         )}
-        <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={containerClasses}>
-          {!this.state.new && !this.state.heading && <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />}
-          {this.state.new && <div style={{ width: 30 }} />}
-          {this.state.heading && <div style={{ width: 20 }} />}
-          {!this.state.new && !this.state.heading && <div style={{ width: 10 }} />}
+        <div
+          className={containerClasses}
+          onMouseEnter={() => this.setState({ over: true })}
+          onMouseLeave={() => {
+            this.setState({
+              over: false,
+              menu: false,
+              userPopup: false,
+              dueDatePopup: false,
+            })
+          }}
+        >
+          {!newTask && !heading && <CheckboxComponent done={done} onClick={() => this.handleDoneIconClick()} />}
+          {newTask && <div style={{ width: 30 }} />}
+          {heading && <div style={{ width: 20 }} />}
+          {!newTask && !heading && <div style={{ width: 10 }} />}
 
-          {this.state.heading && (
+          {heading && (
             <div
               className="children-hide-icon"
               onClick={() => {
                 const childTasksHidden = !this.state.childTasksHidden
                 this.setState({ childTasksHidden })
-                this.props.toggleTasksBelowHeadings(this.state.id, childTasksHidden)
+                this.props.toggleTasksBelowHeadings(id, childTasksHidden)
               }}
             >
               <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={3} size={16} className="button" />
@@ -219,29 +242,78 @@ class TaskComponent extends React.Component {
             />
           </div>
 
-          {!this.state.compose && !this.state.new && (
+          {!compose && !newTask && (
             <div
               className={titleClasses}
               onClick={() => {
                 this.setState({ compose: true }, () => this.adjustHeight())
               }}
             >
-              {this.state.title}
+              {title}
             </div>
           )}
 
-          {!this.state.heading && !this.props.disableTools && (
+          {/* These are the hovers that happen for the task tools */}
+          {/* Don't display them for headings or when they are disbales (inside task modal) */}
+          {!heading && !this.props.disableTools && (
             <React.Fragment>
+              <div className="due-date">{this.state.dueDatePretty}</div>
+
+              {/* Calendar that lets the user select a date */}
               <div className="icon-container">
-                {this.state.over && !this.state.new && (
-                  <IconComponent icon="pen" color="#CFD4D9" thickness={2} size={13} className="button" onClick={e => this.props.hydrateTask({ id: this.props.id })} />
+                {over && !newTask && (
+                  <Popup
+                    handleDismiss={() => this.setState({ dueDatePopup: false })}
+                    visible={this.state.dueDatePopup}
+                    width={250}
+                    direction="right-bottom"
+                    content={
+                      <DayPicker
+                        selectedDays={this.state.dueDate}
+                        onDayClick={date => {
+                          this.setState({
+                            dueDate: moment(date).toDate(),
+                            dueDatePretty: moment(date).fromNow(),
+                            dueDatePopup: false,
+                          })
+                        }}
+                      />
+                    }
+                  >
+                    <IconComponent icon="calendar" color="#CFD4D9" thickness={2} size={15} className="button" onClick={() => this.setState({ dueDatePopup: true })} />
+                  </Popup>
                 )}
               </div>
 
+              {/* This is the user popup that displays when you click */}
+              {/* on the icon or avatar */}
+              <QuickUserComponent
+                userId={this.props.user.id}
+                teamId={this.props.team.id}
+                stickyUser={initialUser}
+                visible={this.state.userPopup}
+                width={250}
+                direction="right-bottom"
+                handleDismiss={() => this.setState({ userPopup: false })}
+                handleAccept={member => {
+                  this.setState({
+                    user: member.user,
+                    userPopup: false,
+                  })
+                }}
+              >
+                <div className="icon-container" onClick={e => this.setState({ userPopup: true })}>
+                  {!!user && <Avatar size="very-small" image={user.image} title={user.name} className="mb-5 mr-5" />}
+
+                  {over && !newTask && !user && <IconComponent icon="profile" color="#CFD4D9" thickness={2} size={15} className="button" />}
+                </div>
+              </QuickUserComponent>
+
+              {/* Always display when there is a description */}
               <div className="icon-container">
-                {((this.state.over && !this.state.new) || !!this.state.description) && (
+                {((over && !newTask) || !!description) && (
                   <IconComponent
-                    icon={!!this.state.description ? 'file-text' : 'file'}
+                    icon={!!description ? 'file-text' : 'file'}
                     color="#CFD4D9"
                     thickness={2}
                     size={13}
@@ -251,8 +323,13 @@ class TaskComponent extends React.Component {
                 )}
               </div>
 
+              {/* Opens the modal */}
               <div className="icon-container">
-                {this.state.over && !this.state.new && (
+                {over && !newTask && <IconComponent icon="pen" color="#CFD4D9" thickness={2} size={13} className="button" onClick={e => this.props.hydrateTask({ id: this.props.id })} />}
+              </div>
+
+              <div className="icon-container">
+                {over && !newTask && (
                   <Popup
                     handleDismiss={() => this.setState({ menu: false })}
                     visible={this.state.menu}
@@ -267,7 +344,7 @@ class TaskComponent extends React.Component {
                           },
                           {
                             text: 'Share to channel',
-                            onClick: e => this.props.shareToChannel(this.state.id),
+                            onClick: e => this.props.shareToChannel(id),
                           },
                         ]}
                       />
@@ -295,11 +372,11 @@ class TaskComponent extends React.Component {
           <div className="column pl-40 pr-20 w-100 mb-10">
             {/* Display the editor */}
             {this.state.editDescription && (
-              <textarea placeholder="Add a description with *markdown*" value={this.state.description} className="description" onChange={e => this.setState({ description: e.target.value })} />
+              <textarea placeholder="Add a description with *markdown*" value={description} className="description" onChange={e => this.setState({ description: e.target.value })} />
             )}
 
             {/* Display the markdown */}
-            {!this.state.editDescription && <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || '<em><em>No description</em></em>') }} />}
+            {!this.state.editDescription && <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(description || '<em><em>No description</em></em>') }} />}
 
             {/* These are the buttons at the bottom of the description */}
             <div className="row mt-10">
@@ -350,11 +427,15 @@ TaskComponent.propTypes = {
   createTask: PropTypes.func,
   deleteTask: PropTypes.func,
   updateTask: PropTypes.func,
+  user: PropTypes.any,
+  dueDate: PropTypes.any,
   sortIndex: PropTypes.number,
   showCompletedTasks: PropTypes.bool,
   shareToChannel: PropTypes.func,
   toggleTasksBelowHeadings: PropTypes.func,
   hydrateTask: PropTypes.func,
+  user: PropTypes.any,
+  team: PropTypes.any,
 }
 
 const mapDispatchToProps = {
@@ -364,6 +445,8 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     task: state.task,
+    user: state.user,
+    team: state.team,
   }
 }
 
