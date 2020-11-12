@@ -10,6 +10,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
 import marked from 'marked'
+import { hydrateTask } from '../../../../actions'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -229,8 +230,14 @@ class TaskComponent extends React.Component {
             </div>
           )}
 
-          {!this.state.heading && (
+          {!this.state.heading && !this.props.disableTools && (
             <React.Fragment>
+              <div className="icon-container">
+                {this.state.over && !this.state.new && (
+                  <IconComponent icon="pen" color="#CFD4D9" thickness={2} size={13} className="button" onClick={e => this.props.hydrateTask({ id: this.props.id })} />
+                )}
+              </div>
+
               <div className="icon-container">
                 {((this.state.over && !this.state.new) || !!this.state.description) && (
                   <IconComponent
@@ -338,6 +345,7 @@ TaskComponent.propTypes = {
   id: PropTypes.string,
   done: PropTypes.bool,
   hide: PropTypes.bool,
+  disableTools: PropTypes.bool,
   new: PropTypes.bool,
   createTask: PropTypes.func,
   deleteTask: PropTypes.func,
@@ -346,12 +354,17 @@ TaskComponent.propTypes = {
   showCompletedTasks: PropTypes.bool,
   shareToChannel: PropTypes.func,
   toggleTasksBelowHeadings: PropTypes.func,
+  hydrateTask: PropTypes.func,
 }
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  hydrateTask: task => hydrateTask(task),
+}
 
 const mapStateToProps = state => {
-  return {}
+  return {
+    task: state.task,
+  }
 }
 
 export default connect(

@@ -19,6 +19,7 @@ import { TasksComponent } from '../tasks/tasks.component'
 import { TASK_ORDER_INDEX, TASKS_ORDER } from '../../../../constants'
 import 'react-datepicker/dist/react-datepicker.css'
 import './modal.component.css'
+import { hydrateTask } from '../../../../actions'
 
 class ModalComponent extends React.Component {
   constructor(props) {
@@ -205,7 +206,7 @@ class ModalComponent extends React.Component {
                 <IconComponent icon="delete" color="#524150" size="18" thickness="1.5" />
               </div>
 
-              <div className="icon" onClick={this.props.onClose}>
+              <div className="icon" onClick={() => this.props.hydrateTask({ id: null })}>
                 <IconComponent icon="x" color="#524150" size="22" thickness="1.5" />
               </div>
             </div>
@@ -284,6 +285,7 @@ class ModalComponent extends React.Component {
                       showCompletedTasks={this.state.showCompletedTasks}
                       onSortEnd={this.onSortEnd}
                       shareToChannel={() => console.log('NOPE')}
+                      disableTools={true}
                     />
                   </div>
                 </div>
@@ -358,15 +360,19 @@ ModalComponent.propTypes = {
   channel: PropTypes.any,
   team: PropTypes.any,
   onClose: PropTypes.func,
+  hydrateTask: PropTypes.func,
 }
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  hydrateTask: task => hydrateTask(task),
+}
 
 const mapStateToProps = state => {
   return {
     user: state.user,
     channel: state.channel,
     team: state.team,
+    task: state.task,
   }
 }
 

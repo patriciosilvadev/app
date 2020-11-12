@@ -4,7 +4,7 @@ import TaskComponent from '../task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
 
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings }) => {
+const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools }) => {
   return (
     <TaskComponent
       index={index}
@@ -20,11 +20,12 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
       deleteTask={deleteTask}
       updateTask={updateTask}
       toggleTasksBelowHeadings={toggleTasksBelowHeadings}
+      disableTools={disableTools}
     />
   )
 })
 
-const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings }) => {
+const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools }) => {
   return (
     <ul>
       {tasks.map((task, index) => (
@@ -38,13 +39,14 @@ const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask,
           deleteTask={deleteTask}
           updateTask={updateTask}
           toggleTasksBelowHeadings={toggleTasksBelowHeadings}
+          disableTools={disableTools}
         />
       ))}
     </ul>
   )
 })
 
-export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTasks, onSortEnd, shareToChannel, createTask }) => {
+export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTasks, onSortEnd, shareToChannel, createTask, disableTools }) => {
   const [tasklist, setTasklist] = useState([])
 
   useEffect(() => {
@@ -88,6 +90,7 @@ export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTas
         onSortEnd={onSortEnd}
         shareToChannel={shareToChannel}
         toggleTasksBelowHeadings={toggleTasksBelowHeadings}
+        disableTools={disableTools}
       />
 
       <ul>

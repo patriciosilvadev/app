@@ -28,6 +28,7 @@ import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
 import { AvatarComponent } from '@weekday/elements/lib/avatar'
+import ModalComponent from '../extensions/tasks/components/modal/modal.component'
 
 // We use this so it's not part of React component update cycle
 // Otherwise it's just a shitshow of jittery goodess
@@ -111,6 +112,7 @@ class ChannelComponent extends React.Component {
     this.renderOtherUserTimezone = this.renderOtherUserTimezone.bind(this)
     this.renderNonTeamMemberNotice = this.renderNonTeamMemberNotice.bind(this)
     this.renderCompose = this.renderCompose.bind(this)
+    this.renderTaskModal = this.renderTaskModal.bind(this)
   }
 
   async updateChannelShortcode(generateNewCode) {
@@ -902,12 +904,19 @@ class ChannelComponent extends React.Component {
     )
   }
 
+  renderTaskModal() {
+    if (!this.props.task.id) return null
+
+    return <ModalComponent taskId={this.props.task.id} onClose={() => this.setState({ modal: false })} />
+  }
+
   render() {
     const { teamId, channelId } = this.props.match.params
 
     return (
       <React.Fragment>
         {this.renderChannelModal()}
+        {this.renderTaskModal()}
 
         <ChannelContainer hide={this.props.hide}>
           {this.renderHeader()}
@@ -945,6 +954,7 @@ class ChannelComponent extends React.Component {
 
 ChannelComponent.propTypes = {
   team: PropTypes.any,
+  task: PropTypes.any,
   app: PropTypes.any,
   channel: PropTypes.any,
   user: PropTypes.any,
@@ -970,6 +980,7 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     team: state.team,
+    task: state.task,
     app: state.app,
     user: state.user,
     channel: state.channel,

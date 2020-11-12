@@ -35,7 +35,6 @@ class TasksExtension extends React.Component {
       showCompletedTasks: false,
       title: '',
       tasks: [],
-      modal: false,
     }
 
     this.onSortEnd = this.onSortEnd.bind(this)
@@ -45,7 +44,6 @@ class TasksExtension extends React.Component {
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
-    this.renderModal = this.renderModal.bind(this)
   }
 
   async shareToChannel(taskId) {
@@ -250,12 +248,6 @@ class TasksExtension extends React.Component {
     return { tasks }
   }
 
-  renderModal() {
-    if (!this.state.modal) return null
-
-    return <ModalComponent taskId="5f4cdf94fab1ce9821ea69b3" onClose={() => this.setState({ modal: false })} />
-  }
-
   render() {
     const completed = this.props.channel.tasks.filter(task => task.done).length
 
@@ -264,8 +256,6 @@ class TasksExtension extends React.Component {
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
-
-        {this.renderModal()}
 
         <div className="header">
           <div className="title">Tasks</div>
@@ -285,6 +275,7 @@ class TasksExtension extends React.Component {
             onSortEnd={this.onSortEnd}
             shareToChannel={this.shareToChannel}
             createTask={this.handleCreateTask}
+            disableTools={true}
           />
         </div>
       </div>

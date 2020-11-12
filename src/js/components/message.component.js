@@ -27,6 +27,7 @@ import {
   updateChannelCreateMessagePin,
   updateChannelDeleteMessagePin,
   updateChannelMessageTaskAttachment,
+  hydrateTask,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
 import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
@@ -39,6 +40,7 @@ import EventService from '../services/event.service'
 import uuidv1 from 'uuid/v1'
 import PreviewComponent from './preview.component'
 import { MIME_TYPES } from '../constants'
+import { CheckboxComponent } from '../extensions/tasks/components/checkbox/checkbox.component'
 
 export default memo(props => {
   const [body, setBody] = useState(false)
@@ -696,13 +698,20 @@ export default memo(props => {
               return (
                 <div key={index} className="row mb-10">
                   {!meta.deleted && (
-                    <React.Fragment>
-                      <IconComponent icon={meta.done ? 'check' : 'square'} size={16} thickness={2} color="#333a40" />
-                      <div className="h5 color-d3 pl-10">{meta.title}</div>
-                    </React.Fragment>
+                    <div className="row align-items-start mb-10 mt-10">
+                      <div className="mr-10">
+                        <CheckboxComponent done={meta.done} />
+                      </div>
+                      <div className="column">
+                        <div className="h5 color-d3 bold">{meta.title}</div>
+                        <div className="small color-d2 button bold mt-5" onClick={() => dispatch(hydrateTask({ id: meta.id }))}>
+                          Open task
+                        </div>
+                      </div>
+                    </div>
                   )}
 
-                  {meta.deleted && <div className="h5 color-d0">Deleted</div>}
+                  {meta.deleted && <div className="h5 color-d0 small bold">This task was deleted</div>}
                 </div>
               )
 

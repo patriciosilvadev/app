@@ -1,13 +1,7 @@
 import produce from 'immer'
 
 const initialState = {
-  members: [],
-  channels: [
-    {
-      task: {},
-      members: [],
-    },
-  ],
+  id: null, //"5f4cdf94fab1ce9821ea69b3"//,
 }
 
 export default (state = initialState, action) =>
@@ -15,10 +9,5 @@ export default (state = initialState, action) =>
     switch (action.type) {
       case 'TASK':
         return action.payload
-
-      case 'UPDATE_TASK':
-        if (action.payload.taskId != state.id) return
-        draft = Object.assign(draft, action.payload)
-        break
     }
   })
