@@ -1,0 +1,39 @@
+.month-day-component {
+  flex: 1;
+  border-top: 1px solid #eef2f5;
+  border-left: 1px solid #eef2f5;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-content: flex-start;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.month-day-component.today {
+  background-color: #f9fafc;
+}
+
+.month-day-component .day {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 12px;
+  color: #d3dce6;
+  background-color: white;
+  font-weight: 500;
+}
+
+.month-day-component.today .day {
+  color: #718093;
+  font-weight: 800;
+}
+
+.month-day-component .task-container {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
+}

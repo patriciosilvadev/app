@@ -1,0 +1,29 @@
+.month-day-task {
+  width: 100%;
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+.month-day-task .checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  transform: scale(0.75);
+}
+
+.month-day-task .task-title {
+  color: #11171d;
+  font-size: 12px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 3px;
+}

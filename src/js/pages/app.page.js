@@ -23,6 +23,7 @@ import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
 import TasksExtension from '../extensions/tasks/tasks.extension'
 import VideoExtension from '../extensions/video/video.extension'
+import CalendarExtension from '../extensions/calendar/calendar.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 
@@ -320,6 +321,18 @@ class AppPage extends React.Component {
                     </Pill>
                   </Link>
                 )}
+
+                {/*
+                {!IS_CORDOVA && (
+                  <Link to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}>
+                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'calendar'}>
+                      <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                      <PillText>Calendar</PillText>
+                    </Pill>
+                  </Link>
+                )}
+                 */}
+
                 <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
                   <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
                     <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
@@ -448,6 +461,18 @@ class AppPage extends React.Component {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
                     <VideoExtension {...props} />
+                  </ExtensionLayout>
+                )
+              }}
+            />
+
+            {/* Calendar extension */}
+            <Route
+              path="/app/team/:teamId/channel/:channelId/calendar"
+              render={props => {
+                return (
+                  <ExtensionLayout layout={this.state.extensionLayout}>
+                    <CalendarExtension {...props} />
                   </ExtensionLayout>
                 )
               }}
