@@ -144,25 +144,25 @@ class TaskComponent extends React.Component {
 
   render() {
     const classes = classNames({
+      'tasks-extension-li': true,
+      'done': this.state.done,
+    })
+    const containerClasses = classNames({
       row: true,
       task: true,
       hide: (this.state.done && !this.props.showCompletedTasks) || this.props.hide,
       done: this.state.done,
       heading: this.state.heading,
     })
-    const liClasses = classNames({
-      'tasks-extension-li': true,
-      'done': this.state.done,
-    })
     const titleTextareaClasses = classNames({
-      title: true,
-      heading: this.state.heading,
+      'task-title': true,
+      'heading': this.state.heading,
     })
     const titleClasses = classNames({
-      flexer: true,
-      button: true,
-      title: true,
-      heading: this.state.heading,
+      'flexer': true,
+      'button': true,
+      'task-title': true,
+      'heading': this.state.heading,
     })
     const textareaClasses = classNames({
       row: true,
@@ -174,7 +174,7 @@ class TaskComponent extends React.Component {
     this.adjustHeight()
 
     return (
-      <li className={liClasses}>
+      <li className={classes}>
         {this.state.deleteModal && (
           <ConfirmModal
             onOkay={() => {
@@ -186,7 +186,7 @@ class TaskComponent extends React.Component {
             title="Are you sure?"
           />
         )}
-        <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={classes}>
+        <div onMouseEnter={() => this.setState({ over: true })} onMouseLeave={() => this.setState({ over: false, menu: false })} className={containerClasses}>
           {!this.state.new && !this.state.heading && <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />}
           {this.state.new && <div style={{ width: 30 }} />}
           {this.state.heading && <div style={{ width: 20 }} />}

@@ -16,54 +16,13 @@ import {
   updateChannelDeleteTask,
 } from '../../actions'
 import PropTypes from 'prop-types'
-import TaskComponent from './components/task/task.component'
-import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
 import { DEVICE } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 import ModalComponent from './components/modal/modal.component'
 import { classNames, isTaskHeading } from '../../helpers/util'
-
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings }) => {
-  return (
-    <TaskComponent
-      index={index}
-      sortIndex={sortIndex}
-      id={task.id}
-      title={task.title}
-      description={task.description}
-      done={task.done}
-      hide={task.hide}
-      shareToChannel={shareToChannel}
-      new={false}
-      showCompletedTasks={showCompletedTasks}
-      deleteTask={deleteTask}
-      updateTask={updateTask}
-      toggleTasksBelowHeadings={toggleTasksBelowHeadings}
-    />
-  )
-})
-
-const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings }) => {
-  return (
-    <ul>
-      {tasks.map((task, index) => (
-        <SortableItem
-          key={`item-${task.id}`}
-          index={index}
-          sortIndex={index}
-          task={task}
-          shareToChannel={shareToChannel}
-          showCompletedTasks={showCompletedTasks}
-          deleteTask={deleteTask}
-          updateTask={updateTask}
-          toggleTasksBelowHeadings={toggleTasksBelowHeadings}
-        />
-      ))}
-    </ul>
-  )
-})
+import { TasksComponent } from './components/tasks/tasks.component'
 
 class TasksExtension extends React.Component {
   constructor(props) {
@@ -87,38 +46,6 @@ class TasksExtension extends React.Component {
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
     this.renderModal = this.renderModal.bind(this)
-    this.toggleTasksBelowHeadings = this.toggleTasksBelowHeadings.bind(this)
-  }
-
-  toggleTasksBelowHeadings(taskId, hide) {
-    let foundHeading = false
-    const channelId = this.props.channel.id
-
-    // Go over all the tasks
-    this.state.tasks.map(task => {
-      // If we've found the heading thatt was clicked
-      // We simply say we've found it and move along
-      if (task.id == taskId) {
-        foundHeading = true
-        // Now this should be the next task right after our heading (if it was found)
-        // Of it's just a normal task that is not the one that was clicked
-      } else {
-        // If the VERY NEXT task is also a heading - then we don't want to do anything
-        if (isTaskHeading(task.title)) foundHeading = false
-
-        // If it's a task below a heading, then we tell the task to not display
-        // We need to do this via the redux store
-        if (foundHeading) {
-          this.props.updateChannelUpdateTask(channelId, {
-            hide,
-            id: task.id,
-            done: task.done,
-            title: task.title,
-            description: task.description,
-          })
-        }
-      }
-    })
   }
 
   async shareToChannel(taskId) {
@@ -349,22 +276,16 @@ class TasksExtension extends React.Component {
           <Button text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
         </div>
 
-        <div className="tasks w-100">
-          <SortableList
-            helperClass="sortableHelper"
-            pressDelay={200}
+        <div className="tasks">
+          <TasksComponent
             tasks={this.state.tasks}
             deleteTask={this.handleDeleteTask}
             updateTask={this.handleUpdateTask}
             showCompletedTasks={this.state.showCompletedTasks}
             onSortEnd={this.onSortEnd}
             shareToChannel={this.shareToChannel}
-            toggleTasksBelowHeadings={this.toggleTasksBelowHeadings}
+            createTask={this.handleCreateTask}
           />
-
-          <ul>
-            <TaskComponent id="" title="" hide={false} done={false} new={true} createTask={this.handleCreateTask} showCompletedTasks={true} />
-          </ul>
         </div>
       </div>
     )

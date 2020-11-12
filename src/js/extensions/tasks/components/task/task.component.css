@@ -1,4 +1,4 @@
-.tasks-extension .tasks .task {
+.tasks-extension-li .task {
   width: 100%;
   padding: 7px 10px 7px 10px;
   background: white;
@@ -10,11 +10,11 @@
   border-bottom: 1px solid #f0f3f5;
 }
 
-.tasks-extension .tasks-extension-li {
+.tasks-extension-li {
   padding: 5px 0px 5px 0px;
 }
 
-.tasks-extension .icon-container {
+.tasks-extension-li .task .icon-container {
   height: 20px;
   width: 20px;
   display: flex;
@@ -24,13 +24,13 @@
   justify-content: center;
 }
 
-.tasks-extension .children-hide-icon {
+.tasks-extension-li .task .children-hide-icon {
   position: absolute;
   left: 10px;
   top: 10px;
 }
 
-.tasks-extension textarea.description {
+.tasks-extension-li .task textarea.description {
   width: 100%;
   border: 0px;
   padding: 0px;
@@ -42,14 +42,14 @@
   margin: 0px;
 }
 
-.tasks-extension .task-description-markdown em em {
+.tasks-extension-li .task .task-description-markdown em em {
   color: #cfd4d9;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
 }
 
-.tasks-extension .task-description-markdown {
+.tasks-extension-li .task .task-description-markdown {
   width: 100%;
   border: 0px;
   padding: 0px;
@@ -61,12 +61,12 @@
   margin: 0px;
 }
 
-.tasks-extension .task-description-markdown p {
+.tasks-extension-li .task .task-description-markdown p {
   margin: 0px;
   padding: 0px;
 }
 
-.tasks-extension .tasks .task .title {
+.tasks-extension-li .task .task-title {
   color: #11171d;
   font-size: 14px;
   font-weight: 500;
@@ -75,23 +75,23 @@
   width: 100%;
 }
 
-.tasks-extension .tasks .task .title.heading {
+.tasks-extension-li .task .task-title.heading {
   font-weight: 700;
   font-size: 18px;
 }
 
-.tasks-extension .tasks .task.done .title {
+.tasks-extension-li .task.done .task-title {
   color: #cfd4d9;
   text-decoration: line-through;
   position: relative;
 }
 
-.tasks-extension .tasks .task.done .title.heading {
+.tasks-extension-li .task.done .task-title.heading {
   color: #11171d;
   text-decoration: none;
 }
 
-.tasks-extension .description-button {
+.tasks-extension-li .task .description-button {
   padding: 5px 10px 5px 10px;
   font-weight: 600;
   color: #adb5bd;
@@ -104,15 +104,15 @@
   transition: 0.2s border-color;
 }
 
-.tasks-extension .description-button.cancel {
+.tasks-extension-li .task .description-button.cancel {
   background-color: #f8f9fa;
 }
 
-.tasks-extension .description-button:hover {
+.tasks-extension-li .task .description-button:hover {
   border-color: #cfd4d9;
 }
 
-.tasks-extension .tasks .task.done .title .overlay {
+.tasks-extension-li .task.done .task-title .overlay {
   background: black;
   position: absolute;
   top: 0px;
@@ -121,21 +121,21 @@
   height: 100%;
 }
 
-.tasks-extension .tasks .task li,
-.tasks-extension .tasks .task li div {
+.tasks-extension-li .task li,
+.tasks-extension-li .task li div {
   background: white;
 }
 
-.tasks-extension .tasks .task input {
+.tasks-extension-li .task input {
   font-size: 14px;
 }
 
-.tasks-extension .tasks .task input::placeholder,
-.tasks-extension textarea::placeholder {
+.tasks-extension-li .task input::placeholder,
+.tasks-extension-li .task textarea::placeholder {
   color: #cfd4d9;
 }
 
-.tasks-extension .tasks .task textarea {
+.tasks-extension-li .task textarea {
   width: 100%;
   resize: none;
   height: 17px;
@@ -145,10 +145,10 @@
 }
 
 @media only screen and (max-width: 768px) {
-  .tasks-extension .tasks .task input,
-  .tasks-extension .tasks .task input.title,
-  .tasks-extension .tasks .task textarea,
-  .tasks-extension .tasks .task textarea.title {
+  .tasks-extension-li .task input,
+  .tasks-extension-li .task input.task-title,
+  .tasks-extension-li .task textarea,
+  .tasks-extension-li .task textarea.task-title {
     font-size: 16px;
     height: 20px;
   }

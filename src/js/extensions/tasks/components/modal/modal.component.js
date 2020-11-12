@@ -14,7 +14,9 @@ import PropTypes from 'prop-types'
 import MessageComponent from '../../../../components/message.component'
 import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
-
+import arrayMove from 'array-move'
+import { TasksComponent } from '../tasks/tasks.component'
+import { TASK_ORDER_INDEX, TASKS_ORDER } from '../../../../constants'
 import 'react-datepicker/dist/react-datepicker.css'
 import './modal.component.css'
 
@@ -37,8 +39,37 @@ class ModalComponent extends React.Component {
       loading: true,
       error: null,
       notification: null,
+      showCompletedTasks: true,
+      taskOrder: {},
+      tasks: [
+        { order: 0, id: '1', title: 'Everything:', description: 'none', done: false, hide: false },
+        { order: 1, id: '2', title: 'This is task one', description: 'none', done: false, hide: false },
+        { order: 2, id: '3', title: 'And then this is task 2', description: 'none', done: true, hide: false },
+        { order: 4, id: '22', title: 'wedwde wed wed wed wd', description: 'none', done: false, hide: false },
+        { order: 5, id: '33', title: 'wed wed', description: 'none', done: true, hide: false },
+        { order: 7, id: '25', title: 'wed wed wded:', description: 'none', done: false, hide: false },
+        { order: 8, id: '36', title: 'And thenwedwed wd wed w2', description: 'none', done: true, hide: false },
+        { order: 10, id: '28', title: 'This iwedwd wed we dwe dwed wed e', description: 'none', done: false, hide: false },
+        { order: 11, id: '39', title: 'And then this iswed wedw ed wdw edk 2', description: 'none', done: true, hide: false },
+        { order: 13, id: '211', title: 'Thiswedwedw d wed wd wedwe', description: 'none', done: false, hide: false },
+        { order: 14, id: '322', title: 'And then thwedwed w', description: 'none', done: true, hide: false },
+        { order: 16, id: 'wed2', title: 'This iswed wed wed wedw edwsk one', description: 'none', done: false, hide: false },
+        { order: 17, id: '3wed', title: 'And then thwedwed2', description: 'none', done: true, hide: false },
+      ],
     }
+
+    this.fetchTask = this.fetchTask.bind(this)
+    this.onSortEnd = this.onSortEnd.bind(this)
+    this.handleCreateTask = this.handleCreateTask.bind(this)
+    this.handleDeleteTask = this.handleDeleteTask.bind(this)
+    this.handleUpdateTask = this.handleUpdateTask.bind(this)
   }
+
+  handleUpdateTask() {}
+
+  handleDeleteTask() {}
+
+  handleCreateTask() {}
 
   componentDidMount() {
     this.fetchTask()
@@ -71,6 +102,18 @@ class ModalComponent extends React.Component {
         loading: false,
       })
     }
+  }
+
+  onSortEnd({ oldIndex, newIndex }) {
+    const { tasks } = this.state
+    const updatedTasks = arrayMove(tasks, oldIndex, newIndex)
+
+    // Use the index as the order
+    this.setState({
+      tasks: updatedTasks.map((task, index) => {
+        return { ...task, order: index }
+      }),
+    })
   }
 
   render() {
@@ -230,6 +273,18 @@ class ModalComponent extends React.Component {
                     {this.state.files.map(file => {
                       return <File filename={file.filename} url={file.url} onDelete={() => console.log('DELETE')} />
                     })}
+                  </div>
+
+                  <div className="tasks">
+                    <TasksComponent
+                      tasks={this.state.tasks.sort((a, b) => parseFloat(a.order) - parseFloat(b.order))}
+                      createTask={this.handleCreateTask}
+                      deleteTask={this.handleDeleteTask}
+                      updateTask={this.handleUpdateTask}
+                      showCompletedTasks={this.state.showCompletedTasks}
+                      onSortEnd={this.onSortEnd}
+                      shareToChannel={() => console.log('NOPE')}
+                    />
                   </div>
                 </div>
               </div>

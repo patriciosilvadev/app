@@ -9,6 +9,12 @@
   width: 100%;
 }
 
+.task-modal-container .tasks {
+  padding: 0px;
+  flex: 1;
+  width: 100%;
+}
+
 .task-modal-container .panels {
   flex: 1;
   display: flex;
@@ -28,6 +34,7 @@
   justify-content: center;
   height: 100%;
   background-color: #f8f9fa;
+  position: relative;
 }
 
 .task-modal-container .panel:first-child {
@@ -102,6 +109,8 @@
   position: relative;
   padding: 10px 20px 10px 20px;
   background: rgb(255, 228, 228);
+  border-bottom: 1px solid #ec224b;
+  border-top: 1px solid #ec224b;
 }
 
 .task-modal-container .delete-bar .text {
@@ -120,7 +129,7 @@
   align-content: center;
   justify-content: flex-start;
   position: relative;
-  padding: 0px 20px 0px 20px;
+  padding: 0px 10px 0px 20px;
   height: 55px;
   background: white;
   border-bottom: 2px solid #edf0f2;
@@ -166,9 +175,12 @@
 }
 
 .task-modal-container .content {
-  overflow: hidden;
+  overflow: scroll;
   width: 100%;
-  margin-bottom: auto;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
 }
 
 .task-modal-container .content .title {
