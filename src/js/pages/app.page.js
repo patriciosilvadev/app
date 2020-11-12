@@ -372,6 +372,7 @@ class AppPage extends React.Component {
     // - toolbar
     // - app
     const hideChannel = (this.state.extensionLayout == LAYOUTS.MAIN || this.state.extensionLayout == LAYOUTS.FULL) && isExtensionOpen()
+    const hideDrawer = this.state.extensionLayout == LAYOUTS.FULL && isExtensionOpen()
 
     return (
       <AppContainer className="column">
@@ -395,7 +396,7 @@ class AppPage extends React.Component {
           <Router history={browserHistory}>
             {this.state.drawer && <DrawerOverlay onClick={() => this.setState({ drawer: false })} />}
 
-            <Drawer open={this.state.drawer}>
+            <Drawer open={this.state.drawer} hide={hideDrawer}>
               <Route path="/app" component={DockComponent} />
               <Route
                 path="/app/team/:teamId"
@@ -511,7 +512,7 @@ const Drawer = styled.div`
   transform: translateX(0%);
   width: fit-content;
   height: 100%;
-  display: flex;
+  display: ${props => (props.hide ? 'none' : 'flex')};
   flex-direction: row;
   align-content: center;
   align-items: center;
@@ -591,7 +592,7 @@ const ExtensionLayout = styled.div`
   height: 100%;
   background: white;
   left: 0px;
-  z-index: 8; /* 1000 */
+  z-index: 6; /* was 8, was also 1000 */
 
   @media only screen and (max-width: 768px) {
     width: 100%;
