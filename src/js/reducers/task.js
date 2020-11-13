@@ -2,6 +2,12 @@ import produce from 'immer'
 
 const initialState = {
   id: null, //"5f4cdf94fab1ce9821ea69b3"//,
+  tasks: [],
+  files: [],
+  messages: [],
+  description: '',
+  title: '',
+  done: false,
 }
 
 export default (state = initialState, action) =>

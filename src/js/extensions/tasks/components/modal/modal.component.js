@@ -26,6 +26,7 @@ import {
   updateChannelUpdateTask,
   updateChannelDeleteTask,
   hydrateTask,
+  updateTask,
 } from '../../../../actions'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
@@ -89,6 +90,30 @@ class ModalComponent extends React.Component {
     this.handleFileChange = this.handleFileChange.bind(this)
     this.setupFileQeueu = this.setupFileQeueu.bind(this)
     this.handleDeleteFile = this.handleDeleteFile.bind(this)
+    this.handleUpdateTaskDone = this.handleUpdateTaskDone.bind(this)
+    this.handleUpdateTaskDone = this.handleUpdateTaskDone.bind(this)
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!props.task.id) return null
+
+    // This is the basic state
+    let updatedState = {
+      done: props.task.done,
+      user: props.task.user || null,
+      dueDate: props.task.dueDate ? moment(props.task.dueDate).toDate() : null,
+      dueDatePretty: props.task.dueDate ? moment(props.task.dueDate).fromNow() : '',
+      messages: props.task.messages ? props.task.messages : [],
+      files: props.task.files ? props.task.files : [],
+      tasks: props.task.tasks ? props.task.tasks.sort((a, b) => a.order - b.order) : [],
+    }
+
+    // Here we decide what to update from the Redux store
+    // Likely updated frm the other users - but only update if it's different
+    // Otherwise our onChange evvent won't ever work on these input fields
+    if (props.task.title != state.title) updatedState['title'] = props.task.title
+
+    return updatedState
   }
 
   async handleFileChange(e) {
@@ -104,6 +129,7 @@ class ModalComponent extends React.Component {
   async handleUpdateTaskUser(user) {
     try {
       const { id } = this.state
+      const taskId = id
       const channelId = this.props.channel.id
       const task = { id, user }
 
@@ -111,12 +137,12 @@ class ModalComponent extends React.Component {
       await GraphqlService.getInstance().updateTask(id, { user: user ? user.id : null })
 
       // Update our UI
-      this.setState({ user, userPopup: false })
+      this.setState({ userPopup: false })
 
       // Update the task list
       this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTask(taskId, task, channelId)
     } catch (e) {
-      console.log(e)
       logger(e)
     }
   }
@@ -124,6 +150,7 @@ class ModalComponent extends React.Component {
   async handleUpdateTaskDueDate(date) {
     try {
       const { id } = this.state
+      const taskId = id
       const dueDate = date
       const channelId = this.props.channel.id
       const task = { id, dueDate }
@@ -132,23 +159,55 @@ class ModalComponent extends React.Component {
       await GraphqlService.getInstance().updateTask(id, { dueDate })
 
       // Update our UI
-      this.setState({
-        dueDate: date,
-        dueDatePretty: date ? moment(date).fromNow() : null,
-        dueDatePopup: false,
-      })
+      this.setState({ dueDatePopup: false })
 
       // Update the task list
       this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTask(taskId, task, channelId)
     } catch (e) {
-      console.log(e)
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskDone(done) {
+    try {
+      const { id } = this.state
+      const taskId = id
+      const channelId = this.props.channel.id
+      const task = { id, user }
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { done })
+
+      // Update the task list
+      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTask(taskId, task, channelId)
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskFiles(files) {
+    try {
+      const { id } = this.state
+      const taskId = id
+      const channelId = this.props.channel.id
+      const task = { id, user }
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { files })
+
+      // Update the task list
+      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTask(taskId, task, channelId)
+    } catch (e) {
       logger(e)
     }
   }
 
   async handleUpdateTask() {
     try {
-      const { id, done, title, description, files } = this.state
+      const { id, title, description } = this.state
 
       await GraphqlService.getInstance().updateTask(id, { done, title, description, files })
 
@@ -156,13 +215,12 @@ class ModalComponent extends React.Component {
       const taskId = id
       const task = {
         id,
-        done,
         title,
         description,
-        files,
       }
 
       // Update the task if it's been posted on a message
+      this.props.updateTask(taskId, task, channelId)
       this.props.updateChannelUpdateTask(channelId, task)
       this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
     } catch (e) {
@@ -299,14 +357,11 @@ class ModalComponent extends React.Component {
                   .then(res1 => {
                     const file = { url: res1.url, filename: name }
 
-                    // Add the new files & increase the index
-                    // And pour again to process the next file
-                    this.setState(
-                      {
-                        files: [...this.state.files, file],
-                      },
-                      () => pour()
-                    )
+                    // Update the files
+                    this.handleUpdateTaskFiles([...this.props.task.files, file])
+
+                    // Go to the next
+                    pour()
                   })
                   .catch(err => {
                     this.setState({ error: 'Error getting URL', loading: false })
@@ -324,7 +379,6 @@ class ModalComponent extends React.Component {
         // This is the empty() callback
         // Stop loading when all is done
         this.setState({ loading: false })
-        this.handleUpdateTask()
       }
     )
   }
@@ -339,24 +393,25 @@ class ModalComponent extends React.Component {
       const { taskId } = this.props
       const { data } = await GraphqlService.getInstance().task(taskId)
       const {
-        task: { id, description, done, title, user, dueDate, messages, files, tasks },
+        task: { id, description, title, done, dueDate, tasks, files, messages, user },
       } = data
 
-      this.setState({
+      // Set up the local state to use
+      this.setState({ description, title, loading: false })
+
+      // Update the Redux store
+      this.props.hydrateTask({
         id,
         description,
-        done,
         title,
-        user,
-        dueDate: moment(dueDate).toDate(),
-        dueDatePretty: dueDate ? moment(dueDate).fromNow() : '',
-        messages,
+        done,
+        dueDate,
         tasks,
         files,
-        loading: false,
+        messages,
+        user,
       })
     } catch (e) {
-      console.log(e)
       this.setState({
         error: 'Error fetching task',
         loading: false,
@@ -391,12 +446,7 @@ class ModalComponent extends React.Component {
 
           <div className="task-modal-container">
             <div className="title-bar">
-              <CheckboxComponent
-                done={this.state.done}
-                onClick={() => {
-                  this.setState({ done: !this.state.done }, () => this.handleUpdateTask())
-                }}
-              />
+              <CheckboxComponent done={this.state.done} onClick={() => this.handleUpdateTaskDone(!this.state.done)} />
 
               <div style={{ width: 20 }} />
               <input type="file" onChange={this.handleFileChange} ref={ref => (this.fileRef = ref)} style={{ display: 'none' }} />
@@ -538,7 +588,7 @@ class ModalComponent extends React.Component {
 
                         {/* Display the markdown */}
                         {!this.state.editDescription && (
-                          <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.state.description || '<em><em>No description</em></em>') }} />
+                          <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(this.props.task.description || '<em><em>No description</em></em>') }} />
                         )}
                       </div>
                     </div>
@@ -552,7 +602,7 @@ class ModalComponent extends React.Component {
 
                   <div className="tasks">
                     <TasksComponent
-                      tasks={this.state.tasks.sort((a, b) => parseFloat(a.order) - parseFloat(b.order))}
+                      tasks={this.state.tasks}
                       createTask={this.handleCreateTask}
                       deleteTask={this.handleDeleteTask}
                       updateTask={this.handleUpdateTask}
@@ -629,6 +679,7 @@ ModalComponent.propTypes = {
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
+  updateTask: (taskId, updatedTask, channelId) => updateTask(taskId, updatedTask, channelId),
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
   updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),
