@@ -205,7 +205,7 @@ class ModalComponent extends React.Component {
       const { id } = this.state
       const taskId = id
       const channelId = this.props.channel.id
-      const task = { id, user }
+      const task = { id, done }
 
       // Update the API
       await GraphqlService.getInstance().updateTask(id, { done })
