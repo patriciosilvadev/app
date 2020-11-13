@@ -496,11 +496,11 @@ class ModalComponent extends React.Component {
       this.props.deleteChannelMessageTaskAttachment(channelId, taskId)
       this.props.updateChannelDeleteTask(channelId, taskId)
 
+      // Close the modal
+      this.props.hydrateTask({ id: null })
+
       // Remove the task
       this.setState({ loading: false, deleteBar: false })
-
-      // Close the modal
-      this.props.onClose()
     } catch (e) {
       this.setState({ error: 'Error deleting task' })
     }
