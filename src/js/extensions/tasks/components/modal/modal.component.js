@@ -158,7 +158,7 @@ class ModalComponent extends React.Component {
     if (files.length == 0) return
 
     for (let file of files) {
-      Keg.keg('compose').refill('uploads', file)
+      Keg.keg('task').refill('files', file)
     }
   }
 
@@ -228,7 +228,7 @@ class ModalComponent extends React.Component {
       const { id } = this.state
       const taskId = id
       const channelId = this.props.channel.id
-      const task = { id, user }
+      const task = { id, files }
 
       // Update the API
       await GraphqlService.getInstance().updateTask(id, { files })
@@ -507,15 +507,14 @@ class ModalComponent extends React.Component {
   }
 
   async handleDeleteFile(url) {
-    this.setState({
-      files: this.state.files.filter(file => file.url != url),
-    })
+    const files = this.state.files.filter(file => file.url != url)
+    this.handleUpdateTaskFiles(files)
   }
 
   async setupFileQeueu() {
     // Listen for file changes in attachments
-    Keg.keg('compose').tap(
-      'uploads',
+    Keg.keg('task').tap(
+      'files',
       (file, pour) => {
         this.setState({ error: null, loading: true })
 

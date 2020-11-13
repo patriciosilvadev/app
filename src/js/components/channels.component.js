@@ -30,6 +30,7 @@ import {
   updateUserArchived,
   updateTeamMemberPosition,
   updateChannel,
+  hydrateChannel,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@weekday/elements'
@@ -554,6 +555,7 @@ class ChannelsComponent extends React.Component {
     const to = `/app/team/${this.props.team.id}/channel/${channelId}${suffix}`
 
     // first close the drawer (mobile!!!)
+    this.props.hydrateChannel({ ...this.props.channel, messages: [] })
     this.props.toggleDrawer()
 
     // AND GO!
@@ -1397,6 +1399,7 @@ const mapDispatchToProps = {
   updateUserArchived: (userId, channelId, archived) => updateUserArchived(userId, channelId, archived),
   createChannel: channel => createChannel(channel),
   hydrateChannels: channels => hydrateChannels(channels),
+  hydrateChannel: channel => hydrateChannel(channel),
   hydrateTeam: team => hydrateTeam(team),
 }
 
