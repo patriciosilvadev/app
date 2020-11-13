@@ -331,10 +331,27 @@
 
 .task-modal-container .messages {
   flex: 1;
-  padding: 20px;
   width: 100%;
-  background: #f8f9fa;
-  padding: 20px;
+  background: #edf0f2;
+  position: relative;
+}
+
+/* Get around parent flex issue */
+.task-modal-container .messages .scrolling {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+}
+
+.task-modal-container .messages .scrolling .inner {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
 }
 
 .task-modal-container .messages .message {
@@ -344,8 +361,7 @@
   align-items: flex-start;
   align-content: center;
   justify-content: flex-start;
-  margin-bottom: 15px;
-  margin-top: 15px;
+  padding: 10px;
 }
 
 .task-modal-container .messages .message .user {
@@ -363,8 +379,17 @@
 }
 
 .task-modal-container .messages .message .text {
-  padding-left: 10px;
+  margin-left: 10px;
   color: #202529;
   font-size: 14px;
   font-weight: 500;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 5px;
+}
+
+.task-modal-container .messages .message .text p {
+  padding: 0px;
+  margin: 0px;
 }

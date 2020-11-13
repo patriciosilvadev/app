@@ -58,25 +58,13 @@ class ModalComponent extends React.Component {
       notification: null,
       showCompletedTasks: true,
       dueDatePopup: false,
-      tasks: [
-        { order: 0, id: '1', title: 'Everything:', description: 'none', done: false, hide: false },
-        { order: 1, id: '2', title: 'This is task one', description: 'none', done: false, hide: false },
-        { order: 2, id: '3', title: 'And then this is task 2', description: 'none', done: true, hide: false },
-        { order: 4, id: '22', title: 'wedwde wed wed wed wd', description: 'none', done: false, hide: false },
-        { order: 5, id: '33', title: 'wed wed', description: 'none', done: true, hide: false },
-        { order: 7, id: '25', title: 'wed wed wded:', description: 'none', done: false, hide: false },
-        { order: 8, id: '36', title: 'And thenwedwed wd wed w2', description: 'none', done: true, hide: false },
-        { order: 10, id: '28', title: 'This iwedwd wed we dwe dwed wed e', description: 'none', done: false, hide: false },
-        { order: 11, id: '39', title: 'And then this iswed wedw ed wdw edk 2', description: 'none', done: true, hide: false },
-        { order: 13, id: '211', title: 'Thiswedwedw d wed wd wedwe', description: 'none', done: false, hide: false },
-        { order: 14, id: '322', title: 'And then thwedwed w', description: 'none', done: true, hide: false },
-        { order: 16, id: 'wed2', title: 'This iswed wed wed wedw edwsk one', description: 'none', done: false, hide: false },
-        { order: 17, id: '3wed', title: 'And then thwedwed2', description: 'none', done: true, hide: false },
-      ],
+      tasks: [],
+      manualScrolling: false,
     }
 
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
+    this.scrollRef = React.createRef()
 
     this.fetchTask = this.fetchTask.bind(this)
     this.onSortEnd = this.onSortEnd.bind(this)
@@ -98,6 +86,40 @@ class ModalComponent extends React.Component {
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
     this.handleKeyDownCompose = this.handleKeyDownCompose.bind(this)
+    this.handleScrollEvent = this.handleScrollEvent.bind(this)
+    this.scrollToBottom = this.scrollToBottom.bind(this)
+  }
+
+  scrollToBottom() {
+    // If there is no scroll ref
+    if (!this.scrollRef) return
+
+    // If the user is scrolling
+    if (this.state.manualScrolling) return
+
+    // Move it right down
+    this.scrollRef.scrollTop = this.scrollRef.scrollHeight
+  }
+
+  handleScrollEvent(e) {
+    // If there is no scroll ref
+    if (!this.scrollRef) return
+
+    // If the user scvrolls up - then fetch more messages
+    // 0 = the top of the container
+    // if (this.messages.nativeElement.scrollTop == 0) this.fetchCourseMessages()
+
+    // Calculate the difference between the bottom & where the user is
+    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
+
+    // If they are at the bottom: this.scrollRef.offsetHeight >= offsetHeight
+    // Toggle whether the user is scrolling or not
+    // If not, then we handle the scrolling
+    if (this.scrollRef.offsetHeight >= offsetHeight) {
+      this.setState({ manualScrolling: false })
+    } else {
+      this.setState({ manualScrolling: true })
+    }
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -124,6 +146,10 @@ class ModalComponent extends React.Component {
     if (props.task.title != state.title) updatedState['title'] = props.task.title
 
     return updatedState
+  }
+
+  componentDidUpdate(nextProps) {
+    this.scrollToBottom()
   }
 
   async handleFileChange(e) {
@@ -333,6 +359,11 @@ class ModalComponent extends React.Component {
 
       // Add the new subtask to the store
       this.props.updateTaskAddMessage(taskId, message, channelId)
+
+      // Scroll to bottom
+      this.scrollToBottom()
+
+      // Reset the state
       this.setState({ compose: '' })
     } catch (e) {
       this.setState({ error: 'Error creating message' })
@@ -544,6 +575,12 @@ class ModalComponent extends React.Component {
   componentDidMount() {
     this.fetchTask()
     this.setupFileQeueu()
+
+    // Event listener for the scroll
+    this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
+
+    // Just need to wait for the DOM to be there
+    setTimeout(() => this.scrollToBottom(), 250)
   }
 
   async fetchTask() {
@@ -553,8 +590,6 @@ class ModalComponent extends React.Component {
       const {
         task: { id, description, title, done, dueDate, tasks, files, messages, user },
       } = data
-
-      console.log(messages)
 
       // Set up the local state to use
       this.setState({ description, title, loading: false })
@@ -764,9 +799,15 @@ class ModalComponent extends React.Component {
               </div>
               <div className="panel">
                 <div className="messages">
-                  {this.state.messages.map((message, index) => {
-                    return <Message key={index} user={message.user} body={message.body} createdAt={message.createdAt} />
-                  })}
+                  <div className="scrolling">
+                    <div className="inner" ref={ref => (this.scrollRef = ref)}>
+                      <div style={{ height: '100%' }}></div>
+
+                      {this.state.messages.map((message, index) => {
+                        return <Message key={index} user={message.user} body={message.body} createdAt={message.createdAt} />
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="compose">

@@ -6,6 +6,11 @@
   align-items: center;
   align-content: center;
   justify-content: center;
+  cursor: pointer;
+}
+
+.month-day-task:hover {
+  opacity: 0.75;
 }
 
 .month-day-task .checkbox {

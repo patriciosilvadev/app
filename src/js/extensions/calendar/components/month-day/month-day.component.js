@@ -21,7 +21,7 @@ class MonthDayComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const today = dayjs()
+    const today = dayjs(props.day)
 
     return {
       tasks: props.channel.tasks
@@ -49,8 +49,8 @@ class MonthDayComponent extends React.Component {
         <span className="day">{this.state.day}</span>
         <div className="task-container">
           <div style={{ height: 20 }} />
-          {this.state.tasks.map(task => {
-            return <MonthDayTaskComponent done={task.done} title={task.title} onClick={() => this.props.hydrateTask({ id: task.id })} />
+          {this.state.tasks.map((task, index) => {
+            return <MonthDayTaskComponent key={index} done={task.done} title={task.title} onClick={() => this.props.hydrateTask({ id: task.id })} />
           })}
         </div>
       </div>

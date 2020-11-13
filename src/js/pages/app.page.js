@@ -322,14 +322,16 @@ class AppPage extends React.Component {
                   </Link>
                 )}
 
-                {/*  {!IS_CORDOVA && (
-                  <Link to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}>
+                {!IS_CORDOVA && (
+                  <Link
+                    to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
+                  >
                     <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'calendar'}>
                       <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                       <PillText>Calendar</PillText>
                     </Pill>
                   </Link>
-                )} */}
+                )}
 
                 <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
                   <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>

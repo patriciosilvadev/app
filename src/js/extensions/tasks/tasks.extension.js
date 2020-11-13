@@ -279,7 +279,7 @@ class TasksExtension extends React.Component {
             onSortEnd={this.onSortEnd}
             shareToChannel={this.shareToChannel}
             createTask={this.handleCreateTask}
-            disableTools={true}
+            disableTools={false}
           />
         </div>
       </div>

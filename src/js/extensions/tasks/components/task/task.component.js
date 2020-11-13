@@ -391,7 +391,7 @@ class TaskComponent extends React.Component {
                     }
                   >
                     <IconComponent
-                      className="button"
+                      className="button hide"
                       icon="more-h"
                       color="#CFD4D9"
                       size={15}
