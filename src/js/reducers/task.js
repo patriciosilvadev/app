@@ -1,13 +1,15 @@
 import produce from 'immer'
+import { v4 as uuidv4 } from 'uuid'
 
 const initialState = {
-  id: null, //"5f4cdf94fab1ce9821ea69b3"//,
+  id: null,
   tasks: [],
   files: [],
   messages: [],
   description: '',
   title: '',
   done: false,
+  order: 0,
 }
 
 export default (state = initialState, action) =>
@@ -18,7 +20,11 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_TASK':
         if (action.payload.taskId != state.id) return
-        draft = Object.assign(draft, action.payload)
-        break
+
+        // Copy any updates here
+        return {
+          ...state,
+          ...action.payload,
+        }
     }
   })
