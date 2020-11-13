@@ -5,12 +5,13 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
 
 const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools }) => {
+  // assignedUser because props.user is the redux store
   return (
     <TaskComponent
       index={index}
       sortIndex={sortIndex}
       id={task.id}
-      user={task.user}
+      assignedUser={task.user}
       dueDate={task.dueDate}
       title={task.title}
       description={task.description}

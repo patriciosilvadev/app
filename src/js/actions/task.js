@@ -6,19 +6,11 @@ import moment from 'moment'
 import EventService from '../services/event.service'
 import { updateLoading, updateError } from './'
 
-export function updateTask(taskId, updatedTask) {
+export function updateTask(taskId, updatedTask, channelId) {
   return {
     type: 'UPDATE_TASK',
     payload: { ...updatedTask, taskId },
-    sync: taskId,
-  }
-}
-
-export function deleteTask(taskId, sync) {
-  return {
-    type: 'DELETE_TASK',
-    payload: { taskId },
-    sync: sync ? taskId : null,
+    sync: channelId,
   }
 }
 

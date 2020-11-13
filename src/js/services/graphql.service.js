@@ -341,6 +341,16 @@ export default class GraphqlService {
               description
               order
               done
+              dueDate
+              user {
+                id
+                name
+                username
+                timezone
+                image
+                status
+                presence
+              }
             }
             image
             public
@@ -1099,6 +1109,13 @@ export default class GraphqlService {
             description
             done
             dueDate
+            tasks {
+              id
+              title
+              order
+              description
+              done
+            }
             files {
               id
               url

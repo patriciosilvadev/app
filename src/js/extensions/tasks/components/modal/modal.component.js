@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../../../../components/icon.component'
-import { classNames } from '../../../../helpers/util'
+import { classNames, logger } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
@@ -17,17 +17,27 @@ import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
 import { TASK_ORDER_INDEX, TASKS_ORDER } from '../../../../constants'
 import './modal.component.css'
-import { hydrateTask } from '../../../../actions'
+import {
+  updateChannel,
+  createChannelMessage,
+  updateChannelMessageTaskAttachment,
+  deleteChannelMessageTaskAttachment,
+  updateChannelCreateTask,
+  updateChannelUpdateTask,
+  updateChannelDeleteTask,
+  hydrateTask,
+} from '../../../../actions'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
 import * as moment from 'moment'
+import dayjs from 'dayjs'
 
 class ModalComponent extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      id: '',
+      id: props.taskId,
       deleteBar: false,
       editDescription: false,
       description: '',
@@ -36,7 +46,7 @@ class ModalComponent extends React.Component {
       dueDate: null,
       dueDatePretty: '',
       userPopup: false,
-      assigned: null,
+      user: null,
       messages: [],
       files: [],
       loading: true,
@@ -67,6 +77,53 @@ class ModalComponent extends React.Component {
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleDeleteTask = this.handleDeleteTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
+    this.handleUpdateTaskUser = this.handleUpdateTaskUser.bind(this)
+    this.handleUpdateTaskDueDate = this.handleUpdateTaskDueDate.bind(this)
+  }
+
+  async handleUpdateTaskUser(user) {
+    try {
+      const { id } = this.state
+      const channelId = this.props.channel.id
+      const task = { id, user }
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { user: user ? user.id : null })
+
+      // Update our UI
+      this.setState({ user, userPopup: false })
+
+      // Update the task list
+      this.props.updateChannelUpdateTask(channelId, task)
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskDueDate(date) {
+    try {
+      const { id } = this.state
+      const dueDate = date
+      const channelId = this.props.channel.id
+      const task = { id, dueDate }
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { dueDate })
+
+      // Update our UI
+      this.setState({
+        dueDate: date,
+        dueDatePretty: date ? moment(date).fromNow() : null,
+        dueDatePopup: false,
+      })
+
+      // Update the task list
+      this.props.updateChannelUpdateTask(channelId, task)
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
   }
 
   handleUpdateTask() {}
@@ -84,7 +141,7 @@ class ModalComponent extends React.Component {
       const { taskId } = this.props
       const { data } = await GraphqlService.getInstance().task(taskId)
       const {
-        task: { id, description, done, title, user, dueDate, messages, files },
+        task: { id, description, done, title, user, dueDate, messages, files, tasks },
       } = data
 
       this.setState({
@@ -93,15 +150,15 @@ class ModalComponent extends React.Component {
         done,
         title,
         user,
-        dueDate,
-        dueDatePretty: dueDate ? daysjs(dueDate).fromNow() : '',
+        dueDate: moment(dueDate).toDate(),
+        dueDatePretty: dueDate ? moment(dueDate).fromNow() : '',
         messages,
+        tasks,
         files,
         loading: false,
       })
     } catch (e) {
       console.log(e)
-
       this.setState({
         error: 'Error fetching task',
         loading: false,
@@ -148,32 +205,27 @@ class ModalComponent extends React.Component {
                 width={250}
                 direction="left-bottom"
                 handleDismiss={() => this.setState({ userPopup: false })}
-                handleAccept={member => {
-                  this.setState({
-                    assigned: member.user,
-                    userPopup: false,
-                  })
-                }}
+                handleAccept={member => this.handleUpdateTaskUser(member.user)}
               >
                 <div className="row showclearonhover">
-                  {this.state.assigned && (
-                    <div className="clear assigned" onClick={() => this.setState({ assigned: null })}>
+                  {this.state.user && (
+                    <div className="clear assigned" onClick={() => this.handleUpdateTaskUser(null)}>
                       <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
                     </div>
                   )}
 
                   <div className="icon" onClick={() => this.setState({ userPopup: true })}>
-                    {!this.state.assigned && (
+                    {!this.state.user && (
                       <React.Fragment>
                         <IconComponent icon="profile" color="#524150" size="20" thickness="1.5" />
                         <div className="user">Unassigned</div>
                       </React.Fragment>
                     )}
 
-                    {this.state.assigned && (
+                    {this.state.user && (
                       <div className="assigned-member">
-                        <Avatar size="small-medium" image={this.state.assigned.image} title={this.state.assigned.name} className="mb-5 mr-5" />
-                        <div className="user">{this.state.assigned.id == this.props.user.id ? this.props.user.name + ' (you)' : this.state.assigned.name}</div>
+                        <Avatar size="small-medium" image={this.state.user.image} title={this.state.user.name} className="mb-5 mr-5" />
+                        <div className="user">{this.state.user.id == this.props.user.id ? this.props.user.name + ' (you)' : this.state.user.name}</div>
                       </div>
                     )}
                   </div>
@@ -184,7 +236,7 @@ class ModalComponent extends React.Component {
 
               <div className="row showclearonhover">
                 {this.state.dueDate && (
-                  <div className="clear" onClick={() => this.setState({ dueDate: null, dueDatePretty: null })}>
+                  <div className="clear" onClick={() => this.handleUpdateTaskDueDate(null)}>
                     <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
                   </div>
                 )}
@@ -194,18 +246,7 @@ class ModalComponent extends React.Component {
                   visible={this.state.dueDatePopup}
                   width={250}
                   direction="right-bottom"
-                  content={
-                    <DayPicker
-                      selectedDays={this.state.dueDate}
-                      onDayClick={date => {
-                        this.setState({
-                          dueDate: moment(date).toDate(),
-                          dueDatePretty: moment(date).fromNow(),
-                          dueDatePopup: false,
-                        })
-                      }}
-                    />
-                  }
+                  content={<DayPicker selectedDays={this.state.dueDate} onDayClick={date => this.handleUpdateTaskDueDate(moment(date).toDate())} />}
                 >
                   <div className="icon">
                     <div className="date" onClick={() => this.setState({ dueDatePopup: true })}>
@@ -382,11 +423,25 @@ ModalComponent.propTypes = {
   channel: PropTypes.any,
   team: PropTypes.any,
   onClose: PropTypes.func,
+  updateChannel: PropTypes.func,
+  updateChannelMessageTaskAttachment: PropTypes.func,
+  deleteChannelMessageTaskAttachment: PropTypes.func,
+  createChannelMessage: PropTypes.func,
+  updateChannelCreateTask: PropTypes.func,
+  updateChannelUpdateTask: PropTypes.func,
+  updateChannelDeleteTask: PropTypes.func,
   hydrateTask: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
+  createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
+  updateChannel: (channelId, channel) => updateChannel(channelId, channel),
+  updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),
+  deleteChannelMessageTaskAttachment: (channelId, taskId) => deleteChannelMessageTaskAttachment(channelId, taskId),
+  updateChannelCreateTask: (channelId, task) => updateChannelCreateTask(channelId, task),
+  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
+  updateChannelDeleteTask: (channelId, taskId) => updateChannelDeleteTask(channelId, taskId),
 }
 
 const mapStateToProps = state => {

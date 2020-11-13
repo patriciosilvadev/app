@@ -14,6 +14,7 @@ import {
   updateChannelCreateTask,
   updateChannelUpdateTask,
   updateChannelDeleteTask,
+  hydrateTask,
 } from '../../actions'
 import PropTypes from 'prop-types'
 import arrayMove from 'array-move'
@@ -238,6 +239,10 @@ class TasksExtension extends React.Component {
     } else {
       this.setState({ showCompletedTasks: false })
     }
+
+    setTimeout(() => {
+      this.props.hydrateTask({ id: '5fabcb9e7755c37b8e6f266d' })
+    }, 500)
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -294,9 +299,11 @@ TasksExtension.propTypes = {
   updateChannelCreateTask: PropTypes.func,
   updateChannelUpdateTask: PropTypes.func,
   updateChannelDeleteTask: PropTypes.func,
+  hydrateTask: PropTypes.func,
 }
 
 const mapDispatchToProps = {
+  hydrateTask: task => hydrateTask(task),
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
   updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),

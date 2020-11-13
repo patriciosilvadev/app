@@ -15,6 +15,7 @@ import QuickUserComponent from '../../../../components/quick-user.component'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
 import * as moment from 'moment'
+import dayjs from 'dayjs'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -24,7 +25,7 @@ class TaskComponent extends React.Component {
       id: props.id,
       done: props.done,
       title: props.title,
-      user: props.user,
+      user: props.assignedUser, // Because props.user is the redux store
       dueDate: props.dueDate,
       dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
       heading: isTaskHeading(props.title),
@@ -52,6 +53,14 @@ class TaskComponent extends React.Component {
     this.updateOrCreateTask = this.updateOrCreateTask.bind(this)
     this.adjustHeight = this.adjustHeight.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    return {
+      user: props.assignedUser,
+      dueDate: props.dueDate,
+      dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
+    }
   }
 
   insertAtCursor(text) {
@@ -269,7 +278,7 @@ class TaskComponent extends React.Component {
                     direction="right-bottom"
                     content={
                       <DayPicker
-                        selectedDays={this.state.dueDate}
+                        selectedDays={dueDate}
                         onDayClick={date => {
                           this.setState({
                             dueDate: moment(date).toDate(),
