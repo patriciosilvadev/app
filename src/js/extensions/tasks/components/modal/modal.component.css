@@ -15,6 +15,20 @@
   width: 100%;
 }
 
+.task-modal-container .tasks-toolbar {
+  width: 100%;
+  padding: 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  position: relative;
+  padding: 5px 10px 5px 10px;
+  background: white;
+  border-bottom: 2px solid #edf0f2;
+}
+
 .task-modal-container .panels {
   flex: 1;
   display: flex;

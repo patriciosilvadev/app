@@ -140,11 +140,6 @@ class ModalComponent extends React.Component {
       tasks: props.task.tasks ? props.task.tasks.sort((a, b) => a.order - b.order) : [],
     }
 
-    // Here we decide what to update from the Redux store
-    // Likely updated frm the other users - but only update if it's different
-    // Otherwise our onChange evvent won't ever work on these input fields
-    if (props.task.title != state.title) updatedState['title'] = props.task.title
-
     return updatedState
   }
 
@@ -245,7 +240,7 @@ class ModalComponent extends React.Component {
     try {
       const { id, title, description } = this.state
 
-      await GraphqlService.getInstance().updateTask(id, { done, title, description, files })
+      await GraphqlService.getInstance().updateTask(id, { title, description })
 
       const channelId = this.props.channel.id
       const taskId = id
@@ -780,6 +775,17 @@ class ModalComponent extends React.Component {
                     {this.state.files.map((file, index) => {
                       return <File key={index} filename={file.filename} url={file.url} onDelete={url => this.handleDeleteFile(url)} />
                     })}
+                  </div>
+
+                  <div className="tasks-toolbar">
+                    <div className="bold h5 color-d3">Subtasks</div>
+                    <div className="flexer" />
+                    <Button
+                      size="small"
+                      theme="muted"
+                      text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'}
+                      onClick={() => this.setState({ showCompletedTasks: !this.state.showCompletedTasks })}
+                    />
                   </div>
 
                   <div className="tasks">
