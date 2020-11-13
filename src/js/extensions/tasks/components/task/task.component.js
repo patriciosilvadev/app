@@ -10,7 +10,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
 import marked from 'marked'
-import { hydrateTask } from '../../../../actions'
+import { hydrateTask, updateChannelUpdateTask } from '../../../../actions'
 import QuickUserComponent from '../../../../components/quick-user.component'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
@@ -53,12 +53,59 @@ class TaskComponent extends React.Component {
     this.updateOrCreateTask = this.updateOrCreateTask.bind(this)
     this.adjustHeight = this.adjustHeight.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
+    this.handleUpdateTaskUser = this.handleUpdateTaskUser.bind(this)
+    this.handleUpdateTaskDueDate = this.handleUpdateTaskDueDate.bind(this)
+  }
+
+  async handleUpdateTaskUser(user) {
+    try {
+      const { id } = this.state
+      const channelId = this.props.channel.id
+      const task = { id, user }
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { user: user ? user.id : null })
+
+      // Update our UI
+      this.setState({ user, userPopup: false })
+
+      // Update the task list
+      this.props.updateChannelUpdateTask(channelId, task)
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskDueDate(date) {
+    try {
+      const { id } = this.state
+      const dueDate = date
+      const channelId = this.props.channel.id
+      const task = { id, dueDate }
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { dueDate })
+
+      // Update our UI
+      this.setState({
+        dueDate: date,
+        dueDatePretty: date ? moment(date).fromNow() : null,
+        dueDatePopup: false,
+      })
+
+      // Update the task list
+      this.props.updateChannelUpdateTask(channelId, task)
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
   }
 
   static getDerivedStateFromProps(props, state) {
     return {
       user: props.assignedUser,
-      dueDate: props.dueDate,
+      dueDate: props.dueDate ? moment(props.dueDate).toDate() : null,
       dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
     }
   }
@@ -276,18 +323,7 @@ class TaskComponent extends React.Component {
                     visible={this.state.dueDatePopup}
                     width={250}
                     direction="right-bottom"
-                    content={
-                      <DayPicker
-                        selectedDays={dueDate}
-                        onDayClick={date => {
-                          this.setState({
-                            dueDate: moment(date).toDate(),
-                            dueDatePretty: moment(date).fromNow(),
-                            dueDatePopup: false,
-                          })
-                        }}
-                      />
-                    }
+                    content={<DayPicker selectedDays={dueDate} onDayClick={date => this.handleUpdateTaskDueDate(moment(date).toDate())} />}
                   >
                     <IconComponent icon="calendar" color="#CFD4D9" thickness={2} size={15} className="button" onClick={() => this.setState({ dueDatePopup: true })} />
                   </Popup>
@@ -304,12 +340,7 @@ class TaskComponent extends React.Component {
                 width={250}
                 direction="right-bottom"
                 handleDismiss={() => this.setState({ userPopup: false })}
-                handleAccept={member => {
-                  this.setState({
-                    user: member.user,
-                    userPopup: false,
-                  })
-                }}
+                handleAccept={member => this.handleUpdateTaskUser(member.user)}
               >
                 <div className="icon-container" onClick={e => this.setState({ userPopup: true })}>
                   {!newTask && !!user && <Avatar size="very-small" image={user.image} title={user.name} className="mb-5 mr-5" />}
@@ -445,10 +476,13 @@ TaskComponent.propTypes = {
   hydrateTask: PropTypes.func,
   user: PropTypes.any,
   team: PropTypes.any,
+  channel: PropTypes.any,
+  updateChannelUpdateTask: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
+  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
 }
 
 const mapStateToProps = state => {
@@ -456,6 +490,7 @@ const mapStateToProps = state => {
     task: state.task,
     user: state.user,
     team: state.team,
+    channel: state.channel,
   }
 }
 

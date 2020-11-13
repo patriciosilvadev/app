@@ -156,7 +156,6 @@ class TasksExtension extends React.Component {
       // Update the task if it's been posted on a message
       this.props.updateChannelUpdateTask(channelId, task)
       this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
-      this.toggleTasksBelowHeadings(taskId, false)
     } catch (e) {
       logger(e)
     }

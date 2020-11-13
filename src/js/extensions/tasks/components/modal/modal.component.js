@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../../../../components/icon.component'
-import { classNames, logger } from '../../../../helpers/util'
+import { classNames, logger, getMentions } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
@@ -15,7 +15,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
-import { TASK_ORDER_INDEX, TASKS_ORDER } from '../../../../constants'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../../../../constants'
 import './modal.component.css'
 import {
   updateChannel,
@@ -31,6 +31,8 @@ import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
+import Keg from '@joduplessis/keg'
+import UploadService from '../../../../services/upload.service'
 
 class ModalComponent extends React.Component {
   constructor(props) {
@@ -72,13 +74,31 @@ class ModalComponent extends React.Component {
       ],
     }
 
+    this.composeRef = React.createRef()
+    this.fileRef = React.createRef()
+
     this.fetchTask = this.fetchTask.bind(this)
     this.onSortEnd = this.onSortEnd.bind(this)
-    this.handleCreateTask = this.handleCreateTask.bind(this)
+    this.shareToChannel = this.shareToChannel.bind(this)
     this.handleDeleteTask = this.handleDeleteTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
     this.handleUpdateTaskUser = this.handleUpdateTaskUser.bind(this)
     this.handleUpdateTaskDueDate = this.handleUpdateTaskDueDate.bind(this)
+    this.handleBlur = this.handleBlur.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
+    this.handleFileChange = this.handleFileChange.bind(this)
+    this.setupFileQeueu = this.setupFileQeueu.bind(this)
+    this.handleDeleteFile = this.handleDeleteFile.bind(this)
+  }
+
+  async handleFileChange(e) {
+    const files = e.target.files || []
+
+    if (files.length == 0) return
+
+    for (let file of files) {
+      Keg.keg('compose').refill('uploads', file)
+    }
   }
 
   async handleUpdateTaskUser(user) {
@@ -126,14 +146,192 @@ class ModalComponent extends React.Component {
     }
   }
 
-  handleUpdateTask() {}
+  async handleUpdateTask() {
+    try {
+      const { id, done, title, description, files } = this.state
 
-  handleDeleteTask() {}
+      await GraphqlService.getInstance().updateTask(id, { done, title, description, files })
 
-  handleCreateTask() {}
+      const channelId = this.props.channel.id
+      const taskId = id
+      const task = {
+        id,
+        done,
+        title,
+        description,
+        files,
+      }
+
+      // Update the task if it's been posted on a message
+      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  async shareToChannel() {
+    const taskId = this.state.id
+    const body = `> Task details`
+    const userName = this.props.user.name
+    const userId = this.props.user.id
+    const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
+    const teamId = this.props.team.id
+    const channelId = this.props.channel.id
+    const device = DEVICE
+    const parentId = null
+    const mentions = getMentions(body)
+    const attachments = [
+      {
+        name: '',
+        uri: taskId,
+        preview: '',
+        mime: MIME_TYPES.TASKS,
+        size: 0,
+      },
+    ]
+
+    try {
+      const { data } = await GraphqlService.getInstance().createChannelMessage({
+        device,
+        mentions,
+        channel: channelId,
+        user: userId,
+        team: teamId,
+        parent: parentId,
+        body,
+        excerpt,
+        attachments,
+      })
+
+      // Catch it
+      if (!data.createChannelMessage) {
+        logger('data.createChannelMessage is null')
+        return this.setState({ error: 'Could not create share' })
+      }
+
+      // The extra values are used for processing other info
+      const channelMessage = {
+        message: data.createChannelMessage,
+        channelId,
+        teamId,
+      }
+
+      // Create the message
+      this.props.createChannelMessage(channelId, channelMessage)
+      this.props.updateChannel(channelId, { excerpt })
+    } catch (e) {
+      this.setState({ error: 'Error sharing task' })
+    }
+  }
+
+  handleKeyDown(e) {
+    // On enter
+    if (e.keyCode == 13) {
+      e.preventDefault()
+      this.handleUpdateTask()
+    }
+  }
+
+  handleBlur(e) {
+    this.handleUpdateTask()
+  }
+
+  async handleDeleteTask() {
+    try {
+      const taskId = this.state.id
+      const channelId = this.props.channel.id
+
+      // Delete it from the API
+      await GraphqlService.getInstance().deleteTask(taskId)
+
+      // Delete it
+      this.props.deleteChannelMessageTaskAttachment(channelId, taskId)
+      this.props.updateChannelDeleteTask(channelId, taskId)
+
+      // Remove the task
+      this.setState({ loading: false, deleteBar: false })
+
+      // Close the modal
+      this.props.onClose()
+    } catch (e) {
+      this.setState({ error: 'Error deleting task' })
+    }
+  }
+
+  async handleDeleteFile(url) {
+    this.setState({
+      files: this.state.files.filter(file => file.url != url),
+    })
+  }
+
+  async setupFileQeueu() {
+    // Listen for file changes in attachments
+    Keg.keg('compose').tap(
+      'uploads',
+      (file, pour) => {
+        this.setState({ error: null, loading: true })
+
+        const { name, type, size } = file
+        const secured = false
+
+        UploadService.getUploadUrl(name, type, secured)
+          .then(raw => raw.json())
+          .then(res => {
+            const { url } = res
+
+            UploadService.uploadFile(url, file, type)
+              .then(upload => {
+                const mime = type
+                const urlParts = upload.url.split('?')
+                const rawUri = urlParts[0]
+                let uriParts = rawUri.replace('https://', '').split('/')
+
+                // Remove the first index value (AWS URL)
+                uriParts.shift()
+
+                // Combine the KEY for aws
+                const uri = uriParts.join('/')
+
+                // Get the signed URL for this key
+                UploadService.getSignedGetUrl(uri)
+                  .then(raw => raw.json())
+                  .then(res1 => {
+                    const file = { url: res1.url, filename: name }
+
+                    // Add the new files & increase the index
+                    // And pour again to process the next file
+                    this.setState(
+                      {
+                        files: [...this.state.files, file],
+                      },
+                      () => pour()
+                    )
+                  })
+                  .catch(err => {
+                    this.setState({ error: 'Error getting URL', loading: false })
+                  })
+              })
+              .catch(err => {
+                this.setState({ error: 'Error getting URL', loading: false })
+              })
+          })
+          .catch(err => {
+            this.setState({ error: 'Error getting URL', loading: false })
+          })
+      },
+      () => {
+        // This is the empty() callback
+        // Stop loading when all is done
+        this.setState({ loading: false })
+        this.handleUpdateTask()
+      }
+    )
+  }
 
   componentDidMount() {
     this.fetchTask()
+    this.setupFileQeueu()
   }
 
   async fetchTask() {
@@ -193,9 +391,15 @@ class ModalComponent extends React.Component {
 
           <div className="task-modal-container">
             <div className="title-bar">
-              <CheckboxComponent done={this.state.done} onClick={() => this.handleDoneIconClick()} />
+              <CheckboxComponent
+                done={this.state.done}
+                onClick={() => {
+                  this.setState({ done: !this.state.done }, () => this.handleUpdateTask())
+                }}
+              />
 
               <div style={{ width: 20 }} />
+              <input type="file" onChange={this.handleFileChange} ref={ref => (this.fileRef = ref)} style={{ display: 'none' }} />
 
               <QuickUserComponent
                 userId={this.props.user.id}
@@ -257,11 +461,11 @@ class ModalComponent extends React.Component {
                 </Popup>
               </div>
 
-              <div className="icon" onClick={this.props.onClose}>
+              <div className="icon" onClick={() => this.fileRef.click()}>
                 <IconComponent icon="attachment" color="#524150" size="18" thickness="1.5" />
               </div>
 
-              <div className="icon" onClick={this.props.onClose}>
+              <div className="icon" onClick={this.shareToChannel}>
                 <IconComponent icon="share" color="#524150" size="18" thickness="1.5" />
               </div>
 
@@ -277,8 +481,8 @@ class ModalComponent extends React.Component {
             {this.state.deleteBar && (
               <div className="delete-bar">
                 <div className="text">Are you sure? This cannot be undone.</div>
-                <Button text="Yes" size="small" theme="red" onClick={() => this.setState({ deleteBar: false })} />
-                <Button text="No" size="small" theme="red" onClick={() => this.setState({ deleteBar: false })} className="ml-5" />
+                <Button text="No" size="small" theme="red" onClick={() => this.setState({ deleteBar: false })} />
+                <Button text="Yes" size="small" theme="red" onClick={() => this.handleDeleteTask()} className="ml-5" />
               </div>
             )}
 
@@ -286,7 +490,14 @@ class ModalComponent extends React.Component {
               <div className="panel" style={{ flex: 1.5 }}>
                 <div className="content">
                   <div className="title">
-                    <TextareaComponent placeholder="Task title" value={this.state.title} onChange={e => this.setState({ title: e.target.value })} />
+                    <TextareaComponent
+                      ref={ref => (this.composeRef = ref)}
+                      onBlur={this.handleBlur}
+                      onKeyDown={this.handleKeyDown}
+                      placeholder="Task title"
+                      value={this.state.title}
+                      onChange={e => this.setState({ title: e.target.value })}
+                    />
                   </div>
 
                   <div className="description">
@@ -305,7 +516,7 @@ class ModalComponent extends React.Component {
                         <button
                           className="description-button"
                           onClick={e => {
-                            // this.updateOrCreateTask()
+                            this.handleUpdateTask()
                             this.setState({ editDescription: false })
                           }}
                         >
@@ -334,8 +545,8 @@ class ModalComponent extends React.Component {
                   </div>
 
                   <div className="files">
-                    {this.state.files.map(file => {
-                      return <File filename={file.filename} url={file.url} onDelete={() => console.log('DELETE')} />
+                    {this.state.files.map((file, index) => {
+                      return <File key={index} filename={file.filename} url={file.url} onDelete={url => this.handleDeleteFile(url)} />
                     })}
                   </div>
 
@@ -355,8 +566,8 @@ class ModalComponent extends React.Component {
               </div>
               <div className="panel">
                 <div className="messages">
-                  {this.state.messages.map(message => {
-                    return <Message user={message.user} body={message.body} createdAt={message.createdAt} />
+                  {this.state.messages.map((message, index) => {
+                    return <Message key={index} user={message.user} body={message.body} createdAt={message.createdAt} />
                   })}
                 </div>
 
@@ -368,23 +579,6 @@ class ModalComponent extends React.Component {
           </div>
         </Modal>
       </ModalPortal>
-    )
-  }
-}
-
-class DueDateIcon extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return (
-      <div className="icon">
-        <div className="date" onClick={this.props.onClick}>
-          {!!this.props.value ? this.props.value : 'No date'}
-        </div>
-        <IconComponent icon="calendar" color="#524150" size="18" thickness="1.5" onClick={this.props.onClick} />
-      </div>
     )
   }
 }
@@ -413,7 +607,7 @@ const File = ({ filename, url, onDelete }) => {
       <a href={url} className="filename" target="_blank">
         {filename}
       </a>
-      {over && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={onDelete} />}
+      {over && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={() => onDelete(url)} />}
     </div>
   )
 }
