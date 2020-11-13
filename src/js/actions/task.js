@@ -20,3 +20,11 @@ export function hydrateTask(task) {
     payload: task,
   }
 }
+
+export function updateTaskAddMessage(taskId, message, channelId) {
+  return {
+    type: 'UPDATE_TASK_ADD_MESSAGE',
+    payload: { message, taskId },
+    sync: channelId,
+  }
+}

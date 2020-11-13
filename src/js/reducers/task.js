@@ -26,5 +26,14 @@ export default (state = initialState, action) =>
           ...state,
           ...action.payload,
         }
+
+      case 'UPDATE_TASK_ADD_MESSAGE':
+        if (action.payload.taskId != state.id) return
+
+        // Add the message here
+        return {
+          ...state,
+          messages: [...state.messages, action.payload.message],
+        }
     }
   })

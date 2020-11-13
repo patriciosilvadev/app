@@ -27,6 +27,7 @@ import {
   updateChannelDeleteTask,
   hydrateTask,
   updateTask,
+  updateTaskAddMessage,
 } from '../../../../actions'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
@@ -95,11 +96,11 @@ class ModalComponent extends React.Component {
     this.handleDeleteSubtask = this.handleDeleteSubtask.bind(this)
     this.handleUpdateSubtask = this.handleUpdateSubtask.bind(this)
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
+    this.handleCreateMessage = this.handleCreateMessage.bind(this)
+    this.handleKeyDownCompose = this.handleKeyDownCompose.bind(this)
   }
 
   static getDerivedStateFromProps(props, state) {
-    console.log('CALLED', props.task)
-
     if (!props.task.id) return null
 
     // This is the basic state
@@ -108,7 +109,11 @@ class ModalComponent extends React.Component {
       user: props.task.user || null,
       dueDate: props.task.dueDate ? moment(props.task.dueDate).toDate() : null,
       dueDatePretty: props.task.dueDate ? moment(props.task.dueDate).fromNow() : '',
-      messages: props.task.messages ? props.task.messages : [],
+      messages: props.task.messages
+        ? props.task.messages.sort((left, right) => {
+            return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
+          })
+        : [],
       files: props.task.files ? props.task.files : [],
       tasks: props.task.tasks ? props.task.tasks.sort((a, b) => a.order - b.order) : [],
     }
@@ -288,6 +293,14 @@ class ModalComponent extends React.Component {
     }
   }
 
+  handleKeyDownCompose(e) {
+    // On enter
+    if (e.keyCode == 13) {
+      e.preventDefault()
+      this.handleCreateMessage()
+    }
+  }
+
   handleKeyDown(e) {
     // On enter
     if (e.keyCode == 13) {
@@ -298,6 +311,32 @@ class ModalComponent extends React.Component {
 
   handleBlur(e) {
     this.handleUpdateTask()
+  }
+
+  async handleCreateMessage() {
+    try {
+      const { user } = this.props
+      const userId = user.id
+      const taskId = this.state.id
+      const body = this.state.compose
+      const channelId = this.props.channel.id
+
+      // Add the message
+      await GraphqlService.getInstance().createTaskMessage(taskId, body, userId)
+
+      // Consturct this manually because the document is actually
+      // Part of the TaskDocument - so we don't rely on the GQL resolvers
+      // to construct the return document for us
+      // ie: { new: true } <- won't work for MOngoose
+      const createdAt = new Date()
+      const message = { body, user, createdAt }
+
+      // Add the new subtask to the store
+      this.props.updateTaskAddMessage(taskId, message, channelId)
+      this.setState({ compose: '' })
+    } catch (e) {
+      this.setState({ error: 'Error creating message' })
+    }
   }
 
   async handleDeleteSubtask(subtaskId) {
@@ -515,6 +554,8 @@ class ModalComponent extends React.Component {
         task: { id, description, title, done, dueDate, tasks, files, messages, user },
       } = data
 
+      console.log(messages)
+
       // Set up the local state to use
       this.setState({ description, title, loading: false })
 
@@ -729,7 +770,12 @@ class ModalComponent extends React.Component {
                 </div>
 
                 <div className="compose">
-                  <TextareaComponent placeholder="Use *markdown* and press enter" value={this.state.compose} onChange={e => this.setState({ compose: e.target.value })} />
+                  <TextareaComponent
+                    onKeyDown={this.handleKeyDownCompose}
+                    placeholder="Use *markdown* and press enter"
+                    value={this.state.compose}
+                    onChange={e => this.setState({ compose: e.target.value })}
+                  />
                 </div>
               </div>
             </div>
@@ -747,7 +793,7 @@ const Message = ({ user, body, createdAt }) => {
       <div className="column">
         <div className="row">
           <div className="user">{user.name}</div>
-          <div className="date">{createdAt}</div>
+          <div className="date">{moment(createdAt).fromNow()}</div>
         </div>
         <div className="text" dangerouslySetInnerHTML={{ __html: marked(body) }}></div>
       </div>
@@ -783,10 +829,12 @@ ModalComponent.propTypes = {
   updateChannelDeleteTask: PropTypes.func,
   hydrateTask: PropTypes.func,
   updateTask: PropTypes.func,
+  updateTaskAddMessage: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
+  updateTaskAddMessage: (taskId, message, channelId) => updateTaskAddMessage(taskId, message, channelId),
   updateTask: (taskId, updatedTask, channelId) => updateTask(taskId, updatedTask, channelId),
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),

@@ -1703,6 +1703,21 @@ export default class GraphqlService {
     })
   }
 
+  createTaskMessage(taskId, body, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createTaskMessage($taskId: String, $body: String, $userId: String) {
+          createTaskMessage(taskId: $taskId, body: $body, userId: $userId)
+        }
+      `,
+      variables: {
+        taskId,
+        body,
+        userId,
+      },
+    })
+  }
+
   createTask(channelId, payload) {
     return this.client.mutate({
       mutation: gql`
