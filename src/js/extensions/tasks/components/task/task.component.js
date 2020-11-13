@@ -358,7 +358,10 @@ class TaskComponent extends React.Component {
                     thickness={2}
                     size={13}
                     className="button"
-                    onClick={e => this.setState({ showDescription: !this.state.showDescription })}
+                    onClick={e => {
+                      //this.setState({ showDescription: !this.state.showDescription })
+                      this.props.hydrateTask({ id: this.props.id })
+                    }}
                   />
                 )}
               </div>
