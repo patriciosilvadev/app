@@ -112,8 +112,9 @@ export default function DockComponent(props) {
         </Avatar>
       </div>
 
-      <div className="mt-0 mb-10">
-        <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => window.open('mailto:support@weekday.freshdesk.com')}>
+      <div className="mt-0 mb-10" id="yack" data-inbox="weekday">
+        {/* onClick={e => window.open('mailto:support@weekday.freshdesk.com')} */}
+        <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button">
           <IconComponent icon="life-buoy" size={18} color="#112640" thickness={1.75} />
         </Avatar>
       </div>

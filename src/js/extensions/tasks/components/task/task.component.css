@@ -21,6 +21,10 @@
   font-weight: 700;
 }
 
+.tasks-extension-li .task .due-date.overdue {
+  color: red;
+}
+
 .tasks-extension-li .task .icon-container {
   height: 20px;
   width: 20px;

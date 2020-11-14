@@ -164,6 +164,10 @@
   font-weight: 600;
 }
 
+.task-modal-container .title-bar .date.overdue {
+  color: red;
+}
+
 .task-modal-container .title-bar .user {
   padding-left: 10px;
   color: #202529;

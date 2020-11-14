@@ -238,6 +238,10 @@ class TaskComponent extends React.Component {
       flexer: true,
       hide: compose || newTask ? false : true,
     })
+    const dueDateClasses = classNames({
+      'due-date': true,
+      'overdue': dayjs().isAfter(dueDate),
+    })
 
     // Do this every render
     this.adjustHeight()
@@ -313,7 +317,7 @@ class TaskComponent extends React.Component {
           {/* Don't display them for headings or when they are disbales (inside task modal) */}
           {!heading && !this.props.disableTools && (
             <React.Fragment>
-              <div className="due-date">{this.state.dueDatePretty}</div>
+              <div className={dueDateClasses}>{this.state.dueDatePretty}</div>
 
               {/* Calendar that lets the user select a date */}
               <div className="icon-container">

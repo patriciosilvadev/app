@@ -613,6 +613,10 @@ class ModalComponent extends React.Component {
     // Which in this case is THIS user
     // So add the (You) part
     const initialUser = { ...this.props.user, name: 'Assign to me' }
+    const dateClasses = classNames({
+      date: true,
+      overdue: dayjs().isAfter(this.state.dueDate),
+    })
 
     return (
       <ModalPortal>
@@ -680,7 +684,7 @@ class ModalComponent extends React.Component {
                   content={<DayPicker selectedDays={this.state.dueDate} onDayClick={date => this.handleUpdateTaskDueDate(moment(date).toDate())} />}
                 >
                   <div className="icon">
-                    <div className="date" onClick={() => this.setState({ dueDatePopup: true })}>
+                    <div className={dateClasses} onClick={() => this.setState({ dueDatePopup: true })}>
                       {!!this.state.dueDatePretty ? this.state.dueDatePretty : 'No date'}
                     </div>
                     <IconComponent icon="calendar" color="#524150" size="18" thickness="1.5" onClick={() => this.setState({ dueDatePopup: true })} />
