@@ -15,8 +15,9 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
-import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../../../../constants'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_UPDATE_TITLE } from '../../../../constants'
 import './modal.component.css'
+import EventService from '../../../../services/event.service'
 import {
   updateChannel,
   createChannelMessage,
@@ -241,6 +242,9 @@ class ModalComponent extends React.Component {
       const { id, title, description } = this.state
 
       await GraphqlService.getInstance().updateTask(id, { title, description })
+
+      // Tell the tasks to update their text compose field
+      EventService.getInstance().emit(TASK_UPDATE_TITLE, { id, title })
 
       const channelId = this.props.channel.id
       const taskId = id

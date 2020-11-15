@@ -16,6 +16,8 @@ import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
+import EventService from '../../../../services/event.service'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_UPDATE_TITLE } from '../../../../constants'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -30,9 +32,6 @@ class TaskComponent extends React.Component {
       dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
       heading: isTaskHeading(props.title),
       text: props.new ? '' : props.title,
-      description: props.description || '',
-      showDescription: false,
-      editDescription: false,
       new: props.new,
       menu: false,
       deleteModal: false,
@@ -103,11 +102,16 @@ class TaskComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    return {
+    let updatedState = {
       user: props.assignedUser,
       dueDate: props.dueDate ? moment(props.dueDate).toDate() : null,
       dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
     }
+
+    // If the title gets changed from the modal
+    // if (props.title != state.text) updatedState['text'] = props.title
+
+    return updatedState
   }
 
   insertAtCursor(text) {
@@ -122,7 +126,7 @@ class TaskComponent extends React.Component {
   }
 
   updateOrCreateTask() {
-    const { id, done, text, description } = this.state
+    const { id, done, text } = this.state
 
     if (this.state.new) {
       this.props.createTask({ title: this.state.text })
@@ -139,13 +143,11 @@ class TaskComponent extends React.Component {
         id,
         done,
         title: text,
-        description,
       })
 
       // Update the task here
       this.setState({
-        title: text,
-        description,
+        text,
         done,
         compose: false,
       })
@@ -158,6 +160,7 @@ class TaskComponent extends React.Component {
       text: this.state.title,
       heading: isTaskHeading(this.state.title),
     })
+    this.updateOrCreateTask()
   }
 
   // Fires 1st
@@ -189,7 +192,13 @@ class TaskComponent extends React.Component {
     if (prevProps.done != this.props.done) this.setState({ done: this.props.done })
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    // This is a fix to keep the task state synced with
+    // what is ahppening in the modal (when the title is edited)
+    EventService.getInstance().on(TASK_UPDATE_TITLE, ({ id, title }) => {
+      if (id == this.state.id) this.setState({ text: title })
+    })
+  }
 
   handleDoneIconClick() {
     if (this.state.new) {
@@ -210,7 +219,8 @@ class TaskComponent extends React.Component {
 
   render() {
     const initialUser = { ...this.props.user, name: 'Assign to me' }
-    const { id, over, heading, deleteModal, compose, done, title, description, user, dueDate } = this.state
+    const { id, over, heading, deleteModal, compose, done, user, dueDate } = this.state
+    const { description, title } = this.props
     const newTask = this.state.new
     const classes = classNames({
       'tasks-extension-li': true,
@@ -414,51 +424,6 @@ class TaskComponent extends React.Component {
             </React.Fragment>
           )}
         </div>
-
-        {this.state.showDescription && (
-          <div className="column pl-40 pr-20 w-100 mb-10">
-            {/* Display the editor */}
-            {this.state.editDescription && (
-              <textarea placeholder="Add a description with *markdown*" value={description} className="description" onChange={e => this.setState({ description: e.target.value })} />
-            )}
-
-            {/* Display the markdown */}
-            {!this.state.editDescription && <div className="task-description-markdown" dangerouslySetInnerHTML={{ __html: marked(description || '<em><em>No description</em></em>') }} />}
-
-            {/* These are the buttons at the bottom of the description */}
-            <div className="row mt-10">
-              {!this.state.editDescription && (
-                <button className="description-button" onClick={e => this.setState({ editDescription: true })}>
-                  Edit
-                </button>
-              )}
-
-              {this.state.editDescription && (
-                <button
-                  className="description-button"
-                  onClick={e => {
-                    this.updateOrCreateTask()
-                    this.setState({ editDescription: false })
-                  }}
-                >
-                  Okay
-                </button>
-              )}
-
-              <button
-                className="description-button cancel"
-                onClick={e => {
-                  this.setState({
-                    showDescription: false,
-                    editDescription: false,
-                  })
-                }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
       </li>
     )
   }

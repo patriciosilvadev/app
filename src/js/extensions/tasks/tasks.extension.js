@@ -140,22 +140,22 @@ class TasksExtension extends React.Component {
     }
   }
 
-  async handleUpdateTask({ id, done, title, description }) {
+  async handleUpdateTask({ id, done, title }) {
     try {
-      await GraphqlService.getInstance().updateTask(id, { done, title, description })
-
       const channelId = this.props.channel.id
       const taskId = id
       const task = {
         id,
         done,
         title,
-        description,
       }
 
       // Update the task if it's been posted on a message
       this.props.updateChannelUpdateTask(channelId, task)
       this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
+
+      // OPTIMISTIC UPDATES
+      await GraphqlService.getInstance().updateTask(id, { done, title })
     } catch (e) {
       logger(e)
     }
