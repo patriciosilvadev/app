@@ -243,9 +243,6 @@ class ModalComponent extends React.Component {
 
       await GraphqlService.getInstance().updateTask(id, { title, description })
 
-      // Tell the tasks to update their text compose field
-      EventService.getInstance().emit(TASK_UPDATE_TITLE, { id, title })
-
       const channelId = this.props.channel.id
       const taskId = id
       const task = {

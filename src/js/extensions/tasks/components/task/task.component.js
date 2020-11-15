@@ -188,17 +188,11 @@ class TaskComponent extends React.Component {
   handleKeyUp(e) {}
 
   componentDidUpdate(prevProps) {
-    if (prevProps.title != this.props.title) this.setState({ title: this.props.title })
+    if (prevProps.title != this.props.title) this.setState({ title: this.props.title, text: this.props.title })
     if (prevProps.done != this.props.done) this.setState({ done: this.props.done })
   }
 
-  componentDidMount() {
-    // This is a fix to keep the task state synced with
-    // what is ahppening in the modal (when the title is edited)
-    EventService.getInstance().on(TASK_UPDATE_TITLE, ({ id, title }) => {
-      if (id == this.state.id) this.setState({ text: title })
-    })
-  }
+  componentDidMount() {}
 
   handleDoneIconClick() {
     if (this.state.new) {
