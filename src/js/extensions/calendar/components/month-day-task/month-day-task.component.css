@@ -13,6 +13,18 @@
   opacity: 0.75;
 }
 
+.month-day-task .task-avatar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  padding: 0px;
+  margin: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
 .month-day-task .checkbox {
   display: flex;
   flex-direction: row;

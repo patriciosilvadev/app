@@ -50,7 +50,17 @@ class MonthDayComponent extends React.Component {
         <div className="task-container">
           <div style={{ height: 20 }} />
           {this.state.tasks.map((task, index) => {
-            return <MonthDayTaskComponent key={index} done={task.done} title={task.title} onClick={() => this.props.hydrateTask({ id: task.id })} />
+            return (
+              <MonthDayTaskComponent
+                key={index}
+                channelId={this.props.channel.id}
+                id={task.id}
+                user={task.user}
+                done={task.done}
+                title={task.title}
+                onClick={() => this.props.hydrateTask({ id: task.id })}
+              />
+            )
           })}
         </div>
       </div>
