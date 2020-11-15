@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import TaskComponent from '../task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
+import EventService from '../../../../services/event.service'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
 
 const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools }) => {
   // assignedUser because props.user is the redux store
@@ -94,6 +96,11 @@ export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTas
         shareToChannel={shareToChannel}
         toggleTasksBelowHeadings={toggleTasksBelowHeadings}
         disableTools={disableTools}
+        onSortStart={({ index, oldIndex, newIndex, collection, isKeySorting }) => {
+          const taskId = tasklist[index].id
+          toggleTasksBelowHeadings(taskId, false)
+          EventService.getInstance().emit(TASK_DRAGSTART_RESET_CHEVRON, taskId)
+        }}
       />
 
       <ul>

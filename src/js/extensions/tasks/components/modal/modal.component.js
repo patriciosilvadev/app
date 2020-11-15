@@ -15,7 +15,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
-import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_UPDATE_TITLE } from '../../../../constants'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../../../../constants'
 import './modal.component.css'
 import EventService from '../../../../services/event.service'
 import {

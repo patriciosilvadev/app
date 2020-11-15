@@ -17,7 +17,7 @@ import 'react-day-picker/lib/style.css'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
 import EventService from '../../../../services/event.service'
-import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_UPDATE_TITLE } from '../../../../constants'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -138,6 +138,10 @@ class TaskComponent extends React.Component {
         description: '',
       })
     } else {
+      if (!isTaskHeading(text)) {
+        this.props.toggleTasksBelowHeadings(id, false)
+      }
+
       // Do the API call
       this.props.updateTask({
         id,
@@ -150,6 +154,7 @@ class TaskComponent extends React.Component {
         text,
         done,
         compose: false,
+        heading: isTaskHeading(text),
       })
     }
   }
@@ -192,7 +197,9 @@ class TaskComponent extends React.Component {
     if (prevProps.done != this.props.done) this.setState({ done: this.props.done })
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    EventService.getInstance().on(TASK_DRAGSTART_RESET_CHEVRON, () => this.setState({ childTasksHidden: false }))
+  }
 
   handleDoneIconClick() {
     if (this.state.new) {
