@@ -775,6 +775,90 @@ export default class GraphqlService {
     })
   }
 
+  messageMessages(messageId) {
+    return this.client.query({
+      query: gql`
+        query messageMessages($messageId: String!) {
+          messageMessages(messageId: $messageId) {
+            id
+            reactions
+            device
+            read
+            reads
+            pinned
+            likes
+            system
+            forwardingOriginalTime
+            forwardingUser {
+              id
+              name
+              username
+              timezone
+              image
+            }
+            user {
+              id
+              name
+              image
+              status
+              presence
+              dnd
+              dndUntil
+              username
+              timezone
+            }
+            body
+            attachments {
+              _id
+              id
+              uri
+              size
+              name
+              preview
+              mime
+              createdAt
+            }
+            createdAt
+            app {
+              resourceId
+              app {
+                id
+                name
+                slug
+                description
+                image
+                token
+                published
+                outgoing
+                message {
+                  url
+                  width
+                  height
+                  buttons {
+                    icon
+                    text
+                    action {
+                      type
+                      name
+                      payload {
+                        url
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        messageId,
+      },
+    })
+  }
+
   channelMessages(channelId, page) {
     return this.client.query({
       query: gql`

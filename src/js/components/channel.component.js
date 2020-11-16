@@ -13,7 +13,20 @@ import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
-import { openApp, closeAppPanel, updateLoading, updateError, deleteChannel, updateUserStarred, hydrateChannel, createChannelMember, updateChannel, hydrateChannelMessages } from '../actions'
+import {
+  hydrateTask,
+  hydrateMessage,
+  openApp,
+  closeAppPanel,
+  updateLoading,
+  updateError,
+  deleteChannel,
+  updateUserStarred,
+  hydrateChannel,
+  createChannelMember,
+  updateChannel,
+  hydrateChannelMessages,
+} from '../actions'
 import ComposeComponent from '../components/compose.component'
 import { Popup, Menu, Avatar, Spinner, Notification, Toggle, Error } from '@weekday/elements'
 import { Subject } from 'rxjs'
@@ -29,6 +42,7 @@ import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
 import { AvatarComponent } from '@weekday/elements/lib/avatar'
 import ModalComponent from '../extensions/tasks/components/modal/modal.component'
+import MessageModal from '../modals/message.modal'
 
 // We use this so it's not part of React component update cycle
 // Otherwise it's just a shitshow of jittery goodess
@@ -113,6 +127,7 @@ class ChannelComponent extends React.Component {
     this.renderNonTeamMemberNotice = this.renderNonTeamMemberNotice.bind(this)
     this.renderCompose = this.renderCompose.bind(this)
     this.renderTaskModal = this.renderTaskModal.bind(this)
+    this.renderMessageModal = this.renderMessageModal.bind(this)
   }
 
   async updateChannelShortcode(generateNewCode) {
@@ -353,6 +368,9 @@ class ChannelComponent extends React.Component {
 
     // Keep it scrolled down
     this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
+
+    // Debug
+    // this.props.hydrateMessage({ id: "5ef434484bf9a6306cbb0b45" })
   }
 
   componentDidUpdate(prevProps) {
@@ -907,7 +925,13 @@ class ChannelComponent extends React.Component {
   renderTaskModal() {
     if (!this.props.task.id) return null
 
-    return <ModalComponent taskId={this.props.task.id} onClose={() => this.setState({ modal: false })} />
+    return <ModalComponent taskId={this.props.task.id} onClose={() => this.props.hydrateTask({ id: null })} />
+  }
+
+  renderMessageModal() {
+    if (!this.props.message.id) return null
+
+    return <MessageModal messageId={this.props.message.id} onClose={() => this.props.hydrateMessage({ id: null })} />
   }
 
   render() {
@@ -917,6 +941,7 @@ class ChannelComponent extends React.Component {
       <React.Fragment>
         {this.renderChannelModal()}
         {this.renderTaskModal()}
+        {this.renderMessageModal()}
 
         <ChannelContainer hide={this.props.hide}>
           {this.renderHeader()}
@@ -955,6 +980,7 @@ class ChannelComponent extends React.Component {
 ChannelComponent.propTypes = {
   team: PropTypes.any,
   task: PropTypes.any,
+  message: PropTypes.any,
   app: PropTypes.any,
   channel: PropTypes.any,
   user: PropTypes.any,
@@ -964,12 +990,16 @@ ChannelComponent.propTypes = {
   updateChannel: PropTypes.func,
   updateUserStarred: PropTypes.func,
   openApp: PropTypes.func,
+  hydrateTask: PropTypes.func,
+  hydrateMessage: PropTypes.func,
   closeAppPanel: PropTypes.func,
   hide: PropTypes.bool,
 }
 
 const mapDispatchToProps = {
   hydrateChannel: channel => hydrateChannel(channel),
+  hydrateTask: task => hydrateTask(task),
+  hydrateMessage: message => hydrateMessage(message),
   hydrateChannelMessages: (channelId, messages) => hydrateChannelMessages(channelId, messages),
   updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
   updateUserStarred: (channelId, starred) => updateUserStarred(channelId, starred),
@@ -981,6 +1011,7 @@ const mapStateToProps = state => {
   return {
     team: state.team,
     task: state.task,
+    message: state.message,
     app: state.app,
     user: state.user,
     channel: state.channel,
