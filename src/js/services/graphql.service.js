@@ -321,6 +321,37 @@ export default class GraphqlService {
     })
   }
 
+  tasks(channelId) {
+    return this.client.query({
+      query: gql`
+        query tasks($channelId: String!) {
+          tasks(channelId: $channelId) {
+            id
+            title
+            description
+            order
+            done
+            dueDate
+            user {
+              id
+              name
+              username
+              timezone
+              image
+              status
+              presence
+            }
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        channelId,
+      },
+    })
+  }
+
   channel(channelId) {
     return this.client.query({
       query: gql`
@@ -334,23 +365,6 @@ export default class GraphqlService {
               topic
               roomId
               createdAt
-            }
-            tasks {
-              id
-              title
-              description
-              order
-              done
-              dueDate
-              user {
-                id
-                name
-                username
-                timezone
-                image
-                status
-                presence
-              }
             }
             image
             public

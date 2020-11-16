@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import './month-day-task.component.css'
 import { CheckboxComponent } from '../../../tasks/components/checkbox/checkbox.component'
 import { Avatar } from '@weekday/elements'
-import { updateChannelUpdateTask, updateTask } from '../../../../actions'
+import { updateTasks, updateTask } from '../../../../actions'
 import GraphqlService from '../../../../services/graphql.service'
 import { logger } from '../../../../helpers/util'
 import { WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
@@ -21,7 +21,7 @@ export const MonthDayTaskComponent = ({ id, channelId, done, title, user, onClic
       await GraphqlService.getInstance().updateTask(id, { done: updatedDone })
 
       // Update the task list
-      dispatch(updateChannelUpdateTask(channelId, task))
+      dispatch(updateTasks(channelId, task))
       dispatch(updateTask(taskId, task, channelId))
     } catch (e) {
       logger(e)

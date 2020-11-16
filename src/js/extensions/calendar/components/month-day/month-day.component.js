@@ -9,7 +9,7 @@ import './month-day.component.css'
 import { hydrateTask } from '../../../../actions'
 import { WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
 import GraphqlService from '../../../../services/graphql.service'
-import { updateChannelUpdateTask, updateTask } from '../../../../actions'
+import { updateTasks, updateTask } from '../../../../actions'
 
 class MonthDayComponent extends React.Component {
   constructor(props) {
@@ -43,7 +43,7 @@ class MonthDayComponent extends React.Component {
       await GraphqlService.getInstance().updateTask(taskId, { dueDate: date })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
 
       // Reset this
@@ -76,7 +76,7 @@ class MonthDayComponent extends React.Component {
     const date = props.day.toDate()
     const isToday = today.isSame(dayjs(), 'day')
     const day = props.day.format('DD')
-    const tasks = props.channel.tasks
+    const tasks = props.tasks
       .filter(task => !!task.dueDate)
       .filter(task => dayjs(task.dueDate).isValid())
       .filter(task => today.isSame(dayjs(task.dueDate), 'day'))
@@ -124,11 +124,12 @@ MonthDayComponent.propTypes = {
   user: PropTypes.any,
   channel: PropTypes.any,
   team: PropTypes.any,
+  tasks: PropTypes.any,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
-  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
+  updateTasks: (channelId, task) => updateTasks(channelId, task),
   updateTask: (taskId, task, channelId) => updateTask(taskId, task, channelId),
 }
 
@@ -137,6 +138,7 @@ const mapStateToProps = state => {
     user: state.user,
     channel: state.channel,
     team: state.team,
+    tasks: state.tasks,
   }
 }
 

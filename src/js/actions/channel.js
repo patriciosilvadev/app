@@ -207,36 +207,3 @@ export function deleteChannelMessageTaskAttachment(channelId, taskId) {
     sync: channelId,
   }
 }
-
-export function updateChannelCreateTask(channelId, task) {
-  return {
-    type: 'UPDATE_CHANNEL_CREATE_TASK',
-    payload: {
-      channelId,
-      task,
-    },
-    sync: channelId,
-  }
-}
-
-export function updateChannelUpdateTask(channelId, task) {
-  return {
-    type: 'UPDATE_CHANNEL_UPDATE_TASK',
-    payload: {
-      channelId,
-      task,
-    },
-    sync: channelId,
-  }
-}
-
-export function updateChannelDeleteTask(channelId, taskId) {
-  return {
-    type: 'UPDATE_CHANNEL_DELETE_TASK',
-    payload: {
-      channelId,
-      taskId,
-    },
-    sync: channelId,
-  }
-}

@@ -23,9 +23,9 @@ import {
   createChannelMessage,
   updateChannelMessageTaskAttachment,
   deleteChannelMessageTaskAttachment,
-  updateChannelCreateTask,
-  updateChannelUpdateTask,
-  updateChannelDeleteTask,
+  createTasks,
+  updateTasks,
+  deleteTasks,
   hydrateTask,
   updateTask,
   updateTaskAddMessage,
@@ -172,7 +172,7 @@ class ModalComponent extends React.Component {
       this.setState({ userPopup: false })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
     } catch (e) {
       logger(e)
@@ -194,7 +194,7 @@ class ModalComponent extends React.Component {
       this.setState({ dueDatePopup: false })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
     } catch (e) {
       logger(e)
@@ -212,7 +212,7 @@ class ModalComponent extends React.Component {
       await GraphqlService.getInstance().updateTask(id, { done })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
     } catch (e) {
       logger(e)
@@ -230,7 +230,7 @@ class ModalComponent extends React.Component {
       await GraphqlService.getInstance().updateTask(id, { files })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
     } catch (e) {
       logger(e)
@@ -253,7 +253,7 @@ class ModalComponent extends React.Component {
 
       // Update the task if it's been posted on a message
       this.props.updateTask(taskId, task, channelId)
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
     } catch (e) {
       logger(e)
@@ -490,7 +490,7 @@ class ModalComponent extends React.Component {
 
       // Delete it
       this.props.deleteChannelMessageTaskAttachment(channelId, taskId)
-      this.props.updateChannelDeleteTask(channelId, taskId)
+      this.props.deleteTasks(channelId, taskId)
 
       // Close the modal
       this.props.hydrateTask({ id: null })
@@ -875,9 +875,9 @@ ModalComponent.propTypes = {
   updateChannelMessageTaskAttachment: PropTypes.func,
   deleteChannelMessageTaskAttachment: PropTypes.func,
   createChannelMessage: PropTypes.func,
-  updateChannelCreateTask: PropTypes.func,
-  updateChannelUpdateTask: PropTypes.func,
-  updateChannelDeleteTask: PropTypes.func,
+  createTasks: PropTypes.func,
+  updateTasks: PropTypes.func,
+  deleteTasks: PropTypes.func,
   hydrateTask: PropTypes.func,
   updateTask: PropTypes.func,
   updateTaskAddMessage: PropTypes.func,
@@ -886,14 +886,14 @@ ModalComponent.propTypes = {
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
   updateTaskAddMessage: (taskId, message, channelId) => updateTaskAddMessage(taskId, message, channelId),
-  updateTask: (taskId, updatedTask, channelId) => updateTask(taskId, updatedTask, channelId),
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
   updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),
   deleteChannelMessageTaskAttachment: (channelId, taskId) => deleteChannelMessageTaskAttachment(channelId, taskId),
-  updateChannelCreateTask: (channelId, task) => updateChannelCreateTask(channelId, task),
-  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
-  updateChannelDeleteTask: (channelId, taskId) => updateChannelDeleteTask(channelId, taskId),
+  updateTask: (taskId, updatedTask, channelId) => updateTask(taskId, updatedTask, channelId),
+  createTasks: (channelId, task) => createTasks(channelId, task),
+  updateTasks: (channelId, task) => updateTasks(channelId, task),
+  deleteTasks: (channelId, taskId) => deleteTasks(channelId, taskId),
 }
 
 const mapStateToProps = state => {

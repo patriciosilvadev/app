@@ -11,10 +11,11 @@ import {
   createChannelMessage,
   updateChannelMessageTaskAttachment,
   deleteChannelMessageTaskAttachment,
-  updateChannelCreateTask,
-  updateChannelUpdateTask,
-  updateChannelDeleteTask,
+  createTasks,
+  updateTasks,
+  deleteTasks,
   hydrateTask,
+  hydrateTasks,
 } from '../../actions'
 import PropTypes from 'prop-types'
 import arrayMove from 'array-move'
@@ -45,6 +46,7 @@ class TasksExtension extends React.Component {
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
+    this.fetchTasks = this.fetchTasks.bind(this)
   }
 
   async shareToChannel(taskId) {
@@ -114,9 +116,8 @@ class TasksExtension extends React.Component {
 
       // Delete it
       this.props.deleteChannelMessageTaskAttachment(channelId, taskId)
-      this.props.updateChannelDeleteTask(channelId, taskId)
+      this.props.deleteTasks(channelId, taskId)
     } catch (e) {
-      console.log(e)
       this.setState({
         error: 'Error deleting task',
         loading: false,
@@ -127,16 +128,16 @@ class TasksExtension extends React.Component {
   async handleUpdateTaskOrder(taskId, order) {
     try {
       // Get the task
-      const task = this.props.channel.tasks.filter(task => task.id == taskId)[0]
+      const task = this.props.tasks.filter(task => task.id == taskId)[0]
       const channelId = this.props.channel.id
 
       // Update the order
       await GraphqlService.getInstance().updateTask(taskId, { order })
 
       // Update the order on our store (so it reflects)
-      this.props.updateChannelUpdateTask(channelId, { ...task, order })
+      this.props.updateTasks(channelId, { ...task, order })
     } catch (e) {
-      console.log(e)
+      logger(e)
     }
   }
 
@@ -151,7 +152,7 @@ class TasksExtension extends React.Component {
       }
 
       // Update the task if it's been posted on a message
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
       this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
 
       // OPTIMISTIC UPDATES
@@ -169,7 +170,7 @@ class TasksExtension extends React.Component {
       })
 
       const channelId = this.props.channel.id
-      const order = this.props.channel.tasks.length + 2
+      const order = this.props.tasks.length + 2
       const { data } = await GraphqlService.getInstance().createTask(channelId, { title, order })
       const task = data.createTask
 
@@ -177,7 +178,7 @@ class TasksExtension extends React.Component {
       this.setState({ loading: false })
 
       // Add it ot he store
-      this.props.updateChannelCreateTask(channelId, task)
+      this.props.createTasks(channelId, task)
     } catch (e) {
       logger(e)
       this.setState({
@@ -232,6 +233,12 @@ class TasksExtension extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.channelId != prevProps.match.params.channelId) {
+      this.fetchTasks(this.props.match.params.channelId)
+    }
+  }
+
   componentDidMount() {
     if (StorageService.getStorage('SHOW_COMPLETED_TASKS')) {
       this.setState({ showCompletedTasks: true })
@@ -239,21 +246,28 @@ class TasksExtension extends React.Component {
       this.setState({ showCompletedTasks: false })
     }
 
-    setTimeout(() => {
-      //this.props.hydrateTask({ id: '5fabcb9e7755c37b8e6f266d' })
-    }, 500)
+    this.fetchTasks(this.props.match.params.channelId)
+  }
+
+  async fetchTasks(channelId) {
+    try {
+      const { data } = await GraphqlService.getInstance().tasks(channelId)
+      this.props.hydrateTasks(data.tasks)
+    } catch (e) {
+      logger(e)
+    }
   }
 
   static getDerivedStateFromProps(props, state) {
     if (props.channel.id == undefined || props.channel.id == '') return null
 
-    const tasks = props.channel.tasks.sort((a, b) => a.order - b.order)
+    const tasks = props.tasks.sort((a, b) => a.order - b.order)
 
     return { tasks }
   }
 
   render() {
-    const completed = this.props.channel.tasks.filter(task => task.done).length
+    const completed = this.props.tasks.filter(task => task.done).length
 
     return (
       <div className="tasks-extension">
@@ -264,7 +278,7 @@ class TasksExtension extends React.Component {
         <div className="header">
           <div className="title">Tasks</div>
           <div className="progress">
-            {completed} / {this.props.channel.tasks.length}
+            {completed} / {this.props.tasks.length}
           </div>
 
           <Button text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
@@ -295,10 +309,12 @@ TasksExtension.propTypes = {
   updateChannelMessageTaskAttachment: PropTypes.func,
   deleteChannelMessageTaskAttachment: PropTypes.func,
   createChannelMessage: PropTypes.func,
-  updateChannelCreateTask: PropTypes.func,
-  updateChannelUpdateTask: PropTypes.func,
-  updateChannelDeleteTask: PropTypes.func,
+  createTasks: PropTypes.func,
+  updateTasks: PropTypes.func,
+  deleteTasks: PropTypes.func,
   hydrateTask: PropTypes.func,
+  hydrateTasks: PropTypes.func,
+  tasks: PropTypes.any,
 }
 
 const mapDispatchToProps = {
@@ -307,9 +323,10 @@ const mapDispatchToProps = {
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
   updateChannelMessageTaskAttachment: (channelId, taskId, channelMessageTaskAttachment) => updateChannelMessageTaskAttachment(channelId, taskId, channelMessageTaskAttachment),
   deleteChannelMessageTaskAttachment: (channelId, taskId) => deleteChannelMessageTaskAttachment(channelId, taskId),
-  updateChannelCreateTask: (channelId, task) => updateChannelCreateTask(channelId, task),
-  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
-  updateChannelDeleteTask: (channelId, taskId) => updateChannelDeleteTask(channelId, taskId),
+  createTasks: (channelId, task) => createTasks(channelId, task),
+  updateTasks: (channelId, task) => updateTasks(channelId, task),
+  deleteTasks: (channelId, taskId) => deleteTasks(channelId, taskId),
+  hydrateTasks: tasks => hydrateTasks(tasks),
 }
 
 const mapStateToProps = state => {
@@ -317,6 +334,7 @@ const mapStateToProps = state => {
     user: state.user,
     channel: state.channel,
     team: state.team,
+    tasks: state.tasks,
   }
 }
 

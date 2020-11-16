@@ -20,6 +20,7 @@ import AuthService from './services/auth.service'
 import common from './reducers/common'
 import team from './reducers/team'
 import task from './reducers/task'
+import tasks from './reducers/tasks'
 import teams from './reducers/teams'
 import presences from './reducers/presences'
 import channel from './reducers/channel'
@@ -64,6 +65,7 @@ const store = createStore(
   combineReducers({
     common,
     task,
+    tasks,
     team,
     teams,
     channel,

@@ -10,7 +10,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import { classNames, isTaskHeading } from '../../../../helpers/util'
 import marked from 'marked'
-import { hydrateTask, updateChannelUpdateTask } from '../../../../actions'
+import { hydrateTask, updateTasks } from '../../../../actions'
 import QuickUserComponent from '../../../../components/quick-user.component'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
@@ -69,7 +69,7 @@ class TaskComponent extends React.Component {
       this.setState({ user, userPopup: false })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
     } catch (e) {
       console.log(e)
       logger(e)
@@ -94,7 +94,7 @@ class TaskComponent extends React.Component {
       })
 
       // Update the task list
-      this.props.updateChannelUpdateTask(channelId, task)
+      this.props.updateTasks(channelId, task)
     } catch (e) {
       console.log(e)
       logger(e)
@@ -448,12 +448,12 @@ TaskComponent.propTypes = {
   user: PropTypes.any,
   team: PropTypes.any,
   channel: PropTypes.any,
-  updateChannelUpdateTask: PropTypes.func,
+  updateTasks: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
-  updateChannelUpdateTask: (channelId, task) => updateChannelUpdateTask(channelId, task),
+  updateTasks: (channelId, task) => updateTasks(channelId, task),
 }
 
 const mapStateToProps = state => {

@@ -6,15 +6,6 @@ import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@w
 import { IconComponent } from '../../components/icon.component'
 import { getQueryStringValue, logger, getMentions } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
-import {
-  updateChannel,
-  createChannelMessage,
-  updateChannelMessageTaskAttachment,
-  deleteChannelMessageTaskAttachment,
-  updateChannelCreateTask,
-  updateChannelUpdateTask,
-  updateChannelDeleteTask,
-} from '../../actions'
 import PropTypes from 'prop-types'
 import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
@@ -23,6 +14,7 @@ import { MIME_TYPES } from '../../constants'
 import { classNames, isTaskHeading } from '../../helpers/util'
 import dayjs from 'dayjs'
 import MonthDayComponent from './components/month-day/month-day.component'
+import { hydrateTasks } from '../../actions'
 
 class CalendarExtension extends React.Component {
   constructor(props) {
@@ -42,6 +34,16 @@ class CalendarExtension extends React.Component {
     this.back = this.back.bind(this)
     this.today = this.today.bind(this)
     this.createDays = this.createDays.bind(this)
+    this.fetchTasks = this.fetchTasks.bind(this)
+  }
+
+  async fetchTasks(channelId) {
+    try {
+      const { data } = await GraphqlService.getInstance().tasks(channelId)
+      this.props.hydrateTasks(data.tasks)
+    } catch (e) {
+      logger(e)
+    }
   }
 
   createDays(date) {
@@ -105,6 +107,13 @@ class CalendarExtension extends React.Component {
 
   componentDidMount() {
     this.today()
+    this.fetchTasks(this.props.match.params.channelId)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.channelId != prevProps.match.params.channelId) {
+      this.fetchTasks(this.props.match.params.channelId)
+    }
   }
 
   render() {
@@ -146,15 +155,20 @@ CalendarExtension.propTypes = {
   user: PropTypes.any,
   channel: PropTypes.any,
   team: PropTypes.any,
+  tasks: PropTypes.any,
+  hydrateTasks: PropTypes.func,
 }
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  hydrateTasks: tasks => hydrateTasks(tasks),
+}
 
 const mapStateToProps = state => {
   return {
     user: state.user,
     channel: state.channel,
     team: state.team,
+    tasks: state.tasks,
   }
 }
 
