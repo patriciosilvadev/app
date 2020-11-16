@@ -384,6 +384,8 @@ class ModalComponent extends React.Component {
   }
 
   async handleCreateSubtask({ title }) {
+    if (title.trim() == '') return
+
     try {
       const parent = this.state.id
       const taskId = this.state.id
