@@ -163,6 +163,8 @@ class TasksExtension extends React.Component {
   }
 
   async handleCreateTask({ title }) {
+    if (title.trim() == '') return
+
     try {
       this.setState({
         loading: true,
