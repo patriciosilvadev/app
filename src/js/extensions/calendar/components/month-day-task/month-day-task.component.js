@@ -6,6 +6,7 @@ import { Avatar } from '@weekday/elements'
 import { updateChannelUpdateTask, updateTask } from '../../../../actions'
 import GraphqlService from '../../../../services/graphql.service'
 import { logger } from '../../../../helpers/util'
+import { WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
 
 export const MonthDayTaskComponent = ({ id, channelId, done, title, user, onClick }) => {
   const dispatch = useDispatch()
@@ -27,8 +28,16 @@ export const MonthDayTaskComponent = ({ id, channelId, done, title, user, onClic
     }
   }
 
+  const handleDragEnd = e => {}
+
+  const handleDragStart = e => {}
+
+  const handleDrag = e => {
+    window[WEEKDAY_DRAGGED_TASK_ID] = id
+  }
+
   return (
-    <div className="month-day-task">
+    <div id={id} draggable onDrag={handleDrag} onDragStart={handleDragStart} onDragEnd={handleDragEnd} className="month-day-task">
       <div className="checkbox">
         <CheckboxComponent done={done} onClick={handleUpdateTaskDone} />
       </div>

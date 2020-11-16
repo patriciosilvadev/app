@@ -4,6 +4,7 @@ import ReactDOMServer from 'react-dom/server'
 import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
+import { SILENCE, WEEKDAY_DRAGGED_TASK_ID } from '../constants'
 
 export function getQueryStringValue(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
@@ -88,7 +89,7 @@ export const copyToClipboard = value => {
 }
 
 export const logger = function() {
-  if (NODE_ENV == 'development' && !window.SILENCE) {
+  if (NODE_ENV == 'development' && !window[SILENCE]) {
     for (let argument of arguments) {
       console.log(argument)
     }

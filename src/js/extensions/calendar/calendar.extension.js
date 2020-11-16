@@ -128,13 +128,9 @@ class CalendarExtension extends React.Component {
         </div>
         <div className="container">
           {this.state.weeks.map((week, index) => {
-            console.log('---')
-
             return (
               <div key={index} className="week">
                 {week.map((day, index) => {
-                  console.log(day.format('YYYY-MM-DD dddd'))
-
                   return <MonthDayComponent day={day} key={index} />
                 })}
               </div>

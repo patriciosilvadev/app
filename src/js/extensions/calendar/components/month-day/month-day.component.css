@@ -10,7 +10,8 @@
   justify-content: flex-start;
 }
 
-.month-day-component.today {
+.month-day-component.today,
+.month-day-component.over {
   background-color: #f9fafc;
 }
 

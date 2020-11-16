@@ -10,6 +10,7 @@ import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { API_HOST, PUBLIC_VAPID_KEY, NODE_ENV, SENTRY_DSN } from './environment'
+import { SILENCE, WEEKDAY_DRAGGED_TASK_ID } from './constants'
 import { sync } from './middleware/sync'
 import AuthPage from './pages/auth.page'
 import TeamPage from './pages/team.page'
@@ -40,7 +41,8 @@ import '../../node_modules/emoji-mart/css/emoji-mart.css'
 
 // When we want to debug and nog have other logging pollute the console
 // Set this to true - also affects util.js in the logger method
-window.SILENCE = true
+window[SILENCE] = true
+window[WEEKDAY_DRAGGED_TASK_ID] = null
 
 // Set up Sentry
 if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })
