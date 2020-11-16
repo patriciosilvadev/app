@@ -247,6 +247,10 @@ class TasksExtension extends React.Component {
     }
 
     this.fetchTasks(this.props.match.params.channelId)
+
+    setTimeout(() => {
+      //this.props.hydrateTask({ id: "5fabcba27755c37b8e6f266e" })
+    }, 500)
   }
 
   async fetchTasks(channelId) {

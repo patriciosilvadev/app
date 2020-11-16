@@ -29,6 +29,9 @@ import {
   hydrateTask,
   updateTask,
   updateTaskAddMessage,
+  updateTaskAddSubtask,
+  updateTaskDeleteSubtask,
+  updateTaskUpdateSubtask,
 } from '../../../../actions'
 import DayPicker from 'react-day-picker'
 import 'react-day-picker/lib/style.css'
@@ -126,6 +129,10 @@ class ModalComponent extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (!props.task.id) return null
 
+    // Array is frozen from Redux:
+    // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
+    let tasks = props.task.tasks ? [...props.task.tasks] : []
+
     // This is the basic state
     let updatedState = {
       done: props.task.done,
@@ -138,7 +145,7 @@ class ModalComponent extends React.Component {
           })
         : [],
       files: props.task.files ? props.task.files : [],
-      tasks: props.task.tasks ? props.task.tasks.sort((a, b) => a.order - b.order) : [],
+      tasks: tasks.sort((a, b) => a.order - b.order),
     }
 
     return updatedState
@@ -366,16 +373,11 @@ class ModalComponent extends React.Component {
     }
   }
 
-  async handleDeleteSubtask(subtaskId) {
+  async handleDeleteSubtask(taskId) {
     try {
-      const taskId = this.state.id
       const channelId = this.props.channel.id
-      const tasks = this.state.tasks.filter(task => task.id != subtaskId)
-
-      await GraphqlService.getInstance().deleteTask(subtaskId)
-
-      // Delete it
-      this.props.updateTask(taskId, { tasks }, channelId)
+      await GraphqlService.getInstance().deleteTask(taskId)
+      this.props.updateTaskDeleteSubtask(taskId, channelId)
     } catch (e) {
       this.setState({ error: 'Error deleting task' })
     }
@@ -384,42 +386,39 @@ class ModalComponent extends React.Component {
   async handleCreateSubtask({ title }) {
     try {
       const parent = this.state.id
-      const taskId = parent
+      const taskId = this.state.id
       const channelId = this.props.channel.id
       const order = this.props.task.tasks.length + 2
       const { data } = await GraphqlService.getInstance().createTask(channelId, { parent, title, order })
       const task = data.createTask
-      const tasks = [...this.props.task.tasks, task]
 
       // Stop the loading
       this.setState({ loading: false })
 
       // Add the new subtask to the store
-      this.props.updateTask(taskId, { tasks }, channelId)
+      // this.props.updateTask(taskId, { tasks }, channelId)
+      this.props.updateTaskAddSubtask(taskId, task, channelId)
     } catch (e) {
       this.setState({ error: 'Error creating task' })
     }
   }
 
-  async handleUpdateSubtask({ id, done, title, description }) {
+  async handleUpdateSubtask(task) {
+    const { id, title } = task
+    const taskId = id
+    const channelId = this.props.channel.id
+
     try {
       // If the user is updating the task to nothing
       // Then delete it
       if (title == '') {
-        this.handleDeleteSubtask(id)
+        this.handleDeleteSubtask(taskId)
       } else {
-        // Otherwise update the task
-        await GraphqlService.getInstance().updateTask(id, { done, title, description })
+        // Update the API
+        await GraphqlService.getInstance().updateTask(taskId, task)
 
-        const channelId = this.props.channel.id
-        const taskId = this.state.id
-        const tasks = this.state.tasks.map(task => {
-          if (task.id != id) return task
-          if (task.id == id) return { ...task, id, done, title, description }
-        })
-
-        // Update the task if it's been posted on a message
-        this.props.updateTask(taskId, { tasks }, channelId)
+        // Update the task
+        this.props.updateTaskUpdateSubtask(taskId, task, channelId)
       }
     } catch (e) {
       this.setState({ error: 'Error udpating task' })
@@ -467,14 +466,8 @@ class ModalComponent extends React.Component {
       await GraphqlService.getInstance().updateTask(subtaskId, { order })
 
       const channelId = this.props.channel.id
-      const taskId = this.state.id
-      const tasks = this.state.tasks.map(task => {
-        if (task.id != subtaskId) return task
-        if (task.id == subtaskId) return { ...task, order }
-      })
 
-      // Update the task if it's been posted on a message
-      this.props.updateTask(taskId, { tasks }, channelId)
+      this.props.updateTaskUpdateSubtask(subtaskId, { order }, channelId)
     } catch (e) {
       this.setState({ error: 'Error udpating task order' })
     }
@@ -881,6 +874,9 @@ ModalComponent.propTypes = {
   hydrateTask: PropTypes.func,
   updateTask: PropTypes.func,
   updateTaskAddMessage: PropTypes.func,
+  updateTaskAddSubtask: PropTypes.func,
+  updateTaskDeleteSubtask: PropTypes.func,
+  updateTaskUpdateSubtask: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -894,6 +890,9 @@ const mapDispatchToProps = {
   createTasks: (channelId, task) => createTasks(channelId, task),
   updateTasks: (channelId, task) => updateTasks(channelId, task),
   deleteTasks: (channelId, taskId) => deleteTasks(channelId, taskId),
+  updateTaskAddSubtask: (taskId, task, channelId) => updateTaskAddSubtask(taskId, task, channelId),
+  updateTaskDeleteSubtask: (taskId, channelId) => updateTaskDeleteSubtask(taskId, channelId),
+  updateTaskUpdateSubtask: (taskId, task, channelId) => updateTaskUpdateSubtask(taskId, task, channelId),
 }
 
 const mapStateToProps = state => {
