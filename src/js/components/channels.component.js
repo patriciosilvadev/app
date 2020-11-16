@@ -1360,13 +1360,13 @@ class ChannelsComponent extends React.Component {
         {this.renderHeader()}
 
         <ChannelsContainer>
-          <div className="color-d3 bold p pl-30 mt-10" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/calendar`)}>
-            <IconComponent icon="calendar" color="#007af5" size={14} thickness={2.5} className="mr-5" />
-            Calendar
+          <div className="pl-30 mt-10 button row" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/calendar`)}>
+            <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+            <span className="color-d3 bold p">Calendar</span>
           </div>
-          <div className="color-d3 bold p pl-30 mt-10" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/tasks`)}>
-            <IconComponent icon="check" color="#007af5" size={14} thickness={2.5} className="mr-5" />
-            My Tasks
+          <div className="pl-30 mt-10 button row" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/tasks`)}>
+            <IconComponent icon="check" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+            <span className="color-d3 bold p">My Tasks</span>
           </div>
           {this.renderStarred()}
           {this.renderPublic()}
