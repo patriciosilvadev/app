@@ -40,7 +40,7 @@ import '../../node_modules/emoji-mart/css/emoji-mart.css'
 
 // When we want to debug and nog have other logging pollute the console
 // Set this to true - also affects util.js in the logger method
-window.SILENCE = false
+window.SILENCE = true
 
 // Set up Sentry
 if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })

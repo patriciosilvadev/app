@@ -138,9 +138,7 @@ class TaskComponent extends React.Component {
         description: '',
       })
     } else {
-      if (!isTaskHeading(text)) {
-        this.props.toggleTasksBelowHeadings(id, false)
-      }
+      if (!isTaskHeading(text)) this.props.toggleTasksBelowHeadings(id, false)
 
       // Do the API call
       this.props.updateTask({

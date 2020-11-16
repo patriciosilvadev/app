@@ -49,3 +49,20 @@
   position: relative;
   flex: 1;
 }
+
+.calendar-extension .weekdays {
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+  width: 100%;
+}
+
+.calendar-extension .weekdays .weekday {
+  flex: 1;
+  color: #11171d;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px;
+}

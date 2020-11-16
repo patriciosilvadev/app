@@ -21,21 +21,19 @@ class MonthDayComponent extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const today = dayjs(props.day)
+    const today = props.day
+    const isToday = today.isSame(dayjs(), 'day')
+    const day = props.day.format('DD')
+    const tasks = props.channel.tasks
+      .filter(task => !!task.dueDate)
+      .filter(task => dayjs(task.dueDate).isValid())
+      .filter(task => today.isSame(dayjs(task.dueDate), 'day'))
 
     return {
-      tasks: props.channel.tasks
-        .filter(task => !!task.dueDate)
-        .filter(task => dayjs(task.dueDate).isValid())
-        .filter(task => today.isSame(dayjs(task.dueDate), 'day')),
+      day,
+      tasks,
+      isToday,
     }
-  }
-
-  componentDidMount() {
-    this.setState({
-      isToday: dayjs(this.props.day, 'YYYY-MM-DD HH:mm').isSame(dayjs(), 'day'),
-      day: dayjs(this.props.day, 'YYYY-MM-DD HH:mm').format('DD'),
-    })
   }
 
   render() {

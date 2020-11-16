@@ -35,7 +35,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: LAYOUTS.SIDE,
+      extensionLayout: LAYOUTS.MAIN,
       drawer: true,
     }
 
