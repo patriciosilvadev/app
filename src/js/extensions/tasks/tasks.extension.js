@@ -172,8 +172,10 @@ class TasksExtension extends React.Component {
       })
 
       const channelId = this.props.channel.id
+      const teamId = this.props.team.id
+      const userId = this.props.user.id
       const order = this.props.tasks.length + 2
-      const { data } = await GraphqlService.getInstance().createTask(channelId, { title, order })
+      const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, user: userId, team: teamId })
       const task = data.createTask
 
       // Stop the loading
@@ -237,7 +239,7 @@ class TasksExtension extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.match.params.channelId != prevProps.match.params.channelId) {
-      this.fetchTasks(this.props.match.params.channelId)
+      this.fetchTasks()
     }
   }
 
@@ -248,18 +250,25 @@ class TasksExtension extends React.Component {
       this.setState({ showCompletedTasks: false })
     }
 
-    this.fetchTasks(this.props.match.params.channelId)
+    this.fetchTasks()
 
     setTimeout(() => {
       //this.props.hydrateTask({ id: "5fabcba27755c37b8e6f266e" })
     }, 500)
   }
 
-  async fetchTasks(channelId) {
+  async fetchTasks() {
     try {
-      const { data } = await GraphqlService.getInstance().tasks(channelId)
+      const { channelId, teamId } = this.props.match.params
+      let searchCriteria = { parent: null }
+
+      if (channelId) searchCriteria['channel'] = channelId
+      if (teamId) searchCriteria['team'] = teamId
+
+      const { data } = await GraphqlService.getInstance().tasks(searchCriteria)
       this.props.hydrateTasks(data.tasks)
     } catch (e) {
+      console.log(e)
       logger(e)
     }
   }
@@ -267,9 +276,11 @@ class TasksExtension extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (props.channel.id == undefined || props.channel.id == '') return null
 
-    const tasks = props.tasks.sort((a, b) => a.order - b.order)
+    // Array is frozen from Redux:
+    // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
+    let tasks = props.tasks ? [...props.tasks] : []
 
-    return { tasks }
+    return { tasks: tasks.sort((a, b) => a.order - b.order) }
   }
 
   render() {

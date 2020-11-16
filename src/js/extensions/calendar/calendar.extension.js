@@ -37,9 +37,15 @@ class CalendarExtension extends React.Component {
     this.fetchTasks = this.fetchTasks.bind(this)
   }
 
-  async fetchTasks(channelId) {
+  async fetchTasks() {
     try {
-      const { data } = await GraphqlService.getInstance().tasks(channelId)
+      const { channelId, teamId } = this.props.match.params
+      let searchCriteria = { parent: null }
+
+      if (channelId) searchCriteria['channel'] = channelId
+      if (teamId) searchCriteria['team'] = teamId
+
+      const { data } = await GraphqlService.getInstance().tasks(searchCriteria)
       this.props.hydrateTasks(data.tasks)
     } catch (e) {
       logger(e)
@@ -107,12 +113,12 @@ class CalendarExtension extends React.Component {
 
   componentDidMount() {
     this.today()
-    this.fetchTasks(this.props.match.params.channelId)
+    this.fetchTasks()
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.match.params.channelId != prevProps.match.params.channelId) {
-      this.fetchTasks(this.props.match.params.channelId)
+      this.fetchTasks()
     }
   }
 

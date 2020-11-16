@@ -321,11 +321,11 @@ export default class GraphqlService {
     })
   }
 
-  tasks(channelId) {
+  tasks(searchCriteria) {
     return this.client.query({
       query: gql`
-        query tasks($channelId: String!) {
-          tasks(channelId: $channelId) {
+        query tasks($searchCriteria: String!) {
+          tasks(searchCriteria: $searchCriteria) {
             id
             title
             description
@@ -347,7 +347,7 @@ export default class GraphqlService {
         }
       `,
       variables: {
-        channelId,
+        searchCriteria: JSON.stringify(searchCriteria),
       },
     })
   }
@@ -1816,20 +1816,35 @@ export default class GraphqlService {
     })
   }
 
-  createTask(channelId, payload) {
+  createTask(payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTask($channelId: String, $payload: String) {
-          createTask(channelId: $channelId, payload: $payload) {
+        mutation createTask($payload: String) {
+          createTask(payload: $payload) {
             id
             title
             order
             done
+            user {
+              id
+              name
+              image
+              username
+            }
+            team {
+              id
+              name
+              image
+            }
+            channel {
+              id
+              name
+              image
+            }
           }
         }
       `,
       variables: {
-        channelId,
         payload: JSON.stringify(payload),
       },
     })

@@ -5,7 +5,7 @@ import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { initialize, fetchUser, closeAppModal, closeAppPanel } from '../actions'
+import { initialize, fetchUser, closeAppModal, closeAppPanel, hydrateTask } from '../actions'
 import GraphqlService from '../services/graphql.service'
 import * as PresenceService from '../services/presence.service'
 import CookieService from '../services/storage.service'
@@ -26,6 +26,7 @@ import VideoExtension from '../extensions/video/video.extension'
 import CalendarExtension from '../extensions/calendar/calendar.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
+import ModalComponent from '../extensions/tasks/components/modal/modal.component'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -46,6 +47,7 @@ class AppPage extends React.Component {
     this.renderBar = this.renderBar.bind(this)
     this.renderWelcome = this.renderWelcome.bind(this)
     this.renderDisabledUI = this.renderDisabledUI.bind(this)
+    this.renderTaskModal = this.renderTaskModal.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -376,6 +378,12 @@ class AppPage extends React.Component {
     )
   }
 
+  renderTaskModal() {
+    if (!this.props.task.id) return null
+
+    return <ModalComponent taskId={this.props.task.id} onClose={() => this.props.hydrateTask({ id: null })} />
+  }
+
   render() {
     if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
@@ -404,6 +412,9 @@ class AppPage extends React.Component {
 
         {/* Color channel bar at the top */}
         {this.renderBar()}
+
+        {/* Task modal */}
+        {this.renderTaskModal()}
 
         <App className="row">
           <Router history={browserHistory}>
@@ -466,6 +477,18 @@ class AppPage extends React.Component {
               }}
             />
 
+            {/* Calendar page */}
+            <Route
+              path="/app/team/:teamId/calendar"
+              render={props => {
+                return (
+                  <ExtensionLayout layout={this.state.extensionLayout}>
+                    <CalendarExtension {...props} />
+                  </ExtensionLayout>
+                )
+              }}
+            />
+
             {/* Calendar extension */}
             <Route
               path="/app/team/:teamId/channel/:channelId/calendar"
@@ -473,6 +496,18 @@ class AppPage extends React.Component {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
                     <CalendarExtension {...props} />
+                  </ExtensionLayout>
+                )
+              }}
+            />
+
+            {/* Tasks page */}
+            <Route
+              path="/app/team/:teamId/tasks"
+              render={props => {
+                return (
+                  <ExtensionLayout layout={this.state.extensionLayout}>
+                    <TasksExtension {...props} />
                   </ExtensionLayout>
                 )
               }}
@@ -500,10 +535,12 @@ AppPage.propTypes = {
   common: PropTypes.any,
   user: PropTypes.any,
   team: PropTypes.any,
+  task: PropTypes.any,
   teams: PropTypes.any,
   channel: PropTypes.any,
   app: PropTypes.any,
   initialize: PropTypes.func,
+  hydrateTask: PropTypes.func,
   fetchUser: PropTypes.func,
   closeAppModal: PropTypes.func,
   closeAppPanel: PropTypes.func,
@@ -514,6 +551,7 @@ const mapDispatchToProps = {
   fetchUser: userId => fetchUser(userId),
   closeAppModal: () => closeAppModal(),
   closeAppPanel: () => closeAppPanel(),
+  hydrateTask: task => hydrateTask(task),
 }
 
 const mapStateToProps = state => {
@@ -521,6 +559,7 @@ const mapStateToProps = state => {
     common: state.common,
     user: state.user,
     app: state.app,
+    task: state.task,
     channel: state.channel,
     team: state.team,
     teams: state.teams,

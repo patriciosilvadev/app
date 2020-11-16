@@ -126,7 +126,6 @@ class ChannelComponent extends React.Component {
     this.renderOtherUserTimezone = this.renderOtherUserTimezone.bind(this)
     this.renderNonTeamMemberNotice = this.renderNonTeamMemberNotice.bind(this)
     this.renderCompose = this.renderCompose.bind(this)
-    this.renderTaskModal = this.renderTaskModal.bind(this)
     this.renderMessageModal = this.renderMessageModal.bind(this)
   }
 
@@ -922,12 +921,6 @@ class ChannelComponent extends React.Component {
     )
   }
 
-  renderTaskModal() {
-    if (!this.props.task.id) return null
-
-    return <ModalComponent taskId={this.props.task.id} onClose={() => this.props.hydrateTask({ id: null })} />
-  }
-
   renderMessageModal() {
     if (!this.props.message.id) return null
 
@@ -940,7 +933,6 @@ class ChannelComponent extends React.Component {
     return (
       <React.Fragment>
         {this.renderChannelModal()}
-        {this.renderTaskModal()}
         {this.renderMessageModal()}
 
         <ChannelContainer hide={this.props.hide}>

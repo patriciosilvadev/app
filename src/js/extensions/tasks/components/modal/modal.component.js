@@ -387,11 +387,12 @@ class ModalComponent extends React.Component {
     if (title.trim() == '') return
 
     try {
-      const parent = this.state.id
       const taskId = this.state.id
       const channelId = this.props.channel.id
+      const teamId = this.props.team.id
+      const userId = this.props.user.id
       const order = this.props.task.tasks.length + 2
-      const { data } = await GraphqlService.getInstance().createTask(channelId, { parent, title, order })
+      const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, parent: taskId, title, order, user: userId, team: teamId })
       const task = data.createTask
 
       // Stop the loading

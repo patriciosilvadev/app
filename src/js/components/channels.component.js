@@ -1360,6 +1360,14 @@ class ChannelsComponent extends React.Component {
         {this.renderHeader()}
 
         <ChannelsContainer>
+          <div className="color-d3 bold p pl-30 mt-10" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/calendar`)}>
+            <IconComponent icon="calendar" color="#007af5" size={14} thickness={2.5} className="mr-5" />
+            Calendar
+          </div>
+          <div className="color-d3 bold p pl-30 mt-10" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/tasks`)}>
+            <IconComponent icon="check" color="#007af5" size={14} thickness={2.5} className="mr-5" />
+            My Tasks
+          </div>
           {this.renderStarred()}
           {this.renderPublic()}
           {this.renderPrivate()}
