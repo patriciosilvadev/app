@@ -1212,6 +1212,7 @@ export default class GraphqlService {
             description
             done
             dueDate
+            subtaskCount
             parent {
               id
               title
