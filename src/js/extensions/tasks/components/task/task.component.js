@@ -322,6 +322,14 @@ class TaskComponent extends React.Component {
             </div>
           )}
 
+          {!!this.props.subtaskCount && (
+            <div className="subtask-count">
+              <IconComponent icon="check" color="#adb5bd" thickness={3} size={13} />
+              <IconComponent icon="check" color="#adb5bd" thickness={3} size={13} style={{ position: 'relative', left: -8 }} />
+              <div className="text">{this.props.subtaskCount}</div>
+            </div>
+          )}
+
           {this.props.displayChannelName && <div className="channel-name">{this.props.assignedChannel ? this.props.assignedChannel.name : ''}</div>}
 
           {/* These are the hovers that happen for the task tools */}

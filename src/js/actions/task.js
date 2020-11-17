@@ -37,10 +37,10 @@ export function updateTaskAddSubtask(taskId, task, channelId) {
   }
 }
 
-export function updateTaskDeleteSubtask(taskId, channelId) {
+export function updateTaskDeleteSubtask(taskId, currentTaskId, channelId) {
   return {
     type: 'UPDATE_TASK_DELETE_SUBTASK',
-    payload: { taskId },
+    payload: { currentTaskId, taskId },
     sync: channelId,
   }
 }

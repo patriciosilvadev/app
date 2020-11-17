@@ -15,6 +15,7 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
       id={task.id}
       assignedChannel={task.channel}
       assignedUser={task.user}
+      subtaskCount={task.subtaskCount}
       dueDate={task.dueDate}
       title={task.title}
       description={task.description}

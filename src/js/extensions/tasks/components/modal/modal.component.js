@@ -407,9 +407,10 @@ class ModalComponent extends React.Component {
 
   async handleDeleteSubtask(taskId) {
     try {
+      const currentTaskId = this.state.id
       const channelId = this.props.channel.id
       await GraphqlService.getInstance().deleteTask(taskId)
-      this.props.updateTaskDeleteSubtask(taskId, channelId)
+      this.props.updateTaskDeleteSubtask(taskId, currentTaskId, channelId)
     } catch (e) {
       this.setState({ error: 'Error deleting task' })
     }
@@ -951,7 +952,7 @@ const mapDispatchToProps = {
   updateTasks: (channelId, task) => updateTasks(channelId, task),
   deleteTasks: (channelId, taskId) => deleteTasks(channelId, taskId),
   updateTaskAddSubtask: (taskId, task, channelId) => updateTaskAddSubtask(taskId, task, channelId),
-  updateTaskDeleteSubtask: (taskId, channelId) => updateTaskDeleteSubtask(taskId, channelId),
+  updateTaskDeleteSubtask: (taskId, currentTaskId, channelId) => updateTaskDeleteSubtask(taskId, currentTaskId, channelId),
   updateTaskUpdateSubtask: (taskId, task, channelId) => updateTaskUpdateSubtask(taskId, task, channelId),
 }
 

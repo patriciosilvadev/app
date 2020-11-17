@@ -24,5 +24,27 @@ export default (state = initialState, action) =>
       case 'CREATE_TASKS':
         draft.push(action.payload.task)
         break
+
+      // These are from the task reducer
+      // But we use them here to adjust the subtaskCount
+      case 'UPDATE_TASK_ADD_SUBTASK':
+        return state.map(task => {
+          if (task.id != action.payload.taskId) return task
+
+          return {
+            ...task,
+            subtaskCount: Number(task.subtaskCount) + 1,
+          }
+        })
+
+      case 'UPDATE_TASK_DELETE_SUBTASK':
+        return state.map(task => {
+          if (task.id != action.payload.currentTaskId) return task
+
+          return {
+            ...task,
+            subtaskCount: Number(task.subtaskCount) - 1,
+          }
+        })
     }
   })
