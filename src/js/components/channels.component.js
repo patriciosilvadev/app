@@ -533,6 +533,7 @@ class ChannelsComponent extends React.Component {
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
     this.renderDnd = this.renderDnd.bind(this)
+    this.renderHeaderButtons = this.renderHeaderButtons.bind(this)
     this.navigate = this.navigate.bind(this)
 
     this.dndOptions = [{ option: 'Never', value: 0 }, { option: '1 hour', value: 1 }, { option: '8 hours', value: 8 }, { option: '12 hours', value: 12 }, { option: '24 hours', value: 24 }]
@@ -1352,22 +1353,49 @@ class ChannelsComponent extends React.Component {
     this.setState({ accountMenu: false })
   }
 
+  renderHeaderButtons() {
+    const blankChannel = { ...this.props.channel, messages: [], id: null, color: null }
+    const location = window.location.href
+    const locationParts = location.split('/')
+    const tasksActive = locationParts[locationParts.length - 1] == 'tasks' && !this.props.channel.id
+    const calendarActive = locationParts[locationParts.length - 1] == 'calendar' && !this.props.channel.id
+
+    return (
+      <React.Fragment>
+        <HeaderButtonContainer
+          active={calendarActive}
+          onClick={() => {
+            this.props.hydrateChannel(blankChannel)
+            this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
+          }}
+        >
+          <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+          <span className="color-d3 bold p">Calendar</span>
+        </HeaderButtonContainer>
+
+        <HeaderButtonContainer
+          active={tasksActive}
+          onClick={() => {
+            this.props.hydrateChannel(blankChannel)
+            this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
+          }}
+        >
+          <IconComponent icon="check" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+          <span className="color-d3 bold p">My Tasks</span>
+        </HeaderButtonContainer>
+      </React.Fragment>
+    )
+  }
+
   render() {
     return (
       <Channels hideChannels={this.state.hideChannels} className="column">
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
+        {this.renderHeaderButtons()}
 
         <ChannelsContainer>
-          <div className="pl-30 mt-10 button row" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/calendar`)}>
-            <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
-            <span className="color-d3 bold p">Calendar</span>
-          </div>
-          <div className="pl-30 mt-10 button row" onClick={() => this.props.history.push(`/app/team/${this.props.team.id}/tasks`)}>
-            <IconComponent icon="check" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
-            <span className="color-d3 bold p">My Tasks</span>
-          </div>
           {this.renderStarred()}
           {this.renderPublic()}
           {this.renderPrivate()}
@@ -1427,6 +1455,31 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ChannelsComponent)
+
+const HeaderButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  background-color: ${props => (props.active ? '#F0F3F5' : 'transparent')};
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  position: relative;
+  cursor: pointer;
+  padding: 7px;
+  width: 100%;
+  padding-right: 25px;
+  padding-left: 25px;
+  margin-top: 0px;
+  transition: 0.2s background-color;
+
+  &:hover {
+    background-color: #f0f3f5;
+  }
+
+  @media only screen and (max-width: 768px) {
+    padding-right: 20px;
+  }
+`
 
 const Channels = styled.div`
   width: 250px;

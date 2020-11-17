@@ -321,37 +321,6 @@ export default class GraphqlService {
     })
   }
 
-  tasks(searchCriteria) {
-    return this.client.query({
-      query: gql`
-        query tasks($searchCriteria: String!) {
-          tasks(searchCriteria: $searchCriteria) {
-            id
-            title
-            description
-            order
-            done
-            dueDate
-            user {
-              id
-              name
-              username
-              timezone
-              image
-              status
-              presence
-            }
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      variables: {
-        searchCriteria: JSON.stringify(searchCriteria),
-      },
-    })
-  }
-
   channel(channelId) {
     return this.client.query({
       query: gql`
@@ -1196,6 +1165,41 @@ export default class GraphqlService {
     })
   }
 
+  tasks(searchCriteria) {
+    return this.client.query({
+      query: gql`
+        query tasks($searchCriteria: String!) {
+          tasks(searchCriteria: $searchCriteria) {
+            id
+            title
+            description
+            order
+            done
+            dueDate
+            channel {
+              id
+              name
+            }
+            user {
+              id
+              name
+              username
+              timezone
+              image
+              status
+              presence
+            }
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        searchCriteria: JSON.stringify(searchCriteria),
+      },
+    })
+  }
+
   task(taskId) {
     return this.client.query({
       query: gql`
@@ -1228,6 +1232,10 @@ export default class GraphqlService {
                 image
               }
               createdAt
+            }
+            channel {
+              id
+              name
             }
             user {
               id

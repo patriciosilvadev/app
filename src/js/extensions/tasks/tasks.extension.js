@@ -171,7 +171,8 @@ class TasksExtension extends React.Component {
         error: null,
       })
 
-      const channelId = this.props.channel.id
+      // To accommodate for "" as ID
+      const channelId = !!this.props.channel.id ? this.props.channel.id : null
       const teamId = this.props.team.id
       const userId = this.props.user.id
       const order = this.props.tasks.length + 2
@@ -253,7 +254,7 @@ class TasksExtension extends React.Component {
     this.fetchTasks()
 
     setTimeout(() => {
-      //this.props.hydrateTask({ id: "5fabcba27755c37b8e6f266e" })
+      //this.props.hydrateTask({ id: "5fb2c311093fedfa527baf75" })
     }, 500)
   }
 
@@ -274,8 +275,6 @@ class TasksExtension extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.channel.id == undefined || props.channel.id == '') return null
-
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     let tasks = props.tasks ? [...props.tasks] : []
@@ -311,6 +310,7 @@ class TasksExtension extends React.Component {
             shareToChannel={this.shareToChannel}
             createTask={this.handleCreateTask}
             disableTools={false}
+            displayChannelName={!!this.props.channel.id ? false : true}
           />
         </div>
       </div>

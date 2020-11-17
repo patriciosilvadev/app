@@ -322,6 +322,8 @@ class TaskComponent extends React.Component {
             </div>
           )}
 
+          {this.props.displayChannelName && <div className="channel-name">{this.props.assignedChannel ? this.props.assignedChannel.name : ''}</div>}
+
           {/* These are the hovers that happen for the task tools */}
           {/* Don't display them for headings or when they are disbales (inside task modal) */}
           {!heading && !this.props.disableTools && (
@@ -449,6 +451,8 @@ TaskComponent.propTypes = {
   team: PropTypes.any,
   channel: PropTypes.any,
   updateTasks: PropTypes.func,
+  displayChannelName: PropTypes.bool,
+  assignedChannel: PropTypes.any,
 }
 
 const mapDispatchToProps = {

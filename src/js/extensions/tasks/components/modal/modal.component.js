@@ -4,7 +4,7 @@ import { IconComponent } from '../../../../components/icon.component'
 import { classNames, logger, getMentions } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
-import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
+import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
 import marked from 'marked'
 import { TextareaComponent } from '../../../../components/textarea.component'
 import QuickUserComponent from '../../../../components/quick-user.component'
@@ -62,6 +62,7 @@ class ModalComponent extends React.Component {
       notification: null,
       showCompletedTasks: true,
       dueDatePopup: false,
+      channelPopup: false,
       tasks: [],
       manualScrolling: false,
     }
@@ -91,6 +92,7 @@ class ModalComponent extends React.Component {
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
     this.handleKeyDownCompose = this.handleKeyDownCompose.bind(this)
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
+    this.handleUpdateTaskChannel = this.handleUpdateTaskChannel.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
   }
 
@@ -203,6 +205,36 @@ class ModalComponent extends React.Component {
       // Update the task list
       this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskChannel(channel) {
+    try {
+      const { id } = this.state
+      const taskId = id
+      const channelId = channel.id
+      const currentChannelId = this.props.channel.id
+      const task = { ...this.props.task, channel }
+
+      // Update the API only if it's a different channel
+      await GraphqlService.getInstance().updateTask(id, { channel: channelId })
+
+      // Delete it from the list
+      // But only if these don't match
+      if (channelId != currentChannelId) this.props.deleteTasks(currentChannelId, taskId)
+
+      // Creaete them in the other list
+      // currentChannelId will be null if you're viewing the calendar / tasks page
+      // So we NEED TO RECREATE THE task in the list
+      if (!currentChannelId) this.props.createTasks(channelId, task)
+
+      // Update this modal
+      this.props.updateTask(taskId, task, channelId)
+
+      // Update the task list
+      this.setState({ channelPopup: false })
     } catch (e) {
       logger(e)
     }
@@ -387,8 +419,9 @@ class ModalComponent extends React.Component {
     if (title.trim() == '') return
 
     try {
+      // To accommodate for "" as ID
+      const channelId = !!this.props.channel.id ? this.props.channel.id : null
       const taskId = this.state.id
-      const channelId = this.props.channel.id
       const teamId = this.props.team.id
       const userId = this.props.user.id
       const order = this.props.task.tasks.length + 2
@@ -579,7 +612,7 @@ class ModalComponent extends React.Component {
       const { taskId } = this.props
       const { data } = await GraphqlService.getInstance().task(taskId)
       const {
-        task: { id, description, title, done, dueDate, tasks, files, messages, user },
+        task: { id, description, title, done, dueDate, tasks, files, messages, user, channel },
       } = data
 
       // Set up the local state to use
@@ -595,6 +628,7 @@ class ModalComponent extends React.Component {
         tasks,
         files,
         messages,
+        channel,
         user,
       })
     } catch (e) {
@@ -665,6 +699,28 @@ class ModalComponent extends React.Component {
               </QuickUserComponent>
 
               <div className="flexer" />
+
+              <Popup
+                handleDismiss={() => this.setState({ channelPopup: false })}
+                visible={this.state.channelPopup}
+                width={250}
+                direction="right-bottom"
+                content={
+                  <Menu
+                    items={this.props.channels.map(channel => {
+                      const channelName = channel.otherUser ? (channel.otherUser.name ? channel.otherUser.name : channel.name) : channel.name
+                      return {
+                        text: `${channelName} ${channel.id == this.props.channel.id ? '(this channel)' : ''}`,
+                        onClick: e => this.handleUpdateTaskChannel(channel),
+                      }
+                    })}
+                  />
+                }
+              >
+                <div className="channel-name" onClick={() => this.setState({ channelPopup: true })}>
+                  {this.props.task.channel ? this.props.task.channel.name : 'No channel'}
+                </div>
+              </Popup>
 
               <div className="row showclearonhover">
                 {this.state.dueDate && (
@@ -865,6 +921,7 @@ const File = ({ filename, url, onDelete }) => {
 ModalComponent.propTypes = {
   user: PropTypes.any,
   channel: PropTypes.any,
+  channels: PropTypes.any,
   team: PropTypes.any,
   onClose: PropTypes.func,
   updateChannel: PropTypes.func,
@@ -902,6 +959,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     channel: state.channel,
+    channels: state.channels,
     team: state.team,
     task: state.task,
   }

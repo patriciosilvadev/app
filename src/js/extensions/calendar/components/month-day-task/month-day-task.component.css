@@ -44,3 +44,11 @@
   text-overflow: ellipsis;
   padding-left: 3px;
 }
+
+.month-day-task .task-channel {
+  padding-left: 3px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #adb5bd;
+  font-size: 8px;
+}

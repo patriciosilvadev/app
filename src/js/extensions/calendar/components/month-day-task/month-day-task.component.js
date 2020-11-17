@@ -8,7 +8,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { logger } from '../../../../helpers/util'
 import { WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
 
-export const MonthDayTaskComponent = ({ id, channelId, done, title, user, onClick }) => {
+export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done, channel, title, user, onClick }) => {
   const dispatch = useDispatch()
 
   const handleUpdateTaskDone = async () => {
@@ -37,7 +37,7 @@ export const MonthDayTaskComponent = ({ id, channelId, done, title, user, onClic
   }
 
   return (
-    <div id={id} draggable onDrag={handleDrag} onDragStart={handleDragStart} onDragEnd={handleDragEnd} className="month-day-task">
+    <div draggable id={id} onDrag={handleDrag} onDragStart={handleDragStart} onDragEnd={handleDragEnd} className="month-day-task">
       <div className="checkbox">
         <CheckboxComponent done={done} onClick={handleUpdateTaskDone} />
       </div>
@@ -46,8 +46,9 @@ export const MonthDayTaskComponent = ({ id, channelId, done, title, user, onClic
           <Avatar size="very-small" image={user.image} title={user.name} />
         </div>
       )}
-      <div className="task-title" onClick={onClick}>
-        {title}
+      <div className="column" onClick={onClick}>
+        <div className="task-title">{title}</div>
+        {displayChannelName && <div className="task-channel">{channel.name}</div>}
       </div>
     </div>
   )

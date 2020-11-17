@@ -6,13 +6,14 @@ import { classNames, isTaskHeading } from '../../../../helpers/util'
 import EventService from '../../../../services/event.service'
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
 
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools }) => {
+const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools, displayChannelName }) => {
   // assignedUser because props.user is the redux store
   return (
     <TaskComponent
       index={index}
       sortIndex={sortIndex}
       id={task.id}
+      assignedChannel={task.channel}
       assignedUser={task.user}
       dueDate={task.dueDate}
       title={task.title}
@@ -26,11 +27,12 @@ const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTas
       updateTask={updateTask}
       toggleTasksBelowHeadings={toggleTasksBelowHeadings}
       disableTools={disableTools}
+      displayChannelName={displayChannelName}
     />
   )
 })
 
-const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools }) => {
+const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools, displayChannelName }) => {
   return (
     <ul>
       {tasks.map((task, index) => (
@@ -45,13 +47,14 @@ const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask,
           updateTask={updateTask}
           toggleTasksBelowHeadings={toggleTasksBelowHeadings}
           disableTools={disableTools}
+          displayChannelName={displayChannelName}
         />
       ))}
     </ul>
   )
 })
 
-export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTasks, onSortEnd, shareToChannel, createTask, disableTools }) => {
+export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTasks, onSortEnd, shareToChannel, createTask, disableTools, displayChannelName }) => {
   const [tasklist, setTasklist] = useState([])
 
   useEffect(() => {
@@ -96,6 +99,7 @@ export const TasksComponent = ({ tasks, deleteTask, updateTask, showCompletedTas
         shareToChannel={shareToChannel}
         toggleTasksBelowHeadings={toggleTasksBelowHeadings}
         disableTools={disableTools}
+        displayChannelName={displayChannelName}
         onSortStart={({ index, oldIndex, newIndex, collection, isKeySorting }) => {
           const taskId = tasklist[index].id
           toggleTasksBelowHeadings(taskId, false)

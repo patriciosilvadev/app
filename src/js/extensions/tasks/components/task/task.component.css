@@ -86,6 +86,14 @@
   width: 100%;
 }
 
+.tasks-extension-li .channel-name {
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #adb5bd;
+  font-size: 10px;
+  padding-right: 10px;
+}
+
 .tasks-extension-li .task .task-title.heading {
   font-weight: 700;
   font-size: 18px;

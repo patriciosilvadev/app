@@ -106,9 +106,11 @@ class MonthDayComponent extends React.Component {
               <MonthDayTaskComponent
                 key={index}
                 channelId={this.props.channel.id}
+                displayChannelName={!!!this.props.channel.id && !!task.channel}
                 id={task.id}
                 user={task.user}
                 done={task.done}
+                channel={task.channel}
                 title={task.title}
                 onClick={() => this.props.hydrateTask({ id: task.id })}
               />

@@ -134,6 +134,22 @@
   margin-right: auto;
 }
 
+.task-modal-container .title-bar .channel-name {
+  color: #202529;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px 5px 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: 0.2s background-color;
+}
+
+.task-modal-container .title-bar .channel-name:hover {
+  background-color: #edf0f2;
+}
+
 .task-modal-container .title-bar {
   width: 100%;
   padding: 0px;
