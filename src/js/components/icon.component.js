@@ -63,6 +63,7 @@ import {
   AlignLeft,
   LifeBuoy,
   Inbox,
+  CornerDownRight,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -75,6 +76,8 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'corner-down-right':
+        return <CornerDownRight width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'inbox':
         return <Inbox width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'align-left':

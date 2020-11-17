@@ -7,8 +7,9 @@ import { updateTasks, updateTask } from '../../../../actions'
 import GraphqlService from '../../../../services/graphql.service'
 import { logger } from '../../../../helpers/util'
 import { WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
+import { IconComponent } from '../../../../components/icon.component'
 
-export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done, channel, title, user, onClick }) => {
+export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done, channel, title, user, onClick, subtaskCount, parent }) => {
   const dispatch = useDispatch()
 
   const handleUpdateTaskDone = async () => {
@@ -46,9 +47,21 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
           <Avatar size="very-small" image={user.image} title={user.name} />
         </div>
       )}
-      <div className="column flexer pl-5" onClick={onClick}>
-        <div className="task-title">{title}</div>
-        {displayChannelName && <div className="task-channel">{channel.name}</div>}
+      <div className="row flexer pl-5">
+        <div className="column flexer" onClick={onClick}>
+          <div className="task-title">
+            {!!parent && <IconComponent icon="corner-down-right" color="#11171d" thickness={2.25} size={11} style={{ marginRight: 3 }} />}
+            <span className="flexer">{title}</span>
+          </div>
+          {displayChannelName && <div className="task-channel">{channel.name}</div>}
+        </div>
+        {!!subtaskCount && (
+          <div className="subtask-count">
+            <IconComponent icon="check" color="#adb5bd" thickness={2.25} size={11} />
+            <IconComponent icon="check" color="#adb5bd" thickness={2.25} size={11} style={{ position: 'relative', left: -8 }} />
+            <div className="text">{subtaskCount}</div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -74,7 +74,7 @@ class CalendarExtension extends React.Component {
   async fetchTasks() {
     try {
       const { channelId, teamId } = this.props.match.params
-      let searchCriteria = { parent: null }
+      let searchCriteria = {}
 
       if (channelId) searchCriteria['channel'] = channelId
       if (teamId) searchCriteria['team'] = teamId

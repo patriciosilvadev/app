@@ -1177,6 +1177,10 @@ export default class GraphqlService {
             done
             dueDate
             subtaskCount
+            parent {
+              id
+              title
+            }
             channel {
               id
               name
