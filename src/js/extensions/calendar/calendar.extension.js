@@ -14,7 +14,7 @@ import { MIME_TYPES } from '../../constants'
 import { classNames, isTaskHeading } from '../../helpers/util'
 import dayjs from 'dayjs'
 import MonthDayComponent from './components/month-day/month-day.component'
-import { hydrateTasks } from '../../actions'
+import { hydrateTasks, createTasks } from '../../actions'
 
 class CalendarExtension extends React.Component {
   constructor(props) {
@@ -35,6 +35,40 @@ class CalendarExtension extends React.Component {
     this.today = this.today.bind(this)
     this.createDays = this.createDays.bind(this)
     this.fetchTasks = this.fetchTasks.bind(this)
+    this.handleCreateTask = this.handleCreateTask.bind(this)
+  }
+
+  async handleCreateTask(title, date) {
+    if (title.trim() == '') return
+
+    try {
+      this.setState({
+        loading: true,
+        error: null,
+      })
+
+      // To accommodate for "" as ID
+      const channelId = !!this.props.channel.id ? this.props.channel.id : null
+      const teamId = this.props.team.id
+      const userId = this.props.user.id
+      const dueDate = date.toDate()
+      const order = this.props.tasks.length + 2
+      const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, dueDate, user: userId, team: teamId })
+      const task = data.createTask
+
+      // Stop the loading
+      this.setState({ loading: false })
+
+      // Add it ot he store
+      this.props.createTasks(channelId, task)
+    } catch (e) {
+      console.log(e)
+      logger(e)
+      this.setState({
+        error: 'Error fetching tasks',
+        loading: false,
+      })
+    }
   }
 
   async fetchTasks() {
@@ -146,7 +180,7 @@ class CalendarExtension extends React.Component {
             return (
               <div key={index} className="week">
                 {week.map((day, index) => {
-                  return <MonthDayComponent day={day} key={index} />
+                  return <MonthDayComponent day={day} key={index} index={index} handleAccept={name => this.handleCreateTask(name, day)} />
                 })}
               </div>
             )
@@ -167,6 +201,7 @@ CalendarExtension.propTypes = {
 
 const mapDispatchToProps = {
   hydrateTasks: tasks => hydrateTasks(tasks),
+  createTasks: (channelId, task) => createTasks(channelId, task),
 }
 
 const mapStateToProps = state => {

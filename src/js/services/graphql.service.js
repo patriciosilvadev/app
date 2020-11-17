@@ -1833,6 +1833,7 @@ export default class GraphqlService {
             title
             order
             done
+            dueDate
             user {
               id
               name

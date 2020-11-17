@@ -10,6 +10,7 @@ import { hydrateTask } from '../../../../actions'
 import { WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
 import GraphqlService from '../../../../services/graphql.service'
 import { updateTasks, updateTask } from '../../../../actions'
+import QuickInputComponent from '../../../../components/quick-input.component'
 
 class MonthDayComponent extends React.Component {
   constructor(props) {
@@ -22,6 +23,7 @@ class MonthDayComponent extends React.Component {
       tasks: [],
       date: null,
       over: false,
+      addPopup: false,
     }
 
     this.handleDragLeave = this.handleDragLeave.bind(this)
@@ -99,8 +101,20 @@ class MonthDayComponent extends React.Component {
     return (
       <div onDrop={this.handleDrop} onDragLeave={this.handleDragLeave} onDragOver={this.handleDragOver} className={classes}>
         <span className="day">{this.state.day}</span>
+        <QuickInputComponent
+          visible={this.state.addPopup}
+          width={200}
+          direction={this.props.index == 0 || this.props.index == 1 ? 'left-bottom' : 'right-bottom'}
+          handleDismiss={() => this.setState({ addPopup: false })}
+          handleAccept={name => this.setState({ addPopup: false }, () => this.props.handleAccept(name))}
+          placeholder="New task name"
+        >
+          <span className="add" onClick={() => this.setState({ addPopup: true })}>
+            New task
+          </span>
+        </QuickInputComponent>
         <div className="task-container">
-          <div style={{ height: 20 }} />
+          <div style={{ height: 25 }} />
           {this.state.tasks.map((task, index) => {
             return (
               <MonthDayTaskComponent
@@ -127,6 +141,8 @@ MonthDayComponent.propTypes = {
   channel: PropTypes.any,
   team: PropTypes.any,
   tasks: PropTypes.any,
+  index: PropTypes.number,
+  handleAccept: PropTypes.func,
 }
 
 const mapDispatchToProps = {

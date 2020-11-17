@@ -46,7 +46,7 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
           <Avatar size="very-small" image={user.image} title={user.name} />
         </div>
       )}
-      <div className="column" onClick={onClick}>
+      <div className="column flexer pl-5" onClick={onClick}>
         <div className="task-title">{title}</div>
         {displayChannelName && <div className="task-channel">{channel.name}</div>}
       </div>

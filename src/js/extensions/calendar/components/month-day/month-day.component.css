@@ -10,24 +10,56 @@
   justify-content: flex-start;
 }
 
-.month-day-component.today,
-.month-day-component.over {
+.month-day-component.today {
+  background: #eef2f5;
+}
+
+.month-day-component.over,
+.month-day-component:hover {
   background-color: #f9fafc;
+}
+
+.month-day-component .add {
+  position: absolute;
+  width: 60px;
+  top: 5px;
+  left: 5px;
+  color: #202529;
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 5px 0px 5px 0px;
+  text-align: center;
+  background-color: #eef2f5;
+  border-radius: 5px;
+  margin-right: 10px;
+  z-index: 2;
+  transition: 0.2s background-color;
+  cursor: pointer;
+  display: none;
+}
+
+.month-day-component:hover .add {
+  display: block;
+}
+
+.month-day-component .add:hover {
+  background-color: #d3dce6;
 }
 
 .month-day-component .day {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 12px;
+  font-size: 10px;
   color: #d3dce6;
-  background-color: white;
-  font-weight: 500;
+  font-weight: 800;
+  z-index: 1;
 }
 
 .month-day-component.today .day {
   color: #718093;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .month-day-component .task-container {

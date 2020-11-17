@@ -21,8 +21,7 @@
   justify-content: center;
   padding: 0px;
   margin: 0px;
-  padding-left: 2px;
-  padding-right: 2px;
+  padding-left: 5px;
 }
 
 .month-day-task .checkbox {
@@ -42,13 +41,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 3px;
 }
 
 .month-day-task .task-channel {
-  padding-left: 3px;
   font-weight: 900;
   text-transform: uppercase;
   color: #adb5bd;
   font-size: 8px;
+  font-weight: 600;
+  flex: 1;
 }
