@@ -1212,12 +1212,26 @@ export default class GraphqlService {
             description
             done
             dueDate
+            parent {
+              id
+              title
+            }
             tasks {
               id
               title
               order
               description
               done
+              dueDate
+              user {
+                id
+                name
+                username
+                timezone
+                image
+                status
+                presence
+              }
             }
             files {
               id

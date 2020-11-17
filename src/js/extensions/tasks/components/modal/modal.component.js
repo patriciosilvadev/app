@@ -63,6 +63,7 @@ class ModalComponent extends React.Component {
       showCompletedTasks: true,
       dueDatePopup: false,
       channelPopup: false,
+      parent: null,
       tasks: [],
       manualScrolling: false,
     }
@@ -153,8 +154,12 @@ class ModalComponent extends React.Component {
     return updatedState
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate(prevProps) {
     this.scrollToBottom()
+
+    if (this.props.task.id != prevProps.task.id) {
+      this.fetchTask(this.props.task.id)
+    }
   }
 
   async handleFileChange(e) {
@@ -598,7 +603,9 @@ class ModalComponent extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchTask()
+    const { taskId } = this.props
+
+    this.fetchTask(taskId)
     this.setupFileQeueu()
 
     // Event listener for the scroll
@@ -608,16 +615,15 @@ class ModalComponent extends React.Component {
     setTimeout(() => this.scrollToBottom(), 250)
   }
 
-  async fetchTask() {
+  async fetchTask(taskId) {
     try {
-      const { taskId } = this.props
       const { data } = await GraphqlService.getInstance().task(taskId)
       const {
-        task: { id, description, title, done, dueDate, tasks, files, messages, user, channel },
+        task: { id, description, title, done, dueDate, tasks, files, messages, user, channel, parent },
       } = data
 
       // Set up the local state to use
-      this.setState({ description, title, loading: false })
+      this.setState({ id, description, title, loading: false })
 
       // Update the Redux store
       this.props.hydrateTask({
@@ -630,6 +636,7 @@ class ModalComponent extends React.Component {
         files,
         messages,
         channel,
+        parent,
         user,
       })
     } catch (e) {
@@ -774,6 +781,11 @@ class ModalComponent extends React.Component {
             <div className="panels">
               <div className="panel" style={{ flex: 1.5 }}>
                 <div className="content">
+                  {!!this.props.task.parent && (
+                    <div className="subtitle" onClick={() => this.fetchTask(this.props.task.parent.id)}>
+                      {this.props.task.parent.title}
+                    </div>
+                  )}
                   <div className="title">
                     <TextareaComponent
                       ref={ref => (this.composeRef = ref)}
@@ -855,7 +867,7 @@ class ModalComponent extends React.Component {
                       showCompletedTasks={this.state.showCompletedTasks}
                       onSortEnd={this.onSortEnd}
                       shareToChannel={() => console.log('NOPE')}
-                      disableTools={true}
+                      disableTools={false}
                     />
                   </div>
                 </div>

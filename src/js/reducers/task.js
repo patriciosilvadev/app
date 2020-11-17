@@ -18,6 +18,17 @@ export default (state = initialState, action) =>
       case 'TASK':
         return action.payload
 
+      case 'UPDATE_TASKS':
+        draft.tasks = state.tasks.map(task => {
+          if (task.id != action.payload.task.id) return task
+
+          return {
+            ...task,
+            ...action.payload.task,
+          }
+        })
+        break
+
       case 'UPDATE_TASK':
         if (action.payload.taskId != state.id) return
 

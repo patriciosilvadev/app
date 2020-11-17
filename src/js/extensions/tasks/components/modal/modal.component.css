@@ -217,6 +217,21 @@
   left: 0px;
 }
 
+.task-modal-container .content .subtitle {
+  padding: 20px 20px 0px 20px;
+  color: #adb5bd;
+  font-size: 14px;
+  font-weight: 600;
+  background: white;
+  margin-bottom: -15px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.task-modal-container .content .subtitle:hover {
+  color: #202529;
+}
+
 .task-modal-container .content .title {
   padding: 20px;
   border-bottom: 1px solid #edf0f2;
