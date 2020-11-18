@@ -369,7 +369,7 @@ class ChannelComponent extends React.Component {
     this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
 
     // Debug
-    // this.props.hydrateMessage({ id: "5ef434484bf9a6306cbb0b45" })
+    // this.props.hydrateMessage({ id: "5ef434484bf9a6306cbb0b45", messages: [], body: '', user: { name: 'Jo', image: '' } })
   }
 
   componentDidUpdate(prevProps) {

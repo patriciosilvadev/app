@@ -19,6 +19,7 @@ import {
   updateChannelDeleteTyping,
   addPresence,
   deletePresence,
+  createChannelMessage,
 } from './'
 import mqtt from 'mqtt'
 import { updateChannel } from './channel'
@@ -197,6 +198,20 @@ export function initialize(userId) {
               // Create an unread marker
               // Channel will be null, which is good
               DatabaseService.getInstance().unread(teamId, channelId)
+
+              // So the message has a parent, then we want to populate the user's timeline with it
+              if (action.payload.message.parent) {
+                const parentMessageId = action.payload.message.parent.id
+                const messageIsHereAlready = getState().channel.messages.reduce((acc, message) => {
+                  if (message.id == parentMessageId) return true
+                }, false)
+
+                // If the message isn't here already, then go fetch it
+                if (!messageIsHereAlready) {
+                  const { data } = await GraphqlService.getInstance().message(parentMessageId)
+                  dispatch(createChannelMessage(channelId, data.message))
+                }
+              }
             }
           }
           break
