@@ -20,6 +20,7 @@ import {
   addPresence,
   deletePresence,
   createChannelMessage,
+  deleteChannelMessage,
 } from './'
 import mqtt from 'mqtt'
 import { updateChannel } from './channel'
@@ -202,12 +203,14 @@ export function initialize(userId) {
               // So the message has a parent, then we want to populate the user's timeline with it
               if (action.payload.message.parent) {
                 const parentMessageId = action.payload.message.parent.id
-                const messageIsHereAlready = getState().channel.messages.reduce((acc, message) => {
-                  if (message.id == parentMessageId) return true
-                }, false)
+                const parentMessage = getState().channel.messages.filter(message => MessageEvent.id == parentMessageId)[0]
 
-                // If the message isn't here already, then go fetch it
-                if (!messageIsHereAlready) {
+                // Remove it from the store & re-add it if it's here
+                // This will ensure if'ts the latest
+                if (parentMessage) {
+                  dispatch(deleteChannelMessage(channelId, parentMessageId, null))
+                  dispatch(createChannelMessage(channelId, parentMessage))
+                } else {
                   const { data } = await GraphqlService.getInstance().message(parentMessageId)
                   dispatch(createChannelMessage(channelId, data.message))
                 }
