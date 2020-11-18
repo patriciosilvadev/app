@@ -924,7 +924,7 @@ class ChannelComponent extends React.Component {
   renderMessageModal() {
     if (!this.props.message.id) return null
 
-    return <MessageModal messageId={this.props.message.id} onClose={() => this.props.hydrateMessage({ id: null })} />
+    return <MessageModal messageId={this.props.message.id} onClose={() => this.props.hydrateMessage({ id: null, messages: [] })} />
   }
 
   render() {

@@ -28,6 +28,7 @@ import {
   updateChannelDeleteMessagePin,
   updateChannelMessageTaskAttachment,
   hydrateTask,
+  hydrateMessage,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
 import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
@@ -55,6 +56,7 @@ export default memo(props => {
   const channels = useSelector(state => state.channels)
   const presences = useSelector(state => state.presences)
   const user = useSelector(state => state.user)
+  const parentMessage = useSelector(state => state.message)
   const [youtubeVideos, setYoutubeVideos] = useState([])
   const [vimeoVideos, setVimeoVideos] = useState([])
   const [images, setImages] = useState([])
@@ -183,11 +185,12 @@ export default memo(props => {
     try {
       const messageId = props.message.id
       const channelId = channel.id
+      const parentMessageId = parentMessage.id
 
       await GraphqlService.getInstance().deleteChannelMessage(messageId)
 
       dispatch(updateChannelDeleteMessagePin(channelId, messageId))
-      dispatch(deleteChannelMessage(channelId, messageId))
+      dispatch(deleteChannelMessage(channelId, messageId, parentMessageId))
       setConfirmDeleteModal(false)
     } catch (e) {
       logger(e)
@@ -254,6 +257,11 @@ export default memo(props => {
     } else {
       handleCreateChannelMessageLike()
     }
+  }
+
+  const handleMessageModalOpen = () => {
+    const messageWithBody = { ...props.message, body }
+    dispatch(hydrateMessage(messageWithBody))
   }
 
   const fetchOpengraphData = async url => {
@@ -590,15 +598,21 @@ export default memo(props => {
           </Tool>
         )}
 
-        {!props.pinned && (
+        {!props.pinned && !parentMessage.id && (
           <Tool onClick={() => props.setReplyMessage(props.message)}>
             <IconComponent icon="reply" size={15} color="#aeb5bc" />
           </Tool>
         )}
 
-        <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>
+        {!parentMessage.id && (
+          <Tool onClick={() => handleMessageModalOpen()}>
+            <IconComponent icon="message-circle" size={15} color="#aeb5bc" />
+          </Tool>
+        )}
 
-        {!props.pinned && (
+        {!parentMessage.id && <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>}
+
+        {!props.pinned && !parentMessage.id && (
           <Popup
             handleDismiss={() => setForwardMenu(false)}
             visible={forwardMenu}
@@ -628,7 +642,23 @@ export default memo(props => {
     )
   }
 
+  const renderChildMessages = () => {
+    if (!props.message.childMessageCount) return null
+    const peopleText = props.message.childMessageCount == 1 ? 'message' : 'messages'
+
+    return (
+      <ChildMessages className="row" onClick={() => handleMessageModalOpen()}>
+        <span>
+          {props.message.childMessageCount} other {peopleText} here
+        </span>
+        <IconComponent icon="chevron-right" size={15} thickness={2} color="#617691" className="ml-5" />
+      </ChildMessages>
+    )
+  }
+
   const renderParent = () => {
+    if (!!parentMessage.id) return null
+
     if (props.message.parent) {
       if (props.message.parent.channel) {
         return (
@@ -891,6 +921,7 @@ export default memo(props => {
             {renderApp()}
             {renderAppButtons()}
             {renderReactionsLikes()}
+            {renderChildMessages()}
           </Bubble>
         </div>
       </div>
@@ -981,6 +1012,23 @@ const ForwardingUserContainer = styled.div`
   width: 100%;
   padding-bottom: 5px;
   margin-bottom: 10px;
+`
+
+const ChildMessages = styled.div`
+  color: #617691;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 5px 10px 5px 10px;
+  background-color: #f6f7fa;
+  transition: background-color .2s
+  border-radius: 10px;
+  margin-top: 5px;
+
+  &:hover {
+    background-color: #edf0f2;
+  }
 `
 
 const ForwardingUser = styled.div`

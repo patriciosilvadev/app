@@ -31,12 +31,13 @@ export function updateChannelUpdateMessagePin(channelId, channelMessage) {
   }
 }
 
-export function deleteChannelMessage(channelId, messageId) {
+export function deleteChannelMessage(channelId, messageId, parentMessageId) {
   return {
     type: 'DELETE_CHANNEL_MESSAGE',
     payload: {
       channelId,
       messageId,
+      parentMessageId,
     },
     sync: channelId,
   }

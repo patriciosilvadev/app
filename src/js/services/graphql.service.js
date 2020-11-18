@@ -462,6 +462,7 @@ export default class GraphqlService {
               read
               reads
               likes
+              childMessageCount
               system
               parent {
                 id
@@ -516,6 +517,7 @@ export default class GraphqlService {
               reads
               pinned
               likes
+              childMessageCount
               system
               forwardingOriginalTime
               forwardingUser {
@@ -756,6 +758,7 @@ export default class GraphqlService {
             reads
             pinned
             likes
+            childMessageCount
             system
             forwardingOriginalTime
             forwardingUser {
@@ -840,6 +843,7 @@ export default class GraphqlService {
             reads
             pinned
             likes
+            childMessageCount
             system
             parent {
               id
@@ -946,6 +950,7 @@ export default class GraphqlService {
             reactions
             device
             likes
+            childMessageCount
             system
             parent {
               user {
@@ -1005,6 +1010,7 @@ export default class GraphqlService {
             read
             pinned
             likes
+            childMessageCount
             system
             parent {
               channel {
@@ -1684,6 +1690,7 @@ export default class GraphqlService {
             reactions
             device
             likes
+            childMessageCount
             attachments {
               _id
               id
@@ -1737,6 +1744,7 @@ export default class GraphqlService {
             reactions
             device
             likes
+            childMessageCount
             attachments {
               _id
               id
@@ -1749,6 +1757,7 @@ export default class GraphqlService {
             }
             system
             parent {
+              id
               channel {
                 name
                 id

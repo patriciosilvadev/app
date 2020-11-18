@@ -152,7 +152,7 @@ class ComposeComponent extends React.Component {
       const id = this.props.message ? this.props.message.id : null
       const text = this.state.text
       const attachments = this.state.attachments
-      const parent = this.props.reply ? (this.props.message ? this.props.message.id : null) : null
+      const parent = this.props.parentMessage.id ? this.props.parentMessage.id : this.props.reply ? (this.props.message ? this.props.message.id : null) : null
 
       // If it's a reply OR create
       if (!this.props.update) this.createChannelMessage(this.props.channel.id, text, attachments, parent)
@@ -549,6 +549,7 @@ class ComposeComponent extends React.Component {
     if (!props.update) return null
 
     // Only update one
+    // We update the state here so the state gets set onlly once
     if (props.message.id != state.id && props.update) {
       return {
         id: props.message.id,
@@ -583,6 +584,8 @@ class ComposeComponent extends React.Component {
   }
 
   renderAttachments() {
+    if (!this.state.attachments) return null
+    if (!this.state.attachments.length) return null
     if (this.state.attachments.length == 0) return null
 
     return (
@@ -772,6 +775,7 @@ class ComposeComponent extends React.Component {
 ComposeComponent.propTypes = {
   channel: PropTypes.any,
   team: PropTypes.any,
+  message: PropTypes.any,
   teams: PropTypes.any,
   user: PropTypes.any,
   message: PropTypes.any,
@@ -801,6 +805,7 @@ const mapStateToProps = state => {
     user: state.user,
     team: state.team,
     teams: state.teams,
+    parentMessage: state.message,
   }
 }
 

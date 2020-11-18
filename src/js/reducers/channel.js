@@ -67,12 +67,6 @@ export default (state = initialState, action) =>
         draft.messages = [...state.messages, ...action.payload.messages]
         break
 
-      case 'CREATE_CHANNEL_MESSAGE':
-        const channelAlreadyContainsMessage = state.messages.filter(message => message.id == action.payload.message.id).length > 0
-
-        if (!channelAlreadyContainsMessage) draft.messages = [...state.messages, action.payload.message]
-        break
-
       case 'UPDATE_CHANNEL_MESSAGE_INITIAL_READ_COUNT':
         draft.messages = state.messages.map((message, _) => {
           // If it's the correct message
@@ -100,6 +94,24 @@ export default (state = initialState, action) =>
           // Otherwise default
           return message
         })
+        break
+
+      case 'CREATE_CHANNEL_MESSAGE':
+        // Don't do anything if there is a porent
+        // We only want 0 level messages
+        // Only update the childmessage count
+        if (!!action.payload.message.parent) {
+          draft.messages = state.messages.map(message => {
+            if (message.id != action.payload.message.parent.id) return message
+            return { ...message, childMessageCount: Number(message.childMessageCount) + 1 }
+          })
+        } else {
+          // Check if it's already here (can happen sometimes)
+          const channelAlreadyContainsMessage = state.messages.filter(message => message.id == action.payload.message.id).length > 0
+
+          // Othewise add it
+          if (!channelAlreadyContainsMessage) draft.messages = [...state.messages, action.payload.message]
+        }
         break
 
       case 'UPDATE_CHANNEL_MESSAGE':
@@ -132,7 +144,17 @@ export default (state = initialState, action) =>
         break
 
       case 'DELETE_CHANNEL_MESSAGE':
-        draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
+        // Don't do anything if there is a porent
+        // We only want 0 level messages
+        // Only update the childmessage count
+        if (action.payload.parentMessageId) {
+          draft.messages = state.messages.map(message => {
+            if (message.id != action.payload.parentMessageId) return message
+            return { ...message, childMessageCount: Number(message.childMessageCount) - 1 }
+          })
+        } else {
+          draft.messages = state.messages.filter(message => message.id != action.payload.messageId)
+        }
         break
 
       case 'UPDATE_CHANNEL_ADD_TYPING':

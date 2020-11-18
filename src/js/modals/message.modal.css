@@ -7,6 +7,29 @@
   justify-content: center;
   height: 100%;
   width: 100%;
+  background: #edf0f2;
+}
+
+.message-modal-close-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: stretch;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #edf0f2;
+  padding: 20px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  right: 600px;
+  top: 20px;
+  position: fixed;
+  z-index: 100000;
+  transition: background-color 0.2s;
+}
+
+.message-modal-close-icon:hover {
+  background-color: #f8f9fa;
 }
 
 .message-modal-container .panels {
@@ -17,6 +40,33 @@
   align-content: stretch;
   justify-content: center;
   width: 100%;
+}
+
+.message-modal-container .panel .title {
+  width: 100%;
+  padding: 20px;
+  background: #edf0f2;
+}
+
+.message-modal-container .panel .title .user {
+  color: #adb5bd;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.message-modal-container .panel .title .body,
+.message-modal-container .panel .title .body * {
+  color: #11171d;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 0px;
+  margin: 0px;
+}
+
+.message-modal-container .panel .title .body p,
+.message-modal-container .panel .title .body blockquote {
+  padding: 0px;
+  margin: 0px;
 }
 
 .message-modal-container .panel {
@@ -39,7 +89,8 @@
   background: white;
   border-top: 1px solid #edf0f2;
   width: 100%;
-  padding: 20px;
+  padding: 0px;
+  height: fit-content;
 }
 
 .message-modal-container .messages {
@@ -52,9 +103,9 @@
 /* Get around parent flex issue */
 .message-modal-container .messages .scrolling {
   position: absolute;
-  top: 5%;
+  top: 0px;
   left: 5%;
-  height: 90%;
+  height: 100%;
   width: 90%;
 }
 

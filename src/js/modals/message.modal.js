@@ -19,6 +19,7 @@ import Keg from '@joduplessis/keg'
 import UploadService from '../services/upload.service'
 import ComposeComponent from '../components/compose.component'
 import MessagesComponent from '../components/messages.component'
+import { AvatarComponent } from '@weekday/elements/lib/avatar'
 
 class MessageModal extends React.Component {
   constructor(props) {
@@ -35,6 +36,8 @@ class MessageModal extends React.Component {
       reply: false,
       update: false,
     }
+
+    this.scrollInterval = null
 
     this.scrollRef = React.createRef()
 
@@ -54,6 +57,7 @@ class MessageModal extends React.Component {
       // Update the Redux store
       this.setState({ loading: false })
       this.props.hydrateMessage({
+        ...this.props.message,
         id: this.props.messageId,
         messages: data.messageMessages,
       })
@@ -104,10 +108,10 @@ class MessageModal extends React.Component {
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
 
     // Just need to wait for the DOM to be there
-    setTimeout(() => this.scrollToBottom(), 250)
+    this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate(prevProps) {
     this.scrollToBottom()
   }
 
@@ -115,43 +119,60 @@ class MessageModal extends React.Component {
     this.setState({ message, update: true, reply: false })
   }
 
+  componentWillUnmount() {
+    clearInterval(this.scrollInterval)
+  }
+
   render() {
     return (
-      <ModalPortal>
-        <Modal position="right" header={false} title="Task" width={600} height="100%" frameless onClose={this.props.onClose}>
-          {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
-          {this.state.loading && <Spinner />}
-          {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
+      <React.Fragment>
+        <div className="message-modal-close-icon" onClick={this.props.onClose}>
+          <IconComponent icon="x" color="#3F474C" thickness={2} size={15} />
+        </div>
 
-          <div className="message-modal-container">
-            <div className="panels">
-              <div className="panel">
-                <div className="messages">
-                  <div className="scrolling">
-                    <div className="inner" ref={ref => (this.scrollRef = ref)}>
-                      <div style={{ height: '100%' }}></div>
+        <ModalPortal>
+          <Modal position="right" header={false} title="Task" width={600} height="100%" frameless onClose={this.props.onClose}>
+            {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
+            {this.state.loading && <Spinner />}
+            {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
 
-                      <MessagesComponent messages={this.props.message.messages} highlight="" setUpdateMessage={this.setUpdateMessage} setReplyMessage={() => console.log('disabled')} />
+            <div className="message-modal-container">
+              <div className="panels">
+                <div className="panel">
+                  <div className="title row align-items-start">
+                    <AvatarComponent title={this.props.message.user.name} image={this.props.message.user.image} size="medium" />
+                    <div className="column flexer pl-20">
+                      <div className="user">{this.props.message.user.name}</div>
+                      <div className="body" dangerouslySetInnerHTML={{ __html: this.props.message.body }} />
                     </div>
                   </div>
-                </div>
+                  <div className="messages">
+                    <div className="scrolling">
+                      <div className="inner" ref={ref => (this.scrollRef = ref)}>
+                        <div style={{ height: '100%' }}></div>
 
-                <div className="compose">
-                  <ComposeComponent
-                    disabled={false}
-                    reply={null}
-                    update={this.state.update}
-                    message={this.state.message}
-                    clearMessage={() => {
-                      this.setState({ message: null, update: false, reply: false })
-                    }}
-                  />
+                        <MessagesComponent messages={this.props.message.messages} highlight="" setUpdateMessage={this.setUpdateMessage} setReplyMessage={() => console.log('disabled')} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="compose">
+                    <ComposeComponent
+                      disabled={false}
+                      reply={null}
+                      update={this.state.update}
+                      message={this.state.message}
+                      clearMessage={() => {
+                        this.setState({ message: null, update: false, reply: false })
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Modal>
-      </ModalPortal>
+          </Modal>
+        </ModalPortal>
+      </React.Fragment>
     )
   }
 }

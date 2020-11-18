@@ -68,6 +68,8 @@ class ModalComponent extends React.Component {
       manualScrolling: false,
     }
 
+    this.scrollInterval = null
+
     this.composeRef = React.createRef()
     this.fileRef = React.createRef()
     this.scrollRef = React.createRef()
@@ -602,6 +604,10 @@ class ModalComponent extends React.Component {
     )
   }
 
+  componentWillUnmount() {
+    clearInterval(this.scrollInterval)
+  }
+
   componentDidMount() {
     const { taskId } = this.props
 
@@ -612,7 +618,7 @@ class ModalComponent extends React.Component {
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
 
     // Just need to wait for the DOM to be there
-    setTimeout(() => this.scrollToBottom(), 250)
+    this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
   }
 
   async fetchTask(taskId) {
