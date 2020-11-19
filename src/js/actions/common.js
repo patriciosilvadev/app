@@ -199,22 +199,6 @@ export function initialize(userId) {
               // Create an unread marker
               // Channel will be null, which is good
               DatabaseService.getInstance().unread(teamId, channelId)
-
-              // So the message has a parent, then we want to populate the user's timeline with it
-              if (action.payload.message.parent) {
-                const parentMessageId = action.payload.message.parent.id
-                const parentMessage = getState().channel.messages.filter(message => MessageEvent.id == parentMessageId)[0]
-
-                // Remove it from the store & re-add it if it's here
-                // This will ensure if'ts the latest
-                if (parentMessage) {
-                  dispatch(deleteChannelMessage(channelId, parentMessageId, null))
-                  dispatch(createChannelMessage(channelId, parentMessage))
-                } else {
-                  const { data } = await GraphqlService.getInstance().message(parentMessageId)
-                  dispatch(createChannelMessage(channelId, data.message))
-                }
-              }
             }
           }
           break

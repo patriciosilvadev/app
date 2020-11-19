@@ -151,7 +151,13 @@ class MessageModal extends React.Component {
                       <div className="inner" ref={ref => (this.scrollRef = ref)}>
                         <div style={{ height: '100%' }}></div>
 
-                        <MessagesComponent messages={this.props.message.messages} highlight="" setUpdateMessage={this.setUpdateMessage} setReplyMessage={() => console.log('disabled')} />
+                        <MessagesComponent
+                          hideParentMessages
+                          messages={this.props.message.messages}
+                          highlight=""
+                          setUpdateMessage={this.setUpdateMessage}
+                          setReplyMessage={() => console.log('disabled')}
+                        />
                       </div>
                     </div>
                   </div>

@@ -47,6 +47,7 @@ export default memo(props => {
             )}
 
             <MessageComponent
+              hideParentMessages={props.hideParentMessages}
               message={message}
               pinned={false}
               append={append && !showDate}

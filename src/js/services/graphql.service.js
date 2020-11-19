@@ -529,6 +529,7 @@ export default class GraphqlService {
               }
               parent {
                 id
+                childMessageCount
                 channel {
                   name
                   id
@@ -758,7 +759,6 @@ export default class GraphqlService {
             reads
             pinned
             likes
-            childMessageCount
             system
             forwardingOriginalTime
             forwardingUser {

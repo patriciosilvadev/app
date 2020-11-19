@@ -46,6 +46,7 @@ import { CheckboxComponent } from '../extensions/tasks/components/checkbox/check
 export default memo(props => {
   const [body, setBody] = useState(false)
   const [preview, setPreview] = useState(null)
+  const [parent, setParent] = useState(null)
   const [over, setOver] = useState(false)
   const [forwardMenu, setForwardMenu] = useState(false)
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
@@ -183,14 +184,21 @@ export default memo(props => {
 
   const handleDeleteChannelMessage = async () => {
     try {
+      const isModalOpen = !!parentMessage.id
       const messageId = props.message.id
       const channelId = channel.id
-      const parentMessageId = parentMessage.id
 
+      // Update our API
       await GraphqlService.getInstance().deleteChannelMessage(messageId)
 
-      dispatch(updateChannelDeleteMessagePin(channelId, messageId))
+      // If the modal is open:
+      // Then use the STORE's message Id becuase that would be the parent
+      // Otherwise use the message prop's parent (if theer is one)
+      const parentMessageId = isModalOpen ? parentMessage.id : parent.id
+
+      // If there is none, then NULL is what we want here
       dispatch(deleteChannelMessage(channelId, messageId, parentMessageId))
+      dispatch(updateChannelDeleteMessagePin(channelId, messageId))
       setConfirmDeleteModal(false)
     } catch (e) {
       logger(e)
@@ -259,9 +267,9 @@ export default memo(props => {
     }
   }
 
-  const handleMessageModalOpen = () => {
-    const messageWithBody = { ...props.message, body }
-    dispatch(hydrateMessage(messageWithBody))
+  const handleMessageModalOpen = async messageId => {
+    const { data } = await GraphqlService.getInstance().message(messageId)
+    dispatch(hydrateMessage(data.message))
   }
 
   const fetchOpengraphData = async url => {
@@ -278,6 +286,27 @@ export default memo(props => {
       const basePath = processedUrl.split(' / ')[0]
 
       setOgImage(fullPath ? firstImageUrl : `${basePath}/${firstImageUrl}`)
+    }
+  }
+
+  const constructParentMessageData = message => {
+    if (!message) return null
+
+    const { id, body, channel, app, user, childMessageCount, createdAt } = message
+    const words = body
+      .split(' ')
+      .splice(0, 10)
+      .join(' ')
+    const bodyExcerpt = app ? words : words + '...'
+
+    return {
+      id,
+      body: bodyExcerpt,
+      channel,
+      app,
+      user,
+      childMessageCount,
+      createdAt: moment(createdAt).fromNow(),
     }
   }
 
@@ -444,6 +473,7 @@ export default memo(props => {
     if (priorityLevel) messageBody = stripPriorityLevelFromText(messageBody, priorityLevel)
 
     setPriority(priorityLevel)
+    setParent(constructParentMessageData(props.message.parent))
     setBody(parseMessageMarkdown(messageBody, props.highlight))
   }, [props.highlight, props.message])
 
@@ -604,12 +634,6 @@ export default memo(props => {
           </Tool>
         )}
 
-        {!parentMessage.id && (
-          <Tool onClick={() => handleMessageModalOpen()}>
-            <IconComponent icon="message-circle" size={15} color="#aeb5bc" />
-          </Tool>
-        )}
-
         {!parentMessage.id && <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>}
 
         {!props.pinned && !parentMessage.id && (
@@ -644,35 +668,40 @@ export default memo(props => {
 
   const renderChildMessages = () => {
     if (!props.message.childMessageCount) return null
-    const peopleText = props.message.childMessageCount == 1 ? 'message' : 'messages'
+    const messageText = props.message.childMessageCount == 1 ? 'reply' : 'replies'
 
     return (
-      <ChildMessages className="row" onClick={() => handleMessageModalOpen()}>
-        <span>
-          {props.message.childMessageCount} other {peopleText} here
-        </span>
-        <IconComponent icon="chevron-right" size={15} thickness={2} color="#617691" className="ml-5" />
+      <ChildMessages className="row" onClick={() => handleMessageModalOpen(props.message.id)}>
+        <IconComponent icon="message-circle" size={15} thickness={2} color="#617691" className="mr-5" />
+        <ChildMessagesText>
+          {props.message.childMessageCount} {messageText}
+        </ChildMessagesText>
       </ChildMessages>
     )
   }
 
   const renderParent = () => {
-    if (!!parentMessage.id) return null
+    if (props.hideParentMessages) return null
 
-    if (props.message.parent) {
-      if (props.message.parent.channel) {
+    if (parent) {
+      if (parent.channel) {
         return (
           <ParentPadding className="column align-items-stretch flexer">
             <ParentText>{`Replying to:`}</ParentText>
             <ParentContainer className="row justify-content-center">
               <div className="column flexer">
-                <div className="row">
-                  <ParentName>{props.message.parent.app ? props.message.parent.app.name : props.message.parent.user.name}</ParentName>
-                  <ParentDate>{moment(props.message.parent.createdAt).fromNow()}</ParentDate>
-                </div>
                 <ParentMessage>
-                  <ReactMarkdown source={props.message.parent.body} />
+                  <ReactMarkdown source={parent.body} />
                 </ParentMessage>
+                <div className="row">
+                  <ParentName>by {parent.app ? parent.app.name : parent.user.name}</ParentName>
+                  <ParentDate>{parent.createdAt}</ParentDate>
+                  {parent && (
+                    <ParentUnreadCount color={channel.color} onClick={() => handleMessageModalOpen(parent.id)}>
+                      View thread
+                    </ParentUnreadCount>
+                  )}
+                </div>
               </div>
             </ParentContainer>
           </ParentPadding>
@@ -1015,10 +1044,6 @@ const ForwardingUserContainer = styled.div`
 `
 
 const ChildMessages = styled.div`
-  color: #617691;
-  font-weight: 600;
-  font-style: normal;
-  font-size: 10px;
   cursor: pointer;
   padding: 5px 10px 5px 10px;
   background-color: #f6f7fa;
@@ -1029,6 +1054,13 @@ const ChildMessages = styled.div`
   &:hover {
     background-color: #edf0f2;
   }
+`
+
+const ChildMessagesText = styled.div`
+  color: #617691;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 10px;
 `
 
 const ForwardingUser = styled.div`
@@ -1180,12 +1212,12 @@ const ParentContainer = styled.div`
 `
 
 const ParentMessage = styled.div`
-  font-weight: 400;
+  font-weight: 500;
   font-size: 14px;
   font-style: normal;
   color: #868e95;
   display: inline-block;
-  margin-top: 10px;
+  margin-bottom: 5px;
 
   strong {
     font-weight: bold;
@@ -1208,10 +1240,31 @@ const ParentMessage = styled.div`
 `
 
 const ParentName = styled.div`
-  color: #343a40;
-  font-weight: 700;
+  color: #adb5bd;
+  font-weight: 900;
   font-style: normal;
-  font-size: 13px;
+  font-size: 10px;
+`
+
+const ParentDate = styled.div`
+  margin-left: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #adb5bd;
+  font-weight: regular;
+`
+
+const ParentUnreadCount = styled.div`
+  margin-left: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  color: ${props => (props.color ? props.color : '#adb5bd')};
+  font-weight: regular;
+
+  &:hover {
+    font-weight: 900;
+  }
 `
 
 const ParentText = styled.div`
@@ -1222,14 +1275,7 @@ const ParentText = styled.div`
   margin-bottom: 10px;
   margin-top: 10px;
   display: inline-block;
-`
-
-const ParentDate = styled.div`
-  margin-left: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #adb5bd;
-  font-weight: regular;
+  display: none;
 `
 
 const App = styled.div`
