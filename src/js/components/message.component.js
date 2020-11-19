@@ -29,6 +29,8 @@ import {
   updateChannelMessageTaskAttachment,
   hydrateTask,
   hydrateMessage,
+  createTasks,
+  updateToast,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
 import { getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
@@ -252,6 +254,27 @@ export default memo(props => {
       dispatch(createChannelMessageLike(channel.id, props.message.id, user.id))
     } catch (e) {
       logger(e)
+    }
+  }
+
+  const createTask = async () => {
+    try {
+      const words = props.message.body
+        .split(' ')
+        .splice(0, 10)
+        .join(' ')
+      const title = words + '...'
+      const channelId = channel.id
+      const teamId = team.id
+      const userId = user.id
+      const order = 5 // Random
+      const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, user: userId, team: teamId, description: body })
+      const task = data.createTask
+
+      dispatch(createTasks(channelId, task))
+      dispatch(updateToast('Task created'))
+    } catch (e) {
+      setError('Erro creating task')
     }
   }
 
@@ -634,6 +657,10 @@ export default memo(props => {
           </Tool>
         )}
 
+        <Tool onClick={() => createTask(props.message)}>
+          <IconComponent icon="check" size={15} color="#aeb5bc" />
+        </Tool>
+
         {!parentMessage.id && <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>}
 
         {!props.pinned && !parentMessage.id && (
@@ -996,6 +1023,7 @@ const Tools = styled.div`
   align-content: center;
   align-items: center;
   display: ${props => (props.hover ? 'flex' : 'none')};
+  z-index: 10;
 
   @media only screen and (max-width: 768px) {
     display: none;

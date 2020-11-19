@@ -27,6 +27,7 @@ import CalendarExtension from '../extensions/calendar/calendar.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import ModalComponent from '../extensions/tasks/components/modal/modal.component'
+import ToastComponent from '../components/toast.component'
 
 class AppPage extends React.Component {
   constructor(props) {
@@ -399,6 +400,8 @@ class AppPage extends React.Component {
       <AppContainer className="column">
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} theme="solid" />
+
+        {!!this.props.common.toast && <ToastComponent message={this.props.common.toast} />}
 
         {!this.props.common.connected && <Notification theme="solid" text="Connecting..." />}
 

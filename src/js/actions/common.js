@@ -405,6 +405,13 @@ export function updateConnected(payload) {
   }
 }
 
+export function updateToast(payload) {
+  return {
+    type: 'UPDATE_TOAST',
+    payload: payload,
+  }
+}
+
 export function updateUnread(payload) {
   return {
     type: 'UPDATE_UNREAD',
