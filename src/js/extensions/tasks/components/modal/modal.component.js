@@ -15,6 +15,7 @@ import GraphqlService from '../../../../services/graphql.service'
 import { CheckboxComponent } from '../checkbox/checkbox.component'
 import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
+import MessagesComponent from '../messages/messages.component'
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../../../../constants'
 import './modal.component.css'
 import EventService from '../../../../services/event.service'
@@ -34,7 +35,6 @@ import {
   updateTaskUpdateSubtask,
 } from '../../../../actions'
 import DayPicker from 'react-day-picker'
-import 'react-day-picker/lib/style.css'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
 import Keg from '@joduplessis/keg'
@@ -49,14 +49,12 @@ class ModalComponent extends React.Component {
       deleteBar: false,
       editDescription: false,
       description: '',
-      compose: '',
       title: '',
       dueDate: null,
       dueDatePretty: '',
       userPopup: false,
       user: null,
       messages: [],
-      files: [],
       loading: true,
       error: null,
       notification: null,
@@ -65,14 +63,9 @@ class ModalComponent extends React.Component {
       channelPopup: false,
       parent: null,
       tasks: [],
-      manualScrolling: false,
     }
 
-    this.scrollInterval = null
-
     this.composeRef = React.createRef()
-    this.fileRef = React.createRef()
-    this.scrollRef = React.createRef()
 
     this.fetchTask = this.fetchTask.bind(this)
     this.onSortEnd = this.onSortEnd.bind(this)
@@ -83,9 +76,6 @@ class ModalComponent extends React.Component {
     this.handleUpdateTaskDueDate = this.handleUpdateTaskDueDate.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
-    this.handleFileChange = this.handleFileChange.bind(this)
-    this.setupFileQeueu = this.setupFileQeueu.bind(this)
-    this.handleDeleteFile = this.handleDeleteFile.bind(this)
     this.handleUpdateTaskDone = this.handleUpdateTaskDone.bind(this)
     this.handleUpdateTaskDone = this.handleUpdateTaskDone.bind(this)
     this.handleCreateSubtask = this.handleCreateSubtask.bind(this)
@@ -93,42 +83,7 @@ class ModalComponent extends React.Component {
     this.handleUpdateSubtask = this.handleUpdateSubtask.bind(this)
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
-    this.handleKeyDownCompose = this.handleKeyDownCompose.bind(this)
-    this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.handleUpdateTaskChannel = this.handleUpdateTaskChannel.bind(this)
-    this.scrollToBottom = this.scrollToBottom.bind(this)
-  }
-
-  scrollToBottom() {
-    // If there is no scroll ref
-    if (!this.scrollRef) return
-
-    // If the user is scrolling
-    if (this.state.manualScrolling) return
-
-    // Move it right down
-    this.scrollRef.scrollTop = this.scrollRef.scrollHeight
-  }
-
-  handleScrollEvent(e) {
-    // If there is no scroll ref
-    if (!this.scrollRef) return
-
-    // If the user scvrolls up - then fetch more messages
-    // 0 = the top of the container
-    // if (this.messages.nativeElement.scrollTop == 0) this.fetchCourseMessages()
-
-    // Calculate the difference between the bottom & where the user is
-    const offsetHeight = this.scrollRef.scrollHeight - this.scrollRef.scrollTop
-
-    // If they are at the bottom: this.scrollRef.offsetHeight >= offsetHeight
-    // Toggle whether the user is scrolling or not
-    // If not, then we handle the scrolling
-    if (this.scrollRef.offsetHeight >= offsetHeight) {
-      this.setState({ manualScrolling: false })
-    } else {
-      this.setState({ manualScrolling: true })
-    }
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -156,20 +111,8 @@ class ModalComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    this.scrollToBottom()
-
     if (this.props.task.id != prevProps.task.id) {
       this.fetchTask(this.props.task.id)
-    }
-  }
-
-  async handleFileChange(e) {
-    const files = e.target.files || []
-
-    if (files.length == 0) return
-
-    for (let file of files) {
-      Keg.keg('task').refill('files', file)
     }
   }
 
@@ -342,14 +285,6 @@ class ModalComponent extends React.Component {
     }
   }
 
-  handleKeyDownCompose(e) {
-    // On enter
-    if (e.keyCode == 13) {
-      e.preventDefault()
-      this.handleCreateMessage()
-    }
-  }
-
   handleKeyDown(e) {
     // On enter
     if (e.keyCode == 13) {
@@ -362,14 +297,13 @@ class ModalComponent extends React.Component {
     this.handleUpdateTask()
   }
 
-  async handleCreateMessage() {
+  async handleCreateMessage(files, body) {
     try {
-      const { files, id, compose } = this.state
+      const { id } = this.state
       const { user } = this.props
       const userId = user.id
       const channelId = this.props.channel.id
       const taskId = id
-      const body = compose
 
       // Add the message
       await GraphqlService.getInstance().createTaskMessage(taskId, body, userId, files)
@@ -383,12 +317,6 @@ class ModalComponent extends React.Component {
 
       // Add the new subtask to the store
       this.props.updateTaskAddMessage(taskId, message, channelId)
-
-      // Scroll to bottom
-      this.scrollToBottom()
-
-      // Reset the state
-      this.setState({ compose: '', files: [] })
     } catch (e) {
       this.setState({ error: 'Error creating message' })
     }
@@ -521,93 +449,17 @@ class ModalComponent extends React.Component {
     }
   }
 
-  async handleDeleteFile(url) {
-    const files = this.state.files.filter(file => file.url != url)
-    this.setState({ files })
-  }
-
-  async setupFileQeueu() {
-    // Listen for file changes in attachments
-    Keg.keg('task').tap(
-      'files',
-      (file, pour) => {
-        this.setState({ error: null, loading: true })
-
-        const { name, type, size } = file
-        const secured = false
-
-        UploadService.getUploadUrl(name, type, secured)
-          .then(raw => raw.json())
-          .then(res => {
-            const { url } = res
-
-            UploadService.uploadFile(url, file, type)
-              .then(upload => {
-                const mime = type
-                const urlParts = upload.url.split('?')
-                const rawUri = urlParts[0]
-                let uriParts = rawUri.replace('https://', '').split('/')
-
-                // Remove the first index value (AWS URL)
-                uriParts.shift()
-
-                // Combine the KEY for aws
-                const uri = uriParts.join('/')
-
-                // Get the signed URL for this key
-                UploadService.getSignedGetUrl(uri)
-                  .then(raw => raw.json())
-                  .then(res1 => {
-                    const file = { url: res1.url, filename: name }
-
-                    // Update the files
-                    this.setState({ files: [...this.state.files, file] })
-
-                    // Go to the next
-                    pour()
-                  })
-                  .catch(err => {
-                    this.setState({ error: 'Error getting URL', loading: false })
-                  })
-              })
-              .catch(err => {
-                this.setState({ error: 'Error getting URL', loading: false })
-              })
-          })
-          .catch(err => {
-            this.setState({ error: 'Error getting URL', loading: false })
-          })
-      },
-      () => {
-        // This is the empty() callback
-        // Stop loading when all is done
-        this.setState({ loading: false })
-      }
-    )
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.scrollInterval)
-  }
-
   componentDidMount() {
     const { taskId } = this.props
 
     this.fetchTask(taskId)
-    this.setupFileQeueu()
-
-    // Event listener for the scroll
-    this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
-
-    // Just need to wait for the DOM to be there
-    this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
   }
 
   async fetchTask(taskId) {
     try {
       const { data } = await GraphqlService.getInstance().task(taskId)
       const {
-        task: { id, description, title, done, dueDate, tasks, files, messages, user, channel, parent },
+        task: { id, description, title, done, dueDate, tasks, messages, user, channel, parent },
       } = data
 
       // Set up the local state to use
@@ -621,7 +473,6 @@ class ModalComponent extends React.Component {
         done,
         dueDate,
         tasks,
-        files,
         messages,
         channel,
         parent,
@@ -652,12 +503,11 @@ class ModalComponent extends React.Component {
           {this.state.loading && <Spinner />}
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
 
-          <div className="task-modal-container">
+          <div className="task-modal-container modal-container">
             <div className="title-bar">
               <CheckboxComponent done={this.state.done} onClick={() => this.handleUpdateTaskDone(!this.state.done)} />
 
               <div style={{ width: 20 }} />
-              <input type="file" onChange={this.handleFileChange} ref={ref => (this.fileRef = ref)} style={{ display: 'none' }} />
 
               <QuickUserComponent
                 userId={this.props.user.id}
@@ -739,10 +589,6 @@ class ModalComponent extends React.Component {
                     <IconComponent icon="calendar" color="#524150" size="18" thickness="1.5" onClick={() => this.setState({ dueDatePopup: true })} />
                   </div>
                 </Popup>
-              </div>
-
-              <div className="icon" onClick={() => this.fileRef.click()}>
-                <IconComponent icon="attachment" color="#524150" size="18" thickness="1.5" />
               </div>
 
               <div className="icon" onClick={this.shareToChannel}>
@@ -855,32 +701,7 @@ class ModalComponent extends React.Component {
                 </div>
               </div>
               <div className="panel">
-                <div className="messages">
-                  <div className="scrolling">
-                    <div className="inner" ref={ref => (this.scrollRef = ref)}>
-                      <div style={{ height: '100%' }}></div>
-
-                      {this.state.messages.map((message, index) => {
-                        return <Message key={index} files={message.files} user={message.user} body={message.body} createdAt={message.createdAt} />
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="files">
-                  {this.state.files.map((file, index) => {
-                    return <File key={index} filename={file.filename} url={file.url} onDelete={url => this.handleDeleteFile(url)} />
-                  })}
-                </div>
-
-                <div className="compose">
-                  <TextareaComponent
-                    onKeyDown={this.handleKeyDownCompose}
-                    placeholder="Use *markdown* and press enter"
-                    value={this.state.compose}
-                    onChange={e => this.setState({ compose: e.target.value })}
-                  />
-                </div>
+                <MessagesComponent messages={this.state.messages} handleCreateMessage={this.handleCreateMessage} />
               </div>
             </div>
           </div>
@@ -888,50 +709,6 @@ class ModalComponent extends React.Component {
       </ModalPortal>
     )
   }
-}
-
-const Message = ({ user, body, files, createdAt }) => {
-  const hasFiles = !!files ? files.length > 0 : false
-
-  return (
-    <div className="message">
-      <Avatar size="small-medium" image={user.image} title={user.name} className="mb-5 mr-5" />
-      <div className="column">
-        <div className="row">
-          <div className="user">{user.name}</div>
-          <div className="date">{moment(createdAt).fromNow()}</div>
-        </div>
-        <div className="text" dangerouslySetInnerHTML={{ __html: marked(body) }}></div>
-        {hasFiles && (
-          <div className="message-files">
-            <div className="files">
-              {files.map((file, index) => {
-                return <File borderless key={index} filename={file.filename} url={file.url} />
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-const File = ({ filename, url, onDelete, borderless }) => {
-  const [over, setOver] = useState(false)
-  const classes = classNames({
-    file: true,
-    borderless: borderless,
-  })
-
-  return (
-    <div onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)} className={classes}>
-      <IconComponent icon="attachment" color="#adb5bd" size="12" thickness="2" />
-      <a href={url} className="filename" target="_blank">
-        {filename}
-      </a>
-      {over && !!onDelete && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={() => onDelete(url)} />}
-    </div>
-  )
 }
 
 ModalComponent.propTypes = {

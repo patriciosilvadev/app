@@ -40,6 +40,7 @@ import './environment'
 import './helpers/extensions'
 import '../styles/index.css'
 import '../../node_modules/emoji-mart/css/emoji-mart.css'
+import 'react-day-picker/lib/style.css'
 
 // When we want to debug and nog have other logging pollute the console
 // Set this to true - also affects util.js in the logger method
