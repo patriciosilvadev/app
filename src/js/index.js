@@ -22,6 +22,7 @@ import team from './reducers/team'
 import task from './reducers/task'
 import tasks from './reducers/tasks'
 import teams from './reducers/teams'
+import meet from './reducers/meet'
 import presences from './reducers/presences'
 import channel from './reducers/channel'
 import message from './reducers/message'
@@ -77,6 +78,7 @@ const store = createStore(
     user,
     app,
     message,
+    meet,
   }),
   middleWare
 )

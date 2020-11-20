@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
-import './video.extension.css'
+import './meet.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
 import { Janus } from './lib/janus'
@@ -1289,7 +1289,7 @@ class VideoExtension extends React.Component {
 
   render() {
     return (
-      <div className={`video-extension ${this.state.participantFocus ? '' : 'all'}`}>
+      <div className={`meet-extension ${this.state.participantFocus ? '' : 'all'}`}>
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
@@ -1304,6 +1304,7 @@ class VideoExtension extends React.Component {
 VideoExtension.propTypes = {
   user: PropTypes.any,
   team: PropTypes.any,
+  meet: PropTypes.any,
   channel: PropTypes.any,
   createChannelMessage: PropTypes.func,
   updateChannel: PropTypes.func,
@@ -1318,6 +1319,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     team: state.team,
+    meet: state.meet,
     channel: state.channel,
   }
 }

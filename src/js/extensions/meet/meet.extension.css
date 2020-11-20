@@ -1,4 +1,4 @@
-.video-extension .join-start {
+.meet-extension .join-start {
   width: 100%;
   height: 100%;
   flex-direction: column;
@@ -9,7 +9,7 @@
   position: relative;
 }
 
-.video-extension .participant .not-viewable {
+.meet-extension .participant .not-viewable {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -23,7 +23,7 @@
   flex-direction: column;
 }
 
-.video-extension .list {
+.meet-extension .list {
   width: 100%;
   height: 100%;
   flex-direction: column;
@@ -34,7 +34,7 @@
   position: relative;
 }
 
-.video-extension {
+.meet-extension {
   width: 100%;
   height: 100%;
   flex-direction: column;
@@ -45,7 +45,7 @@
   position: relative;
 }
 
-.video-extension .header {
+.meet-extension .header {
   height: 75px;
   border-bottom: 1px solid #eaedef;
   flex-direction: row;
@@ -56,40 +56,40 @@
   width: 100%;
 }
 
-.video-extension .header .subtitle {
+.meet-extension .header .subtitle {
   font-size: 12px;
   font-weight: 400;
   color: #11161c;
   padding-left: 25px;
 }
 
-.video-extension .header .title {
+.meet-extension .header .title {
   font-size: 18px;
   font-weight: 400;
   color: #11161c;
   padding-left: 25px;
 }
 
-.video-extension .participants {
+.meet-extension .participants {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
   height: 80px;
 }
 
-.video-extension.all .participants {
+.meet-extension.all .participants {
   width: 100%;
   flex: 1;
   display: flex;
 }
 
-.video-extension .participants .scroll-container {
+.meet-extension .participants .scroll-container {
   overflow: scroll;
   width: 100%;
   height: 100%;
 }
 
-.video-extension.all .participants .scroll-container {
+.meet-extension.all .participants .scroll-container {
   height: 100%;
   width: 100%;
   overflow: scroll;
@@ -100,7 +100,7 @@
   align-content: center;
 }
 
-.video-extension .participants .scroll-container .inner-content {
+.meet-extension .participants .scroll-container .inner-content {
   height: 100%;
   width: max-content;
   display: flex;
@@ -110,7 +110,7 @@
   align-content: center;
 }
 
-.video-extension.all .participants .scroll-container .inner-content {
+.meet-extension.all .participants .scroll-container .inner-content {
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -120,7 +120,7 @@
   flex-wrap: wrap;
 }
 
-.video-extension .participants .participant {
+.meet-extension .participants .participant {
   flex-direction: row;
   display: flex;
   justify-content: center;
@@ -134,7 +134,7 @@
   position: relative;
 }
 
-.video-extension .participants .participant .close-main-screen {
+.meet-extension .participants .participant .close-main-screen {
   position: absolute;
   top: 0px;
   right: 0px;
@@ -142,7 +142,7 @@
   z-index: 10;
 }
 
-.video-extension .participants .participant.focus {
+.meet-extension .participants .participant.focus {
   position: absolute;
   top: 5%;
   left: 5%;
@@ -152,7 +152,7 @@
   height: calc(90% - (160px));
 }
 
-.video-extension .participants .participant .name {
+.meet-extension .participants .participant .name {
   position: absolute;
   bottom: 0px;
   left: 0px;
@@ -165,11 +165,11 @@
   transition: opacity 0.25s;
 }
 
-.video-extension .participants .participant:hover .name {
+.meet-extension .participants .participant:hover .name {
   opacity: 1;
 }
 
-.video-extension .participants .participant .name .text {
+.meet-extension .participants .participant .name .text {
   color: white;
   font-size: 8px;
   font-weight: 700;
@@ -181,11 +181,11 @@
   width: 100%;
 }
 
-.video-extension .participants .participant:last-child {
+.meet-extension .participants .participant:last-child {
   margin-right: 0px;
 }
 
-.video-extension.all .participants .participant {
+.meet-extension.all .participants .participant {
   margin: 5px;
   border: 2px solid transparent;
   cursor: pointer;
@@ -195,11 +195,11 @@
   border-radius: 20px;
 }
 
-.video-extension.all .participants .participant:hover {
+.meet-extension.all .participants .participant:hover {
   border: 2px solid #e9ecee;
 }
 
-.video-extension .controls {
+.meet-extension .controls {
   flex-direction: row;
   display: flex;
   justify-content: center;
@@ -211,7 +211,7 @@
   margin-right: auto;
 }
 
-.video-extension .control-button {
+.meet-extension .control-button {
   padding: 0px 10px 0px 10px;
   background: #f8f9fa;
   margin: 5px;
@@ -231,16 +231,16 @@
   color: #343a40;
 }
 
-.video-extension .control-button:hover {
+.meet-extension .control-button:hover {
   border: 2px solid #e9ecee;
 }
 
-.video-extension .control-button.red {
+.meet-extension .control-button.red {
   background: #ef4056;
   margin-right: 25px;
 }
 
-.video-extension .call {
+.meet-extension .call {
   width: 100%;
   padding: 10px 25px 10px 25px;
   flex-direction: row;
@@ -250,13 +250,13 @@
   align-content: center;
 }
 
-.video-extension .call .topic {
+.meet-extension .call .topic {
   font-size: 14px;
   font-weight: 800;
   color: #11161c;
 }
 
-.video-extension .call .date {
+.meet-extension .call .date {
   font-size: 12px;
   font-weight: 500;
   color: #acb5bd;

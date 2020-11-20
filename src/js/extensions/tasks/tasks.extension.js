@@ -22,7 +22,6 @@ import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
 import { DEVICE } from '../../environment'
 import { MIME_TYPES } from '../../constants'
-import ModalComponent from './components/modal/modal.component'
 import { classNames, isTaskHeading } from '../../helpers/util'
 import { TasksComponent } from './components/tasks/tasks.component'
 

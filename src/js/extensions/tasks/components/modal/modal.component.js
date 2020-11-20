@@ -503,7 +503,7 @@ class ModalComponent extends React.Component {
           {this.state.loading && <Spinner />}
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
 
-          <div className="task-modal-container modal-container">
+          <div className="task-modal-container">
             <div className="title-bar">
               <CheckboxComponent done={this.state.done} onClick={() => this.handleUpdateTaskDone(!this.state.done)} />
 

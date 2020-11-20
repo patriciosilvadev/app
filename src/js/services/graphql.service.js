@@ -1390,6 +1390,61 @@ export default class GraphqlService {
     })
   }
 
+  meets(searchCriteria) {
+    return this.client.query({
+      query: gql`
+        query meets($searchCriteria: String!) {
+          meets(searchCriteria: $searchCriteria) {
+            id
+            title
+            roomId
+            location
+            active
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        searchCriteria: JSON.stringify(searchCriteria),
+      },
+    })
+  }
+
+  meet(meetId) {
+    return this.client.query({
+      query: gql`
+        query meet($meetId: String!) {
+          meet(meetId: $meetId) {
+            id
+            title
+            roomId
+            location
+            active
+            messages {
+              id
+              body
+              files {
+                id
+                url
+                filename
+              }
+              user {
+                id
+                name
+                image
+              }
+              createdAt
+            }
+          }
+        }
+      `,
+      variables: {
+        meetId,
+      },
+    })
+  }
+
   /**
    * Mutations
    */
@@ -2021,6 +2076,68 @@ export default class GraphqlService {
       `,
       variables: {
         taskId,
+      },
+    })
+  }
+
+  createMeetMessage(meetId, body, userId, files) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createMeetMessage($meetId: String, $body: String, $userId: String, $files: String) {
+          createMeetMessage(meetId: $meetId, body: $body, userId: $userId, files: $files)
+        }
+      `,
+      variables: {
+        meetId,
+        body,
+        userId,
+        files: JSON.stringify(files),
+      },
+    })
+  }
+
+  createMeet(payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createMeet($payload: String) {
+          createMeet(payload: $payload) {
+            id
+            title
+            roomId
+            location
+            active
+          }
+        }
+      `,
+      variables: {
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  updateMeet(meetId, payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateMeet($meetId: String, $payload: String) {
+          updateMeet(meetId: $meetId, payload: $payload)
+        }
+      `,
+      variables: {
+        meetId,
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  deleteMeet(meetId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteMeet($meetId: String) {
+          deleteMeet(meetId: $meetId)
+        }
+      `,
+      variables: {
+        meetId,
       },
     })
   }

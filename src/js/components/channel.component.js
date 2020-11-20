@@ -41,7 +41,6 @@ import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
 import * as chroma from 'chroma-js'
 import { AvatarComponent } from '@weekday/elements/lib/avatar'
-import ModalComponent from '../extensions/tasks/components/modal/modal.component'
 import MessageModal from '../modals/message.modal'
 
 // We use this so it's not part of React component update cycle

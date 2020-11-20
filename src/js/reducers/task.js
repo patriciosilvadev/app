@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid'
 const initialState = {
   id: null,
   tasks: [],
-  files: [],
   messages: [],
   description: '',
   title: '',

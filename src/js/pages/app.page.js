@@ -22,11 +22,12 @@ import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
 import TasksExtension from '../extensions/tasks/tasks.extension'
-import VideoExtension from '../extensions/video/video.extension'
+import MeetExtension from '../extensions/meet/meet.extension'
 import CalendarExtension from '../extensions/calendar/calendar.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
-import ModalComponent from '../extensions/tasks/components/modal/modal.component'
+import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
+import { default as MeetModalComponent } from '../extensions/meet/components/modal/modal.component'
 import ToastComponent from '../components/toast.component'
 
 class AppPage extends React.Component {
@@ -49,6 +50,7 @@ class AppPage extends React.Component {
     this.renderWelcome = this.renderWelcome.bind(this)
     this.renderDisabledUI = this.renderDisabledUI.bind(this)
     this.renderTaskModal = this.renderTaskModal.bind(this)
+    this.renderMeetModal = this.renderMeetModal.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -379,10 +381,16 @@ class AppPage extends React.Component {
     )
   }
 
+  renderMeetModal() {
+    if (!this.props.meet.id) return null
+
+    return <MeetModalComponent taskId={this.props.meet.id} onClose={() => this.props.hydrateMeet({ id: null })} />
+  }
+
   renderTaskModal() {
     if (!this.props.task.id) return null
 
-    return <ModalComponent taskId={this.props.task.id} onClose={() => this.props.hydrateTask({ id: null })} />
+    return <TaskModalComponent taskId={this.props.task.id} onClose={() => this.props.hydrateTask({ id: null })} />
   }
 
   render() {
@@ -474,7 +482,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    <VideoExtension {...props} />
+                    <MeetExtension {...props} />
                   </ExtensionLayout>
                 )
               }}
@@ -537,6 +545,7 @@ class AppPage extends React.Component {
 AppPage.propTypes = {
   common: PropTypes.any,
   user: PropTypes.any,
+  meet: PropTypes.any,
   team: PropTypes.any,
   task: PropTypes.any,
   teams: PropTypes.any,
@@ -563,6 +572,7 @@ const mapStateToProps = state => {
     user: state.user,
     app: state.app,
     task: state.task,
+    meet: state.meet,
     channel: state.channel,
     team: state.team,
     teams: state.teams,
