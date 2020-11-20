@@ -337,31 +337,35 @@
   justify-content: center;
 }
 
-.task-modal-container .content .files {
+.task-modal-container .files {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
   align-content: center;
   justify-content: flex-start;
-  padding: 10px 20px 10px 20px;
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
   background: white;
-  border-bottom: 1px solid #edf0f2;
 }
 
-.task-modal-container .content .files .file {
+.task-modal-container .files .file {
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: center;
   justify-content: center;
-  width: 49%;
-  padding: 2px 5px 2px 5px;
-  border-radius: 7px;
-  margin: 2px;
+  width: 100%;
+  padding: 5px;
+  border-bottom: 1px solid #edf0f2;
 }
 
-.task-modal-container .content .files .file a.filename {
+.task-modal-container .files .file.borderless {
+  border-bottom: none;
+}
+
+.task-modal-container .files .file a.filename {
   color: #11171d;
   font-weight: 600;
   font-size: 12px;
@@ -374,7 +378,7 @@
   text-overflow: ellipsis;
 }
 
-.task-modal-container .content .files .file a.filename:hover {
+.task-modal-container .files .file a.filename:hover {
   text-decoration: underline;
 }
 
@@ -411,6 +415,14 @@
   align-content: center;
   justify-content: flex-start;
   padding: 10px;
+}
+
+.task-modal-container .messages .message .message-files {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
 }
 
 .task-modal-container .messages .message .user {

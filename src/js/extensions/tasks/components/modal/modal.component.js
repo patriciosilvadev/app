@@ -144,13 +144,12 @@ class ModalComponent extends React.Component {
       user: props.task.user || null,
       dueDate: props.task.dueDate ? moment(props.task.dueDate).toDate() : null,
       dueDatePretty: props.task.dueDate ? moment(props.task.dueDate).fromNow() : '',
+      tasks: tasks.sort((a, b) => a.order - b.order),
       messages: props.task.messages
         ? props.task.messages.sort((left, right) => {
             return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
           })
         : [],
-      files: props.task.files ? props.task.files : [],
-      tasks: tasks.sort((a, b) => a.order - b.order),
     }
 
     return updatedState
@@ -265,24 +264,6 @@ class ModalComponent extends React.Component {
     }
   }
 
-  async handleUpdateTaskFiles(files) {
-    try {
-      const { id } = this.state
-      const taskId = id
-      const channelId = this.props.channel.id
-      const task = { id, files }
-
-      // Update the API
-      await GraphqlService.getInstance().updateTask(id, { files })
-
-      // Update the task list
-      this.props.updateTasks(channelId, task)
-      this.props.updateTask(taskId, task, channelId)
-    } catch (e) {
-      logger(e)
-    }
-  }
-
   async handleUpdateTask() {
     try {
       const { id, title, description } = this.state
@@ -383,21 +364,22 @@ class ModalComponent extends React.Component {
 
   async handleCreateMessage() {
     try {
+      const { files, id, compose } = this.state
       const { user } = this.props
       const userId = user.id
-      const taskId = this.state.id
-      const body = this.state.compose
       const channelId = this.props.channel.id
+      const taskId = id
+      const body = compose
 
       // Add the message
-      await GraphqlService.getInstance().createTaskMessage(taskId, body, userId)
+      await GraphqlService.getInstance().createTaskMessage(taskId, body, userId, files)
 
       // Consturct this manually because the document is actually
       // Part of the TaskDocument - so we don't rely on the GQL resolvers
       // to construct the return document for us
       // ie: { new: true } <- won't work for MOngoose
       const createdAt = new Date()
-      const message = { body, user, createdAt }
+      const message = { body, user, createdAt, files }
 
       // Add the new subtask to the store
       this.props.updateTaskAddMessage(taskId, message, channelId)
@@ -406,7 +388,7 @@ class ModalComponent extends React.Component {
       this.scrollToBottom()
 
       // Reset the state
-      this.setState({ compose: '' })
+      this.setState({ compose: '', files: [] })
     } catch (e) {
       this.setState({ error: 'Error creating message' })
     }
@@ -541,7 +523,7 @@ class ModalComponent extends React.Component {
 
   async handleDeleteFile(url) {
     const files = this.state.files.filter(file => file.url != url)
-    this.handleUpdateTaskFiles(files)
+    this.setState({ files })
   }
 
   async setupFileQeueu() {
@@ -579,7 +561,7 @@ class ModalComponent extends React.Component {
                     const file = { url: res1.url, filename: name }
 
                     // Update the files
-                    this.handleUpdateTaskFiles([...this.props.task.files, file])
+                    this.setState({ files: [...this.state.files, file] })
 
                     // Go to the next
                     pour()
@@ -847,12 +829,6 @@ class ModalComponent extends React.Component {
                     </div>
                   </div>
 
-                  <div className="files">
-                    {this.state.files.map((file, index) => {
-                      return <File key={index} filename={file.filename} url={file.url} onDelete={url => this.handleDeleteFile(url)} />
-                    })}
-                  </div>
-
                   <div className="tasks-toolbar">
                     <div className="bold h5 color-d3">Subtasks</div>
                     <div className="flexer" />
@@ -885,10 +861,16 @@ class ModalComponent extends React.Component {
                       <div style={{ height: '100%' }}></div>
 
                       {this.state.messages.map((message, index) => {
-                        return <Message key={index} user={message.user} body={message.body} createdAt={message.createdAt} />
+                        return <Message key={index} files={message.files} user={message.user} body={message.body} createdAt={message.createdAt} />
                       })}
                     </div>
                   </div>
+                </div>
+
+                <div className="files">
+                  {this.state.files.map((file, index) => {
+                    return <File key={index} filename={file.filename} url={file.url} onDelete={url => this.handleDeleteFile(url)} />
+                  })}
                 </div>
 
                 <div className="compose">
@@ -908,7 +890,9 @@ class ModalComponent extends React.Component {
   }
 }
 
-const Message = ({ user, body, createdAt }) => {
+const Message = ({ user, body, files, createdAt }) => {
+  const hasFiles = !!files ? files.length > 0 : false
+
   return (
     <div className="message">
       <Avatar size="small-medium" image={user.image} title={user.name} className="mb-5 mr-5" />
@@ -918,21 +902,34 @@ const Message = ({ user, body, createdAt }) => {
           <div className="date">{moment(createdAt).fromNow()}</div>
         </div>
         <div className="text" dangerouslySetInnerHTML={{ __html: marked(body) }}></div>
+        {hasFiles && (
+          <div className="message-files">
+            <div className="files">
+              {files.map((file, index) => {
+                return <File borderless key={index} filename={file.filename} url={file.url} />
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-const File = ({ filename, url, onDelete }) => {
+const File = ({ filename, url, onDelete, borderless }) => {
   const [over, setOver] = useState(false)
+  const classes = classNames({
+    file: true,
+    borderless: borderless,
+  })
 
   return (
-    <div onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)} className="file">
+    <div onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)} className={classes}>
       <IconComponent icon="attachment" color="#adb5bd" size="12" thickness="2" />
       <a href={url} className="filename" target="_blank">
         {filename}
       </a>
-      {over && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={() => onDelete(url)} />}
+      {over && !!onDelete && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={() => onDelete(url)} />}
     </div>
   )
 }

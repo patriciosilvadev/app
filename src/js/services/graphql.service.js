@@ -1353,14 +1353,14 @@ export default class GraphqlService {
                 presence
               }
             }
-            files {
-              id
-              url
-              filename
-            }
             messages {
               id
               body
+              files {
+                id
+                url
+                filename
+              }
               user {
                 id
                 name
@@ -1947,17 +1947,18 @@ export default class GraphqlService {
     })
   }
 
-  createTaskMessage(taskId, body, userId) {
+  createTaskMessage(taskId, body, userId, files) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTaskMessage($taskId: String, $body: String, $userId: String) {
-          createTaskMessage(taskId: $taskId, body: $body, userId: $userId)
+        mutation createTaskMessage($taskId: String, $body: String, $userId: String, $files: String) {
+          createTaskMessage(taskId: $taskId, body: $body, userId: $userId, files: $files)
         }
       `,
       variables: {
         taskId,
         body,
         userId,
+        files: JSON.stringify(files),
       },
     })
   }
