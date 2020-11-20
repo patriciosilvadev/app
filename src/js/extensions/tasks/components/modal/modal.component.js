@@ -342,7 +342,7 @@ class ModalComponent extends React.Component {
       const taskId = this.state.id
       const teamId = this.props.team.id
       const userId = this.props.user.id
-      const order = this.props.task.tasks.length + 2
+      const order = this.props.task.tasks ? this.props.task.tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), this.props.task.tasks.length + 1) + 1 : 1
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, parent: taskId, title, order, user: userId, team: teamId })
       const task = data.createTask
 

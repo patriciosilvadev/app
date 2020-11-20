@@ -174,7 +174,7 @@ class TasksExtension extends React.Component {
       const channelId = !!this.props.channel.id ? this.props.channel.id : null
       const teamId = this.props.team.id
       const userId = this.props.user.id
-      const order = this.props.tasks.length + 2
+      const order = this.props.tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), this.props.tasks.length + 1) + 1
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, user: userId, team: teamId })
       const task = data.createTask
 

@@ -52,7 +52,7 @@ class CalendarExtension extends React.Component {
       const teamId = this.props.team.id
       const userId = this.props.user.id
       const dueDate = date.toDate()
-      const order = this.props.tasks.length + 2
+      const order = this.props.tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), this.props.tasks.length + 1) + 1
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, dueDate, user: userId, team: teamId })
       const task = data.createTask
 

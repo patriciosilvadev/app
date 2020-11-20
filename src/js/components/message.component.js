@@ -267,7 +267,7 @@ export default memo(props => {
       const channelId = channel.id
       const teamId = team.id
       const userId = user.id
-      const order = 5 // Random
+      const order = 100 // Random
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, user: userId, team: teamId, description: body })
       const task = data.createTask
 
