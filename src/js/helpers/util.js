@@ -10,6 +10,40 @@ export const getHighestTaskOrder = tasks => {
   return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length + 1) + 4
 }
 
+export const getPreviousTaskOrder = (tasks, taskId) => {
+  // If there are no siblings
+  if (tasks.length == 0) return 0
+
+  const lowestOrder = 0
+  const task = tasks.filter(task => task.id == taskId)[0]
+  let taskIndex = 0
+  let order = 0
+
+  // Get the index of this task
+  tasks.map((task, index) => {
+    if (task.id == taskId) taskIndex = index
+  })
+
+  // Get the task after this
+  const previousTaskIndex = taskIndex - 1
+  const previousTask = tasks[previousTaskIndex]
+
+  // if there is no next task (possibly dragged into the highest position)
+  if (!previousTask) {
+    order = lowestOrder
+  } else {
+    const minOrder = previousTask.order
+    const maxOrder = task.order
+    const difference = (maxOrder - minOrder) / 2
+
+    logger('Found previous task: ', minOrder, maxOrder, difference)
+
+    order = minOrder + difference
+  }
+
+  return order
+}
+
 export const getNextTaskOrder = (tasks, taskId) => {
   // If there are no siblings
   if (tasks.length == 0) return 1

@@ -1,9 +1,9 @@
 import './tasks.component.css'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import React, { useState, useEffect, useRef } from 'react'
 import TaskComponent from '../task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
-import { classNames, isTaskHeading, getNextTaskOrder, getHighestTaskOrder } from '../../../../helpers/util'
+import { classNames, isTaskHeading, getNextTaskOrder, getHighestTaskOrder, getPreviousTaskOrder } from '../../../../helpers/util'
 import EventService from '../../../../services/event.service'
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
 import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../../../helpers/util'
@@ -39,6 +39,7 @@ class T extends React.Component {
 
     this.state = {
       over: false,
+      ontop: false,
       under: false,
       draggable: true,
       collapsed: false,
@@ -57,6 +58,7 @@ class T extends React.Component {
     this.setState({
       over: false,
       under: false,
+      ontop: false,
     })
   }
 
@@ -65,19 +67,23 @@ class T extends React.Component {
     e.preventDefault()
 
     const { target } = e
-    const relativePosition = target.getBoundingClientRect().top - e.pageY
-    const over = relativePosition > -5
-    const under = relativePosition <= -5
+    const relativePosition = (target.getBoundingClientRect().top - e.pageY) * -1
+    const ontop = relativePosition < 5
+    const over = relativePosition >= 5 && relativePosition < 28
+    const under = relativePosition >= 28
 
     this.setState({
+      ontop,
       over,
       under,
     })
   }
 
   handleDrop(e) {
-    const type = this.state.over ? 'OVER' : this.state.under ? 'UNDER' : ''
     const taskIdDragged = window['task']
+    const type = this.state.ontop ? 'ONTOP' : this.state.under ? 'UNDER' : this.state.over ? 'OVER' : null
+
+    if (!type) return
 
     // We get the outer ID on the parent of this task
     // Not all DIVs have this - so recursively find it
@@ -96,6 +102,7 @@ class T extends React.Component {
     this.setState({
       over: false,
       under: false,
+      ontop: false,
     })
 
     if (!taskIdDraggedOnto) return
@@ -116,10 +123,11 @@ class T extends React.Component {
         <div
           id={task.id}
           style={{
+            position: 'relative',
             padding: 0,
             margin: 0,
-            background: this.state.over ? '#f0f3f5' : 'transparent',
-            borderBottom: this.state.under ? '2px solid #11171d' : 'none',
+            background: this.state.over ? 'rgba(240,15,0,0.25)' : 'transparent',
+            boxShadow: this.state.ontop ? 'inset 0px 5px 0px 0px rgba(240,15,0,0.25)' : this.state.under ? 'inset 0px -5px 0px 0px rgba(240,15,0,0.25)' : 'none',
           }}
           onDrop={this.handleDrop}
           onDrag={this.handleDrag}
@@ -209,7 +217,24 @@ export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask
     }
   }
 
+  const processDropOntop = (taskIdDragged, taskIdDraggedOnto) => {
+    console.log('ONTOP', taskIdDragged, taskIdDraggedOnto)
+
+    const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
+    const { parentId } = taskDraggedOnto
+    const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parentId))
+
+    // Return the updated task to update
+    return {
+      id: taskIdDragged,
+      parent: parentId,
+      order: getPreviousTaskOrder(siblings, taskIdDraggedOnto),
+    }
+  }
+
   const processDrop = (taskIdDragged, taskIdDraggedOnto, type) => {
+    if (taskIdDragged == taskIdDraggedOnto) return
+
     let updatedTask = null
 
     switch (type) {
@@ -218,6 +243,9 @@ export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask
         break
       case 'UNDER':
         updatedTask = processDropUnder(taskIdDragged, taskIdDraggedOnto)
+        break
+      case 'ONTOP':
+        updatedTask = processDropOntop(taskIdDragged, taskIdDraggedOnto)
         break
     }
 
