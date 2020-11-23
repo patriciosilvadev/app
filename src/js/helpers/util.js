@@ -6,6 +6,21 @@ import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
 import { SILENCE, WEEKDAY_DRAGGED_TASK_ID } from '../constants'
 
+export const sortTasksByOrder = tasks => {
+  return tasks.sort((a, b) => a.order - b.order)
+}
+
+export const findChildTasks = (taskId, tasks) => {
+  return tasks
+    .filter(task => task.parentId == taskId)
+    .map(parentTask => {
+      return {
+        ...parentTask,
+        children: sortTasksByOrder(findChildTasks(parentTask.id, tasks)),
+      }
+    })
+}
+
 export function getQueryStringValue(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),

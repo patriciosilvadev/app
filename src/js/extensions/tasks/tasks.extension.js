@@ -4,7 +4,7 @@ import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import './tasks.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
-import { getQueryStringValue, logger, getMentions } from '../../helpers/util'
+import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
 import {
   updateChannel,
@@ -44,6 +44,7 @@ class TasksExtension extends React.Component {
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
+    this.updateTaskOrder = this.updateTaskOrder.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
     this.fetchTasks = this.fetchTasks.bind(this)
   }
@@ -121,6 +122,27 @@ class TasksExtension extends React.Component {
         error: 'Error deleting task',
         loading: false,
       })
+    }
+  }
+
+  async updateTaskOrder({ id, parent, order }) {
+    console.log(id, parent, order)
+
+    try {
+      // Get the task
+      const taskId = id
+      const task = this.props.tasks.filter(task => task.id == taskId)[0]
+      const parentId = parent
+      const channelId = this.props.channel.id
+
+      // Update the order
+      await GraphqlService.getInstance().updateTask(taskId, { parent, order })
+
+      // Update the order on our store (so it reflects)
+      // We don't use the parent object anymore here
+      this.props.updateTasks(channelId, { ...task, parentId, order })
+    } catch (e) {
+      logger(e)
     }
   }
 
@@ -260,7 +282,7 @@ class TasksExtension extends React.Component {
   async fetchTasks() {
     try {
       const { channelId, teamId } = this.props.match.params
-      let searchCriteria = { parent: null }
+      let searchCriteria = {}
 
       if (channelId) searchCriteria['channel'] = channelId
       if (teamId) searchCriteria['team'] = teamId
@@ -276,9 +298,9 @@ class TasksExtension extends React.Component {
   static getDerivedStateFromProps(props, state) {
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
-    let tasks = props.tasks ? [...props.tasks] : []
+    let tasks = sortTasksByOrder(findChildTasks(null, [...props.tasks]))
 
-    return { tasks: tasks.sort((a, b) => a.order - b.order) }
+    return { tasks }
   }
 
   render() {
@@ -304,6 +326,7 @@ class TasksExtension extends React.Component {
             tasks={this.state.tasks}
             deleteTask={this.handleDeleteTask}
             updateTask={this.handleUpdateTask}
+            updateTaskOrder={this.updateTaskOrder}
             showCompletedTasks={this.state.showCompletedTasks}
             onSortEnd={this.onSortEnd}
             shareToChannel={this.shareToChannel}

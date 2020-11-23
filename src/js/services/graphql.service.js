@@ -1292,6 +1292,7 @@ export default class GraphqlService {
             done
             dueDate
             subtaskCount
+            parentId
             parent {
               id
               title
@@ -1332,6 +1333,7 @@ export default class GraphqlService {
             done
             dueDate
             subtaskCount
+            parentId
             parent {
               id
               title
@@ -1343,6 +1345,8 @@ export default class GraphqlService {
               description
               done
               dueDate
+              parentId
+              subtaskCount
               user {
                 id
                 name

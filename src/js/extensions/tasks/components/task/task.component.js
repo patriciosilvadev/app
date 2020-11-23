@@ -460,6 +460,7 @@ TaskComponent.propTypes = {
   updateTasks: PropTypes.func,
   displayChannelName: PropTypes.bool,
   assignedChannel: PropTypes.any,
+  subtaskCount: PropTypes.number,
 }
 
 const mapDispatchToProps = {
