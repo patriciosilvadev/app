@@ -344,7 +344,7 @@ class ModalComponent extends React.Component {
 
     try {
       // To accommodate for "" as ID
-      const channelId = !!this.props.channel.id ? this.props.channel.id : null
+      const channelId = this.props.channel.id ? this.props.channel.id : this.props.task.channel ? this.props.task.channel.id : null
       const taskId = this.state.id
       const teamId = this.props.team.id
       const userId = this.props.user.id
@@ -450,19 +450,6 @@ class ModalComponent extends React.Component {
 
       // Set up the local state to use
       this.setState({ id, description, title, loading: false })
-
-      console.log({
-        id,
-        description,
-        title,
-        done,
-        dueDate,
-        tasks,
-        messages,
-        channel,
-        parent,
-        user,
-      })
 
       // Update the Redux store
       this.props.hydrateTask({
