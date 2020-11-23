@@ -267,6 +267,7 @@ class TasksExtension extends React.Component {
         </div>
 
         <TasksComponent
+          hideChildren={false}
           masterTaskList={this.props.tasks}
           tasks={this.state.tasks}
           createTask={this.handleCreateTask}
