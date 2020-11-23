@@ -6,6 +6,44 @@ import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
 import { SILENCE, WEEKDAY_DRAGGED_TASK_ID } from '../constants'
 
+export const getHighestTaskOrder = tasks => {
+  return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length + 1) + 4
+}
+
+export const getNextTaskOrder = (tasks, taskId) => {
+  // If there are no siblings
+  if (tasks.length == 0) return 1
+
+  const highestOrder = getHighestTaskOrder(tasks) + 4
+  const task = tasks.filter(task => task.id == taskId)[0]
+  let taskIndex = 0
+  let order = 0
+
+  // Get the index of this task
+  tasks.map((task, index) => {
+    if (task.id == taskId) taskIndex = index
+  })
+
+  // Get the task after this
+  const nextTaskIndex = taskIndex + 1
+  const nextTask = tasks[nextTaskIndex]
+
+  // if there is no next task (possibly dragged into the highest position)
+  if (!nextTask) {
+    order = highestOrder
+  } else {
+    const minOrder = task.order
+    const maxOrder = nextTask.order
+    const difference = (maxOrder - minOrder) / 2
+
+    logger('Found next task: ', minOrder, maxOrder, difference)
+
+    order = minOrder + difference
+  }
+
+  return order
+}
+
 export const sortTasksByOrder = tasks => {
   return tasks.sort((a, b) => a.order - b.order)
 }

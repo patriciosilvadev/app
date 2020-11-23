@@ -1,17 +1,17 @@
+.tasks-extension-li {
+  padding: 0px;
+}
+
 .tasks-extension-li .task {
   width: 100%;
   padding: 7px 10px 7px 10px;
-  background: white;
+  background: transparent;
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: stretch;
   justify-content: center;
   border-bottom: 1px solid #f0f3f5;
-}
-
-.tasks-extension-li {
-  padding: 5px 0px 5px 0px;
 }
 
 .tasks-extension-li .task .due-date {
@@ -37,8 +37,8 @@
 
 .tasks-extension-li .task .children-hide-icon {
   position: absolute;
-  left: 10px;
-  top: 10px;
+  left: -10px;
+  top: 8px;
 }
 
 .tasks-extension-li .task textarea.description {

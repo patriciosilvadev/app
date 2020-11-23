@@ -3,18 +3,29 @@ import { useSelector, useDispatch } from 'react-redux'
 import React, { useState, useEffect, useRef } from 'react'
 import TaskComponent from '../task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
-import { classNames, isTaskHeading } from '../../../../helpers/util'
+import { classNames, isTaskHeading, getNextTaskOrder, getHighestTaskOrder } from '../../../../helpers/util'
 import EventService from '../../../../services/event.service'
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
 import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../../../helpers/util'
 
-const L = ({ tasks, collapsed, processDrop }) => {
+const L = ({ base, tasks, hideChildren, collapsed, processDrop, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName }) => {
   return (
     <div style={{ display: collapsed ? 'none' : 'block' }}>
       {tasks.map((task, index) => {
         return (
-          <div className="pl-20 pr-20" key={index}>
-            <T task={task} processDrop={processDrop} />
+          <div style={{ paddingLeft: base ? 0 : 20 }} key={index}>
+            <T
+              task={task}
+              hideChildren={hideChildren}
+              processDrop={processDrop}
+              index={index}
+              showCompletedTasks={showCompletedTasks}
+              deleteTask={deleteTask}
+              updateTask={updateTask}
+              shareToChannel={shareToChannel}
+              disableTools={disableTools}
+              displayChannelName={displayChannelName}
+            />
           </div>
         )
       })}
@@ -22,104 +33,148 @@ const L = ({ tasks, collapsed, processDrop }) => {
   )
 }
 
-const T = ({ task, processDrop }) => {
-  const [over, setOver] = useState(false)
-  const [under, setUnder] = useState(false)
-  const [collapsed, setCollapsed] = useState(false)
+class T extends React.Component {
+  constructor(props) {
+    super(props)
 
-  const handleDragLeave = e => {
-    e.stopPropagation()
-    e.preventDefault()
-    setOver(false)
-    setUnder(false)
+    this.state = {
+      over: false,
+      under: false,
+      draggable: true,
+      collapsed: false,
+    }
+
+    this.handleDrag = this.handleDrag.bind(this)
+    this.handleDragLeave = this.handleDragLeave.bind(this)
+    this.handleDrop = this.handleDrop.bind(this)
+    this.handleDragOver = this.handleDragOver.bind(this)
   }
 
-  const handleDragOver = e => {
+  handleDragLeave(e) {
+    e.stopPropagation()
+    e.preventDefault()
+
+    this.setState({
+      over: false,
+      under: false,
+    })
+  }
+
+  handleDragOver(e) {
     e.stopPropagation()
     e.preventDefault()
 
     const { target } = e
     const relativePosition = target.getBoundingClientRect().top - e.pageY
-    const isOver = relativePosition > -5
-    const isUnder = relativePosition <= -5
+    const over = relativePosition > -5
+    const under = relativePosition <= -5
 
-    setUnder(isUnder)
-    setOver(isOver)
+    this.setState({
+      over,
+      under,
+    })
   }
 
-  const handleDrop = e => {
-    const type = over ? 'OVER' : under ? 'UNDER' : ''
+  handleDrop(e) {
+    const type = this.state.over ? 'OVER' : this.state.under ? 'UNDER' : ''
     const taskIdDragged = window['task']
-    const taskIdDraggedOnto = e.target.id
+
+    // We get the outer ID on the parent of this task
+    // Not all DIVs have this - so recursively find it
+    let count = 0
+    let el = e.target
+    let taskIdDraggedOnto
+
+    while (!taskIdDraggedOnto && count < 50) {
+      if (el.id) taskIdDraggedOnto = el.id
+      el = el.parentElement
+      count++
+    }
 
     e.preventDefault()
 
-    setOver(false)
-    setUnder(false)
-
-    processDrop(taskIdDragged, taskIdDraggedOnto, type)
-  }
-
-  const handleDrag = e => {
-    window['task'] = task.id
-  }
-
-  return (
-    <div>
-      <div
-        id={task.id}
-        style={{ background: over ? '#EEE' : 'none', borderBottom: under ? '2px solid red' : 'none' }}
-        onDrop={handleDrop}
-        onDrag={handleDrag}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        draggable
-      >
-        <span onClick={() => setCollapsed(!collapsed)}>({collapsed ? ' + ' : ' - '})</span>
-        {task.title} {task.children.length}
-      </div>
-      <L tasks={task.children} collapsed={collapsed} processDrop={processDrop} />
-    </div>
-  )
-}
-
-export const TasksComponent = ({ tasks, deleteTask, updateTaskOrder, updateTask, showCompletedTasks, onSortEnd, shareToChannel, createTask, disableTools, displayChannelName }) => {
-  const masterTaskList = useSelector(state => state.tasks)
-
-  // OLD
-  const [tasklist, setTasklist] = useState([])
-
-  // OLD
-  useEffect(() => {
-    setTasklist(tasks)
-  }, [tasks])
-
-  // OLD
-  const toggleTasksBelowHeadings = (taskId, hide) => {
-    let done = false
-    let startIndex = null
-    let endIndex = null
-
-    tasklist.map((task, index) => {
-      if (task.id == taskId) {
-        startIndex = index
-      } else {
-        if (startIndex != null) {
-          if (isTaskHeading(task.title)) done = true
-          if (!done) endIndex = index
-        }
-      }
+    this.setState({
+      over: false,
+      under: false,
     })
 
-    setTasklist(
-      tasklist.map((task, index) => {
-        if (index > startIndex && index <= endIndex) return { ...task, hide }
+    if (!taskIdDraggedOnto) return
+    if (taskIdDraggedOnto == '') return
 
-        return task
-      })
-    )
+    this.props.processDrop(taskIdDragged, taskIdDraggedOnto, type)
   }
 
+  handleDrag(e) {
+    window['task'] = this.props.task.id
+  }
+
+  render() {
+    const { task, hideChildren, processDrop, index, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName } = this.props
+
+    return (
+      <React.Fragment>
+        <div
+          id={task.id}
+          style={{
+            padding: 0,
+            margin: 0,
+            background: this.state.over ? '#f0f3f5' : 'transparent',
+            borderBottom: this.state.under ? '2px solid #11171d' : 'none',
+          }}
+          onDrop={this.handleDrop}
+          onDrag={this.handleDrag}
+          onDragLeave={this.handleDragLeave}
+          onDragOver={this.handleDragOver}
+          draggable={this.state.draggable}
+        >
+          {/* Sort index is null */}
+          <TaskComponent
+            index={index}
+            sortIndex={0}
+            id={task.id}
+            assignedChannel={task.channel}
+            assignedUser={task.user}
+            subtaskCount={task.children ? task.children.length : 0}
+            dueDate={task.dueDate}
+            title={task.title}
+            description={task.description}
+            done={task.done}
+            hide={task.hide}
+            shareToChannel={shareToChannel}
+            new={false}
+            showCompletedTasks={showCompletedTasks}
+            deleteTask={deleteTask}
+            updateTask={updateTask}
+            updateDraggable={draggable => this.setState({ draggable })}
+            toggleTasksBelowHeadings={() => this.setState({ collapsed: !this.state.collapsed })}
+            disableTools={disableTools}
+            displayChannelName={displayChannelName}
+          />
+        </div>
+        {!hideChildren && (
+          <L
+            hideChildren={!!hideChildren}
+            tasks={task.children}
+            collapsed={this.state.collapsed}
+            processDrop={processDrop}
+            showCompletedTasks={showCompletedTasks}
+            deleteTask={deleteTask}
+            updateTask={updateTask}
+            shareToChannel={shareToChannel}
+            disableTools={disableTools}
+            displayChannelName={displayChannelName}
+          />
+        )}
+      </React.Fragment>
+    )
+  }
+}
+
+/**
+ * mastTaskList is all the tasks
+ * tasks = nested tasks
+ */
+export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask, updateTaskOrder, updateTask, showCompletedTasks, shareToChannel, createTask, disableTools, displayChannelName }) => {
   const processDropOver = (taskIdDragged, taskIdDraggedOnto) => {
     console.log('OVER', taskIdDragged, taskIdDraggedOnto)
 
@@ -129,44 +184,29 @@ export const TasksComponent = ({ tasks, deleteTask, updateTaskOrder, updateTask,
 
     // Get the parent's childrren (so we can calculate order)
     const children = sortTasksByOrder(masterTaskList.filter(task => task.parentId == taskIdDraggedOnto))
+    const order = children.length == 0 ? 1 : getHighestTaskOrder(children)
 
-    // Highest order
-    const order = children.length != 0 ? children.reduce((acc, value) => (value.order > acc ? value.order : acc), children.length + 1) + 2 : 1
-
-    // Return the updated task to update
-    return { id, parent, order }
+    // Update it
+    return {
+      parent,
+      id,
+      order,
+    }
   }
 
   const processDropUnder = (taskIdDragged, taskIdDraggedOnto) => {
     console.log('UNDER', taskIdDragged, taskIdDraggedOnto)
 
     const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
-    const parent = taskDraggedOnto.parentId
-    const id = taskIdDragged
-
-    // Get the dragged on tasks' siblings / order them
-    const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parent))
-    const highestOrder = siblings.length != 0 ? siblings.reduce((acc, value) => (value.order > acc ? value.order : acc), siblings.length + 1) + 2 : 1
-    const minOrder = taskDraggedOnto.order
-    let maxOrder = null
-
-    // Go over the siblings
-    // GET THE NEXT TASK AFTERR THE ONE THAT WAS DRAGGED ONTO
-    siblings.map((task, index) => {
-      if (task.id == taskIdDraggedOnto) {
-        const nextTask = siblings[index + 1]
-        if (nextTask) maxOrder = nextTask.order
-      }
-    })
-
-    // If we have the next order
-    if (!maxOrder) maxOrder = highestOrder
-
-    // Calculate a midway point
-    const order = (maxOrder - minOrder) / 2 + minOrder
+    const { parentId } = taskDraggedOnto
+    const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parentId))
 
     // Return the updated task to update
-    return { id, parent, order }
+    return {
+      id: taskIdDragged,
+      parent: parentId,
+      order: getNextTaskOrder(siblings, taskIdDraggedOnto),
+    }
   }
 
   const processDrop = (taskIdDragged, taskIdDraggedOnto, type) => {
@@ -185,80 +225,24 @@ export const TasksComponent = ({ tasks, deleteTask, updateTaskOrder, updateTask,
   }
 
   return (
-    <div className="task-list">
-      {/* <L tasks={tasks} processDrop={processDrop} /> */}
-
-      <SortableList
-        helperClass="sortableHelper"
-        pressDelay={200}
-        tasks={tasklist}
-        deleteTask={deleteTask}
-        updateTask={updateTask}
-        showCompletedTasks={showCompletedTasks}
-        onSortEnd={onSortEnd}
-        shareToChannel={shareToChannel}
-        toggleTasksBelowHeadings={toggleTasksBelowHeadings}
-        disableTools={disableTools}
-        displayChannelName={displayChannelName}
-        onSortStart={({ index, oldIndex, newIndex, collection, isKeySorting }) => {
-          const taskId = tasklist[index].id
-          toggleTasksBelowHeadings(taskId, false)
-          EventService.getInstance().emit(TASK_DRAGSTART_RESET_CHEVRON, taskId)
-        }}
-      />
-
-      <ul>
-        <TaskComponent id="" title="" hide={false} done={false} new={true} createTask={createTask} showCompletedTasks={true} />
-      </ul>
-    </div>
-  )
-}
-
-const SortableItem = SortableElement(({ task, index, sortIndex, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools, displayChannelName }) => {
-  // assignedUser because props.user is the redux store
-  return (
-    <TaskComponent
-      index={index}
-      sortIndex={sortIndex}
-      id={task.id}
-      assignedChannel={task.channel}
-      assignedUser={task.user}
-      subtaskCount={task.subtaskCount}
-      dueDate={task.dueDate}
-      title={task.title}
-      description={task.description}
-      done={task.done}
-      hide={task.hide}
-      shareToChannel={shareToChannel}
-      new={false}
-      showCompletedTasks={showCompletedTasks}
-      deleteTask={deleteTask}
-      updateTask={updateTask}
-      toggleTasksBelowHeadings={toggleTasksBelowHeadings}
-      disableTools={disableTools}
-      displayChannelName={displayChannelName}
-    />
-  )
-})
-
-const SortableList = SortableContainer(({ tasks, showCompletedTasks, deleteTask, updateTask, shareToChannel, toggleTasksBelowHeadings, disableTools, displayChannelName }) => {
-  return (
-    <ul>
-      {tasks.map((task, index) => (
-        <SortableItem
-          key={`item-${task.id}`}
-          index={index}
-          sortIndex={index}
-          task={task}
-          shareToChannel={shareToChannel}
+    <div className="tasks">
+      <div className="task-list">
+        <L
+          base
+          hideChildren={hideChildren}
+          tasks={tasks}
+          collapsed={false}
+          processDrop={processDrop}
           showCompletedTasks={showCompletedTasks}
           deleteTask={deleteTask}
           updateTask={updateTask}
-          toggleTasksBelowHeadings={toggleTasksBelowHeadings}
+          shareToChannel={shareToChannel}
           disableTools={disableTools}
           displayChannelName={displayChannelName}
         />
-      ))}
-    </ul>
+
+        <TaskComponent id="" title="" hide={false} done={false} new={true} createTask={createTask} showCompletedTasks={true} />
+      </div>
+    </div>
   )
-})
+}

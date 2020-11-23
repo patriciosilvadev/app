@@ -1291,12 +1291,7 @@ export default class GraphqlService {
             order
             done
             dueDate
-            subtaskCount
             parentId
-            parent {
-              id
-              title
-            }
             channel {
               id
               name
@@ -1346,7 +1341,6 @@ export default class GraphqlService {
               done
               dueDate
               parentId
-              subtaskCount
               user {
                 id
                 name
@@ -2031,6 +2025,7 @@ export default class GraphqlService {
             title
             order
             done
+            parentId
             dueDate
             user {
               id

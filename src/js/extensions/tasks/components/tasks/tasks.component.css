@@ -1,29 +1,10 @@
-.sortableHelper {
-  z-index: 10000;
-  padding: 0px;
-  margin: 0px;
-  list-style-type: none;
-  padding: 10px;
-}
-
-.sortableHelper .title {
-  color: #11171d;
-  font-size: 14px;
-  font-weight: 500;
+.tasks {
+  padding: 15px;
+  flex: 1;
+  width: 100%;
+  overflow: scroll;
 }
 
 .task-list {
   width: 100%;
-}
-
-.task-list ul {
-  padding: 0px;
-  margin: 0px;
-  list-style-type: none;
-}
-
-.task-list ul li {
-  padding: 0px;
-  margin: 0px;
-  list-style-type: none;
 }

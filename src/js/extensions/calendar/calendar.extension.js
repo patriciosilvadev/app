@@ -4,7 +4,7 @@ import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import './calendar.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
-import { getQueryStringValue, logger, getMentions } from '../../helpers/util'
+import { getQueryStringValue, logger, getMentions, getHighestTaskOrder } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
 import PropTypes from 'prop-types'
 import arrayMove from 'array-move'
@@ -52,7 +52,7 @@ class CalendarExtension extends React.Component {
       const teamId = this.props.team.id
       const userId = this.props.user.id
       const dueDate = date.toDate()
-      const order = this.props.tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), this.props.tasks.length + 1) + 1
+      const order = getHighestTaskOrder(this.props.tasks)
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, dueDate, user: userId, team: teamId })
       const task = data.createTask
 

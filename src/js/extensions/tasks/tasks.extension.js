@@ -4,7 +4,7 @@ import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import './tasks.extension.css'
 import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
-import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../helpers/util'
+import { sortTasksByOrder, logger, getMentions, findChildTasks, getHighestTaskOrder } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
 import {
   updateChannel,
@@ -38,13 +38,11 @@ class TasksExtension extends React.Component {
       tasks: [],
     }
 
-    this.onSortEnd = this.onSortEnd.bind(this)
     this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
     this.handleDeleteTask = this.handleDeleteTask.bind(this)
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateTask = this.handleCreateTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
-    this.updateTaskOrder = this.updateTaskOrder.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
     this.fetchTasks = this.fetchTasks.bind(this)
   }
@@ -125,9 +123,7 @@ class TasksExtension extends React.Component {
     }
   }
 
-  async updateTaskOrder({ id, parent, order }) {
-    console.log(id, parent, order)
-
+  async handleUpdateTaskOrder({ id, parent, order }) {
     try {
       // Get the task
       const taskId = id
@@ -141,22 +137,6 @@ class TasksExtension extends React.Component {
       // Update the order on our store (so it reflects)
       // We don't use the parent object anymore here
       this.props.updateTasks(channelId, { ...task, parentId, order })
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  async handleUpdateTaskOrder(taskId, order) {
-    try {
-      // Get the task
-      const task = this.props.tasks.filter(task => task.id == taskId)[0]
-      const channelId = this.props.channel.id
-
-      // Update the order
-      await GraphqlService.getInstance().updateTask(taskId, { order })
-
-      // Update the order on our store (so it reflects)
-      this.props.updateTasks(channelId, { ...task, order })
     } catch (e) {
       logger(e)
     }
@@ -196,7 +176,7 @@ class TasksExtension extends React.Component {
       const channelId = !!this.props.channel.id ? this.props.channel.id : null
       const teamId = this.props.team.id
       const userId = this.props.user.id
-      const order = this.props.tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), this.props.tasks.length + 1) + 1
+      const order = getHighestTaskOrder(this.props.tasks)
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, user: userId, team: teamId })
       const task = data.createTask
 
@@ -212,41 +192,6 @@ class TasksExtension extends React.Component {
         loading: false,
       })
     }
-  }
-
-  onSortEnd({ oldIndex, newIndex }) {
-    const taskId = this.state.tasks[oldIndex].id
-    let taskOrderAtNewIndex = 0
-    let newOrderForTask = 0
-    let taskOrderBeforeNewIndex = 0
-    let taskOrderAfterNewIndex = 0
-
-    // Generally - take the difference between the new index & the top/bottom one
-    // And calucalate mid way
-    if (newIndex < oldIndex) {
-      // Take the order at index 0 & -1
-      if (newIndex == 0) {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        newOrderForTask = taskOrderAtNewIndex - 1
-      } else {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        taskOrderBeforeNewIndex = this.state.tasks[newIndex - 1].order
-        newOrderForTask = (taskOrderAtNewIndex + taskOrderBeforeNewIndex) / 2
-      }
-    } else {
-      // Take the highest order & +1
-      if (newIndex == this.state.tasks.length - 1) {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        newOrderForTask = taskOrderAtNewIndex + 1
-      } else {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        taskOrderAfterNewIndex = this.state.tasks[newIndex + 1].order
-        newOrderForTask = (taskOrderAtNewIndex + taskOrderAfterNewIndex) / 2
-      }
-    }
-
-    // Update the task list
-    this.handleUpdateTaskOrder(taskId, newOrderForTask)
   }
 
   toggleCompletedTasks() {
@@ -321,20 +266,18 @@ class TasksExtension extends React.Component {
           <Button text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
         </div>
 
-        <div className="tasks">
-          <TasksComponent
-            tasks={this.state.tasks}
-            deleteTask={this.handleDeleteTask}
-            updateTask={this.handleUpdateTask}
-            updateTaskOrder={this.updateTaskOrder}
-            showCompletedTasks={this.state.showCompletedTasks}
-            onSortEnd={this.onSortEnd}
-            shareToChannel={this.shareToChannel}
-            createTask={this.handleCreateTask}
-            disableTools={false}
-            displayChannelName={!!this.props.channel.id ? false : true}
-          />
-        </div>
+        <TasksComponent
+          masterTaskList={this.props.tasks}
+          tasks={this.state.tasks}
+          createTask={this.handleCreateTask}
+          deleteTask={this.handleDeleteTask}
+          updateTask={this.handleUpdateTask}
+          updateTaskOrder={this.handleUpdateTaskOrder}
+          showCompletedTasks={this.state.showCompletedTasks}
+          shareToChannel={this.shareToChannel}
+          disableTools={false}
+          displayChannelName={!!this.props.channel.id ? false : true}
+        />
       </div>
     )
   }

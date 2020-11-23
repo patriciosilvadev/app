@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../../../../components/icon.component'
-import { classNames, logger, getMentions } from '../../../../helpers/util'
+import { classNames, logger, getMentions, sortTasksByOrder, findChildTasks, getHighestTaskOrder } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
@@ -68,7 +68,6 @@ class ModalComponent extends React.Component {
     this.composeRef = React.createRef()
 
     this.fetchTask = this.fetchTask.bind(this)
-    this.onSortEnd = this.onSortEnd.bind(this)
     this.shareToChannel = this.shareToChannel.bind(this)
     this.handleDeleteTask = this.handleDeleteTask.bind(this)
     this.handleUpdateTask = this.handleUpdateTask.bind(this)
@@ -88,18 +87,17 @@ class ModalComponent extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     if (!props.task.id) return null
+    if (!props.task.title) return null
 
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
-    let tasks = props.task.tasks ? [...props.task.tasks] : []
-
     // This is the basic state
     let updatedState = {
       done: props.task.done,
       user: props.task.user || null,
       dueDate: props.task.dueDate ? moment(props.task.dueDate).toDate() : null,
       dueDatePretty: props.task.dueDate ? moment(props.task.dueDate).fromNow() : '',
-      tasks: tasks.sort((a, b) => a.order - b.order),
+      tasks: sortTasksByOrder(findChildTasks(props.task.id, [...props.task.tasks])),
       messages: props.task.messages
         ? props.task.messages.sort((left, right) => {
             return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
@@ -327,7 +325,15 @@ class ModalComponent extends React.Component {
       const currentTaskId = this.state.id
       const channelId = this.props.channel.id
       await GraphqlService.getInstance().deleteTask(taskId)
+
+      // Delete it from here
       this.props.updateTaskDeleteSubtask(taskId, currentTaskId, channelId)
+
+      // Delete it from the channel
+      this.props.deleteChannelMessageTaskAttachment(channelId, taskId)
+
+      // Delete it from the main task list
+      this.props.deleteTasks(channelId, taskId)
     } catch (e) {
       this.setState({ error: 'Error deleting task' })
     }
@@ -342,7 +348,7 @@ class ModalComponent extends React.Component {
       const taskId = this.state.id
       const teamId = this.props.team.id
       const userId = this.props.user.id
-      const order = this.props.task.tasks ? this.props.task.tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), this.props.task.tasks.length + 1) + 1 : 1
+      const order = getHighestTaskOrder(this.props.task.tasks)
       const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, parent: taskId, title, order, user: userId, team: teamId })
       const task = data.createTask
 
@@ -352,6 +358,9 @@ class ModalComponent extends React.Component {
       // Add the new subtask to the store
       // this.props.updateTask(taskId, { tasks }, channelId)
       this.props.updateTaskAddSubtask(taskId, task, channelId)
+
+      // Add it to the main list
+      this.props.createTasks(channelId, task)
     } catch (e) {
       this.setState({ error: 'Error creating task' })
     }
@@ -373,57 +382,34 @@ class ModalComponent extends React.Component {
 
         // Update the task
         this.props.updateTaskUpdateSubtask(taskId, task, channelId)
+
+        // Update the task if it's been posted on a message
+        this.props.updateTasks(channelId, task)
+        this.props.updateChannelMessageTaskAttachment(channelId, taskId, task)
       }
     } catch (e) {
       this.setState({ error: 'Error udpating task' })
     }
   }
 
-  onSortEnd({ oldIndex, newIndex }) {
-    const taskId = this.state.tasks[oldIndex].id
-    let taskOrderAtNewIndex = 0
-    let newOrderForTask = 0
-    let taskOrderBeforeNewIndex = 0
-    let taskOrderAfterNewIndex = 0
-
-    // Generally - take the difference between the new index & the top/bottom one
-    // And calucalate mid way
-    if (newIndex < oldIndex) {
-      // Take the order at index 0 & -1
-      if (newIndex == 0) {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        newOrderForTask = taskOrderAtNewIndex - 1
-      } else {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        taskOrderBeforeNewIndex = this.state.tasks[newIndex - 1].order
-        newOrderForTask = (taskOrderAtNewIndex + taskOrderBeforeNewIndex) / 2
-      }
-    } else {
-      // Take the highest order & +1
-      if (newIndex == this.state.tasks.length - 1) {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        newOrderForTask = taskOrderAtNewIndex + 1
-      } else {
-        taskOrderAtNewIndex = this.state.tasks[newIndex].order
-        taskOrderAfterNewIndex = this.state.tasks[newIndex + 1].order
-        newOrderForTask = (taskOrderAtNewIndex + taskOrderAfterNewIndex) / 2
-      }
-    }
-
-    // Update the task list
-    this.handleUpdateTaskOrder(taskId, newOrderForTask)
-  }
-
-  async handleUpdateTaskOrder(subtaskId, order) {
+  async handleUpdateTaskOrder({ id, parent, order }) {
     try {
-      // Update the order
-      await GraphqlService.getInstance().updateTask(subtaskId, { order })
-
+      // Get the task
+      const taskId = id
+      const task = this.props.task.tasks.filter(task => task.id == taskId)[0]
+      const parentId = parent
       const channelId = this.props.channel.id
 
-      this.props.updateTaskUpdateSubtask(subtaskId, { order }, channelId)
+      // Update the order
+      await GraphqlService.getInstance().updateTask(taskId, { order, parent })
+
+      // Update the order on our store (so it reflects)
+      // We don't use the parent object anymore here
+      // This is taken from the tasks extension
+      this.props.updateTasks(channelId, { ...task, parentId, order })
+      this.props.updateTaskUpdateSubtask(taskId, { ...task, order, parentId }, channelId)
     } catch (e) {
-      this.setState({ error: 'Error udpating task order' })
+      logger(e)
     }
   }
 
@@ -464,6 +450,19 @@ class ModalComponent extends React.Component {
 
       // Set up the local state to use
       this.setState({ id, description, title, loading: false })
+
+      console.log({
+        id,
+        description,
+        title,
+        done,
+        dueDate,
+        tasks,
+        messages,
+        channel,
+        parent,
+        user,
+      })
 
       // Update the Redux store
       this.props.hydrateTask({
@@ -686,18 +685,19 @@ class ModalComponent extends React.Component {
                     />
                   </div>
 
-                  <div className="tasks">
-                    <TasksComponent
-                      tasks={this.state.tasks}
-                      createTask={this.handleCreateSubtask}
-                      deleteTask={this.handleDeleteSubtask}
-                      updateTask={this.handleUpdateSubtask}
-                      showCompletedTasks={this.state.showCompletedTasks}
-                      onSortEnd={this.onSortEnd}
-                      shareToChannel={() => console.log('NOPE')}
-                      disableTools={false}
-                    />
-                  </div>
+                  <TasksComponent
+                    hideChildren={true}
+                    masterTaskList={this.props.task.tasks}
+                    tasks={this.state.tasks}
+                    createTask={this.handleCreateSubtask}
+                    deleteTask={this.handleDeleteSubtask}
+                    updateTask={this.handleUpdateSubtask}
+                    updateTaskOrder={this.handleUpdateTaskOrder}
+                    showCompletedTasks={this.state.showCompletedTasks}
+                    shareToChannel={() => console.log('NOPE')}
+                    disableTools={false}
+                    displayChannelName={false}
+                  />
                 </div>
               </div>
               <div className="panel">

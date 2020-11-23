@@ -53,6 +53,11 @@ class TaskComponent extends React.Component {
     this.handleBlur = this.handleBlur.bind(this)
     this.handleUpdateTaskUser = this.handleUpdateTaskUser.bind(this)
     this.handleUpdateTaskDueDate = this.handleUpdateTaskDueDate.bind(this)
+    this.updateDraggable = this.updateDraggable.bind(this)
+  }
+
+  updateDraggable(draggable) {
+    if (this.props.updateDraggable) this.props.updateDraggable(draggable)
   }
 
   async handleUpdateTaskUser(user) {
@@ -137,9 +142,6 @@ class TaskComponent extends React.Component {
         description: '',
       })
     } else {
-      if (!isTaskHeading(text)) this.props.toggleTasksBelowHeadings(id, false)
-
-      // Do the API call
       this.props.updateTask({
         id,
         done,
@@ -163,6 +165,7 @@ class TaskComponent extends React.Component {
       heading: isTaskHeading(this.state.title),
     })
     this.updateOrCreateTask()
+    this.updateDraggable(true)
   }
 
   // Fires 1st
@@ -173,10 +176,14 @@ class TaskComponent extends React.Component {
     if (keyCode == 13) {
       e.preventDefault()
       this.updateOrCreateTask()
+      this.updateDraggable(true)
     }
 
     // Escape
-    if (keyCode == 27 && this.state.compose) this.setState({ compose: false, text: this.state.title })
+    if (keyCode == 27 && this.state.compose) {
+      this.setState({ compose: false, text: this.state.title })
+      this.updateDraggable(true)
+    }
   }
 
   // Fires 2nd
@@ -255,7 +262,7 @@ class TaskComponent extends React.Component {
     this.adjustHeight()
 
     return (
-      <li className={classes}>
+      <div className={classes}>
         {deleteModal && (
           <ConfirmModal
             onOkay={() => {
@@ -284,16 +291,16 @@ class TaskComponent extends React.Component {
           {heading && <div style={{ width: 20 }} />}
           {!newTask && !heading && <div style={{ width: 10 }} />}
 
-          {heading && (
+          {!!this.props.subtaskCount && (
             <div
               className="children-hide-icon"
               onClick={() => {
                 const childTasksHidden = !this.state.childTasksHidden
                 this.setState({ childTasksHidden })
-                this.props.toggleTasksBelowHeadings(id, childTasksHidden)
+                this.props.toggleTasksBelowHeadings()
               }}
             >
-              <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={3} size={16} className="button" />
+              <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={2} size={14} className="button" />
             </div>
           )}
 
@@ -314,7 +321,10 @@ class TaskComponent extends React.Component {
             <div
               className={titleClasses}
               onClick={() => {
-                this.setState({ compose: true }, () => this.adjustHeight())
+                this.setState({ compose: true }, () => {
+                  this.adjustHeight()
+                  this.updateDraggable(false)
+                })
               }}
             >
               {title}
@@ -432,7 +442,7 @@ class TaskComponent extends React.Component {
             </React.Fragment>
           )}
         </div>
-      </li>
+      </div>
     )
   }
 }
@@ -458,6 +468,7 @@ TaskComponent.propTypes = {
   team: PropTypes.any,
   channel: PropTypes.any,
   updateTasks: PropTypes.func,
+  updateDraggable: PropTypes.func,
   displayChannelName: PropTypes.bool,
   assignedChannel: PropTypes.any,
   subtaskCount: PropTypes.number,
