@@ -708,6 +708,8 @@ class ComposeComponent extends React.Component {
                 )
               })}
 
+            <div style={{ width: 10 }} />
+
             <Popup
               handleDismiss={() => this.setState({ emoticonMenu: false })}
               visible={this.state.emoticonMenu}
@@ -715,7 +717,7 @@ class ComposeComponent extends React.Component {
               direction="right-top"
               content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
             >
-              <IconComponent icon="smile" size={19} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.setState({ emoticonMenu: true })} />
+              <IconComponent icon="smile" size={19} thickness={1.75} color="#565456" className="button" onClick={() => this.setState({ emoticonMenu: true })} />
             </Popup>
 
             <IconComponent icon="attachment" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
@@ -894,6 +896,7 @@ const Compose = styled.div`
 const InputContainer = styled.div`
   flex: 1;
   padding: 25px;
+  padding-bottom: 0px;
   display: flex;
   flex-direction: row;
   align-content: center;
@@ -997,8 +1000,10 @@ const AppIconContainer = styled.div`
 `
 
 const AppIconImage = styled.div`
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
+  margin-left: 5px;
+  margin-right: 5px;
   overflow: hidden;
   background-size: contain;
   background-position: center center;
