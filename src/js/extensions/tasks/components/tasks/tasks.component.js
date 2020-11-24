@@ -42,7 +42,7 @@ class T extends React.Component {
       ontop: false,
       under: false,
       draggable: true,
-      collapsed: false,
+      collapsed: true,
     }
 
     this.handleDrag = this.handleDrag.bind(this)
@@ -138,11 +138,10 @@ class T extends React.Component {
           {/* Sort index is null */}
           <TaskComponent
             index={index}
-            sortIndex={0}
             id={task.id}
             assignedChannel={task.channel}
             assignedUser={task.user}
-            subtaskCount={task.children ? task.children.length : 0}
+            subtaskCount={!!task.subtaskCount ? task.subtaskCount : task.children ? task.children.length : 0}
             dueDate={task.dueDate}
             title={task.title}
             description={task.description}
