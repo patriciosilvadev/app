@@ -77,7 +77,7 @@ export default memo(props => {
   const [resizeId, setResizeId] = useState(uuidv1())
   const [ogTitle, setOgTitle] = useState(null)
   const [ogDescription, setOgDescription] = useState(null)
-  const [ogImage, setOgImage] = useState(null)
+  const [ogImages, setOgImages] = useState(null)
   const [ogUrl, setOgUrl] = useState(null)
   const [priority, setPriority] = useState(null)
   const iframeRef = useRef(null)
@@ -298,17 +298,38 @@ export default memo(props => {
   const fetchOpengraphData = async url => {
     const response = await OpengraphService.fetchUrl(url)
     const { data } = await response.json()
+
+    // We prefer the OG url where possible
     const processedUrl = data.ogUrl ? data.ogUrl : url
 
+    // We don't explode everything because we use this on the state
     if (data.ogUrl) setOgUrl(processedUrl)
     if (data.ogTitle) setOgTitle(data.ogTitle)
     if (data.ogDescription) setOgDescription(data.ogDescription)
-    if (data.ogImage) {
-      const firstImageUrl = data.ogImage.url ? data.ogImage.url : data.ogImage[0].url
-      const fullPath = firstImageUrl.substring(0, 4).toLowerCase() == 'http'
-      const basePath = processedUrl.split(' / ')[0]
 
-      setOgImage(fullPath ? firstImageUrl : `${basePath}/${firstImageUrl}`)
+    // If it's valid
+    if (data.ogImage) {
+      let images = []
+      const isImageArray = !!data.ogImage.length
+
+      // Array-rise everything
+      if (!isImageArray) images = [data.ogImage]
+      if (isImageArray) images = data.ogImage
+
+      // Set up an array of images
+      // Also check for vailidity
+      setOgImages(
+        images.map(image => {
+          const { url } = image
+          const isValid = url.substring(0, 4).toLowerCase() == 'http'
+
+          // This is an assumption on what Google Drive returns
+          // often leaves off the protocol with simply a //url....
+          // Thanks Google
+          if (isValid) return url
+          if (!isValid) return 'https:' + url
+        })
+      )
     }
   }
 
@@ -848,7 +869,13 @@ export default memo(props => {
 
     return (
       <UrlPreview className="button" href={ogUrl} target="_blank">
-        {ogImage && <img className="mb-5" src={ogImage} height="200" />}
+        {ogImages && (
+          <div className="row">
+            {ogImages.map((u, i) => (
+              <img className="mb-5" src={u} height="100" key={i} />
+            ))}
+          </div>
+        )}
         {ogTitle && <div className="h4 color-d3 mb-5">{ogTitle}</div>}
         {ogDescription && <div className="p color-d0">{ogDescription}</div>}
       </UrlPreview>
