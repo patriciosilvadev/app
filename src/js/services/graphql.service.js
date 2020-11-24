@@ -331,8 +331,15 @@ export default class GraphqlService {
             url
             description
             calls {
+              id
               topic
               roomId
+              createdAt
+            }
+            sections {
+              id
+              order
+              title
               createdAt
             }
             image

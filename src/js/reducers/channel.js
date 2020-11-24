@@ -20,6 +20,7 @@ const initialState = {
   team: {},
   typing: [],
   calls: [],
+  sections: [],
   tasks: [],
 }
 
