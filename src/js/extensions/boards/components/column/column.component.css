@@ -1,0 +1,43 @@
+.board-column {
+  width: 200px;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  border-radius: 5px;
+  border-right: 1px solid #f2f5f6;
+}
+
+.board-column .column-container {
+  width: 200px;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  transition: 0.01s left;
+  overflow: scroll;
+}
+
+.board-column .column-container.shift {
+  left: 200px;
+  top: 0px;
+}
+
+.board-column .column-container .column-title {
+  color: #11161c;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.board-column .column-container .column-title.new {
+  color: #eaedef;
+}
+
+.board-column .column-container .column-cards {
+  height: 100%;
+  overflow: scroll;
+  width: 100%;
+}
