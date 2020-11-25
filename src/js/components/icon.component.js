@@ -64,6 +64,7 @@ import {
   LifeBuoy,
   Inbox,
   CornerDownRight,
+  Server,
 } from 'react-feather'
 import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
@@ -76,6 +77,8 @@ export function IconComponent({ size, color, icon, thickness, className, onClick
 
   const getIcon = () => {
     switch (icon) {
+      case 'server':
+        return <Server width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'corner-down-right':
         return <CornerDownRight width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
       case 'inbox':

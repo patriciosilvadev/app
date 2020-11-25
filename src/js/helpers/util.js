@@ -104,7 +104,7 @@ export function isExtensionOpen() {
   const url = window.location.href
   const urlParts = url.split('/')
   const lastPart = urlParts[urlParts.length - 1].toUpperCase()
-  return lastPart == 'VIDEO' || lastPart == 'TASKS' || lastPart == 'CALENDAR'
+  return lastPart == 'VIDEO' || lastPart == 'TASKS' || lastPart == 'CALENDAR' || lastPart == 'BOARDS'
 }
 
 export const bytesToSize = bytes => {

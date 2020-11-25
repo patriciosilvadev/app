@@ -24,6 +24,7 @@ import * as chroma from 'chroma-js'
 import TasksExtension from '../extensions/tasks/tasks.extension'
 import MeetExtension from '../extensions/meet/meet.extension'
 import CalendarExtension from '../extensions/calendar/calendar.extension'
+import BoardsExtension from '../extensions/boards/boards.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
@@ -38,7 +39,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: LAYOUTS.SIDE,
+      extensionLayout: LAYOUTS.MAIN,
       drawer: true,
     }
 
@@ -338,6 +339,17 @@ class AppPage extends React.Component {
                   </Link>
                 )}
 
+                {!IS_CORDOVA && false && (
+                  <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
+                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
+                      <span style={{ transform: 'rotateZ(90deg)' }} className="mr-10">
+                        <IconComponent icon="server" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} thickness={2.5} />
+                      </span>
+                      <PillText>Boards</PillText>
+                    </Pill>
+                  </Link>
+                )}
+
                 <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
                   <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
                     <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
@@ -531,6 +543,18 @@ class AppPage extends React.Component {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
                     <TasksExtension {...props} />
+                  </ExtensionLayout>
+                )
+              }}
+            />
+
+            {/* Boards extension */}
+            <Route
+              path="/app/team/:teamId/channel/:channelId/boards"
+              render={props => {
+                return (
+                  <ExtensionLayout layout={this.state.extensionLayout}>
+                    <BoardsExtension {...props} />
                   </ExtensionLayout>
                 )
               }}

@@ -1,0 +1,57 @@
+.boards-extension {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: stretch;
+}
+
+.boards-extension .container {
+  flex: 1;
+  width: 98%;
+  margin-left: 2%;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: scroll;
+}
+
+.boards-extension .container .column {
+  width: 200px;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  margin: 0px;
+  transition: 0.2s box-shadow, 0.5s left;
+}
+
+.boards-extension .container .column:hover {
+  background-color: #f0f3f5;
+  border-radius: 5px;
+}
+
+.boards-extension .container .column .column-title {
+  color: #11161c;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.boards-extension .container .column .column-title.new {
+  color: #eaedef;
+}
+
+.boards-extension .container .column .column-cards {
+  height: 100%;
+  overflow: scroll;
+  width: 100%;
+}
+
+.boards-extension .container .column .column-cards .card {
+}
