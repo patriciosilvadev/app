@@ -125,7 +125,7 @@ class ColumnComponent extends React.Component {
       'column-container': true,
       'shift': this.props.shift,
       'last': this.props.last && this.state.over,
-      'dragged-section': window['section'] == this.props.id,
+      'dragged-section': window.section == this.props.id,
     })
 
     return (
@@ -188,7 +188,7 @@ class ColumnComponent extends React.Component {
           </div>
           <div className="column-cards">
             {this.state.tasks.map((task, index) => {
-              return <CardComponent sectionId={this.props.id} id={task.id} title={task.title} done={task.done} key={index} />
+              return <CardComponent sectionId={this.props.id} id={task.id} user={task.user} dueDate={task.dueDate} title={task.title} done={task.done} key={index} />
             })}
             {!this.props.new && <CardComponent sectionId={this.props.id} id="" title="" done={false} new={true} />}
           </div>

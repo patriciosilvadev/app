@@ -2,11 +2,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './card.component.css'
 import PropTypes from 'prop-types'
+import { Avatar } from '@weekday/elements'
 import { hydrateTasks, createTasks, hydrateTask } from '../../../../actions'
 import arrayMove from 'array-move'
 import { sortTasksByOrder, classNames, logger } from '../../../../helpers/util'
 import { CheckboxComponent } from '../../../tasks/components/checkbox/checkbox.component'
 import { TextareaComponent } from '../../../../components/textarea.component'
+import * as moment from 'moment'
+import dayjs from 'dayjs'
 
 let CARD_IMAGE = document.createElement('img')
 CARD_IMAGE.src =
@@ -20,6 +23,8 @@ class CardComponent extends React.Component {
       compose: '',
       ontop: false,
       under: false,
+      over: false,
+      dueDatePretty: '',
     }
 
     this.handleKeyDown = this.handleKeyDown.bind(this)
@@ -30,15 +35,32 @@ class CardComponent extends React.Component {
     this.handleDragOver = this.handleDragOver.bind(this)
     this.draggableIsCard = this.draggableIsCard.bind(this)
     this.handleDragStart = this.handleDragStart.bind(this)
+    this.handleDragEnd = this.handleDragEnd.bind(this)
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    return {
+      dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
+    }
+  }
+
+  handleDragEnd(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!this.draggableIsCard()) return
+    this.setState({ over: false })
+    window['card'] = null
   }
 
   handleDragStart(e) {
     e.stopPropagation()
     e.dataTransfer.setDragImage(CARD_IMAGE, 0, 0)
+
+    window['card'] = this.props.id
   }
 
   draggableIsCard() {
-    return window.card !== null && window.card !== undefined && !this.props.new
+    return window.card !== null && window.card !== undefined
   }
 
   handleKeyDown(e) {
@@ -54,37 +76,23 @@ class CardComponent extends React.Component {
   handleDragLeave(e) {
     e.stopPropagation()
     e.preventDefault()
-
     if (!this.draggableIsCard()) return
-
-    this.setState({
-      under: false,
-      ontop: false,
-    })
+    this.setState({ over: false })
   }
 
   handleDragOver(e) {
     e.stopPropagation()
     e.preventDefault()
-
     if (!this.draggableIsCard()) return
-
-    const { target } = e
-    const relativePosition = (target.getBoundingClientRect().top - e.pageY) * -1
-    const ontop = relativePosition < 5
-    const under = relativePosition >= 28
-
-    this.setState({
-      ontop,
-      under,
-    })
+    this.setState({ over: true })
   }
 
   handleDrop(e) {
     e.stopPropagation()
     e.preventDefault()
+    this.setState({ over: false })
 
-    if (!this.draggableIsCard()) return
+    /* if (!this.draggableIsCard()) return
 
     const taskIdDragged = window['card']
     const type = this.state.ontop ? 'ONTOP' : this.state.under ? 'UNDER' : null
@@ -108,47 +116,62 @@ class CardComponent extends React.Component {
     this.setState({
       under: false,
       ontop: false,
+      over: false,
     })
 
     if (!taskIdDraggedOnto) return
     if (taskIdDraggedOnto == '') return
 
     // this.props.processDrop(taskIdDragged, taskIdDraggedOnto, type)
-    console.log(taskIdDragged, taskIdDraggedOnto, type, this.props.sectionId)
+    console.log(taskIdDragged, taskIdDraggedOnto, type, this.props.sectionId) */
     window['card'] = null
   }
 
   handleDrag(e) {
     e.stopPropagation()
     e.preventDefault()
-
-    window['card'] = this.props.id
   }
 
   render() {
+    const columnCardClasses = classNames({
+      'column-card': true,
+      'dragged-card': window.card == this.props.id,
+    })
+    const cardDropClasses = classNames({
+      'card-drop': true,
+      'over': this.state.over,
+    })
+
     return (
       <div
         id={this.props.id}
-        style={{
-          position: 'relative',
-          padding: 0,
-          margin: 0,
-          boxShadow: this.state.ontop ? 'inset 0px 10px 0px 0px rgba(240,15,0,0.25)' : this.state.under ? 'inset 0px -10px 0px 0px rgba(240,15,0,0.25)' : 'none',
-        }}
         onDragStart={this.handleDragStart}
         onDrop={this.handleDrop}
         onDrag={this.handleDrag}
         onDragLeave={this.handleDragLeave}
         onDragOver={this.handleDragOver}
+        onDragEnd={this.handleDragEnd}
         draggable={!this.props.new}
-        className="column-card"
+        className={columnCardClasses}
       >
+        <div className={cardDropClasses}>
+          <div className="card-drop-inner"></div>
+        </div>
+
         {!this.props.new && (
           <div className="card-container">
-            <CheckboxComponent done={this.props.done} onClick={() => console.log('ed')} />
-            <div className="card-details">
-              <div className="card-title" onClick={() => this.props.hydrateTask({ id: this.props.id })}>
-                {this.props.title}
+            <div className="inner">
+              <CheckboxComponent done={this.props.done} onClick={() => console.log('ed')} />
+              {!!this.props.user && (
+                <div className="card-avatar">
+                  <Avatar size="very-small" image={this.props.user.image} title={this.props.user.name} />
+                </div>
+              )}
+              <div className="card-details">
+                <div className="card-title" onClick={() => this.props.hydrateTask({ id: this.props.id })}>
+                  {this.props.title}
+                </div>
+                {!!this.state.dueDatePretty && <div className="card-duedate">{this.state.dueDatePretty}</div>}
               </div>
             </div>
           </div>
@@ -167,6 +190,8 @@ class CardComponent extends React.Component {
 CardComponent.propTypes = {
   id: PropTypes.string,
   title: PropTypes.string,
+  user: PropTypes.any,
+  dueDate: PropTypes.any,
   hydrateTask: PropTypes.func,
   done: PropTypes.bool,
 }

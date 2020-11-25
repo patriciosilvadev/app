@@ -1,5 +1,5 @@
 .board-column {
-  width: 200px;
+  width: 250px;
   height: 100%;
   position: relative;
   left: 0px;
@@ -13,7 +13,7 @@
 }
 
 .board-column .column-container {
-  width: 200px;
+  width: 250px;
   height: 100%;
   position: absolute;
   left: 0px;
@@ -26,12 +26,12 @@
 }
 
 .board-column .column-container.shift {
-  left: 200px;
+  left: 250px;
   top: 0px;
 }
 
 .board-column .column-container.last {
-  left: 200px;
+  left: 250px;
 }
 
 .board-column .column-container.dragged-section {
