@@ -17,16 +17,7 @@ class BoardsExtension extends React.Component {
       notification: null,
       loading: false,
       shiftIndex: null,
-      sections: [
-        { id: 11, title: 'One', order: 0 },
-        { id: 22, title: 'Four', order: 1 },
-        { id: 33, title: 'Three', order: 2 },
-        { id: 44, title: 'Two', order: 3 },
-        { id: 55, title: 'Five', order: 4 },
-        { id: 66, title: 'Six', order: 5 },
-        { id: 77, title: 'Seven', order: 6 },
-        { id: 88, title: 'Eight', order: 7 },
-      ],
+      sections: [],
     }
 
     this.updatePosition = this.updatePosition.bind(this)
@@ -38,8 +29,10 @@ class BoardsExtension extends React.Component {
   }
 
   updatePosition(draggedSectionId, targetIndex) {
+    if (!draggedSectionId || !targetIndex) return
+
     let indexOfDraggedSection
-    const sortedSections = sortTasksByOrder(this.state.sections)
+    const sortedSections = this.state.sections
 
     // Get the CURRENT indexes
     sortedSections.map((section, index) => {
@@ -47,22 +40,26 @@ class BoardsExtension extends React.Component {
     })
 
     // Create a new array based on the new indexes
-    const updatedSortedSections = arrayMove(sortedSections, indexOfDraggedSection, targetIndex)
+    const compensateForForwardDragging = indexOfDraggedSection < targetIndex
+    const newTargetIndex = compensateForForwardDragging ? targetIndex - 1 : targetIndex
+    const updatedSortedSections = arrayMove(sortedSections, indexOfDraggedSection, newTargetIndex)
+    const sections = this.state.sections.map(section => {
+      let updatedOrderForThisSection
 
+      // Now we look for this section - but we use the index as order
+      updatedSortedSections.map((s, i) => {
+        if (s.id == section.id) updatedOrderForThisSection = i
+      })
+
+      return {
+        ...section,
+        order: updatedOrderForThisSection,
+      }
+    })
+
+    // Update the state with the new order
     this.setState({
-      sections: this.state.sections.map(section => {
-        let updatedOrderForThisSection
-
-        // Now we look for this section - but we use the index as order
-        updatedSortedSections.map((s, i) => {
-          if (s.id == section.id) updatedOrderForThisSection = i
-        })
-
-        return {
-          ...section,
-          order: updatedOrderForThisSection,
-        }
-      }),
+      sections: sortTasksByOrder(sections),
     })
   }
 
@@ -74,6 +71,15 @@ class BoardsExtension extends React.Component {
 
   componentDidMount() {
     this.fetchTasks()
+    this.setState({
+      sections: sortTasksByOrder([
+        { id: 1, title: 'One', order: 0 },
+        { id: 2, title: 'Four', order: 3 },
+        { id: 3, title: 'Three', order: 2 },
+        { id: 4, title: 'Two', order: 4 },
+        { id: 5, title: 'Five', order: 1 },
+      ]),
+    })
   }
 
   async fetchTasks() {
@@ -95,15 +101,41 @@ class BoardsExtension extends React.Component {
   render() {
     return (
       <div className="boards-extension">
-        <div>Here</div>
-        <div>Here</div>
-        <div className="container">
-          {sortTasksByOrder(this.state.sections).map((section, index) => {
-            const shift = this.state.shiftIndex != null && index >= this.state.shiftIndex
-            return (
-              <ColumnComponent shift={shift} shiftIndex={this.shiftIndex} key={index} id={section.id} order={section.order} index={index} title={section.title} updatePosition={this.updatePosition} />
-            )
-          })}
+        <div className="scroll-container">
+          <div className="scroll-content">
+            <div className="boards-container">
+              {this.state.sections.map((section, index) => {
+                let shift = this.state.shiftIndex != null && index >= this.state.shiftIndex
+
+                return (
+                  <ColumnComponent
+                    shift={shift}
+                    shiftIndex={this.shiftIndex}
+                    select={true}
+                    key={index}
+                    id={section.id}
+                    order={section.order}
+                    index={index}
+                    last={false}
+                    title={section.title}
+                    updatePosition={this.updatePosition}
+                  />
+                )
+              })}
+
+              <ColumnComponent
+                new
+                shift={this.state.shiftIndex != null && this.state.sections.length >= this.state.shiftIndex}
+                shiftIndex={() => console.log('No')}
+                id={0}
+                order={0}
+                last={true}
+                index={this.state.sections.length}
+                title="New"
+                updatePosition={this.updatePosition}
+              />
+            </div>
+          </div>
         </div>
       </div>
     )

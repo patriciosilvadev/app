@@ -1,17 +1,16 @@
 .column-card {
-  padding: 2px;
+  padding: 0px;
   display: flex;
 }
 
 .column-card .card-container {
-  border: 1px solid #f2f5f6;
+  border-bottom: 1px solid #f2f5f6;
   flex-direction: row;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   align-content: center;
   padding: 10px;
-  border-radius: 5px;
   box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);
   flex: 1;
 }
@@ -29,4 +28,36 @@
   color: #718093;
   font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.column-card .card-details .card-title:hover {
+  color: #11161c;
+}
+
+.column-card .card-container-new {
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+  padding: 10px;
+  border-radius: 5px;
+  flex: 1;
+}
+
+.column-card .card-container-new textarea {
+  color: #718093;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  margin: 0px;
+  padding: 0px;
+  resize: none;
+  background: transparent;
+  width: 99%;
+}
+
+.column-card .card-container-new textarea::placeholder {
+  color: #e9ecee;
 }

@@ -8,6 +8,10 @@ import EventService from '../../../../services/event.service'
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
 import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../../../helpers/util'
 
+let TASK_IMAGE = document.createElement('img')
+TASK_IMAGE.src =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M3 13h18v8.002c0 .551-.445.998-.993.998H3.993A.995.995 0 0 1 3 21.002V13zM3 2.998C3 2.447 3.445 2 3.993 2h16.014c.548 0 .993.446.993.998V11H3V2.998zM9 5v2h6V5H9zm0 11v2h6v-2H9z' fill='rgba(149,164,166,1)'/%3E%3C/svg%3E"
+
 const L = ({ base, tasks, hideChildren, collapsed, processDrop, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName }) => {
   return (
     <div style={{ display: collapsed ? 'none' : 'block' }}>
@@ -49,6 +53,12 @@ class T extends React.Component {
     this.handleDragLeave = this.handleDragLeave.bind(this)
     this.handleDrop = this.handleDrop.bind(this)
     this.handleDragOver = this.handleDragOver.bind(this)
+    this.handleDragStart = this.handleDragStart.bind(this)
+  }
+
+  handleDragStart(e) {
+    window['task'] = this.props.task.id
+    e.dataTransfer.setDragImage(TASK_IMAGE, 0, 0)
   }
 
   handleDragLeave(e) {
@@ -111,9 +121,7 @@ class T extends React.Component {
     this.props.processDrop(taskIdDragged, taskIdDraggedOnto, type)
   }
 
-  handleDrag(e) {
-    window['task'] = this.props.task.id
-  }
+  handleDrag(e) {}
 
   render() {
     const { task, hideChildren, processDrop, index, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName } = this.props
@@ -133,6 +141,7 @@ class T extends React.Component {
           onDrag={this.handleDrag}
           onDragLeave={this.handleDragLeave}
           onDragOver={this.handleDragOver}
+          onDragStart={this.handleDragStart}
           draggable={this.state.draggable}
         >
           {/* Sort index is null */}
