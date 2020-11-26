@@ -222,6 +222,33 @@ export default (state = initialState, action) =>
         })
         break
 
+      case 'CREATE_CHANNEL_SECTION':
+        draft.sections = [...state.sections, action.payload.section]
+        break
+
+      case 'UPDATE_CHANNEL_SECTIONS':
+        draft.sections = action.payload.sections
+        break
+
+      case 'UPDATE_CHANNEL_SECTION':
+        // Update the normal section
+        draft.sections = state.sections.map((section, _) => {
+          // If it's the correct section
+          if (section.id == action.payload.section.id) {
+            return {
+              ...section,
+              ...action.payload.section,
+            }
+          } else {
+            return section
+          }
+        })
+        break
+
+      case 'DELETE_CHANNEL_SECTION':
+        draft.sections = state.sections.filter(section => section.id != action.payload.sectionId)
+        break
+
       case 'DECREASE_CHANNEL_USER_PREVIEW':
         draft.userPreviews = state.userPreviews.filter(user => user.id != action.payload.userId)
         break

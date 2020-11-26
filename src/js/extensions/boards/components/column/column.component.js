@@ -2,13 +2,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './column.component.css'
 import PropTypes from 'prop-types'
-import { hydrateTasks, createTasks, hydrateTask } from '../../../../actions'
+import { hydrateTasks, createTasks, hydrateTask, createChannelSection, updateChannelSection, deleteChannelSection } from '../../../../actions'
 import arrayMove from 'array-move'
 import { sortTasksByOrder, classNames, logger } from '../../../../helpers/util'
 import CardComponent from '../card/card.component'
 import { TextareaComponent } from '../../../../components/textarea.component'
 import { IconComponent } from '../../../../components/icon.component'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
+import GraphqlService from '../../../../services/graphql.service'
 
 let COLUMN_IMAGE = document.createElement('img')
 COLUMN_IMAGE.src =
@@ -37,26 +38,75 @@ class ColumnComponent extends React.Component {
     this.draggableIsSection = this.draggableIsSection.bind(this)
     this.handleDragEnd = this.handleDragEnd.bind(this)
     this.handleDragStart = this.handleDragStart.bind(this)
+    this.createSection = this.createSection.bind(this)
+    this.updateSection = this.updateSection.bind(this)
+    this.deleteSection = this.deleteSection.bind(this)
   }
 
   draggableIsSection() {
     return window.section !== null && window.section !== undefined
   }
 
+  async updateSection() {
+    if (this.state.compose == this.props.title) return this.setState({ compose: '', editable: false })
+    if (this.state.compose == '') return this.setState({ compose: '', editable: false })
+
+    const { compose } = this.state
+    const { id, order } = this.props
+    const sectionId = id
+    const title = compose
+    const channelId = this.props.channel.id
+
+    await GraphqlService.getInstance().updateChannelSection(channelId, sectionId, title, order)
+
+    // Reset the state
+    this.setState({ compose: '', editable: false })
+
+    // Add it ot he store
+    this.props.updateChannelSection(channelId, {
+      id,
+      order,
+      title,
+    })
+  }
+
+  async deleteSection() {
+    const sectionId = this.props.id
+    const channelId = this.props.channel.id
+    this.setState({ menu: false })
+    await GraphqlService.getInstance().deleteChannelSection(channelId, sectionId)
+    this.props.deleteChannelSection(channelId, sectionId)
+  }
+
+  async createSection() {
+    if (this.state.compose == '') return this.setState({ compose: '', editable: false })
+
+    const { compose } = this.state
+    const order = this.props.channel.sections.length
+    const title = compose
+    const channelId = this.props.channel.id
+    const { data } = await GraphqlService.getInstance().createChannelSection(channelId, title, order)
+    const section = data.createChannelSection
+
+    // Reset the state
+    this.setState({ compose: '', editable: false })
+
+    // Add it ot he store
+    this.props.createChannelSection(channelId, section)
+  }
+
   handleKeyDown(e) {
     // On enter
     if (e.keyCode == 13) {
       e.preventDefault()
-      //this.handleUpdateTask()
-      console.log('Update')
-      this.setState({ compose: '', editable: false })
+      if (!this.props.id) this.createSection()
+      if (this.props.id) this.updateSection()
     }
   }
 
   handleBlur(e) {
-    //this.handleUpdateTask()
-    console.log('Update')
-    this.setState({ compose: '', editable: false })
+    if (!this.props.id) this.createSection()
+    if (this.props.id) this.updateSection()
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -175,7 +225,7 @@ class ColumnComponent extends React.Component {
                       items={[
                         {
                           text: 'Delete column',
-                          onClick: e => console.log('ed'),
+                          onClick: e => this.deleteSection(),
                         },
                       ]}
                     />
@@ -215,11 +265,17 @@ ColumnComponent.propTypes = {
   index: PropTypes.number,
   title: PropTypes.string,
   updatePosition: PropTypes.func,
+  createChannelSection: PropTypes.func,
+  updateChannelSection: PropTypes.func,
+  deleteChannelSection: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
   createTasks: (channelId, task) => createTasks(channelId, task),
+  createChannelSection: (channelId, section) => createChannelSection(channelId, section),
+  updateChannelSection: (channelId, section) => updateChannelSection(channelId, section),
+  deleteChannelSection: (channelId, sectionId) => deleteChannelSection(channelId, sectionId),
 }
 
 const mapStateToProps = state => {

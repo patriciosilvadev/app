@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './boards.extension.css'
 import PropTypes from 'prop-types'
-import { hydrateTasks, createTasks, hydrateTask } from '../../actions'
+import { hydrateTasks, updateChannelSections, createTasks, hydrateTask } from '../../actions'
 import arrayMove from 'array-move'
 import { sortTasksByOrder, classNames, logger } from '../../helpers/util'
 import ColumnComponent from './components/column/column.component'
@@ -22,10 +22,17 @@ class BoardsExtension extends React.Component {
 
     this.updatePosition = this.updatePosition.bind(this)
     this.shiftIndex = this.shiftIndex.bind(this)
+    this.updateChannelSections = this.updateChannelSections.bind(this)
   }
 
   shiftIndex(index) {
     this.setState({ shiftIndex: index })
+  }
+
+  async updateChannelSections(sections) {
+    const channelId = this.props.channel.id
+    await GraphqlService.getInstance().updateChannelSections(channelId, sections)
+    this.props.updateChannelSections(channelId, sections)
   }
 
   updatePosition(draggedSectionId, targetIndex) {
@@ -57,6 +64,9 @@ class BoardsExtension extends React.Component {
       }
     })
 
+    // Update out API
+    this.updateChannelSections(sortTasksByOrder(sections))
+
     // Update the state with the new order
     this.setState({
       sections: sortTasksByOrder(sections),
@@ -69,17 +79,12 @@ class BoardsExtension extends React.Component {
     }
   }
 
+  static getDerivedStateFromProps(props, state) {
+    return { sections: sortTasksByOrder(props.channel.sections) }
+  }
+
   componentDidMount() {
     this.fetchTasks()
-    this.setState({
-      sections: sortTasksByOrder([
-        { id: 1, title: 'One', order: 0 },
-        { id: 2, title: 'Four', order: 3 },
-        { id: 3, title: 'Three', order: 2 },
-        { id: 4, title: 'Two', order: 4 },
-        { id: 5, title: 'Five', order: 1 },
-      ]),
-    })
   }
 
   async fetchTasks() {
@@ -148,11 +153,13 @@ BoardsExtension.propTypes = {
   team: PropTypes.any,
   tasks: PropTypes.any,
   hydrateTasks: PropTypes.func,
+  updateChannelSections: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTasks: tasks => hydrateTasks(tasks),
   createTasks: (channelId, task) => createTasks(channelId, task),
+  updateChannelSections: (channelId, sections) => updateChannelSections(channelId, sections),
 }
 
 const mapStateToProps = state => {

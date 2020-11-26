@@ -970,12 +970,10 @@ class ChannelComponent extends React.Component {
 
 ChannelComponent.propTypes = {
   team: PropTypes.any,
-  task: PropTypes.any,
   message: PropTypes.any,
   app: PropTypes.any,
   channel: PropTypes.any,
   user: PropTypes.any,
-  presences: PropTypes.any,
   hydrateChannel: PropTypes.func,
   hydrateChannelMessages: PropTypes.func,
   updateChannel: PropTypes.func,
@@ -1001,12 +999,10 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     team: state.team,
-    task: state.task,
     message: state.message,
     app: state.app,
     user: state.user,
     channel: state.channel,
-    presences: state.presences,
   }
 }
 

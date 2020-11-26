@@ -4,7 +4,21 @@ import ReactDOMServer from 'react-dom/server'
 import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
-import { SILENCE, WEEKDAY_DRAGGED_TASK_ID } from '../constants'
+import { SILENCE, WEEKDAY_DRAGGED_TASK_ID, PRESENCES } from '../constants'
+
+export const updateUserPresenceOnWindow = presence => {
+  // Make sure the object is there
+  if (!window) return
+  if (!window[PRESENCES]) window[PRESENCES] = {}
+
+  const userId = presence.u
+
+  // Don't save the userId
+  delete presence.u
+
+  // Update the window
+  window[PRESENCES][userId] = presence
+}
 
 export const getHighestTaskOrder = tasks => {
   return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length + 1) + 4

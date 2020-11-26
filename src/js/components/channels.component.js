@@ -104,7 +104,7 @@ const Channel = props => {
         <Avatar
           muted={props.muted}
           color={props.color}
-          presence={props.presence}
+          userId={props.otherUserId}
           textColor={avatarTextColor}
           size={IS_MOBILE ? 'medium-small' : 'small'}
           image={props.private ? props.image : null}
@@ -255,7 +255,7 @@ Channel.propTypes = {
   public: PropTypes.bool,
   private: PropTypes.bool,
   readonly: PropTypes.bool,
-  presence: PropTypes.string,
+  otherUserId: PropTypes.string,
   onNavigate: PropTypes.any,
   onMutedClick: PropTypes.any,
   onArchivedClick: PropTypes.any,
@@ -890,13 +890,7 @@ class ChannelsComponent extends React.Component {
               />
             }
           >
-            <Avatar
-              size="medium-large"
-              image={this.props.user.image}
-              title={this.props.user.name}
-              presence={this.props.user.presence ? (this.props.user.presence == 'invisible' ? 'invisible:user' : this.props.user.presence) : 'online'}
-              onPresenceClick={() => this.setState({ presenceMenu: true })}
-            />
+            <Avatar size="medium-large" image={this.props.user.image} title={this.props.user.name} userId={this.props.user.id} onPresenceClick={() => this.setState({ presenceMenu: true })} />
           </Popup>
 
           <HeaderTitles>
@@ -1226,7 +1220,6 @@ class ChannelsComponent extends React.Component {
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
           const otherUserId = channel.otherUser.id
-          const otherUserPresenceText = getPresenceText(this.props.presences[otherUserId])
 
           return (
             <Channel
@@ -1234,7 +1227,7 @@ class ChannelsComponent extends React.Component {
               id={channel.id}
               color={channel.color}
               icon={channel.icon}
-              presence={otherUserPresenceText}
+              otherUserId={otherUserId}
               active={pathname.indexOf(channel.id) != -1}
               unread={muted ? 0 : unreadCount}
               name={channel.otherUser.name}
@@ -1413,7 +1406,6 @@ ChannelsComponent.propTypes = {
   channels: PropTypes.array,
   common: PropTypes.any,
   user: PropTypes.any,
-  presences: PropTypes.any,
   teams: PropTypes.array,
   createChannel: PropTypes.func,
   hydrateChannels: PropTypes.func,
@@ -1447,7 +1439,6 @@ const mapStateToProps = state => {
     channels: state.channels,
     channel: state.channel,
     teams: state.teams,
-    presences: state.presences,
   }
 }
 

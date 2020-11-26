@@ -57,7 +57,6 @@ export default memo(props => {
   const channel = useSelector(state => state.channel)
   const team = useSelector(state => state.team)
   const channels = useSelector(state => state.channels)
-  const presences = useSelector(state => state.presences)
   const user = useSelector(state => state.user)
   const parentMessage = useSelector(state => state.message)
   const [youtubeVideos, setYoutubeVideos] = useState([])
@@ -65,6 +64,7 @@ export default memo(props => {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [senderId, setSenderId] = useState(null)
   const [senderName, setSenderName] = useState(null)
   const [senderImage, setSenderImage] = useState(null)
   const [senderPresence, setSenderPresence] = useState(null)
@@ -390,6 +390,7 @@ export default memo(props => {
     // Set sender details - and accommodate SYSTEM messages & APP messages
     setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
     setSenderName(props.message.system ? '' : props.message.user ? props.message.user.name : 'Autobot')
+    setSenderId(props.message.system ? null : props.message.user ? props.message.user.id : null)
     setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
 
     // Only set this for non apps & valid timezones
@@ -480,18 +481,6 @@ export default memo(props => {
       }
     })
   }, [])
-
-  // Handling presence updates
-  useEffect(() => {
-    // Only do this for human senders
-    // Add the presence to the avatar
-    // Only update if changes
-    if (!props.message.app && !props.message.system) {
-      if (senderPresence != getPresenceText(presences[props.message.user.id])) {
-        setSenderPresence(getPresenceText(presences[props.message.user.id]))
-      }
-    }
-  }, [presences])
 
   // Specifically watch our resizeId
   useEffect(() => {
@@ -621,7 +610,7 @@ export default memo(props => {
     if (!props.append && !props.message.system) {
       return (
         <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
-          <Avatar image={senderImage} title={senderName} presence={senderPresence} size="medium" />
+          <Avatar image={senderImage} title={senderName} userId={senderId} size="medium" />
         </Tooltip>
       )
     }

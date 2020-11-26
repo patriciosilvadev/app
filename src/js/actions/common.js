@@ -5,7 +5,8 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 import StorageService from '../services/storage.service'
-import { showLocalPushNotification, logger } from '../helpers/util'
+import { showLocalPushNotification, logger, updateUserPresenceOnWindow } from '../helpers/util'
+import { PRESENCES } from '../constants'
 import {
   closeAppModal,
   closeAppPanel,
@@ -29,28 +30,40 @@ export function initialize(userId) {
   return async (dispatch, getState) => {
     let cache
 
-    const presenceAdd = () => {
+    const presenceAddOwn = () => {
       const { team, user } = getState()
       const teamId = team.id
       const userId = user.id
 
       // Default or null we can use
       const userPresence = user.presence || 'default'
+      const presence = {
+        u: userId,
+        t: new Date().getTime(),
+        p: userPresence,
+      }
 
-      // Add this to the cahce
-      dispatch(addPresence(teamId, userId, userPresence))
+      // Sync this to the team
+      // We don't call the function here - because eventually it will be called
+      // from tour message router HQ below
+      MessagingService.getInstance().sync(teamId, {
+        type: 'ADD_PRESENCE',
+        payload: presence,
+      })
     }
 
-    const presenceDelete = () => {
-      const { presences } = getState()
+    const presenceCleanup = () => {
+      if (!window) return
+      if (!window[PRESENCES]) return
+
       const snapshot = new Date().getTime()
+      const presences = window[PRESENCES]
 
       // Format of presences are timestamp:presenceText
-      for (let presence in presences) {
-        const lastSeenTimestamp = presences[presence].split(':')[0]
-
+      for (let p in presences) {
+        const { t, p } = presences[p]
         // Longer than 120s then we remove them
-        if (snapshot - lastSeenTimestamp > 120000) dispatch(deletePresence(presence))
+        if (snapshot - t > 120000) delete window.presences[p]
       }
     }
 
@@ -68,10 +81,10 @@ export function initialize(userId) {
     }
 
     // Tell our current team about our status
-    setInterval(presenceAdd, 15000)
+    setInterval(presenceAddOwn, 15000)
 
     // Clean our presence array every 5 seconds
-    setInterval(presenceDelete, 120000)
+    setInterval(presenceCleanup, 120000)
 
     // Check if the typing array is valid every 1 second
     // Iterage over the current channel's typing array
@@ -132,7 +145,6 @@ export function initialize(userId) {
 
       // Debug
       // logger(message)
-
       // If this is null, then do nothing
       // Every message has this format / structure
       // So bounce a message that doesn't
@@ -160,45 +172,53 @@ export function initialize(userId) {
             // Just use the Redux acttion
             const action = message.messagePayload
 
-            // Update our store with the synced action
-            dispatch(action)
+            // This is a special case sync where:
+            // We do'nt want to dispathc this against the store
+            // We want to simple update the window object with the presence
+            if (action.type == 'ADD_PRESENCE') {
+              updateUserPresenceOnWindow(action.payload)
+            } else {
+              // Carry on with all other action types
+              // Update our store with the synced action
+              dispatch(action)
 
-            // Handle any reads/unreads here for the DB
-            // And also handle push notices
-            if (action.type == 'CREATE_CHANNEL_MESSAGE') {
-              const { channelId, teamId, message } = action.payload
-              const isStarred = getState().user.starred.indexOf(channelId) != -1
-              const isArchived = getState().user.archived.indexOf(channelId) != -1
-              const isCurrentChannel = channelId == getState().channel.id
+              // Handle any reads/unreads here for the DB
+              // And also handle push notices
+              if (action.type == 'CREATE_CHANNEL_MESSAGE') {
+                const { channelId, teamId, message } = action.payload
+                const isStarred = getState().user.starred.indexOf(channelId) != -1
+                const isArchived = getState().user.archived.indexOf(channelId) != -1
+                const isCurrentChannel = channelId == getState().channel.id
 
-              // Only if there is something to show
-              // Message forward won't trigger this (no body)
-              const showNotification = () => {
-                if (message) showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
+                // Only if there is something to show
+                // Message forward won't trigger this (no body)
+                const showNotification = () => {
+                  if (message) showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
+                }
+
+                // Don't do a PN or unread increment if we are on the same channel
+                // as the message
+                if (isArchived || isStarred || isCurrentChannel) return
+
+                // Process DO NOT DISTURB TIMES
+                const { timezone, dnd, dndUntil } = getState().user
+                const currentDate = moment()
+                const dndUntilDate = moment(dndUntil).tz(timezone)
+                const currentDateIsAfterDndDate = currentDate.isAfter(dndUntilDate)
+                const dndIsSet = !!dnd
+
+                // Trigger a push notification
+                // If the DND date is set
+                // And if now is after their date
+                if (dndIsSet && currentDateIsAfterDndDate) showNotification()
+
+                // If it's not set process it
+                if (!dndIsSet) showNotification()
+
+                // Create an unread marker
+                // Channel will be null, which is good
+                DatabaseService.getInstance().unread(teamId, channelId)
               }
-
-              // Don't do a PN or unread increment if we are on the same channel
-              // as the message
-              if (isArchived || isStarred || isCurrentChannel) return
-
-              // Process DO NOT DISTURB TIMES
-              const { timezone, dnd, dndUntil } = getState().user
-              const currentDate = moment()
-              const dndUntilDate = moment(dndUntil).tz(timezone)
-              const currentDateIsAfterDndDate = currentDate.isAfter(dndUntilDate)
-              const dndIsSet = !!dnd
-
-              // Trigger a push notification
-              // If the DND date is set
-              // And if now is after their date
-              if (dndIsSet && currentDateIsAfterDndDate) showNotification()
-
-              // If it's not set process it
-              if (!dndIsSet) showNotification()
-
-              // Create an unread marker
-              // Channel will be null, which is good
-              DatabaseService.getInstance().unread(teamId, channelId)
             }
           }
           break

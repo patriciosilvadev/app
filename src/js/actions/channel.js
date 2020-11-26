@@ -43,6 +43,22 @@ export function deleteChannelMessage(channelId, messageId, parentMessageId) {
   }
 }
 
+export function createChannelMessage(channelId, channelMessage) {
+  return {
+    type: 'CREATE_CHANNEL_MESSAGE',
+    payload: channelMessage,
+    sync: channelId,
+  }
+}
+
+export function updateChannelMessage(channelId, channelMessage) {
+  return {
+    type: 'UPDATE_CHANNEL_MESSAGE',
+    payload: channelMessage,
+    sync: channelId,
+  }
+}
+
 export function createChannelMessageReaction(channelId, messageId, reaction) {
   return {
     type: 'CREATE_CHANNEL_MESSAGE_REACTION',
@@ -91,10 +107,37 @@ export function deleteChannelMessageLike(channelId, messageId, userId) {
   }
 }
 
-export function createChannelMessage(channelId, channelMessage) {
+export function deleteChannelSection(channelId, sectionId) {
   return {
-    type: 'CREATE_CHANNEL_MESSAGE',
-    payload: channelMessage,
+    type: 'DELETE_CHANNEL_SECTION',
+    payload: {
+      channelId,
+      sectionId,
+    },
+    sync: channelId,
+  }
+}
+
+export function createChannelSection(channelId, section) {
+  return {
+    type: 'CREATE_CHANNEL_SECTION',
+    payload: { channelId, section },
+    sync: channelId,
+  }
+}
+
+export function updateChannelSection(channelId, section) {
+  return {
+    type: 'UPDATE_CHANNEL_SECTION',
+    payload: { channelId, section },
+    sync: channelId,
+  }
+}
+
+export function updateChannelSections(channelId, sections) {
+  return {
+    type: 'UPDATE_CHANNEL_SECTIONS',
+    payload: { channelId, sections },
     sync: channelId,
   }
 }
@@ -112,14 +155,6 @@ export function updateChannelMessageReadCount(channelId, messageId) {
   return {
     type: 'UPDATE_CHANNEL_MESSAGE_READ_COUNT',
     payload: { channelId, messageId },
-    sync: channelId,
-  }
-}
-
-export function updateChannelMessage(channelId, channelMessage) {
-  return {
-    type: 'UPDATE_CHANNEL_MESSAGE',
-    payload: channelMessage,
     sync: channelId,
   }
 }

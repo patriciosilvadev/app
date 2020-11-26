@@ -1744,6 +1744,69 @@ export default class GraphqlService {
     })
   }
 
+  createChannelSection(channelId, title, order) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelSection($channelId: String, $title: String, $order: Float) {
+          createChannelSection(channelId: $channelId, title: $title, order: $order) {
+            id
+            title
+            order
+          }
+        }
+      `,
+      variables: {
+        channelId,
+        title,
+        order,
+      },
+    })
+  }
+
+  updateChannelSection(channelId, sectionId, title, order) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelSection($channelId: String, $sectionId: String, $title: String, $order: Float) {
+          updateChannelSection(channelId: $channelId, sectionId: $sectionId, title: $title, order: $order)
+        }
+      `,
+      variables: {
+        channelId,
+        sectionId,
+        title,
+        order,
+      },
+    })
+  }
+
+  updateChannelSections(channelId, sections) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelSections($channelId: String, $sections: String) {
+          updateChannelSections(channelId: $channelId, sections: $sections)
+        }
+      `,
+      variables: {
+        channelId,
+        sections: JSON.stringify(sections),
+      },
+    })
+  }
+
+  deleteChannelSection(channelId, sectionId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteChannelSection($channelId: String, $sectionId: String) {
+          deleteChannelSection(channelId: $channelId, sectionId: $sectionId)
+        }
+      `,
+      variables: {
+        channelId,
+        sectionId,
+      },
+    })
+  }
+
   updateChannelShortcode(channelId, generateNewCode) {
     return this.client.mutate({
       mutation: gql`
