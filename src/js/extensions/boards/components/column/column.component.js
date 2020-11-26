@@ -2,9 +2,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './column.component.css'
 import PropTypes from 'prop-types'
-import { hydrateTasks, createTasks, hydrateTask, createChannelSection, updateChannelSection, deleteChannelSection } from '../../../../actions'
+import { hydrateTasks, createTasks, updateTasks, hydrateTask, createChannelSection, updateChannelSection, deleteChannelSection } from '../../../../actions'
 import arrayMove from 'array-move'
-import { sortTasksByOrder, classNames, logger } from '../../../../helpers/util'
+import { sortTasksByOrder, classNames, logger, getHighestTaskOrder, getPreviousTaskOrder } from '../../../../helpers/util'
 import CardComponent from '../card/card.component'
 import { TextareaComponent } from '../../../../components/textarea.component'
 import { IconComponent } from '../../../../components/icon.component'
@@ -25,6 +25,7 @@ class ColumnComponent extends React.Component {
       compose: '',
       editable: false,
       menu: false,
+      highestOrder: 0,
     }
 
     this.composeRef = React.createRef()
@@ -41,6 +42,27 @@ class ColumnComponent extends React.Component {
     this.createSection = this.createSection.bind(this)
     this.updateSection = this.updateSection.bind(this)
     this.deleteSection = this.deleteSection.bind(this)
+    this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
+  }
+
+  async handleUpdateTaskOrder(taskId, taskIdDraggedOnto) {
+    try {
+      // If there are no tasks, get the highest order
+      // Otherwise get the order based on where the taskIdDraggedOnto sits
+      const order = this.state.tasks.length == 0 ? this.state.highestOrder : getPreviousTaskOrder(this.state.tasks, taskIdDraggedOnto)
+      const sectionId = this.props.id
+      const channelId = this.props.channel.id
+      const task = { id: taskId, sectionId, order }
+
+      // Update the order
+      await GraphqlService.getInstance().updateTask(taskId, task)
+
+      // Update the order on our store (so it reflects)
+      this.props.updateTasks(channelId, task)
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
   }
 
   draggableIsSection() {
@@ -115,9 +137,12 @@ class ColumnComponent extends React.Component {
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     const tasks = [...props.tasks]
-    const tasksForThisColumn = tasks.filter(task => task.section == props.id)
+    const sectionTasks = tasks.filter(task => task.sectionId == props.id)
 
-    return { tasks } //sortTasksByOrder(tasksForThisColumn)
+    return {
+      tasks: sortTasksByOrder(sectionTasks),
+      highestOrder: getHighestTaskOrder(sectionTasks),
+    }
   }
 
   handleDragEnd(e) {
@@ -238,9 +263,35 @@ class ColumnComponent extends React.Component {
           </div>
           <div className="column-cards">
             {this.state.tasks.map((task, index) => {
-              return <CardComponent sectionId={this.props.id} id={task.id} user={task.user} dueDate={task.dueDate} title={task.title} done={task.done} key={index} />
+              return (
+                <CardComponent
+                  sectionId={this.props.id}
+                  id={task.id}
+                  user={task.user}
+                  dueDate={task.dueDate}
+                  highestOrder={this.state.highestOrder}
+                  title={task.title}
+                  done={task.done}
+                  order={task.order}
+                  key={index}
+                  handleUpdateTaskOrder={this.handleUpdateTaskOrder}
+                />
+              )
             })}
-            {!this.props.new && <CardComponent sectionId={this.props.id} id="" title="" done={false} new={true} />}
+            {!this.props.new && (
+              <CardComponent
+                sectionId={this.props.id}
+                id=""
+                title=""
+                done={false}
+                new={true}
+                order={this.state.tasks.length}
+                highestOrder={this.state.highestOrder}
+                channelId={this.props.channel.id}
+                teamId={this.props.team.id}
+                handleUpdateTaskOrder={this.handleUpdateTaskOrder}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -273,6 +324,7 @@ ColumnComponent.propTypes = {
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
   createTasks: (channelId, task) => createTasks(channelId, task),
+  updateTasks: (channelId, task) => updateTasks(channelId, task),
   createChannelSection: (channelId, section) => createChannelSection(channelId, section),
   updateChannelSection: (channelId, section) => updateChannelSection(channelId, section),
   deleteChannelSection: (channelId, sectionId) => deleteChannelSection(channelId, sectionId),

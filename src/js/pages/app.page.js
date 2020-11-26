@@ -339,7 +339,7 @@ class AppPage extends React.Component {
                   </Link>
                 )}
 
-                {!IS_CORDOVA && false && (
+                {!IS_CORDOVA && (
                   <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
                     <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
                       <span style={{ transform: 'rotateZ(90deg)' }} className="mr-10">

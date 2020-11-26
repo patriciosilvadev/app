@@ -1299,6 +1299,7 @@ export default class GraphqlService {
             done
             dueDate
             parentId
+            sectionId
             channel {
               id
               name
@@ -1335,6 +1336,7 @@ export default class GraphqlService {
             done
             dueDate
             parentId
+            sectionId
             parent {
               id
               title

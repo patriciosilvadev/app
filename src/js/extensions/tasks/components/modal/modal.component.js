@@ -50,6 +50,7 @@ class ModalComponent extends React.Component {
       editDescription: false,
       description: '',
       title: '',
+      sectionId: '',
       dueDate: null,
       dueDatePretty: '',
       userPopup: false,
@@ -61,6 +62,8 @@ class ModalComponent extends React.Component {
       showCompletedTasks: true,
       dueDatePopup: false,
       channelPopup: false,
+      sectionPopup: false,
+      section: {},
       parent: null,
       tasks: [],
     }
@@ -83,6 +86,7 @@ class ModalComponent extends React.Component {
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
     this.handleUpdateTaskChannel = this.handleUpdateTaskChannel.bind(this)
+    this.handleUpdateTaskSection = this.handleUpdateTaskSection.bind(this)
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -93,6 +97,7 @@ class ModalComponent extends React.Component {
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     // This is the basic state
     let updatedState = {
+      section: props.channel.sections.filter(section => section.id == props.task.sectionId)[0],
       done: props.task.done,
       user: props.task.user || null,
       dueDate: props.task.dueDate ? moment(props.task.dueDate).toDate() : null,
@@ -153,6 +158,29 @@ class ModalComponent extends React.Component {
       this.props.updateTasks(channelId, task)
       this.props.updateTask(taskId, task, channelId)
     } catch (e) {
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskSection(section) {
+    try {
+      const { id } = this.state
+      const taskId = id
+      const channelId = this.props.channel.id
+      const sectionId = section.id
+      const task = { sectionId }
+
+      // Update the API only if it's a different channel
+      await GraphqlService.getInstance().updateTask(taskId, task)
+
+      // Update this modal
+      this.props.updateTask(taskId, task, channelId)
+      this.props.updateTasks(channelId, task)
+
+      // Update the task list
+      this.setState({ sectionPopup: false })
+    } catch (e) {
+      console.log(e)
       logger(e)
     }
   }
@@ -445,7 +473,7 @@ class ModalComponent extends React.Component {
     try {
       const { data } = await GraphqlService.getInstance().task(taskId)
       const {
-        task: { id, description, title, done, dueDate, tasks, messages, user, channel, parent },
+        task: { id, description, title, done, dueDate, tasks, messages, user, channel, parent, sectionId },
       } = data
 
       // Set up the local state to use
@@ -453,6 +481,7 @@ class ModalComponent extends React.Component {
 
       // Update the Redux store
       this.props.hydrateTask({
+        sectionId,
         id,
         description,
         title,
@@ -532,6 +561,29 @@ class ModalComponent extends React.Component {
 
               <div className="flexer" />
 
+              {!!this.props.channel.id && (
+                <Popup
+                  handleDismiss={() => this.setState({ sectionPopup: false })}
+                  visible={this.state.sectionPopup}
+                  width={250}
+                  direction="right-bottom"
+                  content={
+                    <Menu
+                      items={this.props.channel.sections.map(section => {
+                        return {
+                          text: section.title,
+                          onClick: e => this.handleUpdateTaskSection(section),
+                        }
+                      })}
+                    />
+                  }
+                >
+                  <div className="channel-name" onClick={() => this.setState({ sectionPopup: true })}>
+                    {this.state.section ? this.state.section.title : 'No section'}
+                  </div>
+                </Popup>
+              )}
+
               <Popup
                 handleDismiss={() => this.setState({ channelPopup: false })}
                 visible={this.state.channelPopup}
@@ -550,7 +602,13 @@ class ModalComponent extends React.Component {
                 }
               >
                 <div className="channel-name" onClick={() => this.setState({ channelPopup: true })}>
-                  {this.props.task.channel ? this.props.task.channel.name : 'No channel'}
+                  {!this.props.task.channel && <span>No channel</span>}
+                  {!!this.props.task.channel && (
+                    <React.Fragment>
+                      <IconComponent icon="hash" color="#adb5bd" size="12" thickness="2" className="mr-5" />
+                      <span>{this.props.task.channel.name}</span>
+                    </React.Fragment>
+                  )}
                 </div>
               </Popup>
 

@@ -3,13 +3,14 @@ import { connect } from 'react-redux'
 import './card.component.css'
 import PropTypes from 'prop-types'
 import { Avatar } from '@weekday/elements'
-import { hydrateTasks, createTasks, hydrateTask } from '../../../../actions'
+import { hydrateTasks, hydrateTask, updateTasks, createTasks } from '../../../../actions'
 import arrayMove from 'array-move'
 import { sortTasksByOrder, classNames, logger } from '../../../../helpers/util'
 import { CheckboxComponent } from '../../../tasks/components/checkbox/checkbox.component'
 import { TextareaComponent } from '../../../../components/textarea.component'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
+import GraphqlService from '../../../../services/graphql.service'
 
 let CARD_IMAGE = document.createElement('img')
 CARD_IMAGE.src =
@@ -36,6 +37,49 @@ class CardComponent extends React.Component {
     this.draggableIsCard = this.draggableIsCard.bind(this)
     this.handleDragStart = this.handleDragStart.bind(this)
     this.handleDragEnd = this.handleDragEnd.bind(this)
+    this.handleUpdateTaskDone = this.handleUpdateTaskDone.bind(this)
+  }
+
+  async handleCreateTask() {
+    if (this.state.compose.trim() == '') return
+
+    try {
+      const { compose } = this.state
+      const { channelId, teamId, highestOrder } = this.props
+      const userId = this.props.user.id
+      const { data } = await GraphqlService.getInstance().createTask({
+        channel: channelId,
+        title: compose,
+        order: highestOrder,
+        user: userId,
+        team: teamId,
+      })
+
+      // Stop the loading
+      this.setState({ compose: '' })
+
+      // Add it ot he store
+      this.props.createTasks(channelId, data.createTask)
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  async handleUpdateTaskDone() {
+    try {
+      const { id } = this.props
+      const done = !this.props.done
+      const channelId = this.props.channelId
+
+      // Update the task if it's been posted on a message
+      this.props.updateTasks(channelId, { id, done })
+
+      // OPTIMISTIC UPDATES
+      await GraphqlService.getInstance().updateTask(id, { done })
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -90,40 +134,14 @@ class CardComponent extends React.Component {
   handleDrop(e) {
     e.stopPropagation()
     e.preventDefault()
+    if (!this.draggableIsCard()) return
+
+    const draggedTaskId = window['card']
+    const taskIdDraggedOnto = this.props.id
+
     this.setState({ over: false })
+    this.props.handleUpdateTaskOrder(draggedTaskId, taskIdDraggedOnto)
 
-    /* if (!this.draggableIsCard()) return
-
-    const taskIdDragged = window['card']
-    const type = this.state.ontop ? 'ONTOP' : this.state.under ? 'UNDER' : null
-
-    if (!type) return
-
-    // We get the outer ID on the parent of this task
-    // Not all DIVs have this - so recursively find it
-    let count = 0
-    let el = e.target
-    let taskIdDraggedOnto
-
-    while (!taskIdDraggedOnto && count < 50) {
-      if (el.id) taskIdDraggedOnto = el.id
-      el = el.parentElement
-      count++
-    }
-
-    e.preventDefault()
-
-    this.setState({
-      under: false,
-      ontop: false,
-      over: false,
-    })
-
-    if (!taskIdDraggedOnto) return
-    if (taskIdDraggedOnto == '') return
-
-    // this.props.processDrop(taskIdDragged, taskIdDraggedOnto, type)
-    console.log(taskIdDragged, taskIdDraggedOnto, type, this.props.sectionId) */
     window['card'] = null
   }
 
@@ -161,7 +179,7 @@ class CardComponent extends React.Component {
         {!this.props.new && (
           <div className="card-container">
             <div className="inner">
-              <CheckboxComponent done={this.props.done} onClick={() => console.log('ed')} />
+              <CheckboxComponent done={this.props.done} onClick={this.handleUpdateTaskDone} />
               {!!this.props.user && (
                 <div className="card-avatar">
                   <Avatar size="very-small" image={this.props.user.image} title={this.props.user.name} />
@@ -191,13 +209,22 @@ CardComponent.propTypes = {
   id: PropTypes.string,
   title: PropTypes.string,
   user: PropTypes.any,
+  order: PropTypes.number,
   dueDate: PropTypes.any,
   hydrateTask: PropTypes.func,
+  updateTasks: PropTypes.func,
+  createTasks: PropTypes.func,
   done: PropTypes.bool,
+  highestOrder: PropTypes.number,
+  channelId: PropTypes.string,
+  teamId: PropTypes.string,
+  handleUpdateTaskOrder: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
+  updateTasks: (channelId, task) => updateTasks(channelId, task),
+  createTasks: (channelId, task) => createTasks(channelId, task),
 }
 
 const mapStateToProps = state => {

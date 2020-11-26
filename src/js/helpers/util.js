@@ -28,7 +28,7 @@ export const getPreviousTaskOrder = (tasks, taskId) => {
   // If there are no siblings
   if (tasks.length == 0) return 0
 
-  const lowestOrder = 0
+  const lowestOrder = tasks.reduce((acc, task) => (acc.order < task.order ? acc : task), 0).order - 4
   const task = tasks.filter(task => task.id == taskId)[0]
   let taskIndex = 0
   let order = 0
