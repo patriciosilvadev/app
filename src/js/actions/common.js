@@ -5,7 +5,7 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 import StorageService from '../services/storage.service'
-import { showLocalPushNotification, logger, updateUserPresenceOnWindow } from '../helpers/util'
+import { showLocalPushNotification, logger } from '../helpers/util'
 import { PRESENCES } from '../constants'
 import {
   closeAppModal,
@@ -30,12 +30,10 @@ export function initialize(userId) {
   return async (dispatch, getState) => {
     let cache
 
-    const presenceAddOwn = () => {
+    const broadcastOwnPresence = () => {
       const { team, user } = getState()
       const teamId = team.id
       const userId = user.id
-
-      // Default or null we can use
       const userPresence = user.presence || 'default'
       const presence = {
         u: userId,
@@ -44,8 +42,7 @@ export function initialize(userId) {
       }
 
       // Sync this to the team
-      // We don't call the function here - because eventually it will be called
-      // from tour message router HQ below
+      // Window object will be updated from message router below
       MessagingService.getInstance().sync(teamId, {
         type: 'UPDATE_PRESENCE',
         payload: presence,
@@ -81,7 +78,7 @@ export function initialize(userId) {
     }
 
     // Tell our current team about our status
-    setInterval(presenceAddOwn, 15000)
+    setInterval(broadcastOwnPresence, 15000)
 
     // Clean our presence array every 5 seconds
     setInterval(presenceCleanup, 120000)
@@ -128,7 +125,13 @@ export function initialize(userId) {
       MessagingService.getInstance().join(userId)
     })
 
-    // Now subs
+    /**
+     *
+     *
+     * ⚠️ THIS IS THE MESSAGE ROUTER
+     *
+     *
+     */
     MessagingService.getInstance().client.on('message', async (topic, data) => {
       // Get a string version of the data
       const payload = data.toString()
@@ -176,7 +179,18 @@ export function initialize(userId) {
             // We do'nt want to dispathc this against the store
             // We want to simple update the window object with the presence
             if (action.type == 'UPDATE_PRESENCE') {
-              updateUserPresenceOnWindow(action.payload)
+              if (!window) return
+              if (!window[PRESENCES]) window[PRESENCES] = {}
+
+              const presence = action.payload
+              const userId = presence.u
+
+              // Don't save the userId
+              delete presence.u
+
+              // Update the window
+              // { p: 'online', t: timestamp }
+              window[PRESENCES][userId] = presence
             } else {
               // Carry on with all other action types
               // Update our store with the synced action
