@@ -295,40 +295,50 @@ export default memo(props => {
   }
 
   const fetchOpengraphData = async url => {
-    const response = await OpengraphService.fetchUrl(url)
-    const { data } = await response.json()
+    try {
+      const response = await OpengraphService.fetchUrl(url)
+      const res = await response.json()
 
-    // We prefer the OG url where possible
-    const processedUrl = data.ogUrl ? data.ogUrl : url
+      if (!res) return
 
-    // We don't explode everything because we use this on the state
-    if (data.ogUrl) setOgUrl(processedUrl)
-    if (data.ogTitle) setOgTitle(data.ogTitle)
-    if (data.ogDescription) setOgDescription(data.ogDescription)
+      const { data } = res
 
-    // If it's valid
-    if (data.ogImage) {
-      let images = []
-      const isImageArray = !!data.ogImage.length
+      if (!data) return
 
-      // Array-rise everything
-      if (!isImageArray) images = [data.ogImage]
-      if (isImageArray) images = data.ogImage
+      // We prefer the OG url where possible
+      const processedUrl = data.ogUrl ? data.ogUrl : url
 
-      // Set up an array of images
-      // Also check for vailidity
-      setOgImages(
-        images.map(image => {
-          const { url } = image
-          const isValid = url.substring(0, 4).toLowerCase() == 'http'
+      // We don't explode everything because we use this on the state
+      if (data.ogUrl) setOgUrl(processedUrl)
+      if (data.ogTitle) setOgTitle(data.ogTitle)
+      if (data.ogDescription) setOgDescription(data.ogDescription)
 
-          // This is an assumption on what Google Drive returns
-          // often leaves off the protocol with simply a //url....
-          // Thanks Google
-          if (isValid) return url
-          if (!isValid) return 'https:' + url
-        })
-      )
+      // If it's valid
+      if (data.ogImage) {
+        let images = []
+        const isImageArray = !!data.ogImage.length
+
+        // Array-rise everything
+        if (!isImageArray) images = [data.ogImage]
+        if (isImageArray) images = data.ogImage
+
+        // Set up an array of images
+        // Also check for vailidity
+        setOgImages(
+          images.map(image => {
+            const { url } = image
+            const isValid = url.substring(0, 4).toLowerCase() == 'http'
+
+            // This is an assumption on what Google Drive returns
+            // often leaves off the protocol with simply a //url....
+            // Thanks Google
+            if (isValid) return url
+            if (!isValid) return 'https:' + url
+          })
+        )
+      }
+    } catch (e) {
+      logger(e)
     }
   }
 

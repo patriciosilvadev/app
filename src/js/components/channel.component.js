@@ -67,9 +67,7 @@ class ChannelComponent extends React.Component {
       channelMenu: false,
       lastTypingTime: 0,
       typing: '',
-      searchFocus: false,
       searchResults: null,
-      searchQuery: '',
       loading: false,
       error: false,
       isDragging: false,
@@ -98,7 +96,6 @@ class ChannelComponent extends React.Component {
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
-    this.onSearch = this.onSearch.bind(this)
     this.setUpdateMessage = this.setUpdateMessage.bind(this)
     this.setReplyMessage = this.setReplyMessage.bind(this)
     this.handleActionClick = this.handleActionClick.bind(this)
@@ -142,25 +139,20 @@ class ChannelComponent extends React.Component {
     this.props.openApp(action)
   }
 
-  onSearch(e) {
-    const query = e.target.value
-    this.setState({ searchQuery: query })
-    this.onSearch$.next(query)
-  }
-
   async fetchResults() {
-    if (this.state.searchQuery == '') return this.setState({ searchResults: null })
-
-    const query = this.state.searchQuery
-    const channelId = this.props.channel.id
-
     try {
+      if (this.props.searchQuery == '') return this.setState({ searchResults: null })
+
+      const query = this.props.searchQuery
+      const channelId = this.props.channel.id
       const { data } = await GraphqlService.getInstance().searchMessages(channelId, query)
 
       // Update our UI with our results
       // Remove ourselves
       this.setState({ searchResults: data.searchMessages })
-    } catch (e) {}
+    } catch (e) {
+      logger(e)
+    }
   }
 
   scrollToBottom() {
@@ -191,7 +183,6 @@ class ChannelComponent extends React.Component {
   }
 
   handleTouchStartEvent(e) {
-    console.log(e)
     CLIENT_Y = e.touches[0].clientY
   }
 
@@ -337,7 +328,7 @@ class ChannelComponent extends React.Component {
     if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
 
     // Here we handle the delay for the yser typing in the search field
-    this.subscription = this.onSearch$.pipe(debounceTime(250)).subscribe(debounced => this.fetchResults())
+    this.subscription = this.onSearch$.pipe(debounceTime(1000)).subscribe(debounced => this.fetchResults())
 
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
@@ -377,6 +368,12 @@ class ChannelComponent extends React.Component {
     // If the channel ID updates - then refetch all the data
     if (this.props.match.params.channelId != prevProps.match.params.channelId) {
       if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
+    }
+
+    // Do the search if the field isn't null
+    // and only if it's been updated
+    if (this.props.searchQuery != prevProps.searchQuery) {
+      this.onSearch$.next(this.props.searchQuery)
     }
   }
 
@@ -518,22 +515,6 @@ class ChannelComponent extends React.Component {
         </div>
 
         <div className="flexer"></div>
-
-        <HeaderSearchContainer className="row" focus={this.state.searchFocus}>
-          <IconComponent icon="search" size={15} color="#aeb5bc" thickness={2} className="ml-10 mr-10" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />
-
-          <HeaderSearchInputContainer>
-            <HeaderSearchInput
-              placeholder="Search"
-              value={this.state.searchQuery}
-              onChange={this.onSearch}
-              onFocus={() => this.setState({ searchFocus: true })}
-              onBlur={() => this.setState({ searchFocus: false })}
-            />
-          </HeaderSearchInputContainer>
-
-          {this.state.searchResults && <IconComponent icon="x" size={15} thickness={2} color="#aeb5bc" className="button" onClick={() => this.setState({ searchResults: null, searchQuery: '' })} />}
-        </HeaderSearchContainer>
 
         {this.props.channel.apps
           .filter(app => app.active)
@@ -759,7 +740,7 @@ class ChannelComponent extends React.Component {
         )}
 
         <MessagesInner ref={ref => (this.messagesRef = ref)}>
-          <MessagesComponent messages={this.props.channel.messages} highlight={this.state.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
+          <MessagesComponent messages={this.props.channel.messages} highlight={this.props.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
         </MessagesInner>
       </React.Fragment>
     )
@@ -777,7 +758,7 @@ class ChannelComponent extends React.Component {
         </Welcome>
 
         <MessagesInner ref={ref => (this.messagesRef = ref)}>
-          <MessagesComponent messages={this.state.searchResults} highlight={this.state.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
+          <MessagesComponent messages={this.state.searchResults} highlight={this.props.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
         </MessagesInner>
       </React.Fragment>
     )

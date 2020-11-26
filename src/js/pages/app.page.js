@@ -41,6 +41,7 @@ class AppPage extends React.Component {
       pushNotificationsNotification: false,
       extensionLayout: LAYOUTS.SIDE,
       drawer: true,
+      searchQuery: '',
     }
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
@@ -286,78 +287,87 @@ class AppPage extends React.Component {
           </BarInfo>
 
           {this.props.channel.id && (
-            <BarExtensions>
-              <LayoutIcons>
-                <LayoutIconButton>
-                  <IconComponent
-                    icon="square"
-                    color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
-                    size={18}
-                    thickness={2}
-                    onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
-                  />
-                </LayoutIconButton>
-                <LayoutIconButton>
-                  <IconComponent
-                    icon="sidebar"
-                    color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
-                    size={18}
-                    thickness={2}
-                    onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
-                  />
-                </LayoutIconButton>
-                <LayoutIconButton>
-                  <IconComponent
-                    icon="sidebar"
-                    color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
-                    size={18}
-                    thickness={2}
-                    onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
-                    style={{ transform: 'rotate(180deg)' }}
-                  />
-                </LayoutIconButton>
-              </LayoutIcons>
+            <React.Fragment>
+              <SearchBar backgroundColor={pillBackgroundColor}>
+                <IconComponent icon="search" size={15} color="rgba(255,255,255,0.25)" thickness={2} />
+                <SearchBarInput color={textColor}>
+                  <input type="text" placeholder="Search messages..." value={this.state.searchQuery} onChange={e => this.setState({ searchQuery: e.target.value })} />
+                </SearchBarInput>
+                {!!this.state.searchQuery && <IconComponent icon="x" size={15} thickness={2} color="rgba(255,255,255,0.25)" className="button" onClick={() => this.setState({ searchQuery: '' })} />}
+              </SearchBar>
+              <BarExtensions>
+                <LayoutIcons>
+                  <LayoutIconButton>
+                    <IconComponent
+                      icon="square"
+                      color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
+                      size={18}
+                      thickness={2}
+                      onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
+                    />
+                  </LayoutIconButton>
+                  <LayoutIconButton>
+                    <IconComponent
+                      icon="sidebar"
+                      color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
+                      size={18}
+                      thickness={2}
+                      onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
+                    />
+                  </LayoutIconButton>
+                  <LayoutIconButton>
+                    <IconComponent
+                      icon="sidebar"
+                      color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
+                      size={18}
+                      thickness={2}
+                      onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
+                      style={{ transform: 'rotate(180deg)' }}
+                    />
+                  </LayoutIconButton>
+                </LayoutIcons>
 
-              <ExtensionLinks>
-                {!IS_CORDOVA && (
-                  <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
-                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
-                      <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                      <PillText>Meet</PillText>
+                <ExtensionLinks>
+                  {!IS_CORDOVA && (
+                    <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
+                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
+                        <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                        <PillText>Meet</PillText>
+                      </Pill>
+                    </Link>
+                  )}
+
+                  {!IS_CORDOVA && (
+                    <Link
+                      to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
+                    >
+                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'calendar'}>
+                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                        <PillText>Calendar</PillText>
+                      </Pill>
+                    </Link>
+                  )}
+
+                  {!IS_CORDOVA && (
+                    <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
+                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
+                        <span style={{ transform: 'rotateZ(90deg)' }} className="mr-10">
+                          <IconComponent icon="server" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} thickness={2.5} />
+                        </span>
+                        <PillText>Boards</PillText>
+                      </Pill>
+                    </Link>
+                  )}
+
+                  <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
+                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
+                      <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                      <PillText>Tasks</PillText>
                     </Pill>
                   </Link>
-                )}
-
-                {!IS_CORDOVA && (
-                  <Link
-                    to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
-                  >
-                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'calendar'}>
-                      <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                      <PillText>Calendar</PillText>
-                    </Pill>
-                  </Link>
-                )}
-
-                {!IS_CORDOVA && (
-                  <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
-                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
-                      <span style={{ transform: 'rotateZ(90deg)' }} className="mr-10">
-                        <IconComponent icon="server" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} thickness={2.5} />
-                      </span>
-                      <PillText>Boards</PillText>
-                    </Pill>
-                  </Link>
-                )}
-
-                <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
-                  <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
-                    <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
-                    <PillText>Tasks</PillText>
-                  </Pill>
-                </Link>
-              </ExtensionLinks>
-            </BarExtensions>
+                </ExtensionLinks>
+              </BarExtensions>
+            </React.Fragment>
           )}
         </div>
       </Bar>
@@ -466,7 +476,7 @@ class AppPage extends React.Component {
             <Route
               path="/app/team/:teamId/channel/:channelId"
               render={props => {
-                return <ChannelComponent {...props} hide={hideChannel} />
+                return <ChannelComponent {...props} hide={hideChannel} searchQuery={this.state.searchQuery} />
               }}
             />
 
@@ -745,11 +755,49 @@ const Bar = styled.div`
   width: 100%;
   padding: 0 10px 0 10px;
   height: 50px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
 
   @media only screen and (max-width: 768px) {
     height: fit-content;
     padding: 10px;
     padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '0px')};
+  }
+`
+
+const SearchBar = styled.div`
+  padding:10px;
+  flex: 1;
+  background: ${props => props.backgroundColor}
+  margin-left: 50px;
+  margin-right: 50px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+`
+
+const SearchBarInput = styled.div`
+  flex: 1;
+  margin-left: 10px;
+
+  input {
+    width: 100%;
+    height: 100%;
+    background: none;
+    border: none;
+    font-weight: 500;
+    font-size: 13px;
+    color: ${props => props.color};
+  }
+
+  input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
   }
 `
 
