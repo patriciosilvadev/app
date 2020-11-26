@@ -141,15 +141,19 @@ class ChannelComponent extends React.Component {
 
   async fetchResults() {
     try {
+      // 1 - searchQuery prop will be updated by app.page
+      // 2 - it will be fed into this.onSearch$.next (RxJS)
+      // 3 - this will call this function 1 second later to search for messages
+      // 4 - if searchQuery is empty, then remove the results & display the message feed
       if (this.props.searchQuery == '') return this.setState({ searchResults: null })
 
       const query = this.props.searchQuery
       const channelId = this.props.channel.id
       const { data } = await GraphqlService.getInstance().searchMessages(channelId, query)
+      const searchResults = data.searchMessages
 
       // Update our UI with our results
-      // Remove ourselves
-      this.setState({ searchResults: data.searchMessages })
+      this.setState({ searchResults })
     } catch (e) {
       logger(e)
     }
