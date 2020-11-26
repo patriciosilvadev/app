@@ -23,7 +23,6 @@ import {
   hydrateTeam,
   updateUserDnd,
   updateChannelUserStatus,
-  updateChannelUserPresence,
   updateUserPresence,
   updateUserStatus,
   updateUserMuted,
@@ -37,7 +36,7 @@ import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@we
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
-import { logger, shortenMarkdownText, getPresenceText, isExtensionOpen } from '../helpers/util'
+import { logger, shortenMarkdownText, isExtensionOpen } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
@@ -603,12 +602,8 @@ class ChannelsComponent extends React.Component {
 
     try {
       const userId = this.props.user.id
-      const teamId = this.props.team.id
-
       await GraphqlService.getInstance().updateUser(userId, { presence })
-
       this.props.updateUserPresence(presence)
-      this.props.updateChannelUserPresence(userId, teamId, status)
     } catch (e) {
       logger(e)
     }
@@ -890,7 +885,14 @@ class ChannelsComponent extends React.Component {
               />
             }
           >
-            <Avatar size="medium-large" image={this.props.user.image} title={this.props.user.name} userId={this.props.user.id} onPresenceClick={() => this.setState({ presenceMenu: true })} />
+            <Avatar
+              size="medium-large"
+              presence={this.props.user.presence}
+              image={this.props.user.image}
+              title={this.props.user.name}
+              userId={this.props.user.id}
+              onPresenceClick={() => this.setState({ presenceMenu: true })}
+            />
           </Popup>
 
           <HeaderTitles>
@@ -1422,7 +1424,6 @@ const mapDispatchToProps = {
   updateUserStatus: status => updateUserStatus(status),
   updateUserPresence: presence => updateUserPresence(presence),
   updateChannelUserStatus: (userId, teamId, status) => updateChannelUserStatus(userId, teamId, status),
-  updateChannelUserPresence: (userId, teamId, presence) => updateChannelUserPresence(userId, teamId, presence),
   updateUserMuted: (userId, channelId, muted) => updateUserMuted(userId, channelId, muted),
   updateUserArchived: (userId, channelId, archived) => updateUserArchived(userId, channelId, archived),
   createChannel: channel => createChannel(channel),

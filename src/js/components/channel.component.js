@@ -35,7 +35,7 @@ import MessagesComponent from './messages.component'
 import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent, getPresenceText, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
+import { sendFocusComposeInputEvent, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
 import AttachmentsComponent from './attachments.component'
 import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
@@ -468,12 +468,11 @@ class ChannelComponent extends React.Component {
   renderHeader() {
     if (!this.state.open) return null
 
-    // Calculate presences
     const muted = this.props.user.muted.indexOf(this.props.channel.id) != -1
     const avatarColor = this.props.channel.private ? null : this.props.channel.color
     const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : null
+    const avatarUserId = this.props.channel.private ? this.props.channel.otherUser.id : null
     const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name
-    const avatarPresence = this.props.channel.private ? getPresenceText(this.props.presences[this.props.channel.otherUser.id]) : 'invisible'
     const avatarTextColor = this.props.channel.private
       ? null
       : this.props.channel.color
@@ -487,7 +486,7 @@ class ChannelComponent extends React.Component {
       <Header className="row">
         <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
 
-        <Avatar muted={muted} textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} presence={avatarPresence} size="medium-large">
+        <Avatar muted={muted} textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} userId={avatarUserId} size="medium-large">
           {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} thickness={2} /> : null}
         </Avatar>
 

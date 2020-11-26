@@ -67,14 +67,6 @@ export function updateChannelUserNameImage(userId, teamId, name, image) {
   }
 }
 
-export function updateChannelUserPresence(userId, teamId, presence) {
-  return {
-    type: 'UPDATE_CHANNEL_USER_PRESENCE',
-    payload: { userId, presence },
-    sync: teamId,
-  }
-}
-
 export function updateUser(updatedUser) {
   return {
     type: 'UPDATE_USER',

@@ -10,7 +10,6 @@ import PropTypes from 'prop-types'
 import { Attachment, Popup, Button, Modal, Error, Spinner, Avatar, Menu, Notification, Input } from '@weekday/elements'
 import { IconComponent } from './icon.component'
 import PreviewComponent from './preview.component'
-import { parseMessageMarkdown, getPresenceText, logger } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import { useParams, useHistory } from 'react-router-dom'
 import { Subject } from 'rxjs'
@@ -20,7 +19,6 @@ import ConfirmModal from '../modals/confirm.modal'
 
 const TableRow = props => {
   const { member, user } = props
-  const presences = useSelector(state => state.presences)
   const [confirmSelfDeleteModal, setConfirmSelfDeleteModal] = useState(false)
   const [confirmMemberDeleteModal, setConfirmMemberDeleteModal] = useState(false)
 
@@ -52,7 +50,7 @@ const TableRow = props => {
 
       <tr>
         <Td width={30}>
-          <Avatar size="medium" image={member.user.image} title={member.user.name} presence={getPresenceText(presences[member.user.id])} />
+          <Avatar size="medium" image={member.user.image} title={member.user.name} userId={member.user.id} />
         </Td>
         <Td>
           <div className="bold">{member.user.id == user.id ? member.user.name + ' (You)' : member.user.name}</div>

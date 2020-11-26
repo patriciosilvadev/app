@@ -33,7 +33,7 @@ import {
   updateToast,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
-import { getHighestTaskOrder, getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown, getPresenceText } from '../helpers/util'
+import { getHighestTaskOrder, getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
@@ -67,7 +67,6 @@ export default memo(props => {
   const [senderId, setSenderId] = useState(null)
   const [senderName, setSenderName] = useState(null)
   const [senderImage, setSenderImage] = useState(null)
-  const [senderPresence, setSenderPresence] = useState(null)
   const [senderTimezone, setSenderTimezone] = useState('')
   const [senderTimezoneOffset, setSenderTimezoneOffset] = useState(null)
   const [appButtons, setAppButtons] = useState([])

@@ -47,7 +47,7 @@ export function initialize(userId) {
       // We don't call the function here - because eventually it will be called
       // from tour message router HQ below
       MessagingService.getInstance().sync(teamId, {
-        type: 'ADD_PRESENCE',
+        type: 'UPDATE_PRESENCE',
         payload: presence,
       })
     }
@@ -175,7 +175,7 @@ export function initialize(userId) {
             // This is a special case sync where:
             // We do'nt want to dispathc this against the store
             // We want to simple update the window object with the presence
-            if (action.type == 'ADD_PRESENCE') {
+            if (action.type == 'UPDATE_PRESENCE') {
               updateUserPresenceOnWindow(action.payload)
             } else {
               // Carry on with all other action types
