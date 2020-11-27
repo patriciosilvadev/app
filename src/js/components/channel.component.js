@@ -155,6 +155,8 @@ class ChannelComponent extends React.Component {
       // Update our UI with our results
       this.setState({ searchResults: searchResults ? searchResults : [] })
     } catch (e) {
+      // TO DISABLE!!!
+      console.log(e)
       logger(e)
     }
   }
@@ -328,7 +330,7 @@ class ChannelComponent extends React.Component {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
 
     // Here we handle the delay for the yser typing in the search field
@@ -361,9 +363,6 @@ class ChannelComponent extends React.Component {
 
     // Keep it scrolled down
     this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
-
-    // Debug
-    // this.props.hydrateMessage({ id: "5ef434484bf9a6306cbb0b45", messages: [], body: '', user: { name: 'Jo', image: '' } })
   }
 
   componentDidUpdate(prevProps) {
@@ -485,7 +484,9 @@ class ChannelComponent extends React.Component {
 
     return (
       <Header className="row">
-        <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="mr-10 button" />
+        <div className="mr-10" style={{ width: 20 }}>
+          <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="button" />
+        </div>
 
         <Avatar muted={muted} textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} userId={avatarUserId} size="medium-large">
           {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} thickness={2} /> : null}
