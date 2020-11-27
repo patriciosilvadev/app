@@ -38,6 +38,7 @@ class CardComponent extends React.Component {
     this.handleDragStart = this.handleDragStart.bind(this)
     this.handleDragEnd = this.handleDragEnd.bind(this)
     this.handleUpdateTaskDone = this.handleUpdateTaskDone.bind(this)
+    this.handleCreateTask = this.handleCreateTask.bind(this)
   }
 
   async handleCreateTask() {
@@ -111,8 +112,7 @@ class CardComponent extends React.Component {
     // On enter
     if (e.keyCode == 13) {
       e.preventDefault()
-      //this.handleUpdateTask()
-      console.log('Add')
+      this.handleCreateTask()
       this.setState({ compose: '' })
     }
   }

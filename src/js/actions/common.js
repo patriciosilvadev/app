@@ -58,9 +58,10 @@ export function initialize(userId) {
 
       // Format of presences are timestamp:presenceText
       for (let p in presences) {
-        const { t, p } = presences[p]
+        const presence = presences[p]
+        const { t, p } = presence
         // Longer than 120s then we remove them
-        if (snapshot - t > 120000) delete window.presences[p]
+        if (snapshot - t > 120000) delete window[PRESENCES][p]
       }
     }
 
