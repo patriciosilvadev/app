@@ -34,7 +34,7 @@ export function initialize(userId) {
       const { team, user } = getState()
       const teamId = team.id
       const userId = user.id
-      const userPresence = user.presence || 'default'
+      const userPresence = user.presence || 'online'
       const presence = {
         u: userId,
         t: new Date().getTime(),

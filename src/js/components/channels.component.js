@@ -887,7 +887,7 @@ class ChannelsComponent extends React.Component {
           >
             <Avatar
               size="medium-large"
-              presence={this.props.user.presence}
+              presence={this.props.user.presence || 'online'}
               image={this.props.user.image}
               title={this.props.user.name}
               userId={this.props.user.id}
