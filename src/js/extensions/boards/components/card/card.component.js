@@ -65,7 +65,7 @@ class CardComponent extends React.Component {
 
     try {
       const { compose } = this.state
-      const { channelId, teamId, highestOrder } = this.props
+      const { channelId, teamId, highestOrder, sectionId } = this.props
       const userId = this.props.user.id
       const { data } = await GraphqlService.getInstance().createTask({
         channel: channelId,
@@ -73,6 +73,7 @@ class CardComponent extends React.Component {
         order: highestOrder,
         user: userId,
         team: teamId,
+        sectionId,
       })
 
       // Stop the loading
@@ -81,6 +82,7 @@ class CardComponent extends React.Component {
       // Add it ot he store
       this.props.createTasks(channelId, data.createTask)
     } catch (e) {
+      console.log(e)
       logger(e)
     }
   }
@@ -235,6 +237,7 @@ CardComponent.propTypes = {
   createTasks: PropTypes.func,
   done: PropTypes.bool,
   highestOrder: PropTypes.number,
+  sectionId: PropTypes.string,
   channelId: PropTypes.string,
   teamId: PropTypes.string,
   handleUpdateTaskOrder: PropTypes.func,
@@ -247,7 +250,9 @@ const mapDispatchToProps = {
 }
 
 const mapStateToProps = state => {
-  return {}
+  return {
+    user: state.user,
+  }
 }
 
 export default connect(

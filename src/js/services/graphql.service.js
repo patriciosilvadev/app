@@ -2098,6 +2098,7 @@ export default class GraphqlService {
             order
             done
             parentId
+            sectionId
             dueDate
             user {
               id
