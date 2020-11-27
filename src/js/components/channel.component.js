@@ -153,7 +153,7 @@ class ChannelComponent extends React.Component {
       const searchResults = data.searchMessages
 
       // Update our UI with our results
-      this.setState({ searchResults })
+      this.setState({ searchResults: searchResults ? searchResults : [] })
     } catch (e) {
       logger(e)
     }
