@@ -1015,3 +1015,8 @@ input[type='range'].range:focus::-ms-fill-lower {
 input[type='range'].range:focus::-ms-fill-upper {
   background: #ddd;
 }
+
+/* react-srtable hoc */
+.sortableHelper {
+  z-index: 10;
+}

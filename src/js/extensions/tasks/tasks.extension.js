@@ -266,19 +266,21 @@ class TasksExtension extends React.Component {
           <Button text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
         </div>
 
-        <TasksComponent
-          hideChildren={false}
-          masterTaskList={this.props.tasks}
-          tasks={this.state.tasks}
-          createTask={this.handleCreateTask}
-          deleteTask={this.handleDeleteTask}
-          updateTask={this.handleUpdateTask}
-          updateTaskOrder={this.handleUpdateTaskOrder}
-          showCompletedTasks={this.state.showCompletedTasks}
-          shareToChannel={this.shareToChannel}
-          disableTools={false}
-          displayChannelName={!!this.props.channel.id ? false : true}
-        />
+        <div className="tasks-container">
+          <TasksComponent
+            hideChildren={false}
+            masterTaskList={this.props.tasks}
+            tasks={this.state.tasks}
+            createTask={this.handleCreateTask}
+            deleteTask={this.handleDeleteTask}
+            updateTask={this.handleUpdateTask}
+            updateTaskOrder={this.handleUpdateTaskOrder}
+            showCompletedTasks={this.state.showCompletedTasks}
+            shareToChannel={this.shareToChannel}
+            disableTools={false}
+            displayChannelName={!!this.props.channel.id ? false : true}
+          />
+        </div>
       </div>
     )
   }

@@ -333,8 +333,8 @@ class TaskComponent extends React.Component {
 
           {!!this.props.subtaskCount && (
             <div className="subtask-count">
-              <IconComponent icon="check" color="#adb5bd" thickness={3} size={13} />
-              <IconComponent icon="check" color="#adb5bd" thickness={3} size={13} style={{ position: 'relative', left: -8 }} />
+              <IconComponent icon="check" color="#adb5bd" thickness={2} size={13} />
+              <IconComponent icon="check" color="#adb5bd" thickness={2} size={13} style={{ position: 'relative', left: -8 }} />
               <div className="text">{this.props.subtaskCount}</div>
             </div>
           )}
@@ -349,7 +349,7 @@ class TaskComponent extends React.Component {
 
               {/* Calendar that lets the user select a date */}
               <div className="icon-container">
-                {over && !newTask && (
+                {((over && !newTask) || !!this.state.dueDatePretty) && (
                   <Popup
                     handleDismiss={() => this.setState({ dueDatePopup: false })}
                     visible={this.state.dueDatePopup}

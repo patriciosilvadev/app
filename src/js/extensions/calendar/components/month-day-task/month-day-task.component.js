@@ -32,7 +32,7 @@ const TASK_IMAGE_SVG = encodeURI(`
 let TASK_IMAGE = document.createElement('img')
 TASK_IMAGE.src = 'data:image/svg+xml,' + TASK_IMAGE_SVG
 
-export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done, channel, title, user, onClick, subtaskCount, parent }) => {
+export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done, channel, title, user, onClick, subtaskCount, parentId }) => {
   const dispatch = useDispatch()
 
   const handleUpdateTaskDone = async () => {
@@ -74,10 +74,16 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
       <div className="row flexer pl-5">
         <div className="column flexer" onClick={onClick}>
           <div className="task-title">
-            {!!parent && <IconComponent icon="corner-down-right" color="#11171d" thickness={2.25} size={11} style={{ marginRight: 3 }} />}
-            <span className="flexer">{title}</span>
+            {!!parentId && <IconComponent icon="corner-down-right" color="#11171d" thickness={2.25} size={11} style={{ marginRight: 3 }} />}
+            <span className="flexer" style={{ color: displayChannelName ? channel.color : '#11171d' }}>
+              {title}
+            </span>
           </div>
-          {displayChannelName && <div className="task-channel">{channel.name}</div>}
+          {displayChannelName && (
+            <div className="task-channel" style={{ color: displayChannelName ? channel.color : '#adb5bd' }}>
+              {channel.name}
+            </div>
+          )}
         </div>
         {!!subtaskCount && (
           <div className="subtask-count">

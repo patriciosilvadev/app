@@ -488,7 +488,7 @@ class ChannelComponent extends React.Component {
           <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="button" />
         </div>
 
-        <Avatar muted={muted} textColor={avatarTextColor} color={avatarColor} image={avatarImage} title={avatarTitle} userId={avatarUserId} size="medium-large">
+        <Avatar muted={muted} color={avatarColor} image={avatarImage} title={avatarTitle} userId={avatarUserId} size="medium-large">
           {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} thickness={2} /> : null}
         </Avatar>
 
@@ -563,22 +563,15 @@ class ChannelComponent extends React.Component {
 
         <UserPreviews className="row" style={{ marginLeft: 20 }}>
           {this.props.channel.userPreviews.map((userPreview, index) => {
-            const userPreviewTextColor = userPreview.color
-              ? chroma(userPreview.color)
-                  .desaturate(2)
-                  .brighten(2.25)
-                  .toString()
-              : '#007af5'
-
             return (
               <div key={index} style={{ marginLeft: -10 }}>
-                <Avatar textColor={userPreviewTextColor} color={userPreview.color} image={userPreview.image} title={userPreview.name} style={{ border: '2px solid white' }} size="medium" />
+                <Avatar image={userPreview.image} title={userPreview.name} style={{ border: '2px solid white' }} size="medium" />
               </div>
             )
           })}
 
           <div style={{ marginLeft: -10 }} onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
-            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} textColor="#007af5" />
+            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} />
           </div>
         </UserPreviews>
 

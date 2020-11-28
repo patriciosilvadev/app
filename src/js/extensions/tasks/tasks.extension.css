@@ -40,3 +40,9 @@
   font-size: 12px;
   margin-right: auto;
 }
+
+.tasks-extension .tasks-container {
+  flex: 1;
+  width: 100%;
+  overflow: scroll;
+}

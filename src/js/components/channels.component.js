@@ -50,11 +50,11 @@ const Channel = props => {
   const [iconCollapsable, setIconCollapsable] = useState(false)
   const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
   const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0', '#00a98f']
-  const avatarTextColor = props.private
+  const avatarIconColor = props.private
     ? null
     : props.color
     ? chroma(props.color)
-        .saturate(2)
+        .saturate(3)
         .brighten(2)
         .toString()
     : '#007af5'
@@ -100,16 +100,8 @@ const Channel = props => {
       active={props.active}
     >
       <ChannelContainerPadding>
-        <Avatar
-          muted={props.muted}
-          color={props.color}
-          userId={props.otherUserId}
-          textColor={avatarTextColor}
-          size={IS_MOBILE ? 'medium-small' : 'small'}
-          image={props.private ? props.image : null}
-          title={props.name}
-        >
-          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarTextColor} thickness={2.25} style={{ position: 'relative', top: -1 }} /> : null}
+        <Avatar muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
+          {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarIconColor} thickness={2.25} style={{ position: 'relative', top: -1 }} /> : null}
         </Avatar>
 
         <ChannelContents>

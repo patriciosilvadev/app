@@ -1300,9 +1300,11 @@ export default class GraphqlService {
             dueDate
             parentId
             sectionId
+            subtaskCount
             channel {
               id
               name
+              color
             }
             user {
               id

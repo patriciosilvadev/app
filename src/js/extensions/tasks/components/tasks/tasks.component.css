@@ -1,8 +1,6 @@
 .tasks {
   padding: 15px;
-  flex: 1;
   width: 100%;
-  overflow: scroll;
 }
 
 .task-list {

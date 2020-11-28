@@ -124,7 +124,7 @@ class MonthDayComponent extends React.Component {
                 id={task.id}
                 user={task.user}
                 done={task.done}
-                parent={task.parent}
+                parentId={task.parentId}
                 subtaskCount={task.subtaskCount}
                 channel={task.channel}
                 title={task.title}
