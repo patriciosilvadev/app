@@ -884,15 +884,6 @@ class ChannelsComponent extends React.Component {
   componentDidMount() {
     const { teamId } = this.props.match.params
     const userId = this.props.user.id
-    const navigation = StorageService.getStorage(NAVIGATE)
-
-    // If thre is a reload - reidrect them
-    if (navigation) {
-      const { type, channelId } = JSON.parse(navigation)
-      if (type && channelId) {
-        this.navigate(channelId, type)
-      }
-    }
 
     // Fetch the team & channels
     this.fetchData(teamId, userId)
@@ -931,6 +922,17 @@ class ChannelsComponent extends React.Component {
       // Populate our stores
       this.props.hydrateTeam(team.data.team)
       this.props.hydrateChannels(channels)
+
+      // Cacheed nav info
+      const navigation = StorageService.getStorage(NAVIGATE)
+
+      // If thre is a reload - reidrect them
+      if (navigation) {
+        const { type, channelId } = JSON.parse(navigation)
+        if (type && channelId) {
+          this.navigate(channelId, type)
+        }
+      }
     } catch (e) {
       this.setState({ loading: false, error: e })
     }

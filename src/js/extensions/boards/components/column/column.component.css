@@ -68,7 +68,7 @@
 }
 
 .board-column .column-container .column-cards {
-  height: 80%;
+  height: calc(100% - 50px);
   overflow: scroll;
   width: 100%;
 }

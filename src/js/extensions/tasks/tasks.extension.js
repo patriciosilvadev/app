@@ -233,7 +233,7 @@ class TasksExtension extends React.Component {
       if (teamId) searchCriteria['team'] = teamId
 
       const { data } = await GraphqlService.getInstance().tasks(searchCriteria)
-      this.props.hydrateTasks(data.tasks)
+      this.props.hydrateTasks(data.tasks || [])
     } catch (e) {
       console.log(e)
       logger(e)

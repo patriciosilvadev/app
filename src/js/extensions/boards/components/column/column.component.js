@@ -137,7 +137,7 @@ class ColumnComponent extends React.Component {
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     const tasks = [...props.tasks]
-    const sectionTasks = tasks.filter(task => task.sectionId == props.id)
+    const sectionTasks = tasks.filter(task => (props.id == 'nosection' ? !task.sectionId : task.sectionId == props.id))
 
     return {
       tasks: sortTasksByOrder(sectionTasks),
@@ -236,7 +236,13 @@ class ColumnComponent extends React.Component {
             {/* main title */}
             {!this.state.editable && !this.props.new && (
               <React.Fragment>
-                <div className="column-title-text" onClick={() => this.setState({ compose: this.props.title, editable: true })}>
+                <div
+                  className="column-title-text"
+                  onClick={() => {
+                    if (this.props.nosection) return
+                    this.setState({ compose: this.props.title, editable: true })
+                  }}
+                >
                   {this.props.title}
                 </div>
 
@@ -278,7 +284,7 @@ class ColumnComponent extends React.Component {
                 />
               )
             })}
-            {!this.props.new && (
+            {!this.props.new && !this.props.nosection && (
               <CardComponent
                 sectionId={this.props.id}
                 id=""
@@ -292,6 +298,10 @@ class ColumnComponent extends React.Component {
                 handleUpdateTaskOrder={this.handleUpdateTaskOrder}
               />
             )}
+
+            <br />
+            <br />
+            <br />
           </div>
         </div>
       </div>
@@ -307,6 +317,7 @@ ColumnComponent.propTypes = {
   hydrateTask: PropTypes.func,
   createTasks: PropTypes.func,
   shift: PropTypes.bool,
+  nosection: PropTypes.bool,
   new: PropTypes.bool,
   select: PropTypes.bool,
   last: PropTypes.bool,

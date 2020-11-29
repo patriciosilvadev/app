@@ -18,6 +18,7 @@ class BoardsExtension extends React.Component {
       loading: false,
       shiftIndex: null,
       sections: [],
+      nosection: false,
     }
 
     this.updatePosition = this.updatePosition.bind(this)
@@ -80,7 +81,10 @@ class BoardsExtension extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    return { sections: sortTasksByOrder(props.channel.sections) }
+    return {
+      nosection: props.tasks.filter(task => !task.sectionId).length != 0,
+      sections: sortTasksByOrder(props.channel.sections),
+    }
   }
 
   componentDidMount() {
@@ -96,7 +100,7 @@ class BoardsExtension extends React.Component {
         channel: channelId,
       })
 
-      this.props.hydrateTasks(data.tasks)
+      this.props.hydrateTasks(data.tasks || [])
     } catch (e) {
       console.log(e)
       logger(e)
@@ -109,6 +113,20 @@ class BoardsExtension extends React.Component {
         <div className="scroll-container">
           <div className="scroll-content">
             <div className="boards-container">
+              {this.state.nosection && (
+                <ColumnComponent
+                  nosection
+                  shift={false}
+                  shiftIndex={() => console.log('No')}
+                  id="nosection"
+                  order={-1}
+                  last={false}
+                  index={-1}
+                  title="No section"
+                  updatePosition={this.updatePosition}
+                />
+              )}
+
               {this.state.sections.map((section, index) => {
                 let shift = this.state.shiftIndex != null && index >= this.state.shiftIndex
 
@@ -132,7 +150,7 @@ class BoardsExtension extends React.Component {
                 new
                 shift={this.state.shiftIndex != null && this.state.sections.length >= this.state.shiftIndex}
                 shiftIndex={() => console.log('No')}
-                id={0}
+                id="new"
                 order={0}
                 last={true}
                 index={this.state.sections.length}
