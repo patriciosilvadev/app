@@ -43,7 +43,7 @@ import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
 import { v4 as uuidv4 } from 'uuid'
-import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER } from '../constants'
+import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -641,6 +641,12 @@ class ChannelsComponent extends React.Component {
   navigate(channelId, type) {
     let suffix = ''
 
+    // If it's a different channl clear this quick
+    if (this.props.channel.id != channelId) this.props.hydrateThreads([])
+
+    // Store this for reloads
+    StorageService.setStorage(NAVIGATE, JSON.stringify({ channelId, type }))
+
     // Update our active state
     this.setState({ active: { channelId, type } })
 
@@ -658,8 +664,11 @@ class ChannelsComponent extends React.Component {
     const to = `/app/team/${this.props.team.id}/channel/${channelId}${suffix}`
 
     // first close the drawer (mobile!!!)
-    this.props.hydrateChannel({ ...this.props.channel, messages: this.props.channel.id == channelId ? this.props.channel.messages : [] })
     this.props.toggleDrawer()
+    this.props.hydrateChannel({
+      ...this.props.channel,
+      messages: this.props.channel.id == channelId ? this.props.channel.messages : [],
+    })
 
     // AND GO!
     this.props.history.push(to)
@@ -875,6 +884,15 @@ class ChannelsComponent extends React.Component {
   componentDidMount() {
     const { teamId } = this.props.match.params
     const userId = this.props.user.id
+    const navigation = StorageService.getStorage(NAVIGATE)
+
+    // If thre is a reload - reidrect them
+    if (navigation) {
+      const { type, channelId } = JSON.parse(navigation)
+      if (type && channelId) {
+        this.navigate(channelId, type)
+      }
+    }
 
     // Fetch the team & channels
     this.fetchData(teamId, userId)
@@ -1521,6 +1539,7 @@ ChannelsComponent.propTypes = {
   teams: PropTypes.array,
   createChannel: PropTypes.func,
   hydrateChannels: PropTypes.func,
+  hydrateThreads: PropTypes.func,
   hydrateTeam: PropTypes.func,
   updateUserStatus: PropTypes.func,
   updateUserMuted: PropTypes.func,
@@ -1540,6 +1559,7 @@ const mapDispatchToProps = {
   hydrateChannels: channels => hydrateChannels(channels),
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTeam: team => hydrateTeam(team),
+  hydrateThreads: threads => hydrateThreads(threads),
 }
 
 const mapStateToProps = state => {
