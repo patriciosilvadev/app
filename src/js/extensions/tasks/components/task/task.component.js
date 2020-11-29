@@ -82,14 +82,12 @@ class TaskComponent extends React.Component {
 
   async handleUpdateTaskDueDate(date) {
     try {
-      const { id } = this.state
+      const { id, title } = this.state
       const dueDate = date
       const channelId = this.props.channel.id
       const task = { id, dueDate }
 
-      // Update the API
-      await GraphqlService.getInstance().updateTask(id, { dueDate })
-
+      // OPTIMISTIC UPDATES
       // Update our UI
       this.setState({
         dueDate: date,
@@ -99,6 +97,9 @@ class TaskComponent extends React.Component {
 
       // Update the task list
       this.props.updateTasks(channelId, task)
+
+      // Update the API
+      await GraphqlService.getInstance().updateTask(id, { dueDate })
     } catch (e) {
       console.log(e)
       logger(e)
@@ -107,6 +108,7 @@ class TaskComponent extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     let updatedState = {
+      id: props.id,
       user: props.assignedUser,
       dueDate: props.dueDate ? moment(props.dueDate).toDate() : null,
       dueDatePretty: props.dueDate ? moment(props.dueDate).fromNow() : '',
