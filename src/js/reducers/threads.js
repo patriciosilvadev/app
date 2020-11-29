@@ -7,17 +7,20 @@ export default (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
       case 'THREADS':
-        return action.payload
+        console.log(action.payload)
+        return action.payload.sort((a, b) => b.updatedAt - a.updatedAt)
 
       case 'UPDATE_THREADS':
-        return state.map(task => {
-          if (thread.id != action.payload.thread.id) return thread
+        return state
+          .map(thread => {
+            if (thread.id != action.payload.thread.id) return thread
 
-          return {
-            ...thread,
-            ...action.payload.thread,
-          }
-        })
+            return {
+              ...thread,
+              ...action.payload.thread,
+            }
+          })
+          .sort((a, b) => b.updatedAt - a.updatedAt)
 
       case 'CREATE_THREADS':
         // If the channelId is not in the URL
@@ -30,8 +33,6 @@ export default (state = initialState, action) =>
         if (!window.location.href.split) return
         if (window.location.href.split('/').indexOf(action.payload.channelId) == -1) return
 
-        // Now only add it
-        draft.push(action.payload.thread)
-        break
+        return [action.payload.thread, ...state]
     }
   })

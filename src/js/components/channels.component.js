@@ -62,7 +62,22 @@ const Channel = props => {
       data: { threads },
     } = await GraphqlService.getInstance().threads(props.id)
     if (!threads) return
-    dispatch(hydrateThreads(threads))
+
+    // Convert all of the dates to unix timestamps
+    // And then sort them by the timestamp
+    // ANY other sorting will happen on the reducer
+    dispatch(
+      hydrateThreads(
+        threads.map(thread => {
+          return {
+            ...thread,
+            updatedAt: moment(thread.updatedAt)
+              .toDate()
+              .getTime(),
+          }
+        })
+      )
+    )
   }
 
   useEffect(() => {

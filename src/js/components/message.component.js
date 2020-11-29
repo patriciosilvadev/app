@@ -308,7 +308,9 @@ export default memo(props => {
           updateChannelMessage: { id, body },
         },
       } = await GraphqlService.getInstance().updateChannelMessage(messageId, message)
-      const updatedAt = moment().toDate()
+      const updatedAt = moment()
+        .toDate()
+        .getTime()
       const channelMessage = {
         message,
         messageId,
