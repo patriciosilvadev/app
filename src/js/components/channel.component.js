@@ -35,7 +35,7 @@ import MessagesComponent from './messages.component'
 import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent, copyToClipboard, decimalToMinutes, logger } from '../helpers/util'
+import { sendFocusComposeInputEvent, copyToClipboard, decimalToMinutes, logger, sortMessagesByCreatedAt } from '../helpers/util'
 import AttachmentsComponent from './attachments.component'
 import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
@@ -253,7 +253,10 @@ class ChannelComponent extends React.Component {
       }
 
       // Populate our channel - this will fetch page 0 of messages
-      this.props.hydrateChannel(data.channel)
+      this.props.hydrateChannel({
+        ...data.channel,
+        messages: sortMessagesByCreatedAt(data.channel.messages),
+      })
 
       // Clear all the markers for read/unread
       DatabaseService.getInstance().read(channelId)

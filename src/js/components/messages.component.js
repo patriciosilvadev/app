@@ -7,15 +7,9 @@ import MessageComponent from '../components/message.component'
 import moment from 'moment'
 
 export default memo(props => {
-  const sortedMessages = props.messages
-    ? props.messages.sort((left, right) => {
-        return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-      })
-    : []
-
   return (
     <React.Fragment>
-      {sortedMessages.map((message, index) => {
+      {props.messages.map((message, index) => {
         let append = false
         let showDate = false
         let previousDate = null

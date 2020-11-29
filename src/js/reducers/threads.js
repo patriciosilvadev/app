@@ -7,7 +7,6 @@ export default (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
       case 'THREADS':
-        console.log(action.payload)
         return action.payload.sort((a, b) => b.updatedAt - a.updatedAt)
 
       case 'UPDATE_THREADS':

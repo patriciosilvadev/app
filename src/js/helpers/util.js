@@ -5,6 +5,7 @@ import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
 import { SILENCE, WEEKDAY_DRAGGED_TASK_ID, PRESENCES } from '../constants'
+import * as moment from 'moment'
 
 export const getHighestTaskOrder = tasks => {
   return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length + 1) + 4
@@ -80,6 +81,14 @@ export const getNextTaskOrder = (tasks, taskId) => {
 
 export const sortTasksByOrder = tasks => {
   return tasks.sort((a, b) => a.order - b.order)
+}
+
+export const sortMessagesByCreatedAt = messages => {
+  return messages
+    ? messages.sort((left, right) => {
+        return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
+      })
+    : []
 }
 
 export const findChildTasks = (taskId, tasks) => {

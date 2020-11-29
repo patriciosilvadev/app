@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../../../../components/icon.component'
-import { classNames, logger, getMentions, sortTasksByOrder, findChildTasks, getHighestTaskOrder } from '../../../../helpers/util'
+import { classNames, logger, getMentions, sortMessagesByCreatedAt, sortTasksByOrder, findChildTasks, getHighestTaskOrder } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
@@ -103,11 +103,7 @@ class ModalComponent extends React.Component {
       dueDate: props.task.dueDate ? moment(props.task.dueDate).toDate() : null,
       dueDatePretty: props.task.dueDate ? moment(props.task.dueDate).fromNow() : '',
       tasks: sortTasksByOrder(findChildTasks(props.task.id, [...props.task.tasks])),
-      messages: props.task.messages
-        ? props.task.messages.sort((left, right) => {
-            return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-          })
-        : [],
+      messages: props.task.messages,
     }
 
     return updatedState
@@ -488,7 +484,7 @@ class ModalComponent extends React.Component {
         done,
         dueDate,
         tasks,
-        messages,
+        messages: sortMessagesByCreatedAt(messages),
         channel,
         parent,
         user,

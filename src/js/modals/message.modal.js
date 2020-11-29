@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../components/icon.component'
-import { classNames, logger, getMentions } from '../helpers/util'
+import { classNames, logger, getMentions, sortMessagesByCreatedAt } from '../helpers/util'
 import ModalPortal from '../portals/modal.portal'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
 import { connect } from 'react-redux'
@@ -59,7 +59,7 @@ class MessageModal extends React.Component {
       this.props.hydrateMessage({
         ...this.props.message,
         id: this.props.messageId,
-        messages: data.messageMessages,
+        messages: sortMessagesByCreatedAt(data.messageMessages),
       })
     } catch (e) {
       this.setState({
