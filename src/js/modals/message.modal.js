@@ -56,6 +56,8 @@ class MessageModal extends React.Component {
 
       // Update the Redux store
       this.setState({ loading: false })
+
+      // update our store with the sorted messages
       this.props.hydrateMessage({
         ...this.props.message,
         id: this.props.messageId,

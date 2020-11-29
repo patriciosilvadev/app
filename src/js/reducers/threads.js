@@ -21,6 +21,20 @@ export default (state = initialState, action) =>
           })
           .sort((a, b) => b.updatedAt - a.updatedAt)
 
+      // If someone is replying to a thread, then update the updatedAt
+      // This will get ste in the API as well
+      case 'CREATE_CHANNEL_MESSAGE':
+        let createChannelMessageMessages = state
+
+        if (!!action.payload.message.parent) {
+          createChannelMessageMessages = createChannelMessageMessages.map(message => {
+            if (message.id != action.payload.message.parent.id) return message
+            return { ...message, updatedAt: new Date().getTime() }
+          })
+        }
+
+        return createChannelMessageMessages
+
       case 'CREATE_THREADS':
         // If the channelId is not in the URL
         // then don't do anything

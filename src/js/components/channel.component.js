@@ -293,7 +293,7 @@ class ChannelComponent extends React.Component {
       const { data } = await GraphqlService.getInstance().channelMessages(channelId, page)
 
       // Add the new messages to the channel
-      this.props.hydrateChannelMessages(channelId, data.channelMessages)
+      this.props.hydrateChannelMessages(channelId, sortMessagesByCreatedAt(data.channelMessages))
 
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({

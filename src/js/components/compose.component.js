@@ -169,14 +169,20 @@ class ComposeComponent extends React.Component {
   }
 
   async createChannelMessage(channelId, body, attachments, parentId) {
-    const userName = this.props.user.name
-    const userId = this.props.user.id
-    const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
-    const teamId = this.props.team.id
-    const device = DEVICE
-    const mentions = getMentions(body)
-
     try {
+      const userName = this.props.user.name
+      const userId = this.props.user.id
+      const excerpt = userName.toString().split(' ')[0] + ': ' + body || body
+      const teamId = this.props.team.id
+      const device = DEVICE
+      const mentions = getMentions(body)
+
+      // If they aree replying within the modal: THREADED
+      // If the messagee they are replying to is a thread: THREADED
+      // Otherwise not threaded
+      const threaded = this.props.parentMessage.id ? true : this.props.message.thread ? true : false
+
+      // Create the message
       const { data } = await GraphqlService.getInstance().createChannelMessage({
         device,
         mentions,
@@ -184,6 +190,7 @@ class ComposeComponent extends React.Component {
         user: userId,
         team: teamId,
         parent: parentId,
+        threaded,
         body,
         excerpt,
         // ⚠️ Strip the query string

@@ -110,6 +110,9 @@ export default (state = initialState, action) =>
           })
         }
 
+        // If this is a threade message, then dont add it ot the channel message list
+        if (action.payload.message.threaded) break
+
         // Check if it's already here (can happen sometimes)
         const channelAlreadyContainsMessage = createChannelMessageMessages.filter(message => message.id == action.payload.message.id).length > 0
 

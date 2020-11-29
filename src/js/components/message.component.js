@@ -752,6 +752,8 @@ export default memo(props => {
 
   const renderChildMessages = () => {
     if (!props.message.childMessageCount) return null
+    if (!props.message.thread) return null
+
     const messageText = props.message.childMessageCount == 1 ? 'reply' : 'replies'
 
     return (

@@ -7,6 +7,9 @@ import MessageComponent from '../components/message.component'
 import moment from 'moment'
 
 export default memo(props => {
+  if (!props.messages) return null
+  if (!props.messages.length) return null
+
   return (
     <React.Fragment>
       {props.messages.map((message, index) => {
