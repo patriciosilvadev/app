@@ -468,11 +468,13 @@ export default class GraphqlService {
               device
               read
               reads
+              thread
               likes
               childMessageCount
               system
               parent {
                 id
+                thread
                 channel {
                   name
                   id
@@ -524,6 +526,7 @@ export default class GraphqlService {
               reads
               pinned
               likes
+              thread
               childMessageCount
               system
               forwardingOriginalTime
@@ -536,6 +539,7 @@ export default class GraphqlService {
               }
               parent {
                 id
+                thread
                 childMessageCount
                 channel {
                   name
@@ -851,9 +855,11 @@ export default class GraphqlService {
             pinned
             likes
             childMessageCount
+            thread
             system
             parent {
               id
+              thread
               channel {
                 name
                 id
@@ -959,10 +965,12 @@ export default class GraphqlService {
             reads
             pinned
             likes
+            thread
             childMessageCount
             system
             parent {
               id
+              thread
               channel {
                 name
                 id
@@ -1057,6 +1065,24 @@ export default class GraphqlService {
     })
   }
 
+  threads(channelId) {
+    return this.client.query({
+      query: gql`
+        query threads($channelId: String!) {
+          threads(channelId: $channelId) {
+            id
+            body
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        channelId,
+      },
+    })
+  }
+
   channelAttachments(channelId, page) {
     return this.client.query({
       query: gql`
@@ -1066,6 +1092,7 @@ export default class GraphqlService {
             reactions
             device
             likes
+            thread
             childMessageCount
             system
             parent {
@@ -1073,6 +1100,7 @@ export default class GraphqlService {
                 id
                 name
                 image
+                thread
                 username
                 timezone
                 status
@@ -1127,8 +1155,10 @@ export default class GraphqlService {
             pinned
             likes
             childMessageCount
+            thread
             system
             parent {
+              thread
               channel {
                 id
                 name
@@ -1926,6 +1956,7 @@ export default class GraphqlService {
             reactions
             device
             likes
+            thread
             childMessageCount
             attachments {
               _id
@@ -1940,6 +1971,7 @@ export default class GraphqlService {
             system
             parent {
               id
+              thread
               user {
                 id
                 name
@@ -1951,6 +1983,7 @@ export default class GraphqlService {
               createdAt
             }
             createdAt
+            updatedAt
           }
         }
       `,
@@ -1979,6 +2012,7 @@ export default class GraphqlService {
             reads
             reactions
             device
+            thread
             likes
             childMessageCount
             attachments {
@@ -1994,6 +2028,7 @@ export default class GraphqlService {
             system
             parent {
               id
+              thread
               channel {
                 name
                 id

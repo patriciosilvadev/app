@@ -21,6 +21,7 @@ import common from './reducers/common'
 import team from './reducers/team'
 import task from './reducers/task'
 import tasks from './reducers/tasks'
+import threads from './reducers/threads'
 import teams from './reducers/teams'
 import meet from './reducers/meet'
 import channel from './reducers/channel'
@@ -70,6 +71,7 @@ const store = createStore(
     tasks,
     team,
     teams,
+    threads,
     channel,
     channels,
     notifications,

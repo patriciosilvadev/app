@@ -2,6 +2,7 @@ import '../helpers/extensions'
 import produce from 'immer'
 
 const initialState = {
+  id: null,
   messages: [],
 }
 
@@ -30,7 +31,9 @@ export default (state = initialState, action) =>
       case 'CREATE_CHANNEL_MESSAGE':
         // Don't do anything if there isn't porent
         // We only want non-0 level messages
+        // Only add messages for this parent
         if (!action.payload.message.parent) return
+        if (action.payload.message.parent.id != state.id) return
 
         // Check if it's already here (can happen sometimes)
         const channelAlreadyContainsMessage = state.messages.filter(message => message.id == action.payload.message.id).length > 0

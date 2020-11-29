@@ -31,6 +31,7 @@ import {
   hydrateMessage,
   createTasks,
   updateToast,
+  createThread,
 } from '../actions'
 import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
 import { getHighestTaskOrder, getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
@@ -195,7 +196,7 @@ export default memo(props => {
       // If the modal is open:
       // Then use the STORE's message Id becuase that would be the parent
       // Otherwise use the message prop's parent (if theer is one)
-      const parentMessageId = isModalOpen ? parentMessage.id : parent.id
+      const parentMessageId = isModalOpen ? parentMessage.id : parent ? parent.id : null
 
       // If there is none, then NULL is what we want here
       dispatch(deleteChannelMessage(channelId, messageId, parentMessageId))
@@ -290,8 +291,42 @@ export default memo(props => {
   }
 
   const handleMessageModalOpen = async messageId => {
-    const { data } = await GraphqlService.getInstance().message(messageId)
-    dispatch(hydrateMessage(data.message))
+    const {
+      data: { message },
+    } = await GraphqlService.getInstance().message(messageId)
+    if (!message) return
+    dispatch(hydrateMessage(message))
+  }
+
+  const handleMessageThreadConvert = async messageId => {
+    try {
+      const message = { thread: true }
+      const channelId = channel.id
+      const teamId = team.id
+      const {
+        data: {
+          updateChannelMessage: { id, body },
+        },
+      } = await GraphqlService.getInstance().updateChannelMessage(messageId, message)
+      const updatedAt = moment().toDate()
+      const channelMessage = {
+        message,
+        messageId,
+        channelId,
+        teamId,
+      }
+      const thread = {
+        id,
+        body,
+        updatedAt,
+      }
+
+      dispatch(updateChannelMessage(channelId, channelMessage))
+      dispatch(createThread(channelId, thread))
+    } catch (e) {
+      console.log(e)
+      logger(e)
+    }
   }
 
   const fetchOpengraphData = async url => {
@@ -345,7 +380,7 @@ export default memo(props => {
   const constructParentMessageData = message => {
     if (!message) return null
 
-    const { id, body, channel, app, user, childMessageCount, createdAt } = message
+    const { id, body, channel, app, user, childMessageCount, thread, createdAt } = message
     const words = body
       .split(' ')
       .splice(0, 10)
@@ -359,6 +394,7 @@ export default memo(props => {
       app,
       user,
       childMessageCount,
+      thread,
       createdAt: moment(createdAt).fromNow(),
     }
   }
@@ -728,7 +764,6 @@ export default memo(props => {
 
   const renderParent = () => {
     if (props.hideParentMessages) return null
-
     if (parent) {
       if (parent.channel) {
         return (
@@ -743,8 +778,17 @@ export default memo(props => {
                   <ParentName>by {parent.app ? parent.app.name : parent.user.name}</ParentName>
                   <ParentDate>{parent.createdAt}</ParentDate>
                   {parent && (
-                    <ParentUnreadCount color={channel.color} onClick={() => handleMessageModalOpen(parent.id)}>
-                      View thread
+                    <ParentUnreadCount
+                      color={channel.color}
+                      onClick={() => {
+                        if (parent.thread) {
+                          handleMessageModalOpen(parent.id)
+                        } else {
+                          handleMessageThreadConvert(parent.id)
+                        }
+                      }}
+                    >
+                      {parent.thread ? 'View thread' : 'Create thread'}
                     </ParentUnreadCount>
                   )}
                 </div>

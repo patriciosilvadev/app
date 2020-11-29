@@ -30,6 +30,8 @@ import {
   updateTeamMemberPosition,
   updateChannel,
   hydrateChannel,
+  hydrateMessage,
+  hydrateThreads,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@weekday/elements'
@@ -46,11 +48,26 @@ import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER 
 const Channel = props => {
   const [over, setOver] = useState(false)
   const [menu, setMenu] = useState(false)
+  const [showAllThreads, setShowAllThreads] = useState(false)
   const [avatarIconColor, setAvatarIconColor] = useState(null)
   const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(false)
+  const threads = useSelector(state => state.threads)
+  const maxThreads = 3
   const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
   const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0', '#00a98f']
+
+  const fetchThreads = async () => {
+    const {
+      data: { threads },
+    } = await GraphqlService.getInstance().threads(props.id)
+    if (!threads) return
+    dispatch(hydrateThreads(threads))
+  }
+
+  useEffect(() => {
+    if (props.active) fetchThreads()
+  }, [props.active])
 
   useEffect(() => {
     setAvatarIconColor(
@@ -83,6 +100,14 @@ const Channel = props => {
     } catch (e) {
       logger(e)
     }
+  }
+
+  const handleMessageModalOpen = async messageId => {
+    const {
+      data: { message },
+    } = await GraphqlService.getInstance().message(messageId)
+    if (!message) return
+    dispatch(hydrateMessage(message))
   }
 
   return (
@@ -234,17 +259,26 @@ const Channel = props => {
 
         {props.unread > 0 && <ChannelBadge>{props.unread}</ChannelBadge>}
       </ChannelContainer>
-      {props.active && (
+
+      {threads.length != 0 && props.active && (
         <Threads>
-          <Thread>
-            <ThreadText>Thanks for this, I'll get back to you ASAP</ThreadText>
-          </Thread>
-          <Thread>
-            <ThreadText active={true}>Hi guys, here is an article about soemthing</ThreadText>
-          </Thread>
-          <Thread>
-            <ThreadText>Let's chat about this, what do you think?</ThreadText>
-          </Thread>
+          {threads.map((thread, index) => {
+            if (!showAllThreads && index >= maxThreads) return
+
+            return (
+              <Thread key={index} onClick={() => handleMessageModalOpen(thread.id)}>
+                <ThreadLine color={props.color} />
+                <ThreadText>{thread.body}</ThreadText>
+              </Thread>
+            )
+          })}
+
+          {threads.length > maxThreads && (
+            <Thread onClick={() => setShowAllThreads(!showAllThreads)}>
+              <ThreadLine color={props.color} />
+              <ThreadText bold>{showAllThreads ? 'Show less' : 'Show more'}</ThreadText>
+            </Thread>
+          )}
         </Threads>
       )}
     </React.Fragment>
@@ -275,21 +309,35 @@ Channel.propTypes = {
 
 const Threads = styled.div``
 
+const ThreadLine = styled.div`
+  background: ${props => (props.color ? props.color : '#858E96')};
+  width: 2px;
+  height: 130%;
+  position: absolute;
+  left: 34px;
+  bottom: 0px;
+`
+
 const Thread = styled.div`
   padding-left: 55px;
   padding-right: 70px;
+  cursor: pointer;
+  position: relative;
+
+  :hover {
+    opacity: 0.75;
+  }
 `
 
 const ThreadText = styled.div`
   padding-bottom: 2px;
   padding-top: 2px;
   font-size: 10px;
-  font-weight: 600; /*${props => (props.active ? '700' : '500')}*/
+  font-weight: ${props => (props.bold ? '700' : '500')};
   color: ${props => (props.active ? '#18181d' : '#858E96')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
 `
 
 const IconCircle = styled.div`
@@ -578,6 +626,9 @@ class ChannelsComponent extends React.Component {
   navigate(channelId, type) {
     let suffix = ''
 
+    // Update our active state
+    this.setState({ active: { channelId, type } })
+
     // If there is an extension open,
     // then add it when browsing
     // extensions always have the slug at the end
@@ -592,14 +643,11 @@ class ChannelsComponent extends React.Component {
     const to = `/app/team/${this.props.team.id}/channel/${channelId}${suffix}`
 
     // first close the drawer (mobile!!!)
-    this.props.hydrateChannel({ ...this.props.channel, messages: [] })
+    this.props.hydrateChannel({ ...this.props.channel, messages: this.props.channel.id == channelId ? this.props.channel.messages : [] })
     this.props.toggleDrawer()
 
     // AND GO!
     this.props.history.push(to)
-
-    // Update our active state
-    this.setState({ active: { channelId, type } })
   }
 
   async handleTeamMemberPositionChange(position) {
