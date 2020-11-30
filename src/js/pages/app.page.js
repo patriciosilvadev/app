@@ -28,7 +28,7 @@ import BoardsExtension from '../extensions/boards/boards.extension'
 import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
-import { default as MeetModalComponent } from '../extensions/meet/components/modal/modal.component'
+
 import ToastComponent from '../components/toast.component'
 
 class AppPage extends React.Component {
@@ -52,7 +52,6 @@ class AppPage extends React.Component {
     this.renderWelcome = this.renderWelcome.bind(this)
     this.renderDisabledUI = this.renderDisabledUI.bind(this)
     this.renderTaskModal = this.renderTaskModal.bind(this)
-    this.renderMeetModal = this.renderMeetModal.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -401,12 +400,6 @@ class AppPage extends React.Component {
         </div>
       </DisabledUI>
     )
-  }
-
-  renderMeetModal() {
-    if (!this.props.meet.id) return null
-
-    return <MeetModalComponent taskId={this.props.meet.id} onClose={() => this.props.hydrateMeet({ id: null })} />
   }
 
   renderTaskModal() {

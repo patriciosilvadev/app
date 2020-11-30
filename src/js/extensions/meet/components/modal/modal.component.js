@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../../../../components/icon.component'
-import { classNames, logger, getMentions } from '../../../../helpers/util'
+import { classNames, logger, getMentions, sortMessagesByCreatedAt } from '../../../../helpers/util'
 import ModalPortal from '../../../../portals/modal.portal'
 import * as chroma from 'chroma-js'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
@@ -27,41 +27,26 @@ class ModalComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      messages: [],
-    }
+    this.state = {}
 
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
-    this.fetchMeet = this.fetchMeet.bind(this)
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (!props.meet.id) return null
-
-    // This is the basic state
-    let updatedState = {
-      messages: props.meet.messages
-        ? props.meet.messages.sort((left, right) => {
-            return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-          })
-        : [],
-    }
-
-    return updatedState
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.meet.id != prevProps.meet.id) {
-      this.fetchTask(this.props.meet.id)
-    }
-  }
+  componentDidMount() {}
 
   async handleCreateMessage(files, body) {
     try {
+      this.setState({
+        loading: true,
+        error: false,
+      })
+
       const { user } = this.props
       const userId = user.id
       const channelId = this.props.channel.id
       const meetId = this.props.meet.id
+
+      if (!meetId) return this.setState({ loading: false, error: 'No meet loaded' })
 
       // Add the message
       await GraphqlService.getInstance().createMeetMessage(meetId, body, userId, files)
@@ -75,44 +60,19 @@ class ModalComponent extends React.Component {
 
       // Add the new subtask to the store
       this.props.updateMeetAddMessage(meetId, message, channelId)
-    } catch (e) {
-      this.setState({ error: 'Error creating message' })
-    }
-  }
-
-  componentDidMount() {
-    const { taskId } = this.props
-
-    this.fetchTask(taskId)
-  }
-
-  async fetchMeet(meetId) {
-    try {
-      this.setState({ loading: true })
-
-      const { data } = await GraphqlService.getInstance().meet(meetId)
-      const {
-        meet: { messages },
-      } = data
-      const id = meetId
-
-      // Set up the local state to use
       this.setState({ loading: false })
-
-      // Update the Redux store
-      this.props.hydrateMeet({ id, messages })
     } catch (e) {
-      this.setState({
-        error: 'Error fetching task',
-        loading: false,
-      })
+      this.setState({ loading: false, error: 'Error creating message' })
     }
   }
 
   render() {
     return (
       <ModalPortal>
-        <Modal position="right" header={false} title="Task" width={800} height="100%" frameless onClose={this.props.onClose}>
+        <div className="message-modal-close-icon" onClick={this.props.onClose}>
+          <IconComponent icon="x" color="#3F474C" thickness={2} size={15} />
+        </div>
+        <Modal position="right" header={false} title="Meet" width={400} height="100%" frameless onClose={this.props.onClose}>
           {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
           {this.state.loading && <Spinner />}
           {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
@@ -120,7 +80,7 @@ class ModalComponent extends React.Component {
           <div className="meet-modal-container">
             <div className="panels">
               <div className="panel">
-                <MessagesComponent messages={this.state.messages} handleCreateMessage={this.handleCreateMessage} />
+                <MessagesComponent messages={this.props.meet.messages} handleCreateMessage={this.handleCreateMessage} />
               </div>
             </div>
           </div>

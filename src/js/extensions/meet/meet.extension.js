@@ -14,6 +14,7 @@ import moment from 'moment'
 import { DEVICE, WEBRTC_URL } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 import { hydrate } from 'react-dom'
+import { default as MeetModalComponent } from './components/modal/modal.component'
 
 // Variables from the Janus videoroom example
 var server = WEBRTC_URL
@@ -78,6 +79,7 @@ class VideoExtension extends React.Component {
       screenSharing: false,
       viewable: true,
       meets: [],
+      chat: false,
     }
 
     this.localVideoRef = React.createRef() // Small screen
@@ -117,6 +119,13 @@ class VideoExtension extends React.Component {
     this.renderMeet = this.renderMeet.bind(this)
     this.fetchMeets = this.fetchMeets.bind(this)
     this.joinMeet = this.joinMeet.bind(this)
+    this.renderMeetModal = this.renderMeetModal.bind(this)
+  }
+
+  renderMeetModal() {
+    if (!this.state.chat) return null
+
+    return <MeetModalComponent onClose={() => this.setState({ chat: false })} />
   }
 
   async shareToChannel() {
@@ -223,7 +232,7 @@ class VideoExtension extends React.Component {
   }
 
   resetGlobalValues() {
-    janus.destroy()
+    if (janus) janus.destroy()
 
     myid = null
     mypvtid = null
@@ -1371,6 +1380,7 @@ class VideoExtension extends React.Component {
 
         {this.renderMeetList()}
         {this.renderStartMeet()}
+        {this.renderMeetModal()}
         {this.renderMeet()}
       </div>
     )

@@ -11,8 +11,9 @@ export class TextareaComponent extends React.Component {
   componentDidMount() {
     if (this.textareaRef) {
       if (this.textareaRef.style) {
+        const minHeight = this.textareaRef.scrollHeight < 25 ? 25 : this.textareaRef.scrollHeight
         this.textareaRef.style.height = '1px'
-        this.textareaRef.style.height = this.textareaRef.scrollHeight + 'px'
+        this.textareaRef.style.height = minHeight + 'px'
 
         if (!!this.props.select) this.textareaRef.select()
       }
@@ -22,7 +23,7 @@ export class TextareaComponent extends React.Component {
   render() {
     if (this.textareaRef) {
       if (this.textareaRef.style) {
-        const minHeight = this.textareaRef.scrollHeight == 0 ? 25 : this.textareaRef.scrollHeight
+        const minHeight = this.textareaRef.scrollHeight < 25 ? 25 : this.textareaRef.scrollHeight
         this.textareaRef.style.height = '1px'
         this.textareaRef.style.height = minHeight + 'px'
       }
