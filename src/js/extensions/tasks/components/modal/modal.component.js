@@ -68,6 +68,7 @@ class ModalComponent extends React.Component {
       parent: null,
       tasks: [],
       page: 0,
+      ready: true,
     }
 
     this.composeRef = React.createRef()
@@ -502,14 +503,18 @@ class ModalComponent extends React.Component {
 
   async handleFetchMoreMessages() {
     try {
-      const taskId = this.props.task.id
-      const {
-        data: { taskMessages },
-      } = await GraphqlService.getInstance().taskMessages(taskId)
-      this.props.hydrateTaskMessages(taskMessages)
-      this.setState({ page: this.state.page + 1 })
+      if (!this.state.ready) return
+      this.setState({ ready: false, loading: true }, async () => {
+        const taskId = this.props.task.id
+        const page = this.state.page + 1
+        const {
+          data: { taskMessages },
+        } = await GraphqlService.getInstance().taskMessages(taskId)
+        this.props.hydrateTaskMessages(taskMessages)
+        this.setState({ page, ready: true, loading: false })
+      })
     } catch (e) {
-      this.setState({ error: 'Error fetching task messages' })
+      this.setState({ ready: true, loading: false, error: 'Error fetching task messages' })
     }
   }
 

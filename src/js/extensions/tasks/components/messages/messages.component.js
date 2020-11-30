@@ -24,12 +24,14 @@ class MessagesComponent extends React.Component {
       compose: '',
       files: [],
       manualScrolling: false,
+      loaded: false,
     }
 
     this.scrollInterval = null
 
     this.fileRef = React.createRef()
     this.scrollRef = React.createRef()
+    this.messagesRef = React.createRef()
 
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
@@ -72,7 +74,7 @@ class MessagesComponent extends React.Component {
 
     // If the user scvrolls up - then fetch more messages
     // 0 = the top of the container
-    if (this.scrollRef.scrollTop == 0) this.props.andleFetchMoreMessages()
+    if (this.scrollRef.scrollTop == 0) this.props.handleFetchMoreMessages()
   }
 
   componentDidUpdate(prevProps) {
@@ -176,9 +178,14 @@ class MessagesComponent extends React.Component {
 
     // Just need to wait for the DOM to be there
     this.scrollInterval = setInterval(() => this.scrollToBottom(), 100)
+
+    // Make sure the buffer padding gets set
+    setTimeout(() => this.setState({ loaded: true }), 0)
   }
 
   render() {
+    const height = this.messagesRef ? (window.innerHeight - this.messagesRef.offsetHeight < 0 ? '0px' : window.innerHeight - this.messagesRef.offsetHeight + 'px') : '100%'
+
     return (
       <div className="messages-container">
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
@@ -188,11 +195,13 @@ class MessagesComponent extends React.Component {
         <div className="messages">
           <div className="scrolling">
             <div className="inner" ref={ref => (this.scrollRef = ref)}>
-              <div style={{ height: '100%' }}></div>
+              <div style={{ height }} />
 
-              {this.props.messages.map((message, index) => {
-                return <Message key={index} files={message.files} user={message.user} body={message.body} createdAt={message.createdAt} />
-              })}
+              <div ref={ref => (this.messagesRef = ref)}>
+                {this.props.messages.map((message, index) => {
+                  return <Message key={index} files={message.files} user={message.user} body={message.body} createdAt={message.createdAt} />
+                })}
+              </div>
             </div>
           </div>
         </div>

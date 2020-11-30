@@ -15,7 +15,7 @@ export default (state = initialState, action) =>
       case 'MEET_MESSAGES':
         return {
           ...state,
-          messages: [...state.messages, ...action.payload.messages],
+          messages: [...action.payload.messages, ...state.messages],
         }
 
       case 'UPDATE_MEET_ADD_MESSAGE':

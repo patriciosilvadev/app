@@ -20,7 +20,7 @@ export default (state = initialState, action) =>
       case 'TASK_MESSAGES':
         return {
           ...state,
-          messages: [...state.messages, ...action.payload.messages],
+          messages: [...action.payload.messages, ...state.messages],
         }
 
       case 'UPDATE_TASKS':

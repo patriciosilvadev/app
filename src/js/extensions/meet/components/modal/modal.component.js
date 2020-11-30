@@ -29,6 +29,7 @@ class ModalComponent extends React.Component {
 
     this.state = {
       page: 0,
+      ready: true,
     }
 
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
@@ -71,15 +72,18 @@ class ModalComponent extends React.Component {
 
   async handleFetchMoreMessages() {
     try {
-      const meetId = this.props.meet.id
-      const page = this.state.page + 1
-      const {
-        data: { meetMessages },
-      } = await GraphqlService.getInstance().meetMessages(meetId, page)
-      this.props.hydrateMeetMessages(meetMessages)
-      this.setState({ page })
+      if (!this.state.ready) return
+      this.setState({ ready: false, loading: true }, async () => {
+        const meetId = this.props.meet.id
+        const page = this.state.page + 1
+        const {
+          data: { meetMessages },
+        } = await GraphqlService.getInstance().meetMessages(meetId, page)
+        this.props.hydrateMeetMessages(meetMessages)
+        this.setState({ page, ready: true, loading: false })
+      })
     } catch (e) {
-      this.setState({ error: 'Error fetching meet messages' })
+      this.setState({ ready: true, loading: false, error: 'Error fetching meet messages' })
     }
   }
 
