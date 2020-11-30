@@ -17,6 +17,12 @@ export default (state = initialState, action) =>
       case 'TASK':
         return action.payload
 
+      case 'TASK_MESSAGES':
+        return {
+          ...state,
+          messages: [...state.messages, ...action.payload.messages],
+        }
+
       case 'UPDATE_TASKS':
         if (!state.tasks) return
         if (!state.tasks.length) return

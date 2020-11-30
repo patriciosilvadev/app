@@ -69,6 +69,10 @@ class MessagesComponent extends React.Component {
     } else {
       this.setState({ manualScrolling: true })
     }
+
+    // If the user scvrolls up - then fetch more messages
+    // 0 = the top of the container
+    if (this.scrollRef.scrollTop == 0) this.props.andleFetchMoreMessages()
   }
 
   componentDidUpdate(prevProps) {
@@ -259,6 +263,7 @@ const File = ({ filename, url, onDelete, borderless }) => {
 MessagesComponent.propTypes = {
   messages: PropTypes.array,
   handleCreateMessage: PropTypes.func,
+  handleFetchMoreMessages: PropTypes.func,
 }
 
 const mapDispatchToProps = {}

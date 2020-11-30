@@ -1435,6 +1435,34 @@ export default class GraphqlService {
     })
   }
 
+  taskMessages(taskId, page) {
+    return this.client.query({
+      query: gql`
+        query taskMessages($taskId: String!, $page: Float) {
+          taskMessages(taskId: $taskId, page: $page) {
+            id
+            body
+            files {
+              id
+              url
+              filename
+            }
+            user {
+              id
+              name
+              image
+            }
+            createdAt
+          }
+        }
+      `,
+      variables: {
+        taskId,
+        page,
+      },
+    })
+  }
+
   meets(searchCriteria) {
     return this.client.query({
       query: gql`
@@ -1486,6 +1514,34 @@ export default class GraphqlService {
       `,
       variables: {
         meetId,
+      },
+    })
+  }
+
+  meetMessages(meetId, page) {
+    return this.client.query({
+      query: gql`
+        query meetMessages($meetId: String!, $page: Float) {
+          meetMessages(meetId: $meetId, page: $page) {
+            id
+            body
+            files {
+              id
+              url
+              filename
+            }
+            user {
+              id
+              name
+              image
+            }
+            createdAt
+          }
+        }
+      `,
+      variables: {
+        meetId,
+        page,
       },
     })
   }

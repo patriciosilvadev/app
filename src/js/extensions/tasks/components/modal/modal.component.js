@@ -33,6 +33,7 @@ import {
   updateTaskAddSubtask,
   updateTaskDeleteSubtask,
   updateTaskUpdateSubtask,
+  hydrateTaskMessages,
 } from '../../../../actions'
 import DayPicker from 'react-day-picker'
 import * as moment from 'moment'
@@ -66,6 +67,7 @@ class ModalComponent extends React.Component {
       section: {},
       parent: null,
       tasks: [],
+      page: 0,
     }
 
     this.composeRef = React.createRef()
@@ -87,6 +89,7 @@ class ModalComponent extends React.Component {
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
     this.handleUpdateTaskChannel = this.handleUpdateTaskChannel.bind(this)
     this.handleUpdateTaskSection = this.handleUpdateTaskSection.bind(this)
+    this.handleFetchMoreMessages = this.handleFetchMoreMessages.bind(this)
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -497,6 +500,19 @@ class ModalComponent extends React.Component {
     }
   }
 
+  async handleFetchMoreMessages() {
+    try {
+      const taskId = this.props.task.id
+      const {
+        data: { taskMessages },
+      } = await GraphqlService.getInstance().taskMessages(taskId)
+      this.props.hydrateTaskMessages(taskMessages)
+      this.setState({ page: this.state.page + 1 })
+    } catch (e) {
+      this.setState({ error: 'Error fetching task messages' })
+    }
+  }
+
   render() {
     // Set up the inital user
     // Which in this case is THIS user
@@ -742,7 +758,7 @@ class ModalComponent extends React.Component {
                 </div>
               </div>
               <div className="panel">
-                <MessagesComponent messages={this.state.messages} handleCreateMessage={this.handleCreateMessage} />
+                <MessagesComponent messages={this.state.messages} handleFetchMoreMessages={this.handleFetchMoreMessages} handleCreateMessage={this.handleCreateMessage} />
               </div>
             </div>
           </div>
@@ -771,10 +787,12 @@ ModalComponent.propTypes = {
   updateTaskAddSubtask: PropTypes.func,
   updateTaskDeleteSubtask: PropTypes.func,
   updateTaskUpdateSubtask: PropTypes.func,
+  hydrateTaskMessages: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
+  hydrateTaskMessages: messages => hydrateTaskMessages(messages),
   updateTaskAddMessage: (taskId, message, channelId) => updateTaskAddMessage(taskId, message, channelId),
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),

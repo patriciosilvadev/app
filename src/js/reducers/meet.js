@@ -12,6 +12,12 @@ export default (state = initialState, action) =>
       case 'MEET':
         return action.payload
 
+      case 'MEET_MESSAGES':
+        return {
+          ...state,
+          messages: [...state.messages, ...action.payload.messages],
+        }
+
       case 'UPDATE_MEET_ADD_MESSAGE':
         if (action.payload.meetId != state.id) return
 

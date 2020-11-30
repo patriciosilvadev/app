@@ -16,7 +16,7 @@ import MessagesComponent from '../../../tasks/components/messages/messages.compo
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../../../../constants'
 import './modal.component.css'
 import EventService from '../../../../services/event.service'
-import { hydrateMeet, updateMeetAddMessage } from '../../../../actions'
+import { hydrateMeet, updateMeetAddMessage, hydrateMeetMessages } from '../../../../actions'
 import DayPicker from 'react-day-picker'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
@@ -27,9 +27,12 @@ class ModalComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {}
+    this.state = {
+      page: 0,
+    }
 
     this.handleCreateMessage = this.handleCreateMessage.bind(this)
+    this.handleFetchMoreMessages = this.handleFetchMoreMessages.bind(this)
   }
 
   componentDidMount() {}
@@ -66,6 +69,20 @@ class ModalComponent extends React.Component {
     }
   }
 
+  async handleFetchMoreMessages() {
+    try {
+      const meetId = this.props.meet.id
+      const page = this.state.page + 1
+      const {
+        data: { meetMessages },
+      } = await GraphqlService.getInstance().meetMessages(meetId, page)
+      this.props.hydrateMeetMessages(meetMessages)
+      this.setState({ page })
+    } catch (e) {
+      this.setState({ error: 'Error fetching meet messages' })
+    }
+  }
+
   render() {
     return (
       <ModalPortal>
@@ -80,7 +97,7 @@ class ModalComponent extends React.Component {
           <div className="meet-modal-container">
             <div className="panels">
               <div className="panel">
-                <MessagesComponent messages={this.props.meet.messages} handleCreateMessage={this.handleCreateMessage} />
+                <MessagesComponent messages={this.props.meet.messages} handleFetchMoreMessages={this.handleFetchMoreMessages} handleCreateMessage={this.handleCreateMessage} />
               </div>
             </div>
           </div>
@@ -97,9 +114,11 @@ ModalComponent.propTypes = {
   onClose: PropTypes.func,
   hydrateMeet: PropTypes.func,
   updateMeetAddMessage: PropTypes.func,
+  hydrateMeetMessages: PropTypes.func,
 }
 
 const mapDispatchToProps = {
+  hydrateMeetMessages: messages => hydrateMeetMessages(messages),
   hydrateMeet: meet => hydrateMeet(meet),
   updateMeetAddMessage: (meetId, message, channelId) => updateMeetAddMessage(meetId, message, channelId),
 }
