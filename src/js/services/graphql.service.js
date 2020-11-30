@@ -330,12 +330,6 @@ export default class GraphqlService {
             name
             url
             description
-            calls {
-              id
-              topic
-              roomId
-              createdAt
-            }
             sections {
               id
               order
@@ -1447,7 +1441,7 @@ export default class GraphqlService {
         query meets($searchCriteria: String!) {
           meets(searchCriteria: $searchCriteria) {
             id
-            title
+            topic
             roomId
             location
             active
@@ -1468,7 +1462,7 @@ export default class GraphqlService {
         query meet($meetId: String!) {
           meet(meetId: $meetId) {
             id
-            title
+            topic
             roomId
             location
             active
@@ -1754,38 +1748,6 @@ export default class GraphqlService {
       `,
       variables: {
         payload: JSON.stringify(payload),
-      },
-    })
-  }
-
-  createChannelCall(channelId, topic) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation createChannelCall($channelId: String, $topic: String) {
-          createChannelCall(channelId: $channelId, topic: $topic) {
-            topic
-            roomId
-            createdAt
-          }
-        }
-      `,
-      variables: {
-        channelId,
-        topic,
-      },
-    })
-  }
-
-  deleteChannelCall(channelId, roomId) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation deleteChannelCall($channelId: String, $roomId: Float) {
-          deleteChannelCall(channelId: $channelId, roomId: $roomId)
-        }
-      `,
-      variables: {
-        channelId,
-        roomId,
       },
     })
   }
@@ -2227,7 +2189,7 @@ export default class GraphqlService {
         mutation createMeet($payload: String) {
           createMeet(payload: $payload) {
             id
-            title
+            topic
             roomId
             location
             active

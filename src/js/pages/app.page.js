@@ -39,7 +39,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: LAYOUTS.SIDE,
+      extensionLayout: LAYOUTS.MAIN,
       drawer: true,
       searchQuery: '',
     }
@@ -329,9 +329,9 @@ class AppPage extends React.Component {
 
                 <ExtensionLinks>
                   {!IS_CORDOVA && (
-                    <Link to={lastUrlPart == 'video' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/video`}>
-                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'video'}>
-                        <IconComponent icon="video" color={lastUrlPart == 'video' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                    <Link to={lastUrlPart == 'meet' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/meet`}>
+                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'meet'}>
+                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                         <PillText>Meet</PillText>
                       </Pill>
                     </Link>
@@ -500,7 +500,7 @@ class AppPage extends React.Component {
 
             {/* Video extension */}
             <Route
-              path="/app/team/:teamId/channel/:channelId/video"
+              path="/app/team/:teamId/channel/:channelId/meet"
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>

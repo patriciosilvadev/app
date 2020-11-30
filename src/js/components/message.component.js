@@ -834,7 +834,7 @@ export default memo(props => {
                   key={index}
                   text="Join the call"
                   className="mt-10 mb-5"
-                  onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/video`)}
+                  onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/meet`)}
                   icon={<IconComponent icon="video" size={14} thickness={2} color="white" />}
                 />
               )

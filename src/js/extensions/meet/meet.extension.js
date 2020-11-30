@@ -7,12 +7,13 @@ import { IconComponent } from '../../components/icon.component'
 import { Janus } from './lib/janus'
 import { getQueryStringValue, logger, getMentions } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
-import { updateChannel, createChannelMessage } from '../../actions'
+import { updateChannel, createChannelMessage, hydrateMeet } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import { DEVICE, WEBRTC_URL } from '../../environment'
 import { MIME_TYPES } from '../../constants'
+import { hydrate } from 'react-dom'
 
 // Variables from the Janus videoroom example
 var server = WEBRTC_URL
@@ -76,6 +77,7 @@ class VideoExtension extends React.Component {
       roomId: null,
       screenSharing: false,
       viewable: true,
+      meets: [],
     }
 
     this.localVideoRef = React.createRef() // Small screen
@@ -108,11 +110,13 @@ class VideoExtension extends React.Component {
     this.stopCapture = this.stopCapture.bind(this)
     this.startCapture = this.startCapture.bind(this)
     this.checkIfRoomExistsFirst = this.checkIfRoomExistsFirst.bind(this)
-    this.handleChannelCreateCall = this.handleChannelCreateCall.bind(this)
-    this.handleChannelDeleteCall = this.handleChannelDeleteCall.bind(this)
-    this.renderCallList = this.renderCallList.bind(this)
-    this.renderStartCall = this.renderStartCall.bind(this)
-    this.renderCall = this.renderCall.bind(this)
+    this.handleCreateMeet = this.handleCreateMeet.bind(this)
+    this.handleDeleteMeet = this.handleDeleteMeet.bind(this)
+    this.renderMeetList = this.renderMeetList.bind(this)
+    this.renderStartMeet = this.renderStartMeet.bind(this)
+    this.renderMeet = this.renderMeet.bind(this)
+    this.fetchMeets = this.fetchMeets.bind(this)
+    this.joinMeet = this.joinMeet.bind(this)
   }
 
   async shareToChannel() {
@@ -816,7 +820,7 @@ class VideoExtension extends React.Component {
   }
 
   componentDidMount() {
-    Janus.init({
+    /* Janus.init({
       debug: 'all',
       callback: () => {
         janus = new Janus({
@@ -846,7 +850,39 @@ class VideoExtension extends React.Component {
           destroyed: () => {},
         })
       },
-    })
+    }) */
+
+    // Get a list of all meets
+    this.fetchMeets()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.channelId != prevProps.match.params.channelId) {
+      this.fetchMeets()
+    }
+  }
+
+  async fetchMeets() {
+    try {
+      const { channelId, teamId } = this.props.match.params
+      let searchCriteria = {}
+
+      if (channelId) searchCriteria['channel'] = channelId
+      if (teamId) searchCriteria['team'] = teamId
+
+      // Get the list of meets & display them
+      const {
+        data: { meets },
+      } = await GraphqlService.getInstance().meets(searchCriteria)
+      const view = ''
+
+      this.setState({
+        meets,
+        view,
+      })
+    } catch (e) {
+      logger(e)
+    }
   }
 
   toggleScreenSharing() {
@@ -988,20 +1024,34 @@ class VideoExtension extends React.Component {
     })
   }
 
-  async handleChannelCreateCall(topic) {
+  async handleCreateMeet() {
     this.setState({
       error: null,
       notification: null,
     })
 
     try {
-      const { data } = await GraphqlService.getInstance().createChannelCall(this.props.channel.id, topic)
-      const call = data.createChannelCall
-      const calls = [...this.props.channel.calls, call]
-      const { roomId } = call
+      const { channelId, teamId } = this.props.match.params
+      const { topic } = this.state
+      const payload = {
+        topic,
+        location: '',
+        active: true,
+        channel: channelId,
+        team: teamId,
+      }
+      const {
+        data: { createMeet },
+      } = await GraphqlService.getInstance().createMeet(payload)
 
-      // Update this channel's call list so is accessible
-      this.props.updateChannel(this.props.channel.id, { calls })
+      // Add it to our state & reset the view
+      this.setState({
+        meets: [...this.state.meets, createMeet],
+        view: '',
+        topic: '',
+      })
+
+      return
 
       // 1. Update our state with the call's details
       // 2. And create the room on Janus
@@ -1038,11 +1088,12 @@ class VideoExtension extends React.Component {
         }
       )
     } catch (e) {
+      console.log('>>', e)
       this.setState({ error: 'Error creating call from API' })
     }
   }
 
-  async handleChannelDeleteCall(roomId) {
+  async handleDeleteMeet(meetId) {
     if (!confirm('Are you sure?')) return
 
     this.setState({
@@ -1051,16 +1102,17 @@ class VideoExtension extends React.Component {
     })
 
     try {
-      const { data } = await GraphqlService.getInstance().deleteChannelCall(this.props.channel.id, roomId)
-      const call = data.deleteChannelCall
+      const { data } = await GraphqlService.getInstance().deleteMeet(meetId)
 
-      if (!call) return this.setState({ error: 'Error deleting call from API' })
-
-      // Remove this call from the call array
-      const calls = this.props.channel.calls.filter(call => call.roomId != roomId)
+      // Remove it from our state & reset the view
+      this.setState({
+        meets: this.state.meets.filter(meet => meet.id != meetId),
+        view: '',
+        topic: '',
+      })
 
       // Remove this call from the channel
-      this.props.updateChannel(this.props.channel.id, { calls })
+      return
 
       // Reset the UI
       this.setState(
@@ -1092,63 +1144,81 @@ class VideoExtension extends React.Component {
     }
   }
 
-  renderCallList() {
+  async joinMeet(meetId) {
+    this.setState({
+      error: null,
+      notification: null,
+    })
+
+    try {
+      const {
+        data: { meet },
+      } = await GraphqlService.getInstance().meet(meetId)
+
+      this.props.hydrateMeet(meet)
+      this.setState({ view: 'meet' })
+
+      /*       this.setState(
+        {
+          loading: true,
+          topic: call.topic,
+          roomId: meet.roomId,
+          error: null,
+          notification: null,
+        },
+        () => {
+          this.initJanusVideoRoom(meet.roomId)
+        }
+      )
+
+      // Remove it from our state & reset the view
+      this.setState({ 
+        meets: this.state.meets.filter(meet => meet.id != meetId),
+        view: '',
+        topic: '',
+      }) */
+    } catch (e) {
+      this.setState({ error: 'Error dgetting meet' })
+    }
+  }
+
+  renderMeetList() {
     if (this.state.view != '') return null
 
     return (
       <div className="flexer w-100">
         <div className="header">
-          <div className="title">Rooms</div>
+          <div className="title">Meet</div>
           <div className="flexer"></div>
           <Button text="Create" theme="muted" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
         </div>
 
-        {this.props.channel.calls.map((call, index) => {
+        {this.state.meets.map((meet, index) => {
           return (
             <div className="call" key={index}>
               <div className="column flexer">
-                <div className="topic">{call.topic}</div>
+                <div className="topic">{meet.topic}</div>
                 <div className="date">
-                  Started {moment(call.createdAt).fromNow()} - #{call.roomId}
+                  Started {moment(meet.createdAt).fromNow()} - #{meet.roomId}
                 </div>
               </div>
-              <Button
-                theme="muted"
-                text="Join"
-                className="mr-10"
-                size="small"
-                onClick={() => {
-                  this.setState(
-                    {
-                      loading: true,
-                      topic: call.topic,
-                      roomId: call.roomId,
-                      error: null,
-                      notification: null,
-                    },
-                    () => {
-                      this.initJanusVideoRoom(call.roomId)
-                    }
-                  )
-                }}
-              />
-              <Button theme="red" text="Remove" size="small" onClick={() => this.handleChannelDeleteCall(call.roomId)} />
+              <Button theme="muted" text="Join" className="mr-10" size="small" onClick={() => this.joinMeet(meet.id)} />
+              <Button theme="red" text="Remove" size="small" onClick={() => this.handleDeleteMeet(meet.id)} />
             </div>
           )
         })}
 
-        {this.props.channel.calls.length == 0 && (
+        {this.state.meets.length == 0 && (
           <div className="list">
             <img src="icon-muted.svg" height="200" className="mb-20" />
-            <div className="pb-30 color-d0 h5">There are no calls</div>
-            <Button text="Start one now" size="large" theme="muted" onClick={() => this.setState({ view: 'start' })} />
+            <div className="pb-30 color-d0 h5">There are no meets</div>
           </div>
         )}
       </div>
     )
   }
 
-  renderStartCall() {
+  renderStartMeet() {
     if (this.state.view != 'start') return null
 
     return (
@@ -1160,24 +1230,24 @@ class VideoExtension extends React.Component {
 
         <div className="join-start">
           <img src="icon-muted.svg" height="200" className="mb-20" />
-          <div className="pb-30 color-d0 h5">Create a new call</div>
+          <div className="pb-30 color-d0 h5">Create a new meet</div>
           <div className="row w-100 pl-30 pr-30 pt-10 pb-10">
-            <Input placeholder="Enter call topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
+            <Input placeholder="Enter meet topic" inputSize="large" value={this.state.topic} onChange={e => this.setState({ topic: e.target.value })} className="mb-20" />
           </div>
-          <Button text="Create now" size="large" theme="muted" onClick={() => this.handleChannelCreateCall(this.state.topic)} />
+          <Button text="Create now" size="large" theme="muted" onClick={() => this.handleCreateMeet()} />
         </div>
       </div>
     )
   }
 
-  renderCall() {
-    if (this.state.view != 'call') return null
+  renderMeet() {
+    if (this.state.view != 'meet') return null
 
     return (
       <React.Fragment>
         <div className="header">
-          <div className="subtitle">Call</div>
-          <div className="title">{this.state.topic}</div>
+          <div className="subtitle">Meet</div>
+          <div className="title">{this.props.meet.topic}</div>
           <div className="flexer"></div>
           <Tooltip text="End call" direction="left">
             <div className="control-button red" onClick={() => this.exitCall()}>
@@ -1189,7 +1259,7 @@ class VideoExtension extends React.Component {
         <div className="flexer column w-100">
           {this.state.participantFocus && <div className="flexer" />}
 
-          <div className="participants">
+          <div className="participants hide">
             <div className="scroll-container">
               <div className="inner-content">
                 {/* The first one is always us */}
@@ -1281,6 +1351,11 @@ class VideoExtension extends React.Component {
             <div className="control-button" onClick={() => this.shareToChannel()}>
               Share to channel
             </div>
+
+            {/* Chat */}
+            <div className="control-button" onClick={() => this.setState({ chat: true })}>
+              <IconComponent icon="message-circle" color="#343a40" thickness={1.75} size={20} />
+            </div>
           </div>
         </div>
       </React.Fragment>
@@ -1293,9 +1368,10 @@ class VideoExtension extends React.Component {
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
-        {this.renderCallList()}
-        {this.renderStartCall()}
-        {this.renderCall()}
+
+        {this.renderMeetList()}
+        {this.renderStartMeet()}
+        {this.renderMeet()}
       </div>
     )
   }
@@ -1308,10 +1384,12 @@ VideoExtension.propTypes = {
   channel: PropTypes.any,
   createChannelMessage: PropTypes.func,
   updateChannel: PropTypes.func,
+  hydrateMeet: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   updateChannel: (channelId, channel) => updateChannel(channelId, channel),
+  hydrateMeet: meet => hydrateMeet(meet),
   createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
 }
 
