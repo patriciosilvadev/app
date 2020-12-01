@@ -180,7 +180,7 @@ class ComposeComponent extends React.Component {
       // If they aree replying within the modal: THREADED
       // If the messagee they are replying to is a thread: THREADED
       // Otherwise not threaded
-      const threaded = this.props.parentMessage.id ? true : this.props.message.thread ? true : false
+      const threaded = this.props.parentMessage.id ? true : this.props.message ? (this.props.message.thread ? true : false) : false
 
       // Create the message
       const { data } = await GraphqlService.getInstance().createChannelMessage({
