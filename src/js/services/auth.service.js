@@ -1,5 +1,5 @@
 import StorageService from './storage.service'
-import { API_HOST, JWT } from '../environment'
+import { API_HOST, JWT, WEBRTC } from '../environment'
 
 export default class AuthService {
   static parseJwt(token) {
@@ -32,7 +32,11 @@ export default class AuthService {
     StorageService.deleteStorage(JWT)
   }
 
-  static saveToken(jwt) {
-    StorageService.setStorage(JWT, jwt)
+  static saveToken(token) {
+    StorageService.setStorage(JWT, token)
+  }
+
+  static saveWebRTCToken(token) {
+    StorageService.setStorage(WEBRTC, token)
   }
 }

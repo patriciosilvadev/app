@@ -5,6 +5,7 @@ export const PUBLIC_VAPID_KEY = 'BK-o1CaPiLRUYWahx8VbyocJwrdmbdAYE3qPG17rZ6kjOWd
 export const NODE_ENV = 'production'
 export const BASE_URL = 'https://app.weekdayapp.com'
 export const JWT = 'JWT'
+export const WEBRTC = 'WEBRTC'
 export const PN = 'PN'
 export const APPSTORE_URL = 'https://appstore.weekdayapp.com'
 export const STRIPE_API_KEY = ''

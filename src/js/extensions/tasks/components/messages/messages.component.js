@@ -197,7 +197,7 @@ class MessagesComponent extends React.Component {
             <div className="inner" ref={ref => (this.scrollRef = ref)}>
               <div style={{ height }} />
 
-              <div ref={ref => (this.messagesRef = ref)}>
+              <div className="w-100" ref={ref => (this.messagesRef = ref)}>
                 {this.props.messages.map((message, index) => {
                   return <Message key={index} files={message.files} user={message.user} body={message.body} createdAt={message.createdAt} />
                 })}

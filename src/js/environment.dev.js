@@ -5,6 +5,7 @@ export const PUBLIC_VAPID_KEY = 'BK-o1CaPiLRUYWahx8VbyocJwrdmbdAYE3qPG17rZ6kjOWd
 export const NODE_ENV = 'development'
 export const BASE_URL = 'http://localhost:3000'
 export const JWT = 'JWT'
+export const WEBRTC = 'WEBRTC'
 export const PN = 'PN'
 export const APPSTORE_URL = 'http://localhost:3001'
 export const STRIPE_API_KEY = ''

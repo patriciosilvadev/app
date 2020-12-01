@@ -131,9 +131,13 @@ class AuthPage extends React.Component {
 
       if (auth.status != 200) return this.setState({ error: 'Sorry, we could not find your details' })
       if (auth.status == 200) {
-        const { token, userId } = data
+        const { token, webrtc, userId } = data
 
+        // Save our token
         AuthService.saveToken(token)
+        AuthService.saveWebRTCToken(webrtc)
+
+        // Now fetch the user
         this.props.fetchUser(userId)
         this.props.history.push('/app')
       }
