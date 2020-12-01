@@ -209,8 +209,8 @@ export function initialize(userId) {
               // And also handle push notices
               if (action.type == 'CREATE_CHANNEL_MESSAGE') {
                 const { channelId, teamId, message } = action.payload
-                const isStarred = getState().user.starred.indexOf(channelId) != -1
                 const isArchived = getState().user.archived.indexOf(channelId) != -1
+                const isMuted = getState().user.muted.indexOf(channelId) != -1
                 const isCurrentChannel = channelId == getState().channel.id
 
                 // Only if there is something to show
@@ -220,8 +220,11 @@ export function initialize(userId) {
                 }
 
                 // Don't do a PN or unread increment if we are on the same channel
-                // as the message
-                if (isArchived || isStarred || isCurrentChannel) return
+                // Or if it's an archived message
+                // Or if it's muted
+                // Or if it's broken
+                if (isArchived || isMuted || isCurrentChannel) return
+                if (!channelId || !teamId) return
 
                 // Process DO NOT DISTURB TIMES
                 const { timezone, dnd, dndUntil } = getState().user
@@ -239,7 +242,6 @@ export function initialize(userId) {
                 if (!dndIsSet) showNotification()
 
                 // Create an unread marker
-                // Channel will be null, which is good
                 DatabaseService.getInstance().unread(teamId, channelId)
               }
             }
@@ -419,9 +421,6 @@ export function initialize(userId) {
       .on('error', err => {
         dispatch(updateError('allDocs DB error'))
       })
-
-    // TODO: Debug
-    // DatabaseService.getInstance().unread('5e4bb079b2fae98633ae2ae7', '5e4cbef284358b2201fccf82')
   }
 }
 

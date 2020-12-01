@@ -11,6 +11,7 @@ export default class UploadService {
       body: formData,
     })
   }
+
   static uploadFileS3(file) {
     var formData = new FormData()
     formData.append('file', file)
