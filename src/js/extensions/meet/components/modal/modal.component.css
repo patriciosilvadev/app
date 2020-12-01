@@ -9,7 +9,7 @@
   width: 100%;
 }
 
-.message-modal-close-icon {
+.meet-modal-close-icon {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -27,7 +27,7 @@
   transition: background-color 0.2s;
 }
 
-.message-modal-close-icon:hover {
+.meet-modal-close-icon:hover {
   background-color: #f8f9fa;
 }
 

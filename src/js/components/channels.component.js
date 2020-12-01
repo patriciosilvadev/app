@@ -49,6 +49,7 @@ const Channel = props => {
   const [over, setOver] = useState(false)
   const [menu, setMenu] = useState(false)
   const [showAllThreads, setShowAllThreads] = useState(false)
+  const [collapsedThreads, setCollapsedThreads] = useState(false)
   const [avatarIconColor, setAvatarIconColor] = useState(null)
   const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(false)
@@ -174,6 +175,7 @@ const Channel = props => {
           </ChannelContents>
         </ChannelContainerPadding>
 
+        {/* Popup menu */}
         {over && props.onMutedClick && props.onArchivedClick && (
           <Popup
             handleDismiss={() => setMenu(false)}
@@ -272,10 +274,19 @@ const Channel = props => {
           </Popup>
         )}
 
+        {/* Unread count */}
         {props.unread > 0 && <ChannelBadge>{props.unread}</ChannelBadge>}
+
+        {/* Only if there are threads */}
+        {threads.length != 0 && props.active && (
+          <CollapseThreadsIcon onClick={() => setCollapsedThreads(!collapsedThreads)}>
+            <IconComponent icon={collapsedThreads ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={2} size={14} className="button" />
+          </CollapseThreadsIcon>
+        )}
       </ChannelContainer>
 
-      {threads.length != 0 && props.active && (
+      {/* Only if there are threads & panel is collapsed */}
+      {!collapsedThreads && threads.length != 0 && props.active && (
         <Threads>
           {threads.map((thread, index) => {
             if (!showAllThreads && index >= maxThreads) return
@@ -322,7 +333,9 @@ Channel.propTypes = {
   onArchivedClick: PropTypes.any,
 }
 
-const Threads = styled.div``
+const Threads = styled.div`
+  position: relative;
+`
 
 const ThreadLine = styled.div`
   background: ${props => (props.color ? props.color : '#858E96')};
@@ -331,6 +344,25 @@ const ThreadLine = styled.div`
   position: absolute;
   left: 34px;
   bottom: 0px;
+`
+
+const CollapseThreadsIcon = styled.div`
+  position: absolute;
+  top: 6px;
+  left: 4px;
+  width: 17px;
+  height: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 3px;
+
+  :hover {
+    background: #e1e7eb;
+  }
 `
 
 const Thread = styled.div`
