@@ -10,6 +10,7 @@ import { fetchUser } from '../actions'
 import { Loading, Button, Error, Input, Textarea, Select } from '@weekday/elements'
 import Zero from '@joduplessis/zero'
 import moment from 'moment'
+import { API_HOST, JWT, WEBRTC } from '../environment'
 
 class AuthPage extends React.Component {
   constructor(props) {
@@ -96,11 +97,14 @@ class AuthPage extends React.Component {
       if (request.status == 500) return this.setState({ error: 'Internal error' })
       if (request.status == 401) return this.setState({ error: 'Username or email not available' })
       if (request.status == 200) {
-        const { user, token } = result
+        const { user, token, webrtc } = result
         const userId = user._id
 
         // Save our token
         AuthService.saveToken(token)
+
+        // Save our WEBRTC token
+        StorageService.setStorage(WEBRTC, webrtc)
 
         // And then let the user onboard
         this.setState({
@@ -135,7 +139,9 @@ class AuthPage extends React.Component {
 
         // Save our token
         AuthService.saveToken(token)
-        AuthService.saveWebRTCToken(webrtc)
+
+        // Save our WEBRTC token
+        StorageService.setStorage(WEBRTC, webrtc)
 
         // Now fetch the user
         this.props.fetchUser(userId)

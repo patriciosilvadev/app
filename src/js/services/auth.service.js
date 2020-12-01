@@ -35,8 +35,4 @@ export default class AuthService {
   static saveToken(token) {
     StorageService.setStorage(JWT, token)
   }
-
-  static saveWebRTCToken(token) {
-    StorageService.setStorage(WEBRTC, token)
-  }
 }
