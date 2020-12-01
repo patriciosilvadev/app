@@ -20,6 +20,7 @@ import UploadService from '../services/upload.service'
 import ComposeComponent from '../components/compose.component'
 import MessagesComponent from '../components/messages.component'
 import { AvatarComponent } from '@weekday/elements/lib/avatar'
+import DatabaseService from '../services/database.service'
 
 class MessageModal extends React.Component {
   constructor(props) {
@@ -63,6 +64,9 @@ class MessageModal extends React.Component {
         id: this.props.messageId,
         messages: sortMessagesByCreatedAt(data.messageMessages),
       })
+
+      // Remove the unread count
+      DatabaseService.getInstance().read(messageId)
     } catch (e) {
       this.setState({
         error: 'Error fetching messages',

@@ -54,6 +54,7 @@ const Channel = props => {
   const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(false)
   const threads = useSelector(state => state.threads)
+  const common = useSelector(state => state.common)
   const maxThreads = 3
   const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
   const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0', '#00a98f']
@@ -291,10 +292,13 @@ const Channel = props => {
           {threads.map((thread, index) => {
             if (!showAllThreads && index >= maxThreads) return
 
+            const unread = common.unread.filter(row => thread.id == row.doc.channel).flatten()
+            const unreadCount = unread ? unread.doc.count : 0
+
             return (
               <Thread key={index} onClick={() => handleMessageModalOpen(thread.id)}>
                 <ThreadLine color={props.color} />
-                <ThreadText>{thread.body}</ThreadText>
+                <ThreadText unread={unreadCount}>{thread.body}</ThreadText>
               </Thread>
             )
           })}
@@ -380,8 +384,8 @@ const ThreadText = styled.div`
   padding-bottom: 2px;
   padding-top: 2px;
   font-size: 10px;
-  font-weight: ${props => (props.bold ? '700' : '500')};
-  color: ${props => (props.active ? '#18181d' : '#858E96')};
+  font-weight: ${props => (props.bold || props.unread ? '700' : '500')};
+  color: ${props => (props.unread ? '#18181d' : '#858E96')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -86,6 +86,13 @@ export function initialize(userId) {
       })
     }
 
+    const showNotification = message => {
+      if (!message) return
+      if (!message.body) return
+
+      showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
+    }
+
     // Tell our current team about our status
     setInterval(broadcastOwnPresence, 15000)
 
@@ -213,12 +220,6 @@ export function initialize(userId) {
                 const isMuted = getState().user.muted.indexOf(channelId) != -1
                 const isCurrentChannel = channelId == getState().channel.id
 
-                // Only if there is something to show
-                // Message forward won't trigger this (no body)
-                const showNotification = () => {
-                  if (message) showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
-                }
-
                 // Don't do a PN or unread increment if we are on the same channel
                 // Or if it's an archived message
                 // Or if it's muted
@@ -236,10 +237,15 @@ export function initialize(userId) {
                 // Trigger a push notification
                 // If the DND date is set
                 // And if now is after their date
-                if (dndIsSet && currentDateIsAfterDndDate) showNotification()
+                if (dndIsSet && currentDateIsAfterDndDate) showNotification(message)
 
                 // If it's not set process it
-                if (!dndIsSet) showNotification()
+                if (!dndIsSet) showNotification(message)
+
+                // If there is a parent, then use the paren'ts ID and create another unread DB entry
+                if (message.parent) {
+                  if (message.parent.id) DatabaseService.getInstance().unread(teamId, message.parent.id)
+                }
 
                 // Create an unread marker
                 DatabaseService.getInstance().unread(teamId, channelId)
