@@ -5,7 +5,7 @@ import TaskComponent from '../task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { classNames, isTaskHeading, getNextTaskOrder, getHighestTaskOrder, getPreviousTaskOrder } from '../../../../helpers/util'
 import EventService from '../../../../services/event.service'
-import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
+import { ONTOP, OVER, UNDER, WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
 import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../../../helpers/util'
 
 const TASK_IMAGE_SVG = encodeURI(`
@@ -76,7 +76,7 @@ class T extends React.Component {
   }
 
   handleDragStart(e) {
-    window['task'] = this.props.task.id
+    window[WEEKDAY_DRAGGED_TASK_ID] = this.props.task.id
     e.dataTransfer.setDragImage(TASK_IMAGE, 0, 0)
   }
 
@@ -109,8 +109,8 @@ class T extends React.Component {
   }
 
   handleDrop(e) {
-    const taskIdDragged = window['task']
-    const type = this.state.ontop ? 'ONTOP' : this.state.under ? 'UNDER' : this.state.over ? 'OVER' : null
+    const taskIdDragged = window[WEEKDAY_DRAGGED_TASK_ID]
+    const type = this.state.ontop ? ONTOP : this.state.under ? UNDER : this.state.over ? OVER : null
 
     if (!type) return
 
@@ -211,7 +211,7 @@ class T extends React.Component {
  */
 export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask, updateTaskOrder, updateTask, showCompletedTasks, shareToChannel, createTask, disableTools, displayChannelName }) => {
   const processDropOver = (taskIdDragged, taskIdDraggedOnto) => {
-    console.log('OVER', taskIdDragged, taskIdDraggedOnto)
+    console.log(OVER, taskIdDragged, taskIdDraggedOnto)
 
     // New parent
     const parent = taskIdDraggedOnto
@@ -230,7 +230,7 @@ export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask
   }
 
   const processDropUnder = (taskIdDragged, taskIdDraggedOnto) => {
-    console.log('UNDER', taskIdDragged, taskIdDraggedOnto)
+    console.log(UNDER, taskIdDragged, taskIdDraggedOnto)
 
     const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
     const { parentId } = taskDraggedOnto
@@ -245,7 +245,7 @@ export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask
   }
 
   const processDropOntop = (taskIdDragged, taskIdDraggedOnto) => {
-    console.log('ONTOP', taskIdDragged, taskIdDraggedOnto)
+    console.log(ONTOP, taskIdDragged, taskIdDraggedOnto)
 
     const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
     const { parentId } = taskDraggedOnto
@@ -265,13 +265,13 @@ export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask
     let updatedTask = null
 
     switch (type) {
-      case 'OVER':
+      case OVER:
         updatedTask = processDropOver(taskIdDragged, taskIdDraggedOnto)
         break
-      case 'UNDER':
+      case UNDER:
         updatedTask = processDropUnder(taskIdDragged, taskIdDraggedOnto)
         break
-      case 'ONTOP':
+      case ONTOP:
         updatedTask = processDropOntop(taskIdDragged, taskIdDraggedOnto)
         break
     }

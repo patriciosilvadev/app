@@ -10,6 +10,7 @@ import { TextareaComponent } from '../../../../components/textarea.component'
 import { IconComponent } from '../../../../components/icon.component'
 import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
 import GraphqlService from '../../../../services/graphql.service'
+import { WEEKDAY_DRAGGED_SECTION_ID } from '../../../../constants'
 
 let COLUMN_IMAGE = document.createElement('img')
 COLUMN_IMAGE.src =
@@ -66,7 +67,7 @@ class ColumnComponent extends React.Component {
   }
 
   draggableIsSection() {
-    return window.section !== null && window.section !== undefined
+    return window[WEEKDAY_DRAGGED_SECTION_ID] !== null && window[WEEKDAY_DRAGGED_SECTION_ID] !== undefined
   }
 
   async updateSection() {
@@ -148,7 +149,7 @@ class ColumnComponent extends React.Component {
   handleDragEnd(e) {
     this.props.shiftIndex(null)
     this.setState({ over: false })
-    window['section'] = null
+    window[WEEKDAY_DRAGGED_SECTION_ID] = null
   }
 
   handleDragLeave(e) {
@@ -172,13 +173,13 @@ class ColumnComponent extends React.Component {
   }
 
   handleDrop(e) {
-    this.props.updatePosition(window['section'], this.props.index)
+    this.props.updatePosition(window[WEEKDAY_DRAGGED_SECTION_ID], this.props.index)
     this.props.shiftIndex(null)
 
     if (!this.draggableIsSection()) return
 
     this.setState({ over: false })
-    window['section'] = null
+    window[WEEKDAY_DRAGGED_SECTION_ID] = null
   }
 
   handleDrag(e) {
@@ -187,20 +188,20 @@ class ColumnComponent extends React.Component {
   }
 
   handleDragStart(e) {
-    window['section'] = this.props.id
+    window[WEEKDAY_DRAGGED_SECTION_ID] = this.props.id
     e.dataTransfer.setDragImage(COLUMN_IMAGE, 0, 0)
   }
 
   render() {
     const boardColumnClasses = classNames({
       'board-column': true,
-      'hide': !!window['section'] && window['section'] == this.props.id,
+      'hide': !!window[WEEKDAY_DRAGGED_SECTION_ID] && window[WEEKDAY_DRAGGED_SECTION_ID] == this.props.id,
     })
     const columnContainerClasses = classNames({
       'column-container': true,
       'shift': this.props.shift,
       'last': this.props.last && this.state.over,
-      'dragged-section': window.section == this.props.id,
+      'dragged-section': window[WEEKDAY_DRAGGED_SECTION_ID] == this.props.id,
     })
 
     return (
