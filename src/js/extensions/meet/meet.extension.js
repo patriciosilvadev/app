@@ -11,10 +11,11 @@ import { updateChannel, createChannelMessage, hydrateMeet } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { DEVICE, WEBRTC_URL } from '../../environment'
+import { DEVICE, WEBRTC_URL, WEBRTC } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 import { hydrate } from 'react-dom'
 import { default as MeetModalComponent } from './components/modal/modal.component'
+import StorageService from '../../services/storage.service'
 
 // Variables from the Janus videoroom example
 var server = WEBRTC_URL
@@ -120,12 +121,6 @@ class VideoExtension extends React.Component {
     this.fetchMeets = this.fetchMeets.bind(this)
     this.joinMeet = this.joinMeet.bind(this)
     this.renderMeetModal = this.renderMeetModal.bind(this)
-  }
-
-  renderMeetModal() {
-    if (!this.state.chat) return null
-
-    return <MeetModalComponent onClose={() => this.setState({ chat: false })} />
   }
 
   async shareToChannel() {
@@ -829,39 +824,8 @@ class VideoExtension extends React.Component {
   }
 
   componentDidMount() {
-    /* Janus.init({
-      debug: 'all',
-      callback: () => {
-        janus = new Janus({
-          server: server,
-          success: () => {
-            janus.attach({
-              plugin: 'janus.plugin.videoroom',
-              opaqueId: opaqueId,
-              success: pluginHandle => {
-                sfu_api = pluginHandle
-                this.getServerRoomList()
-              },
-              error: error => {
-                console.error(error)
-              },
-              consentDialog: on => {},
-              iceState: state => {},
-              mediaState: (medium, on) => {},
-              webrtcState: on => {},
-              onmessage: (msg, jsep) => {},
-              onlocalstream: stream => {},
-            })
-          },
-          error: error => {
-            this.setState({ error: 'Could not initialize video' })
-          },
-          destroyed: () => {},
-        })
-      },
-    }) */
-
-    // Get a list of all meets
+    // Get a list of all meets from the normal API
+    // Any new meets will be locationed by the server API
     this.fetchMeets()
   }
 
@@ -1033,6 +997,79 @@ class VideoExtension extends React.Component {
     })
   }
 
+  async joinMeet(meetId) {
+    this.setState({
+      error: null,
+      notification: null,
+    })
+
+    try {
+      const {
+        data: { meet },
+      } = await GraphqlService.getInstance().meet(meetId)
+
+      this.props.hydrateMeet(meet)
+      this.setState({ view: 'meet' })
+
+      // Get the SHA1 token for WebRTC server
+      // This would have been saved on login
+      Janus.init({
+        debug: 'all',
+        callback: () => {
+          janus = new Janus({
+            server: server,
+            token: StorageService.getStorage(WEBRTC),
+            success: () => {
+              janus.attach({
+                plugin: 'janus.plugin.videoroom',
+                opaqueId: opaqueId,
+                success: pluginHandle => {
+                  sfu_api = pluginHandle
+                  this.getServerRoomList()
+                },
+                error: error => {
+                  console.error(error)
+                },
+                consentDialog: on => {},
+                iceState: state => {},
+                mediaState: (medium, on) => {},
+                webrtcState: on => {},
+                onmessage: (msg, jsep) => {},
+                onlocalstream: stream => {},
+              })
+            },
+            error: error => {
+              this.setState({ error: 'Could not initialize video' })
+            },
+            destroyed: () => {},
+          })
+        },
+      })
+
+      /*       this.setState(
+        {
+          loading: true,
+          topic: call.topic,
+          roomId: meet.roomId,
+          error: null,
+          notification: null,
+        },
+        () => {
+          this.initJanusVideoRoom(meet.roomId)
+        }
+      )
+
+      // Remove it from our state & reset the view
+      this.setState({ 
+        meets: this.state.meets.filter(meet => meet.id != meetId),
+        view: '',
+        topic: '',
+      }) */
+    } catch (e) {
+      this.setState({ error: 'Error dgetting meet' })
+    }
+  }
+
   async handleCreateMeet() {
     this.setState({
       error: null,
@@ -1044,14 +1081,16 @@ class VideoExtension extends React.Component {
       const { topic } = this.state
       const payload = {
         topic,
-        location: '',
-        active: true,
         channel: channelId,
         team: teamId,
       }
       const {
         data: { createMeet },
       } = await GraphqlService.getInstance().createMeet(payload)
+
+      // Debug
+      // This will contain server location / active
+      console.log(createMeet)
 
       // Add it to our state & reset the view
       this.setState({
@@ -1153,44 +1192,7 @@ class VideoExtension extends React.Component {
     }
   }
 
-  async joinMeet(meetId) {
-    this.setState({
-      error: null,
-      notification: null,
-    })
-
-    try {
-      const {
-        data: { meet },
-      } = await GraphqlService.getInstance().meet(meetId)
-
-      this.props.hydrateMeet(meet)
-      this.setState({ view: 'meet' })
-
-      /*       this.setState(
-        {
-          loading: true,
-          topic: call.topic,
-          roomId: meet.roomId,
-          error: null,
-          notification: null,
-        },
-        () => {
-          this.initJanusVideoRoom(meet.roomId)
-        }
-      )
-
-      // Remove it from our state & reset the view
-      this.setState({ 
-        meets: this.state.meets.filter(meet => meet.id != meetId),
-        view: '',
-        topic: '',
-      }) */
-    } catch (e) {
-      this.setState({ error: 'Error dgetting meet' })
-    }
-  }
-
+  // These manage the views
   renderMeetList() {
     if (this.state.view != '') return null
 
@@ -1369,6 +1371,12 @@ class VideoExtension extends React.Component {
         </div>
       </React.Fragment>
     )
+  }
+
+  renderMeetModal() {
+    if (!this.state.chat) return null
+
+    return <MeetModalComponent onClose={() => this.setState({ chat: false })} />
   }
 
   render() {
