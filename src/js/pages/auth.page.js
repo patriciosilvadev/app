@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import AuthService from '../services/auth.service'
+import StorageService from '../services/storage.service'
 import { connect } from 'react-redux'
 import GraphqlService from '../services/graphql.service'
 import styled from 'styled-components'
@@ -148,6 +149,7 @@ class AuthPage extends React.Component {
         this.props.history.push('/app')
       }
     } catch (e) {
+      console.log(e)
       this.setState({
         loading: false,
         error: 'Username not available',

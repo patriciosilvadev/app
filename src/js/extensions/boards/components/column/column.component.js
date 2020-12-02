@@ -102,34 +102,38 @@ class ColumnComponent extends React.Component {
   }
 
   async createSection() {
-    if (this.state.compose == '') return this.setState({ compose: '', editable: false })
+    try {
+      if (this.state.compose == '') return this.setState({ compose: '', editable: false })
 
-    const { compose } = this.state
-    const order = this.props.channel.sections.length
-    const title = compose
-    const channelId = this.props.channel.id
-    const { data } = await GraphqlService.getInstance().createChannelSection(channelId, title, order)
-    const section = data.createChannelSection
+      const { compose } = this.state
+      const order = this.props.channel.sections.length
+      const title = compose
+      const channelId = this.props.channel.id
+      const { data } = await GraphqlService.getInstance().createChannelSection(channelId, title, order)
+      const section = data.createChannelSection
 
-    // Reset the state
-    this.setState({ compose: '', editable: false })
+      // Reset the state
+      this.setState({ compose: '', editable: false })
 
-    // Add it ot he store
-    this.props.createChannelSection(channelId, section)
+      // Add it ot he store
+      this.props.createChannelSection(channelId, section)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   handleKeyDown(e) {
     // On enter
     if (e.keyCode == 13) {
       e.preventDefault()
-      if (!this.props.id) this.createSection()
-      if (this.props.id) this.updateSection()
+      if (this.props.id == 'new') this.createSection()
+      if (this.props.id != 'new') this.updateSection()
     }
   }
 
   handleBlur(e) {
-    if (!this.props.id) this.createSection()
-    if (this.props.id) this.updateSection()
+    if (this.props.id == 'new') this.createSection()
+    if (this.props.id != 'new') this.updateSection()
   }
 
   static getDerivedStateFromProps(props, state) {

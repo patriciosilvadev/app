@@ -219,6 +219,11 @@ export function initialize(userId) {
                 const isArchived = getState().user.archived.indexOf(channelId) != -1
                 const isMuted = getState().user.muted.indexOf(channelId) != -1
                 const isCurrentChannel = channelId == getState().channel.id
+                const parentId = message.parent ? message.parent.id : null
+                const isCurrentMessage = getState().message.id == parentId
+
+                // If there is a parent, then use the paren'ts ID and create another unread DB entry
+                if (parentId && !isCurrentMessage) DatabaseService.getInstance().unread(teamId, parentId)
 
                 // Don't do a PN or unread increment if we are on the same channel
                 // Or if it's an archived message
@@ -241,11 +246,6 @@ export function initialize(userId) {
 
                 // If it's not set process it
                 if (!dndIsSet) showNotification(message)
-
-                // If there is a parent, then use the paren'ts ID and create another unread DB entry
-                if (message.parent) {
-                  if (message.parent.id) DatabaseService.getInstance().unread(teamId, message.parent.id)
-                }
 
                 // Create an unread marker
                 DatabaseService.getInstance().unread(teamId, channelId)
