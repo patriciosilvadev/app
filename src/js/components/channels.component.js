@@ -930,6 +930,11 @@ class ChannelsComponent extends React.Component {
         hideChannels: !this.state.hideChannels,
       })
     })
+
+    // Debug
+    setTimeout(() => {
+      //this._openTeamSettings()
+    }, 1000)
   }
 
   componentDidUpdate(prevProps) {

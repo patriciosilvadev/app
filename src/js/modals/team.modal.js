@@ -232,9 +232,17 @@ export default function TeamModal(props) {
     return (
       <div className="row align-items-start w-100">
         <div className="column w-100">
-          {active && <Notification theme="dark-pink" text={`You're premium! Your plan allows for ${quantity} members.`} />}
-
           {!active && <Notification text={`You are using the free version with only ${QUANTITY} allowed team members.`} />}
+
+          {/* If they user has subscribed */}
+          {active && (
+            <React.Fragment>
+              <PremiumText>You're premium! Your plan allows for {quantity} members.</PremiumText>
+              <div className="row justify-content-center mb-20 mt-10">
+                <img src="upgrade.png" width="100%" />
+              </div>
+            </React.Fragment>
+          )}
 
           <div className="column p-20 flex-1 scroll w-100">
             <Text className="color-d2 h5 mb-10">Subscription</Text>
@@ -440,3 +448,13 @@ TeamModal.propTypes = {
 }
 
 const Text = styled.div``
+
+const PremiumText = styled.div`
+  background-color: #3369e7;
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  font-weight: 600;
+  padding: 10px;
+  width: 100%;
+`
