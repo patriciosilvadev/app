@@ -236,7 +236,8 @@
   background: white;
 }
 
-.task-modal-container .content .title textarea {
+.task-modal-container .content .title textarea,
+.task-modal-container .content .title .title-text {
   color: #202529;
   font-size: 28px;
   font-weight: 500;
@@ -244,6 +245,7 @@
   width: 100%;
   resize: none;
   height: 50px;
+  cursor: pointer;
 }
 
 .task-modal-container .content .title textarea::placeholder {

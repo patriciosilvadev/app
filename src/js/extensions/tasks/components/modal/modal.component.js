@@ -50,7 +50,6 @@ class ModalComponent extends React.Component {
       deleteBar: false,
       editDescription: false,
       description: '',
-      title: '',
       sectionId: '',
       dueDate: null,
       dueDatePretty: '',
@@ -69,6 +68,8 @@ class ModalComponent extends React.Component {
       tasks: [],
       page: 0,
       ready: true,
+      compose: false,
+      title: '',
     }
 
     this.composeRef = React.createRef()
@@ -97,10 +98,12 @@ class ModalComponent extends React.Component {
     if (!props.task.id) return null
     if (!props.task.title) return null
 
+    console.log(props.task.title)
+
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     // This is the basic state
-    let updatedState = {
+    return {
       section: props.channel.sections.filter(section => section.id == props.task.sectionId)[0],
       done: props.task.done,
       user: props.task.user || null,
@@ -109,8 +112,6 @@ class ModalComponent extends React.Component {
       tasks: sortTasksByOrder(findChildTasks(props.task.id, [...props.task.tasks])),
       messages: props.task.messages,
     }
-
-    return updatedState
   }
 
   componentDidUpdate(prevProps) {
@@ -315,11 +316,13 @@ class ModalComponent extends React.Component {
     // On enter
     if (e.keyCode == 13) {
       e.preventDefault()
+      this.setState({ compose: false })
       this.handleUpdateTask()
     }
   }
 
   handleBlur(e) {
+    this.setState({ compose: false })
     this.handleUpdateTask()
   }
 
@@ -527,6 +530,14 @@ class ModalComponent extends React.Component {
       date: true,
       overdue: dayjs().isAfter(this.state.dueDate),
     })
+    const composeClasses = classNames({
+      title: true,
+      hide: this.state.compose,
+    })
+    const titleClasses = classNames({
+      title: true,
+      hide: !this.state.compose,
+    })
 
     return (
       <ModalPortal>
@@ -681,7 +692,9 @@ class ModalComponent extends React.Component {
                       {this.props.task.parent.title}
                     </div>
                   )}
-                  <div className="title">
+
+                  {/* Editing */}
+                  <div className={composeClasses}>
                     <TextareaComponent
                       ref={ref => (this.composeRef = ref)}
                       onBlur={this.handleBlur}
@@ -690,6 +703,23 @@ class ModalComponent extends React.Component {
                       value={this.state.title}
                       onChange={e => this.setState({ title: e.target.value })}
                     />
+                  </div>
+
+                  {/* Viewing */}
+                  <div
+                    className={titleClasses}
+                    onClick={() => {
+                      // Update the editable title
+                      this.setState({
+                        title: this.props.task.title,
+                        compose: true,
+                      })
+
+                      // Select the textarea
+                      this.composeRef.select()
+                    }}
+                  >
+                    <div className="title-text">{this.props.task.title}</div>
                   </div>
 
                   <div className="description">
