@@ -1103,8 +1103,6 @@ export default class GraphqlService {
                 id
                 name
                 image
-                thread
-                threaded
                 username
                 timezone
                 status

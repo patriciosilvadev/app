@@ -150,14 +150,16 @@ const Channel = props => {
       >
         <ChannelContainerPadding>
           <Avatar muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
-            {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarIconColor} thickness={2.25} style={{ position: 'relative', top: -1 }} /> : null}
+            {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarIconColor} thickness={2.25} /> : null}
           </Avatar>
 
           <ChannelContents>
             <ChannelInnerContents>
               <ChannelTitleRow>
-                {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
-                {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+                <ChannelTitleRowIcon>
+                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+                  {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+                </ChannelTitleRowIcon>
 
                 <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
               </ChannelTitleRow>
@@ -486,6 +488,14 @@ const ChannelTitleRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: stretch;
+  align-content: center;
+  justify-content: center;
+`
+
+const ChannelTitleRowIcon = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   align-content: center;
   justify-content: center;
 `
