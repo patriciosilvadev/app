@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
 import './tasks.extension.css'
-import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification } from '@weekday/elements'
+import { Avatar, Tooltip, Button, Input, Spinner, Error, Notification, Popup, Menu } from '@weekday/elements'
 import { IconComponent } from '../../components/icon.component'
 import { sortTasksByOrder, logger, getMentions, findChildTasks, getHighestTaskOrder } from '../../helpers/util'
 import GraphqlService from '../../services/graphql.service'
@@ -21,7 +21,7 @@ import PropTypes from 'prop-types'
 import arrayMove from 'array-move'
 import StorageService from '../../services/storage.service'
 import { DEVICE } from '../../environment'
-import { MIME_TYPES } from '../../constants'
+import { MIME_TYPES, SORT } from '../../constants'
 import { classNames, isTaskHeading } from '../../helpers/util'
 import { TasksComponent } from './components/tasks/tasks.component'
 
@@ -36,6 +36,8 @@ class TasksExtension extends React.Component {
       showCompletedTasks: false,
       title: '',
       tasks: [],
+      sort: SORT.NONE,
+      sortPopup: false,
     }
 
     this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
@@ -263,11 +265,35 @@ class TasksExtension extends React.Component {
             {completed} / {this.props.tasks.length}
           </div>
 
-          <Button text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
+          <Popup
+            handleDismiss={() => this.setState({ sortPopup: false })}
+            visible={this.state.sortPopup}
+            width={250}
+            direction="right-bottom"
+            content={
+              <Menu
+                items={[
+                  {
+                    text: 'Custom order',
+                    onClick: e => this.setState({ sortPopup: false, sort: SORT.NONE }),
+                  },
+                  {
+                    text: 'By date',
+                    onClick: e => this.setState({ sortPopup: false, sort: SORT.DATE }),
+                  },
+                ]}
+              />
+            }
+          >
+            <Button size="small" text={this.state.sort == SORT.DATE ? 'By date' : 'Custom order'} theme="muted" className="mr-5" onClick={() => this.setState({ sortPopup: true })} />
+          </Popup>
+
+          <Button size="small" text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
         </div>
 
         <div className="tasks-container">
           <TasksComponent
+            sort={this.state.sort}
             hideChildren={false}
             masterTaskList={this.props.tasks}
             tasks={this.state.tasks}

@@ -21,6 +21,13 @@
   font-weight: 700;
 }
 
+.date-divider {
+  font-weight: 700;
+  font-size: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .tasks-extension-li .task .due-date.overdue {
   color: red;
 }

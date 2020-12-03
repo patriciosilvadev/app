@@ -409,9 +409,11 @@ export default (state = initialState, action) =>
 
       case 'UPDATE_CHANNEL_MESSAGE_TASK_ATTACHMENT':
         draft.messages = state.messages.map(message => {
+          const attachments = message.attachments ? message.attachments : []
+
           return {
             ...message,
-            attachments: message.attachments.map(attachment => {
+            attachments: attachments.map(attachment => {
               // Find the right task & update the meta info
               if (attachment.mime == MIME_TYPES.TASKS) {
                 if (attachment.uri == action.payload.taskId) {

@@ -7,12 +7,14 @@ import MessageComponent from '../components/message.component'
 import moment from 'moment'
 
 export default memo(props => {
-  if (!props.messages) return null
-  if (!props.messages.length) return null
+  const [messages, setMessages] = useState([])
 
-  return (
-    <React.Fragment>
-      {props.messages.map((message, index) => {
+  useEffect(() => {
+    if (!props.messages) return
+    if (!props.messages.length) return
+
+    setMessages(
+      props.messages.map((message, index) => {
         let append = false
         let showDate = false
         let previousDate = null
@@ -34,11 +36,24 @@ export default memo(props => {
           }
         }
 
+        return {
+          ...message,
+          showDate,
+          append,
+          dateLabel: moment(message.createdAt).format('dddd, MMMM Do'),
+        }
+      })
+    )
+  }, [props.messages])
+
+  return (
+    <React.Fragment>
+      {messages.map((message, index) => {
         return (
           <React.Fragment key={index}>
-            {showDate && (
+            {message.showDate && (
               <DateDivider>
-                <DateDividerText>{moment(message.createdAt).format('dddd, MMMM Do')}</DateDividerText>
+                <DateDividerText>{message.dateLabel}</DateDividerText>
                 <DateDividerLine />
               </DateDivider>
             )}
@@ -47,7 +62,7 @@ export default memo(props => {
               hideParentMessages={props.hideParentMessages}
               message={message}
               pinned={false}
-              append={append && !showDate}
+              append={message.append && !message.showDate}
               highlight={props.highlight}
               setUpdateMessage={props.setUpdateMessage}
               setReplyMessage={props.setReplyMessage}

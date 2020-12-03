@@ -16,7 +16,7 @@ import { CheckboxComponent } from '../checkbox/checkbox.component'
 import arrayMove from 'array-move'
 import { TasksComponent } from '../tasks/tasks.component'
 import MessagesComponent from '../messages/messages.component'
-import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../../../../constants'
+import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, SORT } from '../../../../constants'
 import './modal.component.css'
 import EventService from '../../../../services/event.service'
 import {
@@ -778,6 +778,7 @@ class ModalComponent extends React.Component {
                   </div>
 
                   <TasksComponent
+                    sort={SORT.NONE}
                     hideChildren={true}
                     masterTaskList={this.props.task.tasks}
                     tasks={this.state.tasks}

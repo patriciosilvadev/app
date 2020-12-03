@@ -1,4 +1,5 @@
 import { STRIPE_KEY, PRICE_KEY } from './environment'
+import * as moment from 'moment'
 
 export const MIME_TYPES = {
   CALLS: 'weekday/calls',
@@ -37,3 +38,12 @@ export const OVER = 'OVER'
 export const UNDER = 'UNDER'
 export const STRIPE = STRIPE_KEY
 export const PRICE = PRICE_KEY
+export const SORT = {
+  DATE: 'DATE',
+  NONE: 'NONE',
+}
+export const FUTURE_DATE_UNIX_TIME = moment()
+  .add(1, 'years')
+  .toDate()
+  .getTime()
+export const MOMENT_TODAY = moment()

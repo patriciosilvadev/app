@@ -4,18 +4,18 @@ import ReactDOMServer from 'react-dom/server'
 import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
-import { SILENCE, WEEKDAY_DRAGGED_TASK_ID, PRESENCES } from '../constants'
+import { SILENCE, WEEKDAY_DRAGGED_TASK_ID, PRESENCES, FUTURE_DATE_UNIX_TIME } from '../constants'
 import * as moment from 'moment'
 
 export const getHighestTaskOrder = tasks => {
-  return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length + 1) + 4
+  return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length) + 100
 }
 
 export const getPreviousTaskOrder = (tasks, taskId) => {
   // If there are no siblings
   if (tasks.length == 0) return 0
 
-  const lowestOrder = tasks.reduce((acc, task) => (acc.order < task.order ? acc : task), 0).order - 4
+  const lowestOrder = tasks.reduce((acc, task) => (acc.order < task.order ? acc : task), 0).order - 100
   const task = tasks.filter(task => task.id == taskId)[0]
   let taskIndex = 0
   let order = 0
@@ -49,7 +49,7 @@ export const getNextTaskOrder = (tasks, taskId) => {
   // If there are no siblings
   if (tasks.length == 0) return 1
 
-  const highestOrder = getHighestTaskOrder(tasks) + 4
+  const highestOrder = getHighestTaskOrder(tasks) + 100
   const task = tasks.filter(task => task.id == taskId)[0]
   let taskIndex = 0
   let order = 0
@@ -80,15 +80,30 @@ export const getNextTaskOrder = (tasks, taskId) => {
 }
 
 export const sortTasksByOrder = tasks => {
+  if (!tasks) return []
+
   return tasks.sort((a, b) => a.order - b.order)
 }
 
+export const sortTasksByDueDate = tasks => {
+  if (!tasks) return []
+
+  return tasks.sort((a, b) => {
+    const dateA = moment(a.dueDate)
+    const dateB = moment(b.dueDate)
+    const timeA = dateA.isValid() ? dateA.toDate().getTime() : FUTURE_DATE_UNIX_TIME
+    const timeB = dateB.isValid() ? dateB.toDate().getTime() : FUTURE_DATE_UNIX_TIME
+
+    return timeA - timeB
+  })
+}
+
 export const sortMessagesByCreatedAt = messages => {
-  return messages
-    ? messages.sort((left, right) => {
-        return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
-      })
-    : []
+  if (!messages) return []
+
+  return messages.sort((left, right) => {
+    return moment.utc(left.createdAt).diff(moment.utc(right.createdAt))
+  })
 }
 
 export const findChildTasks = (taskId, tasks) => {

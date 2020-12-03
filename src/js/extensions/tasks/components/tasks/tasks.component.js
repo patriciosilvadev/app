@@ -1,12 +1,13 @@
 import './tasks.component.css'
 import { useSelector, useDispatch, ReactReduxContext } from 'react-redux'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, memo } from 'react'
 import TaskComponent from '../task/task.component'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
-import { classNames, isTaskHeading, getNextTaskOrder, getHighestTaskOrder, getPreviousTaskOrder } from '../../../../helpers/util'
+import { sortTasksByDueDate, classNames, isTaskHeading, getNextTaskOrder, getHighestTaskOrder, getPreviousTaskOrder } from '../../../../helpers/util'
 import EventService from '../../../../services/event.service'
-import { ONTOP, OVER, UNDER, WEEKDAY_DRAGGED_TASK_ID } from '../../../../constants'
+import { MOMENT_TODAY, ONTOP, OVER, UNDER, WEEKDAY_DRAGGED_TASK_ID, SORT } from '../../../../constants'
 import { sortTasksByOrder, logger, getMentions, findChildTasks } from '../../../../helpers/util'
+import moment from 'moment'
 
 const TASK_IMAGE_SVG = encodeURI(`
 <svg width='115' height='27' viewBox='0 0 235 53' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;'>
@@ -31,13 +32,59 @@ const TASK_IMAGE_SVG = encodeURI(`
 let TASK_IMAGE = document.createElement('img')
 TASK_IMAGE.src = 'data:image/svg+xml,' + TASK_IMAGE_SVG
 
-const L = ({ base, tasks, hideChildren, collapsed, processDrop, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName }) => {
+const L = memo(props => {
+  const { base, sort, hideChildren, collapsed, processDrop, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName } = props
+  const [tasks, setTasks] = useState([])
+  let labelCache
+
+  useEffect(() => {
+    let sortedTasks = sort == SORT.DATE ? sortTasksByDueDate(props.tasks) : sortTasksByOrder(props.tasks)
+
+    if (sort == SORT.DATE) {
+      sortedTasks = sortedTasks.map((task, index) => {
+        let showDate = false
+        let currentDate = moment(task.dueDate)
+        let dateLabel = 'Later'
+
+        // If it's valid
+        // And if it's in the last week
+        // Then add the date descriptor
+        if (currentDate.isValid() && currentDate.isAfter(moment().subtract(1, 'weeks'))) dateLabel = currentDate.format('dddd')
+
+        // Check for today
+        if (currentDate.isSame(MOMENT_TODAY, 'd')) dateLabel = 'Today'
+
+        // Decide whether to show the label or not
+        // ONLY if it's different to the cached label
+        if (dateLabel != labelCache) {
+          showDate = true
+          labelCache = dateLabel
+        }
+
+        return {
+          ...task,
+          showDate,
+          dateLabel,
+        }
+      })
+    }
+
+    setTasks(sortedTasks)
+  }, [props.tasks, props.sort])
+
   return (
     <div style={{ display: collapsed ? 'none' : 'block' }}>
       {tasks.map((task, index) => {
         return (
           <div style={{ paddingLeft: base ? 0 : 20 }} key={index}>
+            {task.showDate && (
+              <div className="date-divider">
+                <div>{task.dateLabel}</div>
+              </div>
+            )}
+
             <T
+              sort={sort}
               task={task}
               hideChildren={hideChildren}
               processDrop={processDrop}
@@ -54,7 +101,7 @@ const L = ({ base, tasks, hideChildren, collapsed, processDrop, showCompletedTas
       })}
     </div>
   )
-}
+})
 
 class T extends React.Component {
   constructor(props) {
@@ -73,6 +120,17 @@ class T extends React.Component {
     this.handleDrop = this.handleDrop.bind(this)
     this.handleDragOver = this.handleDragOver.bind(this)
     this.handleDragStart = this.handleDragStart.bind(this)
+    this.handleUpdateDraggable = this.handleUpdateDraggable.bind(this)
+  }
+
+  handleUpdateDraggable(draggable) {
+    const { disableDrag } = this.props
+
+    // Update the draggable (when the task is being edited)
+    // But accommodate this task being told not be draggable by the parent
+    this.setState({
+      draggable: disableDrag ? false : draggable,
+    })
   }
 
   handleDragStart(e) {
@@ -143,7 +201,7 @@ class T extends React.Component {
   handleDrag(e) {}
 
   render() {
-    const { task, hideChildren, processDrop, index, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName } = this.props
+    const { task, sort, hideChildren, processDrop, index, showCompletedTasks, deleteTask, updateTask, shareToChannel, disableTools, displayChannelName } = this.props
 
     return (
       <React.Fragment>
@@ -161,7 +219,7 @@ class T extends React.Component {
           onDragLeave={this.handleDragLeave}
           onDragOver={this.handleDragOver}
           onDragStart={this.handleDragStart}
-          draggable={this.state.draggable}
+          draggable={sort == SORT.DATE ? false : this.state.draggable}
         >
           {/* Sort index is null */}
           <TaskComponent
@@ -180,14 +238,17 @@ class T extends React.Component {
             showCompletedTasks={showCompletedTasks}
             deleteTask={deleteTask}
             updateTask={updateTask}
-            updateDraggable={draggable => this.setState({ draggable })}
+            updateDraggable={this.handleUpdateDraggable}
             toggleTasksBelowHeadings={() => this.setState({ collapsed: !this.state.collapsed })}
             disableTools={disableTools}
             displayChannelName={displayChannelName}
           />
         </div>
+
+        {/* sublists */}
         {!hideChildren && (
           <L
+            sort={SORT.NONE}
             hideChildren={!!hideChildren}
             tasks={task.children}
             collapsed={this.state.collapsed}
@@ -209,95 +270,98 @@ class T extends React.Component {
  * mastTaskList is all the tasks
  * tasks = nested tasks
  */
-export const TasksComponent = ({ masterTaskList, tasks, hideChildren, deleteTask, updateTaskOrder, updateTask, showCompletedTasks, shareToChannel, createTask, disableTools, displayChannelName }) => {
-  const processDropOver = (taskIdDragged, taskIdDraggedOnto) => {
-    console.log(OVER, taskIdDragged, taskIdDraggedOnto)
+export const TasksComponent = memo(
+  ({ sort, masterTaskList, tasks, hideChildren, deleteTask, updateTaskOrder, updateTask, showCompletedTasks, shareToChannel, createTask, disableTools, displayChannelName }) => {
+    const processDropOver = (taskIdDragged, taskIdDraggedOnto) => {
+      console.log(OVER, taskIdDragged, taskIdDraggedOnto)
 
-    // New parent
-    const parent = taskIdDraggedOnto
-    const id = taskIdDragged
+      // New parent
+      const parent = taskIdDraggedOnto
+      const id = taskIdDragged
 
-    // Get the parent's childrren (so we can calculate order)
-    const children = sortTasksByOrder(masterTaskList.filter(task => task.parentId == taskIdDraggedOnto))
-    const order = children.length == 0 ? 1 : getHighestTaskOrder(children)
+      // Get the parent's childrren (so we can calculate order)
+      const children = sortTasksByOrder(masterTaskList.filter(task => task.parentId == taskIdDraggedOnto))
+      const order = children.length == 0 ? 1 : getHighestTaskOrder(children)
 
-    // Update it
-    return {
-      parent,
-      id,
-      order,
-    }
-  }
-
-  const processDropUnder = (taskIdDragged, taskIdDraggedOnto) => {
-    console.log(UNDER, taskIdDragged, taskIdDraggedOnto)
-
-    const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
-    const { parentId } = taskDraggedOnto
-    const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parentId))
-
-    // Return the updated task to update
-    return {
-      id: taskIdDragged,
-      parent: parentId,
-      order: getNextTaskOrder(siblings, taskIdDraggedOnto),
-    }
-  }
-
-  const processDropOntop = (taskIdDragged, taskIdDraggedOnto) => {
-    console.log(ONTOP, taskIdDragged, taskIdDraggedOnto)
-
-    const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
-    const { parentId } = taskDraggedOnto
-    const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parentId))
-
-    // Return the updated task to update
-    return {
-      id: taskIdDragged,
-      parent: parentId,
-      order: getPreviousTaskOrder(siblings, taskIdDraggedOnto),
-    }
-  }
-
-  const processDrop = (taskIdDragged, taskIdDraggedOnto, type) => {
-    if (taskIdDragged == taskIdDraggedOnto) return
-
-    let updatedTask = null
-
-    switch (type) {
-      case OVER:
-        updatedTask = processDropOver(taskIdDragged, taskIdDraggedOnto)
-        break
-      case UNDER:
-        updatedTask = processDropUnder(taskIdDragged, taskIdDraggedOnto)
-        break
-      case ONTOP:
-        updatedTask = processDropOntop(taskIdDragged, taskIdDraggedOnto)
-        break
+      // Update it
+      return {
+        parent,
+        id,
+        order,
+      }
     }
 
-    if (updatedTask) updateTaskOrder(updatedTask)
-  }
+    const processDropUnder = (taskIdDragged, taskIdDraggedOnto) => {
+      console.log(UNDER, taskIdDragged, taskIdDraggedOnto)
 
-  return (
-    <div className="tasks">
-      <div className="task-list">
-        <L
-          base
-          hideChildren={hideChildren}
-          tasks={tasks}
-          collapsed={false}
-          processDrop={processDrop}
-          showCompletedTasks={showCompletedTasks}
-          deleteTask={deleteTask}
-          updateTask={updateTask}
-          shareToChannel={shareToChannel}
-          disableTools={disableTools}
-          displayChannelName={displayChannelName}
-        />
+      const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
+      const { parentId } = taskDraggedOnto
+      const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parentId))
 
-        <TaskComponent id="" title="" hide={false} done={false} new={true} createTask={createTask} showCompletedTasks={true} />
+      // Return the updated task to update
+      return {
+        id: taskIdDragged,
+        parent: parentId,
+        order: getNextTaskOrder(siblings, taskIdDraggedOnto),
+      }
+    }
+
+    const processDropOntop = (taskIdDragged, taskIdDraggedOnto) => {
+      console.log(ONTOP, taskIdDragged, taskIdDraggedOnto)
+
+      const taskDraggedOnto = masterTaskList.filter(task => task.id == taskIdDraggedOnto)[0]
+      const { parentId } = taskDraggedOnto
+      const siblings = sortTasksByOrder(masterTaskList.filter(task => task.parentId == parentId))
+
+      // Return the updated task to update
+      return {
+        id: taskIdDragged,
+        parent: parentId,
+        order: getPreviousTaskOrder(siblings, taskIdDraggedOnto),
+      }
+    }
+
+    const processDrop = (taskIdDragged, taskIdDraggedOnto, type) => {
+      if (taskIdDragged == taskIdDraggedOnto) return
+
+      let updatedTask = null
+
+      switch (type) {
+        case OVER:
+          updatedTask = processDropOver(taskIdDragged, taskIdDraggedOnto)
+          break
+        case UNDER:
+          updatedTask = processDropUnder(taskIdDragged, taskIdDraggedOnto)
+          break
+        case ONTOP:
+          updatedTask = processDropOntop(taskIdDragged, taskIdDraggedOnto)
+          break
+      }
+
+      if (updatedTask) updateTaskOrder(updatedTask)
+    }
+
+    return (
+      <div className="tasks">
+        <div className="task-list">
+          <L
+            base
+            sort={sort}
+            hideChildren={hideChildren}
+            tasks={tasks}
+            collapsed={false}
+            processDrop={processDrop}
+            showCompletedTasks={showCompletedTasks}
+            deleteTask={deleteTask}
+            updateTask={updateTask}
+            shareToChannel={shareToChannel}
+            disableTools={disableTools}
+            displayChannelName={displayChannelName}
+          />
+
+          <TaskComponent id="" title="" hide={false} done={false} new={true} createTask={createTask} showCompletedTasks={true} />
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
+)

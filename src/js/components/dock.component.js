@@ -70,14 +70,16 @@ export default function DockComponent(props) {
 
   return (
     <Dock className="column align-items-center">
-      <ToggleButton
-        onClick={e => {
-          setOpen(!open)
-          EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
-        }}
-      >
-        <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#AEB5BB" thickness={3} style={{ top: -2 }} />
-      </ToggleButton>
+      {!!team.id && (
+        <ToggleButton
+          onClick={e => {
+            setOpen(!open)
+            EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
+          }}
+        >
+          <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#AEB5BB" thickness={3} style={{ top: -2 }} />
+        </ToggleButton>
+      )}
 
       {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
 
