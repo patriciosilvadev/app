@@ -1490,6 +1490,7 @@ export default class GraphqlService {
         query meet($meetId: String!) {
           meet(meetId: $meetId) {
             id
+            token
             topic
             roomId
             location

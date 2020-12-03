@@ -18,7 +18,6 @@ import { default as MeetModalComponent } from './components/modal/modal.componen
 import StorageService from '../../services/storage.service'
 
 // Variables from the Janus videoroom example
-let JANUS_WEBRTC_TOKEN = null
 const JANUS_VIDEO_PLUGIN = 'janus.plugin.videoroom'
 const JANUS_OPAQUE_ID = 'videoroom-' + Janus.randomString(12)
 let JANUS_SFU_API = null
@@ -1002,8 +1001,6 @@ class VideoExtension extends React.Component {
   }
 
   async joinMeet(meetId) {
-    JANUS_WEBRTC_TOKEN = StorageService.getStorage(WEBRTC)
-
     this.setState({
       error: null,
       notification: null,
@@ -1027,16 +1024,15 @@ class VideoExtension extends React.Component {
         callback: () => {
           janus = new Janus({
             server: meet.location,
-            token: JANUS_WEBRTC_TOKEN,
+            token: meet.token,
             success: () => {
               janus.attach({
                 plugin: JANUS_VIDEO_PLUGIN,
                 opaqueId: JANUS_OPAQUE_ID,
                 success: pluginHandle => {
-                  console.log('Connected Janus API')
                   JANUS_SFU_API = pluginHandle
                 },
-                error: error => console.error('Janus attach error', error),
+                error: error => console.error('ATTACH ERROR', error),
                 consentDialog: on => {},
                 iceState: state => {},
                 mediaState: (medium, on) => {},
@@ -1045,8 +1041,8 @@ class VideoExtension extends React.Component {
                 onlocalstream: stream => {},
               })
             },
-            error: error => console.log(error),
-            destroyed: () => console.log('Destroyed'),
+            error: error => console.log('INIT ERROR', error),
+            destroyed: () => {},
           })
         },
       })

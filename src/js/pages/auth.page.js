@@ -98,14 +98,11 @@ class AuthPage extends React.Component {
       if (request.status == 500) return this.setState({ error: 'Internal error' })
       if (request.status == 401) return this.setState({ error: 'Username or email not available' })
       if (request.status == 200) {
-        const { user, token, webrtc } = result
+        const { user, token } = result
         const userId = user._id
 
         // Save our token
         AuthService.saveToken(token)
-
-        // Save our WEBRTC token
-        StorageService.setStorage(WEBRTC, webrtc)
 
         // And then let the user onboard
         this.setState({
@@ -136,13 +133,10 @@ class AuthPage extends React.Component {
 
       if (auth.status != 200) return this.setState({ error: 'Sorry, we could not find your details' })
       if (auth.status == 200) {
-        const { token, webrtc, userId } = data
+        const { token, userId } = data
 
         // Save our token
         AuthService.saveToken(token)
-
-        // Save our WEBRTC token
-        StorageService.setStorage(WEBRTC, webrtc)
 
         // Now fetch the user
         this.props.fetchUser(userId)
