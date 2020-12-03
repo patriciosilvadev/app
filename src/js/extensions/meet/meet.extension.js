@@ -11,23 +11,27 @@ import { updateChannel, createChannelMessage, hydrateMeet } from '../../actions'
 import adapter from 'webrtc-adapter'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { DEVICE, WEBRTC_URL, WEBRTC } from '../../environment'
+import { DEVICE, WEBRTC } from '../../environment'
 import { MIME_TYPES } from '../../constants'
 import { hydrate } from 'react-dom'
 import { default as MeetModalComponent } from './components/modal/modal.component'
 import StorageService from '../../services/storage.service'
 
 // Variables from the Janus videoroom example
-var server = WEBRTC_URL
-var janus = null
-var opaqueId = 'videoroom-' + Janus.randomString(12)
-var bitrateTimer = []
+let JANUS_WEBRTC_TOKEN = null
+const JANUS_VIDEO_PLUGIN = 'janus.plugin.videoroom'
+const JANUS_OPAQUE_ID = 'videoroom-' + Janus.randomString(12)
+let JANUS_SFU_API = null
+
+let janus = null
+let bitrateTimer = []
+
+//
 
 // Plugin handles
-// sfu_api are just for managing rooms
+// JANUS_SFU_API are just for managing rooms
 var sfu = null
 var sfu_screen = null
-var sfu_api = null
 var mystream = null
 var screenstream = null
 
@@ -402,7 +406,7 @@ class VideoExtension extends React.Component {
 
     janus.attach({
       plugin: 'janus.plugin.videoroom',
-      opaqueId: opaqueId,
+      opaqueId: JANUS_OPAQUE_ID,
       success: pluginHandle => {
         remoteFeed = pluginHandle
         remoteFeed.simulcastStarted = false
@@ -601,7 +605,7 @@ class VideoExtension extends React.Component {
   }
 
   getRoomParticipants(roomId, callback) {
-    sfu_api.send({
+    JANUS_SFU_API.send({
       message: {
         request: 'listparticipants',
         room: roomId,
@@ -614,7 +618,7 @@ class VideoExtension extends React.Component {
   }
 
   getServerRoomList() {
-    sfu_api.send({
+    JANUS_SFU_API.send({
       message: {
         request: 'list',
       },
@@ -653,7 +657,7 @@ class VideoExtension extends React.Component {
     // Attach to VideoRoom plugin
     janus.attach({
       plugin: 'janus.plugin.videoroom',
-      opaqueId: opaqueId,
+      opaqueId: JANUS_OPAQUE_ID,
       success: pluginHandle => {
         sfu = pluginHandle
 
@@ -889,7 +893,7 @@ class VideoExtension extends React.Component {
     this.setState({ screenSharing: true }, () => {
       janus.attach({
         plugin: 'janus.plugin.videoroom',
-        opaqueId: opaqueId,
+        opaqueId: JANUS_OPAQUE_ID,
         success: pluginHandle => {
           sfu_screen = pluginHandle
           this.setState({ loading: false })
@@ -998,6 +1002,8 @@ class VideoExtension extends React.Component {
   }
 
   async joinMeet(meetId) {
+    JANUS_WEBRTC_TOKEN = StorageService.getStorage(WEBRTC)
+
     this.setState({
       error: null,
       notification: null,
@@ -1008,7 +1014,10 @@ class VideoExtension extends React.Component {
         data: { meet },
       } = await GraphqlService.getInstance().meet(meetId)
 
+      // Update Redux
       this.props.hydrateMeet(meet)
+
+      // Update our UI
       this.setState({ view: 'meet' })
 
       // Get the SHA1 token for WebRTC server
@@ -1017,19 +1026,17 @@ class VideoExtension extends React.Component {
         debug: 'all',
         callback: () => {
           janus = new Janus({
-            server: server,
-            token: StorageService.getStorage(WEBRTC),
+            server: meet.location,
+            token: JANUS_WEBRTC_TOKEN,
             success: () => {
               janus.attach({
-                plugin: 'janus.plugin.videoroom',
-                opaqueId: opaqueId,
+                plugin: JANUS_VIDEO_PLUGIN,
+                opaqueId: JANUS_OPAQUE_ID,
                 success: pluginHandle => {
-                  sfu_api = pluginHandle
-                  this.getServerRoomList()
+                  console.log('Connected Janus API')
+                  JANUS_SFU_API = pluginHandle
                 },
-                error: error => {
-                  console.error(error)
-                },
+                error: error => console.error('Janus attach error', error),
                 consentDialog: on => {},
                 iceState: state => {},
                 mediaState: (medium, on) => {},
@@ -1038,15 +1045,14 @@ class VideoExtension extends React.Component {
                 onlocalstream: stream => {},
               })
             },
-            error: error => {
-              this.setState({ error: 'Could not initialize video' })
-            },
-            destroyed: () => {},
+            error: error => console.log(error),
+            destroyed: () => console.log('Destroyed'),
           })
         },
       })
 
-      /*       this.setState(
+      /*
+      this.setState(
         {
           loading: true,
           topic: call.topic,
@@ -1064,9 +1070,10 @@ class VideoExtension extends React.Component {
         meets: this.state.meets.filter(meet => meet.id != meetId),
         view: '',
         topic: '',
-      }) */
+      }) 
+      */
     } catch (e) {
-      this.setState({ error: 'Error dgetting meet' })
+      this.setState({ error: 'Error getting meet' })
     }
   }
 
@@ -1088,9 +1095,9 @@ class VideoExtension extends React.Component {
         data: { createMeet },
       } = await GraphqlService.getInstance().createMeet(payload)
 
-      // Debug
-      // This will contain server location / active
-      console.log(createMeet)
+      // Check for validity
+      if (!createMeet) return
+      if (!createMeet.location) return
 
       // Add it to our state & reset the view
       this.setState({
@@ -1112,7 +1119,7 @@ class VideoExtension extends React.Component {
         },
         () => {
           // 2.
-          sfu_api.send({
+          JANUS_SFU_API.send({
             message: {
               request: 'create',
               description: topic,
@@ -1170,7 +1177,7 @@ class VideoExtension extends React.Component {
         },
         () => {
           // Destroy the Janus room
-          sfu_api.send({
+          JANUS_SFU_API.send({
             message: {
               request: 'destroy',
               room: roomId,

@@ -11,7 +11,6 @@ export const APPSTORE_URL = 'http://localhost:3001'
 export const SENTRY_DSN = ''
 export const DEVICE = 'WEB'
 export const MQTT_PREFIX = 'WEB-DEV'
-export const WEBRTC_URL = 'http://159.69.150.191:8088/janus'
 export const HASH_HISTORY = false
 export const ONESIGNAL_KEY = '0e932f75-af2f-4998-992d-11571053f729'
 export const APP_TYPE = ''

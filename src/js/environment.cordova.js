@@ -11,7 +11,6 @@ export const APPSTORE_URL = 'https://appstore.weekdayapp.com'
 export const SENTRY_DSN = 'https://aab4b362715b436a9180426477e17e2b@o114545.ingest.sentry.io/1513390'
 export const DEVICE = 'MOBILE'
 export const MQTT_PREFIX = 'MOBILE'
-export const WEBRTC_URL = 'https://video1.weekdayapp.com/janus'
 export const HASH_HISTORY = true
 export const ONESIGNAL_KEY = '0e932f75-af2f-4998-992d-11571053f729'
 export const APP_TYPE = 'cordova'
