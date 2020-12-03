@@ -307,7 +307,7 @@ class AppPage extends React.Component {
                   </LayoutIconButton>
                   <LayoutIconButton>
                     <IconComponent
-                      icon="sidebar"
+                      icon="sidebar-left"
                       color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
                       size={18}
                       thickness={2}
@@ -316,12 +316,11 @@ class AppPage extends React.Component {
                   </LayoutIconButton>
                   <LayoutIconButton>
                     <IconComponent
-                      icon="sidebar"
+                      icon="sidebar-right"
                       color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
                       size={18}
                       thickness={2}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
-                      style={{ transform: 'rotate(180deg)' }}
                     />
                   </LayoutIconButton>
                 </LayoutIcons>
@@ -350,9 +349,7 @@ class AppPage extends React.Component {
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
                       <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
-                        <span style={{ transform: 'rotateZ(90deg)' }} className="mr-10">
-                          <IconComponent icon="server" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} thickness={2.5} />
-                        </span>
+                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                         <PillText>Boards</PillText>
                       </Pill>
                     </Link>
@@ -360,7 +357,7 @@ class AppPage extends React.Component {
 
                   <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
                     <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
-                      <IconComponent icon="check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
                       <PillText>Tasks</PillText>
                     </Pill>
                   </Link>

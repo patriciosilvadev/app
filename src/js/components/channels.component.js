@@ -1162,7 +1162,7 @@ class ChannelsComponent extends React.Component {
                       onClick: this._openTeamSettings.bind(this),
                     },
                     {
-                      icon: <IconComponent icon="list" size={20} color="#acb5bd" thickness={1.5} />,
+                      icon: <IconComponent icon="users" size={20} color="#acb5bd" thickness={1.5} />,
                       text: 'Team directory',
                       onClick: this._openTeamDirectory.bind(this),
                     },
@@ -1546,7 +1546,7 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
           }}
         >
-          <IconComponent icon="check" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+          <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
           <span className="color-d3 bold p">My Tasks</span>
         </HeaderButtonContainer>
       </React.Fragment>

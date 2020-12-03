@@ -1,221 +1,201 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import {
-  Eye,
-  EyeOff,
-  Info,
-  Send,
-  AtSign,
-  Star,
-  Smile,
-  Paperclip,
-  Trash2,
-  PlusCircle,
-  Plus,
-  Menu,
-  X,
-  Check,
-  Bell,
-  BellOff,
-  Edit2,
-  Settings,
-  HelpCircle,
-  LogOut,
-  ChevronDown,
-  ChevronUp,
-  ChevronRight,
-  ChevronLeft,
-  RefreshCcw,
-  MoreVertical,
-  MoreHorizontal,
-  Search,
-  List,
-  MessageCircle,
-  UserMinus,
-  Shield,
-  ThumbsUp,
-  Flag,
-  Lock,
-  Unlock,
-  Share2,
-  Share,
-  Radio,
-  Box,
-  Package,
-  Compass,
-  Hash,
-  Monitor,
-  Smartphone,
-  Video,
-  Mic,
-  Sidebar,
-  Square,
-  Camera,
-  MicOff,
-  VideoOff,
-  Maximize,
-  Circle,
-  CheckCircle,
-  File,
-  FileText,
-  Calendar,
-  AlignLeft,
-  LifeBuoy,
-  Inbox,
-  CornerDownRight,
-  Server,
-} from 'react-feather'
-import { Users } from '../icons/Users'
 import { Markdown } from '../icons/Markdown'
-import { Reply } from '../icons/Reply'
-import { Forward } from '../icons/Forward'
-import { Profile } from '../icons/Profile'
+import {
+  BiCog,
+  BiPlusCircle,
+  BiCalendar,
+  BiCheck,
+  BiCheckDouble,
+  BiVideo,
+  BiVideoOff,
+  BiColumns,
+  BiPaperclip,
+  BiUserCircle,
+  BiGroup,
+  BiLogOutCircle,
+  BiStar,
+  BiAt,
+  BiSend,
+  BiSmile,
+  BiBuoy,
+  BiDockLeft,
+  BiDockRight,
+  BiRectangle,
+  BiCube,
+  BiFlag,
+  BiSearch,
+  BiLike,
+  BiTrash,
+  BiPencil,
+  BiBell,
+  BiBellOff,
+  BiChevronRight,
+  BiChevronUp,
+  BiChevronDown,
+  BiChevronLeft,
+  BiHash,
+  BiX,
+  BiLockAlt,
+  BiLockOpenAlt,
+  BiBroadcast,
+  BiAlignLeft,
+  BiFileBlank,
+  BiFile,
+  BiShareAlt,
+  BiShare,
+  BiMicrophone,
+  BiMicrophoneOff,
+  BiDotsHorizontalRounded,
+  BiDotsVerticalRounded,
+  BiMessageSquareDetail,
+  BiUserMinus,
+  BiHide,
+  BiShow,
+  BiPlus,
+  BiMobileAlt,
+  BiDesktop,
+  BiMenu,
+  BiSubdirectoryRight,
+  BiRefresh,
+  BiQuestionMark,
+  BiShield,
+  BiBox,
+  BiCompass,
+} from 'react-icons/bi'
 
-export function IconComponent({ size, color, icon, thickness, className, onClick, style }) {
-  const defaultThickness = 1.25
-
+export function IconComponent({ size, color, icon, className, onClick, style }) {
   const getIcon = () => {
     switch (icon) {
-      case 'server':
-        return <Server width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+      case 'boards':
+        return <BiColumns size={size} width={size} height={size} color={color} />
       case 'corner-down-right':
-        return <CornerDownRight width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'inbox':
-        return <Inbox width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiSubdirectoryRight size={size} width={size} height={size} color={color} />
       case 'align-left':
-        return <AlignLeft width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiAlignLeft size={size} width={size} height={size} color={color} />
       case 'life-buoy':
-        return <LifeBuoy width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiBuoy size={size} width={size} height={size} color={color} />
       case 'calendar':
-        return <Calendar width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiCalendar size={size} width={size} height={size} color={color} />
       case 'file':
-        return <File width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiFileBlank size={size} width={size} height={size} color={color} />
       case 'file-text':
-        return <FileText width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiFile size={size} width={size} height={size} color={color} />
       case 'menu':
-        return <Menu width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'check-circle':
-        return <CheckCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'circle':
-        return <Circle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'maximize':
-        return <Maximize width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiMenu size={size} width={size} height={size} color={color} />
       case 'square':
-        return <Square width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'camera':
-        return <Camera width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'camera-off':
-        return <CameraOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'sidebar':
-        return <Sidebar width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiRectangle size={size} width={size} height={size} color={color} />
+      case 'sidebar-left':
+        return <BiDockLeft size={size} width={size} height={size} color={color} />
+      case 'sidebar-right':
+        return <BiDockRight size={size} width={size} height={size} color={color} />
       case 'video-off':
-        return <VideoOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiVideoOff size={size} width={size} height={size} color={color} />
       case 'video':
-        return <Video width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiVideo size={size} width={size} height={size} color={color} />
       case 'mic-off':
-        return <MicOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiMicrophoneOff size={size} width={size} height={size} color={color} />
       case 'mic':
-        return <Mic width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiMicrophone size={size} width={size} height={size} color={color} />
       case 'monitor':
-        return <Monitor width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiDesktop size={size} width={size} height={size} color={color} />
       case 'smartphone':
-        return <Smartphone width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiMobileAlt size={size} width={size} height={size} color={color} />
       case 'hash':
-        return <Hash width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiHash size={size} width={size} height={size} color={color} />
       case 'compass':
-        return <Compass width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'package':
-        return <Package width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'box':
-        return <Box width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'radio':
-        return <Radio width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'share1':
-        return <Share width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'share':
-        return <Share2 width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'lock':
-        return <Lock width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'unlock':
-        return <Unlock width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'shield':
-        return <Shield width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'user-minus':
-        return <UserMinus width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'message-circle':
-        return <MessageCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'list':
-        return <List width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'eye':
-        return <Eye width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'eye-off':
-        return <EyeOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'info':
-        return <Info width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'users':
-        return <Users width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'delete':
-        return <Trash2 width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'smile':
-        return <Smile width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'attachment':
-        return <Paperclip width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'send':
-        return <Send width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'at':
-        return <AtSign width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'plus-circle':
-        return <PlusCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'plus':
-        return <Plus width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'check':
-        return <Check width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'x':
-        return <X width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'bell':
-        return <Bell width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'bell-off':
-        return <BellOff width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'pen':
-        return <Edit2 width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'reply':
-        return <Reply width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'forward':
-        return <Forward width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'chevron-down':
-        return <ChevronDown width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'chevron-up':
-        return <ChevronUp width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'chevron-right':
-        return <ChevronRight width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'chevron-left':
-        return <ChevronLeft width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'profile':
-        return <Profile width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'settings':
-        return <Settings width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'question':
-        return <HelpCircle width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'logout':
-        return <LogOut width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'refresh':
-        return <RefreshCcw width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'more-h':
-        return <MoreHorizontal width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'more-v':
-        return <MoreVertical width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'star':
-        return <Star width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'search':
-        return <Search width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'markdown':
-        return <Markdown width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
-      case 'thumbs-up':
-        return <ThumbsUp width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiCompass size={size} width={size} height={size} color={color} />
       case 'flag':
-        return <Flag width={size} height={size} color={color} strokeWidth={thickness || defaultThickness} />
+        return <BiFlag size={size} width={size} height={size} color={color} />
+      case 'package':
+        return <BiCube size={size} width={size} height={size} color={color} />
+      case 'box':
+        return <BiBox size={size} width={size} height={size} color={color} />
+      case 'radio':
+        return <BiBroadcast size={size} width={size} height={size} color={color} />
+      case 'share1':
+        return <BiShareAlt size={size} width={size} height={size} color={color} />
+      case 'share':
+        return <BiShareAlt size={size} width={size} height={size} color={color} />
+      case 'lock':
+        return <BiLockAlt size={size} width={size} height={size} color={color} />
+      case 'unlock':
+        return <BiLockOpenAlt size={size} width={size} height={size} color={color} />
+      case 'shield':
+        return <BiShield size={size} width={size} height={size} color={color} />
+      case 'user-minus':
+        return <BiUserMinus size={size} width={size} height={size} color={color} />
+      case 'message-circle':
+        return <BiMessageSquareDetail size={size} width={size} height={size} color={color} />
+      case 'eye':
+        return <BiShow size={size} width={size} height={size} color={color} />
+      case 'eye-off':
+        return <BiHide size={size} width={size} height={size} color={color} />
+      case 'users':
+        return <BiGroup size={size} width={size} height={size} color={color} />
+      case 'delete':
+        return <BiTrash size={size} width={size} height={size} color={color} />
+      case 'smile':
+        return <BiSmile size={size} width={size} height={size} color={color} />
+      case 'attachment':
+        return <BiPaperclip size={size} width={size} height={size} color={color} />
+      case 'send':
+        return <BiSend size={size} width={size} height={size} color={color} />
+      case 'at':
+        return <BiAt size={size} width={size} height={size} color={color} />
+      case 'plus-circle':
+        return <BiPlusCircle size={size} width={size} height={size} color={color} />
+      case 'plus':
+        return <BiPlus size={size} width={size} height={size} color={color} />
+      case 'double-check':
+        return <BiCheckDouble size={size} width={size} height={size} color={color} />
+      case 'check':
+        return <BiCheck size={size} width={size} height={size} color={color} />
+      case 'x':
+        return <BiX size={size} width={size} height={size} color={color} />
+      case 'bell':
+        return <BiBell size={size} width={size} height={size} color={color} />
+      case 'bell-off':
+        return <BiBellOff size={size} width={size} height={size} color={color} />
+      case 'pen':
+        return <BiPencil size={size} width={size} height={size} color={color} />
+      case 'reply':
+        return <BiShare size={size} width={size} height={size} color={color} />
+      case 'chevron-down':
+        return <BiChevronDown size={size} width={size} height={size} color={color} />
+      case 'chevron-up':
+        return <BiChevronUp size={size} width={size} height={size} color={color} />
+      case 'chevron-right':
+        return <BiChevronRight size={size} width={size} height={size} color={color} />
+      case 'chevron-left':
+        return <BiChevronLeft size={size} width={size} height={size} color={color} />
+      case 'profile':
+        return <BiUserCircle size={size} width={size} height={size} color={color} />
+      case 'settings':
+        return <BiCog size={size} width={size} height={size} color={color} />
+      case 'question':
+        return <BiQuestionMark size={size} width={size} height={size} color={color} />
+      case 'logout':
+        return <BiLogOutCircle size={size} width={size} height={size} color={color} />
+      case 'refresh':
+        return <BiRefresh size={size} width={size} height={size} color={color} />
+      case 'more-h':
+        return <BiDotsHorizontalRounded size={size} width={size} height={size} color={color} />
+      case 'more-v':
+        return <BiDotsVerticalRounded size={size} width={size} height={size} color={color} />
+      case 'star':
+        return <BiStar size={size} width={size} height={size} color={color} />
+      case 'search':
+        return <BiSearch size={size} width={size} height={size} color={color} />
+      case 'markdown':
+        return <Markdown width={size} height={size} color={color} />
+      case 'thumbs-up':
+        return <BiLike size={size} width={size} height={size} color={color} />
+      case 'flag':
+        return <BiFlag size={size} width={size} height={size} color={color} />
       default:
+        console.log(icon, ' not found')
         null
     }
   }

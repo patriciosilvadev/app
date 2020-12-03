@@ -715,7 +715,7 @@ export default memo(props => {
         )}
 
         <Tool onClick={() => createTask(props.message)}>
-          <IconComponent icon="check" size={15} color="#aeb5bc" />
+          <IconComponent icon="double-check" size={15} color="#aeb5bc" />
         </Tool>
 
         {!parentMessage.id && <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>}

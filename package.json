@@ -126,6 +126,7 @@
     "react-day-picker": "^7.4.8",
     "react-dom": "^16.8.6",
     "react-feather": "git+https://github.com/joduplessis/react-feather.git",
+    "react-icons": "^4.1.0",
     "react-markdown": "^4.2.2",
     "react-redux": "^7.1.0",
     "react-router-dom": "^5.1.2",
