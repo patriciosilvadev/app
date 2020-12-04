@@ -302,7 +302,7 @@ class TaskComponent extends React.Component {
                 this.props.toggleTasksBelowHeadings()
               }}
             >
-              <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={2} size={14} className="button" />
+              <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" size={14} className="button" />
             </div>
           )}
 
@@ -335,8 +335,8 @@ class TaskComponent extends React.Component {
 
           {!!this.props.subtaskCount && (
             <div className="subtask-count">
-              <IconComponent icon="check" color="#adb5bd" thickness={2} size={13} />
-              <IconComponent icon="check" color="#adb5bd" thickness={2} size={13} style={{ position: 'relative', left: -8 }} />
+              <IconComponent icon="check" color="#adb5bd" size={13} />
+              <IconComponent icon="check" color="#adb5bd" size={13} style={{ position: 'relative', left: -8 }} />
               <div className="text">{this.props.subtaskCount}</div>
             </div>
           )}
@@ -359,7 +359,7 @@ class TaskComponent extends React.Component {
                     direction="right-bottom"
                     content={<DayPicker selectedDays={dueDate} onDayClick={date => this.handleUpdateTaskDueDate(moment(date).toDate())} />}
                   >
-                    <IconComponent icon="calendar" color="#CFD4D9" thickness={2} size={15} className="button" onClick={() => this.setState({ dueDatePopup: true })} />
+                    <IconComponent icon="calendar" color="#CFD4D9" size={15} className="button" onClick={() => this.setState({ dueDatePopup: true })} />
                   </Popup>
                 )}
               </div>
@@ -379,7 +379,7 @@ class TaskComponent extends React.Component {
                 <div className="icon-container" onClick={e => this.setState({ userPopup: true })}>
                   {!newTask && !!user && <Avatar size="very-small" image={user.image} title={user.name} className="mb-5 mr-5" />}
 
-                  {over && !newTask && !user && <IconComponent icon="profile" color="#CFD4D9" thickness={2} size={15} className="button" />}
+                  {over && !newTask && !user && <IconComponent icon="profile" color="#CFD4D9" size={15} className="button" />}
                 </div>
               </QuickUserComponent>
 
@@ -389,7 +389,6 @@ class TaskComponent extends React.Component {
                   <IconComponent
                     icon={!!description ? 'file-text' : 'file'}
                     color="#CFD4D9"
-                    thickness={2}
                     size={13}
                     className="button"
                     onClick={e => {
@@ -402,7 +401,7 @@ class TaskComponent extends React.Component {
 
               {/* Opens the modal */}
               <div className="icon-container">
-                {over && !newTask && <IconComponent icon="pen" color="#CFD4D9" thickness={2} size={13} className="button" onClick={e => this.props.hydrateTask({ id: this.props.id })} />}
+                {over && !newTask && <IconComponent icon="pen" color="#CFD4D9" size={13} className="button" onClick={e => this.props.hydrateTask({ id: this.props.id })} />}
               </div>
 
               <div className="icon-container">
@@ -432,7 +431,6 @@ class TaskComponent extends React.Component {
                       icon="more-h"
                       color="#CFD4D9"
                       size={15}
-                      thickness={2}
                       onClick={e => {
                         e.stopPropagation()
                         this.setState({ menu: true })

@@ -565,14 +565,14 @@ class ModalComponent extends React.Component {
                 <div className="row showclearonhover">
                   {this.state.user && (
                     <div className="clear assigned" onClick={() => this.handleUpdateTaskUser(null)}>
-                      <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
+                      <IconComponent icon="x" color="#ec224b" size="12" />
                     </div>
                   )}
 
                   <div className="icon" onClick={() => this.setState({ userPopup: true })}>
                     {!this.state.user && (
                       <React.Fragment>
-                        <IconComponent icon="profile" color="#524150" size="20" thickness="1.5" />
+                        <IconComponent icon="profile" color="#524150" size="20" />
                         <div className="user">Unassigned</div>
                       </React.Fragment>
                     )}
@@ -633,7 +633,7 @@ class ModalComponent extends React.Component {
                   {!this.props.task.channel && <span>No channel</span>}
                   {!!this.props.task.channel && (
                     <React.Fragment>
-                      <IconComponent icon="hash" color="#adb5bd" size="12" thickness="2" className="mr-5" />
+                      <IconComponent icon="hash" color="#adb5bd" size="12" className="mr-5" />
                       <span>{this.props.task.channel.name}</span>
                     </React.Fragment>
                   )}
@@ -643,7 +643,7 @@ class ModalComponent extends React.Component {
               <div className="row showclearonhover">
                 {this.state.dueDate && (
                   <div className="clear" onClick={() => this.handleUpdateTaskDueDate(null)}>
-                    <IconComponent icon="x" color="#ec224b" size="12" thickness="2" />
+                    <IconComponent icon="x" color="#ec224b" size="12" />
                   </div>
                 )}
 
@@ -658,21 +658,21 @@ class ModalComponent extends React.Component {
                     <div className={dateClasses} onClick={() => this.setState({ dueDatePopup: true })}>
                       {!!this.state.dueDatePretty ? this.state.dueDatePretty : 'No date'}
                     </div>
-                    <IconComponent icon="calendar" color="#524150" size="18" thickness="1.5" onClick={() => this.setState({ dueDatePopup: true })} />
+                    <IconComponent icon="calendar" color="#524150" size="18" onClick={() => this.setState({ dueDatePopup: true })} />
                   </div>
                 </Popup>
               </div>
 
               <div className="icon" onClick={this.shareToChannel}>
-                <IconComponent icon="share" color="#524150" size="18" thickness="1.5" />
+                <IconComponent icon="share" color="#524150" size="18" />
               </div>
 
               <div className="icon" onClick={() => this.setState({ deleteBar: true })}>
-                <IconComponent icon="delete" color="#524150" size="18" thickness="1.5" />
+                <IconComponent icon="delete" color="#524150" size="18" />
               </div>
 
               <div className="icon" onClick={() => this.props.hydrateTask({ id: null })}>
-                <IconComponent icon="x" color="#524150" size="22" thickness="1.5" />
+                <IconComponent icon="x" color="#524150" size="22" />
               </div>
             </div>
 
@@ -724,7 +724,7 @@ class ModalComponent extends React.Component {
 
                   <div className="description">
                     <div className="heading row">
-                      <IconComponent icon="align-left" color="#adb5bd" size="14" thickness="1.5" onClick={this.props.onClose} />
+                      <IconComponent icon="align-left" color="#adb5bd" size="14" onClick={this.props.onClose} />
 
                       <div className="flexer" />
 

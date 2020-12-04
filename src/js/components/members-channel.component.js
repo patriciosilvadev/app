@@ -63,7 +63,6 @@ const TableRow = props => {
           <IconComponent
             icon="delete"
             size={15}
-            thickness={2}
             color="#aeb5bc"
             className="button"
             onClick={() => {

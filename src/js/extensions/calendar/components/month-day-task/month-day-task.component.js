@@ -74,7 +74,7 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
       <div className="row flexer pl-5">
         <div className="column flexer" onClick={onClick}>
           <div className="task-title">
-            {!!parentId && <IconComponent icon="corner-down-right" color="#11171d" thickness={2.25} size={11} style={{ marginRight: 3 }} />}
+            {!!parentId && <IconComponent icon="corner-down-right" color="#11171d" size={11} style={{ marginRight: 3 }} />}
             <span className="flexer" style={{ color: displayChannelName ? channel.color : '#11171d' }}>
               {title}
             </span>
@@ -87,8 +87,8 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
         </div>
         {!!subtaskCount && (
           <div className="subtask-count">
-            <IconComponent icon="check" color="#adb5bd" thickness={2.25} size={11} />
-            <IconComponent icon="check" color="#adb5bd" thickness={2.25} size={11} style={{ position: 'relative', left: -8 }} />
+            <IconComponent icon="check" color="#adb5bd" size={11} />
+            <IconComponent icon="check" color="#adb5bd" size={11} style={{ position: 'relative', left: -8 }} />
             <div className="text">{subtaskCount}</div>
           </div>
         )}

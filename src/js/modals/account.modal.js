@@ -468,7 +468,7 @@ const EmailAddressRow = props => {
             </MailButtonConfirm>
           )}
 
-          <IconComponent color="#617691" icon="delete" onClick={() => props.onDelete(props.email.address)} size={15} thickness={1.5} className="button" />
+          <IconComponent color="#617691" icon="delete" onClick={() => props.onDelete(props.email.address)} size={15} className="button" />
         </div>
       </TableCell>
     </tr>

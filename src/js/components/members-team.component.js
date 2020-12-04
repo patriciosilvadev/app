@@ -127,7 +127,7 @@ const TableRow = props => {
               />
             }
           >
-            <IconComponent icon="more-v" size={20} thickness={2} color="#475669" className="button" onClick={() => setMenu(true)} />
+            <IconComponent icon="more-v" size={20} color="#475669" className="button" onClick={() => setMenu(true)} />
           </Popup>
         </Td>
       </tr>

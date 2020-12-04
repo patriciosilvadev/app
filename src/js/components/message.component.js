@@ -614,11 +614,11 @@ export default memo(props => {
   const renderDeviceIcons = () => {
     switch (props.message.device) {
       case 'WEB':
-        return <IconComponent icon="monitor" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
+        return <IconComponent icon="monitor" size={13} color="#aeb5bc" className="ml-5" />
       case 'DESKTOP':
-        return <IconComponent icon="monitor" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
+        return <IconComponent icon="monitor" size={13} color="#aeb5bc" className="ml-5" />
       case 'MOBILE':
-        return <IconComponent icon="smartphone" thickness={2} size={13} color="#aeb5bc" className="ml-5" />
+        return <IconComponent icon="smartphone" size={13} color="#aeb5bc" className="ml-5" />
       default:
         return null
     }
@@ -642,10 +642,8 @@ export default memo(props => {
         </Date>
 
         <div className="row">
-          {!props.message.system && <IconComponent icon="check" thickness={2} size={15} color="#aeb5bc" />}
-          {!props.message.system && (channel.totalMembers <= props.message.reads || props.message.read) && (
-            <IconComponent icon="check" size={15} color="#aeb5bc" thickness={2} style={{ marginLeft: -11 }} />
-          )}
+          {!props.message.system && <IconComponent icon="check" size={15} color="#aeb5bc" />}
+          {!props.message.system && (channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" style={{ marginLeft: -11 }} />}
 
           {renderDeviceIcons()}
         </div>
@@ -758,7 +756,7 @@ export default memo(props => {
 
     return (
       <ChildMessages className="row" onClick={() => handleMessageModalOpen(props.message.id)}>
-        <IconComponent icon="message-circle" size={15} thickness={2} color="#617691" className="mr-5" />
+        <IconComponent icon="message-circle" size={15} color="#617691" className="mr-5" />
         <ChildMessagesText>
           {props.message.childMessageCount} {messageText}
         </ChildMessagesText>
@@ -835,7 +833,7 @@ export default memo(props => {
                   text="Join the call"
                   className="mt-10 mb-5"
                   onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/meet`)}
-                  icon={<IconComponent icon="video" size={14} thickness={2} color="white" />}
+                  icon={<IconComponent icon="video" size={14} color="white" />}
                 />
               )
 
@@ -970,7 +968,7 @@ export default memo(props => {
       <div className="row">
         {likes.length != 0 && (
           <Likes className="button row" onClick={() => handleChannelLikeOrUnlike()}>
-            <IconComponent icon="thumbs-up" size={15} color="#617691" thickness={1.5} />
+            <IconComponent icon="thumbs-up" size={15} color="#617691" />
 
             <Like>{likes.length}</Like>
           </Likes>

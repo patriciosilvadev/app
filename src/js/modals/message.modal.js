@@ -133,7 +133,7 @@ class MessageModal extends React.Component {
     return (
       <React.Fragment>
         <div className="message-modal-close-icon" onClick={this.props.onClose}>
-          <IconComponent icon="x" color="#3F474C" thickness={2} size={15} />
+          <IconComponent icon="x" color="#3F474C" size={15} />
         </div>
 
         <ModalPortal>

@@ -724,15 +724,14 @@ class ComposeComponent extends React.Component {
               direction="right-top"
               content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
             >
-              <IconComponent icon="smile" size={19} thickness={1.75} color="#565456" className="button" onClick={() => this.setState({ emoticonMenu: true })} />
+              <IconComponent icon="smile" size={19} color="#565456" className="button" onClick={() => this.setState({ emoticonMenu: true })} />
             </Popup>
 
-            <IconComponent icon="attachment" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
+            <IconComponent icon="attachment" size={18} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
 
             <IconComponent
               icon="at"
               size={18}
-              thickness={1.75}
               color="#565456"
               className="ml-10 button"
               onClick={() => {
@@ -741,7 +740,7 @@ class ComposeComponent extends React.Component {
               }}
             />
 
-            <IconComponent icon="send" size={18} thickness={1.75} color="#565456" className="ml-10 button" onClick={this.onSend} />
+            <IconComponent icon="send" size={18} color="#565456" className="ml-10 button" onClick={this.onSend} />
           </InputContainerIcons>
         </InputContainer>
       </React.Fragment>

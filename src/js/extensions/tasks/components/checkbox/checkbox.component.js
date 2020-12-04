@@ -26,7 +26,7 @@ export const CheckboxComponent = props => {
         backgroundColor: props.done ? doneBackgroundColor : 'transparent',
       }}
     >
-      <IconComponent icon="check" color={props.done ? channelColor : '#CFD4D9'} thickness={1.75} size={13} />
+      <IconComponent icon="check" color={props.done ? channelColor : '#CFD4D9'} size={13} />
     </div>
   )
 }

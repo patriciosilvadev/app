@@ -62,7 +62,7 @@ const Video = ({ stream, poster, viewable }) => {
     <React.Fragment>
       {!viewable && (
         <div className="not-viewable">
-          <IconComponent icon="video-off" color="#11161c" thickness={2} size={20} />
+          <IconComponent icon="video-off" color="#11161c" size={20} />
         </div>
       )}
       <video ref={videoRef} width="100%" height="100%" autoPlay poster={poster} />
@@ -116,11 +116,11 @@ class VideoExtension extends React.Component {
     this.getRoomParticipants = this.getRoomParticipants.bind(this)
     this.getServerRoomList = this.getServerRoomList.bind(this)
     this.removeRemoteFeed = this.removeRemoteFeed.bind(this)
-    this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
+    this.initJanusCamera = this.initJanusCamera.bind(this)
     this.attachLocalStreamToVideoEl = this.attachLocalStreamToVideoEl.bind(this)
     this.toggleScreenSharing = this.toggleScreenSharing.bind(this)
     this.stopCapture = this.stopCapture.bind(this)
-    this.startCapture = this.startCapture.bind(this)
+    this.initJanusScreen = this.initJanusScreen.bind(this)
     this.checkIfRoomExistsFirst = this.checkIfRoomExistsFirst.bind(this)
     this.handleCreateMeet = this.handleCreateMeet.bind(this)
     this.handleDeleteMeet = this.handleDeleteMeet.bind(this)
@@ -130,6 +130,9 @@ class VideoExtension extends React.Component {
     this.fetchMeets = this.fetchMeets.bind(this)
     this.joinMeet = this.joinMeet.bind(this)
     this.renderMeetModal = this.renderMeetModal.bind(this)
+    this.createRoom = this.createRoom.bind(this)
+    this.deleteRoom = this.deleteRoom.bind(this)
+    this.initJanusVideoRoom = this.initJanusVideoRoom.bind(this)
   }
 
   async shareToChannel() {
@@ -223,7 +226,7 @@ class VideoExtension extends React.Component {
     const { published } = this.state
 
     // Only do it once
-    if (!published) return
+    // if (!published) return
 
     // Showing the user a list
     this.setState(
@@ -233,10 +236,10 @@ class VideoExtension extends React.Component {
         published: false,
       },
       () => {
-        this.unpublishOwnFeed()
-        this.unpublishOwnScreenFeed()
-        this.leave()
-        this.hangup()
+        // this.unpublishOwnFeed()
+        // this.unpublishOwnScreenFeed()
+        // this.leave()
+        // this.hangup()
       }
     )
   }
@@ -281,18 +284,19 @@ class VideoExtension extends React.Component {
     this.toggleVideo()
   }
 
-  registerScreensharing(roomId) {
+  registerScreensharing() {
     // Get some fo the user details we'll use
     // | This is not allowed in URLs
     const { image, name } = this.props.user
     const display = btoa(`${name}|${image}`)
+    const { roomId } = this.props.meet
 
     // there is no sucecss callback here
     // Base 64 encode
     JANUS_SFU_SCREEN.send({
       message: {
         request: 'join',
-        room: roomId,
+        room: Number(roomId),
         ptype: 'publisher',
         display: display,
       },
@@ -403,11 +407,10 @@ class VideoExtension extends React.Component {
     }
   }
 
-  registerUsername() {
+  registerUsername(roomId) {
     // Get some fo the user details we'll use
     // This is not allowed in URLs
     const { image, name } = this.props.user
-    const { roomId } = this.props.meet
 
     // Base64 encode it
     // We will decode it when recieving
@@ -419,7 +422,7 @@ class VideoExtension extends React.Component {
       message: {
         request: 'join',
         ptype: 'publisher',
-        room: roomId,
+        room: Number(roomId),
         display: display,
       },
     })
@@ -672,7 +675,48 @@ class VideoExtension extends React.Component {
     })
   }
 
-  initJanusVideoRoom() {
+  initJanusVideoRoom(meet, cb) {
+    Janus.init({
+      debug: 'all',
+      callback: () => {
+        JANUS = new Janus({
+          server: meet.location,
+          token: meet.token,
+          success: () => {
+            // Make sure we can
+            if (!Janus.isWebrtcSupported()) return this.setState({ view: '', error: 'No WebRTC support.' })
+
+            // Otherwise carry on
+            JANUS.attach({
+              plugin: JANUS_VIDEO_PLUGIN,
+              opaqueId: JANUS_OPAQUE_ID,
+              success: pluginHandle => {
+                // Register the API handle
+                JANUS_SFU_API = pluginHandle
+
+                // Debug
+                console.log('JANUS_SFU_API', pluginHandle.id)
+
+                // After it's done
+                cb()
+              },
+              error: error => console.error('ATTACH ERROR', error),
+              consentDialog: on => {},
+              iceState: state => {},
+              mediaState: (medium, on) => {},
+              webrtcState: on => {},
+              onmessage: (msg, jsep) => {},
+              onlocalstream: stream => {},
+            })
+          },
+          error: error => console.log('INIT ERROR', error),
+          destroyed: () => {},
+        })
+      },
+    })
+  }
+
+  initJanusCamera(cb) {
     JANUS.attach({
       plugin: 'janus.plugin.videoroom',
       opaqueId: JANUS_OPAQUE_ID,
@@ -680,8 +724,11 @@ class VideoExtension extends React.Component {
         // Attach thee camera hcnale
         JANUS_SFU_CAMERA = pluginHandle
 
-        // Join the room
-        this.registerUsername()
+        // Debug
+        console.log('JANUS_SFU_CAMERA', pluginHandle.id)
+
+        // After it's done
+        cb()
       },
       error: error => this.setState({ error }),
       consentDialog: on => {},
@@ -763,6 +810,13 @@ class VideoExtension extends React.Component {
               switch (msg['error_code']) {
                 // If the room doesn't exist, then direct them to the list
                 // We should show an error here - but we'll simply debug it
+                case 430:
+                  console.error('WRONG ROOMID: ', msg)
+                  this.setState({ view: '' })
+                  break
+
+                // If the room doesn't exist, then direct them to the list
+                // We should show an error here - but we'll simply debug it
                 case 426:
                   console.error('ROOM DOES NOT EXIST: ', msg)
                   this.setState({ view: '' })
@@ -775,6 +829,9 @@ class VideoExtension extends React.Component {
                   this.setState({ view: 'call' })
                   this.publishOwnFeed(true, true)
                   break
+
+                default:
+                  console.error('ERROR: ', msg)
               }
             }
           }
@@ -826,58 +883,7 @@ class VideoExtension extends React.Component {
     })
   }
 
-  componentWillUnmount() {
-    this.resetGlobalValues()
-  }
-
-  componentDidMount() {
-    // Get a list of all meets from the normal API
-    // Any new meets will be locationed by the server API
-    this.fetchMeets()
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.match.params.channelId != prevProps.match.params.channelId) {
-      this.fetchMeets()
-    }
-  }
-
-  async fetchMeets() {
-    try {
-      const { channelId, teamId } = this.props.match.params
-      let searchCriteria = {}
-
-      if (channelId) searchCriteria['channel'] = channelId
-      if (teamId) searchCriteria['team'] = teamId
-
-      // Get the list of meets & display them
-      const {
-        data: { meets },
-      } = await GraphqlService.getInstance().meets(searchCriteria)
-      const view = ''
-
-      this.setState({
-        meets,
-        view,
-      })
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  toggleScreenSharing() {
-    if (this.state.screenSharing) {
-      this.stopCapture()
-    } else {
-      this.startCapture()
-    }
-  }
-
-  stopCapture() {
-    this.unpublishOwnScreenFeed()
-  }
-
-  startCapture() {
+  initJanusScreen() {
     // Set up our screen
     // Save this globally
     // this is not used - but kept as reference
@@ -889,9 +895,6 @@ class VideoExtension extends React.Component {
     }) 
     */
 
-    // Start loading
-    this.setState({ loading: true })
-
     // Tell janus we're sharing
     this.setState({ screenSharing: true }, () => {
       JANUS.attach({
@@ -899,8 +902,12 @@ class VideoExtension extends React.Component {
         opaqueId: JANUS_OPAQUE_ID,
         success: pluginHandle => {
           JANUS_SFU_SCREEN = pluginHandle
-          this.setState({ loading: false })
-          this.registerScreensharing(this.state.roomId)
+
+          // Debug
+          console.log('JANUS_SFU_SCREEN', pluginHandle.id)
+
+          // Join the room as a screen
+          this.registerScreensharing()
         },
         error: error => {
           this.setState({
@@ -988,18 +995,105 @@ class VideoExtension extends React.Component {
     })
   }
 
-  // Placeholder - we do nohting with this so far
-  checkIfRoomExistsFirst(roomId) {
+  componentWillUnmount() {
+    this.resetGlobalValues()
+  }
+
+  componentDidMount() {
+    // Get a list of all meets from the normal API
+    // Any new meets will be locationed by the server API
+    this.fetchMeets()
+
+    // Debug
+    setTimeout(() => {
+      //this.joinMeet("5fc8b9bd65adc68fd16cf6ea")
+    }, 500)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.channelId != prevProps.match.params.channelId) {
+      this.fetchMeets()
+    }
+  }
+
+  async fetchMeets() {
+    try {
+      const { channelId, teamId } = this.props.match.params
+      let searchCriteria = {}
+
+      if (channelId) searchCriteria['channel'] = channelId
+      if (teamId) searchCriteria['team'] = teamId
+
+      // Get the list of meets & display them
+      const {
+        data: { meets },
+      } = await GraphqlService.getInstance().meets(searchCriteria)
+      const view = ''
+
+      this.setState({
+        meets,
+        view,
+      })
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  toggleScreenSharing() {
+    if (this.state.screenSharing) {
+      this.stopCapture()
+    } else {
+      this.initJanusScreen()
+    }
+  }
+
+  stopCapture() {
+    this.unpublishOwnScreenFeed()
+  }
+
+  createRoom(roomId, topic, cb, cbe) {
+    JANUS_SFU_API.send({
+      message: {
+        request: 'create',
+        description: topic,
+        record: false,
+        room: Number(roomId),
+        ptype: 'publisher',
+        is_private: false,
+        secret: '',
+        permanent: false,
+      },
+      success: ({ videoroom, room, permanent, error_code, error }) => {
+        if (error) cbe({ ...error, error_code })
+        if (!error) cb()
+      },
+    })
+  }
+
+  deleteRoom(roomId, cb, cbe) {
+    JANUS_SFU_API.send({
+      message: {
+        request: 'destroy',
+        room: Number(roomId),
+        permanent: false,
+        secret: '',
+      },
+      success: ({ videoroom, room, permanent, error_code, error }) => {
+        if (error) cbe({ ...error, error_code })
+        if (!error) cb()
+      },
+    })
+  }
+
+  checkIfRoomExistsFirst(roomId, cb, cbe) {
     JANUS_SFU_CAMERA.send({
       message: {
         request: 'exists',
-        room: roomId,
+        room: Number(roomId),
       },
       success: ({ videoroom, room, exists, error_code, error }) => {
-        if (error) return this.setState({ error })
-        if (exists) {
-        } else {
-        }
+        if (error) cbe({ ...error, error_code })
+        if (!error) cb({ videoroom, room, exists })
       },
     })
   }
@@ -1014,49 +1108,48 @@ class VideoExtension extends React.Component {
       const {
         data: { meet },
       } = await GraphqlService.getInstance().meet(meetId)
+      const { roomId, topic } = meet
 
       // Update Redux
       this.props.hydrateMeet(meet)
 
-      // Update our UI
-      this.setState({ view: 'meet' })
+      // Get an API handle
+      this.initJanusVideoRoom(meet, () => {
+        // And start the room
+        this.initJanusCamera(() => {
+          // Now check if the room exists
+          this.checkIfRoomExistsFirst(
+            roomId,
+            ({ videoroom, room, exists }) => {
+              console.log('checkIfRoomExistsFirst', videoroom, room, exists)
 
-      // Get the SHA1 token for WebRTC server
-      // This would have been saved on login
-      Janus.init({
-        debug: 'all',
-        callback: () => {
-          JANUS = new Janus({
-            server: meet.location,
-            token: meet.token,
-            success: () => {
-              // Make sure we can
-              if (!Janus.isWebrtcSupported()) return this.setState({ view: '', error: 'No WebRTC support.' })
+              if (!exists) {
+                console.log('checkIfRoomExistsFirst: does not exist')
 
-              // Otherwise carry on
-              JANUS.attach({
-                plugin: JANUS_VIDEO_PLUGIN,
-                opaqueId: JANUS_OPAQUE_ID,
-                success: pluginHandle => {
-                  // Register the API handle
-                  JANUS_SFU_API = pluginHandle
-
-                  // And start the room
-                  this.initJanusVideoRoom()
-                },
-                error: error => console.error('ATTACH ERROR', error),
-                consentDialog: on => {},
-                iceState: state => {},
-                mediaState: (medium, on) => {},
-                webrtcState: on => {},
-                onmessage: (msg, jsep) => {},
-                onlocalstream: stream => {},
-              })
+                // Create the room
+                this.createRoom(
+                  roomId,
+                  topic,
+                  () => {
+                    console.log('createRoom', videoroom, room, exists)
+                  },
+                  error => {
+                    console.log('createRoom', error)
+                  }
+                )
+              } else {
+                console.log('checkIfRoomExistsFirst: it exists - this.registerUsername()')
+                // Join the room sincing it exists
+                this.registerUsername()
+                // Update our UI - this will show the actual call UI
+                this.setState({ view: 'meet' })
+              }
             },
-            error: error => console.log('INIT ERROR', error),
-            destroyed: () => {},
-          })
-        },
+            error => {
+              console.log('checkIfRoomExistsFirst', error)
+            }
+          )
+        })
       })
     } catch (e) {
       this.setState({ error: 'Error getting meet' })
@@ -1091,43 +1184,6 @@ class VideoExtension extends React.Component {
         view: '',
         topic: '',
       })
-
-      return
-
-      // 1. Update our state with the call's details
-      // 2. And create the room on Janus
-      // ------------------------------------------
-      // 1.
-      this.setState(
-        {
-          topic,
-          roomId,
-        },
-        () => {
-          // 2.
-          JANUS_SFU_API.send({
-            message: {
-              request: 'create',
-              description: topic,
-              record: false,
-              room: roomId,
-              ptype: 'publisher',
-              is_private: false,
-              secret: '',
-              permanent: true,
-            },
-            success: ({ videoroom, room, permanent, error_code, error }) => {
-              // console.log(videoroom, room, permanent, error_code, error)
-              if (error) return this.setState({ error })
-
-              this.setState({
-                view: '',
-                topic: '',
-              })
-            },
-          })
-        }
-      )
     } catch (e) {
       console.log('>>', e)
       this.setState({ error: 'Error creating call from API' })
@@ -1151,34 +1207,6 @@ class VideoExtension extends React.Component {
         view: '',
         topic: '',
       })
-
-      // Remove this call from the channel
-      return
-
-      // Reset the UI
-      this.setState(
-        {
-          view: '',
-          topic: '',
-        },
-        () => {
-          // Destroy the Janus room
-          JANUS_SFU_API.send({
-            message: {
-              request: 'destroy',
-              room: roomId,
-              permanent: true,
-              secret: '',
-            },
-            success: ({ videoroom, room, permanent, error_code, error }) => {
-              // console.log(videoroom, room, permanent, error_code, error)
-              if (error) return this.setState({ error })
-
-              this.setState({ notification: 'SuccesJANUS_SFU_CAMERAlly deleted' })
-            },
-          })
-        }
-      )
     } catch (e) {
       console.log('>>', e)
       this.setState({ error: 'Error deleting call from API' })
@@ -1188,13 +1216,15 @@ class VideoExtension extends React.Component {
   // These manage the views
   renderMeetList() {
     if (this.state.view != '') return null
+    if (!this.state.meets) return null
+    if (!this.state.meets.length) return null
 
     return (
       <div className="flexer w-100">
         <div className="header">
           <div className="title">Meet</div>
           <div className="flexer"></div>
-          <Button text="Create" theme="muted" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
+          <Button text="Create" size="small" theme="muted" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
         </div>
 
         {this.state.meets.map((meet, index) => {
@@ -1228,7 +1258,7 @@ class VideoExtension extends React.Component {
     return (
       <div className="flexer w-100">
         <div className="header">
-          <Button text="Go back" theme="muted" className="ml-25" onClick={() => this.setState({ view: '' })} icon={<IconComponent icon="chevron-left" color="#617691" thickness={2} size={16} />} />
+          <Button text="Go back" theme="muted" className="ml-25" onClick={() => this.setState({ view: '' })} icon={<IconComponent icon="chevron-left" color="#617691" size={16} />} />
           <div className="flexer"></div>
         </div>
 
@@ -1255,7 +1285,7 @@ class VideoExtension extends React.Component {
           <div className="flexer"></div>
           <Tooltip text="End call" direction="left">
             <div className="control-button red" onClick={() => this.exitCall()}>
-              <IconComponent icon="x" color="white" thickness={1.75} size={20} />
+              <IconComponent icon="x" color="white" size={20} />
             </div>
           </Tooltip>
         </div>
@@ -1277,13 +1307,13 @@ class VideoExtension extends React.Component {
 
                   {this.state.participantFocus && this.state.participantToFocus == -1 && (
                     <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-                      <IconComponent icon="x" color="white" thickness={2} size={20} />
+                      <IconComponent icon="x" color="white" size={20} />
                     </div>
                   )}
 
                   {!this.state.viewable && (
                     <div className="not-viewable">
-                      <IconComponent icon="video-off" color="#11161c" thickness={2} size={20} />
+                      <IconComponent icon="video-off" color="#11161c" size={20} />
                     </div>
                   )}
 
@@ -1318,7 +1348,7 @@ class VideoExtension extends React.Component {
 
                       {this.state.participantFocus && this.state.participantToFocus == index && (
                         <div className="close-main-screen button" onClick={() => this.setState({ participantFocus: false })}>
-                          <IconComponent icon="x" color="white" thickness={2} size={20} />
+                          <IconComponent icon="x" color="white" size={20} />
                         </div>
                       )}
 
@@ -1335,14 +1365,14 @@ class VideoExtension extends React.Component {
             {/* toggle video media publishing */}
             <Tooltip text="Toggle video feed" direction="top">
               <div className="control-button" onClick={() => this.publish(!this.state.published)}>
-                <IconComponent icon={this.state.published ? 'video' : 'video-off'} color="#343a40" thickness={1.75} size={20} />
+                <IconComponent icon={this.state.published ? 'video' : 'video-off'} color="#343a40" size={20} />
               </div>
             </Tooltip>
 
             {/* toggle audio media publishing */}
             <Tooltip text="Toggle muting" direction="top">
               <div className="control-button" onClick={() => this.mute(!this.state.muted)}>
-                <IconComponent icon={this.state.muted ? 'mic-off' : 'mic'} color="#343a40" thickness={1.75} size={20} />
+                <IconComponent icon={this.state.muted ? 'mic-off' : 'mic'} color="#343a40" size={20} />
               </div>
             </Tooltip>
 
@@ -1358,7 +1388,7 @@ class VideoExtension extends React.Component {
 
             {/* Chat */}
             <div className="control-button" onClick={() => this.setState({ chat: true })}>
-              <IconComponent icon="message-circle" color="#343a40" thickness={1.75} size={20} />
+              <IconComponent icon="message-circle" color="#343a40" size={20} />
             </div>
           </div>
         </div>

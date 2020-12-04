@@ -91,7 +91,7 @@ class ModalComponent extends React.Component {
     return (
       <ModalPortal>
         <div className="meet-modal-close-icon" onClick={this.props.onClose}>
-          <IconComponent icon="x" color="#3F474C" thickness={2} size={15} />
+          <IconComponent icon="x" color="#3F474C" size={15} />
         </div>
         <Modal position="right" header={false} title="Meet" width={400} height="100%" frameless onClose={this.props.onClose}>
           {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}

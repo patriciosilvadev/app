@@ -488,17 +488,17 @@ class ChannelComponent extends React.Component {
     return (
       <Header className="row">
         <div className="mr-10" style={{ width: 20 }}>
-          <IconComponent icon="star" size={20} thickness={2} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="button" />
+          <IconComponent icon="star" size={20} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="button" />
         </div>
 
         <Avatar muted={muted} color={avatarColor} image={avatarImage} title={avatarTitle} userId={avatarUserId} size="medium-large">
-          {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} thickness={2} /> : null}
+          {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} /> : null}
         </Avatar>
 
         <div className="column ml-10">
           <div className="row">
-            {this.props.channel.readonly && <IconComponent icon="radio" size={15} color="#11161c" thickness={2} className="mr-5" />}
-            {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#11161c" size={15} thickness={2.5} className="mr-5" />}
+            {this.props.channel.readonly && <IconComponent icon="radio" size={15} color="#11161c" className="mr-5" />}
+            {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#11161c" size={15} className="mr-5" />}
             {this.props.channel.private && <HeaderTitle>{this.props.channel.otherUser.name}</HeaderTitle>}
             {!this.props.channel.private && <HeaderTitle>{this.props.channel.name}</HeaderTitle>}
           </div>
@@ -515,7 +515,7 @@ class ChannelComponent extends React.Component {
 
             {!this.props.channel.private && this.state.hasAdminPermission && (
               <div className="ml-10 row button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })}>
-                <IconComponent icon="plus" size={15} color="#007af5" thickness={2} className="mr-5" />
+                <IconComponent icon="plus" size={15} color="#007af5" className="mr-5" />
                 <HeaderLink>Add New</HeaderLink>
               </div>
             )}
@@ -561,7 +561,7 @@ class ChannelComponent extends React.Component {
             })
           }}
         >
-          <IconComponent icon="attachment" size={18} thickness={2} color="#aeb5bc" />
+          <IconComponent icon="attachment" size={18} color="#aeb5bc" />
         </HeaderButton>
 
         <UserPreviews className="row" style={{ marginLeft: 20 }}>
@@ -584,7 +584,7 @@ class ChannelComponent extends React.Component {
             {/* !this.props.channel.public && (
               <HeaderButton className="row" onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
                 <TotalMembers>{this.props.channel.totalMembers}</TotalMembers>
-                <IconComponent icon="users" size={26} thickness={1.25} color="#aeb5bc" className="ml-5" />
+                <IconComponent icon="users" size={26} color="#aeb5bc" className="ml-5" />
               </HeaderButton>
             )} */}
 
@@ -683,7 +683,7 @@ class ChannelComponent extends React.Component {
               }
             >
               <HeaderButton className="row" onClick={() => this.setState({ channelMenu: true })}>
-                <IconComponent icon="more-v" size={18} thickness={1.8} color="#aeb5bc" className="button" />
+                <IconComponent icon="more-v" size={18} color="#aeb5bc" className="button" />
               </HeaderButton>
             </Popup>
           </React.Fragment>
@@ -1097,12 +1097,19 @@ const HeaderTitle = styled.div`
 
 const HeaderDescription = styled.div`
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   font-style: normal;
   color: #aeb5bc;
   transition: opacity 0.5s;
   display: inline-block;
   margin-right: 0px;
+  white-space: normal;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  max-height: 30px;
 
   p {
     margin: 0px;

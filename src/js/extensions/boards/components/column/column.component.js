@@ -267,7 +267,7 @@ class ColumnComponent extends React.Component {
                     />
                   }
                 >
-                  <IconComponent icon="more-v" color="#e9ecee" size="14" thickness="1.5" onClick={() => this.setState({ menu: true })} />
+                  <IconComponent icon="more-v" color="#e9ecee" size="14" onClick={() => this.setState({ menu: true })} />
                 </Popup>
               </React.Fragment>
             )}

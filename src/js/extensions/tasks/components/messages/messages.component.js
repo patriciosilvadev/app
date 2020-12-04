@@ -217,7 +217,7 @@ class MessagesComponent extends React.Component {
         <div className="compose">
           <TextareaComponent onKeyDown={this.handleKeyDownCompose} placeholder="Use *markdown* and press enter" value={this.state.compose} onChange={e => this.setState({ compose: e.target.value })} />
           <div className="button" onClick={() => this.fileRef.click()}>
-            <IconComponent icon="attachment" color="#524150" size="18" thickness="1.5" />
+            <IconComponent icon="attachment" color="#524150" size="18" />
           </div>
         </div>
       </div>
@@ -260,11 +260,11 @@ const File = ({ filename, url, onDelete, borderless }) => {
 
   return (
     <div onMouseEnter={() => setOver(true)} onMouseLeave={() => setOver(false)} className={classes}>
-      <IconComponent icon="attachment" color="#adb5bd" size="12" thickness="2" />
+      <IconComponent icon="attachment" color="#adb5bd" size="12" />
       <a href={url} className="filename" target="_blank">
         {filename}
       </a>
-      {over && !!onDelete && <IconComponent icon="x" color="#ec224b" size="12" thickness="3" className="button" onClick={() => onDelete(url)} />}
+      {over && !!onDelete && <IconComponent icon="x" color="#ec224b" size="12" className="button" onClick={() => onDelete(url)} />}
     </div>
   )
 }

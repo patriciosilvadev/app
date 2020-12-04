@@ -77,7 +77,7 @@ export default function DockComponent(props) {
             EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
           }}
         >
-          <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#AEB5BB" thickness={3} style={{ top: -2 }} />
+          <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#AEB5BB" style={{ top: -2 }} />
         </ToggleButton>
       )}
 
@@ -110,14 +110,14 @@ export default function DockComponent(props) {
 
       <div className="mt-0 mb-0">
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => setTeamOnboardingModal(true)}>
-          <IconComponent icon="plus-circle" size={19} color="#112640" thickness={1.75} />
+          <IconComponent icon="plus-circle" size={19} color="#112640" />
         </Avatar>
       </div>
 
       <div className="mt-0 mb-10" id="yack" data-inbox="weekday">
         {/* onClick={e => window.open('mailto:support@weekday.freshdesk.com')} */}
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button">
-          <IconComponent icon="life-buoy" size={18} color="#112640" thickness={1.75} />
+          <IconComponent icon="life-buoy" size={18} color="#112640" />
         </Avatar>
       </div>
 

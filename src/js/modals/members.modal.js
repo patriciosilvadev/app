@@ -84,7 +84,7 @@ export default function MembersModal(props) {
                     <Member className="row" key={index}>
                       <Avatar size="small-medium" image={member.user.image} title={member.user.name} className="mb-5 mr-5" key={index} />
                       <MemberName>{member.user.name}</MemberName>
-                      <IconComponent icon="x" size={15} color="#626d7a" thickness={2} className="button mr-5" onClick={() => setUserMenu(true)} />
+                      <IconComponent icon="x" size={15} color="#626d7a" className="button mr-5" onClick={() => setUserMenu(true)} />
                     </Member>
                   )
                 })}
@@ -100,7 +100,7 @@ export default function MembersModal(props) {
                   handleDismiss={() => setUserMenu(false)}
                   handleAccept={member => setMembers([...members, member])}
                 >
-                  <IconComponent icon="plus-circle" size={15} color="#626d7a" thickness={2} className="button" onClick={() => setUserMenu(true)} />
+                  <IconComponent icon="plus-circle" size={15} color="#626d7a" className="button" onClick={() => setUserMenu(true)} />
                 </QuickUserComponent>
               </div>
             </div>

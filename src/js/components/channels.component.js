@@ -150,15 +150,15 @@ const Channel = props => {
       >
         <ChannelContainerPadding>
           <Avatar muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
-            {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarIconColor} thickness={2.25} /> : null}
+            {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarIconColor} /> : null}
           </Avatar>
 
           <ChannelContents>
             <ChannelInnerContents>
               <ChannelTitleRow>
                 <ChannelTitleRowIcon>
-                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
-                  {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} thickness={2.5} className="mr-5" />}
+                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} className="mr-5" />}
+                  {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} className="mr-5" />}
                 </ChannelTitleRowIcon>
 
                 <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
@@ -229,7 +229,6 @@ const Channel = props => {
                         <IconComponent
                           icon={iconCollapsable ? 'chevron-up' : 'chevron-down'}
                           size={16}
-                          thickness={3}
                           color="#acb5bd"
                           className="button"
                           onClick={e => {
@@ -248,7 +247,6 @@ const Channel = props => {
                                   icon={icon}
                                   size={16}
                                   color="#ACB5BD"
-                                  thickness={1.5}
                                   onClick={e => {
                                     e.stopPropagation()
                                     setMenu(false)
@@ -272,7 +270,7 @@ const Channel = props => {
                 setMenu(true)
               }}
             >
-              <IconComponent icon="more-h" color="#858E96" size={15} thickness={1.5} />
+              <IconComponent icon="more-h" color="#858E96" size={15} />
             </ChannelMoreIcon>
           </Popup>
         )}
@@ -283,7 +281,7 @@ const Channel = props => {
         {/* Only if there are threads */}
         {threads.length != 0 && props.active && (
           <CollapseThreadsIcon onClick={() => setCollapsedThreads(!collapsedThreads)}>
-            <IconComponent icon={collapsedThreads ? 'chevron-right' : 'chevron-down'} color="#11171d" thickness={2} size={14} className="button" />
+            <IconComponent icon={collapsedThreads ? 'chevron-right' : 'chevron-down'} color="#11171d" size={14} className="button" />
           </CollapseThreadsIcon>
         )}
       </ChannelContainer>
@@ -1095,7 +1093,6 @@ class ChannelsComponent extends React.Component {
                     <IconComponent
                       icon={this.state.statusCollapsableOpen ? 'chevron-up' : 'chevron-down'}
                       size={16}
-                      thickness={3}
                       color="#acb5bd"
                       className="button"
                       onClick={() => {
@@ -1129,7 +1126,6 @@ class ChannelsComponent extends React.Component {
                     <IconComponent
                       icon={this.state.positionCollapsableOpen ? 'chevron-up' : 'chevron-down'}
                       size={16}
-                      thickness={3}
                       color="#acb5bd"
                       className="button"
                       onClick={() => {
@@ -1172,7 +1168,7 @@ class ChannelsComponent extends React.Component {
                       onClick: this._openTeamSettings.bind(this),
                     },
                     {
-                      icon: <IconComponent icon="users" size={20} color="#acb5bd" thickness={1.5} />,
+                      icon: <IconComponent icon="users" size={20} color="#acb5bd" />,
                       text: 'Team directory',
                       onClick: this._openTeamDirectory.bind(this),
                     },
@@ -1194,7 +1190,7 @@ class ChannelsComponent extends React.Component {
               </div>
             }
           >
-            <IconComponent icon="settings" size={16} thickness={2} color="#858E96" className="button" onClick={this._openUserMenu.bind(this)} />
+            <IconComponent icon="settings" size={16} color="#858E96" className="button" onClick={this._openUserMenu.bind(this)} />
           </Popup>
         </Header>
       </HeaderContainer>
@@ -1284,7 +1280,7 @@ class ChannelsComponent extends React.Component {
               handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color="#858E96" thickness={2} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
+              <IconComponent icon="plus-circle" size={15} color="#858E96" className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
             </QuickInputComponent>
           )}
         </HeadingRow>
@@ -1387,7 +1383,7 @@ class ChannelsComponent extends React.Component {
               this.setState({ channelPrivatePopup: false })
             }}
           >
-            <IconComponent icon="plus-circle" size={15} color="#858E96" thickness={2} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
+            <IconComponent icon="plus-circle" size={15} color="#858E96" className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
           </QuickUserComponent>
         </HeadingRow>
 
@@ -1545,7 +1541,7 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
           }}
         >
-          <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+          <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} className="mr-10" />
           <span className="color-d3 bold p">Calendar</span>
         </HeaderButtonContainer>
 
@@ -1556,7 +1552,7 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
           }}
         >
-          <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={16} thickness={2} className="mr-10" />
+          <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={16} className="mr-10" />
           <span className="color-d3 bold p">My Tasks</span>
         </HeaderButtonContainer>
       </React.Fragment>

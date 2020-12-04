@@ -39,7 +39,7 @@ class AppPage extends React.Component {
       teams: [],
       userId: null,
       pushNotificationsNotification: false,
-      extensionLayout: LAYOUTS.SIDE,
+      extensionLayout: LAYOUTS.MAIN,
       drawer: true,
       searchQuery: '',
     }
@@ -274,7 +274,7 @@ class AppPage extends React.Component {
         <div className="row w-100">
           <BarInfo>
             <DrawerIcon>
-              <IconComponent icon="menu" size={20} thickness={2} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
+              <IconComponent icon="menu" size={20} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
             </DrawerIcon>
 
             <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
@@ -288,11 +288,11 @@ class AppPage extends React.Component {
           {this.props.channel.id && (
             <React.Fragment>
               <SearchBar backgroundColor={pillBackgroundColor}>
-                <IconComponent icon="search" size={15} color="rgba(255,255,255,0.25)" thickness={2} />
+                <IconComponent icon="search" size={15} color="rgba(255,255,255,0.25)" />
                 <SearchBarInput color={textColor}>
                   <input type="text" placeholder="Search messages..." value={this.state.searchQuery} onChange={e => this.setState({ searchQuery: e.target.value })} />
                 </SearchBarInput>
-                {!!this.state.searchQuery && <IconComponent icon="x" size={15} thickness={2} color="rgba(255,255,255,0.25)" className="button" onClick={() => this.setState({ searchQuery: '' })} />}
+                {!!this.state.searchQuery && <IconComponent icon="x" size={15} color="rgba(255,255,255,0.25)" className="button" onClick={() => this.setState({ searchQuery: '' })} />}
               </SearchBar>
               <BarExtensions>
                 <LayoutIcons>
@@ -301,7 +301,6 @@ class AppPage extends React.Component {
                       icon="square"
                       color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
                       size={18}
-                      thickness={2}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
                     />
                   </LayoutIconButton>
@@ -310,7 +309,6 @@ class AppPage extends React.Component {
                       icon="sidebar-left"
                       color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
                       size={18}
-                      thickness={2}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
                     />
                   </LayoutIconButton>
@@ -319,7 +317,6 @@ class AppPage extends React.Component {
                       icon="sidebar-right"
                       color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
                       size={18}
-                      thickness={2}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
                     />
                   </LayoutIconButton>
@@ -329,7 +326,7 @@ class AppPage extends React.Component {
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'meet' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/meet`}>
                       <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'meet'}>
-                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
                         <PillText>Meet</PillText>
                       </Pill>
                     </Link>
@@ -340,7 +337,7 @@ class AppPage extends React.Component {
                       to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
                     >
                       <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'calendar'}>
-                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
                         <PillText>Calendar</PillText>
                       </Pill>
                     </Link>
@@ -349,7 +346,7 @@ class AppPage extends React.Component {
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
                       <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
-                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
                         <PillText>Boards</PillText>
                       </Pill>
                     </Link>
@@ -357,7 +354,7 @@ class AppPage extends React.Component {
 
                   <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
                     <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
-                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} thickness={2.5} className="mr-5" />
+                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
                       <PillText>Tasks</PillText>
                     </Pill>
                   </Link>
