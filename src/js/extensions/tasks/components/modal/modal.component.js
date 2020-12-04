@@ -97,8 +97,6 @@ class ModalComponent extends React.Component {
     if (!props.task.id) return null
     if (!props.task.title) return null
 
-    console.log(props.task.title)
-
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     // This is the basic state

@@ -194,9 +194,6 @@ export function IconComponent({ size, color, icon, className, onClick, style }) 
         return <BiLike size={size} width={size} height={size} color={color} />
       case 'flag':
         return <BiFlag size={size} width={size} height={size} color={color} />
-      default:
-        console.log(icon, ' not found')
-        null
     }
   }
 

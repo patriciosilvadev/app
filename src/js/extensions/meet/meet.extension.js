@@ -1212,14 +1212,13 @@ class VideoExtension extends React.Component {
   renderMeetList() {
     if (this.state.view != '') return null
     if (!this.state.meets) return null
-    if (!this.state.meets.length) return null
 
     return (
       <div className="flexer w-100">
         <div className="header">
           <div className="title">Meet</div>
           <div className="flexer"></div>
-          <Button text="Create" size="small" theme="muted" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
+          <Button text="Create" size="x-small" theme="light-blue" className="mr-25" onClick={() => this.setState({ view: 'start' })} />
         </div>
 
         {this.state.meets.map((meet, index) => {

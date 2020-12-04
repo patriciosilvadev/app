@@ -385,10 +385,10 @@ export const TasksComponent = memo(({ tasks, masterTaskList, hideChildren, delet
             />
           }
         >
-          <Button size="small" text={sort == SORT.DATE ? 'By date' : 'Custom order'} theme="muted" className="mr-5" onClick={() => setSortPopup(true)} />
+          <Button size="x-small" text={sort == SORT.DATE ? 'By date' : 'Custom order'} theme="light-blue" className="mr-5" onClick={() => setSortPopup(true)} />
         </Popup>
 
-        <Button size="small" text={showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => setShowCompletedTasks(!showCompletedTasks)} />
+        <Button size="x-small" text={showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="light-blue" className="mr-25" onClick={() => setShowCompletedTasks(!showCompletedTasks)} />
       </div>
 
       <div className="tasks-container">
