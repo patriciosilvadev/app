@@ -196,7 +196,7 @@ class VideoExtension extends React.Component {
     JANUS_SFU_CAMERA.send({
       message: {
         request: 'leave',
-        room: roomId,
+        room: Number(roomId),
       },
     })
 
@@ -205,7 +205,7 @@ class VideoExtension extends React.Component {
       JANUS_SFU_SCREEN.send({
         message: {
           request: 'leave',
-          room: roomId,
+          room: Number(roomId),
         },
       })
     }
@@ -223,12 +223,6 @@ class VideoExtension extends React.Component {
   }
 
   exitCall() {
-    const { published } = this.state
-
-    // Only do it once
-    // if (!published) return
-
-    // Showing the user a list
     this.setState(
       {
         view: '',
@@ -236,10 +230,10 @@ class VideoExtension extends React.Component {
         published: false,
       },
       () => {
-        // this.unpublishOwnFeed()
-        // this.unpublishOwnScreenFeed()
-        // this.leave()
-        // this.hangup()
+        this.unpublishOwnFeed()
+        this.unpublishOwnScreenFeed()
+        this.leave()
+        this.hangup()
       }
     )
   }
@@ -262,7 +256,7 @@ class VideoExtension extends React.Component {
     JANUS_SFU_CAMERA.send({
       message: {
         request: 'destroy',
-        room: roomId,
+        room: Number(roomId),
         secret: '',
         permanent: true,
       },
@@ -473,7 +467,8 @@ class VideoExtension extends React.Component {
   }
 
   newRemoteFeed(id, display, audio, video) {
-    var remoteFeed = null
+    let remoteFeed = null
+    const { roomId } = this.props.meet
 
     JANUS.attach({
       plugin: 'janus.plugin.videoroom',
@@ -485,7 +480,7 @@ class VideoExtension extends React.Component {
         // We wait for the plugin to send us an offer
         var subscribe = {
           request: 'join',
-          room: this.state.roomId,
+          room: Number(roomId),
           ptype: 'subscriber',
           feed: id,
           private_id: PRIVATE_ID,
@@ -553,7 +548,7 @@ class VideoExtension extends React.Component {
             // (obviously only works if the publisher offered them in the first place)
             media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
             success: jsep => {
-              var body = { request: 'start', room: this.state.roomId }
+              var body = { request: 'start', room: Number(roomId) }
               remoteFeed.send({ message: body, jsep: jsep })
             },
             error: error => {},
