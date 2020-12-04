@@ -59,7 +59,6 @@ class ModalComponent extends React.Component {
       loading: true,
       error: null,
       notification: null,
-      showCompletedTasks: true,
       dueDatePopup: false,
       channelPopup: false,
       sectionPopup: false,
@@ -766,27 +765,14 @@ class ModalComponent extends React.Component {
                     </div>
                   </div>
 
-                  <div className="tasks-toolbar">
-                    <div className="bold h5 color-d3">Subtasks</div>
-                    <div className="flexer" />
-                    <Button
-                      size="small"
-                      theme="muted"
-                      text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'}
-                      onClick={() => this.setState({ showCompletedTasks: !this.state.showCompletedTasks })}
-                    />
-                  </div>
-
                   <TasksComponent
-                    sort={SORT.NONE}
                     hideChildren={true}
-                    masterTaskList={this.props.task.tasks}
                     tasks={this.state.tasks}
+                    masterTaskList={this.props.task.tasks || []}
                     createTask={this.handleCreateSubtask}
                     deleteTask={this.handleDeleteSubtask}
                     updateTask={this.handleUpdateSubtask}
                     updateTaskOrder={this.handleUpdateTaskOrder}
-                    showCompletedTasks={this.state.showCompletedTasks}
                     shareToChannel={() => console.log('NOPE')}
                     disableTools={false}
                     displayChannelName={false}

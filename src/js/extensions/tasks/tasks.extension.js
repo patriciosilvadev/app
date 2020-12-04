@@ -33,14 +33,10 @@ class TasksExtension extends React.Component {
       error: null,
       notification: null,
       loading: false,
-      showCompletedTasks: false,
       title: '',
       tasks: [],
-      sort: SORT.NONE,
-      sortPopup: false,
     }
 
-    this.toggleCompletedTasks = this.toggleCompletedTasks.bind(this)
     this.handleDeleteTask = this.handleDeleteTask.bind(this)
     this.handleUpdateTaskOrder = this.handleUpdateTaskOrder.bind(this)
     this.handleCreateTask = this.handleCreateTask.bind(this)
@@ -196,16 +192,6 @@ class TasksExtension extends React.Component {
     }
   }
 
-  toggleCompletedTasks() {
-    if (StorageService.getStorage('SHOW_COMPLETED_TASKS')) {
-      StorageService.deleteStorage('SHOW_COMPLETED_TASKS')
-      this.setState({ showCompletedTasks: false })
-    } else {
-      StorageService.setStorage('SHOW_COMPLETED_TASKS', 'YES')
-      this.setState({ showCompletedTasks: true })
-    }
-  }
-
   componentDidUpdate(prevProps) {
     if (this.props.match.params.channelId != prevProps.match.params.channelId) {
       this.fetchTasks()
@@ -251,62 +237,24 @@ class TasksExtension extends React.Component {
   }
 
   render() {
-    const completed = this.props.tasks.filter(task => task.done).length
-
     return (
       <div className="tasks-extension">
         {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
         {this.state.loading && <Spinner />}
         {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
 
-        <div className="header">
-          <div className="title">Tasks</div>
-          <div className="progress">
-            {completed} / {this.props.tasks.length}
-          </div>
-
-          <Popup
-            handleDismiss={() => this.setState({ sortPopup: false })}
-            visible={this.state.sortPopup}
-            width={250}
-            direction="right-bottom"
-            content={
-              <Menu
-                items={[
-                  {
-                    text: 'Custom order',
-                    onClick: e => this.setState({ sortPopup: false, sort: SORT.NONE }),
-                  },
-                  {
-                    text: 'By date',
-                    onClick: e => this.setState({ sortPopup: false, sort: SORT.DATE }),
-                  },
-                ]}
-              />
-            }
-          >
-            <Button size="small" text={this.state.sort == SORT.DATE ? 'By date' : 'Custom order'} theme="muted" className="mr-5" onClick={() => this.setState({ sortPopup: true })} />
-          </Popup>
-
-          <Button size="small" text={this.state.showCompletedTasks ? 'Hide completed' : 'Show completed'} theme="muted" className="mr-25" onClick={() => this.toggleCompletedTasks()} />
-        </div>
-
-        <div className="tasks-container">
-          <TasksComponent
-            sort={this.state.sort}
-            hideChildren={false}
-            masterTaskList={this.props.tasks}
-            tasks={this.state.tasks}
-            createTask={this.handleCreateTask}
-            deleteTask={this.handleDeleteTask}
-            updateTask={this.handleUpdateTask}
-            updateTaskOrder={this.handleUpdateTaskOrder}
-            showCompletedTasks={this.state.showCompletedTasks}
-            shareToChannel={this.shareToChannel}
-            disableTools={false}
-            displayChannelName={!!this.props.channel.id ? false : true}
-          />
-        </div>
+        <TasksComponent
+          hideChildren={false}
+          tasks={this.state.tasks}
+          masterTaskList={this.props.tasks}
+          createTask={this.handleCreateTask}
+          deleteTask={this.handleDeleteTask}
+          updateTask={this.handleUpdateTask}
+          updateTaskOrder={this.handleUpdateTaskOrder}
+          shareToChannel={this.shareToChannel}
+          disableTools={false}
+          displayChannelName={!!this.props.channel.id ? false : true}
+        />
       </div>
     )
   }

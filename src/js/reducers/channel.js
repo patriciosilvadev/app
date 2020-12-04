@@ -1,7 +1,7 @@
 import produce from 'immer'
 import { MIME_TYPES } from '../constants'
 
-const initialState = {
+export const initialState = {
   id: '',
   name: '',
   description: '',

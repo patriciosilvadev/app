@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown'
 import MessagingService from '../services/messaging.service'
 import DatabaseService from '../services/database.service'
 import ConfirmModal from '../modals/confirm.modal'
+import { initialState as initialChannelState } from '../reducers/channel'
 import {
   hydrateTask,
   hydrateMessage,
@@ -225,7 +226,13 @@ class ChannelComponent extends React.Component {
   }
 
   async fetchChannel(channelId) {
+    // Reset messages first
+    // this.props.hydrateChannel(initialChannelState)
+
+    // Nope - auto sscroll first
     MANUAL_SCROLLING = false
+
+    // Scroll down too
     this.scrollToBottom()
 
     try {
@@ -1042,7 +1049,7 @@ const MessagesContainerInner = styled.div`
 const MessagesInner = styled.div`
   width: 100%;
   padding: 25px;
-  height: 1px; /* Important for the height to be set here */
+  height: fit-content; /* Important for the height to be set here */
 `
 
 const ShortcodeInput = styled.textarea`

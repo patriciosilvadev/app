@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react'
 import '../helpers/extensions'
 import styled from 'styled-components'
-import { logger } from '../helpers/util'
+import { logger, sortMessagesByCreatedAt } from '../helpers/util'
 import { Popup, Menu, Avatar, Spinner } from '@weekday/elements'
 import MessageComponent from '../components/message.component'
 import moment from 'moment'
@@ -11,39 +11,38 @@ export default memo(props => {
 
   useEffect(() => {
     if (!props.messages) return
-    if (!props.messages.length) return
 
-    setMessages(
-      props.messages.map((message, index) => {
-        let append = false
-        let showDate = false
-        let previousDate = null
-        let previousUserId = null
-        const previousIndex = index - 1
-        const currentDate = moment(props.messages[index].createdAt)
-        const currentUserId = props.messages[index].user ? props.messages[index].user.id : null
+    const messages = props.messages.map((message, index) => {
+      let append = false
+      let showDate = false
+      let previousDate = null
+      let previousUserId = null
+      const previousIndex = index - 1
+      const currentDate = moment(props.messages[index].createdAt)
+      const currentUserId = props.messages[index].user ? props.messages[index].user.id : null
 
-        if (previousIndex >= 0) {
-          previousDate = moment(props.messages[previousIndex].createdAt)
-          previousUserId = props.messages[previousIndex].user ? props.messages[previousIndex].user.id : null
+      if (previousIndex >= 0) {
+        previousDate = moment(props.messages[previousIndex].createdAt)
+        previousUserId = props.messages[previousIndex].user ? props.messages[previousIndex].user.id : null
 
-          if (previousUserId != null && currentUserId != null) {
-            if (previousUserId == currentUserId && currentDate.format('X') - previousDate.format('X') <= 60) append = true
-          }
-
-          if (currentDate.format('DDD') != previousDate.format('DDD')) {
-            showDate = true
-          }
+        if (previousUserId != null && currentUserId != null) {
+          if (previousUserId == currentUserId && currentDate.format('X') - previousDate.format('X') <= 60) append = true
         }
 
-        return {
-          ...message,
-          showDate,
-          append,
-          dateLabel: moment(message.createdAt).format('dddd, MMMM Do'),
+        if (currentDate.format('DDD') != previousDate.format('DDD')) {
+          showDate = true
         }
-      })
-    )
+      }
+
+      return {
+        ...message,
+        showDate,
+        append,
+        dateLabel: moment(message.createdAt).format('dddd, MMMM Do'),
+      }
+    })
+
+    setMessages(sortMessagesByCreatedAt(messages))
   }, [props.messages])
 
   return (
