@@ -1121,7 +1121,8 @@ const Tool = styled.div`
   align-content: center;
   align-items: center;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 800;
 
   &:hover {
     background: #f2f3f5;
