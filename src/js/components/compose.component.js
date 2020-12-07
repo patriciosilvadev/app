@@ -192,7 +192,6 @@ class ComposeComponent extends React.Component {
         parent: parentId,
         threaded,
         body,
-        excerpt,
         // ⚠️ Strip the query string
         attachments: attachments.map(attachment => {
           return {
@@ -239,7 +238,6 @@ class ComposeComponent extends React.Component {
       const { data } = await GraphqlService.getInstance().updateChannelMessage(messageId, {
         mentions,
         body,
-        excerpt,
         // ⚠️ Strip the query string
         attachments: attachments.map(attachment => {
           return {
