@@ -9,7 +9,7 @@ import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
-import { Attachment, Popup, User, Members, Spinner, Error, Notification, MessageMedia, Avatar } from '@weekday/elements'
+import { Attachment, Popup, User, Members, Spinner, Error, Notification, Button, MessageMedia, Avatar } from '@weekday/elements'
 import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent, getMentions, logger } from '../helpers/util'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
@@ -76,6 +76,25 @@ class ComposeComponent extends React.Component {
     this.renderReply = this.renderReply.bind(this)
     this.renderInput = this.renderInput.bind(this)
     this.renderFooter = this.renderFooter.bind(this)
+
+    this.joinChannel = this.joinChannel.bind(this)
+  }
+
+  async joinChannel() {
+    try {
+      const channelId = this.props.channel.id
+      const teamId = this.props.team.id
+      const { name, username, id } = this.props.user
+      const members = [{ user: { name, username, id } }]
+
+      // Add this user as a member of the channel
+      await GraphqlService.getInstance().createChannelMembers(channelId, teamId, members)
+
+      // Update the channel as being a member
+      this.props.updateChannel(channelId, { isMember: true })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   handleActionClick(action) {
@@ -312,6 +331,8 @@ class ComposeComponent extends React.Component {
 
   // Fires 1st
   handleKeyDown(e) {
+    if (!this.props.channel.isMember) return
+
     const { keyCode } = e
 
     // Enter
@@ -339,6 +360,8 @@ class ComposeComponent extends React.Component {
 
   // Fires 2nd
   handleComposeChange(e) {
+    if (!this.props.channel.isMember) return
+
     const text = e.target.value
 
     this.setState({ text, commands: [] }, () => {
@@ -363,6 +386,8 @@ class ComposeComponent extends React.Component {
 
   // Fires 3rd
   handleKeyUp(e) {
+    if (!this.props.channel.isMember) return
+
     // Right Shift
     if (e.keyCode == 16) this.setState({ shift: false })
   }
@@ -681,6 +706,12 @@ class ComposeComponent extends React.Component {
 
     return (
       <React.Fragment>
+        {!this.props.channel.isMember && (
+          <JoinContainer>
+            <Button text="Join Channel" theme="muted" onClick={() => this.joinChannel(this.props.channel.id)} />
+          </JoinContainer>
+        )}
+
         <InputContainer>
           <input className="hide" ref={ref => (this.fileRef = ref)} type="file" multiple onChange={this.handleFileChange} />
 
@@ -819,6 +850,19 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ComposeComponent)
+
+const JoinContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  background: white;
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: center;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+`
 
 const UpdateContainer = styled.div`
   /*transform: translateY(-100%);*/
