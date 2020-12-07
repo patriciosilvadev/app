@@ -741,17 +741,15 @@ export default class GraphqlService {
     })
   }
 
-  channelMessageReadCount(messageId, teamId, channelId) {
+  channelMessageReadCount(messageId) {
     return this.client.query({
       query: gql`
-        query channelMessageReadCount($messageId: String, $teamId: String, $channelId: String) {
-          channelMessageReadCount(messageId: $messageId, teamId: $teamId, channelId: $channelId)
+        query channelMessageReadCount($messageId: String) {
+          channelMessageReadCount(messageId: $messageId)
         }
       `,
       variables: {
         messageId,
-        teamId,
-        channelId,
       },
     })
   }
@@ -1968,6 +1966,19 @@ export default class GraphqlService {
     })
   }
 
+  updateChannelMessageRead(messageId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelMessageRead($messageId: String) {
+          updateChannelMessageRead(messageId: $messageId)
+        }
+      `,
+      variables: {
+        messageId,
+      },
+    })
+  }
+
   updateChannelMessage(messageId, payload) {
     return this.client.mutate({
       mutation: gql`
@@ -2133,6 +2144,20 @@ export default class GraphqlService {
       mutation: gql`
         mutation deleteChannelMessageLike($messageId: String, $userId: String) {
           deleteChannelMessageLike(messageId: $messageId, userId: $userId)
+        }
+      `,
+      variables: {
+        messageId,
+        userId,
+      },
+    })
+  }
+
+  createChannelMessageRead(messageId, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelMessageRead($messageId: String, $userId: String) {
+          createChannelMessageRead(messageId: $messageId, userId: $userId)
         }
       `,
       variables: {

@@ -38,7 +38,6 @@ import { getHighestTaskOrder, getMentions, urlParser, youtubeUrlParser, vimeoUrl
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
-import * as ReadService from '../services/read.service'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import uuidv1 from 'uuid/v1'
@@ -574,16 +573,16 @@ export default memo(props => {
     // We set this on a timeout so all other variables have time to propagate
     setTimeout(() => {
       const { read } = props.message
-      const { totalMembers } = channel
+      const { totalMembers, isMember } = channel
       const channelId = channel.id
       const teamId = team.id
       const userId = user.id
       const messageId = props.message.id
 
       // Only do this is the message is not all read
-      if (!read) {
+      if (!read && isMember) {
         GraphqlService.getInstance()
-          .channelMessageReadCount(messageId, teamId, channelId)
+          .channelMessageReadCount(messageId)
           .then(result => {
             const { channelMessageReadCount } = result.data
 
@@ -598,14 +597,14 @@ export default memo(props => {
             if (totalMembers <= channelMessageReadCount + 1) {
               // We don't bother with syncing the READ property
               // here because users will already be checking for the read count
-              ReadService.updateMessageAsRead(messageId)
+              GraphqlService.getInstance().updateChannelMessageRead(messageId)
             } else {
               // If not and not everyone has read this yet, then add our read
-              ReadService.addMessageRead(messageId, userId, channelId, teamId)
+              GraphqlService.getInstance().createChannelMessageRead(messageId, userId)
             }
           })
           .catch(error => {
-            logger(error)
+            console.log(error)
           })
       }
     }, 500)
