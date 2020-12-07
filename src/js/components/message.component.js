@@ -573,28 +573,28 @@ export default memo(props => {
     // We set this on a timeout so all other variables have time to propagate
     setTimeout(() => {
       const { read } = props.message
-      const { totalMembers, isMember } = channel
+      const { isMember } = channel
       const channelId = channel.id
-      const teamId = team.id
       const userId = user.id
       const messageId = props.message.id
 
       // Only do this is the message is not all read
       if (!read && isMember) {
         GraphqlService.getInstance()
-          .channelMessageReadCount(messageId)
+          .channelMessageReadCount(messageId, channelId)
           .then(result => {
             const { channelMessageReadCount } = result.data
+            const { totalChannelMembers, totalMessageReads } = JSON.parse(channelMessageReadCount)
 
             // Set the initial count first
-            dispatch(updateChannelMessageInitialReadCount(channelId, messageId, channelMessageReadCount))
+            dispatch(updateChannelMessageInitialReadCount(channelId, messageId, totalMessageReads))
 
             // Now add our read to the mix - sync this with other people
             dispatch(updateChannelMessageReadCount(channelId, messageId))
 
             // If the total members are the same as all the reads then mark it as read
             // We're accounting here for the fact that we've read it
-            if (totalMembers <= channelMessageReadCount + 1) {
+            if (totalChannelMembers <= totalMessageReads + 1) {
               // We don't bother with syncing the READ property
               // here because users will already be checking for the read count
               GraphqlService.getInstance().updateChannelMessageRead(messageId)
