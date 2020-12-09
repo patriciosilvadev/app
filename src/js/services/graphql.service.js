@@ -741,16 +741,15 @@ export default class GraphqlService {
     })
   }
 
-  channelMessageReadCount(messageId, channelId) {
+  channelMessageReads(messageId) {
     return this.client.query({
       query: gql`
-        query channelMessageReadCount($messageId: String, $channelId: String) {
-          channelMessageReadCount(messageId: $messageId, channelId: $channelId)
+        query channelMessageReads($messageId: String) {
+          channelMessageReads(messageId: $messageId)
         }
       `,
       variables: {
         messageId,
-        channelId,
       },
     })
   }
@@ -1967,19 +1966,6 @@ export default class GraphqlService {
     })
   }
 
-  updateChannelMessageRead(messageId) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation updateChannelMessageRead($messageId: String) {
-          updateChannelMessageRead(messageId: $messageId)
-        }
-      `,
-      variables: {
-        messageId,
-      },
-    })
-  }
-
   updateChannelMessage(messageId, payload) {
     return this.client.mutate({
       mutation: gql`
@@ -2154,16 +2140,31 @@ export default class GraphqlService {
     })
   }
 
-  createChannelMessageRead(messageId, userId) {
+  updateChannelMessageRead(messageId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelMessageRead($messageId: String, $userId: String) {
-          createChannelMessageRead(messageId: $messageId, userId: $userId)
+        mutation updateChannelMessageRead($messageId: String) {
+          updateChannelMessageRead(messageId: $messageId)
+        }
+      `,
+      variables: {
+        messageId,
+      },
+    })
+  }
+
+  createChannelMessageRead(messageId, userId, channelId, teamId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelMessageRead($messageId: String, $userId: String, $channelId: String, $teamId: String) {
+          createChannelMessageRead(messageId: $messageId, userId: $userId, channelId: $channelId, teamId: $teamId)
         }
       `,
       variables: {
         messageId,
         userId,
+        channelId,
+        teamId,
       },
     })
   }

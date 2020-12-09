@@ -142,23 +142,6 @@ export function updateChannelSections(channelId, sections) {
   }
 }
 
-// We're not syncing this - this is just for us
-// So tha twe have a baseline read count that we pull form the DB
-export function updateChannelMessageInitialReadCount(channelId, messageId, channelMessageReadCount) {
-  return {
-    type: 'UPDATE_CHANNEL_MESSAGE_INITIAL_READ_COUNT',
-    payload: { channelId, messageId, channelMessageReadCount },
-  }
-}
-
-export function updateChannelMessageReadCount(channelId, messageId) {
-  return {
-    type: 'UPDATE_CHANNEL_MESSAGE_READ_COUNT',
-    payload: { channelId, messageId },
-    sync: channelId,
-  }
-}
-
 export function createChannel(channel) {
   return {
     type: 'CREATE_CHANNEL',

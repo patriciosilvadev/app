@@ -44,6 +44,7 @@ import uuidv1 from 'uuid/v1'
 import PreviewComponent from './preview.component'
 import { MIME_TYPES } from '../constants'
 import { CheckboxComponent } from '../extensions/tasks/components/checkbox/checkbox.component'
+import { useParams } from 'react-router-dom'
 
 export default memo(props => {
   const [body, setBody] = useState(false)
@@ -503,6 +504,57 @@ export default memo(props => {
         }
       }
     }
+
+    // Manage the message reads
+    // We set this on a timeout so all other variables have time to propagate
+    setTimeout(() => {
+      const { read, reads } = props.message
+      const { id, isMember, totalMembers } = channel
+      const channelId = id
+      const { teamId } = useParams()
+      const userId = user.id
+      const messageId = props.message.id
+
+      // Don't do anything if they're not a member
+      // And don't do anything if it's already read
+      if (!teamId) return
+      if (!channelId) return
+      if (!isMember) return
+      if (read) return
+
+      // If the total members of this channel is less that or equal to the reads
+      // Then don't do anything
+      if (totalMembers <= reads) {
+        // We don't bother with syncing the READ property
+        // here because users will already be checking for the read count
+        GraphqlService.getInstance().updateChannelMessageRead(messageId)
+
+        // Redux expects this shape
+        const channelMessage = {
+          message: { read: true },
+          messageId,
+          channelId,
+          teamId,
+        }
+
+        // update our redux state
+        dispatch(updateChannelMessage(channelId, channelMessage))
+      } else {
+        // If not and not everyone has read this yet, then add our read
+        GraphqlService.getInstance().createChannelMessageRead(messageId, userId, channelId, teamId)
+
+        // Redux expects this shape
+        const channelMessage = {
+          message: { reads: reads + 1 },
+          messageId,
+          channelId,
+          teamId,
+        }
+
+        // Bump this in the store
+        dispatch(updateChannelMessage(channelId, channelMessage))
+      }
+    }, 500)
   }, [props.message])
 
   // See if there are any extension attachments
@@ -555,60 +607,6 @@ export default memo(props => {
     setParent(constructParentMessageData(props.message.parent))
     setBody(parseMessageMarkdown(messageBody, props.highlight))
   }, [props.highlight, props.message])
-
-  // Message reads - runs once
-  /*
-  Basic synopsis:
-
-  once a user loads a message:
-  - display 2 ticks of message is READ, if not:
-    - resolver loads total read count from CASSANDRA
-    - user calls API and adds another read
-      - send a SYNC message to other users that they've read it (bumps read count)
-      - if read count == channel members:
-        - mark message as read / 2 ticks
-        - make API call to mark MONGO message as read
-  */
-  useEffect(() => {
-    // We set this on a timeout so all other variables have time to propagate
-    setTimeout(() => {
-      const { read } = props.message
-      const { isMember } = channel
-      const channelId = channel.id
-      const userId = user.id
-      const messageId = props.message.id
-
-      // Only do this is the message is not all read
-      if (!read && isMember) {
-        GraphqlService.getInstance()
-          .channelMessageReadCount(messageId, channelId)
-          .then(result => {
-            const { channelMessageReadCount } = result.data
-            const { totalChannelMembers, totalMessageReads } = JSON.parse(channelMessageReadCount)
-
-            // Set the initial count first
-            dispatch(updateChannelMessageInitialReadCount(channelId, messageId, totalMessageReads))
-
-            // Now add our read to the mix - sync this with other people
-            dispatch(updateChannelMessageReadCount(channelId, messageId))
-
-            // If the total members are the same as all the reads then mark it as read
-            // We're accounting here for the fact that we've read it
-            if (totalChannelMembers <= totalMessageReads + 1) {
-              // We don't bother with syncing the READ property
-              // here because users will already be checking for the read count
-              GraphqlService.getInstance().updateChannelMessageRead(messageId)
-            } else {
-              // If not and not everyone has read this yet, then add our read
-              GraphqlService.getInstance().createChannelMessageRead(messageId, userId)
-            }
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      }
-    }, 500)
-  }, [])
 
   const renderDeviceIcons = () => {
     switch (props.message.device) {
