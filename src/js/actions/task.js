@@ -1,11 +1,3 @@
-import MessagingService from '../services/messaging.service'
-import GraphqlService from '../services/graphql.service'
-import DatabaseService from '../services/database.service'
-import { browserHistory } from '../services/browser-history.service'
-import moment from 'moment'
-import EventService from '../services/event.service'
-import { updateLoading, updateError } from './'
-
 export function updateTask(taskId, updatedTask, channelId) {
   return {
     type: 'UPDATE_TASK',

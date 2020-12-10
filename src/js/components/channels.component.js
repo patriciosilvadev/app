@@ -32,6 +32,7 @@ import {
   hydrateChannel,
   hydrateMessage,
   hydrateThreads,
+  hydrateUnreads,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
 import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@weekday/elements'
@@ -958,6 +959,7 @@ class ChannelsComponent extends React.Component {
     try {
       // await GraphqlService.getInstance().channels(teamId, userId)
       // Not sure why I was using the above to seperate the calls
+      const channelUnreads = await GraphqlService.getInstance().unreads(teamId, userId)
       const team = await GraphqlService.getInstance().teamChannelsComponent(teamId, userId)
       const channels = team.data.team.channels
       const channelIds = channels.map(channel => channel.id)
@@ -971,6 +973,7 @@ class ChannelsComponent extends React.Component {
       // Populate our stores
       this.props.hydrateTeam(team.data.team)
       this.props.hydrateChannels(channels)
+      this.props.hydrateUnreads(channelUnreads)
 
       // Cacheed nav info
       const navigation = StorageService.getStorage(NAVIGATE)
@@ -1594,6 +1597,7 @@ ChannelsComponent.propTypes = {
   updateUserMuted: PropTypes.func,
   updateUserArchived: PropTypes.func,
   toggleDrawer: PropTypes.func,
+  hydrateUnreads: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -1609,6 +1613,7 @@ const mapDispatchToProps = {
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTeam: team => hydrateTeam(team),
   hydrateThreads: threads => hydrateThreads(threads),
+  hydrateUnreads: unreads => hydrateUnreads(unreads),
 }
 
 const mapStateToProps = state => {

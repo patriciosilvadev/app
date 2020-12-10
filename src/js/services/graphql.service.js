@@ -663,6 +663,22 @@ export default class GraphqlService {
     })
   }
 
+  unreads(teamId, userId) {
+    return this.client.query({
+      query: gql`
+        query unreads($teamId: String!, $userId: String!) {
+          unreads(teamId: $teamId, userId: $userId) {
+            mention
+          }
+        }
+      `,
+      variables: {
+        teamId,
+        userId,
+      },
+    })
+  }
+
   channelMembers(channelId, page) {
     return this.client.query({
       query: gql`
@@ -1920,6 +1936,20 @@ export default class GraphqlService {
       variables: {
         channelId,
         teamId,
+      },
+    })
+  }
+
+  deleteChannelUnread(channelId, userId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteChannelUnread($channelId: String, $userId: String) {
+          deleteChannelUnread(channelId: $channelId, userId: $userId)
+        }
+      `,
+      variables: {
+        channelId,
+        userId,
       },
     })
   }

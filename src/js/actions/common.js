@@ -30,7 +30,16 @@ export function initialize(userId) {
   return async (dispatch, getState) => {
     let cache
 
-    const broadcastOwnPresence = () => {
+    // Fires a PN popup
+    const showNotification = message => {
+      if (!message) return
+      if (!message.body) return
+
+      showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
+    }
+
+    // Tell our current team about our status
+    setInterval(() => {
       const { team, user } = getState()
       const teamId = team.id
       const userId = user.id
@@ -47,9 +56,10 @@ export function initialize(userId) {
         type: 'UPDATE_PRESENCE',
         payload: presence,
       })
-    }
+    }, 15000)
 
-    const presenceCleanup = () => {
+    // Clean our presence array every 5 seconds
+    setInterval(() => {
       if (!window) return
       if (!window[PRESENCES]) return
 
@@ -71,9 +81,12 @@ export function initialize(userId) {
         // Longer than 120s then we remove them
         if (snapshot - t > 120000) delete window[PRESENCES][p]
       }
-    }
+    }, 120000)
 
-    const isTypingCleanup = () => {
+    // Check if the typing array is valid every 1 second
+    // Iterage over the current channel's typing array
+    // If it's too old - then remove it and notify everyone else
+    setInterval(() => {
       const { channel } = getState()
       const channelId = channel.id
       const snapshot = new Date().getTime()
@@ -84,25 +97,7 @@ export function initialize(userId) {
           dispatch(updateChannelDeleteTyping(channelId, t.userId))
         }
       })
-    }
-
-    const showNotification = message => {
-      if (!message) return
-      if (!message.body) return
-
-      showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
-    }
-
-    // Tell our current team about our status
-    setInterval(broadcastOwnPresence, 15000)
-
-    // Clean our presence array every 5 seconds
-    setInterval(presenceCleanup, 120000)
-
-    // Check if the typing array is valid every 1 second
-    // Iterage over the current channel's typing array
-    // If it's too old - then remove it and notify everyone else
-    setInterval(isTypingCleanup, 2500)
+    }, 2500)
 
     // NOT just a Redux action - but an app action
     // Same name, but these actions are data objects that apps create
