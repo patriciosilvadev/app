@@ -663,12 +663,16 @@ export default class GraphqlService {
     })
   }
 
+  // ⚠️ These do not resolve - we only want the ID
   unreads(teamId, userId) {
     return this.client.query({
       query: gql`
         query unreads($teamId: String!, $userId: String!) {
           unreads(teamId: $teamId, userId: $userId) {
             mention
+            team
+            channel
+            user
           }
         }
       `,
