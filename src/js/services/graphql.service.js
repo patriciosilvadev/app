@@ -670,9 +670,7 @@ export default class GraphqlService {
         query unreads($teamId: String!, $userId: String!) {
           unreads(teamId: $teamId, userId: $userId) {
             mention
-            team
-            channel
-            user
+            channelId
           }
         }
       `,

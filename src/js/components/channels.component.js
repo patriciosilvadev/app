@@ -191,14 +191,18 @@ const Channel = props => {
                 <Menu
                   items={[
                     {
-                      text: props.archived ? 'Unarchive' : 'Archive',
+                      text: 'All',
+                      label: 'Notify me of all messages',
+                      icon: <IconComponent icon="message-circle" size={20} color="#aeb5bc" />,
                       onClick: e => {
                         setMenu(false)
-                        props.onArchivedClick()
+                        props.onMutedClick()
                       },
                     },
                     {
-                      text: props.muted ? 'Unmute' : 'Mute',
+                      text: 'Mentions',
+                      label: 'Notify me of mentions only',
+                      icon: <IconComponent icon="at" size={20} color="#aeb5bc" />,
                       onClick: e => {
                         setMenu(false)
                         props.onMutedClick()
@@ -206,27 +210,32 @@ const Channel = props => {
                     },
                   ]}
                 />
+                <div className="w-100 border-top">
+                  <Menu
+                    items={[
+                      {
+                        text: props.archived ? 'Unarchive' : 'Archive',
+                        onClick: e => {
+                          setMenu(false)
+                          props.onArchivedClick()
+                        },
+                      },
+                      {
+                        text: props.muted ? 'Unmute' : 'Mute',
+                        onClick: e => {
+                          setMenu(false)
+                          props.onMutedClick()
+                        },
+                      },
+                    ]}
+                  />
+                </div>
 
                 {!props.private && (
                   <React.Fragment>
-                    <div className="row wrap p-15 border-top">
-                      {colors.map((color, index) => (
-                        <ColorCircle
-                          color={color}
-                          current={color == props.color}
-                          key={index}
-                          onClick={e => {
-                            e.stopPropagation()
-                            setMenu(false)
-                            handleUpdateColor(color)
-                          }}
-                        />
-                      ))}
-                    </div>
-
                     <div className="w-100 p-20 column align-items-start border-top">
                       <div className="row w-100">
-                        <div className="p regular color-d2 flexer">Icon</div>
+                        <div className="p regular color-d2 flexer">Theme</div>
                         <IconComponent
                           icon={iconCollapsable ? 'chevron-up' : 'chevron-down'}
                           size={16}
@@ -240,6 +249,20 @@ const Channel = props => {
                         />
                       </div>
                       <Collapsable className={iconCollapsable ? 'open' : ''}>
+                        <div className="row wrap pt-20">
+                          {colors.map((color, index) => (
+                            <ColorCircle
+                              color={color}
+                              current={color == props.color}
+                              key={index}
+                              onClick={e => {
+                                e.stopPropagation()
+                                setMenu(false)
+                                handleUpdateColor(color)
+                              }}
+                            />
+                          ))}
+                        </div>
                         <div className="row wrap w-100 mt-10">
                           {icons.map((icon, index) => {
                             return (
@@ -410,8 +433,8 @@ const IconCircle = styled.div`
 
 const ColorCircle = styled.div`
   background: ${props => props.color};
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   margin-right: 3px;
   margin-bottom: 3px;

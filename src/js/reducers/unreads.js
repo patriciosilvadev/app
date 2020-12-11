@@ -7,7 +7,6 @@ export default (state = initialState, action) =>
     switch (action.type) {
       case 'UNREADS':
         return action.payload
-        break
 
       case 'CREATE_UNREAD':
         draft.push(action.payload)
