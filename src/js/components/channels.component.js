@@ -129,7 +129,7 @@ const Channel = props => {
   }
 
   return (
-    <React.Fragment>
+    <div className="w-100">
       <ChannelContainer
         onClick={e => {
           e.preventDefault()
@@ -151,7 +151,11 @@ const Channel = props => {
       >
         <ChannelContainerPadding>
           <Avatar muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
-            {props.icon ? <IconComponent icon={props.icon} size={12} color={avatarIconColor} /> : null}
+            {props.icon ? (
+              <ChannelIcon>
+                <IconComponent icon={props.icon} size={12} color={avatarIconColor} />
+              </ChannelIcon>
+            ) : null}
           </Avatar>
 
           <ChannelContents>
@@ -335,7 +339,7 @@ const Channel = props => {
           )}
         </Threads>
       )}
-    </React.Fragment>
+    </div>
   )
 }
 
@@ -446,6 +450,11 @@ const ColorCircle = styled.div`
   }
 `
 
+const ChannelIcon = styled.div`
+  position: relative;
+  top: 0px;
+`
+
 const ChannelContainer = styled.li`
   display: flex;
   flex-direction: row;
@@ -458,6 +467,7 @@ const ChannelContainer = styled.li`
   margin-bottom: 0px;
   padding-right: 20px;
   transition: 0.2s background-color;
+  width: 100%;
 
   &:hover {
     background-color: #f0f3f5;
@@ -1653,6 +1663,7 @@ export default connect(
 
 const HeaderButtons = styled.div`
   margin-top: 10px;
+  width: 100%;
 `
 
 const HeaderButtonContainer = styled.div`
@@ -1787,7 +1798,7 @@ const PopupHeader = styled.div`
 
 const Heading = styled.div`
   padding: 20px 25px 10px 25px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 900;
   color: #858e96;
   /*letter-spacing: 1px;*/

@@ -116,9 +116,9 @@ export default function ChannelModal(props) {
 
   return (
     <ModalPortal>
-      <Modal title="Channel" width={700} height={550} onClose={props.onClose}>
-        <div className="row align-items-start w-100">
-          <div className="column w-100">
+      <Modal title="Channel" width={450} height={600} onClose={props.onClose}>
+        <div className="row align-items-start w-100 h-100">
+          <div className="column w-100 h-100">
             {error && <Error message={error} onDismiss={() => setError(false)} />}
             {loading && <Spinner />}
             {notification && <Notification text={notification} onDismiss={() => setNotification(false)} />}
@@ -165,6 +165,8 @@ export default function ChannelModal(props) {
                 </div>
               </Column>
             </Row>
+
+            <div className="flexer" />
 
             {props.hasAdminPermission && (
               <div className="p-25 row w-100">
