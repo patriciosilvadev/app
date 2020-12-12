@@ -456,21 +456,17 @@ const ChannelContainer = styled.li`
   position: relative;
   cursor: pointer;
   margin-bottom: 0px;
-  padding-right: 25px;
+  padding-right: 20px;
   transition: 0.2s background-color;
 
   &:hover {
     background-color: #f0f3f5;
   }
-
-  @media only screen and (max-width: 768px) {
-    padding-right: 20px;
-  }
 `
 
 const ChannelContainerPadding = styled.div`
   flex: 1;
-  padding: 5px 0px 5px 25px;
+  padding: 3px 0px 3px 25px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -496,7 +492,7 @@ const ChannelBadge = styled.div`
 const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600; /*${props => (props.active ? '700' : '500')}*/
+  font-weight: ${props => (props.active ? '700' : '400')};
   color: ${props => (props.active ? '#18181d' : '#858E96')};
   white-space: nowrap;
   overflow: hidden;
@@ -1559,7 +1555,7 @@ class ChannelsComponent extends React.Component {
     const calendarActive = locationParts[locationParts.length - 1] == 'calendar' && !this.props.channel.id
 
     return (
-      <React.Fragment>
+      <HeaderButtons>
         <HeaderButtonContainer
           active={calendarActive}
           onClick={() => {
@@ -1568,7 +1564,7 @@ class ChannelsComponent extends React.Component {
           }}
         >
           <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} className="mr-10" />
-          <span className="color-d3 bold p">Calendar</span>
+          <HeaderButtonContainerText active={calendarActive}>Calendar</HeaderButtonContainerText>
         </HeaderButtonContainer>
 
         <HeaderButtonContainer
@@ -1579,9 +1575,9 @@ class ChannelsComponent extends React.Component {
           }}
         >
           <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={16} className="mr-10" />
-          <span className="color-d3 bold p">My Tasks</span>
+          <HeaderButtonContainerText active={tasksActive}>My Tasks</HeaderButtonContainerText>
         </HeaderButtonContainer>
-      </React.Fragment>
+      </HeaderButtons>
     )
   }
 
@@ -1655,6 +1651,10 @@ export default connect(
   mapDispatchToProps
 )(ChannelsComponent)
 
+const HeaderButtons = styled.div`
+  margin-top: 10px;
+`
+
 const HeaderButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -1664,7 +1664,7 @@ const HeaderButtonContainer = styled.div`
   justify-content: flex-start;
   position: relative;
   cursor: pointer;
-  padding: 7px;
+  padding: 5px;
   width: 100%;
   padding-right: 25px;
   padding-left: 25px;
@@ -1678,6 +1678,19 @@ const HeaderButtonContainer = styled.div`
   @media only screen and (max-width: 768px) {
     padding-right: 20px;
   }
+`
+
+const HeaderButtonContainerText = styled.div`
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: ${props => (props.active ? '700' : '400')};
+  color: ${props => (props.active ? '#18181d' : '#858E96')};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  /*letter-spacing: -0.5px;*/
+  margin-right: 5px;
 `
 
 const Channels = styled.div`
@@ -1773,12 +1786,12 @@ const PopupHeader = styled.div`
 `
 
 const Heading = styled.div`
-  padding: 20px 25px 20px 25px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 20px 25px 10px 25px;
+  font-size: 9px;
+  font-weight: 900;
   color: #858e96;
-  /*letter-spacing: 1px;
-  text-transform: uppercase;*/
+  /*letter-spacing: 1px;*/
+  text-transform: uppercase;
   flex: 1;
 
   @media only screen and (max-width: 768px) {
