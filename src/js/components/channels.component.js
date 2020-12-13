@@ -1096,6 +1096,7 @@ class ChannelsComponent extends React.Component {
               image={this.props.user.image}
               title={this.props.user.name}
               userId={this.props.user.id}
+              outlineOuterColor="#f8f9fa"
               onPresenceClick={() => this.setState({ presenceMenu: true })}
             />
           </Popup>

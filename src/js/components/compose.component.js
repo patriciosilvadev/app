@@ -1013,7 +1013,7 @@ const Input = styled.textarea`
   display: block;
   background: transparent;
   color: #212123;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
   height: auto;
 

@@ -733,7 +733,7 @@ class ChannelComponent extends React.Component {
               <Avatar title={this.props.channel.user.name} image={this.props.channel.user.image} size="small" style={{ zIndex: 1 }} />
 
               <WelcomeUserName>
-                Started by {this.props.channel.user.name} - {moment(this.props.channel.createdAt).fromNow()}
+                Started by <strong>{this.props.channel.user.name}</strong> - {moment(this.props.channel.createdAt).fromNow()}
               </WelcomeUserName>
             </WelcomeUser>
 

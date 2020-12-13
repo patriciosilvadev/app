@@ -66,10 +66,18 @@ export default function DockComponent(props) {
   return (
     <Dock color={channel.color || '#112640'}>
       <Corner>
-        <svg width="15" height="15" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
-          <g transform="matrix(1.22582,0,0,1.22582,0,0)">
-            <path d="M0,16.316C0,7.311 7.311,0 16.316,0L0,0C0,0 0,25.32 0,16.316Z" style={{ fill: channel.color || '#112640' }} />
-          </g>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 20 20"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: '2' }}
+        >
+          <path
+            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+            style={{ fill: channel.color || '#112640' }}
+          />
         </svg>
       </Corner>
 
@@ -141,9 +149,9 @@ DockComponent.propTypes = {}
 const Corner = styled.div`
   position: absolute;
   left: 100%;
-  top: 0px;
-  width: 15px;
-  height: 15px;
+  top: -3px;
+  width: 10px;
+  height: 10px;
 `
 
 const ToggleButton = styled.div`
@@ -207,4 +215,6 @@ const Team = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 0px;
+  margin-bottom: -1px;
 `
