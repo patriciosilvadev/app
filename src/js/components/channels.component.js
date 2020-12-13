@@ -44,7 +44,7 @@ import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
 import { v4 as uuidv4 } from 'uuid'
-import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE } from '../constants'
+import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE, TEXT_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -162,8 +162,8 @@ const Channel = props => {
             <ChannelInnerContents>
               <ChannelTitleRow>
                 <ChannelTitleRowIcon>
-                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? '#18181d' : '#858E96'} size={12} className="mr-5" />}
-                  {props.readonly && <IconComponent icon="radio" color={props.active ? '#18181d' : '#858E96'} size={12} className="mr-5" />}
+                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={12} className="mr-5" />}
+                  {props.readonly && <IconComponent icon="radio" color={props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={12} className="mr-5" />}
                 </ChannelTitleRowIcon>
 
                 <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
@@ -298,7 +298,7 @@ const Channel = props => {
                 setMenu(true)
               }}
             >
-              <IconComponent icon="more-h" color="#858E96" size={15} />
+              <IconComponent icon="more-h" color={TEXT_OFF_WHITE} size={15} />
             </ChannelMoreIcon>
           </Popup>
         )}
@@ -309,7 +309,7 @@ const Channel = props => {
         {/* Only if there are threads */}
         {threads.length != 0 && props.active && (
           <CollapseThreadsIcon onClick={() => setCollapsedThreads(!collapsedThreads)}>
-            <IconComponent icon={collapsedThreads ? 'chevron-right' : 'chevron-down'} color="#11171d" size={14} className="button" />
+            <IconComponent icon={collapsedThreads ? 'chevron-right' : 'chevron-down'} color={TEXT_OFF_WHITE} size={14} className="button" />
           </CollapseThreadsIcon>
         )}
       </ChannelContainer>
@@ -458,7 +458,7 @@ const ChannelIcon = styled.div`
 const ChannelContainer = styled.li`
   display: flex;
   flex-direction: row;
-  background-color: ${props => (props.active ? '#F0F3F5' : 'transparent')};
+  background-color: ${props => (props.active ? BACKGROUND_FADED_BLACK : 'transparent')};
   align-items: center;
   align-content: center;
   justify-content: center;
@@ -467,10 +467,12 @@ const ChannelContainer = styled.li`
   margin-bottom: 0px;
   padding-right: 20px;
   transition: 0.2s background-color;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
   width: 100%;
 
   &:hover {
-    background-color: #f0f3f5;
+    /* NOTHING YET */
   }
 `
 
@@ -503,8 +505,7 @@ const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 13px;
   font-weight: ${props => (props.active ? '700' : '700')};
-  color: ${props => (props.active ? '#18181d' : '#858E96')};
-  opacity: ${props => (props.active ? '1' : '0.5')};
+  color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -555,7 +556,7 @@ const ChannelExcerptTextContainer = styled.div`
 
 const ChannelExcerptText = styled.span`
   font-size: 14px;
-  color: #858e96;
+  color: ${TEXT_FADED_WHITE};
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -1096,7 +1097,7 @@ class ChannelsComponent extends React.Component {
               image={this.props.user.image}
               title={this.props.user.name}
               userId={this.props.user.id}
-              outlineOuterColor="#f8f9fa"
+              outlineOuterColor={TEXT_FADED_WHITE}
               onPresenceClick={() => this.setState({ presenceMenu: true })}
             />
           </Popup>
@@ -1224,7 +1225,7 @@ class ChannelsComponent extends React.Component {
               </div>
             }
           >
-            <IconComponent icon="settings" size={16} color="#858E96" className="button" onClick={this._openUserMenu.bind(this)} />
+            <IconComponent icon="settings" size={16} color={TEXT_OFF_WHITE} className="button" onClick={this._openUserMenu.bind(this)} />
           </Popup>
         </Header>
       </HeaderContainer>
@@ -1314,7 +1315,7 @@ class ChannelsComponent extends React.Component {
               handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color="#858E96" className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
+              <IconComponent icon="plus-circle" size={15} color={TEXT_OFF_WHITE} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
             </QuickInputComponent>
           )}
         </HeadingRow>
@@ -1417,7 +1418,7 @@ class ChannelsComponent extends React.Component {
               this.setState({ channelPrivatePopup: false })
             }}
           >
-            <IconComponent icon="plus-circle" size={15} color="#858E96" className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
+            <IconComponent icon="plus-circle" size={15} color={TEXT_OFF_WHITE} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
           </QuickUserComponent>
         </HeadingRow>
 
@@ -1575,7 +1576,7 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
           }}
         >
-          <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={20} className="mr-10" />
+          <IconComponent icon="calendar" color={calendarActive ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={20} className="mr-10" />
           <HeaderButtonContainerText active={calendarActive}>Calendar</HeaderButtonContainerText>
         </HeaderButtonContainer>
 
@@ -1586,8 +1587,8 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
           }}
         >
-          <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={20} className="mr-10" />
-          <HeaderButtonContainerText active={tasksActive}>My Tasks</HeaderButtonContainerText>
+          <IconComponent icon="double-check" color={tasksActive ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={20} className="mr-10" />
+          <HeaderButtonContainerText active={tasksActive}>Tasks</HeaderButtonContainerText>
         </HeaderButtonContainer>
       </HeaderButtons>
     )
@@ -1596,6 +1597,22 @@ class ChannelsComponent extends React.Component {
   render() {
     return (
       <Channels hideChannels={this.state.hideChannels} color={this.props.channel.color}>
+        <Corner>
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 20 20"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: '2' }}
+          >
+            <path
+              d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+              style={{ fill: this.props.channel.color || '#112640' }}
+            />
+          </svg>
+        </Corner>
+
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
@@ -1663,6 +1680,14 @@ export default connect(
   mapDispatchToProps
 )(ChannelsComponent)
 
+const Corner = styled.div`
+  position: absolute;
+  left: 100%;
+  top: -3px;
+  width: 10px;
+  height: 10px;
+`
+
 const HeaderButtons = styled.div`
   margin-top: 10px;
   width: 100%;
@@ -1671,7 +1696,7 @@ const HeaderButtons = styled.div`
 const HeaderButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
-  background-color: ${props => (props.active ? '#F0F3F5' : 'transparent')};
+  background-color: ${props => (props.active ? BACKGROUND_FADED_BLACK : 'transparent')};
   align-items: center;
   align-content: center;
   justify-content: flex-start;
@@ -1685,7 +1710,7 @@ const HeaderButtonContainer = styled.div`
   transition: 0.2s background-color;
 
   &:hover {
-    background-color: #f0f3f5;
+    /* NOTHING YET */
   }
 
   @media only screen and (max-width: 768px) {
@@ -1697,7 +1722,7 @@ const HeaderButtonContainerText = styled.div`
   cursor: pointer;
   font-size: 13px;
   font-weight: ${props => (props.active ? '700' : '700')};
-  color: ${props => (props.active ? '#18181d' : '#858E96')};
+  color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1720,6 +1745,7 @@ const Channels = styled.div`
   background: white;
   border-right: 1px solid #1f2d3d;
   border-right: 1px solid #eaedef;
+  background: ${props => props.color};
   display: ${props => (props.hideChannels ? 'none' : 'flex')};
 
   @media only screen and (max-width: 768px) {
@@ -1779,7 +1805,7 @@ const HeaderName = styled.div`
   font-size: 15px;
   font-weight: 500;
   font-style: normal;
-  color: #18181d;
+  color: ${TEXT_OFF_WHITE};
   transition: opacity 0.5s;
   display: inline-block;
   margin-top: 0px;
@@ -1792,9 +1818,9 @@ const HeaderName = styled.div`
 `
 
 const HeaderRole = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
-  color: #858e96;
+  color: ${TEXT_OFF_WHITE};
   overflow: hidden;
 `
 
@@ -1808,10 +1834,11 @@ const Heading = styled.div`
   padding: 20px 25px 10px 25px;
   font-size: 10px;
   font-weight: 900;
-  color: #858e96;
+  color: ${TEXT_OFF_WHITE};
   /*letter-spacing: 1px;*/
   text-transform: uppercase;
   flex: 1;
+  font-family: Menlo, monospace;
 
   @media only screen and (max-width: 768px) {
     padding-left: 20px;

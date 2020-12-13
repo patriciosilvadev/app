@@ -162,9 +162,9 @@ class CalendarExtension extends React.Component {
         <div className="toolbar row">
           <div className="date-heading">{this.state.month}</div>
           <div className="flexer" />
-          <Button size="x-small" text="Today" theme="light-blue" onClick={this.today} />
-          <Button size="x-small" text="Back" theme="light-blue" onClick={this.back} className="ml-5" />
-          <Button size="x-small" text="Forward" theme="light-blue" onClick={this.forward} className="ml-5" />
+          <Button size="small" text="Today" theme="muted" onClick={this.today} />
+          <Button size="small" text="Back" theme="muted" onClick={this.back} className="ml-5" />
+          <Button size="small" text="Forward" theme="muted" onClick={this.forward} className="ml-5" />
         </div>
         <div className="weekdays">
           {this.state.weekdays.map((weekday, index) => {
