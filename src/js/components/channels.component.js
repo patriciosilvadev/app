@@ -44,7 +44,7 @@ import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
 import { v4 as uuidv4 } from 'uuid'
-import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE, TEXT_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
+import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE, TEXT_FADED_WHITE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -1576,8 +1576,8 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
           }}
         >
-          <IconComponent icon="calendar" color={calendarActive ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={20} className="mr-10" />
-          <HeaderButtonContainerText active={calendarActive}>Calendar</HeaderButtonContainerText>
+          <IconComponent icon="calendar" color={TEXT_OFF_WHITE} size={20} className="mr-10" />
+          <HeaderButtonContainerText>Calendar</HeaderButtonContainerText>
         </HeaderButtonContainer>
 
         <HeaderButtonContainer
@@ -1587,8 +1587,8 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
           }}
         >
-          <IconComponent icon="double-check" color={tasksActive ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={20} className="mr-10" />
-          <HeaderButtonContainerText active={tasksActive}>Tasks</HeaderButtonContainerText>
+          <IconComponent icon="double-check" color={TEXT_OFF_WHITE} size={20} className="mr-10" />
+          <HeaderButtonContainerText>Tasks</HeaderButtonContainerText>
         </HeaderButtonContainer>
       </HeaderButtons>
     )
@@ -1708,6 +1708,8 @@ const HeaderButtonContainer = styled.div`
   padding-left: 25px;
   margin-top: 0px;
   transition: 0.2s background-color;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 
   &:hover {
     /* NOTHING YET */
@@ -1721,8 +1723,8 @@ const HeaderButtonContainer = styled.div`
 const HeaderButtonContainerText = styled.div`
   cursor: pointer;
   font-size: 13px;
-  font-weight: ${props => (props.active ? '700' : '700')};
-  color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
+  font-weight: 700;
+  color: ${TEXT_OFF_WHITE};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1803,7 +1805,7 @@ const HeaderTitles = styled.div`
 
 const HeaderName = styled.div`
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   font-style: normal;
   color: ${TEXT_OFF_WHITE};
   transition: opacity 0.5s;
@@ -1818,9 +1820,9 @@ const HeaderName = styled.div`
 `
 
 const HeaderRole = styled.div`
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
-  color: ${TEXT_OFF_WHITE};
+  color: ${TEXT_FADED_WHITE};
   overflow: hidden;
 `
 

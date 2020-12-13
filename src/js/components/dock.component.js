@@ -65,22 +65,6 @@ export default function DockComponent(props) {
 
   return (
     <Dock color={channel.color || '#112640'}>
-      <Corner>
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 20 20"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: '2' }}
-        >
-          <path
-            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
-            style={{ fill: channel.color || '#112640' }}
-          />
-        </svg>
-      </Corner>
-
       {!!team.id && (
         <ToggleButton
           onClick={e => {
@@ -108,8 +92,9 @@ export default function DockComponent(props) {
               boxSizing: 'border-box',
               paddingTop: 7,
               paddingBottom: 7,
-              backgroundColor: active ? TEXT_VERY_FADED_WHITE : 'transparent',
-              borderLeft: active ? '3px solid ' + TEXT_FADED_WHITE : 'none',
+              borderTopRightRadius: 5,
+              borderBottomRightRadius: 5,
+              backgroundColor: active ? BACKGROUND_FADED_BLACK : 'transparent',
             }}
           >
             <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
@@ -145,14 +130,6 @@ export default function DockComponent(props) {
 }
 
 DockComponent.propTypes = {}
-
-const Corner = styled.div`
-  position: absolute;
-  left: 100%;
-  top: -3px;
-  width: 10px;
-  height: 10px;
-`
 
 const ToggleButton = styled.div`
   position: absolute;
@@ -209,7 +186,7 @@ const Dock = styled.div`
 
 const Team = styled.div`
   margin-top: 5px;
-  font-size: 9px;
+  font-size: 8px;
   color: ${props => (props.active ? 'white' : TEXT_FADED_WHITE)};
   font-weight: 800;
   white-space: nowrap;
@@ -217,4 +194,5 @@ const Team = styled.div`
   text-overflow: ellipsis;
   padding: 0px;
   margin-bottom: -1px;
+  font-family: Menlo, monospace;
 `

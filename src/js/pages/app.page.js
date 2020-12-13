@@ -747,7 +747,7 @@ const SearchBar = styled.div`
   padding: 10px;
   flex: 1;
   background-color: ${BACKGROUND_FADED_BLACK};
-  margin-left: 100px;
+  margin-left: 0px;
   margin-right: 50px;
   display: flex;
   flex-direction: row;
@@ -781,8 +781,9 @@ const BarInfo = styled.div`
   flex-direction: row;
   align-content: center;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   margin-right: auto;
+  width: 310px;
 `
 
 const BarExtensions = styled.div`
@@ -818,7 +819,7 @@ const Pill = styled.div`
   color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
-  background-color: ${props => (props.active ? TEXT_VERY_FADED_WHITE : BACKGROUND_FADED_BLACK)};
+  background-color: ${props => (props.active ? BACKGROUND_FADED_BLACK : TEXT_VERY_FADED_WHITE)};
   margin-left: 5px;
   font-weight: 600;
   display: flex;
