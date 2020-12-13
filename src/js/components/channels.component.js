@@ -1593,7 +1593,7 @@ class ChannelsComponent extends React.Component {
 
   render() {
     return (
-      <Channels hideChannels={this.state.hideChannels} className="column">
+      <Channels hideChannels={this.state.hideChannels} color={this.props.channel.color}>
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
@@ -1705,11 +1705,15 @@ const HeaderButtonContainerText = styled.div`
 `
 
 const Channels = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
   width: 250px;
   height: 100%;
   position: relative;
   z-index: 6;
-  background: white;
+  background: #18181d;
   background: #f8f9fa;
   border-right: 0px solid #1f2d3d;
   display: ${props => (props.hideChannels ? 'none' : 'flex')};

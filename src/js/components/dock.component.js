@@ -69,7 +69,7 @@ export default function DockComponent(props) {
   }, [user.id])
 
   return (
-    <Dock className="column align-items-center">
+    <Dock color={channel.color}>
       {!!team.id && (
         <ToggleButton
           onClick={e => {
@@ -171,6 +171,10 @@ const Dock = styled.div`
   position: relative;
   background: #18181d;
   background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
   z-index: 7;
   border-right: 1px solid #eaedef;
   box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);

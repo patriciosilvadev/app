@@ -269,9 +269,9 @@ class AppPage extends React.Component {
       : '#007af5'
 
     return (
-      <Bar className="column w-100" backgroundColor={backgroundColor}>
-        <BarPadding />
-        <div className="row w-100">
+      <Bar backgroundColor={backgroundColor}>
+        <BarInner>
+          <BarPadding />
           <BarInfo>
             <DrawerIcon>
               <IconComponent icon="menu" size={20} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
@@ -362,7 +362,7 @@ class AppPage extends React.Component {
               </BarExtensions>
             </React.Fragment>
           )}
-        </div>
+        </BarInner>
       </Bar>
     )
   }
@@ -733,15 +733,9 @@ const App = styled.div`
   width: 100%;
 `
 
-const BarPadding = styled.div`
-  height: 10px;
-`
-
 const Bar = styled.div`
   background: ${props => (props.backgroundColor ? props.backgroundColor : '#F0F3F5')};
   width: 100%;
-  padding: 0 10px 0 10px;
-  height: 50px;
   display: flex;
   flex-direction: row;
   align-content: center;
@@ -753,6 +747,21 @@ const Bar = styled.div`
     padding: 10px;
     padding-top: ${props => (IS_CORDOVA ? 'env(safe-area-inset-top)' : '0px')};
   }
+`
+
+const BarPadding = styled.div`
+  height: 10px;
+`
+
+const BarInner = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 10px 0 10px;
+  height: 50px;
 `
 
 const SearchBar = styled.div`
