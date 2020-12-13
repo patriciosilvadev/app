@@ -146,10 +146,10 @@ const Badge = styled.span`
   position: absolute;
   right: -3px;
   bottom: -3px;
-  width: 11px;
-  height: 11px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background-color: white;
+  background-color: #4084ed;
 `
 
 const Container = styled.div`

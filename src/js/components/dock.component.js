@@ -72,7 +72,7 @@ export default function DockComponent(props) {
             EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
           }}
         >
-          <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#AEB5BB" style={{ top: -2 }} />
+          <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#4084ed" style={{ top: -2 }} />
         </ToggleButton>
       )}
 
@@ -107,24 +107,24 @@ export default function DockComponent(props) {
 
       <div className="mt-0 mb-0">
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => setTeamOnboardingModal(true)}>
-          <IconComponent icon="plus-circle" size={19} color={TEXT_FADED_WHITE} />
+          <IconComponent icon="plus-circle" size={19} color="#314563" />
         </Avatar>
       </div>
 
       <div className="mt-0 mb-10" id="yack" data-inbox="weekday">
         {/* onClick={e => window.open('mailto:support@weekday.freshdesk.com')} */}
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button">
-          <IconComponent icon="life-buoy" size={18} color={TEXT_FADED_WHITE} />
+          <IconComponent icon="life-buoy" size={18} color="#314563" />
         </Avatar>
       </div>
 
       <NotificationsComponent>
-        <IconComponent icon="flag" size={18} color={TEXT_FADED_WHITE} />
+        <IconComponent icon="flag" size={18} color="#314563" />
       </NotificationsComponent>
 
       <div className="flexer"></div>
 
-      <img src="icon-white.svg" width="20" style={{ opacity: 0.2 }} />
+      <img src="icon.svg" width="20" style={{ opacity: 0.2 }} />
     </Dock>
   )
 }
@@ -138,11 +138,11 @@ const ToggleButton = styled.div`
   right: 0px;
   width: 20px;
   height: 20px;
-  background: #f8f9fa;
+  background: #0b1729;
   border-radius: 50%;
   transform: translate(50%, 50%);
   box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);
-  border: 1px solid #eaedef;
+  border: 3px solid #0f1f36;
   transition: border 0.2s;
   cursor: pointer;
   display: flex;
@@ -153,7 +153,7 @@ const ToggleButton = styled.div`
   overflow: hidden;
 
   &:hover {
-    border: 3px solid #eaedef;
+    border: 2px solid #0f1f36;
   }
 `
 
@@ -168,10 +168,11 @@ const Dock = styled.div`
   display: flex;
   height: 100%;
   position: relative;
-  background: #18181d;
   background: #f8f9fa;
   background: white;
   background: ${props => props.color};
+  background: #18181d;
+  background: #0b1729;
   display: flex;
   flex-direction: column;
   align-content: center;

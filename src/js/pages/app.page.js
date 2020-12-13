@@ -25,7 +25,7 @@ import TasksExtension from '../extensions/tasks/tasks.extension'
 import MeetExtension from '../extensions/meet/meet.extension'
 import CalendarExtension from '../extensions/calendar/calendar.extension'
 import BoardsExtension from '../extensions/boards/boards.extension'
-import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE, TEXT_FADED_WHITE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
+import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
 
@@ -267,18 +267,18 @@ class AppPage extends React.Component {
           {this.props.channel.id && (
             <React.Fragment>
               <SearchBar>
-                <IconComponent icon="search" size={15} color={TEXT_FADED_WHITE} />
+                <IconComponent icon="search" size={15} color={'#45618c'} />
                 <SearchBarInput>
                   <input type="text" placeholder="Search messages..." value={this.state.searchQuery} onChange={e => this.setState({ searchQuery: e.target.value })} />
                 </SearchBarInput>
-                {!!this.state.searchQuery && <IconComponent icon="x" size={15} color={TEXT_FADED_WHITE} className="button" onClick={() => this.setState({ searchQuery: '' })} />}
+                {!!this.state.searchQuery && <IconComponent icon="x" size={15} color={'#45618c'} className="button" onClick={() => this.setState({ searchQuery: '' })} />}
               </SearchBar>
               <BarExtensions>
                 <LayoutIcons>
                   <LayoutIconButton>
                     <IconComponent
                       icon="square"
-                      color={this.state.extensionLayout == LAYOUTS.FULL ? TEXT_OFF_WHITE : TEXT_FADED_WHITE}
+                      color={this.state.extensionLayout == LAYOUTS.FULL ? '#4084ed' : '#45618c'}
                       size={18}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
                     />
@@ -286,7 +286,7 @@ class AppPage extends React.Component {
                   <LayoutIconButton>
                     <IconComponent
                       icon="sidebar-left"
-                      color={this.state.extensionLayout == LAYOUTS.MAIN ? TEXT_OFF_WHITE : TEXT_FADED_WHITE}
+                      color={this.state.extensionLayout == LAYOUTS.MAIN ? '#4084ed' : '#45618c'}
                       size={18}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
                     />
@@ -294,7 +294,7 @@ class AppPage extends React.Component {
                   <LayoutIconButton>
                     <IconComponent
                       icon="sidebar-right"
-                      color={this.state.extensionLayout == LAYOUTS.SIDE ? TEXT_OFF_WHITE : TEXT_FADED_WHITE}
+                      color={this.state.extensionLayout == LAYOUTS.SIDE ? '#4084ed' : '#45618c'}
                       size={18}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
                     />
@@ -305,7 +305,7 @@ class AppPage extends React.Component {
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'meet' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/meet`}>
                       <Pill active={lastUrlPart == 'meet'}>
-                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
+                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
                         <PillText>Meet</PillText>
                       </Pill>
                     </Link>
@@ -316,7 +316,7 @@ class AppPage extends React.Component {
                       to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
                     >
                       <Pill active={lastUrlPart == 'calendar'}>
-                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
+                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
                         <PillText>Calendar</PillText>
                       </Pill>
                     </Link>
@@ -325,7 +325,7 @@ class AppPage extends React.Component {
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
                       <Pill active={lastUrlPart == 'boards'}>
-                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
+                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
                         <PillText>Boards</PillText>
                       </Pill>
                     </Link>
@@ -333,7 +333,7 @@ class AppPage extends React.Component {
 
                   <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
                     <Pill active={lastUrlPart == 'tasks'}>
-                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
+                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
                       <PillText>Tasks</PillText>
                     </Pill>
                   </Link>
@@ -714,6 +714,7 @@ const App = styled.div`
 
 const Bar = styled.div`
   background: ${props => props.backgroundColor};
+  background: #0b1729;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -746,7 +747,7 @@ const BarInner = styled.div`
 const SearchBar = styled.div`
   padding: 10px;
   flex: 1;
-  background-color: ${BACKGROUND_FADED_BLACK};
+  background-color: #070f1c;
   margin-left: 0px;
   margin-right: 50px;
   display: flex;
@@ -772,7 +773,7 @@ const SearchBarInput = styled.div`
   }
 
   input::placeholder {
-    color: ${TEXT_FADED_WHITE};
+    color: ${'#45618c'};
   }
 `
 
@@ -816,10 +817,10 @@ const ExtensionLinks = styled.div`
 `
 
 const Pill = styled.div`
-  color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
+  color: ${props => (props.active ? '#0b1729' : '#45618c')};
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
-  background-color: ${props => (props.active ? BACKGROUND_FADED_BLACK : TEXT_VERY_FADED_WHITE)};
+  background-color: ${props => (props.active ? '#4084ed' : '#070f1c')};
   margin-left: 5px;
   font-weight: 600;
   display: flex;
@@ -840,17 +841,20 @@ const PillText = styled.span`
 `
 
 const Team = styled.div`
-  color: ${TEXT_OFF_WHITE};
-  font-weight: 800;
+  color: #4084ed;
+  font-weight: 900;
+  font-size: 8px;
+  text-transform: uppercase;
   margin-right: 5px;
-  background-color: ${BACKGROUND_FADED_BLACK};
-  padding: 5px;
-  border-radius: 3px;
+  background-color: #070f1c;
+  padding: 10px;
+  border-radius: 5px;
   margin-right: 10px;
+  font-family: Menlo, monospace;
 `
 
 const Role = styled.div`
-  color: ${TEXT_OFF_WHITE};
+  color: #45618c;
   margin-right: 5px;
   font-weight: 500;
 
@@ -860,7 +864,7 @@ const Role = styled.div`
 `
 
 const Timezone = styled.div`
-  color: ${TEXT_OFF_WHITE};
+  color: #45618c;
   margin-right: 5px;
   opacity: 0.75;
 `

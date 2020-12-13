@@ -44,7 +44,7 @@ import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
 import { v4 as uuidv4 } from 'uuid'
-import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE, TEXT_FADED_WHITE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
+import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -150,7 +150,7 @@ const Channel = props => {
         active={props.active}
       >
         <ChannelContainerPadding>
-          <Avatar muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
+          <Avatar dark muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
             {props.icon ? (
               <ChannelIcon>
                 <IconComponent icon={props.icon} size={12} color={avatarIconColor} />
@@ -162,8 +162,8 @@ const Channel = props => {
             <ChannelInnerContents>
               <ChannelTitleRow>
                 <ChannelTitleRowIcon>
-                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={12} className="mr-5" />}
-                  {props.readonly && <IconComponent icon="radio" color={props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={12} className="mr-5" />}
+                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? TEXT_OFF_WHITE : '#314563'} size={12} className="mr-5" />}
+                  {props.readonly && <IconComponent icon="radio" color={props.active ? TEXT_OFF_WHITE : '#314563'} size={12} className="mr-5" />}
                 </ChannelTitleRowIcon>
 
                 <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
@@ -505,7 +505,7 @@ const ChannelTitle = styled.div`
   cursor: pointer;
   font-size: 13px;
   font-weight: ${props => (props.active ? '700' : '700')};
-  color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
+  color: ${props => (props.active ? TEXT_OFF_WHITE : '#314563')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -556,13 +556,13 @@ const ChannelExcerptTextContainer = styled.div`
 
 const ChannelExcerptText = styled.span`
   font-size: 14px;
-  color: ${TEXT_FADED_WHITE};
+  color: #314563;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   align: left;
-  opacity: 0.5;
+  opacity: 0.75;
 `
 
 const ChannelContents = styled.div`
@@ -1097,7 +1097,6 @@ class ChannelsComponent extends React.Component {
               image={this.props.user.image}
               title={this.props.user.name}
               userId={this.props.user.id}
-              outlineOuterColor={TEXT_FADED_WHITE}
               onPresenceClick={() => this.setState({ presenceMenu: true })}
             />
           </Popup>
@@ -1225,7 +1224,7 @@ class ChannelsComponent extends React.Component {
               </div>
             }
           >
-            <IconComponent icon="settings" size={16} color={TEXT_OFF_WHITE} className="button" onClick={this._openUserMenu.bind(this)} />
+            <IconComponent icon="settings" size={16} color="#45618c" className="button" onClick={this._openUserMenu.bind(this)} />
           </Popup>
         </Header>
       </HeaderContainer>
@@ -1315,7 +1314,7 @@ class ChannelsComponent extends React.Component {
               handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color={TEXT_OFF_WHITE} className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
+              <IconComponent icon="plus-circle" size={15} color="#45618c" className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
             </QuickInputComponent>
           )}
         </HeadingRow>
@@ -1418,7 +1417,7 @@ class ChannelsComponent extends React.Component {
               this.setState({ channelPrivatePopup: false })
             }}
           >
-            <IconComponent icon="plus-circle" size={15} color={TEXT_OFF_WHITE} className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
+            <IconComponent icon="plus-circle" size={15} color="#45618c" className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
           </QuickUserComponent>
         </HeadingRow>
 
@@ -1608,7 +1607,7 @@ class ChannelsComponent extends React.Component {
           >
             <path
               d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
-              style={{ fill: this.props.channel.color || '#112640' }}
+              style={{ fill: '#0b1729' }}
             />
           </svg>
         </Corner>
@@ -1748,6 +1747,7 @@ const Channels = styled.div`
   border-right: 1px solid #1f2d3d;
   border-right: 1px solid #eaedef;
   background: ${props => props.color};
+  background: #0b1729;
   display: ${props => (props.hideChannels ? 'none' : 'flex')};
 
   @media only screen and (max-width: 768px) {
@@ -1804,7 +1804,7 @@ const HeaderTitles = styled.div`
 `
 
 const HeaderName = styled.div`
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   font-style: normal;
   color: ${TEXT_OFF_WHITE};
@@ -1822,7 +1822,7 @@ const HeaderName = styled.div`
 const HeaderRole = styled.div`
   font-size: 11px;
   font-weight: 400;
-  color: ${TEXT_FADED_WHITE};
+  color: #45618c;
   overflow: hidden;
 `
 
@@ -1836,7 +1836,7 @@ const Heading = styled.div`
   padding: 20px 25px 10px 25px;
   font-size: 10px;
   font-weight: 900;
-  color: ${TEXT_OFF_WHITE};
+  color: #45618c;
   /*letter-spacing: 1px;*/
   text-transform: uppercase;
   flex: 1;
