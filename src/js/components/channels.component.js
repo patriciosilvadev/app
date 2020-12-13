@@ -501,9 +501,10 @@ const ChannelBadge = styled.div`
 
 const ChannelTitle = styled.div`
   cursor: pointer;
-  font-size: 14px;
-  font-weight: ${props => (props.active ? '700' : '400')};
+  font-size: 13px;
+  font-weight: ${props => (props.active ? '700' : '700')};
   color: ${props => (props.active ? '#18181d' : '#858E96')};
+  opacity: ${props => (props.active ? '1' : '0.5')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1573,7 +1574,7 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
           }}
         >
-          <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={16} className="mr-10" />
+          <IconComponent icon="calendar" color={this.props.channel.color || '#0a1a2e'} size={20} className="mr-10" />
           <HeaderButtonContainerText active={calendarActive}>Calendar</HeaderButtonContainerText>
         </HeaderButtonContainer>
 
@@ -1584,7 +1585,7 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
           }}
         >
-          <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={16} className="mr-10" />
+          <IconComponent icon="double-check" color={this.props.channel.color || '#0a1a2e'} size={20} className="mr-10" />
           <HeaderButtonContainerText active={tasksActive}>My Tasks</HeaderButtonContainerText>
         </HeaderButtonContainer>
       </HeaderButtons>
@@ -1693,8 +1694,8 @@ const HeaderButtonContainer = styled.div`
 
 const HeaderButtonContainerText = styled.div`
   cursor: pointer;
-  font-size: 14px;
-  font-weight: ${props => (props.active ? '700' : '400')};
+  font-size: 13px;
+  font-weight: ${props => (props.active ? '700' : '700')};
   color: ${props => (props.active ? '#18181d' : '#858E96')};
   white-space: nowrap;
   overflow: hidden;
@@ -1715,7 +1716,9 @@ const Channels = styled.div`
   z-index: 6;
   background: #18181d;
   background: #f8f9fa;
-  border-right: 0px solid #1f2d3d;
+  background: white;
+  border-right: 1px solid #1f2d3d;
+  border-right: 1px solid #eaedef;
   display: ${props => (props.hideChannels ? 'none' : 'flex')};
 
   @media only screen and (max-width: 768px) {

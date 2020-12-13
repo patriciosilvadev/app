@@ -47,3 +47,8 @@ export const FUTURE_DATE_UNIX_TIME = moment()
   .toDate()
   .getTime()
 export const MOMENT_TODAY = moment()
+
+export const TEXT_VERY_FADED_WHITE = 'rgba(255, 255, 255, 0.1)'
+export const TEXT_FADED_WHITE = 'rgba(255, 255, 255, 0.3)'
+export const TEXT_OFF_WHITE = 'rgba(255, 255, 255, 0.8)'
+export const BACKGROUND_FADED_BLACK = 'rgba(0, 0, 0, 0.1)'

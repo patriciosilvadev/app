@@ -134,7 +134,7 @@ export default function NotificationsComponent(props) {
     >
       <div style={{ ...props.style }} className="button" onClick={e => setNotificationsMenu(true)}>
         {hasNotification && <Badge />}
-        <IconComponent icon="flag" size={18} color="#112640" />
+        {props.children}
       </div>
     </Popup>
   )
@@ -149,8 +149,7 @@ const Badge = styled.span`
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background-color: #ef4056;
-  border: 1px solid #f8f9fa;
+  background-color: white;
 `
 
 const Container = styled.div`

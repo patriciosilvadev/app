@@ -14,7 +14,7 @@ import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
-import { IS_CORDOVA, DEVICE, TOGGLE_CHANNELS_DRAWER } from '../constants'
+import { IS_CORDOVA, DEVICE, TOGGLE_CHANNELS_DRAWER, TEXT_VERY_FADED_WHITE, TEXT_FADED_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
 import EventService from '../services/event.service'
 
 export default function DockComponent(props) {
@@ -51,11 +51,6 @@ export default function DockComponent(props) {
     }
   }
 
-  // Important for setting highlighted team
-  const { pathname } = props.history.location
-  const pathnameParts = pathname.split('/')
-  const lastPathname = pathnameParts[pathnameParts.length - 1]
-
   // Get all the teams
   useEffect(() => {
     if (user.id) fetchTeams(user.id)
@@ -69,7 +64,15 @@ export default function DockComponent(props) {
   }, [user.id])
 
   return (
-    <Dock color={channel.color}>
+    <Dock color={channel.color || '#112640'}>
+      <Corner>
+        <svg width="15" height="15" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <g transform="matrix(1.22582,0,0,1.22582,0,0)">
+            <path d="M0,16.316C0,7.311 7.311,0 16.316,0L0,0C0,0 0,25.32 0,16.316Z" style={{ fill: channel.color || '#112640' }} />
+          </g>
+        </svg>
+      </Corner>
+
       {!!team.id && (
         <ToggleButton
           onClick={e => {
@@ -85,6 +88,7 @@ export default function DockComponent(props) {
 
       {teams.map((t, index) => {
         const unread = !!common.unread.filter(row => t.id == row.doc.team).flatten()
+        const active = t.id == team.id
 
         return (
           <Link
@@ -96,12 +100,12 @@ export default function DockComponent(props) {
               boxSizing: 'border-box',
               paddingTop: 7,
               paddingBottom: 7,
-              backgroundColor: lastPathname != 'starred' && t.id == team.id ? '#F0F3F5' : 'transparent',
-              borderLeft: lastPathname != 'starred' && t.id == team.id ? '3px solid #AEB5BB' : 'none',
+              backgroundColor: active ? TEXT_VERY_FADED_WHITE : 'transparent',
+              borderLeft: active ? '3px solid ' + TEXT_FADED_WHITE : 'none',
             }}
           >
             <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
-            <Team>{t.name}</Team>
+            <Team active={active}>{t.name}</Team>
           </Link>
         )
       })}
@@ -110,32 +114,42 @@ export default function DockComponent(props) {
 
       <div className="mt-0 mb-0">
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => setTeamOnboardingModal(true)}>
-          <IconComponent icon="plus-circle" size={19} color="#112640" />
+          <IconComponent icon="plus-circle" size={19} color={TEXT_FADED_WHITE} />
         </Avatar>
       </div>
 
       <div className="mt-0 mb-10" id="yack" data-inbox="weekday">
         {/* onClick={e => window.open('mailto:support@weekday.freshdesk.com')} */}
         <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button">
-          <IconComponent icon="life-buoy" size={18} color="#112640" />
+          <IconComponent icon="life-buoy" size={18} color={TEXT_FADED_WHITE} />
         </Avatar>
       </div>
 
-      <NotificationsComponent style={{ marginTop: 0 }} />
+      <NotificationsComponent>
+        <IconComponent icon="flag" size={18} color={TEXT_FADED_WHITE} />
+      </NotificationsComponent>
 
       <div className="flexer"></div>
 
-      <img src="icon-light.svg" width="20" />
+      <img src="icon-white.svg" width="20" style={{ opacity: 0.2 }} />
     </Dock>
   )
 }
 
 DockComponent.propTypes = {}
 
+const Corner = styled.div`
+  position: absolute;
+  left: 100%;
+  top: 0px;
+  width: 15px;
+  height: 15px;
+`
+
 const ToggleButton = styled.div`
   position: absolute;
   z-index: 10;
-  top: 0px;
+  bottom: 20px;
   right: 0px;
   width: 20px;
   height: 20px;
@@ -163,7 +177,7 @@ const DockPadding = styled.div`
 `
 
 const Dock = styled.div`
-  width: 75px;
+  width: 70px;
   padding-top: 20px;
   padding-bottom: 20px;
   display: flex;
@@ -171,13 +185,13 @@ const Dock = styled.div`
   position: relative;
   background: #18181d;
   background: #f8f9fa;
+  background: white;
+  background: ${props => props.color};
   display: flex;
   flex-direction: column;
   align-content: center;
   align-items: center;
   z-index: 7;
-  border-right: 1px solid #eaedef;
-  box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);
 
   @media only screen and (max-width: 768px) {
     width: 20vw;
@@ -188,7 +202,7 @@ const Dock = styled.div`
 const Team = styled.div`
   margin-top: 5px;
   font-size: 9px;
-  color: #aeb5bb;
+  color: ${props => (props.active ? 'white' : TEXT_FADED_WHITE)};
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;

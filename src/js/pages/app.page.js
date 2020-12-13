@@ -25,7 +25,7 @@ import TasksExtension from '../extensions/tasks/tasks.extension'
 import MeetExtension from '../extensions/meet/meet.extension'
 import CalendarExtension from '../extensions/calendar/calendar.extension'
 import BoardsExtension from '../extensions/boards/boards.extension'
-import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE } from '../constants'
+import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE, TEXT_FADED_WHITE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
 
@@ -248,25 +248,6 @@ class AppPage extends React.Component {
     const urlParts = pathname.split('/')
     const lastUrlPart = urlParts[urlParts.length - 1].split('?')[0]
     const backgroundColor = this.props.channel ? (this.props.channel.color ? this.props.channel.color : '#112640') : '#112640'
-    const pillBackgroundColor = this.props.channel
-      ? this.props.channel.private
-        ? '#0a1a2e'
-        : this.props.channel.color
-        ? chroma(this.props.channel.color)
-            .darken(0.25)
-            .toString()
-        : '#0a1a2e'
-      : '#0a1a2e'
-    const textColor = this.props.channel
-      ? this.props.channel.private
-        ? '#007af5'
-        : this.props.channel.color
-        ? chroma(this.props.channel.color)
-            .desaturate(2)
-            .brighten(2.25)
-            .toString()
-        : '#007af5'
-      : '#007af5'
 
     return (
       <Bar backgroundColor={backgroundColor}>
@@ -274,32 +255,30 @@ class AppPage extends React.Component {
           <BarPadding />
           <BarInfo>
             <DrawerIcon>
-              <IconComponent icon="menu" size={20} color={textColor} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
+              <IconComponent icon="menu" size={20} color={TEXT_OFF_WHITE} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
             </DrawerIcon>
 
-            <Team backgroundColor={pillBackgroundColor} textColor={textColor}>
-              {this.props.team.name}
-            </Team>
+            <Team>{this.props.team.name}</Team>
 
-            <Role textColor={textColor}>{this.props.team.position}</Role>
-            <Timezone textColor={textColor}>{this.props.user.timezone}</Timezone>
+            <Role>{this.props.team.position}</Role>
+            <Timezone>{this.props.user.timezone}</Timezone>
           </BarInfo>
 
           {this.props.channel.id && (
             <React.Fragment>
-              <SearchBar backgroundColor={pillBackgroundColor}>
-                <IconComponent icon="search" size={15} color="rgba(255,255,255,0.25)" />
-                <SearchBarInput color={textColor}>
+              <SearchBar>
+                <IconComponent icon="search" size={15} color={TEXT_FADED_WHITE} />
+                <SearchBarInput>
                   <input type="text" placeholder="Search messages..." value={this.state.searchQuery} onChange={e => this.setState({ searchQuery: e.target.value })} />
                 </SearchBarInput>
-                {!!this.state.searchQuery && <IconComponent icon="x" size={15} color="rgba(255,255,255,0.25)" className="button" onClick={() => this.setState({ searchQuery: '' })} />}
+                {!!this.state.searchQuery && <IconComponent icon="x" size={15} color={TEXT_FADED_WHITE} className="button" onClick={() => this.setState({ searchQuery: '' })} />}
               </SearchBar>
               <BarExtensions>
                 <LayoutIcons>
                   <LayoutIconButton>
                     <IconComponent
                       icon="square"
-                      color={this.state.extensionLayout == LAYOUTS.FULL ? textColor : 'rgba(255,255,255,0.25)'}
+                      color={this.state.extensionLayout == LAYOUTS.FULL ? TEXT_OFF_WHITE : TEXT_FADED_WHITE}
                       size={18}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
                     />
@@ -307,7 +286,7 @@ class AppPage extends React.Component {
                   <LayoutIconButton>
                     <IconComponent
                       icon="sidebar-left"
-                      color={this.state.extensionLayout == LAYOUTS.MAIN ? textColor : 'rgba(255,255,255,0.25)'}
+                      color={this.state.extensionLayout == LAYOUTS.MAIN ? TEXT_OFF_WHITE : TEXT_FADED_WHITE}
                       size={18}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
                     />
@@ -315,7 +294,7 @@ class AppPage extends React.Component {
                   <LayoutIconButton>
                     <IconComponent
                       icon="sidebar-right"
-                      color={this.state.extensionLayout == LAYOUTS.SIDE ? textColor : 'rgba(255,255,255,0.25)'}
+                      color={this.state.extensionLayout == LAYOUTS.SIDE ? TEXT_OFF_WHITE : TEXT_FADED_WHITE}
                       size={18}
                       onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
                     />
@@ -325,8 +304,8 @@ class AppPage extends React.Component {
                 <ExtensionLinks>
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'meet' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/meet`}>
-                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'meet'}>
-                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
+                      <Pill active={lastUrlPart == 'meet'}>
+                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
                         <PillText>Meet</PillText>
                       </Pill>
                     </Link>
@@ -336,8 +315,8 @@ class AppPage extends React.Component {
                     <Link
                       to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
                     >
-                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'calendar'}>
-                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
+                      <Pill active={lastUrlPart == 'calendar'}>
+                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
                         <PillText>Calendar</PillText>
                       </Pill>
                     </Link>
@@ -345,16 +324,16 @@ class AppPage extends React.Component {
 
                   {!IS_CORDOVA && (
                     <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
-                      <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'boards'}>
-                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
+                      <Pill active={lastUrlPart == 'boards'}>
+                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
                         <PillText>Boards</PillText>
                       </Pill>
                     </Link>
                   )}
 
                   <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
-                    <Pill backgroundColor={pillBackgroundColor} textColor={textColor} active={lastUrlPart == 'tasks'}>
-                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? pillBackgroundColor : textColor} size={14} className="mr-5" />
+                    <Pill active={lastUrlPart == 'tasks'}>
+                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? TEXT_OFF_WHITE : TEXT_FADED_WHITE} size={14} className="mr-5" />
                       <PillText>Tasks</PillText>
                     </Pill>
                   </Link>
@@ -734,7 +713,7 @@ const App = styled.div`
 `
 
 const Bar = styled.div`
-  background: ${props => (props.backgroundColor ? props.backgroundColor : '#F0F3F5')};
+  background: ${props => props.backgroundColor};
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -765,10 +744,10 @@ const BarInner = styled.div`
 `
 
 const SearchBar = styled.div`
-  padding:10px;
+  padding: 10px;
   flex: 1;
-  background: ${props => props.backgroundColor}
-  margin-left: 50px;
+  background-color: ${BACKGROUND_FADED_BLACK};
+  margin-left: 100px;
   margin-right: 50px;
   display: flex;
   flex-direction: row;
@@ -789,11 +768,11 @@ const SearchBarInput = styled.div`
     border: none;
     font-weight: 500;
     font-size: 13px;
-    color: ${props => props.color};
+    color: white;
   }
 
   input::placeholder {
-    color: rgba(255, 255, 255, 0.25);
+    color: ${TEXT_FADED_WHITE};
   }
 `
 
@@ -836,10 +815,10 @@ const ExtensionLinks = styled.div`
 `
 
 const Pill = styled.div`
-  color: ${props => (props.active ? props.backgroundColor : props.textColor)};
+  color: ${props => (props.active ? TEXT_OFF_WHITE : TEXT_FADED_WHITE)};
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
-  background-color: ${props => (props.active ? props.textColor : props.backgroundColor)};
+  background-color: ${props => (props.active ? TEXT_VERY_FADED_WHITE : BACKGROUND_FADED_BLACK)};
   margin-left: 5px;
   font-weight: 600;
   display: flex;
@@ -860,17 +839,17 @@ const PillText = styled.span`
 `
 
 const Team = styled.div`
-  color: ${props => props.textColor};
+  color: ${TEXT_OFF_WHITE};
   font-weight: 800;
   margin-right: 5px;
-  background-color: ${props => props.backgroundColor};
+  background-color: ${BACKGROUND_FADED_BLACK};
   padding: 5px;
   border-radius: 3px;
   margin-right: 10px;
 `
 
 const Role = styled.div`
-  color: ${props => props.textColor};
+  color: ${TEXT_OFF_WHITE};
   margin-right: 5px;
   font-weight: 500;
 
@@ -880,7 +859,7 @@ const Role = styled.div`
 `
 
 const Timezone = styled.div`
-  color: ${props => props.textColor};
+  color: ${TEXT_OFF_WHITE};
   margin-right: 5px;
   opacity: 0.75;
 `
