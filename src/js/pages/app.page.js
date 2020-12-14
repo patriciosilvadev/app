@@ -303,9 +303,11 @@ class AppPage extends React.Component {
               />
             </DrawerIcon>
 
-            <Team>{this.props.team.name}</Team>
-            <Role>{this.props.user.name}</Role>
-            <Timezone>{this.props.team.position}</Timezone>
+            <img
+              src="icon.svg"
+              width="15"
+              style={{ opacity: 0.2, marginLeft: 18 }}
+            />
           </BarInfo>
 
           {this.props.channel.id && (
@@ -918,7 +920,7 @@ const BarInner = styled.div`
   justify-content: center;
   width: 100%;
   padding: 0 10px 0 10px;
-  height: 50px;
+  height: 60px;
 `
 
 const SearchBar = styled.div`
@@ -961,6 +963,7 @@ const BarInfo = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-right: auto;
+  /* width: 305px; */
 `
 
 const BarExtensions = styled.div`
@@ -993,12 +996,11 @@ const ExtensionLinks = styled.div`
 `
 
 const Pill = styled.div`
-  color: ${props => (props.active ? '#0b1729' : '#45618c')};
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
   background-color: ${props => (props.active ? '#4084ed' : '#070f1c')};
+  color: ${props => (props.active ? '#0b1729' : '#45618c')};
   margin-left: 5px;
-  font-weight: 600;
   display: flex;
   flex-direction: row;
   align-content: center;
@@ -1011,26 +1013,36 @@ const Pill = styled.div`
 `
 
 const PillText = styled.span`
+  font-family: Menlo, monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 10px;
+
   @media only screen and (max-width: 768px) {
     display: none;
   }
 `
 
 const Team = styled.div`
-  color: #4084ed;
-  font-weight: 900;
+  font-weight: 600;
   font-size: 8px;
   text-transform: uppercase;
   margin-right: 5px;
-  background-color: #070f1c;
+
   padding: 10px;
   border-radius: 5px;
   margin-right: 10px;
   font-family: Menlo, monospace;
+  color: #45618c;
+
+  strong {
+    font-size: 8px;
+    font-weight: 900;
+    color: #4084ed;
+  }
 `
 
 const Role = styled.div`
-  color: #45618c;
   margin-right: 5px;
   font-weight: 500;
 

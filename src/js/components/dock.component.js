@@ -141,8 +141,8 @@ export default function DockComponent(props) {
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              paddingTop: 7,
-              paddingBottom: 7,
+              paddingTop: 10,
+              paddingBottom: 10,
               borderTopRightRadius: 5,
               borderBottomRightRadius: 5,
               backgroundColor: active ? BACKGROUND_FADED_BLACK : 'transparent',
@@ -174,8 +174,6 @@ export default function DockComponent(props) {
       </div>
 
       <div className="flexer"></div>
-
-      <img src="icon.svg" width="20" style={{ opacity: 0.2 }} />
     </Dock>
   )
 }
@@ -193,7 +191,7 @@ const Corner = styled.div`
 const ToggleButton = styled.div`
   position: absolute;
   z-index: 10;
-  bottom: 20px;
+  bottom: 40px;
   right: 0px;
   width: 20px;
   height: 20px;
@@ -222,7 +220,7 @@ const DockPadding = styled.div`
 
 const Dock = styled.div`
   width: 70px;
-  padding-top: 20px;
+  padding-top: 0px;
   padding-bottom: 20px;
   display: flex;
   height: 100%;
@@ -247,7 +245,7 @@ const Dock = styled.div`
 const Team = styled.div`
   margin-top: 5px;
   font-size: 8px;
-  color: ${props => (props.active ? 'white' : TEXT_FADED_WHITE)};
+  color: ${props => (props.active ? '#4084ed' : '#314563')};
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;

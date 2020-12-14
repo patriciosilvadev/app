@@ -65,47 +65,141 @@ import {
   BiCompass,
 } from 'react-icons/bi'
 
-export function IconComponent({ size, color, icon, className, onClick, style }) {
+import {
+  AiOutlineSetting,
+  AiOutlineNotification,
+  AiOutlineQuestionCircle,
+  AiOutlineFlag,
+  AiOutlineCheckCircle,
+  AiOutlineCalendar,
+} from 'react-icons/ai'
+
+export function IconComponent({
+  size,
+  color,
+  icon,
+  className,
+  onClick,
+  style,
+}) {
   const getIcon = () => {
     switch (icon) {
+      case 'channels-help':
+        return (
+          <AiOutlineQuestionCircle
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
+      case 'channels-notifications':
+        return (
+          <AiOutlineFlag size={size} width={size} height={size} color={color} />
+        )
+      case 'channels-calendar':
+        return (
+          <AiOutlineCalendar
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
+      case 'channels-tasks':
+        return (
+          <AiOutlineCheckCircle
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
+      case 'channels-settings':
+        return (
+          <AiOutlineSetting
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'boards':
-        return <BiColumns size={size} width={size} height={size} color={color} />
+        return (
+          <BiColumns size={size} width={size} height={size} color={color} />
+        )
       case 'corner-down-right':
-        return <BiSubdirectoryRight size={size} width={size} height={size} color={color} />
+        return (
+          <BiSubdirectoryRight
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'align-left':
-        return <BiAlignLeft size={size} width={size} height={size} color={color} />
+        return (
+          <BiAlignLeft size={size} width={size} height={size} color={color} />
+        )
       case 'life-buoy':
         return <BiBuoy size={size} width={size} height={size} color={color} />
       case 'calendar':
-        return <BiCalendar size={size} width={size} height={size} color={color} />
+        return (
+          <BiCalendar size={size} width={size} height={size} color={color} />
+        )
       case 'file':
-        return <BiFileBlank size={size} width={size} height={size} color={color} />
+        return (
+          <BiFileBlank size={size} width={size} height={size} color={color} />
+        )
       case 'file-text':
         return <BiFile size={size} width={size} height={size} color={color} />
       case 'menu':
         return <BiMenu size={size} width={size} height={size} color={color} />
       case 'square':
-        return <BiRectangle size={size} width={size} height={size} color={color} />
+        return (
+          <BiRectangle size={size} width={size} height={size} color={color} />
+        )
       case 'sidebar-left':
-        return <BiDockLeft size={size} width={size} height={size} color={color} />
+        return (
+          <BiDockLeft size={size} width={size} height={size} color={color} />
+        )
       case 'sidebar-right':
-        return <BiDockRight size={size} width={size} height={size} color={color} />
+        return (
+          <BiDockRight size={size} width={size} height={size} color={color} />
+        )
       case 'video-off':
-        return <BiVideoOff size={size} width={size} height={size} color={color} />
+        return (
+          <BiVideoOff size={size} width={size} height={size} color={color} />
+        )
       case 'video':
         return <BiVideo size={size} width={size} height={size} color={color} />
       case 'mic-off':
-        return <BiMicrophoneOff size={size} width={size} height={size} color={color} />
+        return (
+          <BiMicrophoneOff
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'mic':
-        return <BiMicrophone size={size} width={size} height={size} color={color} />
+        return (
+          <BiMicrophone size={size} width={size} height={size} color={color} />
+        )
       case 'monitor':
-        return <BiDesktop size={size} width={size} height={size} color={color} />
+        return (
+          <BiDesktop size={size} width={size} height={size} color={color} />
+        )
       case 'smartphone':
-        return <BiMobileAlt size={size} width={size} height={size} color={color} />
+        return (
+          <BiMobileAlt size={size} width={size} height={size} color={color} />
+        )
       case 'hash':
         return <BiHash size={size} width={size} height={size} color={color} />
       case 'compass':
-        return <BiCompass size={size} width={size} height={size} color={color} />
+        return (
+          <BiCompass size={size} width={size} height={size} color={color} />
+        )
       case 'flag':
         return <BiFlag size={size} width={size} height={size} color={color} />
       case 'package':
@@ -113,21 +207,40 @@ export function IconComponent({ size, color, icon, className, onClick, style }) 
       case 'box':
         return <BiBox size={size} width={size} height={size} color={color} />
       case 'radio':
-        return <BiBroadcast size={size} width={size} height={size} color={color} />
+        return (
+          <BiBroadcast size={size} width={size} height={size} color={color} />
+        )
       case 'share1':
-        return <BiShareAlt size={size} width={size} height={size} color={color} />
+        return (
+          <BiShareAlt size={size} width={size} height={size} color={color} />
+        )
       case 'share':
-        return <BiShareAlt size={size} width={size} height={size} color={color} />
+        return (
+          <BiShareAlt size={size} width={size} height={size} color={color} />
+        )
       case 'lock':
-        return <BiLockAlt size={size} width={size} height={size} color={color} />
+        return (
+          <BiLockAlt size={size} width={size} height={size} color={color} />
+        )
       case 'unlock':
-        return <BiLockOpenAlt size={size} width={size} height={size} color={color} />
+        return (
+          <BiLockOpenAlt size={size} width={size} height={size} color={color} />
+        )
       case 'shield':
         return <BiShield size={size} width={size} height={size} color={color} />
       case 'user-minus':
-        return <BiUserMinus size={size} width={size} height={size} color={color} />
+        return (
+          <BiUserMinus size={size} width={size} height={size} color={color} />
+        )
       case 'message-circle':
-        return <BiMessageSquareDetail size={size} width={size} height={size} color={color} />
+        return (
+          <BiMessageSquareDetail
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'eye':
         return <BiShow size={size} width={size} height={size} color={color} />
       case 'eye-off':
@@ -139,17 +252,23 @@ export function IconComponent({ size, color, icon, className, onClick, style }) 
       case 'smile':
         return <BiSmile size={size} width={size} height={size} color={color} />
       case 'attachment':
-        return <BiPaperclip size={size} width={size} height={size} color={color} />
+        return (
+          <BiPaperclip size={size} width={size} height={size} color={color} />
+        )
       case 'send':
         return <BiSend size={size} width={size} height={size} color={color} />
       case 'at':
         return <BiAt size={size} width={size} height={size} color={color} />
       case 'plus-circle':
-        return <BiPlusCircle size={size} width={size} height={size} color={color} />
+        return (
+          <BiPlusCircle size={size} width={size} height={size} color={color} />
+        )
       case 'plus':
         return <BiPlus size={size} width={size} height={size} color={color} />
       case 'double-check':
-        return <BiCheckDouble size={size} width={size} height={size} color={color} />
+        return (
+          <BiCheckDouble size={size} width={size} height={size} color={color} />
+        )
       case 'check':
         return <BiCheck size={size} width={size} height={size} color={color} />
       case 'x':
@@ -157,33 +276,80 @@ export function IconComponent({ size, color, icon, className, onClick, style }) 
       case 'bell':
         return <BiBell size={size} width={size} height={size} color={color} />
       case 'bell-off':
-        return <BiBellOff size={size} width={size} height={size} color={color} />
+        return (
+          <BiBellOff size={size} width={size} height={size} color={color} />
+        )
       case 'pen':
         return <BiPencil size={size} width={size} height={size} color={color} />
       case 'reply':
         return <BiShare size={size} width={size} height={size} color={color} />
       case 'chevron-down':
-        return <BiChevronDown size={size} width={size} height={size} color={color} />
+        return (
+          <BiChevronDown size={size} width={size} height={size} color={color} />
+        )
       case 'chevron-up':
-        return <BiChevronUp size={size} width={size} height={size} color={color} />
+        return (
+          <BiChevronUp size={size} width={size} height={size} color={color} />
+        )
       case 'chevron-right':
-        return <BiChevronRight size={size} width={size} height={size} color={color} />
+        return (
+          <BiChevronRight
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'chevron-left':
-        return <BiChevronLeft size={size} width={size} height={size} color={color} />
+        return (
+          <BiChevronLeft size={size} width={size} height={size} color={color} />
+        )
       case 'profile':
-        return <BiUserCircle size={size} width={size} height={size} color={color} />
+        return (
+          <BiUserCircle size={size} width={size} height={size} color={color} />
+        )
       case 'settings':
         return <BiCog size={size} width={size} height={size} color={color} />
       case 'question':
-        return <BiQuestionMark size={size} width={size} height={size} color={color} />
+        return (
+          <BiQuestionMark
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'logout':
-        return <BiLogOutCircle size={size} width={size} height={size} color={color} />
+        return (
+          <BiLogOutCircle
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'refresh':
-        return <BiRefresh size={size} width={size} height={size} color={color} />
+        return (
+          <BiRefresh size={size} width={size} height={size} color={color} />
+        )
       case 'more-h':
-        return <BiDotsHorizontalRounded size={size} width={size} height={size} color={color} />
+        return (
+          <BiDotsHorizontalRounded
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'more-v':
-        return <BiDotsVerticalRounded size={size} width={size} height={size} color={color} />
+        return (
+          <BiDotsVerticalRounded
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'star':
         return <BiStar size={size} width={size} height={size} color={color} />
       case 'search':

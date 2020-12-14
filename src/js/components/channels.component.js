@@ -1316,6 +1316,7 @@ class ChannelsComponent extends React.Component {
           />
 
           <div className="flexer" />
+
           <div
             className="mr-10"
             id="yack"
@@ -1323,8 +1324,8 @@ class ChannelsComponent extends React.Component {
             style={{ width: 18, height: 18 }}
           >
             <IconComponent
-              icon="life-buoy"
-              size={18}
+              icon="channels-help"
+              size={20}
               color="#45618c"
               className="button"
             />
@@ -1332,16 +1333,16 @@ class ChannelsComponent extends React.Component {
 
           <NotificationsComponent style={{ width: 18, height: 18 }}>
             <IconComponent
-              icon="flag"
-              size={18}
+              icon="channels-notifications"
+              size={20}
               color="#45618c"
               className="button"
             />
           </NotificationsComponent>
 
           <IconComponent
-            icon="calendar"
-            size={18}
+            icon="channels-calendar"
+            size={20}
             color={calendarActive ? TEXT_OFF_WHITE : '#45618c'}
             className="button mr-10 ml-10"
             onClick={() => {
@@ -1353,8 +1354,8 @@ class ChannelsComponent extends React.Component {
           />
 
           <IconComponent
-            icon="double-check"
-            size={18}
+            icon="channels-tasks"
+            size={20}
             color={tasksActive ? TEXT_OFF_WHITE : '#45618c'}
             className="button mr-10"
             onClick={() => {
@@ -1617,8 +1618,8 @@ class ChannelsComponent extends React.Component {
             }
           >
             <IconComponent
-              icon="settings"
-              size={18}
+              icon="channels-settings"
+              size={20}
               color="#45618c"
               className="button"
               onClick={this._openUserMenu.bind(this)}
@@ -2231,14 +2232,14 @@ const HeaderContainer = styled.div`
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding 5px 25px 10px 25px;
+  padding 0px 25px 10px 25px;
   transition: background-color 0.5s;
   display: flex;
   flex-direction: row;
   align-content: stretch;
   align-items: center;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 10px;
 
   @media only screen and (max-width: 768px) {
     padding 20px;
