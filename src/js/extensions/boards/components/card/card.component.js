@@ -3,7 +3,12 @@ import { connect } from 'react-redux'
 import './card.component.css'
 import PropTypes from 'prop-types'
 import { Avatar } from '@weekday/elements'
-import { hydrateTasks, hydrateTask, updateTasks, createTasks } from '../../../../actions'
+import {
+  hydrateTasks,
+  hydrateTask,
+  updateTasks,
+  createTasks,
+} from '../../../../actions'
 import arrayMove from 'array-move'
 import { sortTasksByOrder, classNames, logger } from '../../../../helpers/util'
 import { CheckboxComponent } from '../../../tasks/components/checkbox/checkbox.component'
@@ -200,17 +205,29 @@ class CardComponent extends React.Component {
         {!this.props.new && (
           <div className="card-container">
             <div className="inner">
-              <CheckboxComponent done={this.props.done} onClick={this.handleUpdateTaskDone} />
+              <CheckboxComponent
+                done={this.props.done}
+                onClick={this.handleUpdateTaskDone}
+              />
               {!!this.props.user && (
                 <div className="card-avatar">
-                  <Avatar size="very-small" image={this.props.user.image} title={this.props.user.name} />
+                  <Avatar
+                    size="x-small"
+                    image={this.props.user.image}
+                    title={this.props.user.name}
+                  />
                 </div>
               )}
               <div className="card-details">
-                <div className="card-title" onClick={() => this.props.hydrateTask({ id: this.props.id })}>
+                <div
+                  className="card-title"
+                  onClick={() => this.props.hydrateTask({ id: this.props.id })}
+                >
                   {this.props.title}
                 </div>
-                {!!this.state.dueDatePretty && <div className="card-duedate">{this.state.dueDatePretty}</div>}
+                {!!this.state.dueDatePretty && (
+                  <div className="card-duedate">{this.state.dueDatePretty}</div>
+                )}
               </div>
             </div>
           </div>
@@ -218,7 +235,12 @@ class CardComponent extends React.Component {
 
         {this.props.new && (
           <div className="card-container-new">
-            <TextareaComponent value={this.state.compose} onChange={e => this.setState({ compose: e.target.value })} placeholder="Create new task" onKeyDown={this.handleKeyDown} />
+            <TextareaComponent
+              value={this.state.compose}
+              onChange={e => this.setState({ compose: e.target.value })}
+              placeholder="Create new task"
+              onKeyDown={this.handleKeyDown}
+            />
           </div>
         )}
       </div>

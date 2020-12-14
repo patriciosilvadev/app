@@ -5,16 +5,34 @@ import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import GraphqlService from '../services/graphql.service'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import { hydrateTeams, updateNotifications, hydrateNotifications } from '../actions'
+import {
+  hydrateTeams,
+  updateNotifications,
+  hydrateNotifications,
+} from '../actions'
 import PropTypes from 'prop-types'
 import { logger } from '../helpers/util'
-import { Toggle, Popup, Menu, Avatar, Channel, Tooltip } from '@weekday/elements'
+import {
+  Toggle,
+  Popup,
+  Menu,
+  Avatar,
+  Channel,
+  Tooltip,
+} from '@weekday/elements'
 import { useSelector, useDispatch } from 'react-redux'
 import NotificationsComponent from '../components/notifications.component'
 import { IconComponent } from './icon.component'
 import MessagingService from '../services/messaging.service'
 import TeamOnboardingModal from '../modals/team-onboarding.modal'
-import { IS_CORDOVA, DEVICE, TOGGLE_CHANNELS_DRAWER, TEXT_VERY_FADED_WHITE, TEXT_FADED_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
+import {
+  IS_CORDOVA,
+  DEVICE,
+  TOGGLE_CHANNELS_DRAWER,
+  TEXT_VERY_FADED_WHITE,
+  TEXT_FADED_WHITE,
+  BACKGROUND_FADED_BLACK,
+} from '../constants'
 import EventService from '../services/event.service'
 
 export default function DockComponent(props) {
@@ -72,14 +90,47 @@ export default function DockComponent(props) {
             EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
           }}
         >
-          <IconComponent icon={open ? 'chevron-left' : 'chevron-right'} size={10} color="#4084ed" style={{ top: -2 }} />
+          <IconComponent
+            icon={open ? 'chevron-left' : 'chevron-right'}
+            size={10}
+            color="#4084ed"
+            style={{ top: -2 }}
+          />
         </ToggleButton>
       )}
 
-      {teamOnboardingModal && <TeamOnboardingModal onOkay={() => setTeamOnboardingModal(false)} onCancel={() => setTeamOnboardingModal(false)} />}
+      <Corner>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 20 20"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fillRule: 'evenodd',
+            clipRule: 'evenodd',
+            strokeLinejoin: 'round',
+            strokeMiterlimit: '2',
+          }}
+        >
+          <path
+            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+            style={{ fill: '#0b1729' }}
+          />
+        </svg>
+      </Corner>
+
+      {teamOnboardingModal && (
+        <TeamOnboardingModal
+          onOkay={() => setTeamOnboardingModal(false)}
+          onCancel={() => setTeamOnboardingModal(false)}
+        />
+      )}
 
       {teams.map((t, index) => {
-        const unread = !!common.unread.filter(row => t.id == row.doc.team).flatten()
+        const unread = !!common.unread
+          .filter(row => t.id == row.doc.team)
+          .flatten()
         const active = t.id == team.id
 
         return (
@@ -97,7 +148,13 @@ export default function DockComponent(props) {
               backgroundColor: active ? BACKGROUND_FADED_BLACK : 'transparent',
             }}
           >
-            <Avatar badge={unread} size="medium-large" image={t.image} title={t.name} className="button" />
+            <Avatar
+              badge={unread}
+              size="medium-large"
+              image={t.image}
+              title={t.name}
+              className="button"
+            />
             <Team active={active}>{t.name}</Team>
           </Link>
         )
@@ -106,21 +163,15 @@ export default function DockComponent(props) {
       <DockPadding />
 
       <div className="mt-0 mb-0">
-        <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button" onClick={e => setTeamOnboardingModal(true)}>
+        <Avatar
+          size="medium-large"
+          color="rgba(0,0,0,0)"
+          className="button"
+          onClick={e => setTeamOnboardingModal(true)}
+        >
           <IconComponent icon="plus-circle" size={19} color="#314563" />
         </Avatar>
       </div>
-
-      <div className="mt-0 mb-10" id="yack" data-inbox="weekday">
-        {/* onClick={e => window.open('mailto:support@weekday.freshdesk.com')} */}
-        <Avatar size="medium-large" color="rgba(0,0,0,0)" className="button">
-          <IconComponent icon="life-buoy" size={18} color="#314563" />
-        </Avatar>
-      </div>
-
-      <NotificationsComponent>
-        <IconComponent icon="flag" size={18} color="#314563" />
-      </NotificationsComponent>
 
       <div className="flexer"></div>
 
@@ -130,6 +181,14 @@ export default function DockComponent(props) {
 }
 
 DockComponent.propTypes = {}
+
+const Corner = styled.div`
+  position: absolute;
+  left: 100%;
+  top: -3px;
+  width: 10px;
+  height: 10px;
+`
 
 const ToggleButton = styled.div`
   position: absolute;

@@ -5,7 +5,13 @@ import { browserHistory } from '../services/browser-history.service'
 import AuthService from '../services/auth.service'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { initialize, fetchUser, closeAppModal, closeAppPanel, hydrateTask } from '../actions'
+import {
+  initialize,
+  fetchUser,
+  closeAppModal,
+  closeAppPanel,
+  hydrateTask,
+} from '../actions'
 import GraphqlService from '../services/graphql.service'
 import * as PresenceService from '../services/presence.service'
 import CookieService from '../services/storage.service'
@@ -17,7 +23,12 @@ import AppComponent from '../components/app.component'
 import AppModal from '../modals/app.modal'
 import DockComponent from '../components/dock.component'
 import ToolbarComponent from '../components/toolbar.component'
-import { showLocalPushNotification, urlBase64ToUint8Array, logger, isExtensionOpen } from '../helpers/util'
+import {
+  showLocalPushNotification,
+  urlBase64ToUint8Array,
+  logger,
+  isExtensionOpen,
+} from '../helpers/util'
 import EventService from '../services/event.service'
 import * as PnService from '../services/pn.service'
 import * as chroma from 'chroma-js'
@@ -25,7 +36,15 @@ import TasksExtension from '../extensions/tasks/tasks.extension'
 import MeetExtension from '../extensions/meet/meet.extension'
 import CalendarExtension from '../extensions/calendar/calendar.extension'
 import BoardsExtension from '../extensions/boards/boards.extension'
-import { LAYOUTS, IS_CORDOVA, IS_MOBILE, DEVICE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
+import {
+  LAYOUTS,
+  IS_CORDOVA,
+  IS_MOBILE,
+  DEVICE,
+  TEXT_VERY_FADED_WHITE,
+  TEXT_OFF_WHITE,
+  BACKGROUND_FADED_BLACK,
+} from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
 
@@ -46,8 +65,12 @@ class AppPage extends React.Component {
 
     this.onAppMessageReceived = this.onAppMessageReceived.bind(this)
     this.dismissPushNotifications = this.dismissPushNotifications.bind(this)
-    this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(this)
-    this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(this)
+    this.handlePushNotificationsSetup = this.handlePushNotificationsSetup.bind(
+      this
+    )
+    this.checkPushNotificationsAreEnabled = this.checkPushNotificationsAreEnabled.bind(
+      this
+    )
     this.renderBar = this.renderBar.bind(this)
     this.renderWelcome = this.renderWelcome.bind(this)
     this.renderDisabledUI = this.renderDisabledUI.bind(this)
@@ -116,7 +139,9 @@ class AppPage extends React.Component {
           window.plugins.OneSignal.setLogLevel({ logLevel: 6, visualLevel: 0 })
 
           var notificationOpenedCallback = function(jsonData) {
-            console.log('notificationOpenedCallback: ' + JSON.stringify(jsonData))
+            console.log(
+              'notificationOpenedCallback: ' + JSON.stringify(jsonData)
+            )
           }
           // Set your iOS Settings
           var iosSettings = {}
@@ -126,18 +151,24 @@ class AppPage extends React.Component {
           window.plugins.OneSignal.startInit(ONESIGNAL_KEY)
             .handleNotificationOpened(notificationOpenedCallback)
             .iOSSettings(iosSettings)
-            .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
+            .inFocusDisplaying(
+              window.plugins.OneSignal.OSInFocusDisplayOption.Notification
+            )
             .endInit()
 
           // The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt.
           // We recommend removing the following code and instead using an In-App Message to prompt for notification permission (See step 6)
-          window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
-            console.log('User accepted notifications: ' + accepted)
-          })
+          window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(
+            function(accepted) {
+              console.log('User accepted notifications: ' + accepted)
+            }
+          )
 
           // Tag this user with his own id
           window.plugins.OneSignal.sendTags({ userId })
-          window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
+          window.plugins.OneSignal.getPermissionSubscriptionState(function(
+            status
+          ) {
             // Player ID = status.subscriptionStatus.userId
             // Push token = status.subscriptionStatus.pushToken
             // alert('Player ID: ' + status.subscriptionStatus.userId + '\npushToken = ' + status.subscriptionStatus.pushToken)
@@ -153,7 +184,9 @@ class AppPage extends React.Component {
   async setupServiceWorker(userId) {
     if ('serviceWorker' in navigator) {
       try {
-        const register = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        const register = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+        })
         let serviceWorker
 
         if (register.installing) {
@@ -197,7 +230,9 @@ class AppPage extends React.Component {
     // For Safari on iOS (because they don't support PN)
     if (!navigator.permissions) return
 
-    const { state } = await navigator.permissions.query({ name: 'notifications' })
+    const { state } = await navigator.permissions.query({
+      name: 'notifications',
+    })
     const cookie = CookieService.getStorage('PN')
 
     if (state == 'granted') {
@@ -247,7 +282,11 @@ class AppPage extends React.Component {
     const { pathname } = this.props.history.location
     const urlParts = pathname.split('/')
     const lastUrlPart = urlParts[urlParts.length - 1].split('?')[0]
-    const backgroundColor = this.props.channel ? (this.props.channel.color ? this.props.channel.color : '#112640') : '#112640'
+    const backgroundColor = this.props.channel
+      ? this.props.channel.color
+        ? this.props.channel.color
+        : '#112640'
+      : '#112640'
 
     return (
       <Bar backgroundColor={backgroundColor}>
@@ -255,13 +294,18 @@ class AppPage extends React.Component {
           <BarPadding />
           <BarInfo>
             <DrawerIcon>
-              <IconComponent icon="menu" size={20} color={TEXT_OFF_WHITE} onClick={() => this.setState({ drawer: !this.state.drawer })} className="mr-10 button" />
+              <IconComponent
+                icon="menu"
+                size={20}
+                color={TEXT_OFF_WHITE}
+                onClick={() => this.setState({ drawer: !this.state.drawer })}
+                className="mr-10 button"
+              />
             </DrawerIcon>
 
             <Team>{this.props.team.name}</Team>
-
-            <Role>{this.props.team.position}</Role>
-            <Timezone>{this.props.user.timezone}</Timezone>
+            <Role>{this.props.user.name}</Role>
+            <Timezone>{this.props.team.position}</Timezone>
           </BarInfo>
 
           {this.props.channel.id && (
@@ -269,43 +313,87 @@ class AppPage extends React.Component {
               <SearchBar>
                 <IconComponent icon="search" size={15} color={'#45618c'} />
                 <SearchBarInput>
-                  <input type="text" placeholder="Search messages..." value={this.state.searchQuery} onChange={e => this.setState({ searchQuery: e.target.value })} />
+                  <input
+                    type="text"
+                    placeholder="Search messages..."
+                    value={this.state.searchQuery}
+                    onChange={e =>
+                      this.setState({ searchQuery: e.target.value })
+                    }
+                  />
                 </SearchBarInput>
-                {!!this.state.searchQuery && <IconComponent icon="x" size={15} color={'#45618c'} className="button" onClick={() => this.setState({ searchQuery: '' })} />}
+                {!!this.state.searchQuery && (
+                  <IconComponent
+                    icon="x"
+                    size={15}
+                    color={'#45618c'}
+                    className="button"
+                    onClick={() => this.setState({ searchQuery: '' })}
+                  />
+                )}
               </SearchBar>
               <BarExtensions>
                 <LayoutIcons>
                   <LayoutIconButton>
                     <IconComponent
                       icon="square"
-                      color={this.state.extensionLayout == LAYOUTS.FULL ? '#4084ed' : '#45618c'}
+                      color={
+                        this.state.extensionLayout == LAYOUTS.FULL
+                          ? '#4084ed'
+                          : '#45618c'
+                      }
                       size={18}
-                      onClick={() => this.setState({ extensionLayout: LAYOUTS.FULL })}
+                      onClick={() =>
+                        this.setState({ extensionLayout: LAYOUTS.FULL })
+                      }
                     />
                   </LayoutIconButton>
                   <LayoutIconButton>
                     <IconComponent
                       icon="sidebar-left"
-                      color={this.state.extensionLayout == LAYOUTS.MAIN ? '#4084ed' : '#45618c'}
+                      color={
+                        this.state.extensionLayout == LAYOUTS.MAIN
+                          ? '#4084ed'
+                          : '#45618c'
+                      }
                       size={18}
-                      onClick={() => this.setState({ extensionLayout: LAYOUTS.MAIN })}
+                      onClick={() =>
+                        this.setState({ extensionLayout: LAYOUTS.MAIN })
+                      }
                     />
                   </LayoutIconButton>
                   <LayoutIconButton>
                     <IconComponent
                       icon="sidebar-right"
-                      color={this.state.extensionLayout == LAYOUTS.SIDE ? '#4084ed' : '#45618c'}
+                      color={
+                        this.state.extensionLayout == LAYOUTS.SIDE
+                          ? '#4084ed'
+                          : '#45618c'
+                      }
                       size={18}
-                      onClick={() => this.setState({ extensionLayout: LAYOUTS.SIDE })}
+                      onClick={() =>
+                        this.setState({ extensionLayout: LAYOUTS.SIDE })
+                      }
                     />
                   </LayoutIconButton>
                 </LayoutIcons>
 
                 <ExtensionLinks>
                   {!IS_CORDOVA && (
-                    <Link to={lastUrlPart == 'meet' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/meet`}>
+                    <Link
+                      to={
+                        lastUrlPart == 'meet'
+                          ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}`
+                          : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/meet`
+                      }
+                    >
                       <Pill active={lastUrlPart == 'meet'}>
-                        <IconComponent icon="video" color={lastUrlPart == 'meet' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
+                        <IconComponent
+                          icon="video"
+                          color={lastUrlPart == 'meet' ? '#0b1729' : '#45618c'}
+                          size={14}
+                          className="mr-5"
+                        />
                         <PillText>Meet</PillText>
                       </Pill>
                     </Link>
@@ -313,27 +401,62 @@ class AppPage extends React.Component {
 
                   {!IS_CORDOVA && (
                     <Link
-                      to={lastUrlPart == 'calendar' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`}
+                      to={
+                        lastUrlPart == 'calendar'
+                          ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}`
+                          : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/calendar`
+                      }
                     >
                       <Pill active={lastUrlPart == 'calendar'}>
-                        <IconComponent icon="calendar" color={lastUrlPart == 'calendar' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
+                        <IconComponent
+                          icon="calendar"
+                          color={
+                            lastUrlPart == 'calendar' ? '#0b1729' : '#45618c'
+                          }
+                          size={14}
+                          className="mr-5"
+                        />
                         <PillText>Calendar</PillText>
                       </Pill>
                     </Link>
                   )}
 
                   {!IS_CORDOVA && (
-                    <Link to={lastUrlPart == 'boards' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`}>
+                    <Link
+                      to={
+                        lastUrlPart == 'boards'
+                          ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}`
+                          : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/boards`
+                      }
+                    >
                       <Pill active={lastUrlPart == 'boards'}>
-                        <IconComponent icon="boards" color={lastUrlPart == 'boards' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
+                        <IconComponent
+                          icon="boards"
+                          color={
+                            lastUrlPart == 'boards' ? '#0b1729' : '#45618c'
+                          }
+                          size={14}
+                          className="mr-5"
+                        />
                         <PillText>Boards</PillText>
                       </Pill>
                     </Link>
                   )}
 
-                  <Link to={lastUrlPart == 'tasks' ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}` : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`}>
+                  <Link
+                    to={
+                      lastUrlPart == 'tasks'
+                        ? `/app/team/${this.props.team.id}/channel/${this.props.channel.id}`
+                        : `/app/team/${this.props.team.id}/channel/${this.props.channel.id}/tasks`
+                    }
+                  >
                     <Pill active={lastUrlPart == 'tasks'}>
-                      <IconComponent icon="double-check" color={lastUrlPart == 'tasks' ? '#0b1729' : '#45618c'} size={14} className="mr-5" />
+                      <IconComponent
+                        icon="double-check"
+                        color={lastUrlPart == 'tasks' ? '#0b1729' : '#45618c'}
+                        size={14}
+                        className="mr-5"
+                      />
                       <PillText>Tasks</PillText>
                     </Pill>
                   </Link>
@@ -348,7 +471,10 @@ class AppPage extends React.Component {
 
   renderWelcome() {
     return (
-      <div onClick={() => this.setState({ drawer: !this.state.drawer })} className="flexer column justify-content-center align-content-center align-items-center">
+      <div
+        onClick={() => this.setState({ drawer: !this.state.drawer })}
+        className="flexer column justify-content-center align-content-center align-items-center"
+      >
         <img src="icon-muted.svg" width="100" />
       </div>
     )
@@ -366,7 +492,12 @@ class AppPage extends React.Component {
           {this.props.teams.map((t, index) => {
             return (
               <Link className="m-10" key={index} to={`/app/team/${t.id}`}>
-                <Avatar size="x-large" image={t.image} title={t.name} className="button" />
+                <Avatar
+                  size="x-large"
+                  image={t.image}
+                  title={t.name}
+                  className="button"
+                />
               </Link>
             )
           })}
@@ -378,7 +509,12 @@ class AppPage extends React.Component {
   renderTaskModal() {
     if (!this.props.task.id) return null
 
-    return <TaskModalComponent taskId={this.props.task.id} onClose={() => this.props.hydrateTask({ id: null })} />
+    return (
+      <TaskModalComponent
+        taskId={this.props.task.id}
+        onClose={() => this.props.hydrateTask({ id: null })}
+      />
+    )
   }
 
   render() {
@@ -389,24 +525,43 @@ class AppPage extends React.Component {
     // - channel
     // - toolbar
     // - app
-    const hideChannel = (this.state.extensionLayout == LAYOUTS.MAIN || this.state.extensionLayout == LAYOUTS.FULL) && isExtensionOpen()
-    const hideDrawer = this.state.extensionLayout == LAYOUTS.FULL && isExtensionOpen()
+    const hideChannel =
+      (this.state.extensionLayout == LAYOUTS.MAIN ||
+        this.state.extensionLayout == LAYOUTS.FULL) &&
+      isExtensionOpen()
+    const hideDrawer =
+      this.state.extensionLayout == LAYOUTS.FULL && isExtensionOpen()
 
     return (
       <AppContainer className="column">
         <Loading show={this.props.common.loading} />
         <Error message={this.props.common.error} theme="solid" />
 
-        {!!this.props.common.toast && <ToastComponent message={this.props.common.toast} />}
+        {!!this.props.common.toast && (
+          <ToastComponent message={this.props.common.toast} />
+        )}
 
-        {!this.props.common.connected && <Notification theme="solid" text="Connecting..." />}
+        {!this.props.common.connected && (
+          <Notification theme="solid" text="Connecting..." />
+        )}
 
         {/* When apps open a modal */}
-        {this.props.app.modal && <AppModal action={this.props.app.modal} onClose={this.props.closeAppModal} />}
+        {this.props.app.modal && (
+          <AppModal
+            action={this.props.app.modal}
+            onClose={this.props.closeAppModal}
+          />
+        )}
 
         {/* Blue PN bar to ask the user for permission */}
         {this.state.pushNotificationsNotification && (
-          <Notification text="Push notifications are disabled" actionText="Enable" onActionClick={this.handlePushNotificationsSetup} onDismissIconClick={this.dismissPushNotifications} theme="solid" />
+          <Notification
+            text="Push notifications are disabled"
+            actionText="Enable"
+            onActionClick={this.handlePushNotificationsSetup}
+            onDismissIconClick={this.dismissPushNotifications}
+            theme="solid"
+          />
         )}
 
         {/* Color channel bar at the top */}
@@ -417,14 +572,23 @@ class AppPage extends React.Component {
 
         <App className="row">
           <Router history={browserHistory}>
-            {this.state.drawer && <DrawerOverlay onClick={() => this.setState({ drawer: false })} />}
+            {this.state.drawer && (
+              <DrawerOverlay onClick={() => this.setState({ drawer: false })} />
+            )}
 
             <Drawer open={this.state.drawer} hide={hideDrawer}>
               <Route path="/app" component={DockComponent} />
               <Route
                 path="/app/team/:teamId"
                 render={props => {
-                  return <ChannelsComponent {...props} toggleDrawer={() => this.setState({ drawer: !this.state.drawer })} />
+                  return (
+                    <ChannelsComponent
+                      {...props}
+                      toggleDrawer={() =>
+                        this.setState({ drawer: !this.state.drawer })
+                      }
+                    />
+                  )
                 }}
               />
             </Drawer>
@@ -435,14 +599,24 @@ class AppPage extends React.Component {
 
             {/* If there is nothing selected - welcome image */}
             <Route exact path="/app" render={props => this.renderWelcome()} />
-            <Route exact path="/app/team/:teamId" render={props => this.renderWelcome()} />
+            <Route
+              exact
+              path="/app/team/:teamId"
+              render={props => this.renderWelcome()}
+            />
 
             {/* Main channel screen with messaging */}
             {/* Only hide this if the layout is MAIN (we want to keep the sidebar) */}
             <Route
               path="/app/team/:teamId/channel/:channelId"
               render={props => {
-                return <ChannelComponent {...props} hide={hideChannel} searchQuery={this.state.searchQuery} />
+                return (
+                  <ChannelComponent
+                    {...props}
+                    hide={hideChannel}
+                    searchQuery={this.state.searchQuery}
+                  />
+                )
               }}
             />
 
@@ -662,7 +836,10 @@ const DisabledUIText = styled.div`
 
 const ExtensionLayout = styled.div`
   width: ${props => (props.layout == LAYOUTS.SIDE ? '35%' : '100%')};
-  position: ${props => (props.layout == LAYOUTS.SIDE || props.layout == LAYOUTS.MAIN ? 'relative' : 'absolute')};
+  position: ${props =>
+    props.layout == LAYOUTS.SIDE || props.layout == LAYOUTS.MAIN
+      ? 'relative'
+      : 'absolute'};
   display: ${props => (props.layout == LAYOUTS.MAIN ? 'flex' : 'block')};
   border-left: 1px solid #eaedef;
   flex: 1;
@@ -748,8 +925,8 @@ const SearchBar = styled.div`
   padding: 10px;
   flex: 1;
   background-color: #070f1c;
-  margin-left: 0px;
-  margin-right: 50px;
+  margin-left: 100px;
+  margin-right: 100px;
   display: flex;
   flex-direction: row;
   align-content: center;
@@ -784,7 +961,6 @@ const BarInfo = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-right: auto;
-  width: 310px;
 `
 
 const BarExtensions = styled.div`

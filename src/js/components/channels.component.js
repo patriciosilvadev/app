@@ -17,6 +17,7 @@ import EventService from '../services/event.service'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import StorageService from '../services/storage.service'
 import arrayMove from 'array-move'
+import NotificationsComponent from '../components/notifications.component'
 import {
   createChannel,
   hydrateChannels,
@@ -223,7 +224,7 @@ const Channel = props => {
             muted={props.muted}
             color={props.color}
             userId={props.otherUserId}
-            size={IS_MOBILE ? 'medium-small' : 'very-small'}
+            size={IS_MOBILE ? 'medium-small' : 'x-small'}
             image={props.private ? props.image : null}
             title={props.name}
           >
@@ -248,7 +249,7 @@ const Channel = props => {
                     <IconComponent
                       icon="lock"
                       color={props.active ? TEXT_OFF_WHITE : '#314563'}
-                      size={12}
+                      size={13}
                       className="mr-5"
                     />
                   )}
@@ -256,7 +257,7 @@ const Channel = props => {
                     <IconComponent
                       icon="radio"
                       color={props.active ? TEXT_OFF_WHITE : '#314563'}
-                      size={12}
+                      size={13}
                       className="mr-5"
                     />
                   )}
@@ -426,7 +427,7 @@ const Channel = props => {
           >
             <IconComponent
               icon={collapsedThreads ? 'chevron-right' : 'chevron-down'}
-              color={TEXT_OFF_WHITE}
+              color="#314563"
               size={14}
               className="button"
             />
@@ -501,13 +502,13 @@ const ThreadLine = styled.div`
   width: 2px;
   height: 130%;
   position: absolute;
-  left: 34px;
+  left: 32px;
   bottom: 0px;
 `
 
 const CollapseThreadsIcon = styled.div`
   position: absolute;
-  top: 6px;
+  top: 2px;
   left: 4px;
   width: 17px;
   height: 15px;
@@ -520,12 +521,12 @@ const CollapseThreadsIcon = styled.div`
   border-radius: 3px;
 
   :hover {
-    background: #e1e7eb;
+    background-color: #070f1c;
   }
 `
 
 const Thread = styled.div`
-  padding-left: 55px;
+  padding-left: 52px;
   padding-right: 70px;
   cursor: pointer;
   position: relative;
@@ -540,7 +541,7 @@ const ThreadText = styled.div`
   padding-top: 2px;
   font-size: 10px;
   font-weight: ${props => (props.bold || props.unread ? '700' : '500')};
-  color: ${props => (props.unread ? '#18181d' : '#858E96')};
+  color: ${props => (props.unread ? TEXT_OFF_WHITE : '#314563')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -663,6 +664,8 @@ const ChannelTitleRowIcon = styled.div`
   align-items: center;
   align-content: center;
   justify-content: center;
+  padding: 0px;
+  margin: 0px;
 `
 
 const ChannelExcerpt = styled.div`
@@ -832,7 +835,6 @@ class ChannelsComponent extends React.Component {
       channelPrivatePopup: false,
       accountModal: false,
       accountMenu: false,
-      presenceMenu: false,
       archivedVisible: false,
       starred: [],
       muted: [],
@@ -844,6 +846,7 @@ class ChannelsComponent extends React.Component {
       positionCollapsableOpen: false,
       positionCollapsableInput: '',
       statusCollapsableOpen: false,
+      presenceCollapsableOpen: false,
       statusCollapsableInput: '',
       dndCollapsableOpen: false,
       dndIndex: 0,
@@ -873,7 +876,6 @@ class ChannelsComponent extends React.Component {
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
     this.renderDnd = this.renderDnd.bind(this)
-    this.renderHeaderButtons = this.renderHeaderButtons.bind(this)
     this.navigate = this.navigate.bind(this)
 
     this.dndOptions = [
@@ -1287,75 +1289,79 @@ class ChannelsComponent extends React.Component {
   }
 
   renderHeader() {
+    const blankChannel = {
+      ...this.props.channel,
+      messages: [],
+      id: null,
+      color: null,
+    }
+    const location = window.location.href
+    const locationParts = location.split('/')
+    const tasksActive =
+      locationParts[locationParts.length - 1] == 'tasks' &&
+      !this.props.channel.id
+    const calendarActive =
+      locationParts[locationParts.length - 1] == 'calendar' &&
+      !this.props.channel.id
+
     return (
       <HeaderContainer>
         <Header>
-          <Popup
-            handleDismiss={() => this.setState({ presenceMenu: false })}
-            visible={this.state.presenceMenu}
-            width={200}
-            direction="left-bottom"
-            content={
-              <Menu
-                items={[
-                  {
-                    icon: (
-                      <span style={{ fontSize: 14, color: '#36C5AB' }}>
-                        &#9679;
-                      </span>
-                    ),
-                    text: 'Online (default)',
-                    onClick: () => this.updateUserPresence(null),
-                  },
-                  {
-                    icon: (
-                      <span style={{ fontSize: 14, color: '#FD9A00' }}>
-                        &#9679;
-                      </span>
-                    ),
-                    text: 'Away',
-                    onClick: () => this.updateUserPresence('away'),
-                  },
-                  {
-                    icon: (
-                      <span style={{ fontSize: 14, color: '#FC1449' }}>
-                        &#9679;
-                      </span>
-                    ),
-                    text: 'Busy',
-                    onClick: () => this.updateUserPresence('busy'),
-                  },
-                  {
-                    icon: (
-                      <span style={{ fontSize: 14, color: '#EAEDEF' }}>
-                        &#9679;
-                      </span>
-                    ),
-                    text: 'Invisible',
-                    onClick: () => this.updateUserPresence('invisible'),
-                  },
-                ]}
-              />
-            }
-          >
-            <Avatar
-              size="medium-large"
-              presence={this.props.user.presence || 'online'}
-              image={this.props.user.image}
-              title={this.props.user.name}
-              userId={this.props.user.id}
-              onPresenceClick={() => this.setState({ presenceMenu: true })}
-            />
-          </Popup>
+          <Avatar
+            size="medium"
+            presence={this.props.user.presence || 'online'}
+            image={this.props.user.image}
+            title={this.props.user.name}
+            userId={this.props.user.id}
+          />
 
-          <HeaderTitles>
-            <HeaderName className="align-items-center">
-              {this.props.user.name}
-            </HeaderName>
-            <HeaderRole>
-              <div>{this.props.user.status || 'Update your status'}</div>
-            </HeaderRole>
-          </HeaderTitles>
+          <div className="flexer" />
+          <div
+            className="mr-10"
+            id="yack"
+            data-inbox="weekday"
+            style={{ width: 18, height: 18 }}
+          >
+            <IconComponent
+              icon="life-buoy"
+              size={18}
+              color="#45618c"
+              className="button"
+            />
+          </div>
+
+          <NotificationsComponent style={{ width: 18, height: 18 }}>
+            <IconComponent
+              icon="flag"
+              size={18}
+              color="#45618c"
+              className="button"
+            />
+          </NotificationsComponent>
+
+          <IconComponent
+            icon="calendar"
+            size={18}
+            color={calendarActive ? TEXT_OFF_WHITE : '#45618c'}
+            className="button mr-10 ml-10"
+            onClick={() => {
+              this.props.hydrateChannel(blankChannel)
+              this.props.history.push(
+                `/app/team/${this.props.team.id}/calendar`
+              )
+            }}
+          />
+
+          <IconComponent
+            icon="double-check"
+            size={18}
+            color={tasksActive ? TEXT_OFF_WHITE : '#45618c'}
+            className="button mr-10"
+            onClick={() => {
+              this.props.hydrateChannel(blankChannel)
+              this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
+            }}
+          />
 
           <Popup
             handleDismiss={this._closeUserMenu.bind(this)}
@@ -1368,6 +1374,7 @@ class ChannelsComponent extends React.Component {
                   <Avatar
                     size="x-large"
                     image={this.props.user.image}
+                    presence={this.props.user.presence || 'online'}
                     title={this.props.user.name}
                   />
                   <div className="text-center h5 regular color-d3 mt-15">
@@ -1377,6 +1384,74 @@ class ChannelsComponent extends React.Component {
                     {this.props.team.position}
                   </div>
                 </PopupHeader>
+
+                <div className="w-100 p-20 column align-items-start border-bottom">
+                  <div className="row w-100">
+                    <div className="p regular color-d2 flexer">Presence</div>
+                    <IconComponent
+                      icon={
+                        this.state.presenceCollapsableOpen
+                          ? 'chevron-up'
+                          : 'chevron-down'
+                      }
+                      size={16}
+                      color="#acb5bd"
+                      className="button"
+                      onClick={() => {
+                        this.setState({
+                          presenceCollapsableOpen: !this.state
+                            .presenceCollapsableOpen,
+                        })
+                      }}
+                    />
+                  </div>
+                  <Collapsable
+                    className={this.state.presenceCollapsableOpen ? 'open' : ''}
+                  >
+                    <div className="row w-100 mt-10">
+                      <Menu
+                        items={[
+                          {
+                            icon: (
+                              <span style={{ fontSize: 14, color: '#36C5AB' }}>
+                                &#9679;
+                              </span>
+                            ),
+                            text: 'Online (default)',
+                            onClick: () => this.updateUserPresence(null),
+                          },
+                          {
+                            icon: (
+                              <span style={{ fontSize: 14, color: '#FD9A00' }}>
+                                &#9679;
+                              </span>
+                            ),
+                            text: 'Away',
+                            onClick: () => this.updateUserPresence('away'),
+                          },
+                          {
+                            icon: (
+                              <span style={{ fontSize: 14, color: '#FC1449' }}>
+                                &#9679;
+                              </span>
+                            ),
+                            text: 'Busy',
+                            onClick: () => this.updateUserPresence('busy'),
+                          },
+                          {
+                            icon: (
+                              <span style={{ fontSize: 14, color: '#EAEDEF' }}>
+                                &#9679;
+                              </span>
+                            ),
+                            text: 'Invisible',
+                            onClick: () => this.updateUserPresence('invisible'),
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Collapsable>
+                </div>
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
                   <div className="row w-100">
@@ -1543,7 +1618,7 @@ class ChannelsComponent extends React.Component {
           >
             <IconComponent
               icon="settings"
-              size={16}
+              size={18}
               color="#45618c"
               className="button"
               onClick={this._openUserMenu.bind(this)}
@@ -1963,59 +2038,6 @@ class ChannelsComponent extends React.Component {
     this.setState({ accountMenu: false })
   }
 
-  renderHeaderButtons() {
-    const blankChannel = {
-      ...this.props.channel,
-      messages: [],
-      id: null,
-      color: null,
-    }
-    const location = window.location.href
-    const locationParts = location.split('/')
-    const tasksActive =
-      locationParts[locationParts.length - 1] == 'tasks' &&
-      !this.props.channel.id
-    const calendarActive =
-      locationParts[locationParts.length - 1] == 'calendar' &&
-      !this.props.channel.id
-
-    return (
-      <HeaderButtons>
-        <HeaderButtonContainer
-          active={calendarActive}
-          onClick={() => {
-            this.props.hydrateChannel(blankChannel)
-            this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
-          }}
-        >
-          <IconComponent
-            icon="calendar"
-            color={TEXT_OFF_WHITE}
-            size={20}
-            className="mr-10"
-          />
-          <HeaderButtonContainerText>Calendar</HeaderButtonContainerText>
-        </HeaderButtonContainer>
-
-        <HeaderButtonContainer
-          active={tasksActive}
-          onClick={() => {
-            this.props.hydrateChannel(blankChannel)
-            this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
-          }}
-        >
-          <IconComponent
-            icon="double-check"
-            color={TEXT_OFF_WHITE}
-            size={20}
-            className="mr-10"
-          />
-          <HeaderButtonContainerText>Tasks</HeaderButtonContainerText>
-        </HeaderButtonContainer>
-      </HeaderButtons>
-    )
-  }
-
   render() {
     return (
       <Channels
@@ -2046,7 +2068,6 @@ class ChannelsComponent extends React.Component {
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
-        {this.renderHeaderButtons()}
 
         <ChannelsContainer>
           {this.renderStarred()}
@@ -2124,6 +2145,7 @@ const Corner = styled.div`
 const HeaderButtons = styled.div`
   margin-top: 10px;
   width: 100%;
+  display: none;
 `
 
 const HeaderButtonContainer = styled.div`
