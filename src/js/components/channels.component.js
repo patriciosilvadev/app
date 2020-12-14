@@ -35,16 +35,39 @@ import {
   hydrateUnreads,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
-import { Toggle, Popup, Menu, Avatar, Tooltip, Input, Button, Select } from '@weekday/elements'
+import {
+  Toggle,
+  Popup,
+  Menu,
+  Avatar,
+  Tooltip,
+  Input,
+  Button,
+  Select,
+} from '@weekday/elements'
 import QuickInputComponent from '../components/quick-input.component'
 import AuthService from '../services/auth.service'
 import { version } from '../../../package.json'
-import { logger, shortenMarkdownText, isExtensionOpen } from '../helpers/util'
+import {
+  logger,
+  shortenMarkdownText,
+  isExtensionOpen,
+  generateInitials,
+} from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
 import * as chroma from 'chroma-js'
 import { v4 as uuidv4 } from 'uuid'
-import { IS_MOBILE, CHANNELS_ORDER, CHANNEL_ORDER_INDEX, TOGGLE_CHANNELS_DRAWER, NAVIGATE, TEXT_VERY_FADED_WHITE, TEXT_OFF_WHITE, BACKGROUND_FADED_BLACK } from '../constants'
+import {
+  IS_MOBILE,
+  CHANNELS_ORDER,
+  CHANNEL_ORDER_INDEX,
+  TOGGLE_CHANNELS_DRAWER,
+  NAVIGATE,
+  TEXT_VERY_FADED_WHITE,
+  TEXT_OFF_WHITE,
+  BACKGROUND_FADED_BLACK,
+} from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
@@ -52,13 +75,46 @@ const Channel = props => {
   const [showAllThreads, setShowAllThreads] = useState(false)
   const [collapsedThreads, setCollapsedThreads] = useState(false)
   const [avatarIconColor, setAvatarIconColor] = useState(null)
+  const [avatarBackgroundColor, setAvatarBackgroundColor] = useState(null)
   const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(false)
   const threads = useSelector(state => state.threads)
   const common = useSelector(state => state.common)
   const maxThreads = 3
-  const icons = ['bell', 'pen', 'star', 'flag', 'smile', 'shield', 'monitor', 'smartphone', 'hash', 'compass', 'package', 'radio', 'box', 'lock', 'attachment', 'at', 'check', null]
-  const colors = ['#050f2c', '#003666', '#00aeff', '#3369e7', '#8e43e7', '#b84592', '#ff4f81', '#ff6c5f', '#ffc168', '#2dde98', '#1cc7d0', '#00a98f']
+  const icons = [
+    'bell',
+    'pen',
+    'star',
+    'flag',
+    'smile',
+    'shield',
+    'monitor',
+    'smartphone',
+    'hash',
+    'compass',
+    'package',
+    'radio',
+    'box',
+    'lock',
+    'attachment',
+    'at',
+    'check',
+    null,
+  ]
+  const colors = [
+    '#050f2c',
+    '#003666',
+    '#00aeff',
+    '#3369e7',
+    '#8e43e7',
+    '#b84592',
+    '#ff4f81',
+    '#ff6c5f',
+    '#ffc168',
+    '#2dde98',
+    '#1cc7d0',
+    '#00a98f',
+  ]
 
   const fetchThreads = async () => {
     const {
@@ -88,6 +144,18 @@ const Channel = props => {
   }, [props.active])
 
   useEffect(() => {
+    setAvatarBackgroundColor(
+      props.private
+        ? null
+        : props.color
+        ? chroma(props.color)
+            .saturate(3)
+            .alpha(0.95)
+            .toString()
+        : '#007af5'
+    )
+    // chroma(props.color).saturate(3).brighten(2).toString()
+    // chroma(props.color).saturate(3).alpha(0.25).toString()
     setAvatarIconColor(
       props.private
         ? null
@@ -150,23 +218,53 @@ const Channel = props => {
         active={props.active}
       >
         <ChannelContainerPadding>
-          <Avatar dark muted={props.muted} color={props.color} userId={props.otherUserId} size={IS_MOBILE ? 'medium-small' : 'small'} image={props.private ? props.image : null} title={props.name}>
-            {props.icon ? (
+          <Avatar
+            dark
+            muted={props.muted}
+            color={props.color}
+            userId={props.otherUserId}
+            size={IS_MOBILE ? 'medium-small' : 'very-small'}
+            image={props.private ? props.image : null}
+            title={props.name}
+          >
+            <div></div>
+            {/* {props.icon && (
               <ChannelIcon>
                 <IconComponent icon={props.icon} size={12} color={avatarIconColor} />
               </ChannelIcon>
-            ) : null}
+            )}
+            {(!props.icon && !props.private) && (
+              <ChannelInitials color={avatarIconColor}>
+                {generateInitials(props.name)}
+              </ChannelInitials>
+            )} */}
           </Avatar>
 
           <ChannelContents>
             <ChannelInnerContents>
               <ChannelTitleRow>
                 <ChannelTitleRowIcon>
-                  {!props.public && !props.private && <IconComponent icon="lock" color={props.active ? TEXT_OFF_WHITE : '#314563'} size={12} className="mr-5" />}
-                  {props.readonly && <IconComponent icon="radio" color={props.active ? TEXT_OFF_WHITE : '#314563'} size={12} className="mr-5" />}
+                  {!props.public && !props.private && (
+                    <IconComponent
+                      icon="lock"
+                      color={props.active ? TEXT_OFF_WHITE : '#314563'}
+                      size={12}
+                      className="mr-5"
+                    />
+                  )}
+                  {props.readonly && (
+                    <IconComponent
+                      icon="radio"
+                      color={props.active ? TEXT_OFF_WHITE : '#314563'}
+                      size={12}
+                      className="mr-5"
+                    />
+                  )}
                 </ChannelTitleRowIcon>
 
-                <ChannelTitle active={props.active || props.unread != 0}>{props.name}</ChannelTitle>
+                <ChannelTitle active={props.active || props.unread != 0}>
+                  {props.name}
+                </ChannelTitle>
               </ChannelTitleRow>
 
               {props.excerpt && (
@@ -174,7 +272,11 @@ const Channel = props => {
                   &nbsp;
                   {props.excerpt && (
                     <ChannelExcerptTextContainer>
-                      <ChannelExcerptText active={props.active || props.unread != 0}>{shortenMarkdownText(props.excerpt)}</ChannelExcerptText>
+                      <ChannelExcerptText
+                        active={props.active || props.unread != 0}
+                      >
+                        {shortenMarkdownText(props.excerpt)}
+                      </ChannelExcerptText>
                     </ChannelExcerptTextContainer>
                   )}
                 </ChannelExcerpt>
@@ -197,7 +299,13 @@ const Channel = props => {
                     {
                       text: 'All',
                       label: 'Notify me of all messages',
-                      icon: <IconComponent icon="message-circle" size={20} color="#aeb5bc" />,
+                      icon: (
+                        <IconComponent
+                          icon="message-circle"
+                          size={20}
+                          color="#aeb5bc"
+                        />
+                      ),
                       onClick: e => {
                         setMenu(false)
                         props.onMutedClick()
@@ -206,7 +314,9 @@ const Channel = props => {
                     {
                       text: 'Mentions',
                       label: 'Notify me of mentions only',
-                      icon: <IconComponent icon="at" size={20} color="#aeb5bc" />,
+                      icon: (
+                        <IconComponent icon="at" size={20} color="#aeb5bc" />
+                      ),
                       onClick: e => {
                         setMenu(false)
                         props.onMutedClick()
@@ -270,7 +380,10 @@ const Channel = props => {
                         <div className="row wrap w-100 mt-10">
                           {icons.map((icon, index) => {
                             return (
-                              <IconCircle current={icon == props.icon} key={index}>
+                              <IconCircle
+                                current={icon == props.icon}
+                                key={index}
+                              >
                                 <IconComponent
                                   icon={icon}
                                   size={16}
@@ -308,8 +421,15 @@ const Channel = props => {
 
         {/* Only if there are threads */}
         {threads.length != 0 && props.active && (
-          <CollapseThreadsIcon onClick={() => setCollapsedThreads(!collapsedThreads)}>
-            <IconComponent icon={collapsedThreads ? 'chevron-right' : 'chevron-down'} color={TEXT_OFF_WHITE} size={14} className="button" />
+          <CollapseThreadsIcon
+            onClick={() => setCollapsedThreads(!collapsedThreads)}
+          >
+            <IconComponent
+              icon={collapsedThreads ? 'chevron-right' : 'chevron-down'}
+              color={TEXT_OFF_WHITE}
+              size={14}
+              className="button"
+            />
           </CollapseThreadsIcon>
         )}
       </ChannelContainer>
@@ -320,11 +440,16 @@ const Channel = props => {
           {threads.map((thread, index) => {
             if (!showAllThreads && index >= maxThreads) return
 
-            const unread = common.unread.filter(row => thread.id == row.doc.channel).flatten()
+            const unread = common.unread
+              .filter(row => thread.id == row.doc.channel)
+              .flatten()
             const unreadCount = unread ? unread.doc.count : 0
 
             return (
-              <Thread key={index} onClick={() => handleMessageModalOpen(thread.id)}>
+              <Thread
+                key={index}
+                onClick={() => handleMessageModalOpen(thread.id)}
+              >
                 <ThreadLine color={props.color} />
                 <ThreadText unread={unreadCount}>{thread.body}</ThreadText>
               </Thread>
@@ -334,7 +459,9 @@ const Channel = props => {
           {threads.length > maxThreads && (
             <Thread onClick={() => setShowAllThreads(!showAllThreads)}>
               <ThreadLine color={props.color} />
-              <ThreadText bold>{showAllThreads ? 'Show less' : 'Show more'}</ThreadText>
+              <ThreadText bold>
+                {showAllThreads ? 'Show less' : 'Show more'}
+              </ThreadText>
             </Thread>
           )}
         </Threads>
@@ -455,10 +582,18 @@ const ChannelIcon = styled.div`
   top: 0px;
 `
 
+const ChannelInitials = styled.div`
+  font-weight: 600;
+  font-size: 11px;
+  font-family: Menlo, monospace;
+  color: ${props => props.color};
+`
+
 const ChannelContainer = styled.li`
   display: flex;
   flex-direction: row;
-  background-color: ${props => (props.active ? BACKGROUND_FADED_BLACK : 'transparent')};
+  background-color: ${props =>
+    props.active ? BACKGROUND_FADED_BLACK : 'transparent'};
   align-items: center;
   align-content: center;
   justify-content: center;
@@ -555,9 +690,10 @@ const ChannelExcerptTextContainer = styled.div`
 `
 
 const ChannelExcerptText = styled.span`
-  font-size: 14px;
+  font-size: 10px;
   color: #314563;
   font-weight: 400;
+  font-family: Menlo, monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -613,42 +749,69 @@ const ChannelMoreIcon = styled.span`
   }
 `
 
-const SortableItem = SortableElement(({ pathname, channel, active, onNavigate, onArchivedClick, onMutedClick }) => {
-  const type = 'public'
+const SortableItem = SortableElement(
+  ({
+    pathname,
+    channel,
+    active,
+    onNavigate,
+    onArchivedClick,
+    onMutedClick,
+  }) => {
+    const type = 'public'
 
-  return (
-    <Channel
-      id={channel.id}
-      color={channel.color}
-      icon={channel.icon}
-      active={active.channelId == channel.id && active.type == type}
-      unread={channel.muted ? 0 : channel.unreadCount}
-      name={channel.name}
-      image={channel.image}
-      excerpt={channel.excerpt}
-      public={channel.public}
-      private={channel.private}
-      readonly={channel.readonly}
-      muted={channel.muted}
-      archived={channel.archived}
-      onNavigate={() => onNavigate(channel.id)}
-      onArchivedClick={() => onArchivedClick(channel.id, !channel.archived)}
-      onMutedClick={() => onMutedClick(channel.id, !channel.muted)}
-    />
-  )
-})
+    return (
+      <Channel
+        id={channel.id}
+        color={channel.color}
+        icon={channel.icon}
+        active={active.channelId == channel.id && active.type == type}
+        unread={channel.muted ? 0 : channel.unreadCount}
+        name={channel.name}
+        image={channel.image}
+        excerpt={channel.excerpt}
+        public={channel.public}
+        private={channel.private}
+        readonly={channel.readonly}
+        muted={channel.muted}
+        archived={channel.archived}
+        onNavigate={() => onNavigate(channel.id)}
+        onArchivedClick={() => onArchivedClick(channel.id, !channel.archived)}
+        onMutedClick={() => onMutedClick(channel.id, !channel.muted)}
+      />
+    )
+  }
+)
 
-const SortableList = SortableContainer(({ channels, active, pathname, onNavigate, onArchivedClick, onMutedClick }) => {
-  return (
-    <Ul>
-      {channels.map((channel, index) => {
-        return (
-          <SortableItem key={channel.id} active={active} index={index} channel={channel} pathname={pathname} onNavigate={onNavigate} onArchivedClick={onArchivedClick} onMutedClick={onMutedClick} />
-        )
-      })}
-    </Ul>
-  )
-})
+const SortableList = SortableContainer(
+  ({
+    channels,
+    active,
+    pathname,
+    onNavigate,
+    onArchivedClick,
+    onMutedClick,
+  }) => {
+    return (
+      <Ul>
+        {channels.map((channel, index) => {
+          return (
+            <SortableItem
+              key={channel.id}
+              active={active}
+              index={index}
+              channel={channel}
+              pathname={pathname}
+              onNavigate={onNavigate}
+              onArchivedClick={onArchivedClick}
+              onMutedClick={onMutedClick}
+            />
+          )
+        })}
+      </Ul>
+    )
+  }
+)
 
 const Ul = styled.ul`
   margin: 0px;
@@ -698,7 +861,9 @@ class ChannelsComponent extends React.Component {
     this.updateUserPresence = this.updateUserPresence.bind(this)
     this.updateUserDnd = this.updateUserDnd.bind(this)
     this.getCurrentDndIndex = this.getCurrentDndIndex.bind(this)
-    this.handleTeamMemberPositionChange = this.handleTeamMemberPositionChange.bind(this)
+    this.handleTeamMemberPositionChange = this.handleTeamMemberPositionChange.bind(
+      this
+    )
 
     this.renderAccountModal = this.renderAccountModal.bind(this)
     this.renderTeamModal = this.renderTeamModal.bind(this)
@@ -711,7 +876,13 @@ class ChannelsComponent extends React.Component {
     this.renderHeaderButtons = this.renderHeaderButtons.bind(this)
     this.navigate = this.navigate.bind(this)
 
-    this.dndOptions = [{ option: 'Never', value: 0 }, { option: '1 hour', value: 1 }, { option: '8 hours', value: 8 }, { option: '12 hours', value: 12 }, { option: '24 hours', value: 24 }]
+    this.dndOptions = [
+      { option: 'Never', value: 0 },
+      { option: '1 hour', value: 1 },
+      { option: '8 hours', value: 8 },
+      { option: '12 hours', value: 12 },
+      { option: '24 hours', value: 24 },
+    ]
   }
 
   navigate(channelId, type) {
@@ -743,7 +914,8 @@ class ChannelsComponent extends React.Component {
     this.props.toggleDrawer()
     this.props.hydrateChannel({
       ...this.props.channel,
-      messages: this.props.channel.id == channelId ? this.props.channel.messages : [],
+      messages:
+        this.props.channel.id == channelId ? this.props.channel.messages : [],
     })
 
     // AND GO!
@@ -755,7 +927,11 @@ class ChannelsComponent extends React.Component {
       const teamId = this.props.team.id
       const userId = this.props.user.id
 
-      await GraphqlService.getInstance().updateTeamMemberPosition(teamId, userId, position)
+      await GraphqlService.getInstance().updateTeamMemberPosition(
+        teamId,
+        userId,
+        position
+      )
 
       this.props.updateTeamMemberPosition(position)
     } catch (e) {
@@ -810,7 +986,11 @@ class ChannelsComponent extends React.Component {
 
   async updateUserArchived(userId, channelId, archived) {
     try {
-      await GraphqlService.getInstance().updateUserArchived(userId, channelId, archived)
+      await GraphqlService.getInstance().updateUserArchived(
+        userId,
+        channelId,
+        archived
+      )
 
       this.props.updateUserArchived(userId, channelId, archived)
     } catch (e) {
@@ -820,7 +1000,11 @@ class ChannelsComponent extends React.Component {
 
   async updateUserMuted(userId, channelId, muted) {
     try {
-      await GraphqlService.getInstance().updateUserMuted(userId, channelId, muted)
+      await GraphqlService.getInstance().updateUserMuted(
+        userId,
+        channelId,
+        muted
+      )
 
       this.props.updateUserMuted(userId, channelId, muted)
     } catch (e) {
@@ -836,28 +1020,50 @@ class ChannelsComponent extends React.Component {
       .filter((channel, index) => props.user.starred.indexOf(channel.id) != -1)
       .filter(channel => {
         if (channel.otherUser.name) {
-          return channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+          return channel.otherUser.name
+            .toLowerCase()
+            .match(new RegExp(state.filter.toLowerCase() + '.*'))
         } else {
-          return channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+          return channel.name
+            .toLowerCase()
+            .match(new RegExp(state.filter.toLowerCase() + '.*'))
         }
       })
     const archivedChannels = props.channels
       .filter((channel, index) => props.user.archived.indexOf(channel.id) != -1)
       .filter(channel => {
         if (channel.otherUser.name) {
-          return channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+          return channel.otherUser.name
+            .toLowerCase()
+            .match(new RegExp(state.filter.toLowerCase() + '.*'))
         } else {
-          return channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*'))
+          return channel.name
+            .toLowerCase()
+            .match(new RegExp(state.filter.toLowerCase() + '.*'))
         }
       })
 
     const privateChannels = props.channels
-      .filter((channel, index) => channel.private && props.user.archived.indexOf(channel.id) == -1)
-      .filter(channel => channel.otherUser.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(
+        (channel, index) =>
+          channel.private && props.user.archived.indexOf(channel.id) == -1
+      )
+      .filter(channel =>
+        channel.otherUser.name
+          .toLowerCase()
+          .match(new RegExp(state.filter.toLowerCase() + '.*'))
+      )
 
     const publicChannels = props.channels
-      .filter((channel, index) => !channel.private && props.user.archived.indexOf(channel.id) == -1)
-      .filter(channel => channel.name.toLowerCase().match(new RegExp(state.filter.toLowerCase() + '.*')))
+      .filter(
+        (channel, index) =>
+          !channel.private && props.user.archived.indexOf(channel.id) == -1
+      )
+      .filter(channel =>
+        channel.name
+          .toLowerCase()
+          .match(new RegExp(state.filter.toLowerCase() + '.*'))
+      )
       .map((channel, index) => {
         let mutableChannel = channel
         const channelId = channel.id
@@ -866,13 +1072,19 @@ class ChannelsComponent extends React.Component {
         // If there is a channelOrder value, then assign the property CHANNEL_ORDER_INDEX to it
         // If there isn't one, then we set the index to the length of the  index
         // We save add the lenth so we don't interfere with current orderings (so it should be added to the bottom)
-        mutableChannel[CHANNEL_ORDER_INDEX] = channelOrder != null && channelOrder != undefined ? channelOrder : props.channels.length + index
+        mutableChannel[CHANNEL_ORDER_INDEX] =
+          channelOrder != null && channelOrder != undefined
+            ? channelOrder
+            : props.channels.length + index
 
         // Return this (for sorting)
         return mutableChannel
       })
       .sort((a, b) => {
-        return parseFloat(a[CHANNEL_ORDER_INDEX]) - parseFloat(b[CHANNEL_ORDER_INDEX])
+        return (
+          parseFloat(a[CHANNEL_ORDER_INDEX]) -
+          parseFloat(b[CHANNEL_ORDER_INDEX])
+        )
       })
 
     return {
@@ -915,7 +1127,10 @@ class ChannelsComponent extends React.Component {
         : null
 
       // 3. If it's found - then go there first (don't create a new one)
-      if (channel) return this.props.history.push(`/app/team/${teamId}/channel/${channel.id}`)
+      if (channel)
+        return this.props.history.push(
+          `/app/team/${teamId}/channel/${channel.id}`
+        )
 
       // Otherwise create the new channel
       // 1) Create the channel object based on an open channel or private
@@ -990,8 +1205,14 @@ class ChannelsComponent extends React.Component {
     try {
       // await GraphqlService.getInstance().channels(teamId, userId)
       // Not sure why I was using the above to seperate the calls
-      const channelUnreads = await GraphqlService.getInstance().unreads(teamId, userId)
-      const team = await GraphqlService.getInstance().teamChannelsComponent(teamId, userId)
+      const channelUnreads = await GraphqlService.getInstance().unreads(
+        teamId,
+        userId
+      )
+      const team = await GraphqlService.getInstance().teamChannelsComponent(
+        teamId,
+        userId
+      )
       const channels = team.data.team.channels
       const channelIds = channels.map(channel => channel.id)
 
@@ -1045,10 +1266,20 @@ class ChannelsComponent extends React.Component {
             }}
           />
         </div>
-        <Collapsable className={dndIsSet && !currentDateIsAfterDndDate ? 'open' : ''}>
+        <Collapsable
+          className={dndIsSet && !currentDateIsAfterDndDate ? 'open' : ''}
+        >
           <div className="column w-100 mt-10">
-            <div className="small bold color-d2 flexer mb-10">Turn off notifications for:</div>
-            <Select selected={this.getCurrentDndIndex()} options={this.dndOptions} onSelect={index => this.updateUserDnd(this.dndOptions[index].value)} />
+            <div className="small bold color-d2 flexer mb-10">
+              Turn off notifications for:
+            </div>
+            <Select
+              selected={this.getCurrentDndIndex()}
+              options={this.dndOptions}
+              onSelect={index =>
+                this.updateUserDnd(this.dndOptions[index].value)
+              }
+            />
           </div>
         </Collapsable>
       </div>
@@ -1068,22 +1299,38 @@ class ChannelsComponent extends React.Component {
               <Menu
                 items={[
                   {
-                    icon: <span style={{ fontSize: 14, color: '#36C5AB' }}>&#9679;</span>,
+                    icon: (
+                      <span style={{ fontSize: 14, color: '#36C5AB' }}>
+                        &#9679;
+                      </span>
+                    ),
                     text: 'Online (default)',
                     onClick: () => this.updateUserPresence(null),
                   },
                   {
-                    icon: <span style={{ fontSize: 14, color: '#FD9A00' }}>&#9679;</span>,
+                    icon: (
+                      <span style={{ fontSize: 14, color: '#FD9A00' }}>
+                        &#9679;
+                      </span>
+                    ),
                     text: 'Away',
                     onClick: () => this.updateUserPresence('away'),
                   },
                   {
-                    icon: <span style={{ fontSize: 14, color: '#FC1449' }}>&#9679;</span>,
+                    icon: (
+                      <span style={{ fontSize: 14, color: '#FC1449' }}>
+                        &#9679;
+                      </span>
+                    ),
                     text: 'Busy',
                     onClick: () => this.updateUserPresence('busy'),
                   },
                   {
-                    icon: <span style={{ fontSize: 14, color: '#EAEDEF' }}>&#9679;</span>,
+                    icon: (
+                      <span style={{ fontSize: 14, color: '#EAEDEF' }}>
+                        &#9679;
+                      </span>
+                    ),
                     text: 'Invisible',
                     onClick: () => this.updateUserPresence('invisible'),
                   },
@@ -1102,7 +1349,9 @@ class ChannelsComponent extends React.Component {
           </Popup>
 
           <HeaderTitles>
-            <HeaderName className="align-items-center">{this.props.user.name}</HeaderName>
+            <HeaderName className="align-items-center">
+              {this.props.user.name}
+            </HeaderName>
             <HeaderRole>
               <div>{this.props.user.status || 'Update your status'}</div>
             </HeaderRole>
@@ -1116,37 +1365,64 @@ class ChannelsComponent extends React.Component {
             content={
               <div className="w-100">
                 <PopupHeader className="w-100 p-20 border-bottom column align-items-center">
-                  <Avatar size="x-large" image={this.props.user.image} title={this.props.user.name} />
-                  <div className="text-center h5 regular color-d3 mt-15">{this.props.user.name}</div>
-                  <div className="text-center small bold color-l0 mt-5">{this.props.team.position}</div>
+                  <Avatar
+                    size="x-large"
+                    image={this.props.user.image}
+                    title={this.props.user.name}
+                  />
+                  <div className="text-center h5 regular color-d3 mt-15">
+                    {this.props.user.name}
+                  </div>
+                  <div className="text-center small bold color-l0 mt-5">
+                    {this.props.team.position}
+                  </div>
                 </PopupHeader>
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
                   <div className="row w-100">
                     <div className="p regular color-d2 flexer">Status</div>
                     <IconComponent
-                      icon={this.state.statusCollapsableOpen ? 'chevron-up' : 'chevron-down'}
+                      icon={
+                        this.state.statusCollapsableOpen
+                          ? 'chevron-up'
+                          : 'chevron-down'
+                      }
                       size={16}
                       color="#acb5bd"
                       className="button"
                       onClick={() => {
                         this.setState({
-                          statusCollapsableOpen: !this.state.statusCollapsableOpen,
+                          statusCollapsableOpen: !this.state
+                            .statusCollapsableOpen,
                           statusCollapsableInput: this.props.user.status,
                         })
                       }}
                     />
                   </div>
-                  <Collapsable className={this.state.statusCollapsableOpen ? 'open' : ''}>
+                  <Collapsable
+                    className={this.state.statusCollapsableOpen ? 'open' : ''}
+                  >
                     <div className="row w-100 mt-10">
-                      <Input placeholder="Update your status" value={this.state.statusCollapsableInput} onChange={e => this.setState({ statusCollapsableInput: e.target.value })} />
+                      <Input
+                        placeholder="Update your status"
+                        value={this.state.statusCollapsableInput}
+                        onChange={e =>
+                          this.setState({
+                            statusCollapsableInput: e.target.value,
+                          })
+                        }
+                      />
                       <Button
                         size="small"
                         className="ml-10"
                         text="Ok"
                         theme="muted"
                         onClick={() => {
-                          this.updateUserStatus(this.props.user.id, this.props.team.id, this.state.statusCollapsableInput)
+                          this.updateUserStatus(
+                            this.props.user.id,
+                            this.props.team.id,
+                            this.state.statusCollapsableInput
+                          )
                           this.setState({ statusCollapsableOpen: false })
                         }}
                       />
@@ -1158,28 +1434,45 @@ class ChannelsComponent extends React.Component {
                   <div className="row w-100">
                     <div className="p regular color-d2 flexer">Team role</div>
                     <IconComponent
-                      icon={this.state.positionCollapsableOpen ? 'chevron-up' : 'chevron-down'}
+                      icon={
+                        this.state.positionCollapsableOpen
+                          ? 'chevron-up'
+                          : 'chevron-down'
+                      }
                       size={16}
                       color="#acb5bd"
                       className="button"
                       onClick={() => {
                         this.setState({
-                          positionCollapsableOpen: !this.state.positionCollapsableOpen,
+                          positionCollapsableOpen: !this.state
+                            .positionCollapsableOpen,
                           positionCollapsableInput: this.props.team.position,
                         })
                       }}
                     />
                   </div>
-                  <Collapsable className={this.state.positionCollapsableOpen ? 'open' : ''}>
+                  <Collapsable
+                    className={this.state.positionCollapsableOpen ? 'open' : ''}
+                  >
                     <div className="row w-100 mt-10">
-                      <Input placeholder="Update your role" value={this.state.positionCollapsableInput} onChange={e => this.setState({ positionCollapsableInput: e.target.value })} />
+                      <Input
+                        placeholder="Update your role"
+                        value={this.state.positionCollapsableInput}
+                        onChange={e =>
+                          this.setState({
+                            positionCollapsableInput: e.target.value,
+                          })
+                        }
+                      />
                       <Button
                         size="small"
                         className="ml-10"
                         text="Ok"
                         theme="muted"
                         onClick={() => {
-                          this.handleTeamMemberPositionChange(this.state.positionCollapsableInput)
+                          this.handleTeamMemberPositionChange(
+                            this.state.positionCollapsableInput
+                          )
                           this.setState({ positionCollapsableOpen: false })
                         }}
                       />
@@ -1192,39 +1485,69 @@ class ChannelsComponent extends React.Component {
                 <Menu
                   items={[
                     {
-                      icon: <IconComponent icon="profile" size={20} color="#acb5bd" />,
+                      icon: (
+                        <IconComponent
+                          icon="profile"
+                          size={20}
+                          color="#acb5bd"
+                        />
+                      ),
                       text: 'Account settings',
                       onClick: this._openAccountSettings.bind(this),
                     },
                     {
-                      icon: <IconComponent icon="settings" size={20} color="#acb5bd" />,
+                      icon: (
+                        <IconComponent
+                          icon="settings"
+                          size={20}
+                          color="#acb5bd"
+                        />
+                      ),
                       text: 'Team settings',
                       onClick: this._openTeamSettings.bind(this),
                     },
                     {
-                      icon: <IconComponent icon="users" size={20} color="#acb5bd" />,
+                      icon: (
+                        <IconComponent icon="users" size={20} color="#acb5bd" />
+                      ),
                       text: 'Team directory',
                       onClick: this._openTeamDirectory.bind(this),
                     },
                     {
                       hide: true,
-                      icon: <IconComponent icon="flag" size={20} color="#acb5bd" />,
+                      icon: (
+                        <IconComponent icon="flag" size={20} color="#acb5bd" />
+                      ),
                       text: 'Team subscription',
                       onClick: this._openTeamSubscription.bind(this),
                     },
                     {
-                      icon: <IconComponent icon="logout" size={20} color="#acb5bd" />,
+                      icon: (
+                        <IconComponent
+                          icon="logout"
+                          size={20}
+                          color="#acb5bd"
+                        />
+                      ),
                       text: 'Signout',
                       onClick: this._signout.bind(this),
                     },
                   ]}
                 />
 
-                <div className="small regular color-d0 p-20 border-top">Build {version}</div>
+                <div className="small regular color-d0 p-20 border-top">
+                  Build {version}
+                </div>
               </div>
             }
           >
-            <IconComponent icon="settings" size={16} color="#45618c" className="button" onClick={this._openUserMenu.bind(this)} />
+            <IconComponent
+              icon="settings"
+              size={16}
+              color="#45618c"
+              className="button"
+              onClick={this._openUserMenu.bind(this)}
+            />
           </Popup>
         </Header>
       </HeaderContainer>
@@ -1243,12 +1566,16 @@ class ChannelsComponent extends React.Component {
         </HeadingRow>
 
         {this.state.starred.map((channel, index) => {
-          const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
+          const unread = this.props.common.unread
+            .filter(row => channel.id == row.doc.channel)
+            .flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
           const type = 'favourites'
-          const active = this.state.active.channelId == channel.id && this.state.active.type == type
+          const active =
+            this.state.active.channelId == channel.id &&
+            this.state.active.type == type
 
           return (
             <Channel
@@ -1260,15 +1587,25 @@ class ChannelsComponent extends React.Component {
               unread={muted ? 0 : unreadCount}
               name={channel.private ? channel.otherUser.name : channel.name}
               image={channel.private ? channel.otherUser.image : channel.image}
-              excerpt={channel.private ? channel.otherUser.excerpt : channel.excerpt}
+              excerpt={
+                channel.private ? channel.otherUser.excerpt : channel.excerpt
+              }
               public={channel.public}
               private={channel.private}
               readonly={channel.readonly}
               muted={muted}
               archived={archived}
               onNavigate={() => this.navigate(channel.id, type)}
-              onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-              onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+              onArchivedClick={() =>
+                this.updateUserArchived(
+                  this.props.user.id,
+                  channel.id,
+                  !archived
+                )
+              }
+              onMutedClick={() =>
+                this.updateUserMuted(this.props.user.id, channel.id, !muted)
+              }
             />
           )
         })}
@@ -1283,7 +1620,9 @@ class ChannelsComponent extends React.Component {
     const userId = this.props.user.id
     const teamId = this.props.team.id
     const channels = this.state.public.map((channel, index) => {
-      const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
+      const unread = this.props.common.unread
+        .filter(row => channel.id == row.doc.channel)
+        .flatten()
       const unreadCount = unread ? unread.doc.count : 0
       const muted = this.props.user.muted.indexOf(channel.id) != -1
       const archived = this.props.user.archived.indexOf(channel.id) != -1
@@ -1311,10 +1650,20 @@ class ChannelsComponent extends React.Component {
               width={200}
               direction="right-bottom"
               handleDismiss={() => this.setState({ channelPublicPopup: false })}
-              handleAccept={name => this.setState({ channelPublicPopup: false }, () => this.createPublicChannel(name))}
+              handleAccept={name =>
+                this.setState({ channelPublicPopup: false }, () =>
+                  this.createPublicChannel(name)
+                )
+              }
               placeholder="New channel name"
             >
-              <IconComponent icon="plus-circle" size={15} color="#45618c" className="button" onClick={() => this.setState({ channelPublicPopup: true })} />
+              <IconComponent
+                icon="plus-circle"
+                size={15}
+                color="#45618c"
+                className="button"
+                onClick={() => this.setState({ channelPublicPopup: true })}
+              />
             </QuickInputComponent>
           )}
         </HeadingRow>
@@ -1331,7 +1680,10 @@ class ChannelsComponent extends React.Component {
             })
 
             // Save our new order
-            StorageService.setStorage(CHANNELS_ORDER, JSON.stringify(serializedOrder))
+            StorageService.setStorage(
+              CHANNELS_ORDER,
+              JSON.stringify(serializedOrder)
+            )
 
             // Force update state
             this.setState({ hash: uuidv4() })
@@ -1417,20 +1769,30 @@ class ChannelsComponent extends React.Component {
               this.setState({ channelPrivatePopup: false })
             }}
           >
-            <IconComponent icon="plus-circle" size={15} color="#45618c" className="button" onClick={() => this.setState({ channelPrivatePopup: true })} />
+            <IconComponent
+              icon="plus-circle"
+              size={15}
+              color="#45618c"
+              className="button"
+              onClick={() => this.setState({ channelPrivatePopup: true })}
+            />
           </QuickUserComponent>
         </HeadingRow>
 
         {this.state.private.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
 
-          const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
+          const unread = this.props.common.unread
+            .filter(row => channel.id == row.doc.channel)
+            .flatten()
           const unreadCount = unread ? unread.doc.count : 0
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
           const otherUserId = channel.otherUser.id
           const type = 'private'
-          const active = this.state.active.channelId == channel.id && this.state.active.type == type
+          const active =
+            this.state.active.channelId == channel.id &&
+            this.state.active.type == type
 
           return (
             <Channel
@@ -1450,8 +1812,16 @@ class ChannelsComponent extends React.Component {
               muted={muted}
               archived={archived}
               onNavigate={() => this.navigate(channel.id, type)}
-              onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-              onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+              onArchivedClick={() =>
+                this.updateUserArchived(
+                  this.props.user.id,
+                  channel.id,
+                  !archived
+                )
+              }
+              onMutedClick={() =>
+                this.updateUserMuted(this.props.user.id, channel.id, !muted)
+              }
             />
           )
         })}
@@ -1467,7 +1837,12 @@ class ChannelsComponent extends React.Component {
     return (
       <React.Fragment>
         <HeadingRow>
-          <Heading className="button" onClick={() => this.setState({ archivedVisible: !this.state.archivedVisible })}>
+          <Heading
+            className="button"
+            onClick={() =>
+              this.setState({ archivedVisible: !this.state.archivedVisible })
+            }
+          >
             {this.state.archivedVisible ? 'Hide archived' : 'See archived'}
           </Heading>
         </HeadingRow>
@@ -1475,13 +1850,18 @@ class ChannelsComponent extends React.Component {
         {this.state.archivedVisible && (
           <React.Fragment>
             {this.state.archived.map((channel, index) => {
-              const unread = this.props.common.unread.filter(row => channel.id == row.doc.channel).flatten()
+              const unread = this.props.common.unread
+                .filter(row => channel.id == row.doc.channel)
+                .flatten()
               const unreadCount = unread ? unread.doc.count : 0
               const to = `/app/team/${this.props.team.id}/channel/${channel.id}`
               const muted = this.props.user.muted.indexOf(channel.id) != -1
-              const archived = this.props.user.archived.indexOf(channel.id) != -1
+              const archived =
+                this.props.user.archived.indexOf(channel.id) != -1
               const type = 'archived'
-              const active = this.state.active.channelId == channel.id && this.state.active.type == type
+              const active =
+                this.state.active.channelId == channel.id &&
+                this.state.active.type == type
 
               return (
                 <Channel
@@ -1492,16 +1872,28 @@ class ChannelsComponent extends React.Component {
                   active={active}
                   unread={muted ? 0 : unreadCount}
                   name={channel.private ? channel.otherUser.name : channel.name}
-                  image={channel.private ? channel.otherUser.image : channel.image}
-                  excerpt={channel.private ? channel.otherUser.status : channel.excerpt}
+                  image={
+                    channel.private ? channel.otherUser.image : channel.image
+                  }
+                  excerpt={
+                    channel.private ? channel.otherUser.status : channel.excerpt
+                  }
                   public={channel.public}
                   private={channel.private}
                   readonly={channel.readonly}
                   muted={muted}
                   archived={archived}
                   onNavigate={() => this.navigate(channel.id, type)}
-                  onArchivedClick={e => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-                  onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
+                  onArchivedClick={e =>
+                    this.updateUserArchived(
+                      this.props.user.id,
+                      channel.id,
+                      !archived
+                    )
+                  }
+                  onMutedClick={() =>
+                    this.updateUserMuted(this.props.user.id, channel.id, !muted)
+                  }
                 />
               )
             })}
@@ -1514,13 +1906,25 @@ class ChannelsComponent extends React.Component {
   renderAccountModal() {
     if (!this.state.accountModal) return null
 
-    return <AccountModal id={this.props.user.id} onClose={() => this.setState({ accountModal: false })} />
+    return (
+      <AccountModal
+        id={this.props.user.id}
+        onClose={() => this.setState({ accountModal: false })}
+      />
+    )
   }
 
   renderTeamModal() {
     if (!this.state.teamModal) return null
 
-    return <TeamModal id={this.props.team.id} start={this.state.teamModalStart} createPrivateChannel={this.createPrivateChannel} onClose={() => this.setState({ teamModal: false })} />
+    return (
+      <TeamModal
+        id={this.props.team.id}
+        start={this.state.teamModalStart}
+        createPrivateChannel={this.createPrivateChannel}
+        onClose={() => this.setState({ teamModal: false })}
+      />
+    )
   }
 
   // These unbounded functions
@@ -1560,11 +1964,20 @@ class ChannelsComponent extends React.Component {
   }
 
   renderHeaderButtons() {
-    const blankChannel = { ...this.props.channel, messages: [], id: null, color: null }
+    const blankChannel = {
+      ...this.props.channel,
+      messages: [],
+      id: null,
+      color: null,
+    }
     const location = window.location.href
     const locationParts = location.split('/')
-    const tasksActive = locationParts[locationParts.length - 1] == 'tasks' && !this.props.channel.id
-    const calendarActive = locationParts[locationParts.length - 1] == 'calendar' && !this.props.channel.id
+    const tasksActive =
+      locationParts[locationParts.length - 1] == 'tasks' &&
+      !this.props.channel.id
+    const calendarActive =
+      locationParts[locationParts.length - 1] == 'calendar' &&
+      !this.props.channel.id
 
     return (
       <HeaderButtons>
@@ -1575,7 +1988,12 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/calendar`)
           }}
         >
-          <IconComponent icon="calendar" color={TEXT_OFF_WHITE} size={20} className="mr-10" />
+          <IconComponent
+            icon="calendar"
+            color={TEXT_OFF_WHITE}
+            size={20}
+            className="mr-10"
+          />
           <HeaderButtonContainerText>Calendar</HeaderButtonContainerText>
         </HeaderButtonContainer>
 
@@ -1586,7 +2004,12 @@ class ChannelsComponent extends React.Component {
             this.props.history.push(`/app/team/${this.props.team.id}/tasks`)
           }}
         >
-          <IconComponent icon="double-check" color={TEXT_OFF_WHITE} size={20} className="mr-10" />
+          <IconComponent
+            icon="double-check"
+            color={TEXT_OFF_WHITE}
+            size={20}
+            className="mr-10"
+          />
           <HeaderButtonContainerText>Tasks</HeaderButtonContainerText>
         </HeaderButtonContainer>
       </HeaderButtons>
@@ -1595,7 +2018,10 @@ class ChannelsComponent extends React.Component {
 
   render() {
     return (
-      <Channels hideChannels={this.state.hideChannels} color={this.props.channel.color}>
+      <Channels
+        hideChannels={this.state.hideChannels}
+        color={this.props.channel.color}
+      >
         <Corner>
           <svg
             width="10"
@@ -1603,7 +2029,12 @@ class ChannelsComponent extends React.Component {
             viewBox="0 0 20 20"
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: '2' }}
+            style={{
+              fillRule: 'evenodd',
+              clipRule: 'evenodd',
+              strokeLinejoin: 'round',
+              strokeMiterlimit: '2',
+            }}
           >
             <path
               d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
@@ -1652,9 +2083,12 @@ const mapDispatchToProps = {
   updateUserDnd: dnd => updateUserDnd(dnd),
   updateUserStatus: status => updateUserStatus(status),
   updateUserPresence: presence => updateUserPresence(presence),
-  updateChannelUserStatus: (userId, teamId, status) => updateChannelUserStatus(userId, teamId, status),
-  updateUserMuted: (userId, channelId, muted) => updateUserMuted(userId, channelId, muted),
-  updateUserArchived: (userId, channelId, archived) => updateUserArchived(userId, channelId, archived),
+  updateChannelUserStatus: (userId, teamId, status) =>
+    updateChannelUserStatus(userId, teamId, status),
+  updateUserMuted: (userId, channelId, muted) =>
+    updateUserMuted(userId, channelId, muted),
+  updateUserArchived: (userId, channelId, archived) =>
+    updateUserArchived(userId, channelId, archived),
   createChannel: channel => createChannel(channel),
   hydrateChannels: channels => hydrateChannels(channels),
   hydrateChannel: channel => hydrateChannel(channel),
@@ -1695,7 +2129,8 @@ const HeaderButtons = styled.div`
 const HeaderButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
-  background-color: ${props => (props.active ? BACKGROUND_FADED_BLACK : 'transparent')};
+  background-color: ${props =>
+    props.active ? BACKGROUND_FADED_BLACK : 'transparent'};
   align-items: center;
   align-content: center;
   justify-content: flex-start;

@@ -4,18 +4,30 @@ import ReactDOMServer from 'react-dom/server'
 import React from 'react'
 import EventService from '../services/event.service'
 import { NODE_ENV } from '../environment'
-import { SILENCE, WEEKDAY_DRAGGED_TASK_ID, PRESENCES, FUTURE_DATE_UNIX_TIME } from '../constants'
+import {
+  SILENCE,
+  WEEKDAY_DRAGGED_TASK_ID,
+  PRESENCES,
+  FUTURE_DATE_UNIX_TIME,
+} from '../constants'
 import * as moment from 'moment'
 
 export const getHighestTaskOrder = tasks => {
-  return tasks.reduce((acc, value) => (value.order > acc ? value.order : acc), tasks.length) + 100
+  return (
+    tasks.reduce(
+      (acc, value) => (value.order > acc ? value.order : acc),
+      tasks.length
+    ) + 100
+  )
 }
 
 export const getPreviousTaskOrder = (tasks, taskId) => {
   // If there are no siblings
   if (tasks.length == 0) return 0
 
-  const lowestOrder = tasks.reduce((acc, task) => (acc.order < task.order ? acc : task), 0).order - 100
+  const lowestOrder =
+    tasks.reduce((acc, task) => (acc.order < task.order ? acc : task), 0)
+      .order - 100
   const task = tasks.filter(task => task.id == taskId)[0]
   let taskIndex = 0
   let order = 0
@@ -91,8 +103,12 @@ export const sortTasksByDueDate = tasks => {
   return tasks.sort((a, b) => {
     const dateA = moment(a.dueDate)
     const dateB = moment(b.dueDate)
-    const timeA = dateA.isValid() ? dateA.toDate().getTime() : FUTURE_DATE_UNIX_TIME
-    const timeB = dateB.isValid() ? dateB.toDate().getTime() : FUTURE_DATE_UNIX_TIME
+    const timeA = dateA.isValid()
+      ? dateA.toDate().getTime()
+      : FUTURE_DATE_UNIX_TIME
+    const timeB = dateB.isValid()
+      ? dateB.toDate().getTime()
+      : FUTURE_DATE_UNIX_TIME
 
     return timeA - timeB
   })
@@ -121,14 +137,21 @@ export function getQueryStringValue(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
     results = regex.exec(location.search)
-  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '))
+  return results === null
+    ? ''
+    : decodeURIComponent(results[1].replace(/\+/g, ' '))
 }
 
 export function isExtensionOpen() {
   const url = window.location.href
   const urlParts = url.split('/')
   const lastPart = urlParts[urlParts.length - 1].toUpperCase()
-  return lastPart == 'MEET' || lastPart == 'TASKS' || lastPart == 'CALENDAR' || lastPart == 'BOARDS'
+  return (
+    lastPart == 'MEET' ||
+    lastPart == 'TASKS' ||
+    lastPart == 'CALENDAR' ||
+    lastPart == 'BOARDS'
+  )
 }
 
 export const bytesToSize = bytes => {
@@ -152,7 +175,9 @@ export const imageUrlParser = url => {
 }
 
 export const vimeoUrlParser = url => {
-  const match = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i)
+  const match = url.match(
+    /(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i
+  )
   return match ? match[1] : false
 }
 
@@ -182,8 +207,10 @@ export const showLocalPushNotification = (title, body) => {
     if (serviceWorkerRegistration) {
       serviceWorkerRegistration.showNotification(title, {
         body,
-        icon: 'https://weekday-assets.s3-us-west-2.amazonaws.com/logo-transparent.png',
-        image: 'https://weekday-assets.s3-us-west-2.amazonaws.com/logo-transparent.png',
+        icon:
+          'https://weekday-assets.s3-us-west-2.amazonaws.com/logo-transparent.png',
+        image:
+          'https://weekday-assets.s3-us-west-2.amazonaws.com/logo-transparent.png',
       })
     }
   })
@@ -228,7 +255,11 @@ export const highlightMessage = (message, query) => {
 
 export const parseMessageMarkdown = (markdown, highlight) => {
   const htmlMessage = marked(markdown)
-  const compiledMessage = highlight ? (highlight != '' ? highlightMessage(htmlMessage, highlight) : htmlMessage) : htmlMessage
+  const compiledMessage = highlight
+    ? highlight != ''
+      ? highlightMessage(htmlMessage, highlight)
+      : htmlMessage
+    : htmlMessage
 
   // What we do here is replace the emoji symbol with one from EmojiOne
   const regex = new RegExp('(:[a-zA-Z0-9-_+]+:(:skin-tone-[2-6]:)?)', 'g')
@@ -261,7 +292,10 @@ export const parseMessageMarkdown = (markdown, highlight) => {
     }
   }
 
-  const finalPartOfTheText = compiledMessage.substring(lastOffset, compiledMessage.length)
+  const finalPartOfTheText = compiledMessage.substring(
+    lastOffset,
+    compiledMessage.length
+  )
 
   if (finalPartOfTheText.length) partsOfTheMessageText.push(finalPartOfTheText)
 
@@ -287,7 +321,9 @@ export const shortenMarkdownText = text => {
 }
 
 export const stripSpecialChars = text => {
-  return text ? text.replace(/[`~!@#$%^&*()|+\= ?;:'",.<>\{\}\[\]\\\/]/gi, '') : ''
+  return text
+    ? text.replace(/[`~!@#$%^&*()|+\= ?;:'",.<>\{\}\[\]\\\/]/gi, '')
+    : ''
 }
 
 export const isElectron = () => {
@@ -322,4 +358,16 @@ export const classNames = object => {
 
 export const isTaskHeading = title => {
   return title[title.length - 1] == ':'
+}
+
+export const generateInitials = str => {
+  return str
+    .split(' ')
+    .map((part, _) => {
+      return part[0] ? part[0].toUpperCase() : ''
+    })
+    .splice(0, 2)
+    .toString()
+    .replace(',', '')
+    .trim()
 }
