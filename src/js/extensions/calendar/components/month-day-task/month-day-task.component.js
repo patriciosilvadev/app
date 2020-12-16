@@ -32,7 +32,18 @@ const TASK_IMAGE_SVG = encodeURI(`
 let TASK_IMAGE = document.createElement('img')
 TASK_IMAGE.src = 'data:image/svg+xml,' + TASK_IMAGE_SVG
 
-export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done, channel, title, user, onClick, subtaskCount, parentId }) => {
+export const MonthDayTaskComponent = ({
+  id,
+  channelId,
+  displayChannelName,
+  done,
+  channel,
+  title,
+  user,
+  onClick,
+  subtaskCount,
+  parentId,
+}) => {
   const dispatch = useDispatch()
 
   const handleUpdateTaskDone = async () => {
@@ -62,25 +73,45 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
   const handleDrag = e => {}
 
   return (
-    <div draggable id={id} onDrag={handleDrag} onDragStart={handleDragStart} onDragEnd={handleDragEnd} className="month-day-task">
+    <div
+      draggable
+      id={id}
+      onDrag={handleDrag}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      className="month-day-task"
+    >
       <div className="checkbox">
         <CheckboxComponent done={done} onClick={handleUpdateTaskDone} />
       </div>
       {!!user && (
         <div className="task-avatar" onClick={onClick}>
-          <Avatar size="very-small" image={user.image} title={user.name} />
+          <Avatar size="x-small" image={user.image} title={user.name} />
         </div>
       )}
       <div className="row flexer pl-5">
         <div className="column flexer" onClick={onClick}>
           <div className="task-title">
-            {!!parentId && <IconComponent icon="corner-down-right" color="#11171d" size={11} style={{ marginRight: 3 }} />}
-            <span className="flexer" style={{ color: displayChannelName ? channel.color : '#11171d' }}>
+            {!!parentId && (
+              <IconComponent
+                icon="corner-down-right"
+                color="#11171d"
+                size={11}
+                style={{ marginRight: 3 }}
+              />
+            )}
+            <span
+              className="flexer"
+              style={{ color: displayChannelName ? channel.color : '#11171d' }}
+            >
               {title}
             </span>
           </div>
           {displayChannelName && (
-            <div className="task-channel" style={{ color: displayChannelName ? channel.color : '#adb5bd' }}>
+            <div
+              className="task-channel"
+              style={{ color: displayChannelName ? channel.color : '#adb5bd' }}
+            >
               {channel.name}
             </div>
           )}
@@ -88,7 +119,12 @@ export const MonthDayTaskComponent = ({ id, channelId, displayChannelName, done,
         {!!subtaskCount && (
           <div className="subtask-count">
             <IconComponent icon="check" color="#adb5bd" size={11} />
-            <IconComponent icon="check" color="#adb5bd" size={11} style={{ position: 'relative', left: -8 }} />
+            <IconComponent
+              icon="check"
+              color="#adb5bd"
+              size={11}
+              style={{ position: 'relative', left: -8 }}
+            />
             <div className="text">{subtaskCount}</div>
           </div>
         )}

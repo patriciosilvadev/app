@@ -29,14 +29,28 @@ import {
   hydrateChannelMessages,
 } from '../actions'
 import ComposeComponent from '../components/compose.component'
-import { Popup, Menu, Avatar, Spinner, Notification, Toggle, Error } from '@weekday/elements'
+import {
+  Popup,
+  Menu,
+  Avatar,
+  Spinner,
+  Notification,
+  Toggle,
+  Error,
+} from '@weekday/elements'
 import { Subject } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import MessagesComponent from './messages.component'
 import MessageComponent from './message.component'
 import { IconComponent } from './icon.component'
 import Keg from '@joduplessis/keg'
-import { sendFocusComposeInputEvent, copyToClipboard, decimalToMinutes, logger, sortMessagesByCreatedAt } from '../helpers/util'
+import {
+  sendFocusComposeInputEvent,
+  copyToClipboard,
+  decimalToMinutes,
+  logger,
+  sortMessagesByCreatedAt,
+} from '../helpers/util'
 import AttachmentsComponent from './attachments.component'
 import MembersChannelComponent from './members-channel.component'
 import { BASE_URL } from '../environment'
@@ -129,7 +143,12 @@ class ChannelComponent extends React.Component {
   async updateChannelShortcode(generateNewCode) {
     try {
       const channelId = this.props.channel.id
-      const { data } = await GraphqlService.getInstance().updateChannelShortcode(channelId, generateNewCode)
+      const {
+        data,
+      } = await GraphqlService.getInstance().updateChannelShortcode(
+        channelId,
+        generateNewCode
+      )
       const shortcode = data.updateChannelShortcode
 
       this.props.updateChannel(channelId, { shortcode })
@@ -146,11 +165,15 @@ class ChannelComponent extends React.Component {
       // 2 - it will be fed into this.onSearch$.next (RxJS)
       // 3 - this will call this function 1 second later to search for messages
       // 4 - if searchQuery is empty, then remove the results & display the message feed
-      if (this.props.searchQuery == '') return this.setState({ searchResults: null })
+      if (this.props.searchQuery == '')
+        return this.setState({ searchResults: null })
 
       const query = this.props.searchQuery
       const channelId = this.props.channel.id
-      const { data } = await GraphqlService.getInstance().searchMessages(channelId, query)
+      const { data } = await GraphqlService.getInstance().searchMessages(
+        channelId,
+        query
+      )
       const searchResults = data.searchMessages
 
       // Update our UI with our results
@@ -254,7 +277,10 @@ class ChannelComponent extends React.Component {
       if (data.channel.private) {
         const userId = data.channel.otherUser.id
         const teamId = this.props.team.id
-        const isTeamMember = await GraphqlService.getInstance().isTeamMember(teamId, userId)
+        const isTeamMember = await GraphqlService.getInstance().isTeamMember(
+          teamId,
+          userId
+        )
 
         otherUserIsTeamMember = isTeamMember.data.isTeamMember
       }
@@ -297,10 +323,16 @@ class ChannelComponent extends React.Component {
     const { page } = this.state
 
     try {
-      const { data } = await GraphqlService.getInstance().channelMessages(channelId, page)
+      const { data } = await GraphqlService.getInstance().channelMessages(
+        channelId,
+        page
+      )
 
       // Add the new messages to the channel
-      this.props.hydrateChannelMessages(channelId, sortMessagesByCreatedAt(data.channelMessages))
+      this.props.hydrateChannelMessages(
+        channelId,
+        sortMessagesByCreatedAt(data.channelMessages)
+      )
 
       // Increase the next page & open the scroll event for more messages fetches
       this.setState({
@@ -344,7 +376,9 @@ class ChannelComponent extends React.Component {
     if (this.state.open) this.fetchChannel(this.props.match.params.channelId)
 
     // Here we handle the delay for the yser typing in the search field
-    this.subscription = this.onSearch$.pipe(debounceTime(1000)).subscribe(debounced => this.fetchResults())
+    this.subscription = this.onSearch$
+      .pipe(debounceTime(1000))
+      .subscribe(debounced => this.fetchResults())
 
     // Event listener for the scroll
     this.scrollRef.addEventListener('scroll', this.handleScrollEvent)
@@ -360,7 +394,8 @@ class ChannelComponent extends React.Component {
 
     // Copy and paste
     document.addEventListener('paste', event => {
-      const items = (event.clipboardData || event.originalEvent.clipboardData).items
+      const items = (event.clipboardData || event.originalEvent.clipboardData)
+        .items
 
       for (var i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') === 0) {
@@ -407,7 +442,11 @@ class ChannelComponent extends React.Component {
     const channelId = this.props.channel.id
 
     try {
-      await GraphqlService.getInstance().updateUserStarred(userId, channelId, starred)
+      await GraphqlService.getInstance().updateUserStarred(
+        userId,
+        channelId,
+        starred
+      )
 
       this.props.updateUserStarred(channelId, starred)
     } catch (e) {}
@@ -430,11 +469,16 @@ class ChannelComponent extends React.Component {
     const teamId = this.props.team.id
 
     // These messages have to be sent to the team
-    if (!updatedChannelVisibility.public) MessagingService.getInstance().leaveChannelIfNotMember(teamId, channelId)
-    if (updatedChannelVisibility.public) MessagingService.getInstance().joinPublicChannel(teamId, channelId)
+    if (!updatedChannelVisibility.public)
+      MessagingService.getInstance().leaveChannelIfNotMember(teamId, channelId)
+    if (updatedChannelVisibility.public)
+      MessagingService.getInstance().joinPublicChannel(teamId, channelId)
 
     try {
-      await GraphqlService.getInstance().updateChannel(channelId, updatedChannelVisibility)
+      await GraphqlService.getInstance().updateChannel(
+        channelId,
+        updatedChannelVisibility
+      )
 
       this.setState({ channelMenu: false })
       this.props.updateChannel(channelId, updatedChannelVisibility)
@@ -459,10 +503,13 @@ class ChannelComponent extends React.Component {
     const starred = props.user.starred.indexOf(props.channel.id) != -1
     const muted = props.user.muted.indexOf(props.channel.id) != -1
     const archived = props.user.archived.indexOf(props.channel.id) != -1
-    const hasAdminPermission = props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
+    const hasAdminPermission =
+      props.team.role == 'ADMIN' || props.channel.user.id == props.user.id
     const channelIsPartOfThisTeam = props.team.id == props.channel.team.id
     const open = isMember || (isPublic && channelIsPartOfThisTeam)
-    const readonly = props.channel.readonly ? props.channel.readonly && !hasAdminPermission : false
+    const readonly = props.channel.readonly
+      ? props.channel.readonly && !hasAdminPermission
+      : false
 
     return {
       open,
@@ -479,10 +526,18 @@ class ChannelComponent extends React.Component {
     if (!this.state.open) return null
 
     const muted = this.props.user.muted.indexOf(this.props.channel.id) != -1
-    const avatarColor = this.props.channel.private ? null : this.props.channel.color
-    const avatarImage = this.props.channel.private ? this.props.channel.otherUser.image : null
-    const avatarUserId = this.props.channel.private ? this.props.channel.otherUser.id : null
-    const avatarTitle = this.props.channel.private ? this.props.channel.otherUser.name : this.props.channel.name
+    const avatarColor = this.props.channel.private
+      ? null
+      : this.props.channel.color
+    const avatarImage = this.props.channel.private
+      ? this.props.channel.otherUser.image
+      : null
+    const avatarUserId = this.props.channel.private
+      ? this.props.channel.otherUser.id
+      : null
+    const avatarTitle = this.props.channel.private
+      ? this.props.channel.otherUser.name
+      : this.props.channel.name
     const avatarTextColor = this.props.channel.private
       ? null
       : this.props.channel.color
@@ -495,34 +550,88 @@ class ChannelComponent extends React.Component {
     return (
       <Header className="row">
         <div className="mr-10" style={{ width: 20 }}>
-          <IconComponent icon="star" size={20} color={this.state.starred ? '#edd264' : '#11161c'} onClick={() => this.updateUserStarred(!this.state.starred)} className="button" />
+          <IconComponent
+            icon="star"
+            size={20}
+            color={this.state.starred ? '#edd264' : '#11161c'}
+            onClick={() => this.updateUserStarred(!this.state.starred)}
+            className="button"
+          />
         </div>
 
-        <Avatar muted={muted} color={avatarColor} image={avatarImage} title={avatarTitle} userId={avatarUserId} size="medium-large">
-          {this.props.channel.icon ? <IconComponent icon={this.props.channel.icon} size={16} color={avatarTextColor} /> : null}
+        <Avatar
+          muted={muted}
+          color={avatarColor}
+          image={avatarImage}
+          title={avatarTitle}
+          userId={avatarUserId}
+          size="medium-large"
+        >
+          {this.props.channel.icon ? (
+            <IconComponent
+              icon={this.props.channel.icon}
+              size={16}
+              color={avatarTextColor}
+            />
+          ) : null}
         </Avatar>
 
         <div className="column ml-10">
           <div className="row">
-            {this.props.channel.readonly && <IconComponent icon="radio" size={15} color="#11161c" className="mr-5" />}
-            {!this.props.channel.public && !this.props.channel.private && <IconComponent icon="lock" color="#11161c" size={15} className="mr-5" />}
-            {this.props.channel.private && <HeaderTitle>{this.props.channel.otherUser.name}</HeaderTitle>}
-            {!this.props.channel.private && <HeaderTitle>{this.props.channel.name}</HeaderTitle>}
+            {this.props.channel.readonly && (
+              <IconComponent
+                icon="radio"
+                size={15}
+                color="#11161c"
+                className="mr-5"
+              />
+            )}
+            {!this.props.channel.public && !this.props.channel.private && (
+              <IconComponent
+                icon="lock"
+                color="#11161c"
+                size={15}
+                className="mr-5"
+              />
+            )}
+            {this.props.channel.private && (
+              <HeaderTitle>{this.props.channel.otherUser.name}</HeaderTitle>
+            )}
+            {!this.props.channel.private && (
+              <HeaderTitle>{this.props.channel.name}</HeaderTitle>
+            )}
           </div>
 
           <HeaderDescription>
-            <ReactMarkdown source={this.props.channel.private ? this.props.channel.otherUser.status : this.props.channel.description} />
+            <ReactMarkdown
+              source={
+                this.props.channel.private
+                  ? this.props.channel.otherUser.status
+                  : this.props.channel.description
+              }
+            />
           </HeaderDescription>
 
           {/* Member header subtitle */}
           <div className="row hide">
             <HeaderDescription>
-              {this.props.channel.totalMembers.numberShorthand()} {this.props.channel.totalMembers == 1 ? 'member' : 'members'}
+              {this.props.channel.totalMembers.numberShorthand()}{' '}
+              {this.props.channel.totalMembers == 1 ? 'member' : 'members'}
             </HeaderDescription>
 
             {!this.props.channel.private && this.state.hasAdminPermission && (
-              <div className="ml-10 row button" onClick={() => this.setState({ channelModal: true, channelModalStart: 1 })}>
-                <IconComponent icon="plus" size={15} color="#007af5" className="mr-5" />
+              <div
+                className="ml-10 row button"
+                onClick={() =>
+                  this.setState({ channelModal: true, channelModalStart: 1 })
+                }
+              >
+                <IconComponent
+                  icon="plus"
+                  size={15}
+                  color="#007af5"
+                  className="mr-5"
+                />
                 <HeaderLink>Add New</HeaderLink>
               </div>
             )}
@@ -575,13 +684,27 @@ class ChannelComponent extends React.Component {
           {this.props.channel.userPreviews.map((userPreview, index) => {
             return (
               <div key={index} style={{ marginLeft: -10 }}>
-                <Avatar image={userPreview.image} title={userPreview.name} style={{ border: '2px solid white' }} size="medium" />
+                <Avatar
+                  image={userPreview.image}
+                  title={userPreview.name}
+                  style={{ border: '2px solid white' }}
+                  size="medium"
+                />
               </div>
             )
           })}
 
-          <div style={{ marginLeft: -10 }} onClick={() => this.setState({ membersPanel: true, attachmentsPanel: false })}>
-            <AvatarComponent title={this.props.channel.totalMembers + ''} size="medium" style={{ border: '2px solid white' }} />
+          <div
+            style={{ marginLeft: -10 }}
+            onClick={() =>
+              this.setState({ membersPanel: true, attachmentsPanel: false })
+            }
+          >
+            <AvatarComponent
+              title={this.props.channel.totalMembers + ''}
+              size="medium"
+              style={{ border: '2px solid white' }}
+            />
           </div>
         </UserPreviews>
 
@@ -604,7 +727,7 @@ class ChannelComponent extends React.Component {
                 <React.Fragment>
                   <div className="w-100 p-20 column align-items-start">
                     <div className="row w-100">
-                      <div className="p regular color-d2 flexer">Share with non team members</div>
+                      <CollapseTitleText>Share with others</CollapseTitleText>
                       <Toggle
                         on={!!this.props.channel.shortcode}
                         onChange={() => {
@@ -616,7 +739,9 @@ class ChannelComponent extends React.Component {
                         }}
                       />
                     </div>
-                    <Collapsable className={!!this.props.channel.shortcode ? 'open' : ''}>
+                    <Collapsable
+                      className={!!this.props.channel.shortcode ? 'open' : ''}
+                    >
                       <div className="column w-100 mt-10">
                         <ShortcodeInput
                           placeholder="Shortcode URL"
@@ -636,7 +761,9 @@ class ChannelComponent extends React.Component {
                           onClick={() => {
                             this.shortcodeRef.focus()
 
-                            copyToClipboard(`${BASE_URL}/c/${this.props.channel.shortcode}`)
+                            copyToClipboard(
+                              `${BASE_URL}/c/${this.props.channel.shortcode}`
+                            )
                           }}
                         />
                       </div>
@@ -649,38 +776,90 @@ class ChannelComponent extends React.Component {
                         items={[
                           {
                             hide: this.props.channel.private,
-                            icon: <IconComponent icon="users" size={20} color="#aeb5bc" />,
+                            icon: (
+                              <IconComponent
+                                icon="users"
+                                size={20}
+                                color="#aeb5bc"
+                              />
+                            ),
                             text: 'Members',
                             label: 'Manage channel members',
-                            onClick: e => this.setState({ channelMenu: false, membersPanel: true, attachmentsPanel: false }),
+                            onClick: e =>
+                              this.setState({
+                                channelMenu: false,
+                                membersPanel: true,
+                                attachmentsPanel: false,
+                              }),
                           },
                           {
                             hide: this.props.channel.private,
-                            icon: <IconComponent icon="radio" size={20} color="#aeb5bc" />,
-                            text: this.props.channel.readonly ? 'Disable broadcast' : 'Make broadcast',
+                            icon: (
+                              <IconComponent
+                                icon="radio"
+                                size={20}
+                                color="#aeb5bc"
+                              />
+                            ),
+                            text: this.props.channel.readonly
+                              ? 'Disable broadcast'
+                              : 'Make broadcast',
                             label: 'Only you can post messages',
-                            onClick: e => this.updateChannelReadonly(!this.props.channel.readonly),
+                            onClick: e =>
+                              this.updateChannelReadonly(
+                                !this.props.channel.readonly
+                              ),
                           },
                           {
                             hide: this.props.channel.public,
-                            icon: <IconComponent icon="unlock" size={20} color="#aeb5bc" />,
+                            icon: (
+                              <IconComponent
+                                icon="unlock"
+                                size={20}
+                                color="#aeb5bc"
+                              />
+                            ),
                             text: 'Make public',
                             label: 'Everyone in your team has access',
-                            onClick: e => this.updateChannelVisibility({ private: false, public: true }),
+                            onClick: e =>
+                              this.updateChannelVisibility({
+                                private: false,
+                                public: true,
+                              }),
                           },
                           {
                             hide: !this.props.channel.public,
-                            icon: <IconComponent icon="lock" size={20} color="#aeb5bc" />,
+                            icon: (
+                              <IconComponent
+                                icon="lock"
+                                size={20}
+                                color="#aeb5bc"
+                              />
+                            ),
                             text: 'Make private',
                             label: 'Members of this channel only',
-                            onClick: e => this.updateChannelVisibility({ private: false, public: false }),
+                            onClick: e =>
+                              this.updateChannelVisibility({
+                                private: false,
+                                public: false,
+                              }),
                           },
                           {
                             hide: this.props.channel.private,
-                            icon: <IconComponent icon="pen" size={20} color="#aeb5bc" />,
+                            icon: (
+                              <IconComponent
+                                icon="pen"
+                                size={20}
+                                color="#aeb5bc"
+                              />
+                            ),
                             text: 'Edit',
                             label: 'Update or remove this channel',
-                            onClick: e => this.setState({ channelModal: true, channelMenu: false }),
+                            onClick: e =>
+                              this.setState({
+                                channelModal: true,
+                                channelMenu: false,
+                              }),
                           },
                         ]}
                       />
@@ -689,8 +868,16 @@ class ChannelComponent extends React.Component {
                 </React.Fragment>
               }
             >
-              <HeaderButton className="row" onClick={() => this.setState({ channelMenu: true })}>
-                <IconComponent icon="more-v" size={18} color="#aeb5bc" className="button" />
+              <HeaderButton
+                className="row"
+                onClick={() => this.setState({ channelMenu: true })}
+              >
+                <IconComponent
+                  icon="more-v"
+                  size={18}
+                  color="#aeb5bc"
+                  className="button"
+                />
               </HeaderButton>
             </Popup>
           </React.Fragment>
@@ -714,7 +901,17 @@ class ChannelComponent extends React.Component {
         {sortedPinnedMessages.map((pinnedMessage, index) => {
           if (!pinnedMessage) return null
 
-          return <MessageComponent key={index} message={pinnedMessage} pinned={true} append={null} highlight={null} setUpdateMessage={null} setReplyMessage={null} />
+          return (
+            <MessageComponent
+              key={index}
+              message={pinnedMessage}
+              pinned={true}
+              append={null}
+              highlight={null}
+              setUpdateMessage={null}
+              setReplyMessage={null}
+            />
+          )
         })}
       </PinnedMessages>
     )
@@ -730,10 +927,16 @@ class ChannelComponent extends React.Component {
         {!this.props.channel.private && (
           <Welcome>
             <WelcomeUser className="row">
-              <Avatar title={this.props.channel.user.name} image={this.props.channel.user.image} size="small" style={{ zIndex: 1 }} />
+              <Avatar
+                title={this.props.channel.user.name}
+                image={this.props.channel.user.image}
+                size="small"
+                style={{ zIndex: 1 }}
+              />
 
               <WelcomeUserName>
-                Started by <strong>{this.props.channel.user.name}</strong> - {moment(this.props.channel.createdAt).fromNow()}
+                Started by <strong>{this.props.channel.user.name}</strong> -{' '}
+                {moment(this.props.channel.createdAt).fromNow()}
               </WelcomeUserName>
             </WelcomeUser>
 
@@ -748,7 +951,12 @@ class ChannelComponent extends React.Component {
         )}
 
         <MessagesInner ref={ref => (this.messagesRef = ref)}>
-          <MessagesComponent messages={this.props.channel.messages} highlight={this.props.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
+          <MessagesComponent
+            messages={this.props.channel.messages}
+            highlight={this.props.searchQuery}
+            setUpdateMessage={this.setUpdateMessage}
+            setReplyMessage={this.setReplyMessage}
+          />
         </MessagesInner>
       </React.Fragment>
     )
@@ -761,46 +969,77 @@ class ChannelComponent extends React.Component {
       <React.Fragment>
         <Welcome>
           <WelcomeDescription>
-            <ReactMarkdown source={`Your search returned ${this.state.searchResults.length} ${this.state.searchResults.length == 1 ? 'message' : 'messages'}`} />
+            <ReactMarkdown
+              source={`Your search returned ${
+                this.state.searchResults.length
+              } ${
+                this.state.searchResults.length == 1 ? 'message' : 'messages'
+              }`}
+            />
           </WelcomeDescription>
         </Welcome>
 
         <MessagesInner ref={ref => (this.messagesRef = ref)}>
-          <MessagesComponent messages={this.state.searchResults} highlight={this.props.searchQuery} setUpdateMessage={this.setUpdateMessage} setReplyMessage={this.setReplyMessage} />
+          <MessagesComponent
+            messages={this.state.searchResults}
+            highlight={this.props.searchQuery}
+            setUpdateMessage={this.setUpdateMessage}
+            setReplyMessage={this.setReplyMessage}
+          />
         </MessagesInner>
       </React.Fragment>
     )
   }
 
   renderNonTeamMemberNotice() {
-    if (!this.state.otherUserIsTeamMember && this.props.channel.private) return <Error message="This person is no longer part of your team, you cannot message them" />
+    if (!this.state.otherUserIsTeamMember && this.props.channel.private)
+      return (
+        <Error message="This person is no longer part of your team, you cannot message them" />
+      )
 
     return null
   }
 
   renderNotification() {
-    if (!this.state.open) return <Error message="Sorry, you are not allowed to view this" />
-    if (this.props.channel.public && !this.props.channel.public) return <Notification text="This team channel is public" />
+    if (!this.state.open)
+      return <Error message="Sorry, you are not allowed to view this" />
+    if (this.props.channel.public && !this.props.channel.public)
+      return <Notification text="This team channel is public" />
 
     return null
   }
 
   renderTypingNames() {
     // Don't include ourselves
-    const typingUsers = this.props.channel.typing.filter(typingUser => typingUser.userId != this.props.user.id)
+    const typingUsers = this.props.channel.typing.filter(
+      typingUser => typingUser.userId != this.props.user.id
+    )
 
     if (typingUsers.length == 0) {
       return null
     } else {
-      return <Typing>{typingUsers.map(typingUser => typingUser.userName).join(', ') + ' is typing'}</Typing>
+      return (
+        <Typing>
+          {typingUsers.map(typingUser => typingUser.userName).join(', ') +
+            ' is typing'}
+        </Typing>
+      )
     }
   }
 
   renderDropzone() {
     // We want to keep this visible to the rednerer, because we want the REF
     return (
-      <Dropzone active={this.state.isDragging} ref={ref => (this.dropMask = ref)}>
-        <svg enableBackground="new 0 0 511.999 511.999" height={100} width={100} viewBox="0 0 511.999 511.999">
+      <Dropzone
+        active={this.state.isDragging}
+        ref={ref => (this.dropMask = ref)}
+      >
+        <svg
+          enableBackground="new 0 0 511.999 511.999"
+          height={100}
+          width={100}
+          viewBox="0 0 511.999 511.999"
+        >
           <g>
             <path
               d="m422.651 225.765v248.961c0 20.586-16.688 37.273-37.273 37.273h-306.206c-20.586 0-37.273-16.688-37.273-37.273v-390.003c0-20.591 16.692-37.273 37.273-37.273h165.159z"
@@ -865,7 +1104,14 @@ class ChannelComponent extends React.Component {
 
     const { teamId, channelId } = this.props.match.params
 
-    return <ChannelModal hasAdminPermission={this.state.hasAdminPermission} channelId={channelId} teamId={teamId} onClose={() => this.setState({ channelModal: false })} />
+    return (
+      <ChannelModal
+        hasAdminPermission={this.state.hasAdminPermission}
+        channelId={channelId}
+        teamId={teamId}
+        onClose={() => this.setState({ channelModal: false })}
+      />
+    )
   }
 
   renderOtherUserTimezone() {
@@ -881,18 +1127,23 @@ class ChannelComponent extends React.Component {
     if (offsetMinutes < 0)
       text = `This user's time is ${moment()
         .tz(this.props.channel.otherUser.timezone)
-        .format('hh:mm A')} - ${this.props.channel.otherUser.timezone} (-${decimalToMinutes(offsetMinutes * -1)})`
+        .format('hh:mm A')} - ${
+        this.props.channel.otherUser.timezone
+      } (-${decimalToMinutes(offsetMinutes * -1)})`
     if (offsetMinutes >= 0)
       text = `This user's time is ${moment()
         .tz(this.props.channel.otherUser.timezone)
-        .format('hh:mm A')} - ${this.props.channel.otherUser.timezone} (+${decimalToMinutes(offsetMinutes)})`
+        .format('hh:mm A')} - ${
+        this.props.channel.otherUser.timezone
+      } (+${decimalToMinutes(offsetMinutes)})`
 
     return <Notification text={text} />
   }
 
   renderCompose() {
     if (!this.state.open) return null
-    if (!this.state.otherUserIsTeamMember && this.props.channel.private) return null
+    if (!this.state.otherUserIsTeamMember && this.props.channel.private)
+      return null
 
     return (
       <ComposeComponent
@@ -911,7 +1162,12 @@ class ChannelComponent extends React.Component {
   renderMessageModal() {
     if (!this.props.message.id) return null
 
-    return <MessageModal messageId={this.props.message.id} onClose={() => this.props.hydrateMessage({ id: null, messages: [] })} />
+    return (
+      <MessageModal
+        messageId={this.props.message.id}
+        onClose={() => this.props.hydrateMessage({ id: null, messages: [] })}
+      />
+    )
   }
 
   render() {
@@ -977,9 +1233,12 @@ const mapDispatchToProps = {
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTask: task => hydrateTask(task),
   hydrateMessage: message => hydrateMessage(message),
-  hydrateChannelMessages: (channelId, messages) => hydrateChannelMessages(channelId, messages),
-  updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
-  updateUserStarred: (channelId, starred) => updateUserStarred(channelId, starred),
+  hydrateChannelMessages: (channelId, messages) =>
+    hydrateChannelMessages(channelId, messages),
+  updateChannel: (channelId, updatedChannel) =>
+    updateChannel(channelId, updatedChannel),
+  updateUserStarred: (channelId, starred) =>
+    updateUserStarred(channelId, starred),
   openApp: action => openApp(action),
   closeAppPanel: () => closeAppPanel(),
 }
@@ -1068,6 +1327,13 @@ const Header = styled.div`
   height: 75px;
   display: flex;
   /*box-shadow: 0px 0px 50px 10px rgba(0, 0, 0, 0.05);*/
+`
+
+const CollapseTitleText = styled.div`
+  font-size: 14px;
+  flex: 1;
+  color: #91a0b0;
+  font-weight: 700;
 `
 
 const HeaderButton = styled.div`
@@ -1159,7 +1425,8 @@ const HeaderSearchContainer = styled.div`
   margin-right: 10px;
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.02);
   width: ${props => (props.focus ? '30%' : '25%')};
-  box-shadow: ${props => (props.focus ? 'inset 0px 0px 0px 3px #cfd4da;' : 'none')};
+  box-shadow: ${props =>
+    props.focus ? 'inset 0px 0px 0px 3px #cfd4da;' : 'none'};
 
   @media only screen and (max-width: 768px) {
     display: none;

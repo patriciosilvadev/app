@@ -99,27 +99,6 @@ export default function DockComponent(props) {
         </ToggleButton>
       )}
 
-      <Corner>
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 20 20"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{
-            fillRule: 'evenodd',
-            clipRule: 'evenodd',
-            strokeLinejoin: 'round',
-            strokeMiterlimit: '2',
-          }}
-        >
-          <path
-            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
-            style={{ fill: '#0b1729' }}
-          />
-        </svg>
-      </Corner>
-
       {teamOnboardingModal && (
         <TeamOnboardingModal
           onOkay={() => setTeamOnboardingModal(false)}
@@ -143,9 +122,7 @@ export default function DockComponent(props) {
               boxSizing: 'border-box',
               paddingTop: 10,
               paddingBottom: 10,
-              borderTopRightRadius: 5,
-              borderBottomRightRadius: 5,
-              backgroundColor: active ? BACKGROUND_FADED_BLACK : 'transparent',
+              backgroundColor: active ? '#F8F9FA' : 'transparent',
             }}
           >
             <Avatar
@@ -169,7 +146,7 @@ export default function DockComponent(props) {
           className="button"
           onClick={e => setTeamOnboardingModal(true)}
         >
-          <IconComponent icon="plus-circle" size={19} color="#314563" />
+          <IconComponent icon="plus-circle" size={19} color="#91A0B0" />
         </Avatar>
       </div>
 
@@ -180,14 +157,6 @@ export default function DockComponent(props) {
 
 DockComponent.propTypes = {}
 
-const Corner = styled.div`
-  position: absolute;
-  left: 100%;
-  top: -3px;
-  width: 10px;
-  height: 10px;
-`
-
 const ToggleButton = styled.div`
   position: absolute;
   z-index: 10;
@@ -195,11 +164,11 @@ const ToggleButton = styled.div`
   right: 0px;
   width: 20px;
   height: 20px;
-  background: #0b1729;
+  background: white;
   border-radius: 50%;
   transform: translate(50%, 50%);
   box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);
-  border: 3px solid #0f1f36;
+  border: 3px solid #eaedef;
   transition: border 0.2s;
   cursor: pointer;
   display: flex;
@@ -210,7 +179,7 @@ const ToggleButton = styled.div`
   overflow: hidden;
 
   &:hover {
-    border: 2px solid #0f1f36;
+    border: 2px solid #eaedef;
   }
 `
 
@@ -220,21 +189,23 @@ const DockPadding = styled.div`
 
 const Dock = styled.div`
   width: 70px;
-  padding-top: 0px;
+  padding-top: 10px;
   padding-bottom: 20px;
   display: flex;
   height: 100%;
   position: relative;
   background: #f8f9fa;
-  background: white;
   background: ${props => props.color};
   background: #18181d;
   background: #0b1729;
+  background: white;
   display: flex;
   flex-direction: column;
   align-content: center;
   align-items: center;
   z-index: 7;
+  box-shadow: 0px 0px 50px 10px rgba(0, 0, 0, 0.015);
+  border-right: 1px solid #eaedef;
 
   @media only screen and (max-width: 768px) {
     width: 20vw;
@@ -244,13 +215,12 @@ const Dock = styled.div`
 
 const Team = styled.div`
   margin-top: 5px;
-  font-size: 8px;
-  color: ${props => (props.active ? '#4084ed' : '#314563')};
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: ${props => (props.active ? '800' : '500')};
+  color: ${props => (props.active ? '#202933' : '#91A0B0')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0px;
   margin-bottom: -1px;
-  font-family: Menlo, monospace;
 `

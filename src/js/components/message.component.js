@@ -33,8 +33,25 @@ import {
   updateToast,
   createThread,
 } from '../actions'
-import { Attachment, Popup, Avatar, Menu, Tooltip, Button } from '@weekday/elements'
-import { getHighestTaskOrder, getMentions, urlParser, youtubeUrlParser, vimeoUrlParser, imageUrlParser, logger, decimalToMinutes, parseMessageMarkdown } from '../helpers/util'
+import {
+  Attachment,
+  Popup,
+  Avatar,
+  Menu,
+  Tooltip,
+  Button,
+} from '@weekday/elements'
+import {
+  getHighestTaskOrder,
+  getMentions,
+  urlParser,
+  youtubeUrlParser,
+  vimeoUrlParser,
+  imageUrlParser,
+  logger,
+  decimalToMinutes,
+  parseMessageMarkdown,
+} from '../helpers/util'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import OpengraphService from '../services/opengraph.service'
@@ -124,17 +141,26 @@ export default memo(props => {
       // delete channelMessage.parent
 
       // Make the GQL call
-      await GraphqlService.getInstance().updateChannelMessage(messageId, { pinned })
+      await GraphqlService.getInstance().updateChannelMessage(messageId, {
+        pinned,
+      })
 
       // Update the pinned list with our message
       // This also syncs across clients
-      if (pinned) dispatch(updateChannelCreateMessagePin(channelId, channelMessage))
+      if (pinned)
+        dispatch(updateChannelCreateMessagePin(channelId, channelMessage))
       if (!pinned) dispatch(updateChannelDeleteMessagePin(channelId, messageId))
 
       // Also update this message in the channel messages list
       // NOTE First channelId tell it to SYNC
       // Second one makes sure this message only gets asent ot this channel
-      dispatch(updateChannelMessage(channelId, { channelId, messageId, message: { pinned } }))
+      dispatch(
+        updateChannelMessage(channelId, {
+          channelId,
+          messageId,
+          message: { pinned },
+        })
+      )
     } catch (e) {
       logger(e)
     }
@@ -145,7 +171,9 @@ export default memo(props => {
 
     const userName = user.name
     const userId = user.id
-    const excerpt = userName.toString().split(' ')[0] + ': ' + props.message.body || props.message.body
+    const excerpt =
+      userName.toString().split(' ')[0] + ': ' + props.message.body ||
+      props.message.body
     const teamId = team.id
     const forwardedMessageContents = props.message.body
     const forwardingOriginalTime = props.message.createdAt
@@ -196,7 +224,11 @@ export default memo(props => {
       // If the modal is open:
       // Then use the STORE's message Id becuase that would be the parent
       // Otherwise use the message prop's parent (if theer is one)
-      const parentMessageId = isModalOpen ? parentMessage.id : parent ? parent.id : null
+      const parentMessageId = isModalOpen
+        ? parentMessage.id
+        : parent
+        ? parent.id
+        : null
 
       // If there is none, then NULL is what we want here
       dispatch(deleteChannelMessage(channelId, messageId, parentMessageId))
@@ -212,10 +244,15 @@ export default memo(props => {
     if (reaction.split('__')[1] != user.id) return
 
     try {
-      await GraphqlService.getInstance().deleteChannelMessageReaction(props.message.id, reaction)
+      await GraphqlService.getInstance().deleteChannelMessageReaction(
+        props.message.id,
+        reaction
+      )
 
       setEmoticonMenu(false)
-      dispatch(deleteChannelMessageReaction(channel.id, props.message.id, reaction))
+      dispatch(
+        deleteChannelMessageReaction(channel.id, props.message.id, reaction)
+      )
     } catch (e) {
       logger(e)
     }
@@ -224,14 +261,21 @@ export default memo(props => {
   const handleCreateChannelMessageReaction = async emoticon => {
     try {
       const reaction = `${emoticon}__${user.id}__${user.name.split(' ')[0]}`
-      const exisitingReactions = props.message.reactions.filter(r => r == reaction)
+      const exisitingReactions = props.message.reactions.filter(
+        r => r == reaction
+      )
 
       if (exisitingReactions.length != 0) return setEmoticonMenu(false)
 
-      await GraphqlService.getInstance().createChannelMessageReaction(props.message.id, reaction)
+      await GraphqlService.getInstance().createChannelMessageReaction(
+        props.message.id,
+        reaction
+      )
 
       setEmoticonMenu(false)
-      dispatch(createChannelMessageReaction(channel.id, props.message.id, reaction))
+      dispatch(
+        createChannelMessageReaction(channel.id, props.message.id, reaction)
+      )
     } catch (e) {
       logger(e)
     }
@@ -239,7 +283,10 @@ export default memo(props => {
 
   const handleDeleteChannelMessageLike = async () => {
     try {
-      await GraphqlService.getInstance().deleteChannelMessageLike(props.message.id, user.id)
+      await GraphqlService.getInstance().deleteChannelMessageLike(
+        props.message.id,
+        user.id
+      )
 
       dispatch(deleteChannelMessageLike(channel.id, props.message.id, user.id))
     } catch (e) {
@@ -249,7 +296,10 @@ export default memo(props => {
 
   const handleCreateChannelMessageLike = async () => {
     try {
-      await GraphqlService.getInstance().createChannelMessageLike(props.message.id, user.id)
+      await GraphqlService.getInstance().createChannelMessageLike(
+        props.message.id,
+        user.id
+      )
 
       dispatch(createChannelMessageLike(channel.id, props.message.id, user.id))
     } catch (e) {
@@ -268,7 +318,14 @@ export default memo(props => {
       const teamId = team.id
       const userId = user.id
       const order = 100 // Random
-      const { data } = await GraphqlService.getInstance().createTask({ channel: channelId, title, order, user: userId, team: teamId, description: body })
+      const { data } = await GraphqlService.getInstance().createTask({
+        channel: channelId,
+        title,
+        order,
+        user: userId,
+        team: teamId,
+        description: body,
+      })
       const task = data.createTask
 
       dispatch(createTasks(channelId, task))
@@ -307,7 +364,10 @@ export default memo(props => {
         data: {
           updateChannelMessage: { id, body },
         },
-      } = await GraphqlService.getInstance().updateChannelMessage(messageId, message)
+      } = await GraphqlService.getInstance().updateChannelMessage(
+        messageId,
+        message
+      )
       const updatedAt = moment()
         .toDate()
         .getTime()
@@ -382,7 +442,16 @@ export default memo(props => {
   const constructParentMessageData = message => {
     if (!message) return null
 
-    const { id, body, channel, app, user, childMessageCount, thread, createdAt } = message
+    const {
+      id,
+      body,
+      channel,
+      app,
+      user,
+      childMessageCount,
+      thread,
+      createdAt,
+    } = message
     const words = body
       .split(' ')
       .splice(0, 10)
@@ -435,10 +504,34 @@ export default memo(props => {
     )
 
     // Set sender details - and accommodate SYSTEM messages & APP messages
-    setSenderImage(props.message.system ? '' : props.message.app ? props.message.app.app.image : props.message.user.image)
-    setSenderName(props.message.system ? '' : props.message.user ? props.message.user.name : 'Autobot')
-    setSenderId(props.message.system ? null : props.message.user ? props.message.user.id : null)
-    setSenderTimezone(props.message.user ? (props.message.user.timezone ? props.message.user.timezone : 'Your timezone') : 'Your timezone')
+    setSenderImage(
+      props.message.system
+        ? ''
+        : props.message.app
+        ? props.message.app.app.image
+        : props.message.user.image
+    )
+    setSenderName(
+      props.message.system
+        ? ''
+        : props.message.user
+        ? props.message.user.name
+        : 'Autobot'
+    )
+    setSenderId(
+      props.message.system
+        ? null
+        : props.message.user
+        ? props.message.user.id
+        : null
+    )
+    setSenderTimezone(
+      props.message.user
+        ? props.message.user.timezone
+          ? props.message.user.timezone
+          : 'Your timezone'
+        : 'Your timezone'
+    )
 
     // Only set this for non apps & valid timezones
     if (!props.message.app && props.message.user) {
@@ -448,15 +541,19 @@ export default memo(props => {
             .tz(props.message.user.timezone)
             .utcOffset() / 60
 
-        if (offsetMinutes < 0) setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
-        if (offsetMinutes >= 0) setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
+        if (offsetMinutes < 0)
+          setSenderTimezoneOffset(` -${decimalToMinutes(offsetMinutes * -1)}`)
+        if (offsetMinutes >= 0)
+          setSenderTimezoneOffset(` +${decimalToMinutes(offsetMinutes)}`)
       }
     }
 
     // Only update our state if there are any
     if (props.message.app) {
       // Find the corresponding app ont he channel (needs to be active)
-      const channelApp = channel.apps.filter(app => app.app.id == props.message.app.app.id && app.active).flatten()
+      const channelApp = channel.apps
+        .filter(app => app.app.id == props.message.app.app.id && app.active)
+        .flatten()
 
       // Only if there is an app
       if (!channelApp) return
@@ -465,7 +562,8 @@ export default memo(props => {
       const channelAppToken = channelApp.token
 
       // This might be null
-      const channelAppMessageButtons = props.message.app.app.message.buttons || []
+      const channelAppMessageButtons =
+        props.message.app.app.message.buttons || []
       const appResourceId = props.message.app.resourceId
 
       // resourceId is what we use to ID the resource on the app's server
@@ -496,9 +594,13 @@ export default memo(props => {
         if (url) {
           if (url != '') {
             if (url.indexOf('?') == -1) {
-              setAppUrl(`${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+              setAppUrl(
+                `${url}?token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`
+              )
             } else {
-              setAppUrl(`${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`)
+              setAppUrl(
+                `${url}&token=${channelAppToken}&userId=${user.id}&resourceId=${appResourceId}&resizeId=${resizeId}`
+              )
             }
           }
         }
@@ -541,7 +643,12 @@ export default memo(props => {
         dispatch(updateChannelMessage(channelId, channelMessage))
       } else {
         // If not and not everyone has read this yet, then add our read
-        GraphqlService.getInstance().createChannelMessageRead(messageId, userId, channelId, teamId)
+        GraphqlService.getInstance().createChannelMessageRead(
+          messageId,
+          userId,
+          channelId,
+          teamId
+        )
 
         // Redux expects this shape
         const channelMessage = {
@@ -601,7 +708,8 @@ export default memo(props => {
     let messageBody = props.message.body || ''
     const priorityLevel = getMessagePriorityLevel(messageBody)
 
-    if (priorityLevel) messageBody = stripPriorityLevelFromText(messageBody, priorityLevel)
+    if (priorityLevel)
+      messageBody = stripPriorityLevelFromText(messageBody, priorityLevel)
 
     setPriority(priorityLevel)
     setParent(constructParentMessageData(props.message.parent))
@@ -611,11 +719,32 @@ export default memo(props => {
   const renderDeviceIcons = () => {
     switch (props.message.device) {
       case 'WEB':
-        return <IconComponent icon="monitor" size={13} color="#aeb5bc" className="ml-5" />
+        return (
+          <IconComponent
+            icon="monitor"
+            size={13}
+            color="#aeb5bc"
+            className="ml-5"
+          />
+        )
       case 'DESKTOP':
-        return <IconComponent icon="monitor" size={13} color="#aeb5bc" className="ml-5" />
+        return (
+          <IconComponent
+            icon="monitor"
+            size={13}
+            color="#aeb5bc"
+            className="ml-5"
+          />
+        )
       case 'MOBILE':
-        return <IconComponent icon="smartphone" size={13} color="#aeb5bc" className="ml-5" />
+        return (
+          <IconComponent
+            icon="smartphone"
+            size={13}
+            color="#aeb5bc"
+            className="ml-5"
+          />
+        )
       default:
         return null
     }
@@ -633,14 +762,29 @@ export default memo(props => {
         <Date>
           {props.message.system && <span>{props.message.body} - </span>}
 
-          {moment(props.message.forwardingOriginalTime ? props.message.forwardingOriginalTime : props.message.createdAt)
+          {moment(
+            props.message.forwardingOriginalTime
+              ? props.message.forwardingOriginalTime
+              : props.message.createdAt
+          )
             .tz(user.timezone)
             .fromNow()}
         </Date>
 
         <div className="row">
-          {!props.message.system && <IconComponent icon="check" size={15} color="#aeb5bc" />}
-          {!props.message.system && (channel.totalMembers <= props.message.reads || props.message.read) && <IconComponent icon="check" size={15} color="#aeb5bc" style={{ marginLeft: -11 }} />}
+          {!props.message.system && (
+            <IconComponent icon="check" size={15} color="#aeb5bc" />
+          )}
+          {!props.message.system &&
+            (channel.totalMembers <= props.message.reads ||
+              props.message.read) && (
+              <IconComponent
+                icon="check"
+                size={15}
+                color="#aeb5bc"
+                style={{ marginLeft: -11 }}
+              />
+            )}
 
           {renderDeviceIcons()}
         </div>
@@ -651,8 +795,18 @@ export default memo(props => {
   const renderAvatar = () => {
     if (!props.append && !props.message.system) {
       return (
-        <Tooltip text={`${senderTimezone.replace('_', ' ')}${senderTimezoneOffset ? senderTimezoneOffset : ''}`} direction="right">
-          <Avatar image={senderImage} title={senderName} userId={senderId} size="medium" />
+        <Tooltip
+          text={`${senderTimezone.replace('_', ' ')}${
+            senderTimezoneOffset ? senderTimezoneOffset : ''
+          }`}
+          direction="right"
+        >
+          <Avatar
+            image={senderImage}
+            title={senderName}
+            userId={senderId}
+            size="medium"
+          />
         </Tooltip>
       )
     }
@@ -673,7 +827,19 @@ export default memo(props => {
             visible={emoticonMenu}
             width={350}
             direction="right-top"
-            content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => handleCreateChannelMessageReaction(emoji.colons)} />}
+            content={
+              <Picker
+                style={{ width: 350 }}
+                set="emojione"
+                title=""
+                emoji=""
+                showPreview={false}
+                showSkinTones={false}
+                onSelect={emoji =>
+                  handleCreateChannelMessageReaction(emoji.colons)
+                }
+              />
+            }
           >
             <Tool onClick={() => setEmoticonMenu(true)} first={true}>
               <IconComponent icon="smile" size={15} color="#aeb5bc" />
@@ -690,18 +856,21 @@ export default memo(props => {
         {/* Temporarily disabling this: !props.message.app */}
         {/* Check here that there is a user! */}
         {/* And then only for this user - otherwise ALWAYS */}
-        {(props.message.user ? props.message.user.id == user.id : true) && !props.pinned && (
-          <Tool onClick={() => setConfirmDeleteModal(true)}>
-            <IconComponent icon="delete" size={15} color="#aeb5bc" />
-          </Tool>
-        )}
+        {(props.message.user ? props.message.user.id == user.id : true) &&
+          !props.pinned && (
+            <Tool onClick={() => setConfirmDeleteModal(true)}>
+              <IconComponent icon="delete" size={15} color="#aeb5bc" />
+            </Tool>
+          )}
 
         {/* only for this user */}
-        {!props.message.app && props.message.user.id == user.id && !props.pinned && (
-          <Tool onClick={() => props.setUpdateMessage(props.message)}>
-            <IconComponent icon="pen" size={15} color="#aeb5bc" />
-          </Tool>
-        )}
+        {!props.message.app &&
+          props.message.user.id == user.id &&
+          !props.pinned && (
+            <Tool onClick={() => props.setUpdateMessage(props.message)}>
+              <IconComponent icon="pen" size={15} color="#aeb5bc" />
+            </Tool>
+          )}
 
         {!props.pinned && !parentMessage.id && (
           <Tool onClick={() => props.setReplyMessage(props.message)}>
@@ -713,7 +882,11 @@ export default memo(props => {
           <IconComponent icon="double-check" size={15} color="#aeb5bc" />
         </Tool>
 
-        {!parentMessage.id && <Tool onClick={() => handleMessagePin()}>{props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}</Tool>}
+        {!parentMessage.id && (
+          <Tool onClick={() => handleMessagePin()}>
+            {props.message.pinned || props.pinned ? 'Unpin' : 'Pin to top'}
+          </Tool>
+        )}
 
         {!props.pinned && !parentMessage.id && (
           <Popup
@@ -723,12 +896,20 @@ export default memo(props => {
             direction="right-top"
             content={
               <React.Fragment>
-                <div className="color-d2 h5 pl-15 pt-15 bold">Forward to channel:</div>
+                <div className="color-d2 h5 pl-15 pt-15 bold">
+                  Forward to channel:
+                </div>
                 <Menu
                   items={channels.map(c => {
-                    const channelName = c.otherUser ? (c.otherUser.name ? c.otherUser.name : c.name) : c.name
+                    const channelName = c.otherUser
+                      ? c.otherUser.name
+                        ? c.otherUser.name
+                        : c.name
+                      : c.name
                     return {
-                      text: `${channelName} ${c.id == channel.id ? '(this channel)' : ''}`,
+                      text: `${channelName} ${
+                        c.id == channel.id ? '(this channel)' : ''
+                      }`,
                       onClick: e => handleForwardMessage(c.id),
                     }
                   })}
@@ -749,11 +930,20 @@ export default memo(props => {
     if (!props.message.childMessageCount) return null
     if (!props.message.thread) return null
 
-    const messageText = props.message.childMessageCount == 1 ? 'reply' : 'replies'
+    const messageText =
+      props.message.childMessageCount == 1 ? 'reply' : 'replies'
 
     return (
-      <ChildMessages className="row" onClick={() => handleMessageModalOpen(props.message.id)}>
-        <IconComponent icon="message-circle" size={15} color="#617691" className="mr-5" />
+      <ChildMessages
+        className="row"
+        onClick={() => handleMessageModalOpen(props.message.id)}
+      >
+        <IconComponent
+          icon="message-circle"
+          size={15}
+          color="#617691"
+          className="mr-5"
+        />
         <ChildMessagesText>
           {props.message.childMessageCount} {messageText}
         </ChildMessagesText>
@@ -774,7 +964,9 @@ export default memo(props => {
                   <ReactMarkdown source={parent.body} />
                 </ParentMessage>
                 <div className="row">
-                  <ParentName>by {parent.app ? parent.app.name : parent.user.name}</ParentName>
+                  <ParentName>
+                    by {parent.app ? parent.app.name : parent.user.name}
+                  </ParentName>
                   <ParentDate>{parent.createdAt}</ParentDate>
                   {parent && (
                     <ParentUnreadCount
@@ -829,7 +1021,11 @@ export default memo(props => {
                   key={index}
                   text="Join the call"
                   className="mt-10 mb-5"
-                  onClick={() => browserHistory.push(`/app/team/${team.id}/channel/${channel.id}/meet`)}
+                  onClick={() =>
+                    browserHistory.push(
+                      `/app/team/${team.id}/channel/${channel.id}/meet`
+                    )
+                  }
                   icon={<IconComponent icon="video" size={14} color="white" />}
                 />
               )
@@ -852,14 +1048,21 @@ export default memo(props => {
                       </div>
                       <div className="column">
                         <div className="h5 color-d3 bold">{meta.title}</div>
-                        <div className="small color-d2 button bold mt-5" onClick={() => dispatch(hydrateTask({ id: meta.id }))}>
+                        <div
+                          className="small color-d2 button bold mt-5"
+                          onClick={() => dispatch(hydrateTask({ id: meta.id }))}
+                        >
                           Open task
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {meta.deleted && <div className="h5 color-d0 small bold">This task was deleted</div>}
+                  {meta.deleted && (
+                    <div className="h5 color-d0 small bold">
+                      This task was deleted
+                    </div>
+                  )}
                 </div>
               )
 
@@ -874,7 +1077,11 @@ export default memo(props => {
                   uri={attachment.uri}
                   name={attachment.name}
                   createdAt={attachment.createdAt}
-                  onPreviewClick={mime.split('/')[0] == 'image' ? () => setPreview(attachment.uri) : null}
+                  onPreviewClick={
+                    mime.split('/')[0] == 'image'
+                      ? () => setPreview(attachment.uri)
+                      : null
+                  }
                 />
               )
           }
@@ -891,15 +1098,46 @@ export default memo(props => {
           const extension = image.split('.')[image.split('.').length - 1]
           const mime = `image/${extension}`
 
-          return <Attachment key={index} size={null} mime={mime} preview={image} uri={image} name={name} createdAt={props.message.createdAt} onPreviewClick={() => setPreview(image)} />
+          return (
+            <Attachment
+              key={index}
+              size={null}
+              mime={mime}
+              preview={image}
+              uri={image}
+              name={name}
+              createdAt={props.message.createdAt}
+              onPreviewClick={() => setPreview(image)}
+            />
+          )
         })}
 
         {youtubeVideos.map((youtubeVideo, index) => {
-          return <iframe key={index} width={560} height={300} src={`https://www.youtube.com/embed/${youtubeVideo}`} frameBorder={0} allow="autoplay; encrypted-media" allowFullScreen></iframe>
+          return (
+            <iframe
+              key={index}
+              width={560}
+              height={300}
+              src={`https://www.youtube.com/embed/${youtubeVideo}`}
+              frameBorder={0}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            ></iframe>
+          )
         })}
 
         {vimeoVideos.map((vimeoVideo, index) => {
-          return <iframe key={index} width={560} height={300} src={`https://player.vimeo.com/video/${vimeoVideo}`} frameBorder={0} allow="autoplay; encrypted-media" allowFullScreen></iframe>
+          return (
+            <iframe
+              key={index}
+              width={560}
+              height={300}
+              src={`https://player.vimeo.com/video/${vimeoVideo}`}
+              frameBorder={0}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            ></iframe>
+          )
         })}
       </React.Fragment>
     )
@@ -929,7 +1167,13 @@ export default memo(props => {
 
     return (
       <AppUrl>
-        <iframe border="0" ref={iframeRef} src={appUrl} width={appWidth} height={appHeight}></iframe>
+        <iframe
+          border="0"
+          ref={iframeRef}
+          src={appUrl}
+          width={appWidth}
+          height={appHeight}
+        ></iframe>
       </AppUrl>
     )
   }
@@ -943,7 +1187,11 @@ export default memo(props => {
       <AppActions className="row">
         {appButtons.map((button, index) => {
           return (
-            <AppActionContainer key={index} className="row" onClick={() => handleActionClick(button.action)}>
+            <AppActionContainer
+              key={index}
+              className="row"
+              onClick={() => handleActionClick(button.action)}
+            >
               <AppActionImage image={button.icon} />
               <AppActionText>{button.text}</AppActionText>
             </AppActionContainer>
@@ -964,7 +1212,10 @@ export default memo(props => {
     return (
       <div className="row">
         {likes.length != 0 && (
-          <Likes className="button row" onClick={() => handleChannelLikeOrUnlike()}>
+          <Likes
+            className="button row"
+            onClick={() => handleChannelLikeOrUnlike()}
+          >
             <IconComponent icon="thumbs-up" size={15} color="#617691" />
 
             <Like>{likes.length}</Like>
@@ -979,7 +1230,11 @@ export default memo(props => {
               const userName = reactionParts[2]
 
               return (
-                <div key={index} className="row button reaction" onClick={() => handleDeleteChannelMessageReaction(reaction)}>
+                <div
+                  key={index}
+                  className="row button reaction"
+                  onClick={() => handleDeleteChannelMessageReaction(reaction)}
+                >
                   <Emoji emoji={emoticon} size={18} set="emojione" />
                 </div>
               )
@@ -994,7 +1249,9 @@ export default memo(props => {
     // Do not render the message text if it's a system message
     if (props.message.system) return null
 
-    return <Text priority={priority} dangerouslySetInnerHTML={{ __html: body }} />
+    return (
+      <Text priority={priority} dangerouslySetInnerHTML={{ __html: body }} />
+    )
   }
 
   const renderForwardingUser = () => {
@@ -1023,7 +1280,14 @@ export default memo(props => {
         setEmoticonMenu(false)
       }}
     >
-      {confirmDeleteModal && <ConfirmModal onOkay={handleDeleteChannelMessage} onCancel={() => setConfirmDeleteModal(false)} text="Are you sure you want to delete this?" title="Are you sure?" />}
+      {confirmDeleteModal && (
+        <ConfirmModal
+          onOkay={handleDeleteChannelMessage}
+          onCancel={() => setConfirmDeleteModal(false)}
+          text="Are you sure you want to delete this?"
+          title="Are you sure?"
+        />
+      )}
 
       {renderForwardingUser()}
       <div className="row align-items-start w-100">
@@ -1240,7 +1504,6 @@ const Text = styled.div`
   code {
     color: #495057;
     font-weight: 600;
-    font-family: monospace !important;
   }
 
   pre {
@@ -1250,7 +1513,6 @@ const Text = styled.div`
     color: #495057;
     border-radius: 2px;
     page-break-inside: avoid;
-    font-family: monospace !important;
     font-size: 12px;
     margin-top: 0px;
     line-height: 1.6;
@@ -1327,12 +1589,10 @@ const ParentMessage = styled.div`
 
   code {
     display: none;
-    font-family: monospace !important;
   }
 
   pre {
     display: none;
-    font-family: monospace !important;
   }
 `
 

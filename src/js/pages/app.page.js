@@ -44,6 +44,7 @@ import {
   TEXT_VERY_FADED_WHITE,
   TEXT_OFF_WHITE,
   BACKGROUND_FADED_BLACK,
+  TEXT_FADED_WHITE,
 } from '../constants'
 import { API_HOST, PUBLIC_VAPID_KEY, PN, ONESIGNAL_KEY } from '../environment'
 import { default as TaskModalComponent } from '../extensions/tasks/components/modal/modal.component'
@@ -304,16 +305,16 @@ class AppPage extends React.Component {
             </DrawerIcon>
 
             <img
-              src="icon.svg"
+              src="icon-white.svg"
               width="15"
-              style={{ opacity: 0.2, marginLeft: 18 }}
+              style={{ opacity: 0.5, marginLeft: 15 }}
             />
           </BarInfo>
 
           {this.props.channel.id && (
             <React.Fragment>
               <SearchBar>
-                <IconComponent icon="search" size={15} color={'#45618c'} />
+                <IconComponent icon="search" size={15} color={TEXT_OFF_WHITE} />
                 <SearchBarInput>
                   <input
                     type="text"
@@ -328,7 +329,7 @@ class AppPage extends React.Component {
                   <IconComponent
                     icon="x"
                     size={15}
-                    color={'#45618c'}
+                    color={TEXT_OFF_WHITE}
                     className="button"
                     onClick={() => this.setState({ searchQuery: '' })}
                   />
@@ -341,8 +342,8 @@ class AppPage extends React.Component {
                       icon="square"
                       color={
                         this.state.extensionLayout == LAYOUTS.FULL
-                          ? '#4084ed'
-                          : '#45618c'
+                          ? TEXT_OFF_WHITE
+                          : TEXT_FADED_WHITE
                       }
                       size={18}
                       onClick={() =>
@@ -355,8 +356,8 @@ class AppPage extends React.Component {
                       icon="sidebar-left"
                       color={
                         this.state.extensionLayout == LAYOUTS.MAIN
-                          ? '#4084ed'
-                          : '#45618c'
+                          ? TEXT_OFF_WHITE
+                          : TEXT_FADED_WHITE
                       }
                       size={18}
                       onClick={() =>
@@ -369,8 +370,8 @@ class AppPage extends React.Component {
                       icon="sidebar-right"
                       color={
                         this.state.extensionLayout == LAYOUTS.SIDE
-                          ? '#4084ed'
-                          : '#45618c'
+                          ? TEXT_OFF_WHITE
+                          : TEXT_FADED_WHITE
                       }
                       size={18}
                       onClick={() =>
@@ -392,8 +393,10 @@ class AppPage extends React.Component {
                       <Pill active={lastUrlPart == 'meet'}>
                         <IconComponent
                           icon="video"
-                          color={lastUrlPart == 'meet' ? '#0b1729' : '#45618c'}
-                          size={14}
+                          color={
+                            lastUrlPart == 'meet' ? 'white' : TEXT_OFF_WHITE
+                          }
+                          size={16}
                           className="mr-5"
                         />
                         <PillText>Meet</PillText>
@@ -413,9 +416,9 @@ class AppPage extends React.Component {
                         <IconComponent
                           icon="calendar"
                           color={
-                            lastUrlPart == 'calendar' ? '#0b1729' : '#45618c'
+                            lastUrlPart == 'calendar' ? 'white' : TEXT_OFF_WHITE
                           }
-                          size={14}
+                          size={16}
                           className="mr-5"
                         />
                         <PillText>Calendar</PillText>
@@ -435,9 +438,9 @@ class AppPage extends React.Component {
                         <IconComponent
                           icon="boards"
                           color={
-                            lastUrlPart == 'boards' ? '#0b1729' : '#45618c'
+                            lastUrlPart == 'boards' ? 'white' : TEXT_OFF_WHITE
                           }
-                          size={14}
+                          size={16}
                           className="mr-5"
                         />
                         <PillText>Boards</PillText>
@@ -455,8 +458,10 @@ class AppPage extends React.Component {
                     <Pill active={lastUrlPart == 'tasks'}>
                       <IconComponent
                         icon="double-check"
-                        color={lastUrlPart == 'tasks' ? '#0b1729' : '#45618c'}
-                        size={14}
+                        color={
+                          lastUrlPart == 'tasks' ? 'white' : TEXT_OFF_WHITE
+                        }
+                        size={16}
                         className="mr-5"
                       />
                       <PillText>Tasks</PillText>
@@ -892,8 +897,8 @@ const App = styled.div`
 `
 
 const Bar = styled.div`
-  background: ${props => props.backgroundColor};
   background: #0b1729;
+  background: ${props => props.backgroundColor};
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -908,27 +913,28 @@ const Bar = styled.div`
   }
 `
 
-const BarPadding = styled.div`
-  height: 10px;
-`
-
 const BarInner = styled.div`
   display: flex;
   flex-direction: row;
   align-content: center;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: 0 10px 0 10px;
-  height: 60px;
+  flex: 1;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 8px;
+`
+
+const BarPadding = styled.div`
+  height: 10px;
 `
 
 const SearchBar = styled.div`
   padding: 10px;
   flex: 1;
-  background-color: #070f1c;
-  margin-left: 100px;
-  margin-right: 100px;
+  background-color: ${TEXT_FADED_WHITE};
+  margin-left: 0px;
+  margin-right: 50px;
   display: flex;
   flex-direction: row;
   align-content: center;
@@ -952,7 +958,7 @@ const SearchBarInput = styled.div`
   }
 
   input::placeholder {
-    color: ${'#45618c'};
+    color: ${TEXT_OFF_WHITE};
   }
 `
 
@@ -963,7 +969,7 @@ const BarInfo = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-right: auto;
-  /* width: 305px; */
+  width: 305px;
 `
 
 const BarExtensions = styled.div`
@@ -998,8 +1004,10 @@ const ExtensionLinks = styled.div`
 const Pill = styled.div`
   padding: 7px 15px 7px 15px;
   border-radius: 20px;
-  background-color: ${props => (props.active ? '#4084ed' : '#070f1c')};
-  color: ${props => (props.active ? '#0b1729' : '#45618c')};
+  border: 2px solid ${TEXT_FADED_WHITE};
+  background-color: ${props =>
+    props.active ? TEXT_FADED_WHITE : 'transparent'};
+  color: ${props => (props.active ? 'white' : TEXT_OFF_WHITE)};
   margin-left: 5px;
   display: flex;
   flex-direction: row;
@@ -1013,10 +1021,8 @@ const Pill = styled.div`
 `
 
 const PillText = styled.span`
-  font-family: Menlo, monospace;
-  font-weight: 900;
-  text-transform: uppercase;
-  font-size: 10px;
+  font-weight: 600;
+  font-size: 14px;
 
   @media only screen and (max-width: 768px) {
     display: none;
@@ -1032,7 +1038,6 @@ const Team = styled.div`
   padding: 10px;
   border-radius: 5px;
   margin-right: 10px;
-  font-family: Menlo, monospace;
   color: #45618c;
 
   strong {

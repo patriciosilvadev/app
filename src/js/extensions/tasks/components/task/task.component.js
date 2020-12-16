@@ -16,7 +16,13 @@ import DayPicker from 'react-day-picker'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
 import EventService from '../../../../services/event.service'
-import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES, TASK_DRAGSTART_RESET_CHEVRON } from '../../../../constants'
+import {
+  TASK_ORDER_INDEX,
+  TASKS_ORDER,
+  DEVICE,
+  MIME_TYPES,
+  TASK_DRAGSTART_RESET_CHEVRON,
+} from '../../../../constants'
 
 class TaskComponent extends React.Component {
   constructor(props) {
@@ -67,7 +73,9 @@ class TaskComponent extends React.Component {
       const task = { id, user }
 
       // Update the API
-      await GraphqlService.getInstance().updateTask(id, { user: user ? user.id : null })
+      await GraphqlService.getInstance().updateTask(id, {
+        user: user ? user.id : null,
+      })
 
       // Update our UI
       this.setState({ user, userPopup: false })
@@ -122,7 +130,11 @@ class TaskComponent extends React.Component {
 
   insertAtCursor(text) {
     const { selectionStart } = this.composeRef
-    const updatedText = [this.state.text.slice(0, selectionStart), text, this.state.text.slice(selectionStart)].join('')
+    const updatedText = [
+      this.state.text.slice(0, selectionStart),
+      text,
+      this.state.text.slice(selectionStart),
+    ].join('')
 
     // Update the text & clos the menu
     // If it was an emoji, close it
@@ -199,12 +211,16 @@ class TaskComponent extends React.Component {
   handleKeyUp(e) {}
 
   componentDidUpdate(prevProps) {
-    if (prevProps.title != this.props.title) this.setState({ title: this.props.title, text: this.props.title })
-    if (prevProps.done != this.props.done) this.setState({ done: this.props.done })
+    if (prevProps.title != this.props.title)
+      this.setState({ title: this.props.title, text: this.props.title })
+    if (prevProps.done != this.props.done)
+      this.setState({ done: this.props.done })
   }
 
   componentDidMount() {
-    EventService.getInstance().on(TASK_DRAGSTART_RESET_CHEVRON, () => this.setState({ childTasksHidden: false }))
+    EventService.getInstance().on(TASK_DRAGSTART_RESET_CHEVRON, () =>
+      this.setState({ childTasksHidden: false })
+    )
   }
 
   handleDoneIconClick() {
@@ -226,7 +242,16 @@ class TaskComponent extends React.Component {
 
   render() {
     const initialUser = { ...this.props.user, name: 'Assign to me' }
-    const { id, over, heading, deleteModal, compose, done, user, dueDate } = this.state
+    const {
+      id,
+      over,
+      heading,
+      deleteModal,
+      compose,
+      done,
+      user,
+      dueDate,
+    } = this.state
     const { description, title } = this.props
     const newTask = this.state.new
     const classes = classNames({
@@ -288,7 +313,12 @@ class TaskComponent extends React.Component {
             })
           }}
         >
-          {!newTask && !heading && <CheckboxComponent done={done} onClick={() => this.handleDoneIconClick()} />}
+          {!newTask && !heading && (
+            <CheckboxComponent
+              done={done}
+              onClick={() => this.handleDoneIconClick()}
+            />
+          )}
           {newTask && <div style={{ width: 30 }} />}
           {heading && <div style={{ width: 20 }} />}
           {!newTask && !heading && <div style={{ width: 10 }} />}
@@ -302,7 +332,14 @@ class TaskComponent extends React.Component {
                 this.props.toggleTasksBelowHeadings()
               }}
             >
-              <IconComponent icon={this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'} color="#11171d" size={14} className="button" />
+              <IconComponent
+                icon={
+                  this.state.childTasksHidden ? 'chevron-right' : 'chevron-down'
+                }
+                color="#11171d"
+                size={14}
+                className="button"
+              />
             </div>
           )}
 
@@ -336,12 +373,23 @@ class TaskComponent extends React.Component {
           {!!this.props.subtaskCount && (
             <div className="subtask-count">
               <IconComponent icon="check" color="#adb5bd" size={13} />
-              <IconComponent icon="check" color="#adb5bd" size={13} style={{ position: 'relative', left: -8 }} />
+              <IconComponent
+                icon="check"
+                color="#adb5bd"
+                size={13}
+                style={{ position: 'relative', left: -8 }}
+              />
               <div className="text">{this.props.subtaskCount}</div>
             </div>
           )}
 
-          {this.props.displayChannelName && <div className="channel-name">{this.props.assignedChannel ? this.props.assignedChannel.name : ''}</div>}
+          {this.props.displayChannelName && (
+            <div className="channel-name">
+              {this.props.assignedChannel
+                ? this.props.assignedChannel.name
+                : ''}
+            </div>
+          )}
 
           {/* These are the hovers that happen for the task tools */}
           {/* Don't display them for headings or when they are disbales (inside task modal) */}
@@ -357,9 +405,22 @@ class TaskComponent extends React.Component {
                     visible={this.state.dueDatePopup}
                     width={250}
                     direction="right-bottom"
-                    content={<DayPicker selectedDays={dueDate} onDayClick={date => this.handleUpdateTaskDueDate(moment(date).toDate())} />}
+                    content={
+                      <DayPicker
+                        selectedDays={dueDate}
+                        onDayClick={date =>
+                          this.handleUpdateTaskDueDate(moment(date).toDate())
+                        }
+                      />
+                    }
                   >
-                    <IconComponent icon="calendar" color="#CFD4D9" size={15} className="button" onClick={() => this.setState({ dueDatePopup: true })} />
+                    <IconComponent
+                      icon="calendar"
+                      color="#CFD4D9"
+                      size={15}
+                      className="button"
+                      onClick={() => this.setState({ dueDatePopup: true })}
+                    />
                   </Popup>
                 )}
               </div>
@@ -376,10 +437,27 @@ class TaskComponent extends React.Component {
                 handleDismiss={() => this.setState({ userPopup: false })}
                 handleAccept={member => this.handleUpdateTaskUser(member.user)}
               >
-                <div className="icon-container" onClick={e => this.setState({ userPopup: true })}>
-                  {!newTask && !!user && <Avatar size="very-small" image={user.image} title={user.name} className="mb-5 mr-5" />}
+                <div
+                  className="icon-container"
+                  onClick={e => this.setState({ userPopup: true })}
+                >
+                  {!newTask && !!user && (
+                    <Avatar
+                      size="x-small"
+                      image={user.image}
+                      title={user.name}
+                      className="mb-5 mr-5"
+                    />
+                  )}
 
-                  {over && !newTask && !user && <IconComponent icon="profile" color="#CFD4D9" size={15} className="button" />}
+                  {over && !newTask && !user && (
+                    <IconComponent
+                      icon="profile"
+                      color="#CFD4D9"
+                      size={15}
+                      className="button"
+                    />
+                  )}
                 </div>
               </QuickUserComponent>
 
@@ -401,7 +479,15 @@ class TaskComponent extends React.Component {
 
               {/* Opens the modal */}
               <div className="icon-container">
-                {over && !newTask && <IconComponent icon="pen" color="#CFD4D9" size={13} className="button" onClick={e => this.props.hydrateTask({ id: this.props.id })} />}
+                {over && !newTask && (
+                  <IconComponent
+                    icon="pen"
+                    color="#CFD4D9"
+                    size={13}
+                    className="button"
+                    onClick={e => this.props.hydrateTask({ id: this.props.id })}
+                  />
+                )}
               </div>
 
               <div className="icon-container">

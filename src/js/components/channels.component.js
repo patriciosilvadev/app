@@ -227,6 +227,7 @@ const Channel = props => {
             size={IS_MOBILE ? 'medium-small' : 'x-small'}
             image={props.private ? props.image : null}
             title={props.name}
+            style={{ top: 3 }}
           >
             <div></div>
             {/* {props.icon && (
@@ -248,7 +249,7 @@ const Channel = props => {
                   {!props.public && !props.private && (
                     <IconComponent
                       icon="lock"
-                      color={props.active ? TEXT_OFF_WHITE : '#314563'}
+                      color={props.active ? '#202933' : '#91A0B0'}
                       size={13}
                       className="mr-5"
                     />
@@ -256,7 +257,7 @@ const Channel = props => {
                   {props.readonly && (
                     <IconComponent
                       icon="radio"
-                      color={props.active ? TEXT_OFF_WHITE : '#314563'}
+                      color={props.active ? '#202933' : '#91A0B0'}
                       size={13}
                       className="mr-5"
                     />
@@ -350,7 +351,7 @@ const Channel = props => {
                   <React.Fragment>
                     <div className="w-100 p-20 column align-items-start border-top">
                       <div className="row w-100">
-                        <div className="p regular color-d2 flexer">Theme</div>
+                        <CollapseTitleText>Theme</CollapseTitleText>
                         <IconComponent
                           icon={iconCollapsable ? 'chevron-up' : 'chevron-down'}
                           size={16}
@@ -412,7 +413,7 @@ const Channel = props => {
                 setMenu(true)
               }}
             >
-              <IconComponent icon="more-h" color={TEXT_OFF_WHITE} size={15} />
+              <IconComponent icon="more-h" color="#202933" size={15} />
             </ChannelMoreIcon>
           </Popup>
         )}
@@ -427,7 +428,7 @@ const Channel = props => {
           >
             <IconComponent
               icon={collapsedThreads ? 'chevron-right' : 'chevron-down'}
-              color="#314563"
+              color="#91A0B0"
               size={14}
               className="button"
             />
@@ -506,9 +507,16 @@ const ThreadLine = styled.div`
   bottom: 0px;
 `
 
+const CollapseTitleText = styled.div`
+  font-size: 14px;
+  flex: 1;
+  color: #91a0b0;
+  font-weight: 700;
+`
+
 const CollapseThreadsIcon = styled.div`
   position: absolute;
-  top: 2px;
+  top: 4px;
   left: 4px;
   width: 17px;
   height: 15px;
@@ -521,13 +529,14 @@ const CollapseThreadsIcon = styled.div`
   border-radius: 3px;
 
   :hover {
-    background-color: #070f1c;
+    background-color: #f0f3f5;
   }
 `
 
 const Thread = styled.div`
   padding-left: 52px;
   padding-right: 70px;
+  padding-bottom: 5px;
   cursor: pointer;
   position: relative;
 
@@ -539,12 +548,13 @@ const Thread = styled.div`
 const ThreadText = styled.div`
   padding-bottom: 2px;
   padding-top: 2px;
-  font-size: 10px;
-  font-weight: ${props => (props.bold || props.unread ? '700' : '500')};
-  color: ${props => (props.unread ? TEXT_OFF_WHITE : '#314563')};
+  font-size: 11px;
+  font-weight: 800;
+  color: ${props => (props.unread ? '#202933' : '#91A0B0')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: 17px;
 `
 
 const IconCircle = styled.div`
@@ -586,15 +596,29 @@ const ChannelIcon = styled.div`
 const ChannelInitials = styled.div`
   font-weight: 600;
   font-size: 11px;
-  font-family: Menlo, monospace;
   color: ${props => props.color};
+`
+
+const UserName = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: #202933;
+  margin-top: 15px;
+`
+
+const UserRole = styled.div`
+  font-size: 14px;
+  text-align: center;
+  color: #91a0b0;
+  margin-top: 5px;
+  font-weight: 500;
 `
 
 const ChannelContainer = styled.li`
   display: flex;
   flex-direction: row;
-  background-color: ${props =>
-    props.active ? BACKGROUND_FADED_BLACK : 'transparent'};
+  background-color: ${props => (props.active ? '#F8F9FA' : 'transparent')};
   align-items: center;
   align-content: center;
   justify-content: center;
@@ -603,8 +627,6 @@ const ChannelContainer = styled.li`
   margin-bottom: 0px;
   padding-right: 20px;
   transition: 0.2s background-color;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
   width: 100%;
 
   &:hover {
@@ -639,9 +661,9 @@ const ChannelBadge = styled.div`
 
 const ChannelTitle = styled.div`
   cursor: pointer;
-  font-size: 13px;
-  font-weight: ${props => (props.active ? '700' : '700')};
-  color: ${props => (props.active ? TEXT_OFF_WHITE : '#314563')};
+  font-size: 15px;
+  font-weight: ${props => (props.active ? '700' : '500')};
+  color: ${props => (props.active ? '#202933' : '#91A0B0')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -693,14 +715,14 @@ const ChannelExcerptTextContainer = styled.div`
 `
 
 const ChannelExcerptText = styled.span`
-  font-size: 10px;
-  color: #314563;
+  font-size: 13px;
+  color: #91a0b0;
   font-weight: 400;
-  font-family: Menlo, monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   align: left;
+  flex: 1;
   opacity: 0.75;
 `
 
@@ -1256,7 +1278,7 @@ class ChannelsComponent extends React.Component {
     return (
       <div className="w-100 p-20 column align-items-start border-bottom">
         <div className="row w-100">
-          <div className="p regular color-d2 flexer">Do not disturb</div>
+          <CollapseTitleText>Do not disturb</CollapseTitleText>
           <Toggle
             on={dndIsSet && !currentDateIsAfterDndDate}
             onChange={() => {
@@ -1326,7 +1348,7 @@ class ChannelsComponent extends React.Component {
             <IconComponent
               icon="channels-help"
               size={20}
-              color="#45618c"
+              color="#91A0B0"
               className="button"
             />
           </div>
@@ -1335,7 +1357,7 @@ class ChannelsComponent extends React.Component {
             <IconComponent
               icon="channels-notifications"
               size={20}
-              color="#45618c"
+              color="#91A0B0"
               className="button"
             />
           </NotificationsComponent>
@@ -1343,7 +1365,7 @@ class ChannelsComponent extends React.Component {
           <IconComponent
             icon="channels-calendar"
             size={20}
-            color={calendarActive ? TEXT_OFF_WHITE : '#45618c'}
+            color={calendarActive ? '#202933' : '#91A0B0'}
             className="button mr-10 ml-10"
             onClick={() => {
               this.props.hydrateChannel(blankChannel)
@@ -1356,7 +1378,7 @@ class ChannelsComponent extends React.Component {
           <IconComponent
             icon="channels-tasks"
             size={20}
-            color={tasksActive ? TEXT_OFF_WHITE : '#45618c'}
+            color={tasksActive ? '#202933' : '#91A0B0'}
             className="button mr-10"
             onClick={() => {
               this.props.hydrateChannel(blankChannel)
@@ -1378,17 +1400,13 @@ class ChannelsComponent extends React.Component {
                     presence={this.props.user.presence || 'online'}
                     title={this.props.user.name}
                   />
-                  <div className="text-center h5 regular color-d3 mt-15">
-                    {this.props.user.name}
-                  </div>
-                  <div className="text-center small bold color-l0 mt-5">
-                    {this.props.team.position}
-                  </div>
+                  <UserName>{this.props.user.name}</UserName>
+                  <UserRole>{this.props.team.position}</UserRole>
                 </PopupHeader>
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
                   <div className="row w-100">
-                    <div className="p regular color-d2 flexer">Presence</div>
+                    <CollapseTitleText>Presence</CollapseTitleText>
                     <IconComponent
                       icon={
                         this.state.presenceCollapsableOpen
@@ -1456,7 +1474,7 @@ class ChannelsComponent extends React.Component {
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
                   <div className="row w-100">
-                    <div className="p regular color-d2 flexer">Status</div>
+                    <CollapseTitleText>Status</CollapseTitleText>
                     <IconComponent
                       icon={
                         this.state.statusCollapsableOpen
@@ -1508,7 +1526,7 @@ class ChannelsComponent extends React.Component {
 
                 <div className="w-100 p-20 column align-items-start border-bottom">
                   <div className="row w-100">
-                    <div className="p regular color-d2 flexer">Team role</div>
+                    <CollapseTitleText>Team role</CollapseTitleText>
                     <IconComponent
                       icon={
                         this.state.positionCollapsableOpen
@@ -1620,7 +1638,7 @@ class ChannelsComponent extends React.Component {
             <IconComponent
               icon="channels-settings"
               size={20}
-              color="#45618c"
+              color="#91A0B0"
               className="button"
               onClick={this._openUserMenu.bind(this)}
             />
@@ -1736,7 +1754,7 @@ class ChannelsComponent extends React.Component {
               <IconComponent
                 icon="plus-circle"
                 size={15}
-                color="#45618c"
+                color="#91A0B0"
                 className="button"
                 onClick={() => this.setState({ channelPublicPopup: true })}
               />
@@ -1848,7 +1866,7 @@ class ChannelsComponent extends React.Component {
             <IconComponent
               icon="plus-circle"
               size={15}
-              color="#45618c"
+              color="#91A0B0"
               className="button"
               onClick={() => this.setState({ channelPrivatePopup: true })}
             />
@@ -2045,27 +2063,6 @@ class ChannelsComponent extends React.Component {
         hideChannels={this.state.hideChannels}
         color={this.props.channel.color}
       >
-        <Corner>
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 20 20"
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{
-              fillRule: 'evenodd',
-              clipRule: 'evenodd',
-              strokeLinejoin: 'round',
-              strokeMiterlimit: '2',
-            }}
-          >
-            <path
-              d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
-              style={{ fill: '#0b1729' }}
-            />
-          </svg>
-        </Corner>
-
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
@@ -2135,61 +2132,6 @@ export default connect(
   mapDispatchToProps
 )(ChannelsComponent)
 
-const Corner = styled.div`
-  position: absolute;
-  left: 100%;
-  top: -3px;
-  width: 10px;
-  height: 10px;
-`
-
-const HeaderButtons = styled.div`
-  margin-top: 10px;
-  width: 100%;
-  display: none;
-`
-
-const HeaderButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  background-color: ${props =>
-    props.active ? BACKGROUND_FADED_BLACK : 'transparent'};
-  align-items: center;
-  align-content: center;
-  justify-content: flex-start;
-  position: relative;
-  cursor: pointer;
-  padding: 5px;
-  width: 100%;
-  padding-right: 25px;
-  padding-left: 25px;
-  margin-top: 0px;
-  transition: 0.2s background-color;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-
-  &:hover {
-    /* NOTHING YET */
-  }
-
-  @media only screen and (max-width: 768px) {
-    padding-right: 20px;
-  }
-`
-
-const HeaderButtonContainerText = styled.div`
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  color: ${TEXT_OFF_WHITE};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
-  /*letter-spacing: -0.5px;*/
-  margin-right: 5px;
-`
-
 const Channels = styled.div`
   display: flex;
   flex-direction: column;
@@ -2201,11 +2143,11 @@ const Channels = styled.div`
   z-index: 6;
   background: #18181d;
   background: #f8f9fa;
-  background: white;
   border-right: 1px solid #1f2d3d;
   border-right: 1px solid #eaedef;
   background: ${props => props.color};
   background: #0b1729;
+  background: white;
   display: ${props => (props.hideChannels ? 'none' : 'flex')};
 
   @media only screen and (max-width: 768px) {
@@ -2232,7 +2174,7 @@ const HeaderContainer = styled.div`
 const Header = styled.div`
   background-color: transparent;
   width: 100%;
-  padding 0px 25px 10px 25px;
+  padding 10px 25px 10px 25px;
   transition: background-color 0.5s;
   display: flex;
   flex-direction: row;
@@ -2247,43 +2189,6 @@ const Header = styled.div`
   }
 `
 
-const HeaderTitles = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  align-items: flex-start;
-  justify-content: center;
-  padding-left: 15px;
-
-  @media only screen and (max-width: 768px) {
-    padding-left: 10px;
-  }
-`
-
-const HeaderName = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  font-style: normal;
-  color: ${TEXT_OFF_WHITE};
-  transition: opacity 0.5s;
-  display: inline-block;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  height: 20px;
-
-  @media only screen and (max-width: 768px) {
-    height: fit-content;
-  }
-`
-
-const HeaderRole = styled.div`
-  font-size: 11px;
-  font-weight: 400;
-  color: #45618c;
-  overflow: hidden;
-`
-
 const PopupHeader = styled.div`
   @media only screen and (max-width: 768px) {
     display: none;
@@ -2291,14 +2196,12 @@ const PopupHeader = styled.div`
 `
 
 const Heading = styled.div`
-  padding: 20px 25px 10px 25px;
-  font-size: 10px;
-  font-weight: 900;
-  color: #45618c;
+  padding: 10px 25px 10px 25px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #404c5a;
   /*letter-spacing: 1px;*/
-  text-transform: uppercase;
   flex: 1;
-  font-family: Menlo, monospace;
 
   @media only screen and (max-width: 768px) {
     padding-left: 20px;
@@ -2308,6 +2211,7 @@ const Heading = styled.div`
 const HeadingRow = styled.div`
   padding-right: 25px;
   display: flex;
+  margin-top: 10px;
   flex-direction: row;
   align-content: center;
   align-items: center;
