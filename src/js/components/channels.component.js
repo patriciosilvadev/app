@@ -219,28 +219,29 @@ const Channel = props => {
         active={props.active}
       >
         <ChannelContainerPadding>
-          <Avatar
-            dark
-            muted={props.muted}
-            color={props.color}
-            userId={props.otherUserId}
-            size={IS_MOBILE ? 'medium-small' : 'x-small'}
-            image={props.private ? props.image : null}
-            title={props.name}
-            style={{ top: 3 }}
-          >
-            <div></div>
-            {/* {props.icon && (
-              <ChannelIcon>
-                <IconComponent icon={props.icon} size={12} color={avatarIconColor} />
-              </ChannelIcon>
-            )}
-            {(!props.icon && !props.private) && (
-              <ChannelInitials color={avatarIconColor}>
-                {generateInitials(props.name)}
-              </ChannelInitials>
-            )} */}
-          </Avatar>
+          <div style={{ top: 3, position: 'relative' }}>
+            <Avatar
+              dark
+              muted={props.muted}
+              color={props.color}
+              userId={props.otherUserId}
+              size={IS_MOBILE ? 'medium-small' : 'x-small'}
+              image={props.private ? props.image : null}
+              title={props.name}
+            >
+              <div></div>
+              {/* {props.icon && (
+                <ChannelIcon>
+                  <IconComponent icon={props.icon} size={12} color={avatarIconColor} />
+                </ChannelIcon>
+              )}
+              {(!props.icon && !props.private) && (
+                <ChannelInitials color={avatarIconColor}>
+                  {generateInitials(props.name)}
+                </ChannelInitials>
+              )} */}
+            </Avatar>
+          </div>
 
           <ChannelContents>
             <ChannelInnerContents>

@@ -83,6 +83,27 @@ export default function DockComponent(props) {
 
   return (
     <Dock color={channel.color || '#112640'}>
+      <Corner>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 20 20"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fillRule: 'evenodd',
+            clipRule: 'evenodd',
+            strokeLinejoin: 'round',
+            strokeMiterlimit: '2',
+          }}
+        >
+          <path
+            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+            style={{ fill: channel.color || '#112640' }}
+          />
+        </svg>
+      </Corner>
+
       {!!team.id && (
         <ToggleButton
           onClick={e => {
@@ -122,7 +143,7 @@ export default function DockComponent(props) {
               boxSizing: 'border-box',
               paddingTop: 10,
               paddingBottom: 10,
-              backgroundColor: active ? '#F8F9FA' : 'transparent',
+              backgroundColor: active ? TEXT_VERY_FADED_WHITE : 'transparent',
             }}
           >
             <Avatar
@@ -146,7 +167,11 @@ export default function DockComponent(props) {
           className="button"
           onClick={e => setTeamOnboardingModal(true)}
         >
-          <IconComponent icon="plus-circle" size={19} color="#91A0B0" />
+          <IconComponent
+            icon="plus-circle"
+            size={19}
+            color={TEXT_FADED_WHITE}
+          />
         </Avatar>
       </div>
 
@@ -156,6 +181,14 @@ export default function DockComponent(props) {
 }
 
 DockComponent.propTypes = {}
+
+const Corner = styled.div`
+  position: absolute;
+  left: 100%;
+  top: -3px;
+  width: 10px;
+  height: 10px;
+`
 
 const ToggleButton = styled.div`
   position: absolute;
@@ -195,17 +228,17 @@ const Dock = styled.div`
   height: 100%;
   position: relative;
   background: #f8f9fa;
-  background: ${props => props.color};
   background: #18181d;
   background: #0b1729;
   background: white;
+  background: ${props => props.color};
   display: flex;
   flex-direction: column;
   align-content: center;
   align-items: center;
   z-index: 7;
   box-shadow: 0px 0px 50px 10px rgba(0, 0, 0, 0.015);
-  border-right: 1px solid #eaedef;
+  border-right: 0px solid #eaedef;
 
   @media only screen and (max-width: 768px) {
     width: 20vw;
@@ -217,7 +250,7 @@ const Team = styled.div`
   margin-top: 5px;
   font-size: 10px;
   font-weight: ${props => (props.active ? '800' : '500')};
-  color: ${props => (props.active ? '#202933' : '#91A0B0')};
+  color: ${props => (props.active ? 'white' : TEXT_FADED_WHITE)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

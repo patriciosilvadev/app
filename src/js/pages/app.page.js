@@ -304,11 +304,13 @@ class AppPage extends React.Component {
               />
             </DrawerIcon>
 
-            <img
+            <TeamName>{this.props.team.name}</TeamName>
+
+            {/* <img
               src="icon-white.svg"
               width="15"
               style={{ opacity: 0.5, marginLeft: 15 }}
-            />
+            /> */}
           </BarInfo>
 
           {this.props.channel.id && (
@@ -793,6 +795,13 @@ const Drawer = styled.div`
     box-shadow: 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
     */
   }
+`
+
+const TeamName = styled.div`
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+  padding-left: 5px;
 `
 
 const DrawerIcon = styled.div`
