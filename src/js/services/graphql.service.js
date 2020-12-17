@@ -95,6 +95,10 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
+            notifications {
+              every
+              channelId
+            }
           }
         }
       `,
@@ -1260,8 +1264,16 @@ export default class GraphqlService {
   searchChannelMembers(channelId, query, page) {
     return this.client.query({
       query: gql`
-        query searchChannelMembers($channelId: String, $query: String, $page: Float) {
-          searchChannelMembers(channelId: $channelId, query: $query, page: $page) {
+        query searchChannelMembers(
+          $channelId: String
+          $query: String
+          $page: Float
+        ) {
+          searchChannelMembers(
+            channelId: $channelId
+            query: $query
+            page: $page
+          ) {
             id
             role
             user {
@@ -1597,7 +1609,10 @@ export default class GraphqlService {
   updateNotificationRead(notificationId, read) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateNotificationRead($notificationId: String, $read: Boolean) {
+        mutation updateNotificationRead(
+          $notificationId: String
+          $read: Boolean
+        ) {
           updateNotificationRead(notificationId: $notificationId, read: $read)
         }
       `,
@@ -1622,10 +1637,64 @@ export default class GraphqlService {
     })
   }
 
+  createChannelNotification(payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelNotification($payload: String) {
+          createChannelNotification(payload: $payload) {
+            id
+          }
+        }
+      `,
+      variables: {
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  updateChannelNotification(channelNotificationId, payload) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelNotification(
+          $channelNotificationId: String
+          $payload: String
+        ) {
+          updateChannelNotification(
+            channelNotificationId: $channelNotificationId
+            payload: $payload
+          )
+        }
+      `,
+      variables: {
+        channelNotificationId,
+        payload: JSON.stringify(payload),
+      },
+    })
+  }
+
+  deleteChannelNotification(channelNotificationId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteChannelNotification($channelNotificationId: String) {
+          deleteChannelNotification(
+            channelNotificationId: $channelNotificationId
+          )
+        }
+      `,
+      variables: {
+        channelNotificationId,
+      },
+    })
+  }
+
   updateUserMuted(userId, channelId, muted) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserMuted($userId: String, $channelId: String, $muted: Boolean) {
+        mutation updateUserMuted(
+          $userId: String
+          $channelId: String
+          $muted: Boolean
+        ) {
           updateUserMuted(userId: $userId, channelId: $channelId, muted: $muted)
         }
       `,
@@ -1640,8 +1709,16 @@ export default class GraphqlService {
   updateUserArchived(userId, channelId, archived) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserArchived($userId: String, $channelId: String, $archived: Boolean) {
-          updateUserArchived(userId: $userId, channelId: $channelId, archived: $archived)
+        mutation updateUserArchived(
+          $userId: String
+          $channelId: String
+          $archived: Boolean
+        ) {
+          updateUserArchived(
+            userId: $userId
+            channelId: $channelId
+            archived: $archived
+          )
         }
       `,
       variables: {
@@ -1655,8 +1732,16 @@ export default class GraphqlService {
   updateUserStarred(userId, channelId, starred) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateUserStarred($userId: String, $channelId: String, $starred: Boolean) {
-          updateUserStarred(userId: $userId, channelId: $channelId, starred: $starred)
+        mutation updateUserStarred(
+          $userId: String
+          $channelId: String
+          $starred: Boolean
+        ) {
+          updateUserStarred(
+            userId: $userId
+            channelId: $channelId
+            starred: $starred
+          )
         }
       `,
       variables: {
@@ -1670,7 +1755,11 @@ export default class GraphqlService {
   createTeam(userId, userName, payload) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTeam($userId: String, $userName: String, $payload: String) {
+        mutation createTeam(
+          $userId: String
+          $userName: String
+          $payload: String
+        ) {
           createTeam(userId: $userId, userName: $userName, payload: $payload) {
             id
             name
@@ -1746,8 +1835,16 @@ export default class GraphqlService {
   updateTeamMemberPosition(teamId, userId, position) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMemberPosition($teamId: String, $userId: String, $position: String) {
-          updateTeamMemberPosition(teamId: $teamId, userId: $userId, position: $position)
+        mutation updateTeamMemberPosition(
+          $teamId: String
+          $userId: String
+          $position: String
+        ) {
+          updateTeamMemberPosition(
+            teamId: $teamId
+            userId: $userId
+            position: $position
+          )
         }
       `,
       variables: {
@@ -1761,7 +1858,11 @@ export default class GraphqlService {
   updateTeamMemberRole(teamId, userId, role) {
     return this.client.mutate({
       mutation: gql`
-        mutation updateTeamMemberRole($teamId: String, $userId: String, $role: String) {
+        mutation updateTeamMemberRole(
+          $teamId: String
+          $userId: String
+          $role: String
+        ) {
           updateTeamMemberRole(teamId: $teamId, userId: $userId, role: $role)
         }
       `,
@@ -1823,83 +1924,6 @@ export default class GraphqlService {
     })
   }
 
-  createChannelSection(channelId, title, order) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation createChannelSection($channelId: String, $title: String, $order: Float) {
-          createChannelSection(channelId: $channelId, title: $title, order: $order) {
-            id
-            title
-            order
-          }
-        }
-      `,
-      variables: {
-        channelId,
-        title,
-        order,
-      },
-    })
-  }
-
-  updateChannelSection(channelId, sectionId, title, order) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation updateChannelSection($channelId: String, $sectionId: String, $title: String, $order: Float) {
-          updateChannelSection(channelId: $channelId, sectionId: $sectionId, title: $title, order: $order)
-        }
-      `,
-      variables: {
-        channelId,
-        sectionId,
-        title,
-        order,
-      },
-    })
-  }
-
-  updateChannelSections(channelId, sections) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation updateChannelSections($channelId: String, $sections: String) {
-          updateChannelSections(channelId: $channelId, sections: $sections)
-        }
-      `,
-      variables: {
-        channelId,
-        sections: JSON.stringify(sections),
-      },
-    })
-  }
-
-  deleteChannelSection(channelId, sectionId) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation deleteChannelSection($channelId: String, $sectionId: String) {
-          deleteChannelSection(channelId: $channelId, sectionId: $sectionId)
-        }
-      `,
-      variables: {
-        channelId,
-        sectionId,
-      },
-    })
-  }
-
-  updateChannelShortcode(channelId, generateNewCode) {
-    return this.client.mutate({
-      mutation: gql`
-        mutation updateChannelShortcode($channelId: String, $generateNewCode: Boolean) {
-          updateChannelShortcode(channelId: $channelId, generateNewCode: $generateNewCode)
-        }
-      `,
-      variables: {
-        channelId,
-        generateNewCode,
-      },
-    })
-  }
-
   updateChannel(channelId, payload) {
     return this.client.mutate({
       mutation: gql`
@@ -1942,6 +1966,107 @@ export default class GraphqlService {
     })
   }
 
+  createChannelSection(channelId, title, order) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation createChannelSection(
+          $channelId: String
+          $title: String
+          $order: Float
+        ) {
+          createChannelSection(
+            channelId: $channelId
+            title: $title
+            order: $order
+          ) {
+            id
+            title
+            order
+          }
+        }
+      `,
+      variables: {
+        channelId,
+        title,
+        order,
+      },
+    })
+  }
+
+  updateChannelSection(channelId, sectionId, title, order) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelSection(
+          $channelId: String
+          $sectionId: String
+          $title: String
+          $order: Float
+        ) {
+          updateChannelSection(
+            channelId: $channelId
+            sectionId: $sectionId
+            title: $title
+            order: $order
+          )
+        }
+      `,
+      variables: {
+        channelId,
+        sectionId,
+        title,
+        order,
+      },
+    })
+  }
+
+  updateChannelSections(channelId, sections) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelSections($channelId: String, $sections: String) {
+          updateChannelSections(channelId: $channelId, sections: $sections)
+        }
+      `,
+      variables: {
+        channelId,
+        sections: JSON.stringify(sections),
+      },
+    })
+  }
+
+  deleteChannelSection(channelId, sectionId) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation deleteChannelSection($channelId: String, $sectionId: String) {
+          deleteChannelSection(channelId: $channelId, sectionId: $sectionId)
+        }
+      `,
+      variables: {
+        channelId,
+        sectionId,
+      },
+    })
+  }
+
+  updateChannelShortcode(channelId, generateNewCode) {
+    return this.client.mutate({
+      mutation: gql`
+        mutation updateChannelShortcode(
+          $channelId: String
+          $generateNewCode: Boolean
+        ) {
+          updateChannelShortcode(
+            channelId: $channelId
+            generateNewCode: $generateNewCode
+          )
+        }
+      `,
+      variables: {
+        channelId,
+        generateNewCode,
+      },
+    })
+  }
+
   deleteChannelUnread(channelId, userId) {
     return this.client.mutate({
       mutation: gql`
@@ -1959,8 +2084,16 @@ export default class GraphqlService {
   createChannelMembers(channelId, teamId, members) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelMembers($channelId: String, $teamId: String, $members: String) {
-          createChannelMembers(channelId: $channelId, teamId: $teamId, members: $members)
+        mutation createChannelMembers(
+          $channelId: String
+          $teamId: String
+          $members: String
+        ) {
+          createChannelMembers(
+            channelId: $channelId
+            teamId: $teamId
+            members: $members
+          )
         }
       `,
       variables: {
@@ -2119,8 +2252,14 @@ export default class GraphqlService {
   createChannelMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelMessageReaction($messageId: String, $reaction: String) {
-          createChannelMessageReaction(messageId: $messageId, reaction: $reaction)
+        mutation createChannelMessageReaction(
+          $messageId: String
+          $reaction: String
+        ) {
+          createChannelMessageReaction(
+            messageId: $messageId
+            reaction: $reaction
+          )
         }
       `,
       variables: {
@@ -2133,8 +2272,14 @@ export default class GraphqlService {
   deleteChannelMessageReaction(messageId, reaction) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteChannelMessageReaction($messageId: String, $reaction: String) {
-          deleteChannelMessageReaction(messageId: $messageId, reaction: $reaction)
+        mutation deleteChannelMessageReaction(
+          $messageId: String
+          $reaction: String
+        ) {
+          deleteChannelMessageReaction(
+            messageId: $messageId
+            reaction: $reaction
+          )
         }
       `,
       variables: {
@@ -2188,8 +2333,18 @@ export default class GraphqlService {
   createChannelMessageRead(messageId, userId, channelId, teamId) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelMessageRead($messageId: String, $userId: String, $channelId: String, $teamId: String) {
-          createChannelMessageRead(messageId: $messageId, userId: $userId, channelId: $channelId, teamId: $teamId)
+        mutation createChannelMessageRead(
+          $messageId: String
+          $userId: String
+          $channelId: String
+          $teamId: String
+        ) {
+          createChannelMessageRead(
+            messageId: $messageId
+            userId: $userId
+            channelId: $channelId
+            teamId: $teamId
+          )
         }
       `,
       variables: {
@@ -2204,8 +2359,18 @@ export default class GraphqlService {
   createTaskMessage(taskId, body, userId, files) {
     return this.client.mutate({
       mutation: gql`
-        mutation createTaskMessage($taskId: String, $body: String, $userId: String, $files: String) {
-          createTaskMessage(taskId: $taskId, body: $body, userId: $userId, files: $files)
+        mutation createTaskMessage(
+          $taskId: String
+          $body: String
+          $userId: String
+          $files: String
+        ) {
+          createTaskMessage(
+            taskId: $taskId
+            body: $body
+            userId: $userId
+            files: $files
+          )
         }
       `,
       variables: {
@@ -2284,8 +2449,18 @@ export default class GraphqlService {
   createMeetMessage(meetId, body, userId, files) {
     return this.client.mutate({
       mutation: gql`
-        mutation createMeetMessage($meetId: String, $body: String, $userId: String, $files: String) {
-          createMeetMessage(meetId: $meetId, body: $body, userId: $userId, files: $files)
+        mutation createMeetMessage(
+          $meetId: String
+          $body: String
+          $userId: String
+          $files: String
+        ) {
+          createMeetMessage(
+            meetId: $meetId
+            body: $body
+            userId: $userId
+            files: $files
+          )
         }
       `,
       variables: {
