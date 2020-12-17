@@ -128,9 +128,6 @@ export default function DockComponent(props) {
       )}
 
       {teams.map((t, index) => {
-        const unread = !!common.unread
-          .filter(row => t.id == row.doc.team)
-          .flatten()
         const active = t.id == team.id
 
         return (
@@ -142,17 +139,22 @@ export default function DockComponent(props) {
               width: '100%',
               boxSizing: 'border-box',
               paddingTop: 10,
-              paddingBottom: 10,
-              backgroundColor: active ? TEXT_VERY_FADED_WHITE : 'transparent',
+              paddingBottom: 0,
             }}
           >
-            <Avatar
-              badge={unread}
-              size="medium-large"
-              image={t.image}
-              title={t.name}
+            <div
               className="button"
-            />
+              style={{
+                borderRadius: 9,
+                borderColor: active ? TEXT_FADED_WHITE : 'transparent',
+                borderWidth: 2,
+                borderStyle: 'solid',
+                width: 39,
+                height: 39,
+              }}
+            >
+              <Avatar size="medium-large" image={t.image} title={t.name} />
+            </div>
             <Team active={active}>{t.name}</Team>
           </Link>
         )
@@ -221,7 +223,7 @@ const DockPadding = styled.div`
 `
 
 const Dock = styled.div`
-  width: 70px;
+  width: 60px;
   padding-top: 10px;
   padding-bottom: 20px;
   display: flex;

@@ -72,6 +72,7 @@ import {
   AiOutlineFlag,
   AiOutlineCheckCircle,
   AiOutlineCalendar,
+  AiOutlineProject,
 } from 'react-icons/ai'
 
 export function IconComponent({
@@ -97,7 +98,7 @@ export function IconComponent({
         return (
           <AiOutlineFlag size={size} width={size} height={size} color={color} />
         )
-      case 'channels-calendar':
+      case 'calendar-empty':
         return (
           <AiOutlineCalendar
             size={size}
@@ -106,7 +107,7 @@ export function IconComponent({
             color={color}
           />
         )
-      case 'channels-tasks':
+      case 'check-circle':
         return (
           <AiOutlineCheckCircle
             size={size}
@@ -126,7 +127,12 @@ export function IconComponent({
         )
       case 'boards':
         return (
-          <BiColumns size={size} width={size} height={size} color={color} />
+          <AiOutlineProject
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
         )
       case 'corner-down-right':
         return (

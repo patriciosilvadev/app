@@ -416,7 +416,7 @@ class AppPage extends React.Component {
                     >
                       <Pill active={lastUrlPart == 'calendar'}>
                         <IconComponent
-                          icon="calendar"
+                          icon="calendar-empty"
                           color={
                             lastUrlPart == 'calendar' ? 'white' : TEXT_OFF_WHITE
                           }
@@ -459,7 +459,7 @@ class AppPage extends React.Component {
                   >
                     <Pill active={lastUrlPart == 'tasks'}>
                       <IconComponent
-                        icon="double-check"
+                        icon="check-circle"
                         color={
                           lastUrlPart == 'tasks' ? 'white' : TEXT_OFF_WHITE
                         }
@@ -914,6 +914,7 @@ const Bar = styled.div`
   align-content: center;
   align-items: center;
   justify-content: center;
+  height: 60px;
 
   @media only screen and (max-width: 768px) {
     height: fit-content;
@@ -941,7 +942,7 @@ const BarPadding = styled.div`
 const SearchBar = styled.div`
   padding: 10px;
   flex: 1;
-  background-color: ${TEXT_FADED_WHITE};
+  background-color: ${TEXT_VERY_FADED_WHITE};
   margin-left: 0px;
   margin-right: 50px;
   display: flex;
@@ -961,7 +962,7 @@ const SearchBarInput = styled.div`
     height: 100%;
     background: none;
     border: none;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 13px;
     color: white;
   }

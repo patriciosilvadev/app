@@ -1364,7 +1364,7 @@ class ChannelsComponent extends React.Component {
           </NotificationsComponent>
 
           <IconComponent
-            icon="channels-calendar"
+            icon="calendar-empty"
             size={20}
             color={calendarActive ? '#202933' : '#91A0B0'}
             className="button mr-10 ml-10"
@@ -1377,7 +1377,7 @@ class ChannelsComponent extends React.Component {
           />
 
           <IconComponent
-            icon="channels-tasks"
+            icon="check-circle"
             size={20}
             color={tasksActive ? '#202933' : '#91A0B0'}
             className="button mr-10"
