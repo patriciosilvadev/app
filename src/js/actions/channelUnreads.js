@@ -15,9 +15,9 @@ export function createChannelUnread(unread) {
 }
 
 // Gets called from the channel.component (when mounting)
-export function deleteChannelUnread(channelId) {
+export function deleteChannelUnread(channelId, parentId, threaded) {
   return {
     type: 'CHANNEL_DELETE_UNREAD',
-    payload: { channelId },
+    payload: { channelId, parentId, threaded },
   }
 }

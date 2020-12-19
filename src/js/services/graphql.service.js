@@ -676,7 +676,9 @@ export default class GraphqlService {
           channelUnreads(teamId: $teamId, userId: $userId) {
             mention
             channelId
+            parentId
             messageId
+            threaded
           }
         }
       `,
@@ -2081,16 +2083,28 @@ export default class GraphqlService {
     })
   }
 
-  deleteChannelUnread(channelId, userId) {
+  deleteChannelUnread(userId, channelId, parentId, threaded) {
     return this.client.mutate({
       mutation: gql`
-        mutation deleteChannelUnread($channelId: String, $userId: String) {
-          deleteChannelUnread(channelId: $channelId, userId: $userId)
+        mutation deleteChannelUnread(
+          $userId: String
+          $channelId: String
+          $parentId: String
+          $threaded: Boolean
+        ) {
+          deleteChannelUnread(
+            userId: $userId
+            channelId: $channelId
+            parentId: $parentId
+            threaded: $threaded
+          )
         }
       `,
       variables: {
         channelId,
         userId,
+        parentId,
+        threaded,
       },
     })
   }

@@ -294,7 +294,7 @@ class ChannelComponent extends React.Component {
       })
 
       // Clear all the markers for read/unread
-      this.deleteChannelUnread(channelId)
+      this.deleteChannelUnread()
 
       // Set manual scrolling to false & bump page
       this.setState(
@@ -314,12 +314,21 @@ class ChannelComponent extends React.Component {
   async deleteChannelUnread() {
     const channelId = this.props.channel.id
     const userId = this.props.user.id
+    const parentId = null
+    const threaded = false
 
     try {
-      await GraphqlService.getInstance().deleteChannelUnreads(channelId, userId)
+      // parentId is null (so ignore this)
+      // threaded is false
+      await GraphqlService.getInstance().deleteChannelUnreads(
+        userId,
+        channelId,
+        parentId,
+        threaded
+      )
 
       // Add the new messages to the channel
-      this.props.deleteChannelUnread(channelId)
+      this.props.deleteChannelUnread(channelId, parentId, threaded)
     } catch (e) {}
   }
 
@@ -1244,7 +1253,8 @@ ChannelComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  deleteChannelUnread: channelId => deleteChannelUnread(channelId),
+  deleteChannelUnread: (channelId, additionalFilters) =>
+    deleteChannelUnread(channelId, additionalFilters),
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTask: task => hydrateTask(task),
   hydrateMessage: message => hydrateMessage(message),
