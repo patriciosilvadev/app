@@ -35,7 +35,10 @@ export function initialize(userId) {
       if (!message) return
       if (!message.body) return
 
-      showLocalPushNotification('New Message', message.body ? message.body : 'Read now')
+      showLocalPushNotification(
+        'New Message',
+        message.body ? message.body : 'Read now'
+      )
     }
 
     // Tell our current team about our status
@@ -124,8 +127,12 @@ export function initialize(userId) {
     })
 
     // Set up MQTT
-    MessagingService.getInstance().client.on('disconnect', e => dispatch(updateConnected(false)))
-    MessagingService.getInstance().client.on('close', e => dispatch(updateConnected(false)))
+    MessagingService.getInstance().client.on('disconnect', e =>
+      dispatch(updateConnected(false))
+    )
+    MessagingService.getInstance().client.on('close', e =>
+      dispatch(updateConnected(false))
+    )
     MessagingService.getInstance().client.on('connect', () => {
       logger('Connected to broker')
 
@@ -207,18 +214,20 @@ export function initialize(userId) {
               // Update our store with the synced action
               dispatch(action)
 
-              // Handle any reads/unreads here for the DB
+              // Handle any reads/channelUnreads here for the DB
               // And also handle push notices
               if (action.type == 'CREATE_CHANNEL_MESSAGE') {
                 const { channelId, teamId, message } = action.payload
-                const isArchived = getState().user.archived.indexOf(channelId) != -1
+                const isArchived =
+                  getState().user.archived.indexOf(channelId) != -1
                 const isMuted = getState().user.muted.indexOf(channelId) != -1
                 const isCurrentChannel = channelId == getState().channel.id
                 const parentId = message.parent ? message.parent.id : null
                 const isCurrentMessage = getState().message.id == parentId
 
                 // If there is a parent, then use the paren'ts ID and create another unread DB entry
-                if (parentId && !isCurrentMessage) DatabaseService.getInstance().unread(teamId, parentId)
+                if (parentId && !isCurrentMessage)
+                  DatabaseService.getInstance().unread(teamId, parentId)
 
                 // Don't do a PN or unread increment if we are on the same channel
                 // Or if it's an archived message
@@ -231,13 +240,16 @@ export function initialize(userId) {
                 const { timezone, dnd, dndUntil } = getState().user
                 const currentDate = moment()
                 const dndUntilDate = moment(dndUntil).tz(timezone)
-                const currentDateIsAfterDndDate = currentDate.isAfter(dndUntilDate)
+                const currentDateIsAfterDndDate = currentDate.isAfter(
+                  dndUntilDate
+                )
                 const dndIsSet = !!dnd
 
                 // Trigger a push notification
                 // If the DND date is set
                 // And if now is after their date
-                if (dndIsSet && currentDateIsAfterDndDate) showNotification(message)
+                if (dndIsSet && currentDateIsAfterDndDate)
+                  showNotification(message)
 
                 // If it's not set process it
                 if (!dndIsSet) showNotification(message)
@@ -264,7 +276,9 @@ export function initialize(userId) {
               return
 
             // Get the channel data
-            const channel = await GraphqlService.getInstance().channel(channelId)
+            const channel = await GraphqlService.getInstance().channel(
+              channelId
+            )
 
             // If there is an error
             if (!channel.data.channel) return
@@ -322,7 +336,8 @@ export function initialize(userId) {
 
             // Don't navigate them away - simply remove their ability to chat
             // browserHistory.push(`/app/team/${teamId}/`)
-            if (channelId == currentChannelId) dispatch(updateChannel(channelId, { readonly: true }))
+            if (channelId == currentChannelId)
+              dispatch(updateChannel(channelId, { readonly: true }))
           }
           break
 
@@ -358,7 +373,9 @@ export function initialize(userId) {
               return
 
             // Get the channel data
-            const channel = await GraphqlService.getInstance().channel(channelId)
+            const channel = await GraphqlService.getInstance().channel(
+              channelId
+            )
 
             // If there is an error
             if (!channel.data.channel) return
@@ -377,7 +394,10 @@ export function initialize(userId) {
             // Just use the Redux acttion
             const channelId = message.messagePayload
             const userId = getState().user.id
-            const isChannelMember = await GraphqlService.getInstance().isChannelMember(channelId, userId)
+            const isChannelMember = await GraphqlService.getInstance().isChannelMember(
+              channelId,
+              userId
+            )
 
             // Check if this user is a channel member
             // If not, then we leave/delete the channel
@@ -391,37 +411,6 @@ export function initialize(userId) {
           break
       }
     })
-
-    // Get unread count
-    DatabaseService.getInstance()
-      .database.allDocs({ include_docs: true })
-      .then(({ rows }) => {
-        dispatch(updateUnread(rows))
-      })
-      .catch(err => {
-        dispatch(updateError('allDocs DB error'))
-      })
-
-    // If anything changes
-    // Update the channels list
-    DatabaseService.getInstance()
-      .database.changes({
-        live: true,
-        since: 'now',
-      })
-      .on('change', docs => {
-        DatabaseService.getInstance()
-          .database.allDocs({ include_docs: true })
-          .then(({ rows }) => {
-            dispatch(updateUnread(rows))
-          })
-          .catch(err => {
-            dispatch(updateError('allDocs DB error'))
-          })
-      })
-      .on('error', err => {
-        dispatch(updateError('allDocs DB error'))
-      })
   }
 }
 
@@ -451,13 +440,6 @@ export function updateConnected(payload) {
 export function updateToast(payload) {
   return {
     type: 'UPDATE_TOAST',
-    payload: payload,
-  }
-}
-
-export function updateUnread(payload) {
-  return {
-    type: 'UPDATE_UNREAD',
     payload: payload,
   }
 }

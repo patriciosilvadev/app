@@ -12,6 +12,12 @@ import {
 } from '../constants'
 import * as moment from 'moment'
 
+export const getUnreadCountForChannelId = (channelUnreads, channelId) => {
+  return channelUnreads.filter(
+    channelUnread => channelUnread.channelId == channelId
+  ).length
+}
+
 export const getHighestTaskOrder = tasks => {
   return (
     tasks.reduce(

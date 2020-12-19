@@ -33,7 +33,7 @@ import {
   hydrateChannel,
   hydrateMessage,
   hydrateThreads,
-  hydrateUnreads,
+  hydrateChannelUnreads,
   createChannelNotification,
   updateChannelNotification,
   deleteChannelNotification,
@@ -57,6 +57,7 @@ import {
   shortenMarkdownText,
   isExtensionOpen,
   generateInitials,
+  getUnreadCountForChannelId,
 } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
@@ -935,7 +936,7 @@ const SortableItem = SortableElement(
         color={channel.color}
         icon={channel.icon}
         active={active.channelId == channel.id && active.type == type}
-        unread={channel.muted ? 0 : channel.unreadCount}
+        unread={channel.unread}
         name={channel.name}
         image={channel.image}
         excerpt={channel.excerpt}
@@ -1341,10 +1342,11 @@ class ChannelsComponent extends React.Component {
     try {
       // await GraphqlService.getInstance().channels(teamId, userId)
       // Not sure why I was using the above to seperate the calls
-      const channelUnreads = await GraphqlService.getInstance().unreads(
+      const { data } = await GraphqlService.getInstance().channelUnreads(
         teamId,
         userId
       )
+      const channelUnreads = data.channelUnreads
       const team = await GraphqlService.getInstance().teamChannelsComponent(
         teamId,
         userId
@@ -1361,7 +1363,7 @@ class ChannelsComponent extends React.Component {
       // Populate our stores
       this.props.hydrateTeam(team.data.team)
       this.props.hydrateChannels(channels)
-      this.props.hydrateUnreads(channelUnreads)
+      this.props.hydrateChannelUnreads(channelUnreads)
 
       // Cacheed nav info
       const navigation = StorageService.getStorage(NAVIGATE)
@@ -1772,10 +1774,10 @@ class ChannelsComponent extends React.Component {
         </HeadingRow>
 
         {this.state.starred.map((channel, index) => {
-          const unread = this.props.common.unread
-            .filter(row => channel.id == row.doc.channel)
-            .flatten()
-          const unreadCount = unread ? unread.doc.count : 0
+          const unreadCount = getUnreadCountForChannelId(
+            this.props.channelUnreads,
+            channel.id
+          )
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
           const type = 'favourites'
@@ -1815,25 +1817,24 @@ class ChannelsComponent extends React.Component {
     const { pathname } = this.props.history.location
     const userId = this.props.user.id
     const teamId = this.props.team.id
+    const unserializedOrder = StorageService.getStorage(CHANNELS_ORDER)
+    let serializedOrder = unserializedOrder ? JSON.parse(unserializedOrder) : {}
+    const type = 'public'
     const channels = this.state.public.map((channel, index) => {
-      const unread = this.props.common.unread
-        .filter(row => channel.id == row.doc.channel)
-        .flatten()
-      const unreadCount = unread ? unread.doc.count : 0
+      const unread = getUnreadCountForChannelId(
+        this.props.channelUnreads,
+        channel.id
+      )
       const muted = this.props.user.muted.indexOf(channel.id) != -1
       const archived = this.props.user.archived.indexOf(channel.id) != -1
 
       return {
         ...channel,
         unread,
-        unreadCount,
         muted,
         archived,
       }
     })
-    const unserializedOrder = StorageService.getStorage(CHANNELS_ORDER)
-    let serializedOrder = unserializedOrder ? JSON.parse(unserializedOrder) : {}
-    const type = 'public'
 
     return (
       <React.Fragment>
@@ -1968,10 +1969,10 @@ class ChannelsComponent extends React.Component {
         {this.state.private.map((channel, index) => {
           if (this.props.user.starred.indexOf(channel.id) != -1) return
 
-          const unread = this.props.common.unread
-            .filter(row => channel.id == row.doc.channel)
-            .flatten()
-          const unreadCount = unread ? unread.doc.count : 0
+          const unreadCount = getUnreadCountForChannelId(
+            this.props.channelUnreads,
+            channel.id
+          )
           const muted = this.props.user.muted.indexOf(channel.id) != -1
           const archived = this.props.user.archived.indexOf(channel.id) != -1
           const otherUserId = channel.otherUser.id
@@ -2026,10 +2027,10 @@ class ChannelsComponent extends React.Component {
         {this.state.archivedVisible && (
           <React.Fragment>
             {this.state.archived.map((channel, index) => {
-              const unread = this.props.common.unread
-                .filter(row => channel.id == row.doc.channel)
-                .flatten()
-              const unreadCount = unread ? unread.doc.count : 0
+              const unreadCount = getUnreadCountForChannelId(
+                this.props.channelUnreads,
+                channel.id
+              )
               const to = `/app/team/${this.props.team.id}/channel/${channel.id}`
               const muted = this.props.user.muted.indexOf(channel.id) != -1
               const archived =
@@ -2164,7 +2165,7 @@ ChannelsComponent.propTypes = {
   hydrateTeam: PropTypes.func,
   updateUserStatus: PropTypes.func,
   toggleDrawer: PropTypes.func,
-  hydrateUnreads: PropTypes.func,
+  hydrateChannelUnreads: PropTypes.func,
 }
 
 const mapDispatchToProps = {
@@ -2179,7 +2180,8 @@ const mapDispatchToProps = {
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTeam: team => hydrateTeam(team),
   hydrateThreads: threads => hydrateThreads(threads),
-  hydrateUnreads: unreads => hydrateUnreads(unreads),
+  hydrateChannelUnreads: channelUnreads =>
+    hydrateChannelUnreads(channelUnreads),
 }
 
 const mapStateToProps = state => {
@@ -2189,6 +2191,7 @@ const mapStateToProps = state => {
     team: state.team,
     channels: state.channels,
     channel: state.channel,
+    channelUnreads: state.channelUnreads,
     teams: state.teams,
   }
 }

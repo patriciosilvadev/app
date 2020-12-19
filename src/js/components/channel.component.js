@@ -292,7 +292,7 @@ class ChannelComponent extends React.Component {
       })
 
       // Clear all the markers for read/unread
-      DatabaseService.getInstance().read(channelId)
+      // DatabaseService.getInstance().read(channelId)
 
       // Set manual scrolling to false & bump page
       this.setState(

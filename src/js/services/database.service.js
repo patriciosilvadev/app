@@ -84,3 +84,39 @@ export default class DatabaseService {
     return this.instance
   }
 }
+
+/**
+ 
+  // Implementation - leaving it here for reference
+  // Get unread count
+  DatabaseService.getInstance()
+    .database.allDocs({ include_docs: true })
+    .then(({ rows }) => {
+      dispatch(updateUnread(rows))
+    })
+    .catch(err => {
+      dispatch(updateError('allDocs DB error'))
+    })
+
+  // If anything changes
+  // Update the channels list
+  DatabaseService.getInstance()
+    .database.changes({
+      live: true,
+      since: 'now',
+    })
+    .on('change', docs => {
+      DatabaseService.getInstance()
+        .database.allDocs({ include_docs: true })
+        .then(({ rows }) => {
+          dispatch(updateUnread(rows))
+        })
+        .catch(err => {
+          dispatch(updateError('allDocs DB error'))
+        })
+    })
+    .on('error', err => {
+      dispatch(updateError('allDocs DB error'))
+    })
+
+ */

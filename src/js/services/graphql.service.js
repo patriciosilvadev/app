@@ -669,11 +669,11 @@ export default class GraphqlService {
   }
 
   // ⚠️ These do not resolve - we only want the ID
-  unreads(teamId, userId) {
+  channelUnreads(teamId, userId) {
     return this.client.query({
       query: gql`
-        query unreads($teamId: String!, $userId: String!) {
-          unreads(teamId: $teamId, userId: $userId) {
+        query channelUnreads($teamId: String!, $userId: String!) {
+          channelUnreads(teamId: $teamId, userId: $userId) {
             mention
             channelId
           }

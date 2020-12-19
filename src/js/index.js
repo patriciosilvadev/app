@@ -27,6 +27,7 @@ import meet from './reducers/meet'
 import channel from './reducers/channel'
 import message from './reducers/message'
 import channelNotifications from './reducers/channelNotifications'
+import channelUnreads from './reducers/channelUnreads'
 import app from './reducers/app'
 import channels from './reducers/channels'
 import user from './reducers/user'
@@ -47,7 +48,6 @@ import 'react-day-picker/lib/style.css'
 // When we want to debug and nog have other logging pollute the console
 // Set this to true - also affects util.js in the logger method
 window[SILENCE] = true
-window[WEEKDAY_DRAGGED_TASK_ID] = null
 
 // Set up Sentry
 if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })
@@ -84,6 +84,7 @@ const store = createStore(
     message,
     meet,
     channelNotifications,
+    channelUnreads,
   }),
   middleWare
 )

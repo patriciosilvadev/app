@@ -15,10 +15,6 @@ export default (state = initialState, action) =>
         draft.toast = action.payload
         break
 
-      case 'UPDATE_UNREAD':
-        draft.unread = action.payload
-        break
-
       case 'UPDATE_ERROR':
         draft.error = action.payload
         break
