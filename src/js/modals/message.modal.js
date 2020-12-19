@@ -1,9 +1,27 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { IconComponent } from '../components/icon.component'
-import { classNames, logger, getMentions, sortMessagesByCreatedAt } from '../helpers/util'
+import {
+  classNames,
+  logger,
+  getMentions,
+  sortMessagesByCreatedAt,
+} from '../helpers/util'
 import ModalPortal from '../portals/modal.portal'
-import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Avatar, Button, Range } from '@weekday/elements'
+import {
+  Popup,
+  Input,
+  Textarea,
+  Modal,
+  Tabbed,
+  Notification,
+  Spinner,
+  Error,
+  User,
+  Avatar,
+  Button,
+  Range,
+} from '@weekday/elements'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import MessageComponent from '../components/message.component'
@@ -11,7 +29,14 @@ import GraphqlService from '../services/graphql.service'
 import arrayMove from 'array-move'
 import { TASK_ORDER_INDEX, TASKS_ORDER, DEVICE, MIME_TYPES } from '../constants'
 import './message.modal.css'
-import { hydrateMessage, updateMessage, updateMessageAddSubmessage, updateMessageDeleteSubmessage, updateMessageUpdateSubmessage } from '../actions'
+import {
+  deleteChannelUnread,
+  hydrateMessage,
+  updateMessage,
+  updateMessageAddSubmessage,
+  updateMessageDeleteSubmessage,
+  updateMessageUpdateSubmessage,
+} from '../actions'
 import DayPicker from 'react-day-picker'
 import * as moment from 'moment'
 import dayjs from 'dayjs'
@@ -46,6 +71,28 @@ class MessageModal extends React.Component {
     this.scrollToBottom = this.scrollToBottom.bind(this)
     this.handleScrollEvent = this.handleScrollEvent.bind(this)
     this.setUpdateMessage = this.setUpdateMessage.bind(this)
+    this.deleteChannelUnread = this.deleteChannelUnread.bind(this)
+  }
+
+  async deleteChannelUnread() {
+    const channelId = this.props.channel.id
+    const userId = this.props.user.id
+    const parentId = this.props.messageId
+    const threaded = true
+
+    try {
+      // parentId is null (so ignore this)
+      // threaded is false
+      await GraphqlService.getInstance().deleteChannelUnreads(
+        userId,
+        channelId,
+        parentId,
+        threaded
+      )
+
+      // Add the new messages to the channel
+      this.props.deleteChannelUnread(channelId, parentId, threaded)
+    } catch (e) {}
   }
 
   async fetchMessage() {
@@ -53,7 +100,9 @@ class MessageModal extends React.Component {
       this.setState({ loading: true })
 
       const { messageId } = this.props
-      const { data } = await GraphqlService.getInstance().messageMessages(messageId)
+      const { data } = await GraphqlService.getInstance().messageMessages(
+        messageId
+      )
 
       // Update the Redux store
       this.setState({ loading: false })
@@ -137,24 +186,54 @@ class MessageModal extends React.Component {
         </div>
 
         <ModalPortal>
-          <Modal position="right" header={false} title="Task" width={600} height="100%" frameless onClose={this.props.onClose}>
-            {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
+          <Modal
+            position="right"
+            header={false}
+            title="Task"
+            width={600}
+            height="100%"
+            frameless
+            onClose={this.props.onClose}
+          >
+            {this.state.error && (
+              <Error
+                message={this.state.error}
+                onDismiss={() => this.setState({ error: null })}
+              />
+            )}
             {this.state.loading && <Spinner />}
-            {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
+            {this.state.notification && (
+              <Notification
+                text={this.state.notification}
+                onDismiss={() => this.setState({ notification: null })}
+              />
+            )}
 
             <div className="message-modal-container">
               <div className="panels">
                 <div className="panel">
                   <div className="title row align-items-start">
-                    <AvatarComponent title={this.props.message.user.name} image={this.props.message.user.image} size="medium" />
+                    <AvatarComponent
+                      title={this.props.message.user.name}
+                      image={this.props.message.user.image}
+                      size="medium"
+                    />
                     <div className="column flexer pl-20">
                       <div className="user">{this.props.message.user.name}</div>
-                      <div className="body" dangerouslySetInnerHTML={{ __html: this.props.message.body }} />
+                      <div
+                        className="body"
+                        dangerouslySetInnerHTML={{
+                          __html: this.props.message.body,
+                        }}
+                      />
                     </div>
                   </div>
                   <div className="messages">
                     <div className="scrolling">
-                      <div className="inner" ref={ref => (this.scrollRef = ref)}>
+                      <div
+                        className="inner"
+                        ref={ref => (this.scrollRef = ref)}
+                      >
                         <div style={{ height: '100%' }}></div>
 
                         <MessagesComponent
@@ -175,7 +254,11 @@ class MessageModal extends React.Component {
                       update={this.state.update}
                       message={this.state.message}
                       clearMessage={() => {
-                        this.setState({ message: null, update: false, reply: false })
+                        this.setState({
+                          message: null,
+                          update: false,
+                          reply: false,
+                        })
                       }}
                     />
                   </div>
@@ -195,10 +278,14 @@ MessageModal.propTypes = {
   team: PropTypes.any,
   message: PropTypes.any,
   onClose: PropTypes.func,
+  deleteChannelUnread: PropTypes.func,
+  hydrateMessage: PropTypes.func,
 }
 
 const mapDispatchToProps = {
   hydrateMessage: message => hydrateMessage(message),
+  deleteChannelUnread: (channelId, additionalFilters) =>
+    deleteChannelUnread(channelId, additionalFilters),
 }
 
 const mapStateToProps = state => {

@@ -590,10 +590,15 @@ const Channel = props => {
 
             // If this channel has unread messages
             // See if any of those are related to this thread
-            // thread = message || thread.id == message.id
+            // thread = message || thread.id == parent.id
+            // threaded is implicit (true) here if it matches
             const unread = props.unread
               ? !!channelUnreads
-                  .filter(channelUnread => channelUnread.messageId == thread.id)
+                  .filter(
+                    channelUnread =>
+                      channelUnread.parentId == thread.id &&
+                      channelUnread.threaded
+                  )
                   .flatten()
               : false
 

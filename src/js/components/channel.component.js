@@ -1250,6 +1250,7 @@ ChannelComponent.propTypes = {
   hydrateMessage: PropTypes.func,
   closeAppPanel: PropTypes.func,
   hide: PropTypes.bool,
+  deleteChannelUnread: PropTypes.func,
 }
 
 const mapDispatchToProps = {

@@ -22,6 +22,7 @@ import {
   deletePresence,
   createChannelMessage,
   deleteChannelMessage,
+  deleteChannelUnread,
 } from './'
 import mqtt from 'mqtt'
 import { updateChannel } from './channel'
@@ -29,6 +30,30 @@ import { updateChannel } from './channel'
 export function initialize(userId) {
   return async (dispatch, getState) => {
     let cache
+
+    // Delete the channelUnread property from reveviing messages
+    // IF the user is alreadyd on the channel / thread
+    // See action.type == 'CREATE_CHANNEL_MESSAGE' below
+    const deleteChannelUnread = async (
+      userId,
+      channelId,
+      parentId,
+      threaded
+    ) => {
+      try {
+        // parentId is null (so ignore this)
+        // threaded is false
+        await GraphqlService.getInstance().deleteChannelUnreads(
+          userId,
+          channelId,
+          parentId,
+          threaded
+        )
+
+        // Add the new messages to the channel
+        dispatch(deleteChannelUnread(channelId, parentId, threaded))
+      } catch (e) {}
+    }
 
     // Fires a PN popup
     const showNotification = message => {
@@ -222,12 +247,19 @@ export function initialize(userId) {
                   getState().user.archived.indexOf(channelId) != -1
                 const isMuted = getState().user.muted.indexOf(channelId) != -1
                 const isCurrentChannel = channelId == getState().channel.id
+                const userId = getState().user.id
                 const parentId = message.parent ? message.parent.id : null
                 const isCurrentMessage = getState().message.id == parentId
+                const { threaded } = message
 
-                // If there is a parent, then use the paren'ts ID and create another unread DB entry
-                if (parentId && !isCurrentMessage)
-                  DatabaseService.getInstance().unread(teamId, parentId)
+                // If it's in the current channel
+                // Then delete the appropriate UNREAD straight away
+                // parentId (not null) && threaded (false) = reeply
+                // parentId (not null) && threaded (true) = threaded reply
+                // parentId (null) && threaded (false) = normal
+                // SO NOT ALL MESSAGE UNREAD NOTICES WILL BE CLEARLY HERE
+                if (isCurrentChannel)
+                  deleteChannelUnread(userId, channelId, parentId, threaded)
 
                 // Don't do a PN or unread increment if we are on the same channel
                 // Or if it's an archived message
