@@ -127,6 +127,7 @@ const Channel = props => {
     '#1cc7d0',
     '#00a98f',
   ]
+  const doNotDisturb = doNotDisturbUser(user)
 
   const fetchThreads = async () => {
     const {
@@ -328,13 +329,10 @@ const Channel = props => {
   }
 
   const renderUnreadBadge = () => {
-    const { timezone, dnd, dndUntil } = user
-
-    // Do some check for showing the unread
     if (!props.unread) return null
     if (props.unread == 0) return null
     if (props.muted) return null
-    if (doNotDisturbUser(user)) return null
+    if (doNotDisturb) return null
 
     // Otherwise show this
     return <ChannelBadge>{props.unread}</ChannelBadge>
@@ -606,15 +604,16 @@ const Channel = props => {
             // See if any of those are related to this thread
             // thread = message || thread.id == parent.id
             // threaded is implicit (true) here if it matches
-            const unread = props.unread
-              ? !!channelUnreads
-                  .filter(
-                    channelUnread =>
-                      channelUnread.parentId == thread.id &&
-                      channelUnread.threaded
-                  )
-                  .flatten()
-              : false
+            const unread =
+              props.unread && !doNotDisturb
+                ? !!channelUnreads
+                    .filter(
+                      channelUnread =>
+                        channelUnread.parentId == thread.id &&
+                        channelUnread.threaded
+                    )
+                    .flatten()
+                : false
 
             return (
               <Thread
