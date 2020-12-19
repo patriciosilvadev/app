@@ -27,6 +27,7 @@ import {
   createChannelMember,
   updateChannel,
   hydrateChannelMessages,
+  deleteChannelUnread,
 } from '../actions'
 import ComposeComponent from '../components/compose.component'
 import {
@@ -138,6 +139,7 @@ class ChannelComponent extends React.Component {
     this.renderNonTeamMemberNotice = this.renderNonTeamMemberNotice.bind(this)
     this.renderCompose = this.renderCompose.bind(this)
     this.renderMessageModal = this.renderMessageModal.bind(this)
+    this.deleteChannelUnread = this.deleteChannelUnread.bind(this)
   }
 
   async updateChannelShortcode(generateNewCode) {
@@ -292,7 +294,7 @@ class ChannelComponent extends React.Component {
       })
 
       // Clear all the markers for read/unread
-      // DatabaseService.getInstance().read(channelId)
+      this.deleteChannelUnread(channelId)
 
       // Set manual scrolling to false & bump page
       this.setState(
@@ -307,6 +309,18 @@ class ChannelComponent extends React.Component {
     } catch (e) {
       logger(e)
     }
+  }
+
+  async deleteChannelUnread() {
+    const channelId = this.props.channel.id
+    const userId = this.props.user.id
+
+    try {
+      await GraphqlService.getInstance().deleteChannelUnreads(channelId, userId)
+
+      // Add the new messages to the channel
+      this.props.deleteChannelUnread(channelId)
+    } catch (e) {}
   }
 
   async fetchChannelMessages() {
@@ -1230,6 +1244,7 @@ ChannelComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
+  deleteChannelUnread: channelId => deleteChannelUnread(channelId),
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTask: task => hydrateTask(task),
   hydrateMessage: message => hydrateMessage(message),

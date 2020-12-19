@@ -362,11 +362,12 @@ export function initialize(userId) {
         case 'JOIN_PUBLIC_CHANNEL':
           {
             // Just use the Redux acttion
+            // The entire payload here will be the channelId
             const channelId = message.messagePayload
 
-            // If this user is already in this channel, then don't do anything
+            // If this user already has this channel, then don't do anything
             if (
-              getState()
+              !!getState()
                 .channels.filter(channel => channel.id == channelId)
                 .flatten()
             )

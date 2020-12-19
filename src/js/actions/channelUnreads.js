@@ -1,3 +1,4 @@
+// Gets called from the channels.component
 export function hydrateChannelUnreads(channelUnreads) {
   return {
     type: 'CHANNEL_UNREADS',
@@ -5,6 +6,7 @@ export function hydrateChannelUnreads(channelUnreads) {
   }
 }
 
+// Gets called from common (actions)
 export function createChannelUnread(unread) {
   return {
     type: 'CHANNEL_CREATE_UNREAD',
@@ -12,6 +14,7 @@ export function createChannelUnread(unread) {
   }
 }
 
+// Gets called from the channel.component (when mounting)
 export function deleteChannelUnread(channelId) {
   return {
     type: 'CHANNEL_DELETE_UNREAD',
