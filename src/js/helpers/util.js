@@ -9,8 +9,46 @@ import {
   WEEKDAY_DRAGGED_TASK_ID,
   PRESENCES,
   FUTURE_DATE_UNIX_TIME,
+  CHANNEL_NOTIFICATIONS,
 } from '../constants'
 import * as moment from 'moment'
+
+export const doNotDisturbUser = user => {
+  const { timezone, dnd, dndUntil } = user
+
+  if (dnd && !!dndUntil) {
+    const currentDate = moment()
+    const dndUntilDate = moment(dndUntil).tz(timezone)
+    const currentDateIsBeforeDndDate = currentDate.isBefore(dndUntilDate)
+
+    // true if it's
+    // false if it's elapsed
+    return currentDateIsBeforeDndDate
+  } else {
+    return false
+  }
+}
+
+export const shouldShowUnreadNotification = (
+  channelNotifications,
+  channelId,
+  mention
+) => {
+  const channelNotification = channelNotifications.filter(
+    channelNotification => channelNotification.channelId == channelId
+  )[0]
+
+  // If there are nonoe - then YES
+  if (!channelNotification) true
+
+  // Otherwise
+  const { every } = channelNotification
+
+  // Do the checks here
+  if (every == CHANNEL_NOTIFICATIONS.NONE) return false
+  if (every == CHANNEL_NOTIFICATIONS.MESSAGES) return true
+  if (every == CHANNEL_NOTIFICATIONS.MENTIONS) return !!mention
+}
 
 export const getUnreadCountForChannelId = (channelUnreads, channelId) => {
   return channelUnreads.filter(

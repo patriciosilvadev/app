@@ -5,7 +5,11 @@ import { browserHistory } from '../services/browser-history.service'
 import moment from 'moment'
 import EventService from '../services/event.service'
 import StorageService from '../services/storage.service'
-import { showLocalPushNotification, logger } from '../helpers/util'
+import {
+  showLocalPushNotification,
+  logger,
+  shouldShowUnreadNotification,
+} from '../helpers/util'
 import { PRESENCES } from '../constants'
 import {
   closeAppModal,
@@ -23,9 +27,11 @@ import {
   createChannelMessage,
   deleteChannelMessage,
   deleteChannelUnread,
+  createMessageUnread,
 } from './'
 import mqtt from 'mqtt'
 import { updateChannel } from './channel'
+import { createChannelUnread } from './channelUnreads'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -243,14 +249,19 @@ export function initialize(userId) {
               // And also handle push notices
               if (action.type == 'CREATE_CHANNEL_MESSAGE') {
                 const { channelId, teamId, message } = action.payload
-                const isArchived =
-                  getState().user.archived.indexOf(channelId) != -1
-                const isMuted = getState().user.muted.indexOf(channelId) != -1
+                const { body, threaded } = message
+
+                // Check this first!
+                if (!channelId || !teamId) return
+
+                // Otheriwse carry on
                 const isCurrentChannel = channelId == getState().channel.id
-                const userId = getState().user.id
+                const { id, username } = getState().user
+                const userId = id
                 const parentId = message.parent ? message.parent.id : null
-                const isCurrentMessage = getState().message.id == parentId
-                const { threaded } = message
+                const messageId = message.id
+                const channelNotifications = getState().channelNotifications
+                const mention = body.indexOf(`@${username}`) != -1
 
                 // If it's in the current channel
                 // Then delete the appropriate UNREAD straight away
@@ -258,36 +269,34 @@ export function initialize(userId) {
                 // parentId (not null) && threaded (true) = threaded reply
                 // parentId (null) && threaded (false) = normal
                 // SO NOT ALL MESSAGE UNREAD NOTICES WILL BE CLEARLY HERE
-                if (isCurrentChannel)
+                if (isCurrentChannel) {
                   deleteChannelUnread(userId, channelId, parentId, threaded)
+                } else {
+                  // In channels.component the channel will decide to show the notice based on DnD
+                  // This unread will also be createed on the backend - we just want to recreat it here
+                  if (
+                    shouldShowUnreadNotification(
+                      channelNotifications,
+                      channelId,
+                      mention
+                    )
+                  ) {
+                    // If we can disturb the user, then do so by showing a PN
+                    if (!doNotDisturbUser(user)) showNotification(message)
 
-                // Don't do a PN or unread increment if we are on the same channel
-                // Or if it's an archived message
-                // Or if it's muted
-                // Or if it's broken
-                if (isArchived || isMuted || isCurrentChannel) return
-                if (!channelId || !teamId) return
-
-                // Process DO NOT DISTURB TIMES
-                const { timezone, dnd, dndUntil } = getState().user
-                const currentDate = moment()
-                const dndUntilDate = moment(dndUntil).tz(timezone)
-                const currentDateIsAfterDndDate = currentDate.isAfter(
-                  dndUntilDate
-                )
-                const dndIsSet = !!dnd
-
-                // Trigger a push notification
-                // If the DND date is set
-                // And if now is after their date
-                if (dndIsSet && currentDateIsAfterDndDate)
-                  showNotification(message)
-
-                // If it's not set process it
-                if (!dndIsSet) showNotification(message)
-
-                // Create an unread marker
-                DatabaseService.getInstance().unread(teamId, channelId)
+                    // Create the unread - will also be created on the server
+                    // So each time a user logs on they will receive it
+                    dispatch(
+                      createChannelUnread({
+                        mention,
+                        channelId,
+                        parentId,
+                        messageId,
+                        threaded,
+                      })
+                    )
+                  }
+                }
               }
             }
           }

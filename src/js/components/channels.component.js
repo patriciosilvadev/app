@@ -58,6 +58,7 @@ import {
   isExtensionOpen,
   generateInitials,
   getUnreadCountForChannelId,
+  doNotDisturbUser,
 } from '../helpers/util'
 import moment from 'moment'
 import { browserHistory } from '../services/browser-history.service'
@@ -326,6 +327,19 @@ const Channel = props => {
     }
   }
 
+  const renderUnreadBadge = () => {
+    const { timezone, dnd, dndUntil } = user
+
+    // Do some check for showing the unread
+    if (!props.unread) return null
+    if (props.unread == 0) return null
+    if (props.muted) return null
+    if (doNotDisturbUser(user)) return null
+
+    // Otherwise show this
+    return <ChannelBadge>{props.unread}</ChannelBadge>
+  }
+
   return (
     <div className="w-100">
       <ChannelContainer
@@ -565,7 +579,7 @@ const Channel = props => {
         )}
 
         {/* Unread count */}
-        {props.unread > 0 && <ChannelBadge>{props.unread}</ChannelBadge>}
+        {renderUnreadBadge()}
 
         {/* Only if there are threads */}
         {threads.length != 0 && props.active && (
