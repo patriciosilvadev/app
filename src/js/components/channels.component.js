@@ -88,6 +88,7 @@ const Channel = props => {
   const [iconCollapsable, setIconCollapsable] = useState(false)
   const threads = useSelector(state => state.threads)
   const channelNotifications = useSelector(state => state.channelNotifications)
+  const channelUnreads = useSelector(state => state.channelUnreads)
   const user = useSelector(state => state.user)
   const common = useSelector(state => state.common)
   const maxThreads = 3
@@ -587,10 +588,14 @@ const Channel = props => {
           {threads.map((thread, index) => {
             if (!showAllThreads && index >= maxThreads) return
 
-            const unread = common.unread
-              .filter(row => thread.id == row.doc.channel)
-              .flatten()
-            const unreadCount = unread ? unread.doc.count : 0
+            // If this channel has unread messages
+            // See if any of those are related to this thread
+            // thread = message || thread.id == message.id
+            const unread = props.unread
+              ? !!channelUnreads
+                  .filter(channelUnread => channelUnread.messageId == thread.id)
+                  .flatten()
+              : false
 
             return (
               <Thread
@@ -598,7 +603,7 @@ const Channel = props => {
                 onClick={() => handleMessageModalOpen(thread.id)}
               >
                 <ThreadLine color={props.color} />
-                <ThreadText unread={unreadCount}>{thread.body}</ThreadText>
+                <ThreadText unread={unread}>{thread.body}</ThreadText>
               </Thread>
             )
           })}

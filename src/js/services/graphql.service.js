@@ -676,6 +676,7 @@ export default class GraphqlService {
           channelUnreads(teamId: $teamId, userId: $userId) {
             mention
             channelId
+            messageId
           }
         }
       `,
