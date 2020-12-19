@@ -73,6 +73,8 @@ import {
   AiOutlineCheckCircle,
   AiOutlineCalendar,
   AiOutlineProject,
+  AiOutlineMessage,
+  AiOutlineMinusCircle,
 } from 'react-icons/ai'
 
 export function IconComponent({
@@ -238,9 +240,18 @@ export function IconComponent({
         return (
           <BiUserMinus size={size} width={size} height={size} color={color} />
         )
+      case 'message-minus':
+        return (
+          <AiOutlineMinusCircle
+            size={size}
+            width={size}
+            height={size}
+            color={color}
+          />
+        )
       case 'message-circle':
         return (
-          <BiMessageSquareDetail
+          <AiOutlineMessage
             size={size}
             width={size}
             height={size}

@@ -1,7 +1,14 @@
 import GraphqlService from '../services/graphql.service'
 import AuthService from '../services/auth.service'
 import { browserHistory } from '../services/browser-history.service'
-import { updateLoading, updateError, addPresence, deletePresence, updateChannelDeleteTyping } from './'
+import {
+  updateLoading,
+  updateError,
+  addPresence,
+  deletePresence,
+  updateChannelDeleteTyping,
+  hydrateChannelNotifications,
+} from './'
 
 export function updateUserStarred(channelId, starred) {
   return {
@@ -88,6 +95,7 @@ export function fetchUser(userId) {
       }
 
       dispatch(updateLoading(false))
+      dispatch(hydrateChannelNotifications(user.data.user.channelNotifications))
       dispatch({
         type: 'USER',
         payload: user.data.user,

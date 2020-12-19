@@ -78,6 +78,11 @@ export default class GraphqlService {
               address
               confirmed
             }
+            channelNotifications {
+              id
+              channelId
+              every
+            }
             username
             timezone
             password
@@ -95,10 +100,6 @@ export default class GraphqlService {
             image
             createdAt
             updatedAt
-            notifications {
-              every
-              channelId
-            }
           }
         }
       `,
@@ -1637,37 +1638,49 @@ export default class GraphqlService {
     })
   }
 
-  createChannelNotification(payload) {
+  createChannelNotification(userId, channelId, every) {
     return this.client.mutate({
       mutation: gql`
-        mutation createChannelNotification($payload: String) {
-          createChannelNotification(payload: $payload) {
+        mutation createChannelNotification(
+          $userId: String
+          $channelId: String
+          $every: String
+        ) {
+          createChannelNotification(
+            userId: $userId
+            channelId: $channelId
+            every: $every
+          ) {
             id
+            every
+            channelId
           }
         }
       `,
       variables: {
-        payload: JSON.stringify(payload),
+        userId,
+        channelId,
+        every,
       },
     })
   }
 
-  updateChannelNotification(channelNotificationId, payload) {
+  updateChannelNotification(channelNotificationId, every) {
     return this.client.mutate({
       mutation: gql`
         mutation updateChannelNotification(
           $channelNotificationId: String
-          $payload: String
+          $every: String
         ) {
           updateChannelNotification(
             channelNotificationId: $channelNotificationId
-            payload: $payload
+            every: $every
           )
         }
       `,
       variables: {
         channelNotificationId,
-        payload: JSON.stringify(payload),
+        every,
       },
     })
   }

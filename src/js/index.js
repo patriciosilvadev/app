@@ -26,6 +26,7 @@ import teams from './reducers/teams'
 import meet from './reducers/meet'
 import channel from './reducers/channel'
 import message from './reducers/message'
+import channelNotifications from './reducers/channelNotifications'
 import app from './reducers/app'
 import channels from './reducers/channels'
 import user from './reducers/user'
@@ -61,7 +62,10 @@ const logger = createLogger({
 })
 
 // Check for dev
-const middleWare = NODE_ENV == 'development' && !window.SILENCE ? applyMiddleware(thunk, sync, logger) : applyMiddleware(thunk, sync)
+const middleWare =
+  NODE_ENV == 'development' && !window.SILENCE
+    ? applyMiddleware(thunk, sync, logger)
+    : applyMiddleware(thunk, sync)
 
 // Redux with our middlewares
 const store = createStore(
@@ -79,6 +83,7 @@ const store = createStore(
     app,
     message,
     meet,
+    channelNotifications,
   }),
   middleWare
 )
@@ -92,7 +97,8 @@ ReactDOM.render(
         path="/"
         render={props => {
           const { pathname } = props.history.location
-          const isElectron = pathname.split('/')[pathname.split('/').length - 1] == 'index.html'
+          const isElectron =
+            pathname.split('/')[pathname.split('/').length - 1] == 'index.html'
           const isRoot = pathname == '/'
 
           // See if we're at the root so we only do 1 redirect

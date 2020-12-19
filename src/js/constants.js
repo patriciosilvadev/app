@@ -13,7 +13,9 @@ export const LAYOUTS = {
 }
 export const MEMBER_PAGE_LIMIT = 10
 export const IS_CORDOVA = window.hasOwnProperty('cordova')
-export const DEVICE = window.hasOwnProperty('device') ? device.cordova.toUpperCase() : 'WEB'
+export const DEVICE = window.hasOwnProperty('device')
+  ? device.cordova.toUpperCase()
+  : 'WEB'
 export const IS_MOBILE =
   window.innerWidth <= 760 ||
   (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(
@@ -52,3 +54,9 @@ export const TEXT_VERY_FADED_WHITE = 'rgba(255, 255, 255, 0.1)'
 export const TEXT_FADED_WHITE = 'rgba(255, 255, 255, 0.3)'
 export const TEXT_OFF_WHITE = 'rgba(255, 255, 255, 0.8)'
 export const BACKGROUND_FADED_BLACK = 'rgba(0, 0, 0, 0.075)'
+
+export const CHANNEL_NOTIFICATIONS = {
+  MESSAGES: 'MESSAGES',
+  NONE: 'NONE',
+  MENTIONS: 'MENTIONS',
+}

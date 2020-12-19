@@ -34,6 +34,9 @@ import {
   hydrateMessage,
   hydrateThreads,
   hydrateUnreads,
+  createChannelNotification,
+  updateChannelNotification,
+  deleteChannelNotification,
 } from '../actions'
 import TeamModal from '../modals/team.modal'
 import {
@@ -68,18 +71,23 @@ import {
   TEXT_VERY_FADED_WHITE,
   TEXT_OFF_WHITE,
   BACKGROUND_FADED_BLACK,
+  CHANNEL_NOTIFICATIONS,
 } from '../constants'
 
 const Channel = props => {
   const [over, setOver] = useState(false)
   const [menu, setMenu] = useState(false)
+  const [notification, setNotification] = useState(false)
   const [showAllThreads, setShowAllThreads] = useState(false)
   const [collapsedThreads, setCollapsedThreads] = useState(false)
   const [avatarIconColor, setAvatarIconColor] = useState(null)
   const [avatarBackgroundColor, setAvatarBackgroundColor] = useState(null)
+  const [channelNotificationEvery, setChannelNotificationEvery] = useState(null)
   const dispatch = useDispatch()
   const [iconCollapsable, setIconCollapsable] = useState(false)
   const threads = useSelector(state => state.threads)
+  const channelNotifications = useSelector(state => state.channelNotifications)
+  const user = useSelector(state => state.user)
   const common = useSelector(state => state.common)
   const maxThreads = 3
   const icons = [
@@ -197,6 +205,125 @@ const Channel = props => {
     dispatch(hydrateMessage(message))
   }
 
+  const handleMenuIconClick = e => {
+    e.stopPropagation()
+
+    const channelId = props.id
+    const channelNotification = channelNotifications.filter(
+      channelNotification => channelNotification.channelId == channelId
+    )[0]
+    const every = channelNotification ? channelNotification.every : null
+
+    // This might be null - which is correct
+    setChannelNotificationEvery(every)
+    setMenu(true)
+  }
+
+  const handleUpdateUserArchived = async () => {
+    try {
+      const userId = user.id
+      const channelId = props.id
+      const archived = !props.archived
+
+      await GraphqlService.getInstance().updateUserArchived(
+        userId,
+        channelId,
+        archived
+      )
+
+      setMenu(false)
+      dispatch(updateUserArchived(userId, channelId, archived))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleUpdateUserMuted = async () => {
+    try {
+      const userId = user.id
+      const channelId = props.id
+      const muted = !props.muted
+
+      await GraphqlService.getInstance().updateUserMuted(
+        userId,
+        channelId,
+        muted
+      )
+
+      setMenu(false)
+      dispatch(updateUserMuted(userId, channelId, muted))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleChannelNotification = every => {
+    const channelId = props.id
+    const channelNotification = channelNotifications.filter(
+      channelNotification => channelNotification.channelId == channelId
+    )[0]
+
+    // If it doesn't exist, then create it
+    if (!channelNotification) {
+      handleChannelNotificationAdd(every)
+    } else {
+      // It exists, but the EVERY part is different, then update it
+      // ELSE - if it's the same, then we delete the notification
+      if (channelNotification.every != every) {
+        handleChannelNotificationUpdate(channelNotification.id, every)
+      } else {
+        handleChannelNotificationDelete(channelNotification.id)
+      }
+    }
+  }
+
+  const handleChannelNotificationAdd = async every => {
+    try {
+      const userId = user.id
+      const channelId = props.id
+      const channelNotification = await GraphqlService.getInstance().createChannelNotification(
+        userId,
+        channelId,
+        every
+      )
+
+      setMenu(false)
+      dispatch(createChannelNotification(channelNotification))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleChannelNotificationUpdate = async (
+    channelNotificationId,
+    every
+  ) => {
+    try {
+      await GraphqlService.getInstance().updateChannelNotification(
+        channelNotificationId,
+        every
+      )
+
+      setMenu(false)
+      dispatch(updateChannelNotification(channelNotificationId, every))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
+  const handleChannelNotificationDelete = async channelNotificationId => {
+    try {
+      await GraphqlService.getInstance().deleteChannelNotification(
+        channelNotificationId
+      )
+
+      setMenu(false)
+      dispatch(deleteChannelNotification(channelNotificationId))
+    } catch (e) {
+      logger(e)
+    }
+  }
+
   return (
     <div className="w-100">
       <ChannelContainer
@@ -300,7 +427,28 @@ const Channel = props => {
                 <Menu
                   items={[
                     {
-                      text: 'All',
+                      text:
+                        'Mentions' +
+                        (channelNotificationEvery ==
+                        CHANNEL_NOTIFICATIONS.MENTIONS
+                          ? ' (current)'
+                          : ''),
+                      label: 'Notify me of mentions only',
+                      icon: (
+                        <IconComponent icon="at" size={20} color="#aeb5bc" />
+                      ),
+                      onClick: e =>
+                        handleChannelNotification(
+                          CHANNEL_NOTIFICATIONS.MENTIONS
+                        ),
+                    },
+                    {
+                      text:
+                        'Messages' +
+                        (channelNotificationEvery ==
+                        CHANNEL_NOTIFICATIONS.MESSAGES
+                          ? ' (current)'
+                          : ''),
                       label: 'Notify me of all messages',
                       icon: (
                         <IconComponent
@@ -309,21 +457,27 @@ const Channel = props => {
                           color="#aeb5bc"
                         />
                       ),
-                      onClick: e => {
-                        setMenu(false)
-                        props.onMutedClick()
-                      },
+                      onClick: e =>
+                        handleChannelNotification(
+                          CHANNEL_NOTIFICATIONS.MESSAGES
+                        ),
                     },
                     {
-                      text: 'Mentions',
-                      label: 'Notify me of mentions only',
+                      text:
+                        'None' +
+                        (channelNotificationEvery == CHANNEL_NOTIFICATIONS.NONE
+                          ? ' (current)'
+                          : ''),
+                      label: 'Do not notify me at all',
                       icon: (
-                        <IconComponent icon="at" size={20} color="#aeb5bc" />
+                        <IconComponent
+                          icon="message-minus"
+                          size={20}
+                          color="#aeb5bc"
+                        />
                       ),
-                      onClick: e => {
-                        setMenu(false)
-                        props.onMutedClick()
-                      },
+                      onClick: e =>
+                        handleChannelNotification(CHANNEL_NOTIFICATIONS.NONE),
                     },
                   ]}
                 />
@@ -332,17 +486,11 @@ const Channel = props => {
                     items={[
                       {
                         text: props.archived ? 'Unarchive' : 'Archive',
-                        onClick: e => {
-                          setMenu(false)
-                          props.onArchivedClick()
-                        },
+                        onClick: e => handleUpdateUserMuted(),
                       },
                       {
                         text: props.muted ? 'Unmute' : 'Mute',
-                        onClick: e => {
-                          setMenu(false)
-                          props.onMutedClick()
-                        },
+                        onClick: e => handleUpdateUserArchived(),
                       },
                     ]}
                   />
@@ -408,12 +556,7 @@ const Channel = props => {
               </React.Fragment>
             }
           >
-            <ChannelMoreIcon
-              onClick={e => {
-                e.stopPropagation()
-                setMenu(true)
-              }}
-            >
+            <ChannelMoreIcon onClick={handleMenuIconClick}>
               <IconComponent icon="more-h" color="#202933" size={15} />
             </ChannelMoreIcon>
           </Popup>
@@ -802,8 +945,6 @@ const SortableItem = SortableElement(
         muted={channel.muted}
         archived={channel.archived}
         onNavigate={() => onNavigate(channel.id)}
-        onArchivedClick={() => onArchivedClick(channel.id, !channel.archived)}
-        onMutedClick={() => onMutedClick(channel.id, !channel.muted)}
       />
     )
   }
@@ -881,8 +1022,6 @@ class ChannelsComponent extends React.Component {
     this.createChannel = this.createChannel.bind(this)
     this.createPrivateChannel = this.createPrivateChannel.bind(this)
     this.createPublicChannel = this.createPublicChannel.bind(this)
-    this.updateUserMuted = this.updateUserMuted.bind(this)
-    this.updateUserArchived = this.updateUserArchived.bind(this)
     this.updateUserStatus = this.updateUserStatus.bind(this)
     this.updateUserPresence = this.updateUserPresence.bind(this)
     this.updateUserDnd = this.updateUserDnd.bind(this)
@@ -1004,34 +1143,6 @@ class ChannelsComponent extends React.Component {
 
       this.props.updateUserStatus(status)
       this.props.updateChannelUserStatus(userId, teamId, status)
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  async updateUserArchived(userId, channelId, archived) {
-    try {
-      await GraphqlService.getInstance().updateUserArchived(
-        userId,
-        channelId,
-        archived
-      )
-
-      this.props.updateUserArchived(userId, channelId, archived)
-    } catch (e) {
-      logger(e)
-    }
-  }
-
-  async updateUserMuted(userId, channelId, muted) {
-    try {
-      await GraphqlService.getInstance().updateUserMuted(
-        userId,
-        channelId,
-        muted
-      )
-
-      this.props.updateUserMuted(userId, channelId, muted)
     } catch (e) {
       logger(e)
     }
@@ -1691,16 +1802,6 @@ class ChannelsComponent extends React.Component {
               muted={muted}
               archived={archived}
               onNavigate={() => this.navigate(channel.id, type)}
-              onArchivedClick={() =>
-                this.updateUserArchived(
-                  this.props.user.id,
-                  channel.id,
-                  !archived
-                )
-              }
-              onMutedClick={() =>
-                this.updateUserMuted(this.props.user.id, channel.id, !muted)
-              }
             />
           )
         })}
@@ -1784,14 +1885,6 @@ class ChannelsComponent extends React.Component {
             this.setState({ hash: uuidv4() })
           }}
           onNavigate={channelId => this.navigate(channelId, type)}
-          onArchivedClick={(channelId, archived) => {
-            // Archived here would = !channel.archived (so a toggle)
-            this.updateUserArchived(userId, channelId, archived)
-          }}
-          onMutedClick={(channelId, muted) => {
-            // Muted here would = !channel.muted (so a toggle)
-            this.updateUserMuted(userId, channelId, muted)
-          }}
         />
 
         {/*
@@ -1828,8 +1921,6 @@ class ChannelsComponent extends React.Component {
               muted={muted}
               archived={archived}
               onNavigate={() => this.navigate(channel.id)}
-              onArchivedClick={() => this.updateUserArchived(this.props.user.id, channel.id, !archived)}
-              onMutedClick={() => this.updateUserMuted(this.props.user.id, channel.id, !muted)}
             />
           )
         })}
@@ -1907,16 +1998,6 @@ class ChannelsComponent extends React.Component {
               muted={muted}
               archived={archived}
               onNavigate={() => this.navigate(channel.id, type)}
-              onArchivedClick={() =>
-                this.updateUserArchived(
-                  this.props.user.id,
-                  channel.id,
-                  !archived
-                )
-              }
-              onMutedClick={() =>
-                this.updateUserMuted(this.props.user.id, channel.id, !muted)
-              }
             />
           )
         })}
@@ -1979,16 +2060,6 @@ class ChannelsComponent extends React.Component {
                   muted={muted}
                   archived={archived}
                   onNavigate={() => this.navigate(channel.id, type)}
-                  onArchivedClick={e =>
-                    this.updateUserArchived(
-                      this.props.user.id,
-                      channel.id,
-                      !archived
-                    )
-                  }
-                  onMutedClick={() =>
-                    this.updateUserMuted(this.props.user.id, channel.id, !muted)
-                  }
                 />
               )
             })}
@@ -2092,8 +2163,6 @@ ChannelsComponent.propTypes = {
   hydrateThreads: PropTypes.func,
   hydrateTeam: PropTypes.func,
   updateUserStatus: PropTypes.func,
-  updateUserMuted: PropTypes.func,
-  updateUserArchived: PropTypes.func,
   toggleDrawer: PropTypes.func,
   hydrateUnreads: PropTypes.func,
 }
@@ -2105,10 +2174,6 @@ const mapDispatchToProps = {
   updateUserPresence: presence => updateUserPresence(presence),
   updateChannelUserStatus: (userId, teamId, status) =>
     updateChannelUserStatus(userId, teamId, status),
-  updateUserMuted: (userId, channelId, muted) =>
-    updateUserMuted(userId, channelId, muted),
-  updateUserArchived: (userId, channelId, archived) =>
-    updateUserArchived(userId, channelId, archived),
   createChannel: channel => createChannel(channel),
   hydrateChannels: channels => hydrateChannels(channels),
   hydrateChannel: channel => hydrateChannel(channel),
