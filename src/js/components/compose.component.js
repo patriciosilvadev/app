@@ -4,13 +4,39 @@ import { Picker } from 'emoji-mart'
 import styled from 'styled-components'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { openApp, updateLoading, updateError, updateChannelUpdateMessagePin, updateChannel, updateChannelAddTyping, createChannelMessage, updateChannelMessage } from '../actions'
+import {
+  openApp,
+  updateLoading,
+  updateError,
+  updateChannelUpdateMessagePin,
+  updateChannel,
+  updateChannelAddTyping,
+  createChannelMessage,
+  updateChannelMessage,
+} from '../actions'
 import UploadService from '../services/upload.service'
 import GraphqlService from '../services/graphql.service'
 import MessagingService from '../services/messaging.service'
 import Keg from '@joduplessis/keg'
-import { Attachment, Popup, User, Members, Spinner, Error, Notification, Button, MessageMedia, Avatar } from '@weekday/elements'
-import { bytesToSize, parseMessageMarkdown, sendFocusComposeInputEvent, getMentions, logger } from '../helpers/util'
+import {
+  Attachment,
+  Popup,
+  User,
+  Members,
+  Spinner,
+  Error,
+  Notification,
+  Button,
+  MessageMedia,
+  Avatar,
+} from '@weekday/elements'
+import {
+  bytesToSize,
+  parseMessageMarkdown,
+  sendFocusComposeInputEvent,
+  getMentions,
+  logger,
+} from '../helpers/util'
 import { IconComponent } from './icon.component'
 import EventService from '../services/event.service'
 import { DEVICE } from '../environment'
@@ -24,7 +50,7 @@ class ComposeComponent extends React.Component {
     /*
     Placeholder attachment for testing:
     {
-      uri: "https://weekday-users.s3-us-west-2.amazonaws.com/9-3-2020/f955fc10-61dd-11ea-b794-db1c2444a23b.Icon-App-76x76%403x.png",
+      uri: "https://weekday-user-assets.s3-us-west-2.amazonaws.com/20-12-2020/4d7e8b30-42fd-11eb-abe5-7dc762bdb7d3.zapier.png?AWSAccessKeyId=AKIASVCBLB7GH6JHCIWJ&Expires=1608498254&Signature=6gJfBrP7qwIhGsgtCQefZpdAN1o%3D",
       mime: "image/jpeg",
       size: 17361,
       name: "tester.jpg",
@@ -88,7 +114,11 @@ class ComposeComponent extends React.Component {
       const members = [{ user: { name, username, id } }]
 
       // Add this user as a member of the channel
-      await GraphqlService.getInstance().createChannelMembers(channelId, teamId, members)
+      await GraphqlService.getInstance().createChannelMembers(
+        channelId,
+        teamId,
+        members
+      )
 
       // Update the channel as being a member
       this.props.updateChannel(channelId, { isMember: true })
@@ -171,13 +201,26 @@ class ComposeComponent extends React.Component {
       const id = this.props.message ? this.props.message.id : null
       const text = this.state.text
       const attachments = this.state.attachments
-      const parent = this.props.parentMessage.id ? this.props.parentMessage.id : this.props.reply ? (this.props.message ? this.props.message.id : null) : null
+      const parent = this.props.parentMessage.id
+        ? this.props.parentMessage.id
+        : this.props.reply
+        ? this.props.message
+          ? this.props.message.id
+          : null
+        : null
 
       // If it's a reply OR create
-      if (!this.props.update) this.createChannelMessage(this.props.channel.id, text, attachments, parent)
+      if (!this.props.update)
+        this.createChannelMessage(
+          this.props.channel.id,
+          text,
+          attachments,
+          parent
+        )
 
       // If it's an update
-      if (this.props.update) this.updateChannelMessage(this.props.channel.id, id, text, attachments)
+      if (this.props.update)
+        this.updateChannelMessage(this.props.channel.id, id, text, attachments)
 
       // Reset the message
       this.clearMessage()
@@ -199,7 +242,13 @@ class ComposeComponent extends React.Component {
       // If they aree replying within the modal: THREADED
       // If the messagee they are replying to is a thread: THREADED
       // Otherwise not threaded
-      const threaded = this.props.parentMessage.id ? true : this.props.message ? (this.props.message.thread ? true : false) : false
+      const threaded = this.props.parentMessage.id
+        ? true
+        : this.props.message
+        ? this.props.message.thread
+          ? true
+          : false
+        : false
 
       // Create the message
       const { data } = await GraphqlService.getInstance().createChannelMessage({
@@ -221,7 +270,8 @@ class ComposeComponent extends React.Component {
       })
 
       // Catch it
-      if (!data.createChannelMessage) return logger('data.createChannelMessage is null')
+      if (!data.createChannelMessage)
+        return logger('data.createChannelMessage is null')
 
       // The extra values are used for processing other info
       // ⚠️ We are adding the getObject URL from the server in the resolvers
@@ -254,17 +304,20 @@ class ComposeComponent extends React.Component {
       .filter(part => part[0] == '@')
 
     try {
-      const { data } = await GraphqlService.getInstance().updateChannelMessage(messageId, {
-        mentions,
-        body,
-        // ⚠️ Strip the query string
-        attachments: attachments.map(attachment => {
-          return {
-            ...attachment,
-            uri: attachment.uri.split('?')[0],
-          }
-        }),
-      })
+      const { data } = await GraphqlService.getInstance().updateChannelMessage(
+        messageId,
+        {
+          mentions,
+          body,
+          // ⚠️ Strip the query string
+          attachments: attachments.map(attachment => {
+            return {
+              ...attachment,
+              uri: attachment.uri.split('?')[0],
+            }
+          }),
+        }
+      )
 
       // ⚠️ DO NOT STRIP THE QUERY STRING OFF HERE
       // We keep it so other people can get the getObject access code
@@ -299,7 +352,13 @@ class ComposeComponent extends React.Component {
     this.props.clearMessage()
 
     // Reset our state
-    this.setState({ id: null, text: '', members: [], attachments: [], commands: [] })
+    this.setState({
+      id: null,
+      text: '',
+      members: [],
+      attachments: [],
+      commands: [],
+    })
   }
 
   async handleFileChange(e) {
@@ -314,7 +373,11 @@ class ComposeComponent extends React.Component {
 
   insertAtCursor(text) {
     const { selectionStart } = this.composeRef
-    const updatedText = [this.state.text.slice(0, selectionStart), text, this.state.text.slice(selectionStart)].join('')
+    const updatedText = [
+      this.state.text.slice(0, selectionStart),
+      text,
+      this.state.text.slice(selectionStart),
+    ].join('')
 
     // Update the text & clos the menu
     // If it was an emoji, close it
@@ -342,7 +405,8 @@ class ComposeComponent extends React.Component {
     if (keyCode == 16) this.setState({ shift: true })
 
     // Enter & Shift & no member popup
-    if (keyCode == 13 && !this.state.shift && this.state.members.length == 0) this.onSend()
+    if (keyCode == 13 && !this.state.shift && this.state.members.length == 0)
+      this.onSend()
 
     // Enter & Shift
     // TODO ⚠️ - this might be redudant
@@ -354,7 +418,11 @@ class ComposeComponent extends React.Component {
       (keyCode == 32 || keyCode == 13) || // spacebar & return key(s)
       (keyCode > 64 && keyCode < 91) // letter keys
     ) {
-      this.props.updateChannelAddTyping(this.props.channel.id, this.props.user.name, this.props.user.id)
+      this.props.updateChannelAddTyping(
+        this.props.channel.id,
+        this.props.user.name,
+        this.props.user.id
+      )
     }
   }
 
@@ -371,7 +439,9 @@ class ComposeComponent extends React.Component {
       if (text[0] == '/') return this.populateCommands(text)
 
       const { selectionStart } = this.composeRef
-      const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
+      const wordArray = this.composeRef.value
+        .slice(0, selectionStart)
+        .split(' ').length
       const word = this.composeRef.value.split(' ')[wordArray - 1]
       const firstLetter = word[0]
 
@@ -408,8 +478,12 @@ class ComposeComponent extends React.Component {
 
       // and see if they have commands to list for the user
       app.app.commands.map(command => {
-        const matchCommandName = command.name.toLowerCase().match(new RegExp(appShortcodeToMatch + '.*'))
-        const matchAppSlug = app.app.slug.toLowerCase().match(new RegExp(appShortcodeToMatch + '.*'))
+        const matchCommandName = command.name
+          .toLowerCase()
+          .match(new RegExp(appShortcodeToMatch + '.*'))
+        const matchAppSlug = app.app.slug
+          .toLowerCase()
+          .match(new RegExp(appShortcodeToMatch + '.*'))
 
         if (matchCommandName || matchAppSlug) {
           commands.push({
@@ -432,7 +506,8 @@ class ComposeComponent extends React.Component {
 
   replaceWordAtCursor(word) {
     const { selectionStart } = this.composeRef
-    const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ').length
+    const wordArray = this.composeRef.value.slice(0, selectionStart).split(' ')
+      .length
     const mention = this.composeRef.value.split(' ')[wordArray - 1]
     let startingPosition = selectionStart
     let nextChar
@@ -498,13 +573,19 @@ class ComposeComponent extends React.Component {
                     // And pour again to process the next file
                     this.setState(
                       {
-                        attachments: [...this.state.attachments, { uri: res1.url, mime, size, name }],
+                        attachments: [
+                          ...this.state.attachments,
+                          { uri: res1.url, mime, size, name },
+                        ],
                       },
                       () => pour()
                     )
                   })
                   .catch(err => {
-                    this.setState({ error: 'Error getting URL', loading: false })
+                    this.setState({
+                      error: 'Error getting URL',
+                      loading: false,
+                    })
                   })
               })
               .catch(err => {
@@ -528,7 +609,9 @@ class ComposeComponent extends React.Component {
     })
 
     // Here we handle the delay for the yser typing in the mentions
-    this.subscription = this.onSearch$.pipe(debounceTime(1000)).subscribe(username => this.fetchResults(username))
+    this.subscription = this.onSearch$
+      .pipe(debounceTime(1000))
+      .subscribe(username => this.fetchResults(username))
   }
 
   componentWillUnmount() {
@@ -552,15 +635,31 @@ class ComposeComponent extends React.Component {
 
       // If it's a public channel, then we want to search team members
       if (this.props.channel.public && !this.props.channel.private) {
-        const searchTeamMembers = await GraphqlService.getInstance().searchTeamMembers(teamId, username, page)
-        members = searchTeamMembers.data.searchTeamMembers ? searchTeamMembers.data.searchTeamMembers : []
+        const searchTeamMembers = await GraphqlService.getInstance().searchTeamMembers(
+          teamId,
+          username,
+          page
+        )
+        members = searchTeamMembers.data.searchTeamMembers
+          ? searchTeamMembers.data.searchTeamMembers
+          : []
       } else {
-        const searchChannelMembers = await GraphqlService.getInstance().searchChannelMembers(channelId, username, page)
-        members = searchChannelMembers.data.searchChannelMembers ? searchChannelMembers.data.searchChannelMembers : []
+        const searchChannelMembers = await GraphqlService.getInstance().searchChannelMembers(
+          channelId,
+          username,
+          page
+        )
+        members = searchChannelMembers.data.searchChannelMembers
+          ? searchChannelMembers.data.searchChannelMembers
+          : []
       }
 
       // Remove ourselves / cap at 5
-      const filteredMembers = members.filter((member, index) => member.user.username != this.props.user.username).filter((member, index) => index < 5)
+      const filteredMembers = members
+        .filter(
+          (member, index) => member.user.username != this.props.user.username
+        )
+        .filter((member, index) => index < 5)
 
       // Update our users & bump the page
       this.setState({
@@ -600,7 +699,9 @@ class ComposeComponent extends React.Component {
         <UpdateContainer className="row">
           <UpdateText>
             Updating message
-            {this.props.message.parent && <span> - replying to {this.props.message.parent.user.name}</span>}
+            {this.props.message.parent && (
+              <span> - replying to {this.props.message.parent.user.name}</span>
+            )}
           </UpdateText>
           <div className="flexer"></div>
           <UpdateCancel className="button" onClick={this.clearMessage}>
@@ -648,7 +749,12 @@ class ComposeComponent extends React.Component {
 
     return (
       <DrawerContainer>
-        <Members members={this.state.members} handleAccept={member => this.replaceWordAtCursor(`@${member.user.username} `)} />
+        <Members
+          members={this.state.members}
+          handleAccept={member =>
+            this.replaceWordAtCursor(`@${member.user.username} `)
+          }
+        />
       </DrawerContainer>
     )
   }
@@ -682,12 +788,28 @@ class ComposeComponent extends React.Component {
           <ReplyContainer className="row justify-content-center">
             <div className="pl-10 column flexer">
               <div className="row">
-                <ReplyName>{this.props.message.app ? this.props.message.app.name : this.props.message.user.name}</ReplyName>
-                <ReplyMeta>{moment(this.props.message.createdAt).fromNow()}</ReplyMeta>
+                <ReplyName>
+                  {this.props.message.app
+                    ? this.props.message.app.name
+                    : this.props.message.user.name}
+                </ReplyName>
+                <ReplyMeta>
+                  {moment(this.props.message.createdAt).fromNow()}
+                </ReplyMeta>
               </div>
-              <ReplyMessage dangerouslySetInnerHTML={{ __html: parseMessageMarkdown(this.props.message.body) }} />
+              <ReplyMessage
+                dangerouslySetInnerHTML={{
+                  __html: parseMessageMarkdown(this.props.message.body),
+                }}
+              />
             </div>
-            <IconComponent icon="x" size={20} color="#565456" className="ml-15 button" onClick={this.props.clearMessage} />
+            <IconComponent
+              icon="x"
+              size={20}
+              color="#565456"
+              className="ml-15 button"
+              onClick={this.props.clearMessage}
+            />
           </ReplyContainer>
         </ReplyPadding>
       )
@@ -708,12 +830,22 @@ class ComposeComponent extends React.Component {
       <React.Fragment>
         {!this.props.channel.isMember && (
           <JoinContainer>
-            <Button text="Join Channel" theme="muted" onClick={() => this.joinChannel(this.props.channel.id)} />
+            <Button
+              text="Join Channel"
+              theme="muted"
+              onClick={() => this.joinChannel(this.props.channel.id)}
+            />
           </JoinContainer>
         )}
 
         <InputContainer>
-          <input className="hide" ref={ref => (this.fileRef = ref)} type="file" multiple onChange={this.handleFileChange} />
+          <input
+            className="hide"
+            ref={ref => (this.fileRef = ref)}
+            type="file"
+            multiple
+            onChange={this.handleFileChange}
+          />
 
           <Input
             ref={ref => (this.composeRef = ref)}
@@ -735,7 +867,10 @@ class ComposeComponent extends React.Component {
                   <React.Fragment key={index}>
                     {app.app.attachments.map((button, i) => {
                       return (
-                        <AppIconContainer key={i} onClick={() => this.handleActionClick(button.action)}>
+                        <AppIconContainer
+                          key={i}
+                          onClick={() => this.handleActionClick(button.action)}
+                        >
                           <AppIconImage image={button.icon} />
                         </AppIconContainer>
                       )
@@ -751,12 +886,34 @@ class ComposeComponent extends React.Component {
               visible={this.state.emoticonMenu}
               width={350}
               direction="right-top"
-              content={<Picker style={{ width: 350 }} set="emojione" title="" emoji="" showPreview={false} showSkinTones={false} onSelect={emoji => this.insertAtCursor(emoji.colons)} />}
+              content={
+                <Picker
+                  style={{ width: 350 }}
+                  set="emojione"
+                  title=""
+                  emoji=""
+                  showPreview={false}
+                  showSkinTones={false}
+                  onSelect={emoji => this.insertAtCursor(emoji.colons)}
+                />
+              }
             >
-              <IconComponent icon="smile" size={19} color="#565456" className="button" onClick={() => this.setState({ emoticonMenu: true })} />
+              <IconComponent
+                icon="smile"
+                size={19}
+                color="#565456"
+                className="button"
+                onClick={() => this.setState({ emoticonMenu: true })}
+              />
             </Popup>
 
-            <IconComponent icon="attachment" size={18} color="#565456" className="ml-10 button" onClick={() => this.fileRef.click()} />
+            <IconComponent
+              icon="attachment"
+              size={18}
+              color="#565456"
+              className="ml-10 button"
+              onClick={() => this.fileRef.click()}
+            />
 
             <IconComponent
               icon="at"
@@ -769,7 +926,13 @@ class ComposeComponent extends React.Component {
               }}
             />
 
-            <IconComponent icon="send" size={18} color="#565456" className="ml-10 button" onClick={this.onSend} />
+            <IconComponent
+              icon="send"
+              size={18}
+              color="#565456"
+              className="ml-10 button"
+              onClick={this.onSend}
+            />
           </InputContainerIcons>
         </InputContainer>
       </React.Fragment>
@@ -779,9 +942,16 @@ class ComposeComponent extends React.Component {
   renderFooter() {
     return (
       <Footer className="row">
-        <IconComponent icon="markdown" size={20} color="#cfd4d9" className="mr-10" />
+        <IconComponent
+          icon="markdown"
+          size={20}
+          color="#cfd4d9"
+          className="mr-10"
+        />
         <span>
-          <strong>**bold**</strong> <i>*italic*</i> <code>`code`</code> <del>~~strikeout~~</del> !!! priority &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+          <strong>**bold**</strong> <i>*italic*</i> <code>`code`</code>{' '}
+          <del>~~strikeout~~</del> !!! priority &nbsp;&nbsp;&nbsp;
+          &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
           <strong>/</strong> for available commands
         </span>
       </Footer>
@@ -793,9 +963,19 @@ class ComposeComponent extends React.Component {
 
     return (
       <Compose className="column align-items-stretch">
-        {this.state.error && <Error message={this.state.error} onDismiss={() => this.setState({ error: null })} />}
+        {this.state.error && (
+          <Error
+            message={this.state.error}
+            onDismiss={() => this.setState({ error: null })}
+          />
+        )}
         {this.state.loading && <Spinner />}
-        {this.state.notification && <Notification text={this.state.notification} onDismiss={() => this.setState({ notification: null })} />}
+        {this.state.notification && (
+          <Notification
+            text={this.state.notification}
+            onDismiss={() => this.setState({ notification: null })}
+          />
+        )}
 
         {this.renderAttachments()}
         {this.renderUpdate()}
@@ -828,11 +1008,16 @@ ComposeComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  createChannelMessage: (channelId, channelMessage) => createChannelMessage(channelId, channelMessage),
-  updateChannelMessage: (channelId, channelMessage) => updateChannelMessage(channelId, channelMessage),
-  updateChannelAddTyping: (channelId, userName, userId) => updateChannelAddTyping(channelId, userName, userId),
-  updateChannelUpdateMessagePin: (channelId, channelMessage) => updateChannelUpdateMessagePin(channelId, channelMessage),
-  updateChannel: (channelId, updatedChannel) => updateChannel(channelId, updatedChannel),
+  createChannelMessage: (channelId, channelMessage) =>
+    createChannelMessage(channelId, channelMessage),
+  updateChannelMessage: (channelId, channelMessage) =>
+    updateChannelMessage(channelId, channelMessage),
+  updateChannelAddTyping: (channelId, userName, userId) =>
+    updateChannelAddTyping(channelId, userName, userId),
+  updateChannelUpdateMessagePin: (channelId, channelMessage) =>
+    updateChannelUpdateMessagePin(channelId, channelMessage),
+  updateChannel: (channelId, updatedChannel) =>
+    updateChannel(channelId, updatedChannel),
   openApp: action => openApp(action),
 }
 

@@ -11,7 +11,13 @@ export default function PreviewComponent(props) {
     <ModalPortal>
       <PreviewContainer className="row justify-content-center">
         <PreviewClose>
-          <IconComponent icon="x" size={25} color="#8DA2A5" className="button" onClick={props.onClose} />
+          <IconComponent
+            icon="x"
+            size={30}
+            color="white"
+            className="button"
+            onClick={props.onClose}
+          />
         </PreviewClose>
         <PreviewImage image={props.image} />
       </PreviewContainer>
@@ -50,5 +56,6 @@ const PreviewImage = styled.div`
   background-position: center center;
   background-image: url(${props => props.image});
   background-size: contain;
+  background-repeat: no-repeat;
   border-radius: 5px;
 `

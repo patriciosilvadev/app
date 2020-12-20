@@ -436,7 +436,7 @@ const Channel = props => {
           <Popup
             handleDismiss={() => setMenu(false)}
             visible={menu}
-            width={200}
+            width={220}
             direction="right-bottom"
             content={
               <React.Fragment>

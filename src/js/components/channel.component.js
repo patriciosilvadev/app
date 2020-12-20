@@ -1564,7 +1564,7 @@ const AppIconImage = styled.div`
 `
 
 const Dropzone = styled.div`
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   height: 100%;
   width: 100%;
   z-index: 10;
