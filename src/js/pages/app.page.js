@@ -305,12 +305,6 @@ class AppPage extends React.Component {
             </DrawerIcon>
 
             <TeamName>{this.props.team.name}</TeamName>
-
-            {/* <img
-              src="icon-white.svg"
-              width="15"
-              style={{ opacity: 0.5, marginLeft: 15 }}
-            /> */}
           </BarInfo>
 
           {this.props.channel.id && (

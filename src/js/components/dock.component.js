@@ -181,6 +181,12 @@ export default function DockComponent(props) {
       </div>
 
       <div className="flexer"></div>
+
+      <img
+        src="icon-white.svg"
+        width="15"
+        style={{ opacity: 0.5, marginBottom: 15 }}
+      />
     </Dock>
   )
 }
