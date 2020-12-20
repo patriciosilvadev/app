@@ -574,7 +574,7 @@ class ChannelComponent extends React.Component {
       <Header className="row">
         <div className="mr-10" style={{ width: 20 }}>
           <IconComponent
-            icon="star"
+            icon={this.state.starred ? 'star-fill' : 'star'}
             size={20}
             color={this.state.starred ? '#edd264' : '#11161c'}
             onClick={() => this.updateUserStarred(!this.state.starred)}

@@ -81,8 +81,10 @@ export default function DockComponent(props) {
     }
   }, [user.id])
 
+  const channelColor = channel.color || '#112640'
+
   return (
-    <Dock color={channel.color || '#112640'}>
+    <Dock color={channelColor}>
       <Corner>
         <svg
           width="10"
@@ -99,13 +101,14 @@ export default function DockComponent(props) {
         >
           <path
             d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
-            style={{ fill: channel.color || '#112640' }}
+            style={{ fill: channelColor }}
           />
         </svg>
       </Corner>
 
       {!!team.id && (
         <ToggleButton
+          color={channelColor}
           onClick={e => {
             setOpen(!open)
             EventService.getInstance().emit(TOGGLE_CHANNELS_DRAWER, true)
@@ -113,8 +116,8 @@ export default function DockComponent(props) {
         >
           <IconComponent
             icon={open ? 'chevron-left' : 'chevron-right'}
-            size={10}
-            color="#4084ed"
+            size={11}
+            color="white"
             style={{ top: -2 }}
           />
         </ToggleButton>
@@ -196,14 +199,15 @@ const ToggleButton = styled.div`
   position: absolute;
   z-index: 10;
   bottom: 40px;
-  right: 0px;
+  right: 5px;
   width: 20px;
   height: 20px;
   background: white;
+  background: ${props => props.color};
   border-radius: 50%;
   transform: translate(50%, 50%);
   box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.015);
-  border: 3px solid #eaedef;
+  border: 3px solid rgba(255, 255, 255, 0.2);
   transition: border 0.2s;
   cursor: pointer;
   display: flex;

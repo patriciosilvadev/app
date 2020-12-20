@@ -75,6 +75,8 @@ import {
   AiOutlineProject,
   AiOutlineMessage,
   AiOutlineMinusCircle,
+  AiOutlineStar,
+  AiFillStar,
 } from 'react-icons/ai'
 
 export function IconComponent({
@@ -368,7 +370,13 @@ export function IconComponent({
           />
         )
       case 'star':
-        return <BiStar size={size} width={size} height={size} color={color} />
+        return (
+          <AiOutlineStar size={size} width={size} height={size} color={color} />
+        )
+      case 'star-fill':
+        return (
+          <AiFillStar size={size} width={size} height={size} color={color} />
+        )
       case 'search':
         return <BiSearch size={size} width={size} height={size} color={color} />
       case 'markdown':

@@ -979,7 +979,7 @@ const BarInfo = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-right: auto;
-  width: 305px;
+  width: 295px;
 `
 
 const BarExtensions = styled.div`
@@ -1024,6 +1024,11 @@ const Pill = styled.div`
   align-content: center;
   align-items: center;
   justify-content: center;
+
+  &:hover {
+    background-color: ${props =>
+      props.active ? TEXT_FADED_WHITE : TEXT_VERY_FADED_WHITE};
+  }
 
   @media only screen and (max-width: 768px) {
     padding: 7px 5px 7px 10px;

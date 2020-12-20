@@ -335,7 +335,7 @@ const Channel = props => {
     if (doNotDisturb) return null
 
     // Otherwise show this
-    return <ChannelBadge>{props.unread}</ChannelBadge>
+    return <ChannelBadge color={props.color}>{props.unread}</ChannelBadge>
   }
 
   return (
@@ -820,7 +820,7 @@ const ChannelContainerPadding = styled.div`
 const ChannelBadge = styled.div`
   padding: 3px 7px 3px 7px;
   border-radius: 10px;
-  background-color: #007af5;
+  background-color: ${props => props.color || '#122640'};
   font-size: 11px;
   color: white;
   font-weight: 600;
