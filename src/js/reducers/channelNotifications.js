@@ -16,7 +16,7 @@ export default (state = initialState, action) =>
         return state.map(channelNotification => {
           if (channelNotification.id != action.payload.channelNotificationId)
             return channelNotification
-          return { ...channelNotification, every: action.payload.ever }
+          return { ...channelNotification, every: action.payload.every }
         })
 
       case 'DELETE_CHANNEL_NOTIFICATION':

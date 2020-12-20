@@ -47,7 +47,7 @@ import 'react-day-picker/lib/style.css'
 
 // When we want to debug and nog have other logging pollute the console
 // Set this to true - also affects util.js in the logger method
-window[SILENCE] = true
+window[SILENCE] = false
 
 // Set up Sentry
 if (NODE_ENV == 'production') Sentry.init({ dsn: SENTRY_DSN })

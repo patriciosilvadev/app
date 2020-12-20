@@ -285,14 +285,16 @@ const Channel = props => {
     try {
       const userId = user.id
       const channelId = props.id
-      const channelNotification = await GraphqlService.getInstance().createChannelNotification(
+      const {
+        data,
+      } = await GraphqlService.getInstance().createChannelNotification(
         userId,
         channelId,
         every
       )
 
       setMenu(false)
-      dispatch(createChannelNotification(channelNotification))
+      dispatch(createChannelNotification(data.createChannelNotification))
     } catch (e) {
       logger(e)
     }
@@ -500,11 +502,11 @@ const Channel = props => {
                     items={[
                       {
                         text: props.archived ? 'Unarchive' : 'Archive',
-                        onClick: e => handleUpdateUserMuted(),
+                        onClick: e => handleUpdateUserArchived(),
                       },
                       {
                         text: props.muted ? 'Unmute' : 'Mute',
-                        onClick: e => handleUpdateUserArchived(),
+                        onClick: e => handleUpdateUserMuted(),
                       },
                     ]}
                   />
