@@ -2,13 +2,41 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './column.component.css'
 import PropTypes from 'prop-types'
-import { hydrateTasks, createTasks, updateTasks, hydrateTask, createChannelSection, updateChannelSection, deleteChannelSection } from '../../../../actions'
+import {
+  hydrateTasks,
+  createTasks,
+  updateTasks,
+  hydrateTask,
+  createChannelSection,
+  updateChannelSection,
+  deleteChannelSection,
+} from '../../../../actions'
 import arrayMove from 'array-move'
-import { sortTasksByOrder, classNames, logger, getHighestTaskOrder, getPreviousTaskOrder } from '../../../../helpers/util'
+import {
+  sortTasksByOrder,
+  classNames,
+  logger,
+  getHighestTaskOrder,
+  getPreviousTaskOrder,
+} from '../../../../helpers/util'
 import CardComponent from '../card/card.component'
 import { TextareaComponent } from '../../../../components/textarea.component'
 import { IconComponent } from '../../../../components/icon.component'
-import { Popup, Input, Textarea, Modal, Tabbed, Notification, Spinner, Error, User, Menu, Avatar, Button, Range } from '@weekday/elements'
+import {
+  Popup,
+  Input,
+  Textarea,
+  Modal,
+  Tabbed,
+  Notification,
+  Spinner,
+  Error,
+  User,
+  Menu,
+  Avatar,
+  Button,
+  Range,
+} from '@weekday/elements'
 import GraphqlService from '../../../../services/graphql.service'
 import { WEEKDAY_DRAGGED_SECTION_ID } from '../../../../constants'
 
@@ -50,7 +78,10 @@ class ColumnComponent extends React.Component {
     try {
       // If there are no tasks, get the highest order
       // Otherwise get the order based on where the taskIdDraggedOnto sits
-      const order = this.state.tasks.length == 0 ? this.state.highestOrder : getPreviousTaskOrder(this.state.tasks, taskIdDraggedOnto)
+      const order =
+        this.state.tasks.length == 0
+          ? this.state.highestOrder
+          : getPreviousTaskOrder(this.state.tasks, taskIdDraggedOnto)
       const sectionId = this.props.id
       const channelId = this.props.channel.id
       const task = { id: taskId, sectionId, order }
@@ -67,12 +98,17 @@ class ColumnComponent extends React.Component {
   }
 
   draggableIsSection() {
-    return window[WEEKDAY_DRAGGED_SECTION_ID] !== null && window[WEEKDAY_DRAGGED_SECTION_ID] !== undefined
+    return (
+      window[WEEKDAY_DRAGGED_SECTION_ID] !== null &&
+      window[WEEKDAY_DRAGGED_SECTION_ID] !== undefined
+    )
   }
 
   async updateSection() {
-    if (this.state.compose == this.props.title) return this.setState({ compose: '', editable: false })
-    if (this.state.compose == '') return this.setState({ compose: '', editable: false })
+    if (this.state.compose == this.props.title)
+      return this.setState({ compose: '', editable: false })
+    if (this.state.compose == '')
+      return this.setState({ compose: '', editable: false })
 
     const { compose } = this.state
     const { id, order } = this.props
@@ -80,7 +116,12 @@ class ColumnComponent extends React.Component {
     const title = compose
     const channelId = this.props.channel.id
 
-    await GraphqlService.getInstance().updateChannelSection(channelId, sectionId, title, order)
+    await GraphqlService.getInstance().updateChannelSection(
+      channelId,
+      sectionId,
+      title,
+      order
+    )
 
     // Reset the state
     this.setState({ compose: '', editable: false })
@@ -97,19 +138,27 @@ class ColumnComponent extends React.Component {
     const sectionId = this.props.id
     const channelId = this.props.channel.id
     this.setState({ menu: false })
-    await GraphqlService.getInstance().deleteChannelSection(channelId, sectionId)
+    await GraphqlService.getInstance().deleteChannelSection(
+      channelId,
+      sectionId
+    )
     this.props.deleteChannelSection(channelId, sectionId)
   }
 
   async createSection() {
     try {
-      if (this.state.compose == '') return this.setState({ compose: '', editable: false })
+      if (this.state.compose == '')
+        return this.setState({ compose: '', editable: false })
 
       const { compose } = this.state
       const order = this.props.channel.sections.length
       const title = compose
       const channelId = this.props.channel.id
-      const { data } = await GraphqlService.getInstance().createChannelSection(channelId, title, order)
+      const { data } = await GraphqlService.getInstance().createChannelSection(
+        channelId,
+        title,
+        order
+      )
       const section = data.createChannelSection
 
       // Reset the state
@@ -142,7 +191,9 @@ class ColumnComponent extends React.Component {
     // Array is frozen from Redux:
     // https://stackoverflow.com/questions/53420055/error-while-sorting-array-of-objects-cannot-assign-to-read-only-property-2-of/53420326
     const tasks = [...props.tasks]
-    const sectionTasks = tasks.filter(task => (props.id == 'nosection' ? !task.sectionId : task.sectionId == props.id))
+    const sectionTasks = tasks.filter(task =>
+      props.id == 'nosection' ? !task.sectionId : task.sectionId == props.id
+    )
 
     return {
       tasks: sortTasksByOrder(sectionTasks),
@@ -177,7 +228,10 @@ class ColumnComponent extends React.Component {
   }
 
   handleDrop(e) {
-    this.props.updatePosition(window[WEEKDAY_DRAGGED_SECTION_ID], this.props.index)
+    this.props.updatePosition(
+      window[WEEKDAY_DRAGGED_SECTION_ID],
+      this.props.index
+    )
     this.props.shiftIndex(null)
 
     if (!this.draggableIsSection()) return
@@ -199,7 +253,9 @@ class ColumnComponent extends React.Component {
   render() {
     const boardColumnClasses = classNames({
       'board-column': true,
-      'hide': !!window[WEEKDAY_DRAGGED_SECTION_ID] && window[WEEKDAY_DRAGGED_SECTION_ID] == this.props.id,
+      'hide':
+        !!window[WEEKDAY_DRAGGED_SECTION_ID] &&
+        window[WEEKDAY_DRAGGED_SECTION_ID] == this.props.id,
     })
     const columnContainerClasses = classNames({
       'column-container': true,
@@ -235,6 +291,7 @@ class ColumnComponent extends React.Component {
                 ref={ref => (this.composeRef = ref)}
                 onBlur={this.handleBlur}
                 onKeyDown={this.handleKeyDown}
+                style={{ marginTop: 21 }}
               />
             )}
 
@@ -267,7 +324,12 @@ class ColumnComponent extends React.Component {
                     />
                   }
                 >
-                  <IconComponent icon="more-v" color="#e9ecee" size="14" onClick={() => this.setState({ menu: true })} />
+                  <IconComponent
+                    icon="more-v"
+                    color="#e9ecee"
+                    size="14"
+                    onClick={() => this.setState({ menu: true })}
+                  />
                 </Popup>
               </React.Fragment>
             )}
@@ -341,9 +403,12 @@ const mapDispatchToProps = {
   hydrateTask: task => hydrateTask(task),
   createTasks: (channelId, task) => createTasks(channelId, task),
   updateTasks: (channelId, task) => updateTasks(channelId, task),
-  createChannelSection: (channelId, section) => createChannelSection(channelId, section),
-  updateChannelSection: (channelId, section) => updateChannelSection(channelId, section),
-  deleteChannelSection: (channelId, sectionId) => deleteChannelSection(channelId, sectionId),
+  createChannelSection: (channelId, section) =>
+    createChannelSection(channelId, section),
+  updateChannelSection: (channelId, section) =>
+    updateChannelSection(channelId, section),
+  deleteChannelSection: (channelId, sectionId) =>
+    deleteChannelSection(channelId, sectionId),
 }
 
 const mapStateToProps = state => {

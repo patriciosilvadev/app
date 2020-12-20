@@ -278,7 +278,7 @@ class ChannelComponent extends React.Component {
       // Only do this if the channel is privates
       if (data.channel.private) {
         const userId = data.channel.otherUser.id
-        const teamId = this.props.team.id
+        const { teamId } = this.props.match.params
         const isTeamMember = await GraphqlService.getInstance().isTeamMember(
           teamId,
           userId

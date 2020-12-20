@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+const MIN_HEIGHT = 25
+
 export class TextareaComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -11,7 +13,10 @@ export class TextareaComponent extends React.Component {
   componentDidMount() {
     if (this.textareaRef) {
       if (this.textareaRef.style) {
-        const minHeight = this.textareaRef.scrollHeight < 25 ? 25 : this.textareaRef.scrollHeight
+        const minHeight =
+          this.textareaRef.scrollHeight < MIN_HEIGHT
+            ? MIN_HEIGHT
+            : this.textareaRef.scrollHeight
         this.textareaRef.style.height = '1px'
         this.textareaRef.style.height = minHeight + 'px'
 
@@ -23,7 +28,10 @@ export class TextareaComponent extends React.Component {
   render() {
     if (this.textareaRef) {
       if (this.textareaRef.style) {
-        const minHeight = this.textareaRef.scrollHeight < 25 ? 25 : this.textareaRef.scrollHeight
+        const minHeight =
+          this.textareaRef.scrollHeight < MIN_HEIGHT
+            ? MIN_HEIGHT
+            : this.textareaRef.scrollHeight
         this.textareaRef.style.height = '1px'
         this.textareaRef.style.height = minHeight + 'px'
       }

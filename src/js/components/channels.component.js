@@ -1064,6 +1064,14 @@ class ChannelsComponent extends React.Component {
     this.renderDnd = this.renderDnd.bind(this)
     this.navigate = this.navigate.bind(this)
 
+    this.openAccountSettings = this.openAccountSettings.bind(this)
+    this.openTeamSubscription = this.openTeamSubscription.bind(this)
+    this.openTeamSettings = this.openTeamSettings.bind(this)
+    this.openTeamDirectory = this.openTeamDirectory.bind(this)
+    this.signout = this.signout.bind(this)
+    this.openUserMenu = this.openUserMenu.bind(this)
+    this.closeUserMenu = this.closeUserMenu.bind(this)
+
     this.dndOptions = [
       { option: 'Never', value: 0 },
       { option: '1 hour', value: 1 },
@@ -1345,11 +1353,6 @@ class ChannelsComponent extends React.Component {
         hideChannels: !this.state.hideChannels,
       })
     })
-
-    // Debug
-    setTimeout(() => {
-      //this._openTeamSettings()
-    }, 1000)
   }
 
   componentDidUpdate(prevProps) {
@@ -1524,7 +1527,7 @@ class ChannelsComponent extends React.Component {
           />
 
           <Popup
-            handleDismiss={this._closeUserMenu.bind(this)}
+            handleDismiss={this.closeUserMenu}
             visible={this.state.accountMenu}
             width={300}
             direction="left-bottom"
@@ -1724,7 +1727,7 @@ class ChannelsComponent extends React.Component {
                         />
                       ),
                       text: 'Account settings',
-                      onClick: this._openAccountSettings.bind(this),
+                      onClick: this.openAccountSettings,
                     },
                     {
                       icon: (
@@ -1735,14 +1738,14 @@ class ChannelsComponent extends React.Component {
                         />
                       ),
                       text: 'Team settings',
-                      onClick: this._openTeamSettings.bind(this),
+                      onClick: this.openTeamSettings,
                     },
                     {
                       icon: (
                         <IconComponent icon="users" size={20} color="#acb5bd" />
                       ),
                       text: 'Team directory',
-                      onClick: this._openTeamDirectory.bind(this),
+                      onClick: this.openTeamDirectory,
                     },
                     {
                       hide: true,
@@ -1750,7 +1753,7 @@ class ChannelsComponent extends React.Component {
                         <IconComponent icon="flag" size={20} color="#acb5bd" />
                       ),
                       text: 'Team subscription',
-                      onClick: this._openTeamSubscription.bind(this),
+                      onClick: this.openTeamSubscription,
                     },
                     {
                       icon: (
@@ -1761,7 +1764,7 @@ class ChannelsComponent extends React.Component {
                         />
                       ),
                       text: 'Signout',
-                      onClick: this._signout.bind(this),
+                      onClick: this.signout,
                     },
                   ]}
                 />
@@ -1777,7 +1780,7 @@ class ChannelsComponent extends React.Component {
               size={20}
               color="#91A0B0"
               className="button"
-              onClick={this._openUserMenu.bind(this)}
+              onClick={this.openUserMenu}
             />
           </Popup>
         </Header>
@@ -2120,23 +2123,23 @@ class ChannelsComponent extends React.Component {
   // These unbounded functions
   // So we haven't bound these to THIS
   // Just is easier/quicker for now
-  _openAccountSettings() {
+  openAccountSettings() {
     this.setState({ accountMenu: false, accountModal: true })
   }
 
-  _openTeamSubscription() {
+  openTeamSubscription() {
     this.setState({ accountMenu: false, teamModal: true, teamModalStart: 4 })
   }
 
-  _openTeamSettings() {
+  openTeamSettings() {
     this.setState({ accountMenu: false, teamModal: true, teamModalStart: 0 })
   }
 
-  _openTeamDirectory() {
+  openTeamDirectory() {
     this.setState({ accountMenu: false, teamModal: true, teamModalStart: 1 })
   }
 
-  _signout() {
+  signout() {
     this.setState({ accountMenu: false }, async () => {
       await AuthService.signout()
       await GraphqlService.signout()
@@ -2145,11 +2148,11 @@ class ChannelsComponent extends React.Component {
     })
   }
 
-  _openUserMenu() {
+  openUserMenu() {
     this.setState({ accountMenu: true })
   }
 
-  _closeUserMenu() {
+  closeUserMenu() {
     this.setState({ accountMenu: false })
   }
 
