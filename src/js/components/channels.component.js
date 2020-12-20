@@ -430,7 +430,7 @@ const Channel = props => {
         </ChannelContainerPadding>
 
         {/* Popup menu */}
-        {over && props.onMutedClick && props.onArchivedClick && (
+        {over && (
           <Popup
             handleDismiss={() => setMenu(false)}
             visible={menu}
@@ -571,7 +571,7 @@ const Channel = props => {
             }
           >
             <ChannelMoreIcon onClick={handleMenuIconClick}>
-              <IconComponent icon="more-h" color="#202933" size={15} />
+              <IconComponent icon="more-h" color="#91A0B0" size={15} />
             </ChannelMoreIcon>
           </Popup>
         )}
@@ -658,8 +658,6 @@ Channel.propTypes = {
   readonly: PropTypes.bool,
   otherUserId: PropTypes.string,
   onNavigate: PropTypes.any,
-  onMutedClick: PropTypes.any,
-  onArchivedClick: PropTypes.any,
 }
 
 const Threads = styled.div`
@@ -943,14 +941,7 @@ const ChannelMoreIcon = styled.span`
 `
 
 const SortableItem = SortableElement(
-  ({
-    pathname,
-    channel,
-    active,
-    onNavigate,
-    onArchivedClick,
-    onMutedClick,
-  }) => {
+  ({ pathname, channel, active, onNavigate }) => {
     const type = 'public'
 
     return (
@@ -975,14 +966,7 @@ const SortableItem = SortableElement(
 )
 
 const SortableList = SortableContainer(
-  ({
-    channels,
-    active,
-    pathname,
-    onNavigate,
-    onArchivedClick,
-    onMutedClick,
-  }) => {
+  ({ channels, active, pathname, onNavigate }) => {
     return (
       <Ul>
         {channels.map((channel, index) => {
@@ -994,8 +978,6 @@ const SortableList = SortableContainer(
               channel={channel}
               pathname={pathname}
               onNavigate={onNavigate}
-              onArchivedClick={onArchivedClick}
-              onMutedClick={onMutedClick}
             />
           )
         })}

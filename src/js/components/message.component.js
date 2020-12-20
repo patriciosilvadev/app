@@ -98,6 +98,7 @@ export default memo(props => {
   const [ogUrl, setOgUrl] = useState(null)
   const [priority, setPriority] = useState(null)
   const iframeRef = useRef(null)
+  const { teamId } = useParams()
 
   const getMessagePriorityLevel = messageBody => {
     if (!messageBody) return null
@@ -471,6 +472,7 @@ export default memo(props => {
   }
 
   // General app & send info setup
+  // We also handle our message reads here
   useEffect(() => {
     const parseUrls = urlParser(props.message.body)
     const firstUrl = parseUrls ? parseUrls[0] : null
@@ -613,7 +615,6 @@ export default memo(props => {
       const { read, reads } = props.message
       const { id, isMember, totalMembers } = channel
       const channelId = id
-      const { teamId } = useParams()
       const userId = user.id
       const messageId = props.message.id
 
@@ -750,6 +751,27 @@ export default memo(props => {
     }
   }
 
+  const renderMessageReads = () => {
+    return (
+      <React.Fragment>
+        {!props.message.system && (
+          <IconComponent icon="check" size={15} color="#aeb5bc" />
+        )}
+
+        {!props.message.system &&
+          (channel.totalMembers <= props.message.reads ||
+            props.message.read) && (
+            <IconComponent
+              icon="check"
+              size={15}
+              color="#aeb5bc"
+              style={{ marginLeft: -11 }}
+            />
+          )}
+      </React.Fragment>
+    )
+  }
+
   // Render functions for the message component
   // To make thigs easier to understand
   const renderName = () => {
@@ -772,20 +794,7 @@ export default memo(props => {
         </Date>
 
         <div className="row">
-          {!props.message.system && (
-            <IconComponent icon="check" size={15} color="#aeb5bc" />
-          )}
-          {!props.message.system &&
-            (channel.totalMembers <= props.message.reads ||
-              props.message.read) && (
-              <IconComponent
-                icon="check"
-                size={15}
-                color="#aeb5bc"
-                style={{ marginLeft: -11 }}
-              />
-            )}
-
+          {renderMessageReads()}
           {renderDeviceIcons()}
         </div>
       </div>
