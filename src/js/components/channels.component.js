@@ -2288,7 +2288,7 @@ const Heading = styled.div`
 `
 
 const HeadingRow = styled.div`
-  padding-right: 25px;
+  padding-right: 20px;
   display: flex;
   margin-top: 10px;
   flex-direction: row;
