@@ -8,6 +8,7 @@ import ModalPortal from '../portals/modal.portal'
 import { Button, Modal } from '@weekday/elements'
 import { APPSTORE_URL } from '../environment'
 import AuthService from '../services/auth.service'
+import { TEXT_FADED_WHITE } from '../constants'
 
 export default function ToolbarComponent(props) {
   const [buttons, setButtons] = useState([])
@@ -66,22 +67,38 @@ export default function ToolbarComponent(props) {
     setButtons(appButtons)
   }, [channel.apps])
 
+  const channelColor = channel.color || '#112640'
+
   return (
-    <Toolbar className="column" hide={props.hide}>
+    <Toolbar className="column" hide={props.hide} color={channelColor}>
       {store && (
         <ModalPortal>
           <CloseIcon className="button" onClick={() => setStore(false)}>
             <IconComponent icon="x" size={23} color="white" />
           </CloseIcon>
-          <Modal title="Appstore" width="90%" height="90%" header={false} onClose={() => setStore(false)}>
-            <Iframe border="0" src={url ? url : null} width="100%" height="100%"></Iframe>
+          <Modal
+            title="Appstore"
+            width="90%"
+            height="90%"
+            header={false}
+            onClose={() => setStore(false)}
+          >
+            <Iframe
+              border="0"
+              src={url ? url : null}
+              width="100%"
+              height="100%"
+            ></Iframe>
           </Modal>
         </ModalPortal>
       )}
 
       {buttons.map((button, index) => {
         return (
-          <AppIconContainer key={index} onClick={() => handleActionClick(button.action)}>
+          <AppIconContainer
+            key={index}
+            onClick={() => handleActionClick(button.action)}
+          >
             <AppIconImage image={button.icon} />
           </AppIconContainer>
         )
@@ -90,7 +107,7 @@ export default function ToolbarComponent(props) {
       <div className="flexer" />
 
       <AppIconContainer onClick={handleAppStoreClick}>
-        <IconComponent icon="package" size={20} color="#666" />
+        <IconComponent icon="package" size={20} color={TEXT_FADED_WHITE} />
       </AppIconContainer>
     </Toolbar>
   )
@@ -104,8 +121,9 @@ const Toolbar = styled.div`
   align-items: center;
   height: 100%;
   position: relative;
-  border-left: 1px solid #eaedef;
+  border-left: 0px solid #eaedef;
   display: ${props => (props.hide ? 'none' : '')};
+  background: ${props => props.color};
 
   @media only screen and (max-width: 768px) {
     display: none;

@@ -185,7 +185,7 @@ export default function DockComponent(props) {
       <img
         src="icon-white.svg"
         width="15"
-        style={{ opacity: 0.5, marginBottom: 15 }}
+        style={{ opacity: 0.1, marginBottom: 0 }}
       />
     </Dock>
   )

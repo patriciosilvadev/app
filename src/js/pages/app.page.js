@@ -76,6 +76,7 @@ class AppPage extends React.Component {
     this.renderWelcome = this.renderWelcome.bind(this)
     this.renderDisabledUI = this.renderDisabledUI.bind(this)
     this.renderTaskModal = this.renderTaskModal.bind(this)
+    this.renderExtensionsCorner = this.renderExtensionsCorner.bind(this)
   }
 
   async componentDidUpdate(prevProps) {
@@ -520,6 +521,35 @@ class AppPage extends React.Component {
     )
   }
 
+  renderExtensionsCorner() {
+    const channelColor = this.props.channel.color || '#112640'
+
+    return (
+      <Corner>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 20 20"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fillRule: 'evenodd',
+            clipRule: 'evenodd',
+            strokeLinejoin: 'round',
+            strokeMiterlimit: '2',
+            position: 'relative',
+            zIndex: 100,
+          }}
+        >
+          <path
+            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+            style={{ fill: channelColor }}
+          />
+        </svg>
+      </Corner>
+    )
+  }
+
   render() {
     if (!this.props.user) return <Loading show={true} />
     if (!this.props.user.id) return <Loading show={true} />
@@ -647,6 +677,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
+                    {this.renderExtensionsCorner()}
                     <MeetExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -659,6 +690,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
+                    {this.renderExtensionsCorner()}
                     <CalendarExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -671,6 +703,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
+                    {this.renderExtensionsCorner()}
                     <CalendarExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -683,6 +716,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
+                    {this.renderExtensionsCorner()}
                     <TasksExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -695,6 +729,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
+                    {this.renderExtensionsCorner()}
                     <TasksExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -707,6 +742,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
+                    {this.renderExtensionsCorner()}
                     <BoardsExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -760,6 +796,14 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AppPage)
+
+const Corner = styled.div`
+  position: absolute;
+  left: 0px;
+  top: -3px;
+  width: 10px;
+  height: 10px;
+`
 
 const Drawer = styled.div`
   transition: transform 0.25s;
@@ -851,12 +895,13 @@ const ExtensionLayout = styled.div`
       ? 'relative'
       : 'absolute'};
   display: ${props => (props.layout == LAYOUTS.MAIN ? 'flex' : 'block')};
-  border-left: 1px solid #eaedef;
+  border-left: 0px solid #eaedef;
   flex: 1;
   height: 100%;
   background: white;
   left: 0px;
   z-index: 6; /* was 8, was also 1000 */
+  position: relative;
 
   @media only screen and (max-width: 768px) {
     width: 100%;
