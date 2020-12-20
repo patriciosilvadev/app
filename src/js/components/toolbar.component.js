@@ -8,7 +8,7 @@ import ModalPortal from '../portals/modal.portal'
 import { Button, Modal } from '@weekday/elements'
 import { APPSTORE_URL } from '../environment'
 import AuthService from '../services/auth.service'
-import { TEXT_FADED_WHITE } from '../constants'
+import { TEXT_OFF_WHITE } from '../constants'
 
 export default function ToolbarComponent(props) {
   const [buttons, setButtons] = useState([])
@@ -107,7 +107,7 @@ export default function ToolbarComponent(props) {
       <div className="flexer" />
 
       <AppIconContainer onClick={handleAppStoreClick}>
-        <IconComponent icon="package" size={20} color={TEXT_FADED_WHITE} />
+        <IconComponent icon="package" size={20} color={TEXT_OFF_WHITE} />
       </AppIconContainer>
     </Toolbar>
   )
@@ -124,6 +124,7 @@ const Toolbar = styled.div`
   border-left: 0px solid #eaedef;
   display: ${props => (props.hide ? 'none' : '')};
   background: ${props => props.color};
+  width: 40px;
 
   @media only screen and (max-width: 768px) {
     display: none;

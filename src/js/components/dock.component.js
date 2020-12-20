@@ -233,7 +233,7 @@ const DockPadding = styled.div`
 `
 
 const Dock = styled.div`
-  width: 60px;
+  width: 70px;
   padding-top: 10px;
   padding-bottom: 20px;
   display: flex;
