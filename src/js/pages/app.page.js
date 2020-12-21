@@ -670,6 +670,30 @@ class AppPage extends React.Component {
               }}
             />
 
+            {/* Calendar page */}
+            <Route
+              path="/app/team/:teamId/calendar"
+              render={props => {
+                return (
+                  <ExtensionLayout layout={this.state.extensionLayout}>
+                    <CalendarExtension {...props} />
+                  </ExtensionLayout>
+                )
+              }}
+            />
+
+            {/* Tasks page */}
+            <Route
+              path="/app/team/:teamId/tasks"
+              render={props => {
+                return (
+                  <ExtensionLayout layout={this.state.extensionLayout}>
+                    <TasksExtension {...props} />
+                  </ExtensionLayout>
+                )
+              }}
+            />
+
             {/* Video extension */}
             <Route
               path="/app/team/:teamId/channel/:channelId/meet"
@@ -683,19 +707,6 @@ class AppPage extends React.Component {
               }}
             />
 
-            {/* Calendar page */}
-            <Route
-              path="/app/team/:teamId/calendar"
-              render={props => {
-                return (
-                  <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsRoundedCorner()}
-                    <CalendarExtension {...props} />
-                  </ExtensionLayout>
-                )
-              }}
-            />
-
             {/* Calendar extension */}
             <Route
               path="/app/team/:teamId/channel/:channelId/calendar"
@@ -704,19 +715,6 @@ class AppPage extends React.Component {
                   <ExtensionLayout layout={this.state.extensionLayout}>
                     {this.renderExtensionsRoundedCorner()}
                     <CalendarExtension {...props} />
-                  </ExtensionLayout>
-                )
-              }}
-            />
-
-            {/* Tasks page */}
-            <Route
-              path="/app/team/:teamId/tasks"
-              render={props => {
-                return (
-                  <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsRoundedCorner()}
-                    <TasksExtension {...props} />
                   </ExtensionLayout>
                 )
               }}
