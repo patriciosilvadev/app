@@ -76,7 +76,9 @@ class AppPage extends React.Component {
     this.renderWelcome = this.renderWelcome.bind(this)
     this.renderDisabledUI = this.renderDisabledUI.bind(this)
     this.renderTaskModal = this.renderTaskModal.bind(this)
-    this.renderExtensionsCorner = this.renderExtensionsCorner.bind(this)
+    this.renderExtensionsRoundedCorner = this.renderExtensionsRoundedCorner.bind(
+      this
+    )
   }
 
   async componentDidUpdate(prevProps) {
@@ -277,10 +279,6 @@ class AppPage extends React.Component {
   }
 
   renderBar() {
-    if (!this.props.team) return null
-    if (!this.props.team.name) return null
-    if (!this.props.team.role) return null
-
     const { pathname } = this.props.history.location
     const urlParts = pathname.split('/')
     const lastUrlPart = urlParts[urlParts.length - 1].split('?')[0]
@@ -521,7 +519,7 @@ class AppPage extends React.Component {
     )
   }
 
-  renderExtensionsCorner() {
+  renderExtensionsRoundedCorner() {
     const channelColor = this.props.channel.color || '#112640'
 
     return (
@@ -678,7 +676,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsCorner()}
+                    {this.renderExtensionsRoundedCorner()}
                     <MeetExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -691,7 +689,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsCorner()}
+                    {this.renderExtensionsRoundedCorner()}
                     <CalendarExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -704,7 +702,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsCorner()}
+                    {this.renderExtensionsRoundedCorner()}
                     <CalendarExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -717,7 +715,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsCorner()}
+                    {this.renderExtensionsRoundedCorner()}
                     <TasksExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -730,7 +728,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsCorner()}
+                    {this.renderExtensionsRoundedCorner()}
                     <TasksExtension {...props} />
                   </ExtensionLayout>
                 )
@@ -743,7 +741,7 @@ class AppPage extends React.Component {
               render={props => {
                 return (
                   <ExtensionLayout layout={this.state.extensionLayout}>
-                    {this.renderExtensionsCorner()}
+                    {this.renderExtensionsRoundedCorner()}
                     <BoardsExtension {...props} />
                   </ExtensionLayout>
                 )
