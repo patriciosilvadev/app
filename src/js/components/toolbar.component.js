@@ -70,46 +70,70 @@ export default function ToolbarComponent(props) {
   const channelColor = channel.color || '#112640'
 
   return (
-    <Toolbar className="column" hide={props.hide} color={channelColor}>
-      {store && (
-        <ModalPortal>
-          <CloseIcon className="button" onClick={() => setStore(false)}>
-            <IconComponent icon="x" size={23} color="white" />
-          </CloseIcon>
-          <Modal
-            title="Appstore"
-            width="90%"
-            height="90%"
-            header={false}
-            onClose={() => setStore(false)}
+    <React.Fragment>
+      <Toolbar className="column" hide={props.hide}>
+        <Corner>
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 20 20"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              fillRule: 'evenodd',
+              clipRule: 'evenodd',
+              strokeLinejoin: 'round',
+              strokeMiterlimit: '2',
+            }}
           >
-            <Iframe
-              border="0"
-              src={url ? url : null}
-              width="100%"
-              height="100%"
-            ></Iframe>
-          </Modal>
-        </ModalPortal>
-      )}
+            <path
+              d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+              style={{ fill: channelColor }}
+            />
+          </svg>
+        </Corner>
 
-      {buttons.map((button, index) => {
-        return (
-          <AppIconContainer
-            key={index}
-            onClick={() => handleActionClick(button.action)}
-          >
-            <AppIconImage image={button.icon} />
-          </AppIconContainer>
-        )
-      })}
+        {store && (
+          <ModalPortal>
+            <CloseIcon className="button" onClick={() => setStore(false)}>
+              <IconComponent icon="x" size={23} color="white" />
+            </CloseIcon>
+            <Modal
+              title="Appstore"
+              width="90%"
+              height="90%"
+              header={false}
+              onClose={() => setStore(false)}
+            >
+              <Iframe
+                border="0"
+                src={url ? url : null}
+                width="100%"
+                height="100%"
+              ></Iframe>
+            </Modal>
+          </ModalPortal>
+        )}
 
-      <div className="flexer" />
+        {buttons.map((button, index) => {
+          return (
+            <AppIconContainer
+              key={index}
+              onClick={() => handleActionClick(button.action)}
+            >
+              <AppIconImage image={button.icon} />
+            </AppIconContainer>
+          )
+        })}
 
-      <AppIconContainer onClick={handleAppStoreClick}>
-        <IconComponent icon="package" size={20} color={TEXT_OFF_WHITE} />
-      </AppIconContainer>
-    </Toolbar>
+        <div className="flexer" />
+
+        <AppIconContainer onClick={handleAppStoreClick}>
+          <IconComponent icon="package" size={20} color={channelColor} />
+        </AppIconContainer>
+      </Toolbar>
+      <ToolbarPadding color={channelColor}></ToolbarPadding>
+    </React.Fragment>
   )
 }
 
@@ -117,14 +141,29 @@ ToolbarComponent.propTypes = {
   hide: PropTypes.bool,
 }
 
+const Corner = styled.div`
+  position: absolute;
+  right: 0px;
+  top: -3px;
+  width: 15px;
+  height: 10px;
+  transform: rotateY(180deg);
+`
+
+const ToolbarPadding = styled.div`
+  background: ${props => props.color};
+  width: 10px;
+  height: 100%;
+`
+
 const Toolbar = styled.div`
   align-items: center;
   height: 100%;
   position: relative;
-  border-left: 0px solid #eaedef;
+  border-left: 1px solid #eaedef;
   display: ${props => (props.hide ? 'none' : '')};
-  background: ${props => props.color};
-  width: 40px;
+  width: 50px;
+  padding-top: 20px;
 
   @media only screen and (max-width: 768px) {
     display: none;
@@ -132,8 +171,8 @@ const Toolbar = styled.div`
 `
 
 const AppIconContainer = styled.div`
-  padding: 5px;
-  margin: 5px 15px 5px 15px;
+  padding: 0px;
+  margin-bottom: 20px;
   cursor: pointer;
   opacity: 1;
   transition: opacity 0.25s;
@@ -144,7 +183,7 @@ const AppIconContainer = styled.div`
   display: flex;
 
   &:first-child {
-    margin-top: 15px;
+    margin-top: 20px;
   }
 
   &:last-child {

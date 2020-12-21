@@ -83,7 +83,7 @@ class MessageModal extends React.Component {
     try {
       // parentId is null (so ignore this)
       // threaded is false
-      await GraphqlService.getInstance().deleteChannelUnreads(
+      await GraphqlService.getInstance().deleteChannelUnread(
         userId,
         channelId,
         parentId,
@@ -92,7 +92,9 @@ class MessageModal extends React.Component {
 
       // Add the new messages to the channel
       this.props.deleteChannelUnread(channelId, parentId, threaded)
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async fetchMessage() {
@@ -115,7 +117,7 @@ class MessageModal extends React.Component {
       })
 
       // Remove the unread count
-      DatabaseService.getInstance().read(messageId)
+      this.deleteChannelUnread()
     } catch (e) {
       this.setState({
         error: 'Error fetching messages',
@@ -284,8 +286,8 @@ MessageModal.propTypes = {
 
 const mapDispatchToProps = {
   hydrateMessage: message => hydrateMessage(message),
-  deleteChannelUnread: (channelId, additionalFilters) =>
-    deleteChannelUnread(channelId, additionalFilters),
+  deleteChannelUnread: (channelId, parentId, threaded) =>
+    deleteChannelUnread(channelId, parentId, threaded),
 }
 
 const mapStateToProps = state => {

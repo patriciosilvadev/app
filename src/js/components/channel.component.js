@@ -320,7 +320,7 @@ class ChannelComponent extends React.Component {
     try {
       // parentId is null (so ignore this)
       // threaded is false
-      await GraphqlService.getInstance().deleteChannelUnreads(
+      await GraphqlService.getInstance().deleteChannelUnread(
         userId,
         channelId,
         parentId,
@@ -329,7 +329,9 @@ class ChannelComponent extends React.Component {
 
       // Add the new messages to the channel
       this.props.deleteChannelUnread(channelId, parentId, threaded)
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async fetchChannelMessages() {
@@ -1205,27 +1207,6 @@ class ChannelComponent extends React.Component {
           {this.renderHeader()}
           {this.renderNonTeamMemberNotice()}
 
-          <Corner>
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 20 20"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{
-                fillRule: 'evenodd',
-                clipRule: 'evenodd',
-                strokeLinejoin: 'round',
-                strokeMiterlimit: '2',
-              }}
-            >
-              <path
-                d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
-                style={{ fill: this.props.channel.color }}
-              />
-            </svg>
-          </Corner>
-
           <ChannelBodyContainer>
             <ChannelBody ref={ref => (this.dropZone = ref)}>
               {this.renderDropzone()}
@@ -1275,8 +1256,8 @@ ChannelComponent.propTypes = {
 }
 
 const mapDispatchToProps = {
-  deleteChannelUnread: (channelId, additionalFilters) =>
-    deleteChannelUnread(channelId, additionalFilters),
+  deleteChannelUnread: (channelId, parentId, threaded) =>
+    deleteChannelUnread(channelId, parentId, threaded),
   hydrateChannel: channel => hydrateChannel(channel),
   hydrateTask: task => hydrateTask(task),
   hydrateMessage: message => hydrateMessage(message),
@@ -1304,15 +1285,6 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ChannelComponent)
-
-const Corner = styled.div`
-  position: absolute;
-  right: 0px;
-  top: -3px;
-  width: 10px;
-  height: 10px;
-  transform: rotateY(180deg);
-`
 
 const ChannelContainer = styled.div`
   height: 100%;

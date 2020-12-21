@@ -74,6 +74,7 @@ import {
   TEXT_OFF_WHITE,
   BACKGROUND_FADED_BLACK,
   CHANNEL_NOTIFICATIONS,
+  LAYOUTS,
 } from '../constants'
 
 const Channel = props => {
@@ -1046,6 +1047,7 @@ class ChannelsComponent extends React.Component {
     this.renderPrivate = this.renderPrivate.bind(this)
     this.renderArchived = this.renderArchived.bind(this)
     this.renderDnd = this.renderDnd.bind(this)
+    this.renderRoundedCorner = this.renderRoundedCorner.bind(this)
     this.navigate = this.navigate.bind(this)
 
     this.openAccountSettings = this.openAccountSettings.bind(this)
@@ -2104,6 +2106,35 @@ class ChannelsComponent extends React.Component {
     )
   }
 
+  renderRoundedCorner() {
+    if (this.props.extensionLayout != LAYOUTS.MAIN) return null
+
+    const channelColor = this.props.channel.color || '#112640'
+
+    return (
+      <Corner>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 20 20"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fillRule: 'evenodd',
+            clipRule: 'evenodd',
+            strokeLinejoin: 'round',
+            strokeMiterlimit: '2',
+          }}
+        >
+          <path
+            d="M10,0C8.89,0.004 7.786,0.183 6.736,0.546C5.346,1.026 4.068,1.818 3.016,2.846C1.92,3.915 1.075,5.234 0.566,6.678C0.197,7.725 0.011,8.827 0,9.935L0,10L0,0L10,0Z"
+            style={{ fill: channelColor }}
+          />
+        </svg>
+      </Corner>
+    )
+  }
+
   // These unbounded functions
   // So we haven't bound these to THIS
   // Just is easier/quicker for now
@@ -2146,6 +2177,7 @@ class ChannelsComponent extends React.Component {
         hideChannels={this.state.hideChannels}
         color={this.props.channel.color}
       >
+        {this.renderRoundedCorner()}
         {this.renderAccountModal()}
         {this.renderTeamModal()}
         {this.renderHeader()}
@@ -2176,6 +2208,7 @@ ChannelsComponent.propTypes = {
   updateUserStatus: PropTypes.func,
   toggleDrawer: PropTypes.func,
   hydrateChannelUnreads: PropTypes.func,
+  extensionLayout: PropTypes.string,
 }
 
 const mapDispatchToProps = {
@@ -2210,6 +2243,15 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ChannelsComponent)
+
+const Corner = styled.div`
+  position: absolute;
+  right: -1px;
+  top: -3px;
+  width: 15px;
+  height: 10px;
+  transform: rotateY(180deg);
+`
 
 const Channels = styled.div`
   display: flex;

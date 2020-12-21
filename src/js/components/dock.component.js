@@ -141,8 +141,9 @@ export default function DockComponent(props) {
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              paddingTop: 10,
+              paddingTop: 0,
               paddingBottom: 0,
+              marginBottom: 10,
             }}
           >
             <div
@@ -234,7 +235,7 @@ const DockPadding = styled.div`
 
 const Dock = styled.div`
   width: 70px;
-  padding-top: 10px;
+  padding-top: 0px;
   padding-bottom: 20px;
   display: flex;
   height: 100%;
@@ -259,7 +260,7 @@ const Dock = styled.div`
 `
 
 const Team = styled.div`
-  margin-top: 5px;
+  margin-top: 50x;
   font-size: 10px;
   font-weight: ${props => (props.active ? '800' : '500')};
   color: ${props => (props.active ? 'white' : TEXT_FADED_WHITE)};

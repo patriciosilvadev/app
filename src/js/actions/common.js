@@ -28,10 +28,10 @@ import {
   deleteChannelMessage,
   deleteChannelUnread,
   createMessageUnread,
+  createChannelUnread,
 } from './'
 import mqtt from 'mqtt'
 import { updateChannel } from './channel'
-import { createChannelUnread } from './channelUnreads'
 
 export function initialize(userId) {
   return async (dispatch, getState) => {
@@ -40,7 +40,7 @@ export function initialize(userId) {
     // Delete the channelUnread property from reveviing messages
     // IF the user is alreadyd on the channel / thread
     // See action.type == 'CREATE_CHANNEL_MESSAGE' below
-    const deleteChannelUnread = async (
+    const deleteChannelUnreadWithApi = async (
       userId,
       channelId,
       parentId,
@@ -49,7 +49,7 @@ export function initialize(userId) {
       try {
         // parentId is null (so ignore this)
         // threaded is false
-        await GraphqlService.getInstance().deleteChannelUnreads(
+        await GraphqlService.getInstance().deleteChannelUnread(
           userId,
           channelId,
           parentId,
@@ -270,7 +270,12 @@ export function initialize(userId) {
                 // parentId (null) && threaded (false) = normal
                 // SO NOT ALL MESSAGE UNREAD NOTICES WILL BE CLEARLY HERE
                 if (isCurrentChannel) {
-                  deleteChannelUnread(userId, channelId, parentId, threaded)
+                  deleteChannelUnreadWithApi(
+                    userId,
+                    channelId,
+                    parentId,
+                    threaded
+                  )
                 } else {
                   // In channels.component the channel will decide to show the notice based on DnD
                   // This unread will also be createed on the backend - we just want to recreat it here

@@ -617,6 +617,7 @@ class AppPage extends React.Component {
                   return (
                     <ChannelsComponent
                       {...props}
+                      extensionLayout={this.state.extensionLayout}
                       toggleDrawer={() =>
                         this.setState({ drawer: !this.state.drawer })
                       }
@@ -971,7 +972,7 @@ const BarInner = styled.div`
   flex: 1;
   border-radius: 10px;
   padding: 5px;
-  margin: 8px;
+  margin: 5px;
 `
 
 const BarPadding = styled.div`
@@ -1018,7 +1019,7 @@ const BarInfo = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-right: auto;
-  width: 295px;
+  width: 310px;
 `
 
 const BarExtensions = styled.div`
