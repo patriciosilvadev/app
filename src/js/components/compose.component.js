@@ -29,6 +29,7 @@ import {
   Button,
   MessageMedia,
   Avatar,
+  Menu,
 } from '@weekday/elements'
 import {
   bytesToSize,
@@ -59,6 +60,7 @@ class ComposeComponent extends React.Component {
     this.state = {
       id: null,
       emoticonMenu: false,
+      appsMenu: false,
       scrollHeight: 0,
       attachments: [],
       parent: [],
@@ -91,6 +93,7 @@ class ComposeComponent extends React.Component {
     this.focusComposeInput = this.focusComposeInput.bind(this)
     this.fetchResults = this.fetchResults.bind(this)
     this.populateCommands = this.populateCommands.bind(this)
+    this.getAppsForAppsMenu = this.getAppsForAppsMenu.bind(this)
 
     this.onSearch$ = new Subject()
     this.subscription = null
@@ -818,6 +821,34 @@ class ComposeComponent extends React.Component {
     return null
   }
 
+  getAppsForAppsMenu() {
+    const menuItems = []
+
+    this.props.channel.apps
+      .filter(app => app.active)
+      .map((app, index) => {
+        if (!app.active) return
+        if (!app.app.attachments) return
+        if (app.app.attachments.length == 0) return
+
+        app.app.attachments.map((button, i) => {
+          menuItems.push({
+            hide: false,
+            icon: <AppIconImage image={button.icon} />,
+            text: button.text,
+            label: button.action.name,
+            onClick: e =>
+              this.handleActionClick({
+                ...button.action,
+                token: app.token,
+              }),
+          })
+        })
+      })
+
+    return menuItems
+  }
+
   renderInput() {
     if (this.composeRef) {
       if (this.composeRef.style) {
@@ -825,6 +856,8 @@ class ComposeComponent extends React.Component {
         this.composeRef.style.height = this.composeRef.scrollHeight + 'px'
       }
     }
+
+    const appMenuItems = this.getAppsForAppsMenu()
 
     return (
       <React.Fragment>
@@ -857,27 +890,23 @@ class ComposeComponent extends React.Component {
           />
 
           <InputContainerIcons>
-            {this.props.channel.apps
-              .filter(app => app.active)
-              .map((app, index) => {
-                if (!app.app.attachments) return
-                if (app.app.attachments.length == 0) return
-
-                return (
-                  <React.Fragment key={index}>
-                    {app.app.attachments.map((button, i) => {
-                      return (
-                        <AppIconContainer
-                          key={i}
-                          onClick={() => this.handleActionClick(button.action)}
-                        >
-                          <AppIconImage image={button.icon} />
-                        </AppIconContainer>
-                      )
-                    })}
-                  </React.Fragment>
-                )
-              })}
+            {appMenuItems.length > 0 && (
+              <Popup
+                handleDismiss={() => this.setState({ appsMenu: false })}
+                visible={this.state.appsMenu}
+                width={275}
+                direction="right-top"
+                content={<Menu items={appMenuItems} />}
+              >
+                <IconComponent
+                  icon="more-v"
+                  size={19}
+                  color="#565456"
+                  className="button"
+                  onClick={() => this.setState({ appsMenu: true })}
+                />
+              </Popup>
+            )}
 
             <div style={{ width: 10 }} />
 

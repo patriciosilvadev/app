@@ -118,6 +118,7 @@ class ChannelComponent extends React.Component {
     this.updateUserStarred = this.updateUserStarred.bind(this)
     this.updateChannelShortcode = this.updateChannelShortcode.bind(this)
     this.updateChannelReadonly = this.updateChannelReadonly.bind(this)
+    this.getAppsForHeaderMenu = this.getAppsForHeaderMenu.bind(this)
 
     this.onDragOver = this.onDragOver.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
@@ -550,10 +551,9 @@ class ChannelComponent extends React.Component {
   renderHeader() {
     if (!this.state.open) return null
 
+    const channelColor = this.props.channel.color || '#112640'
     const muted = this.props.user.muted.indexOf(this.props.channel.id) != -1
-    const avatarColor = this.props.channel.private
-      ? null
-      : this.props.channel.color
+    const avatarColor = channelColor
     const avatarImage = this.props.channel.private
       ? this.props.channel.otherUser.image
       : null
@@ -664,34 +664,6 @@ class ChannelComponent extends React.Component {
         </div>
 
         <div className="flexer"></div>
-
-        {this.props.channel.apps
-          .filter(app => app.active)
-          .map((app, index) => {
-            if (!app.active) return
-            if (!app.app.shortcuts) return
-            if (app.app.shortcuts.length == 0) return
-
-            return (
-              <React.Fragment key={index}>
-                {app.app.shortcuts.map((button, i) => {
-                  return (
-                    <HeaderButton
-                      key={i}
-                      onClick={() =>
-                        this.handleActionClick({
-                          ...button.action,
-                          token: app.token,
-                        })
-                      }
-                    >
-                      <AppIconImage image={button.icon} />
-                    </HeaderButton>
-                  )
-                })}
-              </React.Fragment>
-            )
-          })}
 
         <HeaderButton
           className="row"
@@ -886,6 +858,7 @@ class ChannelComponent extends React.Component {
                                 channelMenu: false,
                               }),
                           },
+                          ...this.getAppsForHeaderMenu(),
                         ]}
                       />
                     </div>
@@ -909,6 +882,34 @@ class ChannelComponent extends React.Component {
         )}
       </Header>
     )
+  }
+
+  getAppsForHeaderMenu() {
+    const menuItems = []
+
+    this.props.channel.apps
+      .filter(app => app.active)
+      .map((app, index) => {
+        if (!app.active) return
+        if (!app.app.shortcuts) return
+        if (app.app.shortcuts.length == 0) return
+
+        app.app.shortcuts.map((button, i) => {
+          menuItems.push({
+            hide: false,
+            icon: <AppIconImage image={button.icon} />,
+            text: button.text,
+            label: button.action.name,
+            onClick: e =>
+              this.handleActionClick({
+                ...button.action,
+                token: app.token,
+              }),
+          })
+        })
+      })
+
+    return menuItems
   }
 
   renderPinnedMessages() {
